@@ -308,6 +308,12 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   .seg{overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none}
   .seg::-webkit-scrollbar{display:none}
   .seg button{flex:none; white-space:nowrap}
+  /* La marca (logo + nombre) ya se ve en el header fijo de arriba (.launcher);
+     repetirla aquí debajo duplicaba el logo/título dos veces seguidas. */
+  .brand .brand-logo,.brand h1,.brand .est{display:none}
+  .brand{padding:10px 16px}
+  .brand form{margin-left:auto!important}
+  .mnu-head-row{display:none}
 }
 </style>
 
