@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Sitting Castell Vidal",
-  description: "Editor del plano de mesas para bodas y eventos de Castell Vidal.",
+  title: "Sitting Les Moles Events",
+  description: "Editor del plano de mesas para bodas y eventos de Les Moles Events.",
 };
 
 export default function RootLayout({ children }) {
