@@ -1845,10 +1845,7 @@ function openExport(kind){
     .catch(function(){ caps=null; })
     .then(function(){
       if(!alive) return;
-      if(caps) say('<b>Descargar PDF</b> te pedirá confirmación y guardará el archivo en tu carpeta de descargas.');
-      else say('<b>La descarga directa no está disponible en esta página.</b> Suele ser porque el artifact está compartido con enlace público: '+
-        'la plataforma no deja que una página pública entregue archivos. Mientras tanto, <b>guarda cada hoja con clic derecho → «Guardar imagen como…»</b> '+
-        '(en móvil, mantén el dedo encima).','warn');
+      say('Se guardará en tu carpeta de descargas.');
     });
 
   /* dibujo: espera a las tipografías, va hoja a hoja y se puede abortar */
@@ -1960,8 +1957,24 @@ function deliver(name,data){
   try{ w=(window.claude&&window.claude.use)?window.claude.use("downloads"):null; }
   catch(e){ w=null; }
   return Promise.resolve(w).then(function(dl){
-    if(!dl) return Promise.reject({code:"unavailable"});
-    return dl.save({filename:name,data:data});
+    if(dl) return dl.save({filename:name,data:data});
+    return nativeDownload(name,data);
+  });
+}
+/* Fuera de un artifact de Claude (como esta web) "window.claude" no existe:
+   se descarga con el mecanismo normal del navegador (Blob + enlace temporal),
+   que en una página real como esta no está bloqueado. */
+function nativeDownload(name,data){
+  return new Promise(function(resolve,reject){
+    try{
+      var blob=(data instanceof Blob)?data:new Blob([data],{type:/\.pdf$/i.test(name)?"application/pdf":"application/octet-stream"});
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement("a");
+      a.href=url; a.download=name; a.style.display="none";
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ a.parentNode&&a.parentNode.removeChild(a); URL.revokeObjectURL(url); },1000);
+      resolve({status:"saved"});
+    }catch(e){ reject({code:"unavailable",message:e&&e.message}); }
   });
 }
 
