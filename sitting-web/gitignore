@@ -1,0 +1,21 @@
+# dependencias
+/node_modules
+
+# build de Next.js
+/.next/
+/out/
+
+# datos locales de desarrollo (fallback cuando no hay DATABASE_URL) — nunca debe subirse
+/.data/
+
+# variables de entorno locales (secretos)
+.env
+.env.local
+.env.*.local
+
+# artefactos de los tests (capturas, descargas, informes)
+/test-results/
+/playwright-report/
+
+# sistema
+.DS_Store
