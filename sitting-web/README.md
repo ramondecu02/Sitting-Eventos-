@@ -93,6 +93,14 @@ del salón" sigue forzando vertical; que Deshacer revierte el giro; y que cambia
 el tamaño de la sala a mano no gira el plano de golpe. Se lanza igual:
 `node test_exterior_orient.js`.
 
+`test_servicio_mobiliario.js` comprueba el bloque de **mobiliario y utensilios
+de estación** del check list de Servicio: que el material para montar una
+estación es fijo (1 cubo, 2 boles… lo mismo para 30 que para 300 comensales)
+mientras que la comida de esa misma estación sí se multiplica por comensal;
+que la cubertería de los segundos cambia sola según haya carne y pescado o un
+solo segundo plato; y que las estaciones aún sin datos se nombran una a una en
+vez de callarse. Se lanza igual: `node test_servicio_mobiliario.js`.
+
 ## Qué se queda fuera, de momento
 
 El **plano de fondo** (la imagen del restaurante que se sube desde "Subir
@@ -115,3 +123,21 @@ lib/auth.js            firma y comprobación de la cookie de sesión
 lib/storage.js         guardado en Postgres (o archivo local en desarrollo)
 lib/url.js             construye URLs absolutas a partir de la petición real
 ```
+
+## De dónde salen los datos del check list de Servicio
+
+Dentro de `sitting.html`, junto al catálogo de platos:
+
+- `CATALOGO_DATA` — qué plato de servicio y qué cubierto lleva cada plato del
+  menú, y con qué base se multiplica (COMENSAL / MESA APERITIVO / MESA
+  BANQUETE / PLATO / EVENTO). Sale del Excel `CHECK_LIST_EVENTOS`.
+- `MOBILIARIO_DATA` — qué hace falta para **montar** cada estación (el cubo,
+  la tabla, el abreostras…), que es cosa distinta de la comida que se sirve en
+  ella: la comida se escala por comensal, el material de la estación no. Sale
+  del Excel `Parametros_Inventario_Mobiliario_LesMoles`. Cada regla dice
+  cuándo aparece: con un plato concreto (`plato`), con cualquier plato de una
+  estación (`estacion`), o siempre (`evento`).
+
+Para añadir una estación nueva basta con añadir su regla a `MOBILIARIO_DATA`.
+Las que no estén puestas no se inventan: la propia hoja de Servicio las nombra
+para que se vea qué falta por rellenar.

@@ -272,6 +272,9 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .mnu-ing-table td.q{text-align:right; font-variant-numeric:tabular-nums; color:var(--c-mut); white-space:nowrap}
 .mnu-ing-table.sm{margin-left:22px; width:calc(100% - 22px)}
 .mnu-ing-table .chk{margin-right:6px; color:var(--gold-p)}
+.mnu-sheet-sec{font-family:"Cormorant Garamond",serif; font-size:19px; font-weight:600; margin:22px 0 2px; padding-top:14px; border-top:1px solid var(--c-line-2)}
+.mnu-base{font-family:inherit; font-size:10px; font-weight:400; letter-spacing:.04em; text-transform:uppercase; color:var(--c-mut); white-space:nowrap}
+.mnu-ing-table td.q .q-libre{font-style:italic}
 .mnu-steps{margin:0; padding-left:18px; color:var(--ink-soft); line-height:1.7}
 .mnu-steps li{margin-bottom:2px}
 
@@ -2905,6 +2908,101 @@ function renderCompra(){
   wirePrintBtn();
 }
 
+/* ══ mobiliario y utensilios para MONTAR cada estación ═══════════════
+   Es cosa distinta de la comida que se sirve en ella. La comida se escala
+   por comensal (de eso ya se encargan Producción y Compra: si el escandallo
+   dice n ostras por comensal, 70 comensales son 70n ostras). El material
+   para tener la estación montada y organizada —el cubo, la tabla, el
+   abreostras, los boles— es el mismo se monte para 30 o para 300: por eso
+   su base es EVENTO y no se multiplica por nadie.
+
+   Cada regla dice QUÉ material hace falta y CUÁNDO aparece: cuando está
+   marcado un plato concreto ("plato"), cuando está marcada cualquier cosa de
+   una estación ("estacion"), o siempre ("evento").
+
+   Fuente: Parametros_Inventario_Mobiliario_LesMoles.xlsx (Ramon, 27/08/2026).
+   Las estaciones que todavía no están rellenas no se inventan: la hoja de
+   Servicio las nombra una a una para que se vea exactamente qué falta. */
+var MOBILIARIO_DATA=[
+  { nombre:"Buffet de ostras",
+    cuando:{tipo:"plato", valor:"Buffet de ostras del Delta del Ebro"},
+    base:"EVENTO",
+    mobiliario:[{art:"Cubo de basura",uds:1}],
+    utensilios:[{art:"Tabla azul pequeña",uds:1},{art:"Abreostras",uds:1},
+                {art:"Bol inox con agua y sal",uds:2},{art:"Bayeta",uds:1},
+                {art:"Hielo picado",uds:null},{art:"Trapo blanco",uds:1}],
+    nota:"Material para montar la estación: el mismo tanto si el evento es de 30 como de 300 comensales. Las ostras que se sirven sí van por comensal — están en Producción y en Compra." },
+
+  { nombre:"Montaje de cada mesa de banquete",
+    cuando:{tipo:"evento"},
+    base:"MESA BANQUETE",
+    mobiliario:[{art:"Mesa de banquete",uds:1},{art:"Mantel azul",uds:1},
+                {art:"Cubremantel",uds:1},{art:"Mantel blanco",uds:1}],
+    utensilios:[] },
+
+  { nombre:"Puesto de cada comensal",
+    cuando:{tipo:"evento"},
+    base:"COMENSAL",
+    mobiliario:[{art:"Silla",uds:1}],
+    utensilios:[{art:"Copa de vino blanco",uds:1},{art:"Copa de cava",uds:1},
+                {art:"Copa de vino tinto",uds:1},{art:"Vaso de agua",uds:1},
+                {art:"Cucharilla pequeña",uds:1}],
+    cubiertosSegundos:true }
+];
+/* la cubertería de los segundos depende del menú, no es una cantidad fija:
+   dos cuchillos y dos tenedores si se sirve carne Y pescado; si solo hay un
+   segundo plato, un cuchillo, un tenedor y una cuchara grande */
+function cubiertosDeSegundos(sel){
+  var fam={}; sel.forEach(function(d){ fam[d._famKey]=1; });
+  var dos=!!(fam["CARNES"]&&fam["PESCADOS"]);
+  return { dos:dos,
+    motivo: dos?"hay carne y pescado en el menú":"solo hay un segundo plato",
+    items: dos?[{art:"Cuchillo",uds:2},{art:"Tenedor",uds:2}]
+              :[{art:"Cuchillo",uds:1},{art:"Tenedor",uds:1},{art:"Cuchara grande",uds:1}] };
+}
+function mobiliarioBloques(){
+  var sel=selectedDishes(), t=evTotals(), out=[];
+  var platos={}, estaciones={};
+  sel.forEach(function(d){ platos[d.name]=1; if(d.station) estaciones[d.station]=1; });
+  MOBILIARIO_DATA.forEach(function(r){
+    var c=r.cuando, activa = c.tipo==="evento" ? true
+                           : c.tipo==="plato"  ? !!platos[c.valor]
+                           : c.tipo==="estacion"? !!estaciones[c.valor] : false;
+    if(!activa) return;
+    var mult = r.base==="COMENSAL"      ? t.total
+             : r.base==="MESA BANQUETE" ? t.mesasBanq
+             : r.base==="MESA APERITIVO"? t.mesasAper : 1;
+    if(!mult) return;                       /* sin comensales/mesas no hay nada que montar */
+    var items=[];
+    (r.mobiliario||[]).forEach(function(i){ items.push({art:i.art,uds:i.uds==null?null:i.uds*mult,mob:true}); });
+    (r.utensilios||[]).forEach(function(i){ items.push({art:i.art,uds:i.uds==null?null:i.uds*mult}); });
+    var nota=r.nota;
+    if(r.cubiertosSegundos){
+      var cs=cubiertosDeSegundos(sel);
+      cs.items.forEach(function(i){ items.push({art:i.art,uds:i.uds*mult}); });
+      nota=(nota?nota+" ":"")+"Cuchillos y tenedores: "+(cs.dos?"dos de cada":"uno de cada, más cuchara grande")+" porque "+cs.motivo+".";
+    }
+    out.push({nombre:r.nombre, base:r.base, mult:mult, items:items, nota:nota});
+  });
+  return out;
+}
+/* estaciones que están en el menú del evento pero de las que todavía no hay
+   datos de mobiliario — se nombran en vez de callarlas, para que se vea qué
+   queda por rellenar en el Excel */
+function estacionesSinMobiliario(){
+  var sel=selectedDishes(), porEstacion={}, porPlato={};
+  MOBILIARIO_DATA.forEach(function(r){
+    if(r.cuando.tipo==="estacion") porEstacion[r.cuando.valor]=1;
+    if(r.cuando.tipo==="plato") porPlato[r.cuando.valor]=1;
+  });
+  var falta={};
+  sel.forEach(function(d){
+    if(!d.station||porEstacion[d.station]||porPlato[d.name]) return;
+    falta[d.station]=1;
+  });
+  return Object.keys(falta).sort(function(a,b){return a.localeCompare(b,"es");});
+}
+
 /* ══ Servicio: platos y cubiertos, según el catálogo de material ═════ */
 function splitArticles(s){
   if(isDash(s)) return [];
@@ -2935,9 +3033,27 @@ function renderServicio(){
       list.map(function(a){ return '<tr><td><span class="chk">☐</span>'+esc(a)+'</td><td class="q">'+fmtNum(Math.round(counts[a]),0)+' uds</td></tr>'; }).join("")+
       '</tbody></table>';
   }
+  /* mobiliario y utensilios para montar cada estación */
+  var bloques=mobiliarioBloques(), pend=estacionesSinMobiliario();
+  function uds(n){ if(n==null) return '<span class="q-libre">a ojo</span>';
+    n=Math.round(n); return fmtNum(n,0)+(n===1?' ud':' uds'); }
+  var mob=bloques.map(function(b){
+    var cab=esc(b.nombre)+' <span class="mnu-base">'+
+      (b.base==="EVENTO"?"una vez por evento"
+       :b.base==="COMENSAL"?("× "+b.mult+" comensales")
+       :b.base==="MESA BANQUETE"?("× "+b.mult+" mesas de banquete")
+       :("× "+b.mult+" mesas de aperitivo"))+'</span>';
+    return '<h3 class="mnu-sheet-fam">'+cab+'</h3><table class="mnu-ing-table"><tbody>'+
+      b.items.map(function(i){
+        return '<tr><td><span class="chk">☐</span>'+esc(i.art)+(i.mob?' <span class="mnu-base">mobiliario</span>':'')+'</td><td class="q">'+uds(i.uds)+'</td></tr>';
+      }).join("")+'</tbody></table>'+
+      (b.nota?('<p class="mnu-note">'+esc(b.nota)+'</p>'):'');
+  }).join("");
+
   var html=printBar("check list de servicio")+'<div class="sheet"><div class="frame">'+docHead("Check list de servicio",t)+
     (platos.length||cubiertos.length?(block("Platos",platos)+block("Cubiertos",cubiertos)):'<p class="mnu-note">Los platos marcados no tienen vajilla o cubiertos asociados en el Excel.</p>')+
-    '<p class="mnu-note" style="margin-top:14px">No incluye mobiliario ni utensilios de estación (carro de helados, brasa, pinzas, manteles…) — esa relación vive en una hoja oculta del Excel que no he podido leer con fiabilidad. Revísalo en <b>CHECK LIST SERVICIO</b> del Excel.</p>'+
+    (mob?('<h2 class="mnu-sheet-sec">Mobiliario y utensilios de estación</h2>'+mob):'')+
+    (pend.length?('<p class="mnu-note" style="margin-top:14px">Todavía sin datos de mobiliario propio: <b>'+pend.map(esc).join("</b>, <b>")+'</b>. Se completan rellenando esas estaciones en el Excel de parámetros.</p>'):'')+
     '<div class="foot">Les Moles Events</div></div></div>';
   $("mnu-body").innerHTML=html;
   wirePrintBtn();
