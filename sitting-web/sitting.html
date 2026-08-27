@@ -1328,13 +1328,21 @@ function effScale(num){ var p=plan(); return (p.scale||1)*userSize*(p.size[num]|
 /* contorno de la sala de la plantilla "17 mesas" (tomado del plano del restaurante) y punto de entrada;
    qué ubicación usa esta plantilla lo decide plan().template, no está fijado a interior ni exterior */
 var SALON={L:100,R:861,T:150,B:1290,dx:627,dy:573,g1:640,g2:800};
-/* la plantilla se encaja (sin deformarse) en la zona útil de la sala actual */
+/* la plantilla se encaja (sin deformarse) en la zona útil de la sala actual.
+   En horizontal ("l") se gira la forma real 90° en vez de solo encogerla
+   dentro de una caja ancha — así el chaflán sigue siendo el mismo chaflán
+   real, solo que tumbado, igual que si giraras el plano en papel. fx/fy
+   reciben ahora las dos coordenadas porque al girar ya no son independientes
+   (la x nueva depende de la y vieja, y viceversa). */
 function salonMap(){
-  var S=SALON, pw=S.R-S.L, ph=S.B-S.T;
+  var S=SALON, land=plan().orient==="l";
+  var pw=land?(S.B-S.T):(S.R-S.L), ph=land?(S.R-S.L):(S.B-S.T);
   var aw=RW-96, ah=RH-BT-104;
   var k=Math.min(aw/pw,ah/ph);
-  var ox=(RW-pw*k)/2-S.L*k, oy=BT+(ah-ph*k)/2-S.T*k;
-  return {k:k,fx:function(x){return ox+x*k;},fy:function(y){return oy+y*k;}};
+  var ox=(RW-pw*k)/2, oy=BT+(ah-ph*k)/2;
+  function fx(x,y){ return land?ox+(S.B-y)*k:ox+(x-S.L)*k; }
+  function fy(x,y){ return land?oy+(x-S.L)*k:oy+(y-S.T)*k; }
+  return {k:k,fx:fx,fy:fy};
 }
 /* hueco de puerta en la pared izquierda + flecha «ENTRADA» señalando hacia dentro de la sala.
    Se dibuja DENTRO del margen de trabajo (a la derecha del hueco): fuera de la pared no siempre
@@ -1352,7 +1360,7 @@ function wallPrims(){
   if(p.template==="s17"){
     /* contorno real de la sala de 17 mesas, con su chaflán (sin marca de entrada: aquí no la hay) */
     var S=SALON, m=salonMap(), sw=Math.max(2.6,5.5*m.k);
-    function seg(x1,y1,x2,y2,c,w){ it.push(LN(m.fx(x1),m.fy(y1),m.fx(x2),m.fy(y2),c||W,w||sw)); }
+    function seg(x1,y1,x2,y2,c,w){ it.push(LN(m.fx(x1,y1),m.fy(x1,y1),m.fx(x2,y2),m.fy(x2,y2),c||W,w||sw)); }
     seg(S.L,S.B,S.R,S.B); seg(S.R,S.B,S.R,S.dy); seg(S.R,S.dy,S.dx,S.T); seg(S.dx,S.T,S.L,S.T);
     seg(S.L,S.T,S.L,S.B);
     return it;
@@ -2451,14 +2459,18 @@ $("tpl").addEventListener("change",function(){
 $("salon").addEventListener("click",function(){
   pushUndo();
   var p=plan();
-  if(orientOf()!=="p"){ p.orient="p"; setRoom(); }
+  /* si estaba en apaisado hay que recalcular también el tamaño de la sala
+     (rw/rh), no solo el orient — si no, setRoom() se queda con las medidas
+     apaisadas aunque orient ya diga "p" (mismo mecanismo que usan los
+     botones Vertical/Apaisado de arriba) */
+  if(orientOf()!=="p") setRoomSize(960,1400);
   setRoom();
   var m=salonMap(), COLS=[208,437,638], ROWS=[1170,992,814,634,456,274];
   p.scale=0.8*Math.min(1.35,Math.max(.5,m.k)); setUserSize(1);
   var nums=doc.tables.map(function(t){return t.num;}).sort(function(a,b){return a-b;});
   nums.forEach(function(n,i){
     var col=Math.floor(i/6), row=i%6;
-    if(col<COLS.length) p.pos[n]={x:Math.round(m.fx(COLS[col])),y:Math.round(m.fy(ROWS[row]))};
+    if(col<COLS.length) p.pos[n]={x:Math.round(m.fx(COLS[col],ROWS[row])),y:Math.round(m.fy(COLS[col],ROWS[row]))};
   });
   render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
   toast("Mesas colocadas en las 3 columnas de la sala.",false,"Deshacer",undo);

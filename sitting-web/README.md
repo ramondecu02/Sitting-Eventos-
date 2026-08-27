@@ -83,6 +83,12 @@ igual. Instrucciones dentro de cada archivo; se lanzan con
 `node test_web.js` / `node test_smoke.js` con el servidor arrancado en el
 puerto 3200.
 
+`test_exterior_orient.js` comprueba, con el mismo servidor, que el plano
+exterior ("Sala 17 mesas") gira correctamente entre vertical y apaisado sin
+deformar su forma real (chaflán incluido), y que vuelve a colocar las mesas
+en modo vertical al usar "Diseño del salón". Se lanza igual:
+`node test_exterior_orient.js`.
+
 ## Qué se queda fuera, de momento
 
 El **plano de fondo** (la imagen del restaurante que se sube desde "Subir
