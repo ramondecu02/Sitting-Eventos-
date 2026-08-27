@@ -568,7 +568,52 @@ function setRoomSize(w,h){
     var q=p.pos[n];
     p.pos[n]={x:Math.round(q.x*kx), y:Math.round(BT+(q.y-BT)*ky)};
   });
-  p.rw=nw; p.rh=nh; p.orient=nh>=nw?"p":"l";
+  /* cambiar el tamaño a mano NO gira el plano: si al ensanchar la sala se
+     cambiara también la orientación, el contorno pegaría un volantazo de 90°
+     en cuanto la hoja fuera más ancha que alta, con las mesas quietas. Girar
+     es cosa de los botones Vertical/Apaisado, que giran todo a la vez. */
+  p.rw=nw; p.rh=nh;
+  renderPlan(); syncLocUI();
+}
+/* girar la hoja un cuarto de vuelta. Lo importante: el contorno de la sala y
+   las mesas giran JUNTOS, como si giraras el plano en papel. Antes, al pasar
+   de vertical a apaisado, las mesas no giraban — solo se estiraban a lo ancho
+   y se aplastaban a lo alto — así que quedaban descolocadas respecto a las
+   paredes (se veía clarísimo en el plano exterior, donde el contorno sí gira)
+   y en el interior la parrilla de mesas se amontonaba dejando media hoja
+   vacía. La hoja gira en el mismo sentido que las agujas del reloj: lo que
+   estaba arriba pasa a la derecha. */
+function rotateRoomTo(to){
+  var p=plan();
+  setRoom();
+  /* si ya está en esa orientación, el botón sigue sirviendo para volver a la
+     medida estándar de hoja (comportamiento de siempre) */
+  if(orientOf()===to){ setRoomSize(to==="p"?960:1400, to==="p"?1400:960); return; }
+  var r0=contentRect(), cw=(to==="l"), ow=RW, oh=RH, rel={};
+  Object.keys(p.pos).forEach(function(n){
+    var q=p.pos[n];
+    rel[n]={a:(q.x-r0.x)/r0.w, b:(q.y-r0.y)/r0.h};
+  });
+  p.rw=oh; p.rh=ow; p.orient=to;   /* la hoja gira: alto y ancho se intercambian */
+  setRoom();
+  var r1=contentRect();
+  Object.keys(rel).forEach(function(n){
+    var o=rel[n], a=cw?(1-o.b):o.b, b=cw?o.a:(1-o.a);
+    p.pos[n]={x:Math.round(r1.x+a*r1.w), y:Math.round(r1.y+b*r1.h)};
+  });
+  /* las mesas alargadas (rectangulares y presidenciales) dan también su cuarto
+     de vuelta: una mesa que cruzaba la sala a lo ancho la sigue cruzando */
+  if(typeof doc!=="undefined"&&doc&&doc.tables) Object.keys(p.pos).forEach(function(n){
+    var t=findTable(+n);
+    if(t&&(t.shape==="rect"||t.shape==="presid")) p.vert[n]=!p.vert[n];
+  });
+  /* las mesas se achican lo mismo que se achica la sala por su lado más justo,
+     para que al girar no se junten más de lo que ya estaban (si no, en una hoja
+     apaisada, que es más baja, los nombres de dos mesas seguidas se pisan).
+     El paso vertical→apaisado es el que encoge y el de vuelta deshace justo ese
+     mismo factor, así girar y volver deja el tamaño exactamente como estaba. */
+  var f=cw?Math.min(r1.w/r0.h,r1.h/r0.w):1/Math.min(r0.w/r1.h,r0.h/r1.w);
+  p.scale=(p.scale||1)*f;
   renderPlan(); syncLocUI();
 }
 
@@ -1335,14 +1380,22 @@ var SALON={L:100,R:861,T:150,B:1290,dx:627,dy:573,g1:640,g2:800};
    reciben ahora las dos coordenadas porque al girar ya no son independientes
    (la x nueva depende de la y vieja, y viceversa). */
 function salonMap(){
-  var S=SALON, land=plan().orient==="l";
+  var S=SALON, land=orientOf()==="l";
   var pw=land?(S.B-S.T):(S.R-S.L), ph=land?(S.R-S.L):(S.B-S.T);
   var aw=RW-96, ah=RH-BT-104;
   var k=Math.min(aw/pw,ah/ph);
   var ox=(RW-pw*k)/2, oy=BT+(ah-ph*k)/2;
   function fx(x,y){ return land?ox+(S.B-y)*k:ox+(x-S.L)*k; }
   function fy(x,y){ return land?oy+(x-S.L)*k:oy+(y-S.T)*k; }
-  return {k:k,fx:fx,fy:fy};
+  return {k:k,fx:fx,fy:fy,x:ox,y:oy,w:pw*k,h:ph*k};
+}
+/* marco en el que vive el dibujo dentro de la hoja. Es la referencia con la
+   que giran las mesas, para que sigan pegadas a sus paredes: en la plantilla
+   "17 mesas" es la caja donde se encaja la forma real de la sala (que gira y
+   se encoge entera), y en el resto es la zona útil de la hoja. */
+function contentRect(){
+  if(plan().template==="s17"){ var m=salonMap(); return {x:m.x,y:m.y,w:m.w,h:m.h}; }
+  return {x:BL,y:BT,w:BR-BL,h:BB-BT};   /* el rectángulo de las paredes */
 }
 /* hueco de puerta en la pared izquierda + flecha «ENTRADA» señalando hacia dentro de la sala.
    Se dibuja DENTRO del margen de trabajo (a la derecha del hueco): fuera de la pared no siempre
@@ -1355,6 +1408,15 @@ function entranceMark(it,ex,gTop,gBot,k){
   it.push(LN(tip-14,ey-5,tip,ey+5,GOLD,2.4)); it.push(LN(tip-14,ey+15,tip,ey+5,GOLD,2.4));
   it.push(TX(ax+aw/2,ey-Math.max(9,12*k),"ENTRADA",{size:Math.max(7,9*k),fo:"sans",a:"middle",c:GOLD,ls:1.2}));
 }
+/* la misma marca de entrada, pero en la pared de arriba (hoja apaisada): el
+   hueco es horizontal y la flecha apunta hacia abajo, hacia dentro de la sala */
+function entranceMarkTop(it,ey,gL,gR,k){
+  var ex=(gL+gR)/2, ah=Math.max(26,44*k), ay=ey+8, tip=ay+ah;
+  it.push(LN(gL,ey,gR,ey,"#E7D9BC",Math.max(1.4,2*k)));
+  it.push(LN(ex,ay,ex,tip,GOLD,2.4));
+  it.push(LN(ex-10,tip-14,ex,tip,GOLD,2.4)); it.push(LN(ex+10,tip-14,ex,tip,GOLD,2.4));
+  it.push(TX(ex+Math.max(10,14*k),ay+ah/2,"ENTRADA",{size:Math.max(7,9*k),fo:"sans",a:"start",c:GOLD,ls:1.2}));
+}
 function wallPrims(){
   var p=plan(), W="#8C8C8C", it=[];
   if(p.template==="s17"){
@@ -1366,8 +1428,19 @@ function wallPrims(){
     return it;
   }
   if(p.template==="rect"){
-    /* comedor interior: rectángulo simple con la entrada en el centro de la pared izquierda */
+    /* comedor interior: rectángulo simple con la entrada en el centro de una
+       pared. Al girar la hoja, la entrada gira con ella (la pared izquierda de
+       vertical es la de arriba en apaisado): si no, las mesas girarían pero la
+       puerta se quedaría quieta, y cambiaría cuál es la mesa que está al lado
+       de la entrada. */
     var k=RW/960, sw2=Math.max(2.6,5.5*k);
+    if(orientOf()==="l"){
+      var h1=BL+(BR-BL)*0.43, h2=BL+(BR-BL)*0.57;
+      it.push(LN(BL,BB,BL,BT,W,sw2)); it.push(LN(BL,BB,BR,BB,W,sw2)); it.push(LN(BR,BB,BR,BT,W,sw2));
+      it.push(LN(BL,BT,h1,BT,W,sw2)); it.push(LN(h2,BT,BR,BT,W,sw2));
+      entranceMarkTop(it,BT,h1,h2,k);
+      return it;
+    }
     var g1=BT+(BB-BT)*0.43, g2=BT+(BB-BT)*0.57;
     it.push(LN(BL,BB,BR,BB,W,sw2)); it.push(LN(BR,BB,BR,BT,W,sw2)); it.push(LN(BR,BT,BL,BT,W,sw2));
     it.push(LN(BL,BT,BL,g1,W,sw2)); it.push(LN(BL,g2,BL,BB,W,sw2));
@@ -2443,27 +2516,30 @@ $("rsm").addEventListener("click",function(){ bumpRoom(1/1.12); });
 $("rbg").addEventListener("click",function(){ bumpRoom(1.12); });
 Array.prototype.forEach.call($("orientseg").children,function(b){
   b.addEventListener("click",function(){
-    pushUndo(); var vv=b.dataset.o==="p"; sel=null;
-    setRoom(); setRoomSize(vv?960:1400, vv?1400:960);
-    plan().orient=b.dataset.o;
+    pushUndo(); sel=null;
+    rotateRoomTo(b.dataset.o);
     render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
   });
 });
 $("tpl").addEventListener("change",function(){
   pushUndo();
-  var p=plan(); p.template=this.value||null;
-  if(p.template==="s17"||p.template==="rect") p.orient="p";
+  var p=plan(), nt=this.value||null;
+  /* las dos plantillas están dibujadas en vertical: al elegirlas se vuelve a
+     vertical girando la hoja de verdad (si solo se cambiaba p.orient, la sala
+     se quedaba con el ancho y el alto de apaisado). Se gira ANTES de cambiar
+     la plantilla, para que las mesas giren con el plano que tenían. */
+  if((nt==="s17"||nt==="rect")&&orientOf()!=="p") rotateRoomTo("p");
+  p.template=nt;
   render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
 });
 /* 3 columnas (6+6+5), mesa 1 abajo a la izquierda */
 $("salon").addEventListener("click",function(){
   pushUndo();
   var p=plan();
-  /* si estaba en apaisado hay que recalcular también el tamaño de la sala
-     (rw/rh), no solo el orient — si no, setRoom() se queda con las medidas
-     apaisadas aunque orient ya diga "p" (mismo mecanismo que usan los
-     botones Vertical/Apaisado de arriba) */
-  if(orientOf()!=="p") setRoomSize(960,1400);
+  /* si estaba en apaisado hay que girar la hoja entera a vertical (ancho, alto
+     y mesas), no solo cambiar el orient — si no, setRoom() se queda con las
+     medidas apaisadas aunque orient ya diga "p" */
+  if(orientOf()!=="p") rotateRoomTo("p");
   setRoom();
   var m=salonMap(), COLS=[208,437,638], ROWS=[1170,992,814,634,456,274];
   p.scale=0.8*Math.min(1.35,Math.max(.5,m.k)); setUserSize(1);

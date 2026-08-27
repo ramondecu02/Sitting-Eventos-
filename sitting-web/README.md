@@ -83,10 +83,14 @@ igual. Instrucciones dentro de cada archivo; se lanzan con
 `node test_web.js` / `node test_smoke.js` con el servidor arrancado en el
 puerto 3200.
 
-`test_exterior_orient.js` comprueba, con el mismo servidor, que el plano
-exterior ("Sala 17 mesas") gira correctamente entre vertical y apaisado sin
-deformar su forma real (chaflán incluido), y que vuelve a colocar las mesas
-en modo vertical al usar "Diseño del salón". Se lanza igual:
+`test_exterior_orient.js` comprueba, con el mismo servidor, el giro de los
+planos entre vertical y apaisado: que la sala y **las mesas** giran juntas, en
+los dos planos (interior y exterior); que el contorno del exterior conserva su
+forma real al girar (chaflán incluido) en vez de deformarse; que girar y volver
+deja el plano exactamente igual, y que girar muchas veces no va desplazando las
+mesas poco a poco; que la entrada del interior gira con la sala; que "Diseño
+del salón" sigue forzando vertical; que Deshacer revierte el giro; y que cambiar
+el tamaño de la sala a mano no gira el plano de golpe. Se lanza igual:
 `node test_exterior_orient.js`.
 
 ## Qué se queda fuera, de momento
