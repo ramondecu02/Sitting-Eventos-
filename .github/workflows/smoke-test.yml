@@ -1,0 +1,62 @@
+name: Smoke test contra producción
+
+# Se ejecuta después de cada push a main (cuando ya se ha subido un cambio
+# a GitHub) y también se puede lanzar a mano desde la pestaña "Actions".
+#
+# Comprueba lo mínimo imprescindible contra la web YA desplegada en Render:
+# que el login funciona, que la contraseña de equipo entra, que la
+# herramienta carga de verdad, y que Salir cierra la sesión. No crea ni
+# toca ningún evento — es seguro lanzarlo contra producción las veces que
+# haga falta.
+#
+# Antes de que esto funcione hay que crear el secreto TEAM_PASSWORD en
+# GitHub: Settings del repositorio → Secrets and variables → Actions →
+# New repository secret → nombre TEAM_PASSWORD, valor la contraseña real
+# de equipo (la misma que hay puesta en Render).
+
+"on":
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        working-directory: sitting-web
+        run: npm install
+
+      - name: Instalar el navegador de Playwright
+        working-directory: sitting-web
+        run: npx playwright install --with-deps chromium
+
+      - name: Esperar a que Render sirva la versión nueva
+        run: |
+          echo "Dando margen para que Render construya y despliegue..."
+          sleep 45
+          for i in $(seq 1 12); do
+            if curl -sf https://sitting-castell-vidal.onrender.com/login > /dev/null; then
+              echo "Responde. Seguimos con el smoke test."
+              exit 0
+            fi
+            echo "Todavía no responde (intento $i/12), esperando 10s más..."
+            sleep 10
+          done
+          echo "Render no respondió a tiempo tras el margen de espera."
+          exit 1
+
+      - name: Smoke test contra producción
+        working-directory: sitting-web
+        env:
+          TEAM_PASSWORD: ${{ secrets.TEAM_PASSWORD }}
+          SITTING_TEST_URL: https://sitting-castell-vidal.onrender.com
+        run: node test_smoke.js
