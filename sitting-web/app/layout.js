@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Sitting Les Moles Events",
+  title: "Les Moles Events",
   description: "Editor del plano de mesas para bodas y eventos de Les Moles Events.",
 };
 
