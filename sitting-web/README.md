@@ -83,6 +83,18 @@ igual. Instrucciones dentro de cada archivo; se lanzan con
 `node test_web.js` / `node test_smoke.js` con el servidor arrancado en el
 puerto 3200.
 
+`test_inventario.js` comprueba que el apartado **Inventario** es de verdad el
+Excel `INVENTARIO LES MOLES.xlsx` y no una versión "mejorada" de él: las 5
+hojas y las 17 categorías con sus nombres y en su orden, las 123 líneas, los
+nombres repetidos que solo se distinguen por las medidas, `TRONAS BEBÉ` como un
+nombre que vale para tres filas, las líneas que el Excel deja en blanco (que no
+se rellenan solas), el `++` de CHICA-CHICA tal cual, las notas (y que solo se
+pinten en rojo las que avisan de algo roto), la fecha de inventario de la hoja
+de vasos, y las columnas propias de los cables. Además: buscar, filtrar por
+hoja, corregir una cantidad sin perder la del Excel, que la corrección le
+llegue a un compañero, y que el inventario sea el mismo para todos los eventos.
+Se lanza igual: `node test_inventario.js`.
+
 `test_navegacion.js` comprueba la barra de arriba: que las ocho secciones del
 evento están en un solo desplegable y cada una abre su pantalla (saltando sola
 entre el plano y el menú, sin tener que saber que por dentro son dos cosas);
@@ -138,6 +150,8 @@ app/api/store          GET/PUT del evento compartido (JSON)
 lib/auth.js            firma y comprobación de la cookie de sesión
 lib/storage.js         guardado en Postgres (o archivo local en desarrollo)
 lib/url.js             construye URLs absolutas a partir de la petición real
+inventario_extraer.py  Excel del inventario -> JSON
+inventario_gen_js.py   ese JSON -> el bloque INVENTARIO_DATA de sitting.html
 ```
 
 ## De dónde salen los datos del check list de Servicio
@@ -180,6 +194,52 @@ En el código: `SECCIONES` (la lista), `irASeccion(clave)` (abre la pantalla) y
 hay). `fillSelect()` avisa al Menú cuando cambia el evento activo o la lista,
 para que crear o cambiar de evento desde la barra no deje el Menú con las
 cifras del anterior.
+
+## El apartado Inventario
+
+Es la versión dentro de la app del Excel `INVENTARIO LES MOLES.xlsx`. **No se
+reorganiza nada**: las hojas, su orden, los nombres de las categorías (con su
+mezcla de catalán y castellano) y las líneas son las del Excel. Vive en
+`INVENTARIO_DATA`, dentro del cuarto bloque `<script>` de `sitting.html`.
+
+A diferencia del plano y del menú, **el inventario no es de un evento**: es el
+material del negocio, el mismo para todos. Por eso va en su propio grupo del
+desplegable de secciones.
+
+Lo que el Excel tiene de particular y hay que mantener:
+
+- El nombre no identifica una línea: hay nombres repetidos que solo se
+  distinguen por las medidas (`MESA REDONDA BANQUETES` de 2 m y de 1,50).
+- `TRONAS BEBÉ` es un nombre fusionado sobre tres filas con tres medidas: las
+  dos de abajo llevan `mismoNombre:true` y se marcan como continuación.
+- Hay líneas sin cantidad y una con `++` en vez de un número. No se rellenan ni
+  se convierten: se cuentan aparte en las cifras de arriba.
+- `SONIDO Y LUZ` tiene dos bloques con forma distinta: una tabla de cables con
+  código, tipo, amperios y metros, y debajo una lista que en el Excel va sin
+  cabecera (esa categoría lleva `nombre:null` y se pinta sin título).
+
+**Las correcciones de cantidad** se guardan en `store.inventario`, aparte de los
+eventos, y se comparten con el equipo por el mismo camino. Cada corrección
+lleva su `updated`, y se combinan artículo a artículo — gana la más reciente —
+para que dos personas puedan contar cosas distintas a la vez. Volver a la
+cantidad del Excel se guarda **como una corrección más** con `cantidad:null`,
+no borrando la entrada: si se borrara, la copia de otra pestaña o del servidor
+la resucitaría en el siguiente guardado (es el mismo motivo por el que los
+eventos borrados llevan su `deletedIds`).
+
+**Cuando el Excel cambie**, no hay que teclear nada a mano:
+
+```bash
+python3 inventario_extraer.py "INVENTARIO LES MOLES.xlsx" > inventario.json
+python3 inventario_gen_js.py inventario.json > INVENTARIO_DATA.js
+```
+
+El primero lee el Excel (reconoce las cabeceras de categoría por su formato:
+negrita + fondo de color, que es la única marca de jerarquía que tiene el
+archivo) y el segundo escribe el bloque de JavaScript. Después se sustituye a
+mano el `var INVENTARIO_DATA = {...};` de `sitting.html` por el nuevo — a
+propósito, para poder mirar el diff antes: un Excel con una hoja renombrada o
+una categoría movida cambia lo que ve el equipo.
 
 ## Cómo se enlazan Sitting y Menú
 

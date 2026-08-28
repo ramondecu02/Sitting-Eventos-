@@ -36,10 +36,13 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* qué vista está a la vista de verdad */
 async function vistaVisible(page) {
-  const sitting = await page.locator("#appSitting").isVisible();
-  const menu = await page.locator("#appMenu").isVisible();
-  assert.notEqual(sitting, menu, "tiene que verse una vista y solo una");
-  return sitting ? "sitting" : "menu";
+  const vistas = { sitting: "#appSitting", menu: "#appMenu", inv: "#appInv" };
+  const abiertas = [];
+  for (const [nombre, sel] of Object.entries(vistas)) {
+    if (await page.locator(sel).isVisible()) abiertas.push(nombre);
+  }
+  assert.deepEqual(abiertas.length, 1, "tiene que verse una vista y solo una, y se ven: " + abiertas);
+  return abiertas[0];
 }
 
 const PLANO = `# Boda de prueba
@@ -65,6 +68,7 @@ const SECCIONES = [
   ["m-compra", "menu",    "Lista de la compra"],
   ["m-serv",   "menu",    "Check list de servicio"],
   ["m-card",   "menu",    "Menú para imprimir"],
+  ["inv",      "inv",     "Todo el material"],
 ];
 
 async function main() {
@@ -87,19 +91,19 @@ async function main() {
     await wait(600);
   });
 
-  await step("la barra está y trae las 8 secciones, con sus nombres", async () => {
+  await step("la barra trae todas las secciones, agrupadas y con sus nombres", async () => {
     await page.locator("#appbar").waitFor({ state: "visible" });
     const textos = await page.locator("#ab-sec option").allInnerTexts();
     assert.deepEqual(textos, SECCIONES.map((s) => s[2]));
     // y agrupadas, para que se vea qué es del plano y qué del menú
     const grupos = await page.locator("#ab-sec optgroup").evaluateAll((g) => g.map((x) => x.label));
-    assert.deepEqual(grupos, ["Plano de mesas", "Menú del evento"]);
+    assert.deepEqual(grupos, ["Plano de mesas", "Menú del evento", "Inventario"]);
   });
 
   await step("CADA SECCIÓN LLEVA A SU PANTALLA, saltando entre plano y menú", async () => {
     // en desorden a propósito: los saltos son lo que antes obligaba a pasar
     // por el selector "Sitting/Menú"
-    for (const clave of ["m-serv", "list", "m-sel", "card", "m-card", "plan"]) {
+    for (const clave of ["m-serv", "list", "inv", "m-sel", "card", "inv", "m-card", "plan"]) {
       const esperada = SECCIONES.find((s) => s[0] === clave)[1];
       await page.locator("#ab-sec").selectOption(clave);
       await wait(450);

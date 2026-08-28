@@ -253,6 +253,11 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   body.mode-menu .mnu-top,body.mode-menu .mnu-print-bar,body.mode-menu .mnu-empty{display:none!important}
   body.mode-menu .mnu-body{padding:0!important; overflow:visible!important}
   body.mode-sitting .app-menu,body.mode-sitting .launcher{display:none!important}
+  body.mode-menu #appInv,body.mode-sitting #appInv{display:none!important}
+  body.mode-inv .app,body.mode-inv .launcher,body.mode-inv #appMenu{display:none!important}
+  body.mode-inv #appInv{display:flex!important; height:auto!important; background:#fff!important}
+  body.mode-inv .mnu-top{display:none!important}
+  body.mode-inv .mnu-body{padding:0!important; overflow:visible!important}
 }
 
 /* ══ selector Sitting / Menú ═════════════════════════════════════════ */
@@ -299,6 +304,19 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .mnu-chk{width:16px; height:16px; flex:0 0 auto; accent-color:var(--gold); cursor:pointer}
 .mnu-row.on{background:color-mix(in srgb, var(--gold) 9%, transparent)}
 .mnu-row.on:hover{background:color-mix(in srgb, var(--gold) 14%, transparent)}
+.inv-row{display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px solid var(--c-line)}
+.inv-row:last-child{border-bottom:0}
+.inv-row .nm{font-family:"Cormorant Garamond",serif; font-size:16px; flex:1; min-width:0}
+.inv-row .md{font-size:11px; color:var(--c-mut); white-space:nowrap}
+.inv-row .nt{font-size:10px; color:var(--c-mut); border:1px solid var(--c-line-2); border-radius:100px; padding:2px 9px; white-space:nowrap}
+.inv-row .nt.aviso{color:var(--ruby); border-color:var(--ruby)}
+.inv-row .qt{display:flex; align-items:center; gap:6px; flex:0 0 auto}
+.inv-row .qt input{width:74px; text-align:right; padding:5px 8px; font-variant-numeric:tabular-nums}
+.inv-row .qt .ud{font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--c-mut)}
+.inv-row .orig{font-size:10px; color:var(--gold-p); white-space:nowrap}
+.inv-row.sinCant .qt input{color:var(--c-mut)}
+.inv-cont{font-size:11px; color:var(--c-mut); font-style:italic}
+.inv-cables{font-size:11.5px; color:var(--c-mut); margin-bottom:6px}
 .mnu-empty{max-width:440px; margin:14vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:19px; font-style:italic; line-height:1.7}
 .mnu-dish-h{display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0}
 .mnu-dish-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px}
@@ -332,6 +350,10 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 
 @media screen and (max-width:760px){
   .mnu-row .sv{display:none}
+  .inv-row{flex-wrap:wrap; row-gap:5px; padding:10px 6px}
+  .inv-row .nm{flex:1 0 100%}
+  .inv-row .qt{margin-left:auto}
+  .inv-row .qt input{width:66px}
   .mnu-top{padding:14px 16px 12px}
   .mnu-body{padding:14px 16px 50px}
   .mnu-evento .stats{margin-left:0}
@@ -576,6 +598,21 @@ Lluc (trona)</div>
     <div class="mnu-note" id="mnu-note">Catálogo de <b>CHECK_LIST_EVENTOS_CASTELL_VIDAL.xlsx</b> — es el menú del evento que tengas elegido arriba. Marca aquí los platos y <b>Producción</b>, <b>Lista de la compra</b> y <b>Check list de servicio</b> se generan solos (se cambia de una a otra en «Sección», arriba a la derecha) y se pueden imprimir. Se guarda para todo el equipo, igual que el plano de mesas.</div>
   </div>
   <div class="mnu-body" id="mnu-body"></div>
+</div>
+
+<div class="app-menu" id="appInv" style="display:none">
+  <div class="mnu-top">
+    <div class="mnu-evento">
+      <div class="stats" id="inv-stats"></div>
+      <p class="mnu-origen" id="inv-origen"></p>
+    </div>
+    <div class="mnu-search">
+      <input type="text" id="inv-q" placeholder="Buscar artículo, medida o categoría…" aria-label="Buscar en el inventario">
+    </div>
+    <div class="mnu-fams" id="inv-hojas"></div>
+    <div class="mnu-note" id="inv-note"></div>
+  </div>
+  <div class="mnu-body" id="inv-body"></div>
 </div>
 
 <script>
@@ -1288,8 +1325,23 @@ function mergeStore(){
   });
   store.events.forEach(function(e){ if(mine[e.id]) out.unshift(e); });   /* los míos nuevos */
   store.events=out;
+  store.inventario=mergeInv(store.inventario,disk.inventario);
   if(!current()) store.active=out.length?out[0].id:null;
   return store;
+}
+/* El inventario es del negocio, no de un evento: se guarda aparte, en
+   store.inventario, como los cambios sobre lo que dice el Excel. Se combina
+   con el mismo criterio que los eventos — gana el cambio más reciente — pero
+   artículo a artículo, para que dos personas puedan tocar cosas distintas a la
+   vez sin pisarse. */
+function mergeInv(mio,otro){
+  if(!otro) return mio||{};
+  var out=Object.assign({},otro,{}); mio=mio||{};
+  Object.keys(mio).forEach(function(k){
+    var a=mio[k], b=otro[k];
+    out[k]=(!b||(a.updated||0)>=(b.updated||0))?a:b;
+  });
+  return out;
 }
 function save(){
   if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
@@ -1370,20 +1422,27 @@ function hydrateFromServer(){
   }).then(function(remote){
       if(!remote||!remote.events||!remote.events.length) return;
       var before=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
+      var invBefore=JSON.stringify(store.inventario||{});
       /* si lo único que había en este navegador era la boda de ejemplo sin tocar y el
          servidor ya trae eventos de verdad, no la mezclamos: un compañero que entra por
          primera vez no debe ver la boda de ejemplo colada entre las bodas reales */
       if(store.events.length===1&&store.events[0].text===EX_BODA) store.events=[];
       store.events=mergeRemote(remote);
       if(remote.prefs) store.prefs=Object.assign({},remote.prefs,store.prefs);
+      store.inventario=mergeInv(store.inventario,remote.inventario);
       if(!current()) store.active=store.events.length?store.events[0].id:null;
       var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
-      if(after!==before){
+      var invCambia=JSON.stringify(store.inventario||{})!==invBefore;
+      if(after!==before||invCambia){
         try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){}
+      }
+      if(after!==before){
         $("src").value=current()?current().text:""; prevText=$("src").value;
         fillSelect(); syncPrefs(); render();
         if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.onExternalChange) window.SITTING_BRIDGE.onExternalChange();
       }
+      /* si un compañero ha corregido una cantidad del inventario, que se vea */
+      if(invCambia&&window.invRefrescar) window.invRefrescar();
     })
     .catch(function(){ /* sin conexión con el servidor: se sigue trabajando en local */ });
 }
@@ -2658,14 +2717,20 @@ var SECCIONES=[
   {k:"m-prod",   g:"Menú del evento", t:"Producción"},
   {k:"m-compra", g:"Menú del evento", t:"Lista de la compra"},
   {k:"m-serv",   g:"Menú del evento", t:"Check list de servicio"},
-  {k:"m-card",   g:"Menú del evento", t:"Menú para imprimir"}
+  {k:"m-card",   g:"Menú del evento", t:"Menú para imprimir"},
+  /* el inventario no es de un evento concreto: es el material del negocio,
+     el mismo para todos. Va en su propio grupo para que se note. */
+  {k:"inv",      g:"Inventario", t:"Todo el material"}
 ];
 function seccionActual(){
+  if(document.body.classList.contains("mode-inv")) return "inv";
   var enMenu=document.body.classList.contains("mode-menu");
   return enMenu ? "m-"+(window.mnuViewActual?window.mnuViewActual():"sel") : view;
 }
 function irASeccion(k){
-  if(k.indexOf("m-")===0){
+  if(k==="inv"){
+    if(window.showInv) window.showInv();
+  }else if(k.indexOf("m-")===0){
     if(window.showMenu) window.showMenu();
     if(window.setMnuView) window.setMnuView(k.slice(2));
   }else{
@@ -3300,8 +3365,10 @@ function refreshAll(){ fillEventoInputs(); renderFams(); renderEvStats(); render
 /* ══ selector Sitting / Menú ═══════════════════════════════════════ */
 function showMenu(){
   $("appSitting").style.display="none";
+  $("appInv").style.display="none";
   $("appMenu").style.display="flex";
-  document.body.classList.remove("mode-sitting"); document.body.classList.add("mode-menu");
+  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-inv");
+  document.body.classList.add("mode-menu");
   $("lnch-sitting").className=""; $("lnch-sitting").setAttribute("aria-pressed","false");
   $("lnch-menu").className="on"; $("lnch-menu").setAttribute("aria-pressed","true");
   refreshAll();
@@ -3309,8 +3376,10 @@ function showMenu(){
 }
 function showSitting(){
   $("appMenu").style.display="none";
+  $("appInv").style.display="none";
   $("appSitting").style.display="grid";
-  document.body.classList.remove("mode-menu"); document.body.classList.add("mode-sitting");
+  document.body.classList.remove("mode-menu"); document.body.classList.remove("mode-inv");
+  document.body.classList.add("mode-sitting");
   $("lnch-menu").className=""; $("lnch-menu").setAttribute("aria-pressed","false");
   $("lnch-sitting").className="on"; $("lnch-sitting").setAttribute("aria-pressed","true");
   if(window.syncAppbar) window.syncAppbar();
@@ -3331,5 +3400,375 @@ fillEventoInputs();
 renderFams();
 renderEvStats();
 setMnuView("sel");
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   INVENTARIO — el material del negocio
+
+   Es la versión dentro de la app del Excel «INVENTARIO LES MOLES.xlsx».
+   Las hojas, el orden, los nombres de las categorías y las líneas son los
+   del Excel, sin reorganizar nada: si allí «MOBILIARI JARDÍN» está en
+   catalán y «TRONAS BEBÉ» son tres filas bajo un mismo nombre, aquí igual.
+
+   Lo único que se añade es poder corregir una cantidad o dejar una nota sin
+   abrir el Excel. Esas correcciones se guardan aparte (store.inventario) y
+   se comparten con todo el equipo, igual que los eventos; el número del
+   Excel no se pierde nunca — se sigue viendo al lado del corregido.
+
+   A diferencia del plano y del menú, el inventario NO es de un evento: es
+   el mismo material para todos.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+var BR=window.SITTING_BRIDGE;
+function $(id){ return document.getElementById(id); }
+function esc(t){ return String(t==null?"":t).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function norm(t){ return String(t==null?"":t).toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+
+var INVENTARIO_DATA = {
+  fuente:"INVENTARIO LES MOLES.xlsx",
+  hojas:[
+  { hoja:"MESAS", titulo:"INVENTARIO MESAS", fecha:null, categorias:[
+    { nombre:"MESAS Y SILLAS BANQUETES", items:[
+      {id:"mesas.mesas-y-sillas-banquetes.mesa-redonda-banquetes.2m-de-diametro", nombre:"MESA REDONDA BANQUETES", medidas:"2M DE DIAMETRO", cantidad:18},
+      {id:"mesas.mesas-y-sillas-banquetes.mesa-redonda-banquetes.1-50-diametro", nombre:"MESA REDONDA BANQUETES", medidas:"1,50 DIAMETRO", cantidad:5},
+      {id:"mesas.mesas-y-sillas-banquetes.mesas-rectangulares-plegables-eventos.240-cm-x-72-5-cm", nombre:"MESAS RECTANGULARES PLEGABLES EVENTOS", medidas:"240 CM X 72,5 CM", cantidad:34},
+      {id:"mesas.mesas-y-sillas-banquetes.mesas-redonda-plegable-eventos.124-cm-diametro", nombre:"MESAS REDONDA PLEGABLE EVENTOS", medidas:"124 CM DIAMETRO", cantidad:26},
+      {id:"mesas.mesas-y-sillas-banquetes.mesas-cuadradas-gris-eventos.85-cm-x-85-cm", nombre:"MESAS CUADRADAS GRIS EVENTOS", medidas:"85 CM X 85 CM", cantidad:20},
+      {id:"mesas.mesas-y-sillas-banquetes.mesa-plastico-rectangulares.2-38-x-0-91m", nombre:"MESA PLASTICO RECTANGULARES", medidas:"2,38 X 0,91M", cantidad:2},
+      {id:"mesas.mesas-y-sillas-banquetes.mesa-plastico-rectangulares.1-98-x-0-91m", nombre:"MESA PLASTICO RECTANGULARES", medidas:"1,98 X 0,91M", cantidad:2},
+      {id:"mesas.mesas-y-sillas-banquetes.mesa-plastico-rectangulares.1-83-x-0-75m", nombre:"MESA PLASTICO RECTANGULARES", medidas:"1,83 X 0,75M", cantidad:1},
+      {id:"mesas.mesas-y-sillas-banquetes.mesa-plastico-rectangulares.2-38-x-0-75m", nombre:"MESA PLASTICO RECTANGULARES", medidas:"2,38 X 0,75M", cantidad:4},
+      {id:"mesas.mesas-y-sillas-banquetes.puf-mimbre", nombre:"PUF MIMBRE", medidas:null, cantidad:20},
+      {id:"mesas.mesas-y-sillas-banquetes.cojines-cuadrados-color-gris", nombre:"COJINES CUADRADOS COLOR GRIS", medidas:null, cantidad:20},
+      {id:"mesas.mesas-y-sillas-banquetes.sillas-negras-banquetes", nombre:"SILLAS NEGRAS BANQUETES", medidas:null, cantidad:277, nota:"6 ROTAS"},
+      {id:"mesas.mesas-y-sillas-banquetes.sillas-banquetes-madera", nombre:"SILLAS BANQUETES MADERA", medidas:null, cantidad:241}
+    ]},
+    { nombre:"MANTELERIA", items:[
+      {id:"mesas.manteleria.manteles-negros", nombre:"MANTELES NEGROS", medidas:null, cantidad:51}
+    ]},
+    { nombre:"MESAS Y SILLAS APERITIVO", items:[
+      {id:"mesas.mesas-y-sillas-aperitivo.mesa-aperitivo-pie-de-forja.0-80-diametro-x-1-10-m-altura", nombre:"MESA APERITIVO PIE DE FORJA", medidas:"0,80 DIAMETRO X 1,10 M ALTURA", cantidad:20},
+      {id:"mesas.mesas-y-sillas-aperitivo.mesa-aperitvo-cuadrada-pie-de-hierro.70-x-70-cm", nombre:"MESA APERITVO CUADRADA PIE DE HIERRO", medidas:"70 X 70 CM", cantidad:10},
+      {id:"mesas.mesas-y-sillas-aperitivo.mesa-aperitivo-plegable-plastico.80-cm-x-110-cm", nombre:"MESA APERITIVO PLEGABLE PLASTICO", medidas:"80 CM X 110 CM", cantidad:46},
+      {id:"mesas.mesas-y-sillas-aperitivo.mesa-madera-rectangular.120-x-60-x-75-cm", nombre:"MESA MADERA RECTANGULAR", medidas:"120 X 60 X 75 CM", cantidad:2},
+      {id:"mesas.mesas-y-sillas-aperitivo.mesas-hierro-negras-aperitivo-bodas.60-x-60-cm", nombre:"MESAS HIERRO NEGRAS APERITIVO BODAS", medidas:"60 X 60 CM", cantidad:8},
+      {id:"mesas.mesas-y-sillas-aperitivo.mantel-saco-mesas-aperitivo", nombre:"MANTEL SACO MESAS APERITIVO", medidas:null, cantidad:22, nota:"21 FACTURADOS"},
+      {id:"mesas.mesas-y-sillas-aperitivo.sofa-llargo-3-plazas", nombre:"SOFÁ LLARGO 3 PLAZAS", medidas:null, cantidad:3},
+      {id:"mesas.mesas-y-sillas-aperitivo.sillon-individual", nombre:"SILLÓN INDIVIDUAL", medidas:null, cantidad:12}
+    ]},
+    { nombre:"TABLEROS", items:[
+      {id:"mesas.tableros.tablero-redondo.1-88m-diametro", nombre:"TABLERO REDONDO", medidas:"1,88M DIAMETRO", cantidad:18},
+      {id:"mesas.tableros.tablero-rectangular.2-85-x-1-79", nombre:"TABLERO RECTANGULAR", medidas:"2,85 X 1,79", cantidad:17},
+      {id:"mesas.tableros.tablero-rectangular.2-37-x-1-80", nombre:"TABLERO RECTANGULAR", medidas:"2,37 X 1,80", cantidad:1},
+      {id:"mesas.tableros.tablero-rectangular.2-50-x-1-60", nombre:"TABLERO RECTANGULAR", medidas:"2,50 X 1,60", cantidad:4},
+      {id:"mesas.tableros.tablero-rectangular.1-60-x-1-40", nombre:"TABLERO RECTANGULAR", medidas:"1,60 X 1,40", cantidad:2}
+    ]},
+    { nombre:"OTROS", items:[
+      {id:"mesas.otros.tronas-bebe.75cm", nombre:"TRONAS BEBÉ", medidas:"75CM", cantidad:2},
+      {id:"mesas.otros.tronas-bebe.86cm", nombre:"TRONAS BEBÉ", medidas:"86CM", cantidad:2, mismoNombre:true},
+      {id:"mesas.otros.tronas-bebe.plastic-blanc", nombre:"TRONAS BEBÉ", medidas:"PLÁSTIC BLANC", cantidad:1, mismoNombre:true}
+    ]}
+  ]},
+  { hoja:"COCINA CATERING", titulo:"INVENTARIO COCINA CATERING", fecha:null, categorias:[
+    { nombre:"MOBILIARIO COCINA", items:[
+      {id:"cocina-catering.mobiliario-cocina.mesa-cocina-acero-inox-catering.160-x-70-x-82", nombre:"MESA COCINA ACERO INOX CATERING", medidas:"160 X 70 X 82", cantidad:1},
+      {id:"cocina-catering.mobiliario-cocina.mesa-cocina-acero-inox-catering.120-x-70-x-82", nombre:"MESA COCINA ACERO INOX CATERING", medidas:"120 X 70 X 82", cantidad:1},
+      {id:"cocina-catering.mobiliario-cocina.mesa-cocina-acero-inox-catering-freidoras.96-x-50-x-56", nombre:"MESA COCINA ACERO INOX CATERING FREIDORAS", medidas:"96 X 50 X 56", cantidad:1},
+      {id:"cocina-catering.mobiliario-cocina.mesa-cocina-acero-inox-catering.130-x-35-x-72", nombre:"MESA COCINA ACERO INOX CATERING", medidas:"130 X 35 X 72", cantidad:1}
+    ]},
+    { nombre:"MATERIAL COCINA", items:[
+      {id:"cocina-catering.material-cocina.maquina-de-palomitas", nombre:"MAQUINA DE PALOMITAS", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.maquina-algodon-de-azucar", nombre:"MAQUINA ALGODON DE AZUCAR", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.crepera-3kw-3kw", nombre:"CREPERA 3KW+3KW", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.hornos-electricos-3900w", nombre:"HORNOS ELECTRICOS 3900W", medidas:null, cantidad:2},
+      {id:"cocina-catering.material-cocina.plancha-food-truck", nombre:"PLANCHA FOOD TRUCK", medidas:null, cantidad:2},
+      {id:"cocina-catering.material-cocina.sandwichera-doble", nombre:"SANDWICHERA DOBLE", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.freidora", nombre:"FREIDORA", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.paellero-grande.70-diametro", nombre:"PAELLERO GRANDE", medidas:"70 DIAMETRO", cantidad:1},
+      {id:"cocina-catering.material-cocina.paellero-grande.66-diametro", nombre:"PAELLERO GRANDE", medidas:"66 DIAMETRO", cantidad:1},
+      {id:"cocina-catering.material-cocina.paellero-pequeno.32-diametro", nombre:"PAELLERO PEQUEÑO", medidas:"32 DIAMETRO", cantidad:1},
+      {id:"cocina-catering.material-cocina.portaplatos-hierro", nombre:"PORTAPLATOS HIERRO", medidas:null, cantidad:5},
+      {id:"cocina-catering.material-cocina.fogon-a-gas-3-fogones", nombre:"FOGON A GAS (3 FOGONES)", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.barbacoa-negra", nombre:"BARBACOA NEGRA", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.grupo-electrico-9000b", nombre:"GRUPO ELECTRICO 9000B", medidas:null, cantidad:1},
+      {id:"cocina-catering.material-cocina.horno-de-brasa-grande", nombre:"HORNO DE BRASA GRANDE", medidas:null, cantidad:1}
+    ]},
+    { nombre:"MATERIAL CATERING BEBIDA", items:[
+      {id:"cocina-catering.material-catering-bebida.cafetera-capsulas-cafe-bo", nombre:"CAFETERA CAPSULAS CAFÉ BO", medidas:null, cantidad:2},
+      {id:"cocina-catering.material-catering-bebida.barra-plegable-catering", nombre:"BARRA PLEGABLE CATERING", medidas:null, cantidad:5},
+      {id:"cocina-catering.material-catering-bebida.cafetera-capsulas-nescafe", nombre:"CAFETERA CAPSULAS NESCAFÉ", medidas:null, cantidad:2},
+      {id:"cocina-catering.material-catering-bebida.botellero", nombre:"BOTELLERO", medidas:null, cantidad:1}
+    ]}
+  ]},
+  { hoja:"VASOS Y CUBERTERIA", titulo:"INVENTARIO VASOS Y CUBERTERIA", fecha:"07/08/2026", categorias:[
+    { nombre:"COPAS", items:[
+      {id:"vasos-y-cuberteria.copas.copa-vino-tinto", nombre:"COPA VINO TINTO", medidas:null, cantidad:304},
+      {id:"vasos-y-cuberteria.copas.copa-vino-blanco", nombre:"COPA VINO BLANCO", medidas:null, cantidad:265},
+      {id:"vasos-y-cuberteria.copas.copa-cava", nombre:"COPA CAVA", medidas:null, cantidad:282},
+      {id:"vasos-y-cuberteria.copas.copa-cava-flauta", nombre:"COPA CAVA FLAUTA", medidas:null, cantidad:224},
+      {id:"vasos-y-cuberteria.copas.copa-vermouth", nombre:"COPA VERMOUTH", medidas:null, cantidad:168},
+      {id:"vasos-y-cuberteria.copas.copa-conac", nombre:"COPA COÑAC", medidas:null, cantidad:146},
+      {id:"vasos-y-cuberteria.copas.copa-gin-tonic", nombre:"COPA GIN TONIC", medidas:null, cantidad:159}
+    ]},
+    { nombre:"VASOS", items:[
+      {id:"vasos-y-cuberteria.vasos.vasos-de-sidra-barra-libre", nombre:"VASOS DE SIDRA (BARRA LIBRE)", medidas:null, cantidad:498},
+      {id:"vasos-y-cuberteria.vasos.vasos-agua-rallados", nombre:"VASOS AGUA RALLADOS", medidas:null, cantidad:130},
+      {id:"vasos-y-cuberteria.vasos.vasos-agua-lisos", nombre:"VASOS AGUA LISOS", medidas:null, cantidad:43}
+    ]},
+    { nombre:"BANDEJAS", items:[
+      {id:"vasos-y-cuberteria.bandejas.bandejas-redondas-acero-43-cm-diametro", nombre:"BANDEJAS REDONDAS ACERO 43 CM DIAMETRO", medidas:null, cantidad:30},
+      {id:"vasos-y-cuberteria.bandejas.bandejas-redondas-acero-40-cm-diametro", nombre:"BANDEJAS REDONDAS ACERO 40 CM DIAMETRO", medidas:null, cantidad:27},
+      {id:"vasos-y-cuberteria.bandejas.bandejas-redondas-acero-42-cm-diametro", nombre:"BANDEJAS REDONDAS ACERO 42 CM DIAMETRO", medidas:null, cantidad:5},
+      {id:"vasos-y-cuberteria.bandejas.servilletas-blancas-les-moles", nombre:"SERVILLETAS BLANCAS LES MOLES", medidas:null, cantidad:null},
+      {id:"vasos-y-cuberteria.bandejas.servilleteros-aperitivo", nombre:"SERVILLETEROS APERITIVO", medidas:null, cantidad:50}
+    ]},
+    { nombre:"RACKS", items:[
+      {id:"vasos-y-cuberteria.racks.rack-azul-copa-vino-tinto", nombre:"RACK AZUL COPA VINO TINTO", medidas:null, cantidad:26},
+      {id:"vasos-y-cuberteria.racks.rack-copa-vino-blanco", nombre:"RACK COPA VINO BLANCO", medidas:null, cantidad:26},
+      {id:"vasos-y-cuberteria.racks.rack-copa-cava-flauta", nombre:"RACK COPA CAVA FLAUTA", medidas:null, cantidad:6},
+      {id:"vasos-y-cuberteria.racks.rack-hexagonal-12-altura-2", nombre:"RACK HEXAGONAL 12 ALTURA 2", medidas:null, cantidad:44},
+      {id:"vasos-y-cuberteria.racks.rack-cuadrado-5-x-5", nombre:"RACK CUADRADO 5 X 5", medidas:null, cantidad:17},
+      {id:"vasos-y-cuberteria.racks.rack-hexagonal-12-altura-3", nombre:"RACK HEXAGONAL 12 ALTURA 3", medidas:null, cantidad:14},
+      {id:"vasos-y-cuberteria.racks.rack-verde-y-gris-7-x-7", nombre:"RACK VERDE Y GRIS 7 X 7", medidas:null, cantidad:5},
+      {id:"vasos-y-cuberteria.racks.rack-azul-y-gris-6-x-6", nombre:"RACK AZUL Y GRIS 6 X 6", medidas:null, cantidad:12},
+      {id:"vasos-y-cuberteria.racks.rack-verde-y-gris-4-x-4", nombre:"RACK VERDE Y GRIS 4 X 4", medidas:null, cantidad:6},
+      {id:"vasos-y-cuberteria.racks.rack-rojo-y-gris-4-x-4", nombre:"RACK ROJO Y GRIS 4 X 4", medidas:null, cantidad:1},
+      {id:"vasos-y-cuberteria.racks.rack-gris-3-x-3", nombre:"RACK GRIS 3 X 3", medidas:null, cantidad:2}
+    ]}
+  ]},
+  { hoja:"DECORACIÓN", titulo:"INVENTARIO DECORACION", fecha:null, categorias:[
+    { nombre:"MOBILIARI JARDÍN", items:[
+      {id:"decoracion.mobiliari-jardin.carro-de-helados", nombre:"CARRO DE HELADOS", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.carro-infantil", nombre:"CARRO INFANTIL", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.carro-madera-vieja-4-ruedas-160-x-100-x-78", nombre:"CARRO MADERA VIEJA 4 RUEDAS 160 X 100 X 78", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.mesa-estacion-tabla-de-quesos-140x50", nombre:"MESA ESTACIÓN TABLA DE QUESOS 140X50", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.mesa-estacion-tabla-de-quesos-200x58", nombre:"MESA ESTACIÓN TABLA DE QUESOS 200X58", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.bicicleta-estacion-187-x-46-x-83", nombre:"BICICLETA ESTACIÓN  187 X 46 X 83", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.bicicleta-estacion-100-x-34-x73", nombre:"BICICLETA ESTACIÓN  100 X 34 X73", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.cestas-mimbre", nombre:"CESTAS MIMBRE", medidas:null, cantidad:8},
+      {id:"decoracion.mobiliari-jardin.photocall-les-moles-events", nombre:"PHOTOCALL LES MOLES EVENTS", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-jardin.chester-photocall-eventos-2-plazas", nombre:"CHESTER PHOTOCALL EVENTOS 2 PLAZAS", medidas:null, cantidad:1}
+    ]},
+    { nombre:"MOBILIARI EVENTS", items:[
+      {id:"decoracion.mobiliari-events.cubos-lluminosos", nombre:"CUBOS LLUMINOSOS", medidas:null, cantidad:2},
+      {id:"decoracion.mobiliari-events.separadores-verdes", nombre:"SEPARADORES VERDES", medidas:null, cantidad:8},
+      {id:"decoracion.mobiliari-events.farolillo-vanir", nombre:"FAROLILLO VANIR", medidas:null, cantidad:30},
+      {id:"decoracion.mobiliari-events.cajas-de-madera-basquets", nombre:"CAJAS DE MADERA (BASQUETS)", medidas:null, cantidad:12},
+      {id:"decoracion.mobiliari-events.led-l-o-v-e", nombre:"LED L.O.V.E", medidas:null, cantidad:1},
+      {id:"decoracion.mobiliari-events.postes-separadores-de-cinta", nombre:"POSTES SEPARADORES DE CINTA", medidas:null, cantidad:4},
+      {id:"decoracion.mobiliari-events.mueble-sitting", nombre:"MUEBLE SITTING", medidas:null, cantidad:2},
+      {id:"decoracion.mobiliari-events.atril-hierro-oxidado", nombre:"ATRIL HIERRO OXIDADO", medidas:null, cantidad:1}
+    ]},
+    { nombre:"FIGURAS", items:[
+      {id:"decoracion.figuras.chico-chico", nombre:"CHICO-CHICO", medidas:null, cantidad:null},
+      {id:"decoracion.figuras.chica-chica", nombre:"CHICA-CHICA", medidas:null, cantidad:"++"},
+      {id:"decoracion.figuras.chico-chica", nombre:"CHICO-CHICA", medidas:null, cantidad:12},
+      {id:"decoracion.figuras.abuelos", nombre:"\"ABUELOS\"", medidas:null, cantidad:null},
+      {id:"decoracion.figuras.comunion-nino", nombre:"COMUNIÓN NIÑO", medidas:null, cantidad:2},
+      {id:"decoracion.figuras.comunion-nina", nombre:"COMUNIÓN NIÑA", medidas:null, cantidad:4},
+      {id:"decoracion.figuras.espejos-medidas", nombre:"ESPEJos (medidas)", medidas:null, cantidad:2},
+      {id:"decoracion.figuras.pizarra-foodtruck", nombre:"PIZARRA FOODTRUCK", medidas:null, cantidad:1}
+    ]},
+    { nombre:"SITTINGS", items:[
+      {id:"decoracion.sittings.cuadros-dorados", nombre:"CUADROS DORADOS", medidas:null, cantidad:21},
+      {id:"decoracion.sittings.soporte-numero-de-mesa-alto-dorado", nombre:"SOPORTE NUMERO DE MESA ALTO DORADO", medidas:null, cantidad:27},
+      {id:"decoracion.sittings.soporte-numero-de-mesa-alto-plata", nombre:"SOPORTE NUMERO DE MESA ALTO PLATA", medidas:null, cantidad:18},
+      {id:"decoracion.sittings.soporte-numero-de-mesa-plata", nombre:"SOPORTE NUMERO DE MESA PLATA", medidas:null, cantidad:12},
+      {id:"decoracion.sittings.carteleras", nombre:"CARTELERAS", medidas:null, cantidad:2},
+      {id:"decoracion.sittings.perches", nombre:"Perches", medidas:null, cantidad:28}
+    ]}
+  ]},
+  { hoja:"SONIDO Y LUZ", titulo:"INVENTARIO LUZ Y SONIDO", fecha:null, categorias:[
+    { nombre:"CABLE DE LUZ", columnas:["TIPO DE CABLE","AMPERIOS","MEDIDA","COMENTARIOS"], items:[
+      {id:"sonido-y-luz.cable-de-luz.cable-verde-triple-enchufe.16", nombre:"CABLE VERDE TRIPLE ENCHUFE", codigo:"1-E", tipo:"MONOFASICO", amperios:16, medidas:"16", cantidad:1, nota:"S'HA DE REPARAR"},
+      {id:"sonido-y-luz.cable-de-luz.cable-verde-sin-enchufe.20-4", nombre:"CABLE VERDE SIN ENCHUFE", codigo:"2-E", tipo:"MONOFASICO", amperios:10, medidas:"20.4", cantidad:1},
+      {id:"sonido-y-luz.cable-de-luz.cable-negro-enchufe-azul-foodtruk.21-6", nombre:"CABLE NEGRO ENCHUFE AZUL FOODTRUK", codigo:"3-E", tipo:"MONOFASICO", amperios:32, medidas:"21.6", cantidad:1, nota:"CLAVIJA DE 32 AMP DE CETAC"},
+      {id:"sonido-y-luz.cable-de-luz.cable-negro-enchufe-negro-triple.9-7", nombre:"CABLE NEGRO ENCHUFE NEGRO TRIPLE", codigo:"4-E", tipo:"MONOFASICO", amperios:16, medidas:"9.7", cantidad:1, nota:"CLAVIJA ENCHUFE NORMAL 16 AMP"},
+      {id:"sonido-y-luz.cable-de-luz.cable-verde-enchufe-verde.6", nombre:"CABLE VERDE ENCHUFE VERDE", codigo:"5-E", medidas:"6", cantidad:1, nota:"CLAVIJA 32 AMP"}
+    ]},
+    { nombre:null, items:[
+      {id:"sonido-y-luz.x.altavoces-mobiles", nombre:"ALTAVOCES MOBILES", medidas:null, cantidad:4},
+      {id:"sonido-y-luz.x.altavoces-jardin", nombre:"ALTAVOCES JARDIN", medidas:null, cantidad:4},
+      {id:"sonido-y-luz.x.walkie-talkies", nombre:"WALKIE TALKIES", medidas:null, cantidad:null},
+      {id:"sonido-y-luz.x.microfono-inhalambrico", nombre:"MICROFONO INHALAMBRICO", medidas:null, cantidad:null},
+      {id:"sonido-y-luz.x.microfono-inhalambrico.2", nombre:"MICROFONO INHALAMBRICO", medidas:null, cantidad:null},
+      {id:"sonido-y-luz.x.microfono-inhalambrico.3", nombre:"MICROFONO INHALAMBRICO", medidas:null, cantidad:null},
+      {id:"sonido-y-luz.x.soporte-altavoz-mobil", nombre:"SOPORTE ALTAVOZ MOBIL", medidas:null, cantidad:5}
+    ]}
+  ]}
+  ]
+};
+
+var hojaSel="", q="";
+/* notas que hablan de algo estropeado o que falta, para distinguirlas de las
+   que solo describen el artículo */
+var AVISO=/rot|repar|trenc|averi|falta|estropea/i;
+
+/* ── correcciones sobre lo que dice el Excel ────────────────────────── */
+function ajustes(){
+  var st=BR.store;
+  if(!st.inventario) st.inventario={};
+  return st.inventario;
+}
+function ajuste(it){ return ajustes()[it.id]||null; }
+/* la cantidad que vale hoy: la corregida si la hay, si no la del Excel */
+function cantidad(it){
+  var a=ajuste(it);
+  return a&&a.cantidad!==undefined&&a.cantidad!==null ? a.cantidad : it.cantidad;
+}
+function corregida(it){
+  var a=ajuste(it);
+  return !!(a&&a.cantidad!==undefined&&a.cantidad!==null&&a.cantidad!==it.cantidad);
+}
+/* Volver a la cantidad del Excel NO es borrar la corrección: es una corrección
+   más, la que dice «vale la del Excel». Si se borrase, la copia que tiene otra
+   pestaña o el servidor volvería a colarla en el siguiente guardado, porque no
+   habría nada más nuevo con qué compararla — el mismo problema que ya obligó a
+   llevar la cuenta de los eventos borrados (deletedIds). */
+function corregir(it,valor){
+  var m=ajustes();
+  var v=(valor===null||valor===""||valor===it.cantidad)?null:valor;
+  m[it.id]={cantidad:v,updated:Date.now()};
+  BR.save();
+}
+
+/* ── recorrer y buscar ──────────────────────────────────────────────── */
+function todasLasLineas(){
+  var out=[];
+  INVENTARIO_DATA.hojas.forEach(function(h){
+    h.categorias.forEach(function(c){
+      c.items.forEach(function(it){ out.push({hoja:h,cat:c,it:it}); });
+    });
+  });
+  return out;
+}
+function coincide(l,needle){
+  if(!needle) return true;
+  var campos=[l.it.nombre,l.it.medidas,l.it.nota,l.cat.nombre,l.hoja.hoja,l.it.codigo,l.it.tipo];
+  for(var i=0;i<campos.length;i++){
+    if(campos[i]!=null&&norm(campos[i]).indexOf(needle)>-1) return true;
+  }
+  return false;
+}
+
+/* ── pintar ─────────────────────────────────────────────────────────── */
+function renderHojas(){
+  var html='<button class="btn sm'+(hojaSel===""?" on":"")+'" data-h="">Todo</button>';
+  INVENTARIO_DATA.hojas.forEach(function(h){
+    html+='<button class="btn sm'+(hojaSel===h.hoja?" on":"")+'" data-h="'+esc(h.hoja)+'">'+esc(h.hoja)+'</button>';
+  });
+  $("inv-hojas").innerHTML=html;
+  Array.prototype.forEach.call($("inv-hojas").children,function(b){
+    b.addEventListener("click",function(){ hojaSel=b.dataset.h; renderHojas(); renderBody(); });
+  });
+}
+
+function filaHtml(l){
+  var it=l.it, c=cantidad(it), sinCant=(c===null||c===undefined);
+  var h='<div class="inv-row'+(sinCant?" sinCant":"")+'" data-id="'+esc(it.id)+'">';
+  h+='<span class="nm">'+esc(it.nombre)+(it.mismoNombre?' <span class="inv-cont">(mismo artículo)</span>':'')+'</span>';
+  if(it.codigo) h+='<span class="md">'+esc(it.codigo)+'</span>';
+  if(it.tipo) h+='<span class="md">'+esc(it.tipo)+'</span>';
+  if(it.amperios!=null) h+='<span class="md">'+esc(it.amperios)+' A</span>';
+  if(it.medidas) h+='<span class="md">'+esc(it.medidas)+(l.hoja.hoja==="SONIDO Y LUZ"&&it.codigo?" m":"")+'</span>';
+  if(it.nota) h+='<span class="nt'+(AVISO.test(it.nota)?" aviso":"")+'">'+esc(it.nota)+'</span>';
+  h+='<span class="qt">';
+  if(corregida(it)) h+='<span class="orig" title="lo que dice el Excel">Excel: '+esc(it.cantidad==null?"—":it.cantidad)+'</span>';
+  h+='<input type="text" inputmode="numeric" class="inv-cant" data-id="'+esc(it.id)+'" value="'+esc(sinCant?"":c)+'" placeholder="—" aria-label="Cantidad de '+esc(it.nombre)+'">';
+  h+='<span class="ud">uds</span></span></div>';
+  return h;
+}
+
+function renderBody(){
+  var needle=norm(q.trim()), html="", hay=false;
+  INVENTARIO_DATA.hojas.forEach(function(h){
+    if(hojaSel&&h.hoja!==hojaSel) return;
+    var bloques="", nH=0;
+    h.categorias.forEach(function(c){
+      var filas=c.items.filter(function(it){ return coincide({hoja:h,cat:c,it:it},needle); });
+      if(!filas.length) return;
+      nH+=filas.length;
+      bloques+='<div class="mnu-station">';
+      if(c.nombre) bloques+='<div class="mnu-fam-h"><h2>'+esc(c.nombre)+'</h2><span class="cnt">'+
+        filas.length+(filas.length===1?" línea":" líneas")+'</span></div>';
+      if(c.columnas) bloques+='<p class="inv-cables">Cada línea es un cable. La medida son metros.</p>';
+      filas.forEach(function(it){ bloques+=filaHtml({hoja:h,cat:c,it:it}); });
+      bloques+='</div>';
+    });
+    if(!nH) return;
+    hay=true;
+    html+='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>'+esc(h.hoja)+'</h2><span class="cnt">'+
+      nH+(nH===1?" línea":" líneas")+(h.fecha?' · inventariado el '+esc(h.fecha):'')+
+      '</span></div>'+bloques+'</div>';
+  });
+  $("inv-body").innerHTML=hay?html:'<div class="mnu-empty">No hay nada en el inventario que coincida con la búsqueda.</div>';
+  Array.prototype.forEach.call($("inv-body").querySelectorAll("input.inv-cant"),function(inp){
+    inp.addEventListener("change",function(){
+      var it=porId(inp.dataset.id); if(!it) return;
+      var t=inp.value.trim();
+      if(t===""){ corregir(it,null); }
+      else{
+        var n=parseFloat(t.replace(",","."));
+        corregir(it, isNaN(n)?t:n);        /* si escriben «++» se guarda tal cual */
+      }
+      renderBody(); renderStats();
+    });
+  });
+}
+
+var indice=null;
+function porId(id){
+  if(!indice){ indice={}; todasLasLineas().forEach(function(l){ indice[l.it.id]=l.it; }); }
+  return indice[id];
+}
+
+function renderStats(){
+  /* «sin cantidad» son las líneas que el Excel deja en blanco. Aparte van las
+     que traen algo que no es un número («++»): tienen dato, pero no se pueden
+     sumar, así que no entran en el total y se dicen por separado. */
+  var lineas=todasLasLineas(), sinCant=0, noNum=0, corregidas=0, total=0;
+  lineas.forEach(function(l){
+    var c=cantidad(l.it);
+    if(c===null||c===undefined||c==="") sinCant++;
+    else if(typeof c==="number") total+=c;
+    else noNum++;
+    if(corregida(l.it)) corregidas++;
+  });
+  var st='<div class="stat"><b>'+lineas.length+'</b><span>líneas</span></div>'+
+         '<div class="stat"><b>'+total.toLocaleString("es-ES")+'</b><span>unidades contadas</span></div>';
+  if(sinCant) st+='<div class="stat"><b>'+sinCant+'</b><span>sin cantidad</span></div>';
+  if(noNum) st+='<div class="stat"><b>'+noNum+'</b><span>sin número</span></div>';
+  if(corregidas) st+='<div class="stat"><b>'+corregidas+'</b><span>corregidas aquí</span></div>';
+  $("inv-stats").innerHTML=st;
+  $("inv-origen").innerHTML='<b>Del Excel '+esc(INVENTARIO_DATA.fuente)+'</b> — las hojas, las categorías y '+
+    'las líneas son las suyas, sin tocar. Si corriges una cantidad aquí se guarda para todo el equipo y '+
+    'al lado sigue viéndose lo que dice el Excel.';
+  $("inv-note").innerHTML='Las líneas sin cantidad son las que el Excel deja en blanco '+
+    '(«CHICO-CHICO», «WALKIE TALKIES», los micrófonos…). No se inventa ninguna: se escriben aquí cuando se cuenten.';
+}
+
+/* ── entrar y salir de la vista ─────────────────────────────────────── */
+function showInv(){
+  $("appSitting").style.display="none";
+  $("appMenu").style.display="none";
+  $("appInv").style.display="flex";
+  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-menu");
+  document.body.classList.add("mode-inv");
+  renderHojas(); renderStats(); renderBody();
+  if(window.syncAppbar) window.syncAppbar();
+}
+window.showInv=showInv;
+/* para que un cambio que llegue del servidor se vea sin recargar */
+window.invRefrescar=function(){
+  if(document.body.classList.contains("mode-inv")){ renderStats(); renderBody(); }
+};
+window.INVENTARIO_DATA=INVENTARIO_DATA;   /* lo usarán la disponibilidad por evento y las medidas del plano */
+
+$("inv-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 })();
 </script>
