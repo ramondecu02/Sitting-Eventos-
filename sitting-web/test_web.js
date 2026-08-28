@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * test_web.js — flujo completo contra un servidor real: dos personas del
- * equipo compartiendo un evento (sincronización), exportar a PDF de
- * principio a fin, y la regresión conocida del logo duplicado en móvil.
+ * equipo compartiendo un evento (sincronización) usando la barra de la app,
+ * exportar a PDF de principio a fin, y la regresión conocida del logo
+ * duplicado en móvil.
  *
  * Nota importante sobre lo que comprueba la parte de sincronización: el
  * servidor no fusiona campo a campo dos ediciones simultáneas — cada
@@ -92,24 +93,25 @@ async function main() {
     const { ctx, page } = await login(browser, TEAM_PASSWORD);
     aliciaCtx = ctx;
     aliciaPage = page;
-    await page.locator("#new").click();
+    await page.locator("#ab-new").click();   // el botón "+ Evento" de la barra
     await page
       .locator("#src")
       .fill(`# ${eventTitle}\n@ ${token}\n\nM1 | Redonda 10 | Mesa de Alicia\nInvitada Alicia (${token})\n`);
     await wait(SYNC_WAIT_MS);
   });
 
-  await step("Bruno entra, ve el evento de Alicia en su desplegable y edita encima", async () => {
+  await step("Bruno entra, ve el evento de Alicia en la barra de la app y edita encima", async () => {
     const { ctx, page } = await login(browser, TEAM_PASSWORD);
     brunoCtx = ctx;
     await wait(1500); // margen para que hydrateFromServer() termine su fetch
-    // el desplegable muestra el nombre y, detrás, sus mesas y comensales
-    // ("Sync test … — 1 mesa · 1 comensales"), para poder distinguir eventos
-    // que se llamen parecido: se busca el que empieza por el título.
-    const opcion = await page.locator("#ev option")
+    // el desplegable de eventos vive en la barra de arriba (#ab-ev) y es el
+    // mismo para Sitting y para Menú. Muestra el nombre y, detrás, sus mesas
+    // y comensales ("Sync test … — 1 mesa · 1 comensales"), para poder
+    // distinguir eventos que se llamen parecido: se busca el del título.
+    const opcion = await page.locator("#ab-ev option")
       .filter({ hasText: eventTitle }).first().getAttribute("value");
     assert.ok(opcion, "el evento de Alicia aparece en el desplegable de Bruno");
-    await page.locator("#ev").selectOption(opcion);
+    await page.locator("#ab-ev").selectOption(opcion);
     await assertSrcContains(page, "Mesa de Alicia");
     const current = await page.locator("#src").inputValue();
     await page.locator("#src").fill(current + `\nM2 | Redonda 10 | Mesa de Bruno\nInvitado Bruno (${token})\n`);
@@ -137,7 +139,7 @@ async function main() {
     await aliciaPage.locator(".ovl").waitFor({ state: "detached" });
   });
 
-  await step("Móvil: el logo no sale duplicado (regresión conocida)", async () => {
+  await step("Móvil: solo se ve un logo en toda la pantalla", async () => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
     await page.goto(BASE_URL + "/login");
@@ -147,17 +149,21 @@ async function main() {
       page.locator('button[type="submit"]').click(),
     ]);
     await page.locator("#appSitting").waitFor({ state: "visible" });
-    await page.locator(".launcher-logo").first().waitFor({ state: "visible", timeout: 5000 });
-    const brandLogoVisible = await page
-      .locator(".brand .brand-logo")
-      .first()
-      .isVisible()
-      .catch(() => false);
-    assert.equal(
-      brandLogoVisible,
-      false,
-      'el logo dentro de ".brand" no debería verse en móvil (ya se ve en el header fijo ".launcher")'
+    // el logo del evento sale UNA vez, en la barra de arriba. Antes había
+    // otro dentro del panel de edición y en la cabecera del Menú, y en móvil
+    // se veían los dos a la vez; ahora la barra es la única cabecera.
+    await page.locator(".ab-logo").first().waitFor({ state: "visible", timeout: 5000 });
+    const visibles = await page.locator('img[src^="data:image/png"]').evaluateAll(
+      (imgs) => imgs.filter((i) => i.getClientRects().length > 0).length
     );
+    assert.equal(visibles, 1, `esperaba un solo logo visible en móvil y se ven ${visibles}`);
+    // y lo mismo al pasar al Menú, que antes traía su propia cabecera
+    await page.locator("#ab-sec").selectOption("m-sel");
+    await page.locator("#appMenu").waitFor({ state: "visible" });
+    const visiblesMenu = await page.locator('img[src^="data:image/png"]').evaluateAll(
+      (imgs) => imgs.filter((i) => i.getClientRects().length > 0).length
+    );
+    assert.equal(visiblesMenu, 1, `en el Menú esperaba un solo logo visible y se ven ${visiblesMenu}`);
     await ctx.close();
   });
 

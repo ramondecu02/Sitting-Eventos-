@@ -15,6 +15,11 @@
  *  · las estaciones que todavía no están rellenas en el Excel de parámetros
  *    se nombran una a una en vez de callarse.
  *
+ * Los comensales y las mesas de banquete salen del PLANO de mesas (se escribe
+ * en Sitting y el Menú lo lee), no de escribirlos otra vez a mano. Se navega
+ * con el desplegable "Sección" de la barra de arriba, que es como se mueve
+ * hoy por la app.
+ *
  * Arranque: igual que los otros tests, ver la cabecera de test_smoke.js.
  */
 const assert = require("node:assert/strict");
@@ -30,6 +35,29 @@ async function step(name, fn) {
   catch (err) { console.error("FAIL " + name); console.error("     " + (err.stack || err.message)); failed++; }
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* plano de mesas en texto: N mesas de M comensales cada una. Los comensales
+   del check list salen de aquí, no de escribirlos a mano en el Menú. */
+function plano(mesas, porMesa) {
+  let t = "# Prueba de mobiliario\n@ Les Moles Events\n";   // el subtítulo va con @, si no cuenta como invitado
+  let n = 0;
+  for (let m = 1; m <= mesas; m++) {
+    t += `\nMESA ${m} | Redonda ${porMesa} | Mesa ${m}\n`;
+    for (let i = 0; i < porMesa; i++) t += `Invitado ${++n}\n`;
+  }
+  return t;
+}
+/* escribe el plano en Sitting y vuelve al Menú */
+async function ponerPlano(page, mesas, porMesa) {
+  await page.locator("#ab-sec").selectOption("plan");
+  await page.locator("#appSitting").waitFor({ state: "visible" });
+  await page.locator("#src").fill(plano(mesas, porMesa));
+  await page.locator("#src").dispatchEvent("input");
+  await wait(700);
+  await page.locator("#ab-sec").selectOption("m-sel");
+  await page.locator("#appMenu").waitFor({ state: "visible" });
+  await wait(400);
+}
 
 /* busca un plato por su nombre y lo marca */
 async function marcar(page, texto) {
@@ -49,10 +77,10 @@ async function marcar(page, texto) {
 }
 /* texto de la hoja de Servicio, volviendo después a Selección */
 async function hojaServicio(page) {
-  await page.locator('#mnu-tabs [data-v="serv"]').click();
+  await page.locator("#ab-sec").selectOption("m-serv");
   await wait(500);
   const t = await page.locator("#mnu-body").innerText();
-  await page.locator('#mnu-tabs [data-v="sel"]').click();
+  await page.locator("#ab-sec").selectOption("m-sel");
   await wait(300);
   return t;
 }
@@ -70,7 +98,7 @@ async function main() {
   const jsErrors = [];
   page.on("pageerror", (e) => jsErrors.push(e.message));
 
-  await step("login y evento nuevo de 70 comensales, 10 por mesa", async () => {
+  await step("login y evento nuevo con 7 mesas de 10 en el plano (70 comensales)", async () => {
     await page.goto(BASE_URL + "/login");
     await page.locator("#password").fill(TEAM_PASSWORD);
     await Promise.all([
@@ -78,14 +106,12 @@ async function main() {
       page.locator('button[type="submit"]').click(),
     ]);
     await page.locator("#appSitting").waitFor({ state: "visible" });
-    await page.locator("#new").click(); await wait(300);
-    await page.locator("#lnch-menu").click(); await wait(400);
-    for (const [id, v] of [["ev-adultos", "70"], ["ev-ninos", "0"], ["ev-pmb", "10"]]) {
-      await page.locator("#" + id).fill(v);
-      await page.locator("#" + id).dispatchEvent("input");
-    }
-    await wait(300);
+    await page.locator("#ab-new").click(); await wait(300);
+    await ponerPlano(page, 7, 10);
+    // los comensales y las mesas de banquete salen del PLANO, no de escribirlos
     assert.match(await page.locator("#mnu-stats").innerText(), /70/);
+    const manuales = await page.locator("#f-adultos").isVisible();
+    assert.equal(manuales, false, "con plano hecho, los campos a mano sobran");
   });
 
   let hoja;
@@ -159,10 +185,8 @@ async function main() {
     assert.match(hoja, /Todavía sin datos de mobiliario propio:[^\n]*CROQUETAS/);
   });
 
-  await step("cambiar los comensales recalcula solo lo que va por comensal", async () => {
-    await page.locator("#ev-adultos").fill("300");
-    await page.locator("#ev-adultos").dispatchEvent("input");
-    await wait(400);
+  await step("cambiar el PLANO recalcula solo lo que va por comensal", async () => {
+    await ponerPlano(page, 30, 10);   // 30 mesas de 10 = 300 comensales
     hoja = await hojaServicio(page);
     assert.equal(cantidad(hoja, "Vaso de agua"), 300);
     assert.equal(cantidad(hoja, "Mesa de banquete"), 30);

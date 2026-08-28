@@ -83,7 +83,7 @@ async function main() {
   });
 
   await step("crear evento nuevo (planos en blanco)", async () => {
-    await page.locator("#new").click();
+    await page.locator("#ab-new").click();
     await wait(200);
   });
 

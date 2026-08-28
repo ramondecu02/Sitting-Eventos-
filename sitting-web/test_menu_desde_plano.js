@@ -67,12 +67,18 @@ Noa (nena)
 Ivan
 `;
 
+/* se navega con el desplegable "Sección" de la barra de arriba, que es lo
+   que usa el equipo: una sola lista con las 8 pantallas del evento. */
+async function irA(page, seccion) {
+  await page.locator("#ab-sec").selectOption(seccion);
+  await wait(seccion.startsWith("m-") ? 500 : 300);
+}
 async function ponPlano(page, texto) {
-  await page.locator("#lnch-sitting").click(); await wait(250);
+  await irA(page, "plan");
   await page.locator("#src").fill(texto);
   await page.locator("#src").dispatchEvent("input");
   await wait(600);
-  await page.locator("#lnch-menu").click(); await wait(500);
+  await irA(page, "m-sel");
 }
 async function stats(page) {
   const t = await page.locator("#mnu-stats").innerText();
@@ -97,11 +103,11 @@ async function main() {
       page.locator('button[type="submit"]').click(),
     ]);
     await page.locator("#appSitting").waitFor({ state: "visible" });
-    await page.locator("#new").click(); await wait(300);
+    await page.locator("#ab-new").click(); await wait(300);
   });
 
   await step("con el plano vacío se puede seguir a mano", async () => {
-    await page.locator("#lnch-menu").click(); await wait(450);
+    await irA(page, "m-sel");
     assert.equal(await page.locator("#f-adultos").isVisible(), true, "los campos a mano están a la vista");
     assert.match(await page.locator("#mnu-origen").innerText(), /plano de mesas todavía está vacío/i);
   });
@@ -109,8 +115,9 @@ async function main() {
   await step("CON EL PLANO HECHO, LAS CIFRAS SALEN DE ÉL (lo que fallaba)", async () => {
     await ponPlano(page, PLANO);
     const s = await stats(page);
-    // 4 + 8 + 12 = 24 sentados, uno de ellos en trona → 23 con cubierto
-    assert.equal(s.comensales, 23, "comensales del plano, sin contar la trona");
+    // 4 + 8 + 12 = 24 sentados; el contador dice los que se sientan, igual
+    // que el plano y el desplegable de eventos
+    assert.equal(s.comensales, 24, "comensales del plano");
     assert.equal(s.banquete, 3, "las 3 mesas reales del plano, no una media");
   });
 
@@ -128,6 +135,8 @@ async function main() {
     assert.match(nota, /21 adultos/);
     assert.match(nota, /2 niños/);
     assert.match(nota, /1 en trona/);
+    assert.match(nota, /se pone servicio para 23/,
+      "dice a cuántos se les pone cubierto, que no es lo mismo que sentarse");
     assert.match(nota, /entre 4 y 12 comensales/,
       "cada mesa tiene su número, no se promedia");
   });
@@ -138,34 +147,34 @@ async function main() {
     await wait(400);
     await page.locator(".mnu-row").first().locator("input.mnu-chk").check();
     await wait(400);
-    await page.locator('#mnu-tabs [data-v="serv"]').click(); await wait(500);
+    await irA(page, "m-serv");
     const s = await page.locator("#mnu-body").innerText();
-    assert.match(s, /Vaso de agua\s*\t\s*23 uds/, "23 vasos, los del plano");
+    assert.match(s, /Vaso de agua\s*\t\s*23 uds/,
+      "23 vasos: los 24 sentados menos el bebé en trona");
     assert.match(s, /Mesa de banquete\s*MOBILIARIO\s*\t\s*3 uds/, "3 mesas, las del plano");
     assert.match(s, /Cubo de basura\s*MOBILIARIO\s*\t\s*1 ud\b/, "el material de estación sigue fijo");
-    await page.locator('#mnu-tabs [data-v="sel"]').click(); await wait(300);
+    await irA(page, "m-sel");
   });
 
   await step("quitar una mesa del plano actualiza el Menú solo", async () => {
     await ponPlano(page, PLANO.split("M3 |")[0]);
     const s = await stats(page);
-    assert.equal(s.comensales, 11, "4 + 8 sentados, menos la trona");
+    assert.equal(s.comensales, 12, "4 + 8 sentados");
     assert.equal(s.banquete, 2);
   });
 
   await step("cada evento tiene su plano y su menú, sin mezclarse", async () => {
     const antes = await stats(page);
-    await page.locator("#lnch-sitting").click(); await wait(250);
-    await page.locator("#new").click(); await wait(500);
-    await page.locator("#lnch-menu").click(); await wait(500);
+    await page.locator("#ab-new").click(); await wait(500);
     const nuevo = await stats(page);
     assert.equal(nuevo.comensales, 0, "el evento nuevo arranca sin comensales");
     assert.equal(await page.locator("#mnu-body").innerText().then((t) => /Sin platos|marca/i.test(t) || true), true);
 
-    // volver al anterior desde el desplegable del propio Menú
-    const opciones = await page.locator("#mnu-ev option").count();
+    // volver al anterior desde el desplegable de eventos de la barra, que es
+    // el mismo para Sitting y para Menú
+    const opciones = await page.locator("#ab-ev option").count();
     assert.ok(opciones >= 2, "los dos eventos están en la lista");
-    await page.locator("#mnu-ev").selectOption({ index: 1 });
+    await page.locator("#ab-ev").selectOption({ index: 1 });
     await wait(600);
     const vuelta = await stats(page);
     assert.deepEqual(vuelta, antes, "el evento anterior conserva sus cifras");

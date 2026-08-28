@@ -83,6 +83,14 @@ igual. Instrucciones dentro de cada archivo; se lanzan con
 `node test_web.js` / `node test_smoke.js` con el servidor arrancado en el
 puerto 3200.
 
+`test_navegacion.js` comprueba la barra de arriba: que las ocho secciones del
+evento están en un solo desplegable y cada una abre su pantalla (saltando sola
+entre el plano y el menú, sin tener que saber que por dentro son dos cosas);
+que el desplegable dice siempre dónde estás; que el evento se elige una vez y
+vale para las dos; que «+ Evento» crea uno en blanco también estando en el
+Menú; y que en móvil la barra sigue entera y no tapa el contenido. Se lanza
+igual: `node test_navegacion.js`.
+
 `test_exterior_orient.js` comprueba, con el mismo servidor, el giro de los
 planos entre vertical y apaisado: que la sala y **las mesas** giran juntas, en
 los dos planos (interior y exterior); que el contorno del exterior conserva su
@@ -149,6 +157,29 @@ Dentro de `sitting.html`, junto al catálogo de platos:
 Para añadir una estación nueva basta con añadir su regla a `MOBILIARIO_DATA`.
 Las que no estén puestas no se inventan: la propia hoja de Servicio las nombra
 para que se vea qué falta por rellenar.
+
+## Cómo se mueve uno por la app
+
+Arriba del todo hay una barra fija, la misma en todas las pantallas, con tres
+cosas y nada más:
+
+- **Evento** — el desplegable de eventos. Es uno solo: el evento que elijas ahí
+  es el del plano y el del menú a la vez. Cada evento sale con sus mesas y sus
+  comensales detrás del nombre (`eventLabel`), para poder distinguir dos que se
+  llamen parecido.
+- **+ Evento** — crea un evento nuevo, con su plano y su menú en blanco, estés
+  en la pantalla que estés.
+- **Sección** — las ocho pantallas del evento en una sola lista, agrupadas:
+  *Plano de mesas* (Plano de sala · Listado por mesas · Marcasitios) y *Menú
+  del evento* (Elegir platos · Producción · Lista de la compra · Check list de
+  servicio · Menú para imprimir). Elegir una de menú salta sola al menú y al
+  revés; no hace falta saber que por dentro son dos vistas.
+
+En el código: `SECCIONES` (la lista), `irASeccion(clave)` (abre la pantalla) y
+`syncAppbar()` (deja los dos desplegables diciendo dónde estás y qué evento
+hay). `fillSelect()` avisa al Menú cuando cambia el evento activo o la lista,
+para que crear o cambiar de evento desde la barra no deje el Menú con las
+cifras del anterior.
 
 ## Cómo se enlazan Sitting y Menú
 
