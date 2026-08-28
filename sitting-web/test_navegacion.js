@@ -66,6 +66,7 @@ const SECCIONES = [
   ["m-sel",    "menu",    "Elegir platos"],
   ["m-prod",   "menu",    "Producción"],
   ["m-compra", "menu",    "Lista de la compra"],
+  ["m-aler",   "menu",    "Alergias y sustituciones"],
   ["m-serv",   "menu",    "Check list de servicio"],
   ["m-card",   "menu",    "Menú para imprimir"],
   ["inv",      "inv",     "Todo el material"],
@@ -103,7 +104,7 @@ async function main() {
   await step("CADA SECCIÓN LLEVA A SU PANTALLA, saltando entre plano y menú", async () => {
     // en desorden a propósito: los saltos son lo que antes obligaba a pasar
     // por el selector "Sitting/Menú"
-    for (const clave of ["m-serv", "list", "inv", "m-sel", "card", "inv", "m-card", "plan"]) {
+    for (const clave of ["m-serv", "list", "inv", "m-aler", "m-sel", "card", "inv", "m-card", "plan"]) {
       const esperada = SECCIONES.find((s) => s[0] === clave)[1];
       await page.locator("#ab-sec").selectOption(clave);
       await wait(450);

@@ -26,12 +26,21 @@ const BASE_URL = process.env.SITTING_TEST_URL || "http://localhost:3200";
 const TEAM_PASSWORD = process.env.TEAM_PASSWORD;
 if (!TEAM_PASSWORD) { console.error("Falta TEAM_PASSWORD en el entorno."); process.exit(1); }
 
+/* todo lo que crea esta prueba empieza por PRUEBA, para poder barrer lo que
+   dejó la vez anterior sin tocar nada de verdad */
+const PREF = "PRUEBA ";
+const token = PREF + Date.now().toString(36).slice(-5).toUpperCase();
 let passed = 0, failed = 0;
 async function step(name, fn) {
   try { await fn(); console.log("OK   " + name); passed++; }
   catch (err) { console.error("FAIL " + name); console.error("     " + (err.stack || err.message)); failed++; }
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* buscar por texto con filter() en vez de :has-text("..."), que se atraganta
+   con las comillas cuando el texto se compone en JavaScript */
+const fila = (page, texto) => page.locator(".inv-row").filter({ hasText: texto });
+const grupoCon = (page, texto) => page.locator(".mnu-station").filter({ hasText: texto });
 
 /* las hojas del Excel, en su orden y con su nombre */
 const HOJAS = ["MESAS", "COCINA CATERING", "VASOS Y CUBERTERIA", "DECORACIÓN", "SONIDO Y LUZ"];
@@ -72,6 +81,27 @@ async function main() {
   const page = await login(browser);
   const jsErrors = [];
   page.on("pageerror", (e) => jsErrors.push(e.message));
+
+  await step("se barre lo que dejaron ejecuciones anteriores", async () => {
+    await irAlInventario(page);
+    const barridos = await page.evaluate((pref) => {
+      const st = window.SITTING_BRIDGE.store;
+      if (!st.invExtra) return 0;
+      let n = 0;
+      (st.invExtra.items || []).forEach((x) => {
+        if (!x.borrado && String(x.nombre || "").startsWith(pref)) { x.borrado = true; x.updated = Date.now(); n++; }
+      });
+      (st.invExtra.categorias || []).forEach((c) => {
+        if (!c.borrada && String(c.nombre || "").startsWith(pref)) { c.borrada = true; c.updated = Date.now(); n++; }
+      });
+      window.SITTING_BRIDGE.save();
+      return n;
+    }, PREF);
+    console.log("     (barridos " + barridos + " restos de pruebas anteriores)");
+    await page.reload();
+    await page.locator("#appSitting").waitFor({ state: "visible" });
+    await wait(1200);
+  });
 
   await step("el inventario es una sección más de la barra", async () => {
     const secciones = await page.locator("#ab-sec option").allInnerTexts();
@@ -219,7 +249,7 @@ async function main() {
     assert.equal(await fila2.locator("input.inv-cant").inputValue(), "271");
     assert.match(await fila2.locator(".orig").innerText(), /Excel:\s*277/,
       "al lado sigue viéndose lo que dice el Excel");
-    assert.match(await page.locator("#inv-stats").innerText(), /1\s*\n?\s*CORREGIDAS/i);
+    assert.match(await page.locator("#inv-stats").innerText(), /1\s*\n?\s*CORREGIDAS? AQUÍ/i);
   });
 
   await step("la corrección sobrevive a recargar y le llega a un compañero", async () => {
@@ -242,6 +272,125 @@ async function main() {
     const fila = page.locator('.inv-row:has-text("SILLAS NEGRAS BANQUETES")').first();
     assert.equal(await fila.locator("input.inv-cant").inputValue(), "277");
     assert.equal(await fila.locator(".orig").count(), 0, "ya no hay nada que comparar");
+  });
+
+  await step("AÑADIR UN ARTÍCULO A UN GRUPO EXISTENTE", async () => {
+    // lo que se compra después del Excel se apunta en su grupo, con el nombre
+    // obligatorio y las medidas y el comentario solo si vienen a cuento
+    await page.locator('#inv-hojas button[data-h="MESAS"]').click(); await wait(400);
+    const grupo = page.locator('.mnu-station:has-text("MANTELERIA")').first();
+    await grupo.locator("button.inv-add").click(); await wait(300);
+    await page.locator(".inv-form .f-nombre").fill(token + " MANTELES BLANCOS");
+    await page.locator(".inv-form .f-medidas").fill("3 X 2 M");
+    await page.locator(".inv-form .f-cant").fill("24");
+    await page.locator(".inv-form .f-nota").fill("comprados hoy");
+    await page.locator(".inv-form .f-ok").click(); await wait(600);
+
+    const f = fila(page, token + " MANTELES BLANCOS").first();
+    assert.equal(await f.count(), 1, "sale en su grupo");
+    assert.match(await f.innerText(), /3 X 2 M/, "con sus medidas");
+    assert.match(await f.innerText(), /comprados hoy/, "y su comentario");
+    assert.equal(await f.locator("input.inv-cant").inputValue(), "24");
+    assert.match(await f.innerText(), /añadido/i,
+      "marcado como añadido, para distinguir de un vistazo lo que viene del Excel");
+    await page.locator(".inv-form .f-no").click(); await wait(300);
+  });
+
+  await step("un artículo sin nombre no se añade", async () => {
+    const antes = await page.locator(".inv-row").count();
+    const grupo = page.locator('.mnu-station:has-text("MANTELERIA")').first();
+    await grupo.locator("button.inv-add").click(); await wait(300);
+    await page.locator(".inv-form .f-cant").fill("9");
+    await page.locator(".inv-form .f-ok").click(); await wait(400);
+    assert.equal(await page.locator(".inv-row").count(), antes, "no se ha añadido nada");
+    assert.equal(await page.locator(".inv-form").count(), 1, "el formulario sigue abierto");
+    await page.locator(".inv-form .f-no").click(); await wait(300);
+  });
+
+  await step("CREAR UN GRUPO NUEVO Y METERLE ALGO", async () => {
+    const nombreGrupo = token + " BARRAS";
+    await page.locator('.mnu-fam-section:has-text("MESAS") button.inv-add-g').first().click();
+    await wait(300);
+    await page.locator(".inv-form.grupo .g-nombre").fill(nombreGrupo);
+    await page.locator(".inv-form.grupo .g-ok").click(); await wait(600);
+
+    const grupo = grupoCon(page, nombreGrupo).first();
+    assert.equal(await grupo.count(), 1, "el grupo nuevo sale en su hoja");
+    assert.match(await grupo.innerText(), /grupo añadido/i);
+    assert.match(await grupo.innerText(), /todavía no tiene nada/i,
+      "un grupo vacío se ve, no desaparece hasta tener algo dentro");
+
+    await grupo.locator("button.inv-add").click(); await wait(300);
+    await page.locator(".inv-form .f-nombre").fill(token + " BARRA PLEGABLE");
+    await page.locator(".inv-form .f-cant").fill("3");
+    await page.locator(".inv-form .f-ok").click(); await wait(600);
+    assert.equal(await fila(page, token + " BARRA PLEGABLE").count(), 1);
+    await page.locator(".inv-form .f-no").click(); await wait(300);
+  });
+
+  await step("lo añadido cuenta en las cifras y se puede buscar", async () => {
+    const stats = await page.locator("#inv-stats").innerText();
+    const m = /(\d+)\s*\n?\s*AÑADIDAS? AQUÍ/i.exec(stats);
+    assert.ok(m && +m[1] >= 2, "las añadidas cuentan en las cifras: " + stats.replace(/\n/g, " "));
+    await page.locator('#inv-hojas button[data-h=""]').click(); await wait(300);
+    await page.locator("#inv-q").fill(token + " BARRA PLEGABLE"); await wait(500);
+    assert.equal(await page.locator(".inv-row").count(), 1, "se encuentra buscando");
+    await page.locator("#inv-q").fill(""); await wait(400);
+  });
+
+  await step("lo añadido le llega a un compañero", async () => {
+    await wait(2500);
+    const otro = await login(browser);
+    await wait(1500);
+    await irAlInventario(otro);
+    assert.equal(await fila(otro, token + " MANTELES BLANCOS").count(), 1);
+    assert.equal(await grupoCon(otro, token + " BARRAS").count(), 1);
+    await otro.context().close();
+  });
+
+  await step("se puede corregir y quitar lo añadido, sin tocar el Excel", async () => {
+    const f = fila(page, token + " MANTELES BLANCOS").first();
+    await f.locator("button.inv-ed").click(); await wait(400);
+    const panel = page.locator(".inv-panel").first();
+    await panel.locator(".p-nota").fill("faltan 2 por recoger");
+    await panel.locator(".p-nota").press("Enter"); await wait(600);
+    assert.match(await fila(page, token + " MANTELES BLANCOS").first().innerText(),
+      /faltan 2 por recoger/);
+
+    // quitarlo: el diálogo de confirmación se acepta solo
+    await fila(page, token + " BARRA PLEGABLE").first()
+      .locator("button.inv-ed").click(); await wait(400);
+    page.once("dialog", (d) => d.accept());
+    await page.locator(".inv-panel .p-quitar").first().click(); await wait(600);
+    assert.equal(await fila(page, token + " BARRA PLEGABLE").count(), 0,
+      "ya no está");
+    // y las 123 líneas del Excel siguen intactas
+    const d = await datos(page);
+    const n = d.hojas.reduce((a, h) => a + h.categorias.reduce((b, c) => b + c.items.length, 0), 0);
+    assert.equal(n, 123, "el Excel no se ha tocado en ningún momento");
+  });
+
+  await step("un grupo con artículos dentro no se puede quitar por error", async () => {
+    // el de BARRAS ya está vacío (se acaba de quitar su artículo), así que se
+    // comprueba con uno que sí tiene algo
+    const nombreGrupo = token + " CON COSAS";
+    await page.locator('#inv-hojas button[data-h="MESAS"]').click(); await wait(400);
+    await page.locator('.mnu-fam-section:has-text("MESAS") button.inv-add-g').first().click(); await wait(300);
+    await page.locator(".inv-form.grupo .g-nombre").fill(nombreGrupo);
+    await page.locator(".inv-form.grupo .g-ok").click(); await wait(500);
+    const grupo = grupoCon(page, nombreGrupo).first();
+    await grupo.locator("button.inv-add").click(); await wait(300);
+    await page.locator(".inv-form .f-nombre").fill(token + " ALGO");
+    await page.locator(".inv-form .f-ok").click(); await wait(500);
+    await page.locator(".inv-form .f-no").click(); await wait(300);
+
+    let aviso = null;
+    page.once("dialog", (d) => { aviso = d.message(); d.accept(); });
+    await grupoCon(page, nombreGrupo).locator("button.inv-quitar-g").first().click();
+    await wait(500);
+    assert.match(aviso || "", /todavía tiene 1 artículo/i, "avisa en vez de llevárselo todo por delante");
+    assert.equal(await grupoCon(page, nombreGrupo).count(), 1,
+      "el grupo sigue ahí");
   });
 
   await step("el inventario es el mismo para todos los eventos", async () => {

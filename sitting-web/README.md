@@ -95,6 +95,13 @@ hoja, corregir una cantidad sin perder la del Excel, que la corrección le
 llegue a un compañero, y que el inventario sea el mismo para todos los eventos.
 Se lanza igual: `node test_inventario.js`.
 
+`test_alergias.js` comprueba la hoja de **Alergias y sustituciones**: que
+saca del plano quién tiene alergia (con su nombre, su alergia y su mesa) sin
+volver a pedirla, que el plato sustitutivo se escribe a mano, y que ese plato
+aparece después en el **listado por mesas** (también en el recuadro de alergias
+del pie) y en el **plano de sala**. Y que borrarlo lo quita de los tres sitios,
+porque son el mismo dato. Se lanza igual: `node test_alergias.js`.
+
 `test_navegacion.js` comprueba la barra de arriba: que las ocho secciones del
 evento están en un solo desplegable y cada una abre su pantalla (saltando sola
 entre el plano y el menú, sin tener que saber que por dentro son dos cosas);
@@ -218,8 +225,17 @@ Lo que el Excel tiene de particular y hay que mantener:
   código, tipo, amperios y metros, y debajo una lista que en el Excel va sin
   cabecera (esa categoría lleva `nombre:null` y se pinta sin título).
 
-**Las correcciones de cantidad** se guardan en `store.inventario`, aparte de los
-eventos, y se comparten con el equipo por el mismo camino. Cada corrección
+**Añadir lo que se compra después del Excel**: cada grupo tiene al final
+«+ Añadir artículo» (nombre obligatorio; medidas y comentario opcionales,
+porque no todo tiene medidas) y cada hoja tiene «+ Grupo nuevo». Lo añadido
+vive en `store.invExtra` — separado del Excel a propósito, para poder volver a
+importar el Excel cuando cambie sin llevarse por delante lo comprado desde
+entonces — y sale marcado como «añadido» para distinguir de un vistazo qué
+viene de dónde. Se puede corregir y quitar; un grupo con artículos dentro no se
+deja quitar, avisa primero.
+
+**Las correcciones de cantidad, medidas y comentario** se guardan en
+`store.inventario`, aparte de los eventos, y se comparten con el equipo por el mismo camino. Cada corrección
 lleva su `updated`, y se combinan artículo a artículo — gana la más reciente —
 para que dos personas puedan contar cosas distintas a la vez. Volver a la
 cantidad del Excel se guarda **como una corrección más** con `cantidad:null`,
@@ -240,6 +256,27 @@ archivo) y el segundo escribe el bloque de JavaScript. Después se sustituye a
 mano el `var INVENTARIO_DATA = {...};` de `sitting.html` por el nuevo — a
 propósito, para poder mirar el diff antes: un Excel con una hoja renombrada o
 una categoría movida cambia lo que ve el equipo.
+
+## Alergias y platos sustitutivos
+
+Las alergias **ya están en el plano**: se escriben al teclear la lista de
+invitados, entre paréntesis (`Rosa Fabra (al·lèrgia: marisc)`), y `parseGuest`
+las deja en `g.aler`. La hoja de Alergias no las vuelve a pedir — las lee de
+ahí por el puente (`SITTING_BRIDGE.alergias()`) y lo único que añade es el
+plato que se le sirve a cada uno.
+
+**Ese plato se guarda dentro del plano**, como una etiqueta más del comensal
+(`Menú: Lubina a la plancha`), no en una lista aparte. Es la decisión que hace
+que funcione: el plano de sala y el listado por mesas ya sabían dibujar
+`g.menu`, así que el plato aparece solo en los dos sitios donde el equipo lo
+mira el día del evento, sin nada que sincronizar y sin que puedan acabar
+diciendo cosas distintas. `SITTING_BRIDGE.setSustituto(mesa, i, plato)` es
+quien lo escribe, desde el lado de Sitting, que es el dueño del plano.
+
+Dónde se ve: en el listado, como etiqueta dorada llena junto al nombre y en el
+recuadro de alergias del pie; en el plano de sala, bajo la alergia y en dorado
+(recortado, como ya se recortaban las alergias, para que quepa junto a la
+silla); y en el PDF de las dos cosas.
 
 ## Cómo se enlazan Sitting y Menú
 

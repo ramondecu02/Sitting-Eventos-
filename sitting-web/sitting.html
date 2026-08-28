@@ -205,6 +205,9 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .tag.t{background:var(--clay); color:#fff}
 .tag.v{background:var(--sage); color:#fff}
 .tag.m{border:1px solid var(--gold-p); color:var(--gold-p)}
+/* el plato de quien tiene alergia no es una nota más: es lo que hay que
+   servirle a esa persona, así que se ve de lejos */
+.g.aler .tag.m{background:var(--gold-p); color:#fff; border-color:var(--gold-p)}
 .tag.o{border:1px solid var(--rule); color:var(--ink-soft)}
 .star{color:var(--gold-p); font-size:10px}
 .alerts{margin-top:6mm; border:1px solid var(--ruby); padding:4.5mm 5mm; break-inside:avoid}
@@ -215,6 +218,7 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .al .who{font-family:"Cormorant Garamond",serif; font-size:14.5px}
 .al .mesa{font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-fade); white-space:nowrap}
 .al .what{color:var(--ruby); font-size:10.5px; text-transform:uppercase; margin-left:auto; text-align:right}
+.al .what .sust{display:block; color:var(--gold-p); font-weight:600; letter-spacing:.02em}
 .foot{text-align:center; margin-top:6mm; font-family:"Cormorant Garamond",serif; font-style:italic; font-size:12.5px; color:var(--ink-fade)}
 .cards{display:grid; grid-template-columns:1fr 1fr; gap:0}
 .card{border:1px dashed var(--rule); height:53mm; padding:6mm 5mm; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; break-inside:avoid; position:relative}
@@ -316,7 +320,34 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .inv-row .orig{font-size:10px; color:var(--gold-p); white-space:nowrap}
 .inv-row.sinCant .qt input{color:var(--c-mut)}
 .inv-cont{font-size:11px; color:var(--c-mut); font-style:italic}
+.inv-tag{font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-p);
+  border:1px solid var(--gold-p); border-radius:100px; padding:1px 7px; white-space:nowrap; margin-left:6px}
+.inv-row.nuevo{background:color-mix(in srgb, var(--gold) 5%, transparent)}
+.inv-ed{background:none; border:0; padding:2px 5px; cursor:pointer; color:var(--c-mut); font-size:13px; line-height:1; border-radius:4px}
+.inv-ed:hover{background:var(--bg-2); color:var(--c-ink)}
+.inv-panel{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;
+  padding:12px 10px 14px; background:var(--bg-2); border-bottom:1px solid var(--c-line)}
+.inv-panel label{display:flex; flex-direction:column; gap:4px; flex:1 1 180px;
+  font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--c-mut)}
+.inv-panel input{width:100%}
+.inv-panel .p-orig{font-size:10.5px; color:var(--gold-p); flex:1 1 100%}
+.inv-form{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:12px 6px 4px}
+.inv-form input{flex:1 1 150px; min-width:0}
+.inv-form .f-cant{flex:0 0 96px}
+.inv-form.grupo{padding:10px 0 0}
+.inv-vacio{font-size:12.5px; color:var(--c-mut); font-style:italic; padding:8px 6px}
+.inv-add,.inv-add-g{margin-top:8px}
+.inv-quitar-g{margin-left:auto}
 .inv-cables{font-size:11.5px; color:var(--c-mut); margin-bottom:6px}
+.aler-mesa{max-width:820px; margin:0 auto 24px}
+.aler-row{display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  padding:10px 6px; border-bottom:1px solid var(--c-line)}
+.aler-row:last-child{border-bottom:0}
+.aler-row .aler-nm{font-family:"Cormorant Garamond",serif; font-size:16.5px; color:var(--ruby)}
+.aler-plato{display:flex; align-items:center; gap:8px; margin-left:auto; flex:0 1 340px;
+  font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--c-mut)}
+.aler-plato input{flex:1; min-width:0}
+.aler-row.hecho .aler-plato{color:var(--gold-p)}
 .mnu-empty{max-width:440px; margin:14vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:19px; font-style:italic; line-height:1.7}
 .mnu-dish-h{display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0}
 .mnu-dish-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px}
@@ -354,6 +385,10 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   .inv-row .nm{flex:1 0 100%}
   .inv-row .qt{margin-left:auto}
   .inv-row .qt input{width:66px}
+  .inv-form input{flex:1 1 100%}
+  .inv-form .f-cant{flex:1 1 100%}
+  .inv-panel label{flex:1 1 100%}
+  .aler-plato{margin-left:0; flex:1 1 100%}
   .mnu-top{padding:14px 16px 12px}
   .mnu-body{padding:14px 16px 50px}
   .mnu-evento .stats{margin-left:0}
@@ -1094,6 +1129,13 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full){
   if(g.star) it.push(SR(x+(sx||0)*13,y+(sy||-1)*13,4.4,COL.star));
   it.push(TX(lx,ly,full?g.name:g.short,{size:9.2,fo:g.aler.length?"sansb":"sans",a:anchor,c:g.aler.length?RUBY:"#4A4338"}));
   if(g.aler.length) it.push(TX(lx,alerBelow?ly+7.6:ly-7.6,clip(g.aler.join(" · "),anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:"#A34D66",ls:.4}));
+  /* si a este comensal se le sirve otra cosa, va debajo de su alergia y en
+     dorado: en el plano lo que hace falta saber es qué se le lleva. Sin alergia
+     el plato ocupa la línea que la alergia habría ocupado. */
+  if(g.menu){
+    var my=g.aler.length?(alerBelow?ly+15.2:ly-15.2):(alerBelow?ly+7.6:ly-7.6);
+    it.push(TX(lx,my,clip(g.menu,anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:GOLD,ls:.4}));
+  }
   return GR(it,{seat:{t:tnum,i:idx}});
 }
 function centerItems(t,L){
@@ -1326,6 +1368,7 @@ function mergeStore(){
   store.events.forEach(function(e){ if(mine[e.id]) out.unshift(e); });   /* los míos nuevos */
   store.events=out;
   store.inventario=mergeInv(store.inventario,disk.inventario);
+  store.invExtra=mergeInvExtra(store.invExtra,disk.invExtra);
   if(!current()) store.active=out.length?out[0].id:null;
   return store;
 }
@@ -1342,6 +1385,27 @@ function mergeInv(mio,otro){
     out[k]=(!b||(a.updated||0)>=(b.updated||0))?a:b;
   });
   return out;
+}
+/* Y lo que se ha comprado después del Excel (store.invExtra): artículos y
+   grupos nuevos. Mismo criterio, pero sobre listas: cada uno lleva su id y su
+   updated, y quitar algo se guarda como borrado:true en vez de sacarlo de la
+   lista — si se sacara, la copia de otra pestaña lo devolvería. */
+function mergeInvExtra(mio,otro){
+  var vacio={categorias:[],items:[]};
+  if(!otro) return mio||vacio;
+  mio=mio||vacio;
+  function unir(a,b){
+    var por={};
+    (b||[]).forEach(function(x){ if(x&&x.id) por[x.id]=x; });
+    (a||[]).forEach(function(x){
+      if(!x||!x.id) return;
+      var y=por[x.id];
+      if(!y||(x.updated||0)>=(y.updated||0)) por[x.id]=x;
+    });
+    return Object.keys(por).map(function(k){ return por[k]; });
+  }
+  return {categorias:unir(mio.categorias,otro.categorias),
+          items:unir(mio.items,otro.items)};
 }
 function save(){
   if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
@@ -1420,19 +1484,26 @@ function hydrateFromServer(){
     if(!r.ok) throw new Error("http "+r.status);
     return r.json();
   }).then(function(remote){
-      if(!remote||!remote.events||!remote.events.length) return;
+      if(!remote) return;
       var before=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
-      var invBefore=JSON.stringify(store.inventario||{});
-      /* si lo único que había en este navegador era la boda de ejemplo sin tocar y el
-         servidor ya trae eventos de verdad, no la mezclamos: un compañero que entra por
-         primera vez no debe ver la boda de ejemplo colada entre las bodas reales */
-      if(store.events.length===1&&store.events[0].text===EX_BODA) store.events=[];
-      store.events=mergeRemote(remote);
-      if(remote.prefs) store.prefs=Object.assign({},remote.prefs,store.prefs);
+      var invBefore=JSON.stringify([store.inventario||{},store.invExtra||{}]);
+      /* El inventario es del negocio, no de un evento: se combina siempre, aunque
+         el servidor todavía no tenga ningún evento. Antes esto colgaba de que
+         hubiera eventos y, en un equipo que aún no había creado ninguno de verdad,
+         las correcciones del inventario no llegaban a nadie. */
       store.inventario=mergeInv(store.inventario,remote.inventario);
-      if(!current()) store.active=store.events.length?store.events[0].id:null;
+      store.invExtra=mergeInvExtra(store.invExtra,remote.invExtra);
+      if(remote.prefs) store.prefs=Object.assign({},remote.prefs,store.prefs);
+      if(remote.events&&remote.events.length){
+        /* si lo único que había en este navegador era la boda de ejemplo sin tocar y el
+           servidor ya trae eventos de verdad, no la mezclamos: un compañero que entra por
+           primera vez no debe ver la boda de ejemplo colada entre las bodas reales */
+        if(store.events.length===1&&store.events[0].text===EX_BODA) store.events=[];
+        store.events=mergeRemote(remote);
+        if(!current()) store.active=store.events.length?store.events[0].id:null;
+      }
       var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
-      var invCambia=JSON.stringify(store.inventario||{})!==invBefore;
+      var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
       if(after!==before||invCambia){
         try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){}
       }
@@ -1921,7 +1992,10 @@ function sheetList(L){
   }).join("");
   var al=[];
   doc.tables.forEach(function(t){t.guests.forEach(function(g){
-    if(g.aler.length)al.push('<div class="al"><span class="who">'+esc(g.name)+'</span><span class="mesa">'+esc(L.taula+" "+t.num)+'</span><span class="what">'+esc(g.aler.join(" · "))+'</span></div>');
+    /* el recuadro de alergias es lo que el equipo mira en el pase: si ya se ha
+       decidido qué come esa persona, tiene que salir aquí, no solo su alergia */
+    if(g.aler.length)al.push('<div class="al"><span class="who">'+esc(g.name)+'</span><span class="mesa">'+esc(L.taula+" "+t.num)+'</span><span class="what">'+esc(g.aler.join(" · "))+
+      (g.menu?'<b class="sust">'+esc(g.menu)+'</b>':'')+'</span></div>');
   });});
   return '<section class="sheet"><div class="frame">'+head(L.list,doc.title||L.list,doc.sub,metaLine(T,L))+
     '<div class="list-grid">'+cards+'</div><div class="alerts"><h3>'+esc(L.aler)+'</h3>'+
@@ -2000,7 +2074,7 @@ function listPages(L,pw,ph){
   });
 
   var al=[];
-  doc.tables.forEach(function(t){t.guests.forEach(function(g){ if(g.aler.length) al.push({n:g.name,t:t.num,a:g.aler.join(" · ")}); });});
+  doc.tables.forEach(function(t){t.guests.forEach(function(g){ if(g.aler.length) al.push({n:g.name,t:t.num,a:g.aler.join(" · "),m:g.menu||null}); });});
   /* un aviso de alergias que no cabe entero ni en una página nueva se reparte en varios
      bloques seguidos: una alergia que se sale de la página no puede desaparecer sin más */
   var maxAlRows=Math.max(4,Math.floor((ph-2*M-16-26-10)/13)), perAlChunk=maxAlRows*2;
@@ -2016,7 +2090,12 @@ function listPages(L,pw,ph){
     als.forEach(function(a,i){
       var cx=M+12+(i%2)*(W-24)/2, cy=y+32+Math.floor(i/2)*13;
       cur.push(TX(cx,cy,a.n,{size:11,fo:"ser",a:"start",c:INK}));
-      cur.push(TX(cx+(W-24)/2-8,cy,(L.taula+" "+a.t+" · "+a.a).toUpperCase(),{size:6.8,fo:"sans",a:"end",c:RUBY,ls:.5}));
+      /* si ya se ha decidido qué come, va delante de la alergia: en el pase lo
+         que hace falta saber es qué se le lleva, no solo de qué es alérgico */
+      var der=(L.taula+" "+a.t+" · "+a.a).toUpperCase();
+      cur.push(TX(cx+(W-24)/2-8,cy,der,{size:6.8,fo:"sans",a:"end",c:RUBY,ls:.5}));
+      if(a.m) cur.push(TX(cx+(W-24)/2-8-textW({s:der,fo:"sans",size:6.8,ls:.5})-8,cy,
+        a.m.toUpperCase(),{size:6.8,fo:"sans",a:"end",c:GOLD,ls:.5}));
     });
     y+=ah+16;
   });
@@ -2716,6 +2795,7 @@ var SECCIONES=[
   {k:"m-sel",    g:"Menú del evento", t:"Elegir platos"},
   {k:"m-prod",   g:"Menú del evento", t:"Producción"},
   {k:"m-compra", g:"Menú del evento", t:"Lista de la compra"},
+  {k:"m-aler",   g:"Menú del evento", t:"Alergias y sustituciones"},
   {k:"m-serv",   g:"Menú del evento", t:"Check list de servicio"},
   {k:"m-card",   g:"Menú del evento", t:"Menú para imprimir"},
   /* el inventario no es de un evento concreto: es el material del negocio,
@@ -2783,6 +2863,39 @@ window.SITTING_BRIDGE={
      preguntar otra vez lo que el plano ya sabe: cuántos comensales hay, de qué
      tipo, y en cuántas mesas están repartidos. Se vuelve a leer el texto del
      evento en cada llamada, así nunca devuelve una foto antigua. */
+  /* Los comensales con alergia o intolerancia del plano activo, con su mesa y
+     el plato que se les vaya a servir si ya se ha decidido. El plano es el
+     único sitio donde están las alergias — se escriben al teclear la lista de
+     invitados — así que el Menú las pide aquí en vez de guardar una copia. */
+  alergias:function(){
+    if(!doc) doc=parse(current()?current().text:"");
+    var out=[];
+    doc.tables.forEach(function(m){
+      m.guests.forEach(function(g,i){
+        if(!g.aler.length) return;
+        out.push({mesa:m.num, mesaNombre:m.name||"", i:i, nombre:g.name,
+                  aler:g.aler.slice(), sustituto:g.menu||null, kind:g.kind});
+      });
+    });
+    return out;
+  },
+  /* El plato sustitutivo se guarda DENTRO del plano, como una etiqueta más del
+     comensal («Menú: Lubina»), no en una lista aparte. Así sale solo en el
+     plano de sala y en el listado por mesas, que es donde el equipo lo mira el
+     día del evento, sin tener que sincronizar dos sitios. */
+  setSustituto:function(mesa,i,plato){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(mesa); if(!t) return false;
+    var g=t.guests[i]; if(!g) return false;
+    g.raw=g.raw.filter(function(tag){
+      var c=classify(tag); return !(c&&c.type==="menu");
+    });
+    plato=(plato||"").trim();
+    if(plato) g.raw.push("Menú: "+plato);
+    g.menu=plato||null;
+    commit();
+    return true;
+  },
   planTotals:function(){
     var e=current(); if(!e) return null;
     var d=parse(e.text||""), t=totals(d);
@@ -3318,6 +3431,68 @@ function renderServicio(){
   wirePrintBtn();
 }
 
+/* ══ Alergias: quién come otra cosa, y qué ════════════════════════════
+   Las alergias ya están en el plano: se escriben al teclear la lista de
+   invitados, entre paréntesis. Esta hoja no las vuelve a pedir — las saca de
+   ahí y lo único que añade es el plato que se le sirve a cada uno.
+
+   Y ese plato se guarda DENTRO del plano, como una etiqueta más del comensal,
+   no en una lista aparte: así aparece solo en el plano de sala y en el listado
+   por mesas, que es lo que el equipo lleva en la mano el día del evento. */
+function renderAlergias(){
+  var lista=BR.alergias?BR.alergias():[];
+  if(!lista.length){
+    $("mnu-body").innerHTML='<div class="mnu-empty">Ningún comensal del plano tiene alergias apuntadas.'+
+      '<br><span style="font-size:14px">Se escriben en el plano, entre paréntesis, detrás del nombre: '+
+      '«Rosa Fabra (alérgica: marisco)».</span></div>';
+    return;
+  }
+  var conPlato=lista.filter(function(g){ return g.sustituto; }).length;
+  /* sugerencias: primero los platos marcados para este evento, después el resto
+     del catálogo. Se pueden escribir a mano igual, la lista solo ahorra teclear */
+  var marcados=selectedDishes().map(function(d){ return d.name; });
+  var otros=[];
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){
+    if(marcados.indexOf(d.name)<0) otros.push(d.name); }); });
+  var datalist='<datalist id="aler-platos">'+
+    marcados.concat(otros).map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+
+    '</datalist>';
+
+  var porMesa={};
+  lista.forEach(function(g){ (porMesa[g.mesa]=porMesa[g.mesa]||[]).push(g); });
+  var mesas=Object.keys(porMesa).map(Number).sort(function(a,b){ return a-b; });
+
+  var cuerpo=mesas.map(function(num){
+    var gs=porMesa[num], nom=gs[0].mesaNombre;
+    return '<div class="aler-mesa"><div class="mnu-fam-h"><h2>Mesa '+num+(nom?' · '+esc(nom):'')+'</h2>'+
+      '<span class="cnt">'+gs.length+(gs.length===1?" comensal":" comensales")+'</span></div>'+
+      gs.map(function(g){
+        return '<div class="aler-row'+(g.sustituto?" hecho":"")+'">'+
+          '<span class="aler-nm">'+esc(g.nombre)+'</span>'+
+          g.aler.map(function(a){ return '<span class="tag a">'+esc(a)+'</span>'; }).join("")+
+          '<label class="aler-plato">Le servimos'+
+          '<input type="text" list="aler-platos" data-mesa="'+num+'" data-i="'+g.i+'" '+
+          'value="'+esc(g.sustituto||"")+'" placeholder="plato sustitutivo" '+
+          'aria-label="Plato para '+esc(g.nombre)+'"></label>'+
+          '</div>';
+      }).join("")+'</div>';
+  }).join("");
+
+  $("mnu-body").innerHTML=datalist+
+    '<div class="mnu-fam-section"><p class="mnu-origen"><b>'+lista.length+
+      (lista.length===1?" comensal":" comensales")+' con alergia o intolerancia</b> · '+
+      conPlato+' con plato decidido · '+(lista.length-conPlato)+' por decidir. '+
+      'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
+      'para que el equipo sepa qué llevarle a cada uno.</p>'+cuerpo+'</div>';
+
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato input"),function(inp){
+    inp.addEventListener("change",function(){
+      if(BR.setSustituto) BR.setSustituto(+inp.dataset.mesa, +inp.dataset.i, inp.value);
+      renderAlergias();
+    });
+  });
+}
+
 /* ══ Menú: tarjeta limpia con los platos marcados ═════════════════════ */
 function renderTarjeta(){
   var sel=selectedDishes();
@@ -3344,6 +3519,7 @@ function renderMnuBody(){
   if(mnuView==="sel") renderSeleccion();
   else if(mnuView==="prod") renderProduccion();
   else if(mnuView==="compra") renderCompra();
+  else if(mnuView==="aler") renderAlergias();
   else if(mnuView==="serv") renderServicio();
   else if(mnuView==="card") renderTarjeta();
 }
@@ -3605,51 +3781,133 @@ var INVENTARIO_DATA = {
 };
 
 var hojaSel="", q="";
+var filaEditando=null;   /* la fila con el panel de medidas y comentario abierto */
+var form=null;           /* el formulario de añadir que esté abierto, si hay alguno */
 /* notas que hablan de algo estropeado o que falta, para distinguirlas de las
    que solo describen el artículo */
 var AVISO=/rot|repar|trenc|averi|falta|estropea/i;
 
-/* ── correcciones sobre lo que dice el Excel ────────────────────────── */
+/* ── dos capas encima del Excel ─────────────────────────────────────────
+   store.inventario  correcciones sobre líneas que SÍ están en el Excel:
+                     {id: {cantidad, medidas, nota, updated}}
+   store.invExtra    lo que NO está en el Excel — lo que se compra después:
+                     {categorias:[{id,hoja,nombre,updated,borrada}],
+                      items:[{id,hoja,categoria,nombre,medidas,cantidad,nota,updated,borrado}]}
+   Separadas a propósito: así el Excel se puede volver a importar cuando cambie
+   sin llevarse por delante ni las correcciones ni lo comprado desde entonces. */
 function ajustes(){
   var st=BR.store;
   if(!st.inventario) st.inventario={};
   return st.inventario;
 }
+function extras(){
+  var st=BR.store;
+  if(!st.invExtra) st.invExtra={categorias:[],items:[]};
+  if(!st.invExtra.categorias) st.invExtra.categorias=[];
+  if(!st.invExtra.items) st.invExtra.items=[];
+  return st.invExtra;
+}
+function nuevoId(pref){
+  return pref+"."+Date.now().toString(36)+"."+Math.floor(Math.random()*1e6).toString(36);
+}
 function ajuste(it){ return ajustes()[it.id]||null; }
-/* la cantidad que vale hoy: la corregida si la hay, si no la del Excel */
-function cantidad(it){
+
+/* el valor que vale hoy: el corregido si lo hay, si no el del Excel */
+function valor(it,campo){
+  if(it._extra) return it[campo];
   var a=ajuste(it);
-  return a&&a.cantidad!==undefined&&a.cantidad!==null ? a.cantidad : it.cantidad;
+  if(a&&a[campo]!==undefined&&a[campo]!==null&&a[campo]!=="") return a[campo];
+  return it[campo];
 }
-function corregida(it){
+function corregido(it,campo){
+  if(it._extra) return false;
   var a=ajuste(it);
-  return !!(a&&a.cantidad!==undefined&&a.cantidad!==null&&a.cantidad!==it.cantidad);
+  return !!(a&&a[campo]!==undefined&&a[campo]!==null&&a[campo]!==""&&a[campo]!==it[campo]);
 }
-/* Volver a la cantidad del Excel NO es borrar la corrección: es una corrección
-   más, la que dice «vale la del Excel». Si se borrase, la copia que tiene otra
+/* Volver al valor del Excel NO es borrar la corrección: es una corrección más,
+   la que dice «vale la del Excel». Si se borrase, la copia que tiene otra
    pestaña o el servidor volvería a colarla en el siguiente guardado, porque no
    habría nada más nuevo con qué compararla — el mismo problema que ya obligó a
    llevar la cuenta de los eventos borrados (deletedIds). */
-function corregir(it,valor){
-  var m=ajustes();
-  var v=(valor===null||valor===""||valor===it.cantidad)?null:valor;
-  m[it.id]={cantidad:v,updated:Date.now()};
+function corregir(it,campo,valorNuevo){
+  if(it._extra){
+    var reg=extras().items.filter(function(x){ return x.id===it.id; })[0];
+    if(reg){ reg[campo]=valorNuevo; reg.updated=Date.now(); }
+  }else{
+    var m=ajustes();
+    var v=(valorNuevo===null||valorNuevo===""||valorNuevo===it[campo])?null:valorNuevo;
+    m[it.id]=Object.assign({},m[it.id],{updated:Date.now()});
+    m[it.id][campo]=v;
+  }
   BR.save();
 }
 
-/* ── recorrer y buscar ──────────────────────────────────────────────── */
+/* ── añadir lo que no está en el Excel ──────────────────────────────── */
+function añadirItem(hoja,categoria,d){
+  if(!d.nombre) return null;
+  var it={id:nuevoId("x"), hoja:hoja, categoria:categoria, nombre:d.nombre,
+          medidas:d.medidas||null, cantidad:d.cantidad, nota:d.nota||null,
+          updated:Date.now(), borrado:false};
+  extras().items.push(it); BR.save();
+  return it;
+}
+function quitarItem(id){
+  var reg=extras().items.filter(function(x){ return x.id===id; })[0];
+  if(reg){ reg.borrado=true; reg.updated=Date.now(); BR.save(); }
+}
+function añadirCategoria(hoja,nombre){
+  if(!nombre) return null;
+  var c={id:nuevoId("g"), hoja:hoja, nombre:nombre, updated:Date.now(), borrada:false};
+  extras().categorias.push(c); BR.save();
+  return c;
+}
+function quitarCategoria(id){
+  var c=extras().categorias.filter(function(x){ return x.id===id; })[0];
+  if(!c) return;
+  var quedan=itemsExtra(c.hoja,c.nombre).length;
+  if(quedan){ alert("El grupo «"+c.nombre+"» todavía tiene "+quedan+
+    (quedan===1?" artículo":" artículos")+". Quítalos primero."); return; }
+  c.borrada=true; c.updated=Date.now(); BR.save();
+}
+function itemsExtra(hoja,categoria){
+  return extras().items.filter(function(x){
+    return !x.borrado && x.hoja===hoja && x.categoria===categoria;
+  }).map(function(x){ return Object.assign({},x,{_extra:true}); });
+}
+function catsExtra(hoja){
+  return extras().categorias.filter(function(c){ return !c.borrada && c.hoja===hoja; });
+}
+
+/* ── la estructura que se ve: el Excel + lo añadido ─────────────────── */
+function estructura(){
+  return INVENTARIO_DATA.hojas.map(function(h){
+    var cats=h.categorias.map(function(c){
+      return {nombre:c.nombre, columnas:c.columnas, extra:false,
+              items:c.items.concat(itemsExtra(h.hoja,c.nombre))};
+    });
+    catsExtra(h.hoja).forEach(function(ce){
+      cats.push({nombre:ce.nombre, catId:ce.id, extra:true, items:itemsExtra(h.hoja,ce.nombre)});
+    });
+    return {hoja:h.hoja, fecha:h.fecha, categorias:cats};
+  });
+}
 function todasLasLineas(){
   var out=[];
-  INVENTARIO_DATA.hojas.forEach(function(h){
+  estructura().forEach(function(h){
     h.categorias.forEach(function(c){
       c.items.forEach(function(it){ out.push({hoja:h,cat:c,it:it}); });
     });
   });
   return out;
 }
+function porId(id){
+  var r=null;
+  todasLasLineas().forEach(function(l){ if(l.it.id===id) r=l.it; });
+  return r;
+}
 function coincide(l,needle){
   if(!needle) return true;
-  var campos=[l.it.nombre,l.it.medidas,l.it.nota,l.cat.nombre,l.hoja.hoja,l.it.codigo,l.it.tipo];
+  var campos=[l.it.nombre,valor(l.it,"medidas"),valor(l.it,"nota"),l.cat.nombre,l.hoja.hoja,l.it.codigo,l.it.tipo];
   for(var i=0;i<campos.length;i++){
     if(campos[i]!=null&&norm(campos[i]).indexOf(needle)>-1) return true;
   }
@@ -3669,87 +3927,239 @@ function renderHojas(){
 }
 
 function filaHtml(l){
-  var it=l.it, c=cantidad(it), sinCant=(c===null||c===undefined);
-  var h='<div class="inv-row'+(sinCant?" sinCant":"")+'" data-id="'+esc(it.id)+'">';
-  h+='<span class="nm">'+esc(it.nombre)+(it.mismoNombre?' <span class="inv-cont">(mismo artículo)</span>':'')+'</span>';
+  var it=l.it, c=valor(it,"cantidad"), sinCant=(c===null||c===undefined||c==="");
+  var med=valor(it,"medidas"), nota=valor(it,"nota");
+  var h='<div class="inv-row'+(sinCant?" sinCant":"")+(it._extra?" nuevo":"")+'" data-id="'+esc(it.id)+'">';
+  h+='<span class="nm">'+esc(it.nombre)+
+     (it.mismoNombre?' <span class="inv-cont">(mismo artículo)</span>':'')+
+     (it._extra?' <span class="inv-tag">añadido</span>':'')+'</span>';
   if(it.codigo) h+='<span class="md">'+esc(it.codigo)+'</span>';
   if(it.tipo) h+='<span class="md">'+esc(it.tipo)+'</span>';
   if(it.amperios!=null) h+='<span class="md">'+esc(it.amperios)+' A</span>';
-  if(it.medidas) h+='<span class="md">'+esc(it.medidas)+(l.hoja.hoja==="SONIDO Y LUZ"&&it.codigo?" m":"")+'</span>';
-  if(it.nota) h+='<span class="nt'+(AVISO.test(it.nota)?" aviso":"")+'">'+esc(it.nota)+'</span>';
+  if(med) h+='<span class="md">'+esc(med)+(l.hoja.hoja==="SONIDO Y LUZ"&&it.codigo?" m":"")+'</span>';
+  if(nota) h+='<span class="nt'+(AVISO.test(nota)?" aviso":"")+'">'+esc(nota)+'</span>';
   h+='<span class="qt">';
-  if(corregida(it)) h+='<span class="orig" title="lo que dice el Excel">Excel: '+esc(it.cantidad==null?"—":it.cantidad)+'</span>';
+  if(corregido(it,"cantidad")) h+='<span class="orig" title="lo que dice el Excel">Excel: '+esc(it.cantidad==null?"—":it.cantidad)+'</span>';
   h+='<input type="text" inputmode="numeric" class="inv-cant" data-id="'+esc(it.id)+'" value="'+esc(sinCant?"":c)+'" placeholder="—" aria-label="Cantidad de '+esc(it.nombre)+'">';
-  h+='<span class="ud">uds</span></span></div>';
+  h+='<span class="ud">uds</span>';
+  h+='<button class="inv-ed" data-id="'+esc(it.id)+'" title="Medidas y comentario" aria-label="Editar '+esc(it.nombre)+'">✎</button>';
+  h+='</span></div>';
+  if(filaEditando===it.id) h+=panelHtml(l);
   return h;
 }
 
+/* el panel que se abre bajo una fila: medidas y comentario siempre; el nombre
+   solo en lo añadido, porque el de una línea del Excel es del Excel */
+function panelHtml(l){
+  var it=l.it;
+  var h='<div class="inv-panel" data-id="'+esc(it.id)+'">';
+  if(it._extra) h+='<label>Nombre<input class="p-nombre" value="'+esc(it.nombre)+'"></label>';
+  h+='<label>Medidas<input class="p-medidas" value="'+esc(valor(it,"medidas")||"")+'" placeholder="si las tiene"></label>';
+  h+='<label>Comentario<input class="p-nota" value="'+esc(valor(it,"nota")||"")+'" placeholder="p. ej. 6 rotas"></label>';
+  var pistas=[];
+  if(!it._extra&&corregido(it,"medidas")) pistas.push("Excel: "+(it.medidas||"sin medidas"));
+  if(!it._extra&&corregido(it,"nota")) pistas.push("Excel: "+(it.nota||"sin comentario"));
+  if(pistas.length) h+='<span class="p-orig">'+esc(pistas.join(" · "))+'</span>';
+  if(it._extra) h+='<button class="btn sm danger p-quitar" data-id="'+esc(it.id)+'">Quitar</button>';
+  h+='<button class="btn sm p-cerrar">Cerrar</button>';
+  h+='</div>';
+  return h;
+}
+
+function formItemHtml(hoja,cat){
+  return '<div class="inv-form" data-hoja="'+esc(hoja)+'" data-cat="'+esc(cat==null?"":cat)+'">'+
+    '<input class="f-nombre" placeholder="Nombre del artículo" aria-label="Nombre del artículo nuevo">'+
+    '<input class="f-medidas" placeholder="Medidas (si las tiene)" aria-label="Medidas">'+
+    '<input class="f-cant" inputmode="numeric" placeholder="Cantidad" aria-label="Cantidad">'+
+    '<input class="f-nota" placeholder="Comentario" aria-label="Comentario">'+
+    '<button class="btn sm f-ok">Añadir</button>'+
+    '<button class="btn sm f-no">Cancelar</button></div>';
+}
+function formCatHtml(hoja){
+  return '<div class="inv-form grupo" data-hoja="'+esc(hoja)+'">'+
+    '<input class="g-nombre" placeholder="Nombre del grupo nuevo" aria-label="Nombre del grupo nuevo">'+
+    '<button class="btn sm g-ok">Crear grupo</button>'+
+    '<button class="btn sm g-no">Cancelar</button></div>';
+}
+function abierto(tipo,hoja,cat){
+  return form&&form.tipo===tipo&&form.hoja===hoja&&(tipo!=="item"||(form.cat||"")===(cat||""));
+}
+
 function renderBody(){
-  var needle=norm(q.trim()), html="", hay=false;
-  INVENTARIO_DATA.hojas.forEach(function(h){
+  var needle=norm(q.trim()), html="", hay=false, buscando=!!needle;
+  estructura().forEach(function(h){
     if(hojaSel&&h.hoja!==hojaSel) return;
     var bloques="", nH=0;
     h.categorias.forEach(function(c){
       var filas=c.items.filter(function(it){ return coincide({hoja:h,cat:c,it:it},needle); });
-      if(!filas.length) return;
+      /* buscando se esconden los grupos sin resultados; sin buscar salen todos,
+         también los vacíos, porque si no un grupo recién creado desaparecería */
+      if(!filas.length&&buscando) return;
       nH+=filas.length;
       bloques+='<div class="mnu-station">';
-      if(c.nombre) bloques+='<div class="mnu-fam-h"><h2>'+esc(c.nombre)+'</h2><span class="cnt">'+
-        filas.length+(filas.length===1?" línea":" líneas")+'</span></div>';
+      if(c.nombre){
+        bloques+='<div class="mnu-fam-h"><h2>'+esc(c.nombre)+'</h2><span class="cnt">'+
+          filas.length+(filas.length===1?" línea":" líneas")+'</span>'+
+          (c.extra?'<span class="inv-tag">grupo añadido</span>'+
+            '<button class="btn sm inv-quitar-g" data-cat="'+esc(c.catId)+'">Quitar grupo</button>':'')+
+          '</div>';
+      }
       if(c.columnas) bloques+='<p class="inv-cables">Cada línea es un cable. La medida son metros.</p>';
       filas.forEach(function(it){ bloques+=filaHtml({hoja:h,cat:c,it:it}); });
+      if(!filas.length) bloques+='<p class="inv-vacio">Este grupo todavía no tiene nada.</p>';
+      if(!buscando){
+        bloques+= abierto("item",h.hoja,c.nombre)
+          ? formItemHtml(h.hoja,c.nombre)
+          : '<button class="btn sm inv-add" data-hoja="'+esc(h.hoja)+'" data-cat="'+esc(c.nombre==null?"":c.nombre)+'">+ Añadir artículo</button>';
+      }
       bloques+='</div>';
     });
-    if(!nH) return;
+    if(!nH&&buscando) return;
     hay=true;
+    var pie="";
+    if(!buscando){
+      pie= abierto("cat",h.hoja)
+        ? formCatHtml(h.hoja)
+        : '<button class="btn sm inv-add-g" data-hoja="'+esc(h.hoja)+'">+ Grupo nuevo</button>';
+    }
     html+='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>'+esc(h.hoja)+'</h2><span class="cnt">'+
       nH+(nH===1?" línea":" líneas")+(h.fecha?' · inventariado el '+esc(h.fecha):'')+
-      '</span></div>'+bloques+'</div>';
+      '</span></div>'+bloques+pie+'</div>';
   });
   $("inv-body").innerHTML=hay?html:'<div class="mnu-empty">No hay nada en el inventario que coincida con la búsqueda.</div>';
-  Array.prototype.forEach.call($("inv-body").querySelectorAll("input.inv-cant"),function(inp){
+  engancharBody();
+}
+
+function numero(t){
+  t=String(t==null?"":t).trim();
+  if(t==="") return null;
+  var n=parseFloat(t.replace(",","."));
+  return isNaN(n)?t:n;          /* si escriben «++» se guarda tal cual */
+}
+
+function engancharBody(){
+  var b=$("inv-body");
+  Array.prototype.forEach.call(b.querySelectorAll("input.inv-cant"),function(inp){
     inp.addEventListener("change",function(){
       var it=porId(inp.dataset.id); if(!it) return;
-      var t=inp.value.trim();
-      if(t===""){ corregir(it,null); }
-      else{
-        var n=parseFloat(t.replace(",","."));
-        corregir(it, isNaN(n)?t:n);        /* si escriben «++» se guarda tal cual */
-      }
+      corregir(it,"cantidad",numero(inp.value));
       renderBody(); renderStats();
     });
   });
-}
-
-var indice=null;
-function porId(id){
-  if(!indice){ indice={}; todasLasLineas().forEach(function(l){ indice[l.it.id]=l.it; }); }
-  return indice[id];
+  Array.prototype.forEach.call(b.querySelectorAll("button.inv-ed"),function(bt){
+    bt.addEventListener("click",function(){
+      filaEditando=(filaEditando===bt.dataset.id)?null:bt.dataset.id;
+      renderBody();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll(".inv-panel"),function(pn){
+    var id=pn.dataset.id;
+    [["p-nombre","nombre"],["p-medidas","medidas"],["p-nota","nota"]].forEach(function(par){
+      var inp=pn.querySelector("."+par[0]); if(!inp) return;
+      inp.addEventListener("change",function(){
+        var it=porId(id); if(!it) return;
+        var v=inp.value.trim();
+        if(par[1]==="nombre"&&!v) return;            /* un artículo sin nombre no se sostiene */
+        corregir(it,par[1],v===""?null:v);
+        renderBody(); renderStats();
+      });
+    });
+    var q=pn.querySelector(".p-quitar");
+    if(q) q.addEventListener("click",function(){
+      var it=porId(id);
+      if(it&&confirm("¿Quitar «"+it.nombre+"» del inventario?")){
+        quitarItem(id); filaEditando=null; renderBody(); renderStats();
+      }
+    });
+    pn.querySelector(".p-cerrar").addEventListener("click",function(){
+      filaEditando=null; renderBody();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll("button.inv-add"),function(bt){
+    bt.addEventListener("click",function(){
+      form={tipo:"item",hoja:bt.dataset.hoja,cat:bt.dataset.cat||null};
+      renderBody();
+      var f=b.querySelector(".inv-form .f-nombre"); if(f) f.focus();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll("button.inv-add-g"),function(bt){
+    bt.addEventListener("click",function(){
+      form={tipo:"cat",hoja:bt.dataset.hoja};
+      renderBody();
+      var f=b.querySelector(".inv-form.grupo .g-nombre"); if(f) f.focus();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll("button.inv-quitar-g"),function(bt){
+    bt.addEventListener("click",function(){
+      quitarCategoria(bt.dataset.cat); renderBody(); renderStats();
+    });
+  });
+  var fi=b.querySelector(".inv-form:not(.grupo)");
+  if(fi){
+    var guardar=function(){
+      var nom=fi.querySelector(".f-nombre").value.trim();
+      if(!nom){ fi.querySelector(".f-nombre").focus(); return; }
+      añadirItem(fi.dataset.hoja, fi.dataset.cat||null, {
+        nombre:nom,
+        medidas:fi.querySelector(".f-medidas").value.trim(),
+        cantidad:numero(fi.querySelector(".f-cant").value),
+        nota:fi.querySelector(".f-nota").value.trim()
+      });
+      renderBody(); renderStats();
+      /* el formulario se queda abierto: después de comprar algo casi siempre
+         hay más de una cosa que apuntar */
+      var f=$("inv-body").querySelector(".inv-form .f-nombre"); if(f) f.focus();
+    };
+    fi.querySelector(".f-ok").addEventListener("click",guardar);
+    Array.prototype.forEach.call(fi.querySelectorAll("input"),function(inp){
+      inp.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); guardar(); } });
+    });
+    fi.querySelector(".f-no").addEventListener("click",function(){ form=null; renderBody(); });
+  }
+  var fg=b.querySelector(".inv-form.grupo");
+  if(fg){
+    var crear=function(){
+      var nom=fg.querySelector(".g-nombre").value.trim();
+      if(!nom){ fg.querySelector(".g-nombre").focus(); return; }
+      añadirCategoria(fg.dataset.hoja,nom);
+      form=null; renderBody(); renderStats();
+    };
+    fg.querySelector(".g-ok").addEventListener("click",crear);
+    fg.querySelector(".g-nombre").addEventListener("keydown",function(e){
+      if(e.key==="Enter"){ e.preventDefault(); crear(); }
+    });
+    fg.querySelector(".g-no").addEventListener("click",function(){ form=null; renderBody(); });
+  }
 }
 
 function renderStats(){
   /* «sin cantidad» son las líneas que el Excel deja en blanco. Aparte van las
      que traen algo que no es un número («++»): tienen dato, pero no se pueden
      sumar, así que no entran en el total y se dicen por separado. */
-  var lineas=todasLasLineas(), sinCant=0, noNum=0, corregidas=0, total=0;
+  var lineas=todasLasLineas(), sinCant=0, noNum=0, corregidas=0, nuevas=0, total=0;
   lineas.forEach(function(l){
-    var c=cantidad(l.it);
+    var c=valor(l.it,"cantidad");
     if(c===null||c===undefined||c==="") sinCant++;
     else if(typeof c==="number") total+=c;
     else noNum++;
-    if(corregida(l.it)) corregidas++;
+    if(l.it._extra) nuevas++;
+    else if(corregido(l.it,"cantidad")||corregido(l.it,"medidas")||corregido(l.it,"nota")) corregidas++;
   });
-  var st='<div class="stat"><b>'+lineas.length+'</b><span>líneas</span></div>'+
-         '<div class="stat"><b>'+total.toLocaleString("es-ES")+'</b><span>unidades contadas</span></div>';
+  function pl(n,una,varias){ return n===1?una:varias; }
+  var st='<div class="stat"><b>'+lineas.length+'</b><span>'+pl(lineas.length,"línea","líneas")+'</span></div>'+
+         '<div class="stat"><b>'+total.toLocaleString("es-ES")+'</b><span>'+pl(total,"unidad contada","unidades contadas")+'</span></div>';
   if(sinCant) st+='<div class="stat"><b>'+sinCant+'</b><span>sin cantidad</span></div>';
   if(noNum) st+='<div class="stat"><b>'+noNum+'</b><span>sin número</span></div>';
-  if(corregidas) st+='<div class="stat"><b>'+corregidas+'</b><span>corregidas aquí</span></div>';
+  if(corregidas) st+='<div class="stat"><b>'+corregidas+'</b><span>'+pl(corregidas,"corregida aquí","corregidas aquí")+'</span></div>';
+  if(nuevas) st+='<div class="stat"><b>'+nuevas+'</b><span>'+pl(nuevas,"añadida aquí","añadidas aquí")+'</span></div>';
   $("inv-stats").innerHTML=st;
   $("inv-origen").innerHTML='<b>Del Excel '+esc(INVENTARIO_DATA.fuente)+'</b> — las hojas, las categorías y '+
-    'las líneas son las suyas, sin tocar. Si corriges una cantidad aquí se guarda para todo el equipo y '+
-    'al lado sigue viéndose lo que dice el Excel.';
-  $("inv-note").innerHTML='Las líneas sin cantidad son las que el Excel deja en blanco '+
-    '(«CHICO-CHICO», «WALKIE TALKIES», los micrófonos…). No se inventa ninguna: se escriben aquí cuando se cuenten.';
+    'las líneas son las suyas, sin tocar. Lo que corrijas o añadas aquí se guarda para todo el equipo, '+
+    'va marcado como «añadido», y al lado de lo corregido sigue viéndose lo que dice el Excel.';
+  $("inv-note").innerHTML='Cuando compréis algo, <b>+ Añadir artículo</b> al final de su grupo: '+
+    'el nombre hace falta, las medidas y el comentario solo si vienen a cuento. Y si hace falta un '+
+    'grupo que no existe, <b>+ Grupo nuevo</b> al final de la hoja. Las líneas sin cantidad son las '+
+    'que el Excel deja en blanco: se escriben aquí cuando se cuenten.';
 }
 
 /* ── entrar y salir de la vista ─────────────────────────────────────── */
