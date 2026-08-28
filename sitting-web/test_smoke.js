@@ -120,6 +120,22 @@ async function main() {
       page.locator('button[type="submit"]').click(),
     ]);
     await page.locator("#appSitting").waitFor({ state: "visible" });
+
+  await step("la pantalla de entrada lleva la marca y la foto de fondo", async () => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await page.goto(BASE_URL + "/login");
+    const texto = await page.locator("body").innerText();
+    assert.ok(texto.includes("Les Moles Events"), "la marca del negocio, como en la barra de la app");
+    assert.ok(!/\bSitting\b/.test(texto), "y ya no pone «Sitting»");
+    // la foto va dentro del propio archivo: nada que descargar aparte, y así
+    // no se queda en blanco si la conexión es mala
+    const fondos = await page.evaluate(() =>
+      [].filter.call(document.querySelectorAll("div"), (d) =>
+        (getComputedStyle(d).backgroundImage || "").indexOf("data:image/jpeg") > -1).length);
+    assert.ok(fondos >= 1, "hay una foto de fondo incrustada");
+    await ctx.close();
+  });
     assert.equal(await page.title(), "Sitting Les Moles Events");
     await page.locator("#src").waitFor({ state: "visible" });
     sharedCtx = ctx; // se reutiliza en los dos pasos siguientes (misma sesión)

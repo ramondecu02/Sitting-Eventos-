@@ -95,6 +95,14 @@ hoja, corregir una cantidad sin perder la del Excel, que la corrección le
 llegue a un compañero, y que el inventario sea el mismo para todos los eventos.
 Se lanza igual: `node test_inventario.js`.
 
+`test_hojas_pdf.js` comprueba que las cuatro hojas del Menú (Producción, Lista
+de la compra, Check list de servicio y Menú) **se descargan en PDF** en vez de
+depender de «Imprimir» del navegador: que el archivo es un PDF entero y no un
+HTML, que se llama con el evento y la hoja, que lo que se ve en pantalla está
+dentro del PDF, que una hoja larga se reparte en varias páginas con su pie en
+todas, y que sin platos marcados no se ofrece descargar nada. Se lanza igual:
+`node test_hojas_pdf.js`.
+
 `test_alergias.js` comprueba la hoja de **Alergias y sustituciones**: que
 saca del plano quién tiene alergia (con su nombre, su alergia y su mesa) sin
 volver a pedirla, que el plato sustitutivo se escribe a mano, y que ese plato
@@ -143,6 +151,16 @@ plano") sigue guardándose solo en el navegador de quien la sube, no en el
 servidor compartido — cada persona que quiera verlo de fondo tiene que
 subirlo una vez en su propio navegador. Todo lo demás (las mesas, los
 comensales, las plantillas, los tamaños...) sí se comparte.
+
+## La pantalla de entrada
+
+`app/login/page.js` lleva una foto de un evento de fondo, **rebajada y
+desenfocada dentro del propio archivo** (no con filtros CSS): sale igual en
+todos los navegadores y pesa 44 KB en vez de 300 — la abre todo el equipo desde
+el móvil, muchas veces con mala cobertura. Va incrustada en base64 junto con el
+logo, así que no hay ningún archivo suelto que se pueda quedar sin subir.
+
+La marca es **Les Moles Events**, la misma que la barra de arriba de la app.
 
 ## Estructura del proyecto
 
@@ -227,8 +245,18 @@ Lo que el Excel tiene de particular y hay que mantener:
 
 **Añadir lo que se compra después del Excel**: cada grupo tiene al final
 «+ Añadir artículo» (nombre obligatorio; medidas y comentario opcionales,
-porque no todo tiene medidas) y cada hoja tiene «+ Grupo nuevo». Lo añadido
-vive en `store.invExtra` — separado del Excel a propósito, para poder volver a
+porque no todo tiene medidas), cada sección tiene «+ Grupo nuevo» y al final
+del todo hay «+ Sección nueva», para lo que no encaja en ninguna de las cinco
+del Excel. Dos secciones no pueden llamarse igual, ni dos grupos dentro de la
+misma sección: si se llamaran igual no habría forma de distinguirlos, ni para
+quien mira ni para los artículos, que se guardan por nombre. Las secciones
+añadidas van **detrás** de las del Excel, que no se mueven nunca de sitio.
+
+**Cambiar algo de sitio**: el ✎ de una fila añadida trae un «dónde va» con
+todos los grupos de todas las secciones. Solo funciona con lo añadido: una
+línea del Excel se queda donde el Excel la puso, o dejaría de ser el Excel.
+
+Lo añadido vive en `store.invExtra` — separado del Excel a propósito, para poder volver a
 importar el Excel cuando cambie sin llevarse por delante lo comprado desde
 entonces — y sale marcado como «añadido» para distinguir de un vistazo qué
 viene de dónde. Se puede corregir y quitar; un grupo con artículos dentro no se
@@ -256,6 +284,22 @@ archivo) y el segundo escribe el bloque de JavaScript. Después se sustituye a
 mano el `var INVENTARIO_DATA = {...};` de `sitting.html` por el nuevo — a
 propósito, para poder mirar el diff antes: un Excel con una hoja renombrada o
 una categoría movida cambia lo que ve el equipo.
+
+## Las hojas del Menú en PDF
+
+Producción, la Lista de la compra, el Check list de servicio y el Menú se
+descargan con el mismo generador de PDF que el plano y el listado
+(`buildPDF` + las primitivas `TX`/`R`/`LN`), en vez de llamar a `window.print()`.
+Imprimir desde el navegador partía tablas por la mitad y salía con márgenes
+distintos en cada ordenador.
+
+El PDF **se lee del HTML que ya está en pantalla** (`bloquesDeHoja` recorre
+`#mnu-body .sheet .frame` y lo convierte en bloques; `hojaPages` los pagina).
+Se hace así a propósito: lo que se descarga es exactamente lo que se está
+mirando, sin una segunda versión del contenido que se pueda quedar atrás
+cuando alguien cambie una hoja. Una hoja nueva que siga la misma estructura
+(`h2` / `h3` / `table.mnu-ing-table` / `p.mnu-note`) se exporta sola, sin tocar
+nada.
 
 ## Alergias y platos sustitutivos
 

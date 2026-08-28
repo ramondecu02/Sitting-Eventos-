@@ -41,6 +41,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
    con las comillas cuando el texto se compone en JavaScript */
 const fila = (page, texto) => page.locator(".inv-row").filter({ hasText: texto });
 const grupoCon = (page, texto) => page.locator(".mnu-station").filter({ hasText: texto });
+const grupoDeHoja = (page, texto) => page.locator(".mnu-fam-section").filter({ hasText: texto });
 
 /* las hojas del Excel, en su orden y con su nombre */
 const HOJAS = ["MESAS", "COCINA CATERING", "VASOS Y CUBERTERIA", "DECORACIÓN", "SONIDO Y LUZ"];
@@ -93,6 +94,9 @@ async function main() {
       });
       (st.invExtra.categorias || []).forEach((c) => {
         if (!c.borrada && String(c.nombre || "").startsWith(pref)) { c.borrada = true; c.updated = Date.now(); n++; }
+      });
+      (st.invExtra.hojas || []).forEach((h) => {
+        if (!h.borrada && String(h.nombre || "").startsWith(pref)) { h.borrada = true; h.updated = Date.now(); n++; }
       });
       window.SITTING_BRIDGE.save();
       return n;
@@ -391,6 +395,81 @@ async function main() {
     assert.match(aviso || "", /todavía tiene 1 artículo/i, "avisa en vez de llevárselo todo por delante");
     assert.equal(await grupoCon(page, nombreGrupo).count(), 1,
       "el grupo sigue ahí");
+  });
+
+  await step("CREAR UNA SECCIÓN NUEVA, ADEMÁS DE UN GRUPO", async () => {
+    const seccion = token + " CARPAS";
+    await page.locator('#inv-hojas button[data-h=""]').click(); await wait(400);
+    await page.locator("button.inv-add-h").click(); await wait(300);
+    await page.locator(".inv-form.seccion .h-nombre").fill(seccion);
+    await page.locator(".inv-form.seccion .h-ok").click(); await wait(700);
+
+    // sale como un botón más de filtro, detrás de las cinco hojas del Excel
+    const botones = await page.locator("#inv-hojas button").allInnerTexts();
+    assert.deepEqual(botones.slice(0, 6), ["Todo"].concat(HOJAS),
+      "las del Excel no se mueven de sitio");
+    assert.ok(botones.includes(seccion), "y la nueva va detrás");
+
+    const h = grupoDeHoja(page, seccion);
+    assert.match(await h.innerText(), /sección añadida/i);
+    assert.match(await h.innerText(), /todavía no tiene ningún grupo/i);
+
+    // y admite grupos y artículos como cualquier otra
+    await page.locator('#inv-hojas button[data-h="' + seccion + '"]').click().catch(async () => {
+      await page.locator("#inv-hojas button").filter({ hasText: seccion }).click();
+    });
+    await wait(400);
+    await page.locator("button.inv-add-g").first().click(); await wait(300);
+    await page.locator(".inv-form.grupo .g-nombre").fill(token + " BEDUINAS");
+    await page.locator(".inv-form.grupo .g-ok").click(); await wait(600);
+    await page.locator("button.inv-add").first().click(); await wait(300);
+    await page.locator(".inv-form .f-nombre").fill(token + " CARPA 6X6");
+    await page.locator(".inv-form .f-cant").fill("2");
+    await page.locator(".inv-form .f-ok").click(); await wait(600);
+    await page.locator(".inv-form .f-no").click(); await wait(300);
+    assert.equal(await fila(page, token + " CARPA 6X6").count(), 1);
+  });
+
+  await step("dos secciones no se pueden llamar igual", async () => {
+    let aviso = null;
+    page.once("dialog", (d) => { aviso = d.message(); d.accept(); });
+    await page.locator('#inv-hojas button[data-h=""]').click(); await wait(400);
+    await page.locator("button.inv-add-h").click(); await wait(300);
+    await page.locator(".inv-form.seccion .h-nombre").fill("MESAS");
+    await page.locator(".inv-form.seccion .h-ok").click(); await wait(500);
+    assert.match(aviso || "", /ya hay una sección/i, "avisa en vez de crear una segunda MESAS");
+    await page.locator(".inv-form.seccion .h-no").click(); await wait(300);
+  });
+
+  await step("LO AÑADIDO SE PUEDE CAMBIAR DE SECCIÓN", async () => {
+    await page.locator('#inv-hojas button[data-h=""]').click(); await wait(400);
+    await fila(page, token + " CARPA 6X6").first().locator("button.inv-ed").click(); await wait(400);
+    const sel = page.locator(".inv-panel .p-mover");
+    assert.equal(await sel.count(), 1, "lo añadido lleva un «dónde va»");
+    const destinos = await sel.locator("option").allInnerTexts();
+    assert.ok(destinos.some((d) => d.startsWith("MESAS ›")), "se puede mandar a una hoja del Excel");
+    const aMantel = destinos.find((d) => d.indexOf("MANTELERIA") > -1);
+    await sel.selectOption({ label: aMantel }); await wait(700);
+
+    const enMesas = grupoCon(page, "MANTELERIA").filter({ hasText: token + " CARPA 6X6" });
+    assert.equal(await enMesas.count(), 1, "ha aterrizado en el grupo elegido");
+  });
+
+  await step("una sección con cosas dentro no se puede quitar por error", async () => {
+    const seccion = token + " CON COSAS SECCION";
+    await page.locator("button.inv-add-h").click(); await wait(300);
+    await page.locator(".inv-form.seccion .h-nombre").fill(seccion);
+    await page.locator(".inv-form.seccion .h-ok").click(); await wait(700);
+    const h = grupoDeHoja(page, seccion);
+    await h.locator("button.inv-add-g").click(); await wait(300);
+    await page.locator(".inv-form.grupo .g-nombre").fill(token + " ALGO");
+    await page.locator(".inv-form.grupo .g-ok").click(); await wait(600);
+
+    let aviso = null;
+    page.once("dialog", (d) => { aviso = d.message(); d.accept(); });
+    await grupoDeHoja(page, seccion).locator("button.inv-quitar-h").click(); await wait(500);
+    assert.match(aviso || "", /todavía tiene cosas dentro/i);
+    assert.equal(await grupoDeHoja(page, seccion).count(), 1, "la sección sigue ahí");
   });
 
   await step("el inventario es el mismo para todos los eventos", async () => {
