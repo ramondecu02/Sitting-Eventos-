@@ -233,6 +233,8 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .mnu-head-row h1{margin:0; font-family:"Cormorant Garamond",Georgia,serif; font-weight:600; font-size:25px}
 .mnu-head-row .est{font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--c-mut)}
 .mnu-note{font-size:11.5px; color:var(--c-mut); line-height:1.5}
+.mnu-origen{margin:6px 0 0; font-size:11.5px; color:var(--c-mut); line-height:1.5; flex-basis:100%}
+.mnu-origen b{color:var(--ink-soft); font-weight:600}
 .mnu-evento{display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap}
 .mnu-ev-field{display:flex; flex-direction:column; gap:5px}
 .mnu-ev-field input{width:170px}
@@ -496,23 +498,24 @@ Lluc (trona)</div>
         <label class="lbl" for="mnu-ev">Evento</label>
         <select id="mnu-ev"></select>
       </div>
-      <div class="mnu-ev-field sm">
+      <div class="mnu-ev-field sm man" id="f-adultos">
         <label class="lbl" for="ev-adultos">Adultos</label>
         <input type="number" id="ev-adultos" min="0">
       </div>
-      <div class="mnu-ev-field sm">
+      <div class="mnu-ev-field sm man" id="f-ninos">
         <label class="lbl" for="ev-ninos">Niños</label>
         <input type="number" id="ev-ninos" min="0">
       </div>
-      <div class="mnu-ev-field sm">
+      <div class="mnu-ev-field sm" id="f-pma">
         <label class="lbl" for="ev-pma">Pers./mesa aper.</label>
         <input type="number" id="ev-pma" min="1">
       </div>
-      <div class="mnu-ev-field sm">
+      <div class="mnu-ev-field sm man" id="f-pmb">
         <label class="lbl" for="ev-pmb">Pers./mesa banq.</label>
         <input type="number" id="ev-pmb" min="1">
       </div>
       <div class="stats" id="mnu-stats"></div>
+      <p class="mnu-origen" id="mnu-origen"></p>
     </div>
     <div class="seg" id="mnu-tabs" role="tablist" aria-label="Vistas del menú">
       <button role="tab" aria-selected="true" data-v="sel">Selección</button>
@@ -2330,10 +2333,22 @@ function openShare(){
 }
 
 /* ══ eventos guardados ══════════════════════════════════════════════ */
+/* etiqueta de un evento en los desplegables. Con el nombre solo no basta:
+   varios eventos recién creados se llaman igual y no hay forma de saber cuál
+   es cuál. Añadiendo sus mesas y comensales se distinguen de un vistazo. */
+function eventLabel(e){
+  var n=e.name||"Sin título";
+  try{
+    var d=parse(e.text||""), t=totals(d);
+    if(!d.tables.length) return n+" — sin plano todavía";
+    return n+" — "+d.tables.length+" mesa"+(d.tables.length===1?"":"s")+
+           (t.pax?" · "+t.pax+" comensales":" · sin comensales");
+  }catch(err){ return n; }
+}
 function fillSelect(){
   var s=$("ev"); s.innerHTML="";
   store.events.forEach(function(e){
-    var o=document.createElement("option"); o.value=e.id; o.textContent=e.name||"Sin título";
+    var o=document.createElement("option"); o.value=e.id; o.textContent=eventLabel(e);
     if(e.id===store.active)o.selected=true; s.appendChild(o);
   });
 }
@@ -2380,7 +2395,14 @@ hydrateFromServer();
 $("src").addEventListener("input",onInput);
 function switchActiveEvent(id){store.active=id;sel=null;undoStack=[];refreshUndo();fillSelect();$("src").value=current().text; prevText=current().text;syncPrefs();render();save();}
 $("ev").addEventListener("change",function(){switchActiveEvent(this.value);});
-$("new").addEventListener("click",function(){newEvent("# Nuevo evento\n@ fecha · Les Moles Events\n\nM1 | Redonda | Nombre de la mesa\n","Nuevo evento");$("src").focus();});
+$("new").addEventListener("click",function(){
+  /* con la fecha en el nombre, dos eventos creados el mismo día siguen
+     distinguiéndose por sus mesas en el desplegable (ver eventLabel) */
+  var f=new Date(), dd=("0"+f.getDate()).slice(-2), mm=("0"+(f.getMonth()+1)).slice(-2);
+  var nom="Evento "+dd+"/"+mm+"/"+f.getFullYear();
+  newEvent("# "+nom+"\n@ fecha · Les Moles Events\n\nM1 | Redonda | Nombre de la mesa\n",nom);
+  $("src").focus();
+});
 $("del").addEventListener("click",function(){
   var btn=this;
   if(store.events.length<2){ toast("Es el único evento guardado. Crea otro antes de borrar este.",true); return; }
@@ -2583,7 +2605,23 @@ window.SITTING_BRIDGE={
   current:current,
   save:save,
   eventName:eventName,
-  switchActiveEvent:switchActiveEvent
+  switchActiveEvent:switchActiveEvent,
+  eventLabel:eventLabel,
+  /* el plano de mesas real del evento activo, para que el Menú no tenga que
+     preguntar otra vez lo que el plano ya sabe: cuántos comensales hay, de qué
+     tipo, y en cuántas mesas están repartidos. Se vuelve a leer el texto del
+     evento en cada llamada, así nunca devuelve una foto antigua. */
+  planTotals:function(){
+    var e=current(); if(!e) return null;
+    var d=parse(e.text||""), t=totals(d);
+    return {
+      pax:t.pax, adults:t.adults, child:t.child, baby:t.baby,
+      aler:t.aler, veg:t.veg, tables:d.tables.length,
+      mesas:d.tables.map(function(m){
+        return {num:m.num, name:m.name||"", pax:m.guests.length, cap:m.cap||0};
+      })
+    };
+  }
 };
 })();
 </script>
@@ -2640,15 +2678,37 @@ function ev(){ return BR.current(); }
 function menu(){ var e=ev(); return e?e.menu:null; }
 function touchSave(){ var e=ev(); if(e){ e.updated=Date.now(); BR.save(); } }
 
+/* Los comensales y las mesas de banquete SALEN DEL PLANO DE MESAS, no de
+   escribirlos otra vez aquí: el plano ya sabe quién se sienta y en qué mesa,
+   y cada mesa puede tener un número distinto de comensales (una de 8 y otra
+   de 12 no son "10 de media"). Solo se pregunta a mano lo que el plano no
+   puede saber: cuánta gente va por mesa de aperitivo, porque las mesas altas
+   del aperitivo no se dibujan en el plano.
+
+   Si el plano todavía está vacío (evento recién creado, presupuesto antes de
+   sentar a nadie) se vuelve a los campos a mano, para no dejar el Menú
+   inservible mientras tanto. */
+function planTotals(){ return (BR.planTotals && BR.planTotals()) || null; }
 function evTotals(){
-  var m=menu(); if(!m) return {adultos:0,ninos:0,total:0,mesasAper:0,mesasBanq:0};
-  var adultos=Math.max(0,+m.adultos||0), ninos=Math.max(0,+m.ninos||0);
-  var total=adultos+ninos;
-  var pma=Math.max(1,+m.pMesaAper||1), pmb=Math.max(1,+m.pMesaBanq||1);
+  var m=menu(); if(!m) return {adultos:0,ninos:0,total:0,tronas:0,mesasAper:0,mesasBanq:0,delPlano:false,mesas:[]};
+  var pt=planTotals(), delPlano=!!(pt&&pt.pax>0);
+  var adultos, ninos, tronas, total, mesasBanq, mesas;
+  if(delPlano){
+    /* las tronas (bebés) no llevan cubierto propio: cuentan aparte, igual que
+       cuando se escribía a mano solo adultos y niños */
+    adultos=pt.adults; ninos=pt.child; tronas=pt.baby;
+    total=adultos+ninos; mesasBanq=pt.tables; mesas=pt.mesas;
+  }else{
+    adultos=Math.max(0,+m.adultos||0); ninos=Math.max(0,+m.ninos||0); tronas=0;
+    total=adultos+ninos;
+    var pmb=Math.max(1,+m.pMesaBanq||1);
+    mesasBanq = total>0?Math.ceil(total/pmb):0; mesas=[];
+  }
+  var pma=Math.max(1,+m.pMesaAper||1);
   return {
-    adultos:adultos, ninos:ninos, total:total,
+    adultos:adultos, ninos:ninos, tronas:tronas, total:total,
     mesasAper: adultos>0?Math.ceil(adultos/pma):0,
-    mesasBanq: total>0?Math.ceil(total/pmb):0
+    mesasBanq: mesasBanq, delPlano:delPlano, mesas:mesas
   };
 }
 
@@ -2682,7 +2742,8 @@ function toggleStation(famKey,stName){
 function fillEventoInputs(){
   var sel=$("mnu-ev"); sel.innerHTML="";
   BR.store.events.forEach(function(e){
-    var o=document.createElement("option"); o.value=e.id; o.textContent=e.name||"Sin título";
+    var o=document.createElement("option"); o.value=e.id;
+    o.textContent=BR.eventLabel?BR.eventLabel(e):(e.name||"Sin título");
     if(e.id===BR.store.active) o.selected=true; sel.appendChild(o);
   });
   var m=menu()||{};
@@ -2690,14 +2751,37 @@ function fillEventoInputs(){
   $("ev-ninos").value=m.ninos||0;
   $("ev-pma").value=m.pMesaAper||7;
   $("ev-pmb").value=m.pMesaBanq||10;
+  /* con el plano hecho, estos tres campos sobran: los comensales y las mesas
+     salen del propio plano. Se ocultan en vez de dejarlos ahí pidiendo que se
+     escriba a mano algo que ya está puesto en otro sitio. */
+  var hayPlano=evTotals().delPlano;
+  Array.prototype.forEach.call(document.querySelectorAll(".mnu-ev-field.man"),function(el){
+    el.style.display = hayPlano ? "none" : "";
+  });
 }
 function renderEvStats(){
   var t=evTotals();
   $("mnu-stats").innerHTML=
     '<div class="stat"><b>'+t.total+'</b><span>comensales</span></div>'+
-    '<div class="stat"><b>'+t.mesasAper+'</b><span>mesas aperitivo</span></div>'+
     '<div class="stat"><b>'+t.mesasBanq+'</b><span>mesas banquete</span></div>'+
+    '<div class="stat"><b>'+t.mesasAper+'</b><span>mesas aperitivo</span></div>'+
     '<div class="stat"><b>'+selectedDishes().length+'</b><span>platos marcados</span></div>';
+  var n=$("mnu-origen"); if(!n) return;
+  if(t.delPlano){
+    var d=[t.adultos+" adultos", t.ninos+" niños"];
+    if(t.tronas) d.push(t.tronas+" en trona, sin cubierto");
+    var reparto=t.mesas.map(function(m){return m.pax;});
+    var min=Math.min.apply(null,reparto), max=Math.max.apply(null,reparto);
+    n.innerHTML='<b>Del plano de mesas</b> · '+esc(d.join(" · "))+
+      ' · repartidos en '+t.mesasBanq+' mesa'+(t.mesasBanq===1?"":"s")+
+      (min===max ? ' de '+max : ' de entre '+min+' y '+max+' comensales')+
+      '. Cambia el plano en Sitting y estas cifras se actualizan solas.';
+    n.style.display="";
+  }else{
+    n.innerHTML='El plano de mesas todavía está vacío, así que los comensales se '+
+      'ponen a mano. En cuanto sientes gente en el plano, estas cifras saldrán de ahí solas.';
+    n.style.display="";
+  }
 }
 $("mnu-ev").addEventListener("change",function(){
   BR.switchActiveEvent(this.value);

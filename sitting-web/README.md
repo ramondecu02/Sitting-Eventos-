@@ -101,6 +101,14 @@ que la cubertería de los segundos cambia sola según haya carne y pescado o un
 solo segundo plato; y que las estaciones aún sin datos se nombran una a una en
 vez de callarse. Se lanza igual: `node test_servicio_mobiliario.js`.
 
+`test_menu_desde_plano.js` comprueba que el Menú saca los comensales y las
+mesas **del plano de mesas** en vez de pedirlos otra vez a mano: que sale el
+número real de cada mesa (no una media de "personas por mesa"), que los campos
+a mano desaparecen cuando ya no hacen falta y reaparecen si el plano está
+vacío, que cambiar el plano actualiza el Menú y el check list solos, y que cada
+evento conserva su plano y su menú sin mezclarse. Se lanza igual:
+`node test_menu_desde_plano.js`.
+
 ## Qué se queda fuera, de momento
 
 El **plano de fondo** (la imagen del restaurante que se sube desde "Subir
@@ -141,3 +149,28 @@ Dentro de `sitting.html`, junto al catálogo de platos:
 Para añadir una estación nueva basta con añadir su regla a `MOBILIARIO_DATA`.
 Las que no estén puestas no se inventan: la propia hoja de Servicio las nombra
 para que se vea qué falta por rellenar.
+
+## Cómo se enlazan Sitting y Menú
+
+Las dos vistas viven en la misma página pero en bloques `<script>` distintos, y
+se hablan por `window.SITTING_BRIDGE`. El puente expone:
+
+- `store`, `current`, `save`, `switchActiveEvent` — el evento activo es un
+  único concepto compartido: cambiarlo desde cualquiera de las dos vistas
+  cambia la otra.
+- `eventLabel(e)` — cómo se llama un evento en los desplegables (nombre + sus
+  mesas y comensales, para poder distinguir eventos que se llamen parecido).
+- `planTotals()` — **el plano de mesas real del evento activo**: comensales,
+  adultos, niños, tronas, y el reparto por mesa. Vuelve a leer el texto del
+  evento en cada llamada, así nunca devuelve una foto antigua.
+
+`evTotals()` (lado Menú) se construye sobre `planTotals()`: los comensales y
+las mesas de banquete **salen del plano**, no de escribirlos a mano. Solo se
+pregunta lo que el plano no puede saber — cuánta gente va por mesa de
+aperitivo, porque las mesas altas no se dibujan. Si el plano está vacío
+(evento recién creado, presupuesto antes de sentar a nadie), se vuelve a los
+campos a mano para no dejar el Menú inservible.
+
+Cada evento de `store.events` lleva lo suyo: `text` (el plano en texto),
+`plans.interior` / `plans.exterior` (las dos distribuciones) y `menu` (platos
+marcados y parámetros). Crear un evento nuevo crea todo eso en blanco.

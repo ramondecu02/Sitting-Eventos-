@@ -103,7 +103,13 @@ async function main() {
     const { ctx, page } = await login(browser, TEAM_PASSWORD);
     brunoCtx = ctx;
     await wait(1500); // margen para que hydrateFromServer() termine su fetch
-    await page.locator("#ev").selectOption({ label: eventTitle });
+    // el desplegable muestra el nombre y, detrás, sus mesas y comensales
+    // ("Sync test … — 1 mesa · 1 comensales"), para poder distinguir eventos
+    // que se llamen parecido: se busca el que empieza por el título.
+    const opcion = await page.locator("#ev option")
+      .filter({ hasText: eventTitle }).first().getAttribute("value");
+    assert.ok(opcion, "el evento de Alicia aparece en el desplegable de Bruno");
+    await page.locator("#ev").selectOption(opcion);
     await assertSrcContains(page, "Mesa de Alicia");
     const current = await page.locator("#src").inputValue();
     await page.locator("#src").fill(current + `\nM2 | Redonda 10 | Mesa de Bruno\nInvitado Bruno (${token})\n`);
