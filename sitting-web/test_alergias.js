@@ -54,6 +54,7 @@ async function main() {
   const page = await (await browser.newContext({ viewport: { width: 1400, height: 950 } })).newPage();
   const jsErrors = [];
   page.on("pageerror", (e) => jsErrors.push(e.message));
+  let primerEvento; // id del evento de este test, para volver a él más tarde
 
   await step("login y un plano con alergias", async () => {
     await page.goto(BASE_URL + "/login");
@@ -67,6 +68,7 @@ async function main() {
     await page.locator("#src").fill(PLANO);
     await page.locator("#src").dispatchEvent("input");
     await wait(700);
+    primerEvento = await page.locator("#ab-ev").inputValue();
   });
 
   await step("«Alergias y sustituciones» es una sección del Menú", async () => {
@@ -142,8 +144,9 @@ async function main() {
       [].map.call(document.querySelectorAll("#room text"), (t) => t.textContent));
     assert.ok(textos.some((t) => /^LUBINA A LA/i.test(t)),
       "el plano dibujado lleva el plato junto al comensal: " + JSON.stringify(textos));
-    assert.ok(textos.some((t) => /^ALÉRGICA: MARI/i.test(t)),
-      "y sigue diciendo la alergia, no la sustituye");
+    assert.ok(textos.some((t) => /^MARISCO/i.test(t)),
+      "y sigue diciendo la alergia, no la sustituye — «marisco» limpio, sin el «alérgica:» delante " +
+      "(antes se quedaba pegado con acento, y en el plano salía cortado como «ALÉRGICA: MARI»)");
   });
 
   await step("borrar el plato lo quita de todas partes", async () => {
@@ -171,55 +174,86 @@ async function main() {
       "a quien no se le ha puesto nada sigue sin nada");
   });
 
-  await step("hay un recuadro aparte para los aperitivos adaptados del evento, no por comensal", async () => {
-    const caja = page.locator("#aler-aperis-ta");
-    await caja.waitFor({ state: "visible" });
-    assert.equal(await caja.inputValue(), "", "empieza vacío");
+  const filaAperis = (page, alergiaRe) =>
+    page.locator(".aler-aperis-row").filter({ hasText: new RegExp(alergiaRe, "i") });
+
+  await step("hay una fila de aperitivo adaptado por cada alergia DISTINTA del plano, no una caja libre", async () => {
+    // el plano tiene 4 alérgicos, pero escritos de 4 formas distintas: «marisco»
+    // y «marisc» (catalán) cuentan como dos alergias a propósito — la app no
+    // adivina que son la misma, igual que no inventa nada más en ningún sitio
+    assert.equal(await page.locator(".aler-aperis-row").count(), 4);
+    for (const a of ["^marisco$", "^marisc$", "^lactosa$", "^frutos secos$"]) {
+      const fila = filaAperis(page, a);
+      assert.equal(await fila.count(), 1, "hay una fila para " + a);
+      assert.equal(await fila.locator("input").inputValue(), "", a + " empieza vacía");
+    }
     // va debajo del recuadro de cada comensal, no mezclado con él
     const debajo = await page.evaluate(() => {
-      const ta = document.querySelector("#aler-aperis-ta");
+      const caja = document.querySelector(".aler-aperis");
       const mesas = document.querySelector(".aler-mesa");
-      return !!(ta && mesas) && !!(mesas.compareDocumentPosition(ta) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return !!(caja && mesas) && !!(mesas.compareDocumentPosition(caja) & Node.DOCUMENT_POSITION_FOLLOWING);
     });
     assert.ok(debajo, "el recuadro de aperitivos va después del de los comensales, no mezclado");
   });
 
-  await step("SE ESCRIBE A MANO Y SE GUARDA, sin tocar los platos por comensal", async () => {
-    const caja = page.locator("#aler-aperis-ta");
-    await caja.fill("Croquetas de jamón — versión sin gluten con base de maicena");
-    await caja.blur();
+  await step("SE ESCRIBE A MANO POR ALERGIA, Y SE GUARDA, sin tocar los platos ni las otras alergias", async () => {
+    await filaAperis(page, "^marisco$").locator("input")
+      .fill("Croquetas de jamón — versión sin gluten con base de maicena");
+    await filaAperis(page, "^marisco$").locator("input").blur();
     await wait(600);
     // se va a otra vista y se vuelve, para comprobar que quedó guardado de verdad
     await page.locator("#ab-sec").selectOption("m-serv"); await wait(500);
     await page.locator("#ab-sec").selectOption("m-aler"); await wait(500);
-    assert.equal(await page.locator("#aler-aperis-ta").inputValue(),
+    assert.equal(await filaAperis(page, "^marisco$").locator("input").inputValue(),
       "Croquetas de jamón — versión sin gluten con base de maicena", "sigue ahí al volver a la pantalla");
+    assert.equal(await filaAperis(page, "^marisc$").locator("input").inputValue(), "",
+      "la alergia parecida («marisc», catalán) no se ha tocado, son filas independientes");
+    assert.equal(await filaAperis(page, "^frutos secos$").locator("input").inputValue(), "",
+      "ni ninguna otra alergia");
     assert.equal(await filaDe(page, "Rosa Fabra").locator("input").inputValue(), "Cabrito con setas",
-      "y no ha tocado los platos sustitutivos por comensal");
+      "y no ha tocado los platos sustitutivos por comensal, que es una cosa distinta");
   });
 
-  await step("no hace falta tener alergias apuntadas para poder rellenarlo, y cada evento tiene el suyo", async () => {
+  await step("la misma alergia en dos comensales es una sola fila, no dos", async () => {
+    await page.locator("#ab-new").click(); await wait(700);
+    // venimos de la vista de Alergias (Menú); #src vive en el plano, hay que
+    // volver a esa sección antes de poder escribir en la caja
+    await page.locator("#ab-sec").selectOption("plan"); await wait(500);
+    await page.locator("#src").fill(
+      "M1 | Redonda 10 | Prueba\nUno Prueba (alergia: marisco)\nDos Prueba (alergia: marisco)\nTres Prueba (alergia: gluten)\n"
+    );
+    await page.locator("#src").dispatchEvent("input");
+    await wait(700);
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
+    assert.equal(await page.locator(".aler-row").count(), 3, "salen los tres comensales");
+    assert.equal(await page.locator(".aler-aperis-row").count(), 2,
+      "pero solo dos filas de aperitivo: marisco (de los dos primeros) y gluten");
+    await filaAperis(page, "^marisco$").locator("input").fill("Bombón de foie sin marisco");
+    await filaAperis(page, "^marisco$").locator("input").blur();
+    await wait(600);
+    assert.equal(await filaAperis(page, "^marisco$").locator("input").count(), 1,
+      "sigue habiendo una sola fila después de escribir, no se duplica");
+  });
+
+  await step("sin alergias en el plano no hay nada que asignar, y lo explica", async () => {
     await page.locator("#ab-new").click(); await wait(700);
     await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
     assert.match(await page.locator("#mnu-body").innerText(), /Ningún comensal del plano tiene alergias/i,
       "el aviso de comensales sigue saliendo cuando no hay ninguno");
-    const caja = page.locator("#aler-aperis-ta");
-    await caja.waitFor({ state: "visible" });
-    assert.equal(await caja.inputValue(), "", "el evento nuevo no arrastra el texto del anterior");
-    await caja.fill("Bombón de foie — sin frutos secos");
-    await caja.blur(); await wait(600);
-    await page.locator("#ab-sec").selectOption("plan"); await wait(500);
-    const txt = await page.locator("#src").inputValue();
-    assert.ok(!txt.includes("Bombón de foie"),
-      "los aperitivos adaptados no se guardan en el texto del plano — en el Sitting no hace falta de momento");
+    assert.equal(await page.locator(".aler-aperis-row").count(), 0, "no hay ninguna alergia que asignar todavía");
+    assert.match(await page.locator(".aler-aperis").innerText(), /Todavía no hay ninguna alergia apuntada/i,
+      "y lo explica, en vez de dejar una caja libre sin saber de qué alergia es");
   });
 
-  await step("cada evento tiene sus alergias, sin mezclarse", async () => {
-    await page.locator("#ab-new").click(); await wait(700);
+  await step("cada evento tiene sus alergias y sus aperitivos adaptados, sin mezclarse", async () => {
+    // el evento en blanco de antes no arrastra nada (ya comprobado arriba); y
+    // volviendo al primer evento, lo escrito sigue ahí — por evento, no global,
+    // aunque por medio se hayan creado y visitado otros dos eventos más
+    await page.locator("#ab-ev").selectOption(primerEvento);
     await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
-    assert.equal(await page.locator(".aler-row").count(), 0, "el evento nuevo no arrastra nada");
-    assert.match(await page.locator("#mnu-body").innerText(), /Ningún comensal del plano tiene alergias/i,
-      "y explica dónde se escriben");
+    assert.equal(await filaAperis(page, "^marisco$").locator("input").inputValue(),
+      "Croquetas de jamón — versión sin gluten con base de maicena",
+      "el primer evento conserva lo suyo aunque se hayan creado otros por medio");
   });
 
   await step("sin errores de JS en toda la prueba", async () => {

@@ -372,7 +372,9 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .aler-plato input{flex:1; min-width:0}
 .aler-row.hecho .aler-plato{color:var(--gold-p)}
 .aler-aperis{max-width:820px; margin:8px auto 24px; padding-top:18px; border-top:1px dashed var(--c-line)}
-.aler-aperis-ta{min-height:100px; font-family:"Barlow Semi Condensed","Karla",monospace; font-size:14px}
+.aler-aperis-row{display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px solid var(--c-line)}
+.aler-aperis-row:last-child{border-bottom:0}
+.aler-aperis-row input{flex:1; min-width:0; font-family:"Barlow Semi Condensed","Karla",sans-serif; font-size:13.5px}
 .mnu-empty{max-width:440px; margin:14vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:19px; font-style:italic; line-height:1.7}
 .mnu-dish-h{display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0}
 .mnu-dish-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px}
@@ -1034,7 +1036,10 @@ var MENUWORDS=["carn","carne","peix","pescado","filet","filete","arros","arroz",
 var NOFOOD=/(gluten|lactos|llet|leche|sucre|azucar|sal\b|porc|cerdo|marisc|frut|ou\b|huevo|soja|peix|pescado|carn|carne|alcohol|picant|picante|cafe|caf[eè]|fruits|sesam|mostas|api\b|apio|nou|nuez|nueces|cacahuet|llegum|legumbre|sulfit|derivats|derivados)/;
 function stripAlerPrefix(t){
   var W="[a-zà-ÿ]*";
-  var re=new RegExp("^(?:al[·.\\s]*l[eèé]rgi"+W+"|alergi"+W+"|allerg"+W+"|intoler"+W+"|sense|sin|no)\\s*[:\\-–]?\\s*(?:a\\s+l[ao]s?\\s+|a\\s+l['’]|als?\\s+|a\\s+|de\\s+l[ao]s?\\s+|de\\s+|del\\s+)?","i");
+  /* «al[eé]rgi» con o sin tilde: «alergia» no la lleva y «alérgica/alérgico» sí —
+     antes solo se reconocía la forma sin tilde y a «Carme Roig (alérgica: marisco)»
+     se le quedaba pegado el «alérgica:» delante en vez de dejar solo «marisco» */
+  var re=new RegExp("^(?:al[·.\\s]*l[eèé]rgi"+W+"|al[eé]rgi"+W+"|allerg"+W+"|intoler"+W+"|sense|sin|no)\\s*[:\\-–]?\\s*(?:a\\s+l[ao]s?\\s+|a\\s+l['’]|als?\\s+|a\\s+|de\\s+l[ao]s?\\s+|de\\s+|del\\s+)?","i");
   var out=t.replace(re,"").trim(); return out||t.trim();
 }
 function classify(raw){
@@ -1371,7 +1376,11 @@ function migrate(e){
      sincronizan con el mismo mecanismo (mergeStore/pushRemote) que el plano */
   e.menu=e.menu||{adultos:0,ninos:0,pMesaAper:7,pMesaBanq:10,dishes:{}};
   e.menu.dishes=e.menu.dishes||{};
-  if(e.menu.aperitivosAdaptados==null) e.menu.aperitivosAdaptados="";
+  /* aperitivos del cóctel adaptados, uno por cada alergia DISTINTA que haya en
+     el plano del evento — no por comensal (eso son los platos sustitutivos de
+     arriba, que van dentro del propio plano). Clave: la alergia tal como la
+     detecta el plano, recortada y en minúsculas; valor: texto libre. */
+  e.menu.aperitivosPorAlergia=e.menu.aperitivosPorAlergia||{};
   /* disponibilidad de cada camarero PARA ESTE EVENTO: personaId -> "si"|"no"|"pendiente".
      El que no aparece en el mapa se trata como pendiente (todavía sin marcar). */
   e.camareros=e.camareros||{};
@@ -3737,21 +3746,46 @@ function renderServicio(){
    Y ese plato se guarda DENTRO del plano, como una etiqueta más del comensal,
    no en una lista aparte: así aparece solo en el plano de sala y en el listado
    por mesas, que es lo que el equipo lleva en la mano el día del evento. */
-function renderAperitivosAdaptados(){
+/* qué alergias distintas hay en el evento, para poder ofrecer una fila de
+   aperitivo adaptado por cada una — no una caja libre. Se recorta y se pasa a
+   minúsculas para que «Marisco» y «marisco» sean la misma fila; dos formas
+   distintas de escribir lo mismo («marisco» / «marisc», castellano/catalán)
+   siguen siendo dos alergias distintas a propósito: la app no inventa que son
+   la misma, igual que no inventa estructura en ningún otro sitio. */
+function alergiasDistintas(lista){
+  var vistas={}, out=[];
+  (lista||[]).forEach(function(g){
+    (g.aler||[]).forEach(function(a){
+      var k=(a||"").replace(/\s+/g," ").trim().toLowerCase();
+      if(!k||vistas[k]) return;
+      vistas[k]=true; out.push(k);
+    });
+  });
+  return out.sort();
+}
+function renderAperitivosAdaptados(lista){
   var m=menu();
+  var mapa=(m&&m.aperitivosPorAlergia)||{};
+  var distintas=alergiasDistintas(lista);
+  var cuerpo=!distintas.length
+    ? '<p class="mnu-origen">Todavía no hay ninguna alergia apuntada en el plano. En cuanto se apunte '+
+      'alguna, aparece aquí sola para poder decirle qué aperitivo adaptado le corresponde.</p>'
+    : distintas.map(function(k){
+        return '<div class="aler-aperis-row"><span class="tag a">'+esc(k)+'</span>'+
+          '<input type="text" class="aler-aperis-in" data-alergia="'+esc(k)+'" value="'+esc(mapa[k]||"")+'" '+
+          'placeholder="Aperitivo(s) adaptado(s) para esta alergia" aria-label="Aperitivo adaptado para '+esc(k)+'"></div>';
+      }).join("");
   return '<div class="mnu-fam-section aler-aperis"><div class="mnu-fam-h"><h2>Aperitivos adaptados del evento</h2></div>'+
-    '<p class="mnu-origen">Aperitivos del cóctel que se han adaptado por alguna alergia o intolerancia — '+
-    'en general para este evento, no uno por comensal (eso son los platos sustitutivos de arriba). Se escribe a mano.</p>'+
-    '<textarea id="aler-aperis-ta" class="aler-aperis-ta" rows="5" '+
-    'placeholder="Ej: Croquetas de jamón — versión sin gluten con base de maicena. Bombón de foie — sin frutos secos." '+
-    'aria-label="Aperitivos adaptados del evento">'+esc((m&&m.aperitivosAdaptados)||"")+'</textarea></div>';
+    '<p class="mnu-origen">Una fila por cada alergia que detecta el plano — no por comensal (eso son los platos '+
+    'sustitutivos de arriba). Se escribe a mano qué aperitivo del cóctel se ha adaptado para cada alergia.</p>'+
+    cuerpo+'</div>';
 }
 function renderAlergias(){
   var lista=BR.alergias?BR.alergias():[];
   if(!lista.length){
     $("mnu-body").innerHTML='<div class="mnu-empty">Ningún comensal del plano tiene alergias apuntadas.'+
       '<br><span style="font-size:14px">Se escriben en el plano, entre paréntesis, detrás del nombre: '+
-      '«Rosa Fabra (alérgica: marisco)».</span></div>'+renderAperitivosAdaptados();
+      '«Rosa Fabra (alérgica: marisco)».</span></div>'+renderAperitivosAdaptados(lista);
     wireAperitivosAdaptados();
     return;
   }
@@ -3792,7 +3826,7 @@ function renderAlergias(){
       conPlato+' con plato decidido · '+(lista.length-conPlato)+' por decidir. '+
       'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
       'para que el equipo sepa qué llevarle a cada uno.</p>'+cuerpo+'</div>'+
-    renderAperitivosAdaptados();
+    renderAperitivosAdaptados(lista);
 
   Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato input"),function(inp){
     inp.addEventListener("change",function(){
@@ -3803,11 +3837,14 @@ function renderAlergias(){
   wireAperitivosAdaptados();
 }
 function wireAperitivosAdaptados(){
-  var ta=$("aler-aperis-ta"); if(!ta) return;
-  ta.addEventListener("change",function(){
-    var m=menu(); if(!m) return;
-    m.aperitivosAdaptados=ta.value;
-    touchSave();
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-aperis-in"),function(inp){
+    inp.addEventListener("change",function(){
+      var m=menu(); if(!m) return;
+      m.aperitivosPorAlergia=m.aperitivosPorAlergia||{};
+      var k=inp.dataset.alergia, v=inp.value.trim();
+      if(v) m.aperitivosPorAlergia[k]=inp.value; else delete m.aperitivosPorAlergia[k];
+      touchSave();
+    });
   });
 }
 
