@@ -111,7 +111,7 @@ async function main() {
     const secciones = await page.locator("#ab-sec option").allInnerTexts();
     assert.ok(secciones.includes("Todo el material"), "sale en el desplegable de secciones");
     const grupos = await page.locator("#ab-sec optgroup").evaluateAll((g) => g.map((x) => x.label));
-    assert.deepEqual(grupos, ["Plano de mesas", "Menú del evento", "Inventario"],
+    assert.deepEqual(grupos, ["Plano de mesas", "Menú del evento", "Inventario", "Camareros"],
       "el inventario va en su propio grupo: no es de un evento, es del negocio");
     await irAlInventario(page);
   });
@@ -398,11 +398,15 @@ async function main() {
   });
 
   await step("CREAR UNA SECCIÓN NUEVA, ADEMÁS DE UN GRUPO", async () => {
+    // «+ Sección» vive en la barra de arriba, al lado de los demás controles
+    // (Evento, + Evento, Sección) — solo visible estando en Inventario — y
+    // pide el nombre con un prompt(), no con un formulario en la página
     const seccion = token + " CARPAS";
     await page.locator('#inv-hojas button[data-h=""]').click(); await wait(400);
-    await page.locator("button.inv-add-h").click(); await wait(300);
-    await page.locator(".inv-form.seccion .h-nombre").fill(seccion);
-    await page.locator(".inv-form.seccion .h-ok").click(); await wait(700);
+    let tipo = null;
+    page.once("dialog", (d) => { tipo = d.type(); d.accept(seccion); });
+    await page.locator("#ab-inv-new").click(); await wait(700);
+    assert.equal(tipo, "prompt", "«+ Sección» pide el nombre con un prompt()");
 
     // sale como un botón más de filtro, detrás de las cinco hojas del Excel
     const botones = await page.locator("#inv-hojas button").allInnerTexts();
@@ -431,14 +435,16 @@ async function main() {
   });
 
   await step("dos secciones no se pueden llamar igual", async () => {
+    // dos diálogos seguidos en el mismo click (el prompt del nombre y, si es
+    // un nombre repetido, el alert de aviso): un handler que se queda puesto
+    // durante todo el paso, en vez de dos "once" que podrían pisarse
     let aviso = null;
-    page.once("dialog", (d) => { aviso = d.message(); d.accept(); });
+    const handler = (d) => { if (d.type() === "prompt") d.accept("MESAS"); else { aviso = d.message(); d.accept(); } };
+    page.on("dialog", handler);
     await page.locator('#inv-hojas button[data-h=""]').click(); await wait(400);
-    await page.locator("button.inv-add-h").click(); await wait(300);
-    await page.locator(".inv-form.seccion .h-nombre").fill("MESAS");
-    await page.locator(".inv-form.seccion .h-ok").click(); await wait(500);
+    await page.locator("#ab-inv-new").click(); await wait(500);
+    page.off("dialog", handler);
     assert.match(aviso || "", /ya hay una sección/i, "avisa en vez de crear una segunda MESAS");
-    await page.locator(".inv-form.seccion .h-no").click(); await wait(300);
   });
 
   await step("LO AÑADIDO SE PUEDE CAMBIAR DE SECCIÓN", async () => {
@@ -457,9 +463,8 @@ async function main() {
 
   await step("una sección con cosas dentro no se puede quitar por error", async () => {
     const seccion = token + " CON COSAS SECCION";
-    await page.locator("button.inv-add-h").click(); await wait(300);
-    await page.locator(".inv-form.seccion .h-nombre").fill(seccion);
-    await page.locator(".inv-form.seccion .h-ok").click(); await wait(700);
+    page.once("dialog", (d) => d.accept(seccion));
+    await page.locator("#ab-inv-new").click(); await wait(700);
     const h = grupoDeHoja(page, seccion);
     await h.locator("button.inv-add-g").click(); await wait(300);
     await page.locator(".inv-form.grupo .g-nombre").fill(token + " ALGO");

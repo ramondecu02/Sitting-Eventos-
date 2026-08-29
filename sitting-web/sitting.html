@@ -59,6 +59,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ab-ev select{flex:1; min-width:0; width:100%}
 .ab-sec{flex:0 1 auto; margin-left:auto}
 .ab-sec select{font-weight:600}
+/* solo tiene sentido dentro del Inventario: crear una sección en cualquier
+   otra vista no significaría nada */
+.ab-inv-new{display:none; flex:0 0 auto}
+body.mode-inv .ab-inv-new{display:inline-block}
 .ab-out{margin:0; flex:0 0 auto}
 .ab-out button{
   background:none; border:0; padding:0; cursor:pointer; text-decoration:underline;
@@ -257,11 +261,16 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   body.mode-menu .mnu-top,body.mode-menu .mnu-print-bar,body.mode-menu .mnu-empty{display:none!important}
   body.mode-menu .mnu-body{padding:0!important; overflow:visible!important}
   body.mode-sitting .app-menu,body.mode-sitting .launcher{display:none!important}
-  body.mode-menu #appInv,body.mode-sitting #appInv{display:none!important}
+  body.mode-menu #appInv,body.mode-sitting #appInv,body.mode-cam #appInv{display:none!important}
+  body.mode-menu #appCam,body.mode-sitting #appCam,body.mode-inv #appCam{display:none!important}
   body.mode-inv .app,body.mode-inv .launcher,body.mode-inv #appMenu{display:none!important}
   body.mode-inv #appInv{display:flex!important; height:auto!important; background:#fff!important}
   body.mode-inv .mnu-top{display:none!important}
   body.mode-inv .mnu-body{padding:0!important; overflow:visible!important}
+  body.mode-cam .app,body.mode-cam .launcher,body.mode-cam #appMenu{display:none!important}
+  body.mode-cam #appCam{display:flex!important; height:auto!important; background:#fff!important}
+  body.mode-cam .mnu-top{display:none!important}
+  body.mode-cam .mnu-body{padding:0!important; overflow:visible!important}
 }
 
 /* ══ selector Sitting / Menú ═════════════════════════════════════════ */
@@ -340,6 +349,17 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .inv-pie{max-width:820px; margin:6px auto 0; padding-top:14px; border-top:1px dashed var(--c-line)}
 .inv-form.seccion{max-width:820px; margin:6px auto 0; padding-top:14px; border-top:1px dashed var(--c-line)}
 .inv-quitar-h{margin-left:auto}
+
+/* ══ Camareros ══════════════════════════════════════════════════════ */
+.cam-row{display:flex; align-items:center; gap:10px; padding:9px 6px; border-bottom:1px solid var(--c-line); flex-wrap:wrap}
+.cam-row:last-child{border-bottom:0}
+.cam-info{display:flex; align-items:baseline; gap:10px; flex:1 1 200px; min-width:0}
+.cam-nm{font-family:"Cormorant Garamond",serif; font-size:16px}
+.cam-tel{font-size:12px; color:var(--c-mut); white-space:nowrap}
+.cam-nota{font-size:10.5px; color:var(--c-mut); font-style:italic}
+.cam-disp{flex:0 0 auto}
+.cam-disp button[data-e="si"][aria-pressed="true"]{color:var(--gold-p)}
+.cam-disp button[data-e="no"][aria-pressed="true"]{color:var(--ruby)}
 .inv-quitar-g{margin-left:auto}
 .inv-cables{font-size:11.5px; color:var(--c-mut); margin-bottom:6px}
 .aler-mesa{max-width:820px; margin:0 auto 24px}
@@ -351,6 +371,8 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--c-mut)}
 .aler-plato input{flex:1; min-width:0}
 .aler-row.hecho .aler-plato{color:var(--gold-p)}
+.aler-aperis{max-width:820px; margin:8px auto 24px; padding-top:18px; border-top:1px dashed var(--c-line)}
+.aler-aperis-ta{min-height:100px; font-family:"Barlow Semi Condensed","Karla",monospace; font-size:14px}
 .mnu-empty{max-width:440px; margin:14vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:19px; font-style:italic; line-height:1.7}
 .mnu-dish-h{display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0}
 .mnu-dish-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px}
@@ -391,6 +413,8 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   .inv-form input{flex:1 1 100%}
   .inv-form .f-cant{flex:1 1 100%}
   .inv-panel label{flex:1 1 100%}
+  .cam-disp{flex:1 1 100%}
+  .cam-disp button{flex:1}
   .aler-plato{margin-left:0; flex:1 1 100%}
   .mnu-top{padding:14px 16px 12px}
   .mnu-body{padding:14px 16px 50px}
@@ -406,7 +430,8 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   .ab-ev{order:2; flex:1 1 55%; max-width:none}
   .ab-new{order:3; flex:0 0 auto}
   .ab-sec{order:4; flex:1 1 65%; margin-left:0}
-  .ab-out{order:5; flex:0 0 auto; margin-left:auto}
+  .ab-inv-new{order:5; flex:0 0 auto}
+  .ab-out{order:6; flex:0 0 auto; margin-left:auto}
   .ab-sec select,.ab-ev select{width:100%}
   .ab-lbl{display:none}
   .seg{overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none}
@@ -429,6 +454,7 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
     <label class="ab-lbl" for="ab-sec">Sección</label>
     <select id="ab-sec" aria-label="Sección del evento"></select>
   </div>
+  <button class="btn sm ab-inv-new" id="ab-inv-new" title="Crear una sección nueva en el inventario, al lado de las que ya hay">+ Sección</button>
   <form action="/api/logout" method="POST" class="ab-out">
     <button type="submit" title="Cerrar sesión">Salir</button>
   </form>
@@ -651,6 +677,20 @@ Lluc (trona)</div>
     <div class="mnu-note" id="inv-note"></div>
   </div>
   <div class="mnu-body" id="inv-body"></div>
+</div>
+
+<div class="app-menu" id="appCam" style="display:none">
+  <div class="mnu-top">
+    <div class="mnu-evento">
+      <div class="stats" id="cam-stats"></div>
+      <p class="mnu-origen" id="cam-origen"></p>
+    </div>
+    <div class="mnu-search">
+      <input type="text" id="cam-q" placeholder="Buscar camarero…" aria-label="Buscar camarero">
+    </div>
+    <div class="mnu-note" id="cam-note">La agenda de camareros es del negocio — la misma para todos los eventos. Lo que cambia con cada evento es quién viene: márcalo aquí, y descarga el listado en PDF cuando lo necesites para repartirlo.</div>
+  </div>
+  <div class="mnu-body" id="cam-body"></div>
 </div>
 
 <script>
@@ -1331,6 +1371,10 @@ function migrate(e){
      sincronizan con el mismo mecanismo (mergeStore/pushRemote) que el plano */
   e.menu=e.menu||{adultos:0,ninos:0,pMesaAper:7,pMesaBanq:10,dishes:{}};
   e.menu.dishes=e.menu.dishes||{};
+  if(e.menu.aperitivosAdaptados==null) e.menu.aperitivosAdaptados="";
+  /* disponibilidad de cada camarero PARA ESTE EVENTO: personaId -> "si"|"no"|"pendiente".
+     El que no aparece en el mapa se trata como pendiente (todavía sin marcar). */
+  e.camareros=e.camareros||{};
   return e;
 }
 function load(){
@@ -1372,6 +1416,7 @@ function mergeStore(){
   store.events=out;
   store.inventario=mergeInv(store.inventario,disk.inventario);
   store.invExtra=mergeInvExtra(store.invExtra,disk.invExtra);
+  store.camareros=mergeCamareros(store.camareros,disk.camareros);
   if(!current()) store.active=out.length?out[0].id:null;
   return store;
 }
@@ -1410,6 +1455,28 @@ function mergeInvExtra(mio,otro){
   return {hojas:unir(mio.hojas,otro.hojas),
           categorias:unir(mio.categorias,otro.categorias),
           items:unir(mio.items,otro.items)};
+}
+/* La lista de camareros (nombre y teléfono) tampoco es de un evento: es la
+   agenda del negocio. Mismo criterio de fusión que invExtra — por id y
+   "updated", y quitar uno se marca borrado:true en vez de sacarlo de la
+   lista. Quién viene a CADA evento no vive aquí: eso es e.camareros, dentro
+   del propio evento, porque ya viaja con él con el mismo mergeStore/mergeRemote
+   que las mesas o el menú. */
+function mergeCamareros(mio,otro){
+  var vacio={personas:[]};
+  if(!otro) return mio||vacio;
+  mio=mio||vacio;
+  function unir(a,b){
+    var por={};
+    (b||[]).forEach(function(x){ if(x&&x.id) por[x.id]=x; });
+    (a||[]).forEach(function(x){
+      if(!x||!x.id) return;
+      var y=por[x.id];
+      if(!y||(x.updated||0)>=(y.updated||0)) por[x.id]=x;
+    });
+    return Object.keys(por).map(function(k){ return por[k]; });
+  }
+  return {personas:unir(mio.personas,otro.personas)};
 }
 function save(){
   if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
@@ -1491,12 +1558,14 @@ function hydrateFromServer(){
       if(!remote) return;
       var before=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
       var invBefore=JSON.stringify([store.inventario||{},store.invExtra||{}]);
-      /* El inventario es del negocio, no de un evento: se combina siempre, aunque
-         el servidor todavía no tenga ningún evento. Antes esto colgaba de que
-         hubiera eventos y, en un equipo que aún no había creado ninguno de verdad,
-         las correcciones del inventario no llegaban a nadie. */
+      var camBefore=JSON.stringify(store.camareros||{});
+      /* El inventario y la agenda de camareros son del negocio, no de un evento:
+         se combinan siempre, aunque el servidor todavía no tenga ningún evento.
+         Antes esto colgaba de que hubiera eventos y, en un equipo que aún no
+         había creado ninguno de verdad, las correcciones no llegaban a nadie. */
       store.inventario=mergeInv(store.inventario,remote.inventario);
       store.invExtra=mergeInvExtra(store.invExtra,remote.invExtra);
+      store.camareros=mergeCamareros(store.camareros,remote.camareros);
       if(remote.prefs) store.prefs=Object.assign({},remote.prefs,store.prefs);
       if(remote.events&&remote.events.length){
         /* si lo único que había en este navegador era la boda de ejemplo sin tocar y el
@@ -1508,7 +1577,8 @@ function hydrateFromServer(){
       }
       var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
       var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
-      if(after!==before||invCambia){
+      var camCambia=JSON.stringify(store.camareros||{})!==camBefore;
+      if(after!==before||invCambia||camCambia){
         try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){}
       }
       if(after!==before){
@@ -1518,6 +1588,10 @@ function hydrateFromServer(){
       }
       /* si un compañero ha corregido una cantidad del inventario, que se vea */
       if(invCambia&&window.invRefrescar) window.invRefrescar();
+      /* y lo mismo si ha tocado la agenda de camareros o la disponibilidad de
+         alguno para este evento (esto último ya viene en "after", pero el
+         cambio de agenda en sí no toca ningún evento) */
+      if((camCambia||after!==before)&&window.camRefrescar) window.camRefrescar();
     })
     .catch(function(){ /* sin conexión con el servidor: se sigue trabajando en local */ });
 }
@@ -2341,10 +2415,12 @@ function hojaPages(bloques,pw,ph){
   return pages;
 }
 
-/* lo llama el Menú por el puente: le pasa el nombre del archivo y se encarga
-   de leer la hoja que hay en pantalla y bajarla */
-function descargarHojaMenu(nombreArchivo){
-  var frame=document.querySelector("#mnu-body .sheet .frame");
+/* lo llama el Menú (o Camareros) por el puente: le pasa el selector de la
+   hoja que hay en pantalla y el nombre del archivo, y se encarga de leerla
+   y bajarla. Un solo motor de PDF para cualquier hoja de la aplicación,
+   la lea quien la lea. */
+function descargarHoja(selector,nombreArchivo){
+  var frame=document.querySelector(selector);
   if(!frame){ toast("No hay ninguna hoja que descargar todavía.",true); return Promise.resolve(); }
   var P=PAPERS[($("paper")&&$("paper").value)||"A4"]||PAPERS.A4;
   var prims=hojaPages(bloquesDeHoja(frame),P.w,P.h);
@@ -2355,6 +2431,9 @@ function descargarHojaMenu(nombreArchivo){
   }).catch(function(){
     toast("No se ha podido descargar el PDF.",true);
   });
+}
+function descargarHojaMenu(nombreArchivo){
+  return descargarHoja("#mnu-body .sheet .frame",nombreArchivo);
 }
 function pageOf(prims,w,h,fit){
   var used={img:{},gs:{}}, ctx;
@@ -2716,6 +2795,9 @@ function fillSelect(){
      uno o cambiar de evento tiene que dejar el Menú del evento correcto. */
   if(document.body.classList.contains("mode-menu")&&window.SITTING_BRIDGE&&
      window.SITTING_BRIDGE.onExternalChange) window.SITTING_BRIDGE.onExternalChange();
+  /* Camareros también depende del evento activo: la disponibilidad marcada
+     es por evento, así que al cambiar de evento hay que repintarla. */
+  if(document.body.classList.contains("mode-cam")&&window.camRefrescar) window.camRefrescar();
 }
 var tmr=null, prevText=null, typing=0, typeTm=null;
 /* Escribir también se puede deshacer. Antes, tras teclear invitados nuevos, «Deshacer»
@@ -2976,16 +3058,23 @@ var SECCIONES=[
   {k:"m-card",   g:"Menú del evento", t:"Menú para imprimir"},
   /* el inventario no es de un evento concreto: es el material del negocio,
      el mismo para todos. Va en su propio grupo para que se note. */
-  {k:"inv",      g:"Inventario", t:"Todo el material"}
+  {k:"inv",      g:"Inventario", t:"Todo el material"},
+  /* la agenda de camareros tampoco es de un evento (es del negocio), pero
+     quién viene a CADA evento sí lo es — por eso vive en su propio grupo,
+     aparte de Inventario y de Menú */
+  {k:"cam",      g:"Camareros", t:"Camareros del evento"}
 ];
 function seccionActual(){
   if(document.body.classList.contains("mode-inv")) return "inv";
+  if(document.body.classList.contains("mode-cam")) return "cam";
   var enMenu=document.body.classList.contains("mode-menu");
   return enMenu ? "m-"+(window.mnuViewActual?window.mnuViewActual():"sel") : view;
 }
 function irASeccion(k){
   if(k==="inv"){
     if(window.showInv) window.showInv();
+  }else if(k==="cam"){
+    if(window.showCam) window.showCam();
   }else if(k.indexOf("m-")===0){
     if(window.showMenu) window.showMenu();
     if(window.setMnuView) window.setMnuView(k.slice(2));
@@ -3043,8 +3132,9 @@ window.SITTING_BRIDGE={
      el plato que se les vaya a servir si ya se ha decidido. El plano es el
      único sitio donde están las alergias — se escriben al teclear la lista de
      invitados — así que el Menú las pide aquí en vez de guardar una copia. */
-  /* las hojas del Menú se bajan en PDF con el mismo motor que el plano */
+  /* las hojas del Menú (y de Camareros) se bajan en PDF con el mismo motor que el plano */
   descargarHojaMenu:descargarHojaMenu,
+  descargarHoja:descargarHoja,
   alergias:function(){
     if(!doc) doc=parse(current()?current().text:"");
     var out=[];
@@ -3170,11 +3260,15 @@ function evTotals(){
     mesasBanq = total>0?Math.ceil(total/pmb):0; mesas=[];
   }
   var pma=Math.max(1,+m.pMesaAper||1);
+  /* un camarero cada 11 comensales — sobre el total, el mismo número que se
+     enseña en todas partes como "comensales" (si se contara solo conCubierto,
+     esta cifra no cuadraría con la que se ve al lado). */
+  var camareros = total>0 ? Math.ceil(total/11) : 0;
   return {
     adultos:adultos, ninos:ninos, tronas:tronas, total:total,
     conCubierto: total-tronas,
     mesasAper: adultos>0?Math.ceil(adultos/pma):0,
-    mesasBanq: mesasBanq, delPlano:delPlano, mesas:mesas
+    mesasBanq: mesasBanq, delPlano:delPlano, mesas:mesas, camareros:camareros
   };
 }
 
@@ -3231,7 +3325,8 @@ function renderEvStats(){
     '<div class="stat"><b>'+t.total+'</b><span>comensales</span></div>'+
     '<div class="stat"><b>'+t.mesasBanq+'</b><span>mesas banquete</span></div>'+
     '<div class="stat"><b>'+t.mesasAper+'</b><span>mesas aperitivo</span></div>'+
-    '<div class="stat"><b>'+selectedDishes().length+'</b><span>platos marcados</span></div>';
+    '<div class="stat"><b>'+selectedDishes().length+'</b><span>platos marcados</span></div>'+
+    '<div class="stat" title="Un camarero cada 11 comensales"><b>'+t.camareros+'</b><span>camareros</span></div>';
   var n=$("mnu-origen"); if(!n) return;
   if(t.delPlano){
     var d=[t.adultos+" adultos", t.ninos+" niños"];
@@ -3575,7 +3670,10 @@ function splitArticles(s){
 }
 function renderServicio(){
   var sel=selectedDishes();
-  if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
+  /* antes, sin ningún plato marcado, esta hoja no enseñaba nada — pero
+     cuántos camareros hacen falta (y el montaje de mesas/comensales, que
+     tampoco depende del menú) ya se puede saber solo con el plano hecho, así
+     que ya no se espera a que el menú esté cerrado para decirlo */
   var t=evTotals();
   var counts={};
   sel.forEach(function(d){
@@ -3616,9 +3714,16 @@ function renderServicio(){
   }).join("");
 
   var html=printBar("check list de servicio")+'<div class="sheet"><div class="frame">'+docHead("Check list de servicio",t)+
-    (platos.length||cubiertos.length?(block("Platos",platos)+block("Cubiertos",cubiertos)):'<p class="mnu-note">Los platos marcados no tienen vajilla o cubiertos asociados en el Excel.</p>')+
-    (mob?('<h2 class="mnu-sheet-sec">Mobiliario y utensilios de estación</h2>'+mob):'')+
-    (pend.length?('<p class="mnu-note" style="margin-top:14px">Todavía sin datos de mobiliario propio: <b>'+pend.map(esc).join("</b>, <b>")+'</b>. Se completan rellenando esas estaciones en el Excel de parámetros.</p>'):'')+
+    '<p class="mnu-note"><b>Camareros necesarios: '+t.camareros+'</b> — uno cada 11 comensales. '+
+    'La disponibilidad de cada uno se marca en «Camareros», arriba a la derecha.</p>'+
+    (sel.length
+      ? ((platos.length||cubiertos.length?(block("Platos",platos)+block("Cubiertos",cubiertos)):'<p class="mnu-note">Los platos marcados no tienen vajilla o cubiertos asociados en el Excel.</p>')+
+         (mob?('<h2 class="mnu-sheet-sec">Mobiliario y utensilios de estación</h2>'+mob):'')+
+         (pend.length?('<p class="mnu-note" style="margin-top:14px">Todavía sin datos de mobiliario propio: <b>'+pend.map(esc).join("</b>, <b>")+'</b>. Se completan rellenando esas estaciones en el Excel de parámetros.</p>'):''))
+      : (mob
+          ? ('<h2 class="mnu-sheet-sec">Mobiliario y utensilios de estación</h2>'+mob+
+             '<p class="mnu-note" style="margin-top:14px">Todavía no se ha marcado ningún plato del menú — la vajilla y los cubiertos de cada plato saldrán aquí en cuanto se elijan.</p>')
+          : '<p class="mnu-note">Todavía no se ha marcado ningún plato del menú, así que no hay vajilla, cubiertos ni montaje de estación que enseñar todavía.</p>'))+
     '<div class="foot">Les Moles Events</div></div></div>';
   $("mnu-body").innerHTML=html;
   wirePrintBtn();
@@ -3632,12 +3737,22 @@ function renderServicio(){
    Y ese plato se guarda DENTRO del plano, como una etiqueta más del comensal,
    no en una lista aparte: así aparece solo en el plano de sala y en el listado
    por mesas, que es lo que el equipo lleva en la mano el día del evento. */
+function renderAperitivosAdaptados(){
+  var m=menu();
+  return '<div class="mnu-fam-section aler-aperis"><div class="mnu-fam-h"><h2>Aperitivos adaptados del evento</h2></div>'+
+    '<p class="mnu-origen">Aperitivos del cóctel que se han adaptado por alguna alergia o intolerancia — '+
+    'en general para este evento, no uno por comensal (eso son los platos sustitutivos de arriba). Se escribe a mano.</p>'+
+    '<textarea id="aler-aperis-ta" class="aler-aperis-ta" rows="5" '+
+    'placeholder="Ej: Croquetas de jamón — versión sin gluten con base de maicena. Bombón de foie — sin frutos secos." '+
+    'aria-label="Aperitivos adaptados del evento">'+esc((m&&m.aperitivosAdaptados)||"")+'</textarea></div>';
+}
 function renderAlergias(){
   var lista=BR.alergias?BR.alergias():[];
   if(!lista.length){
     $("mnu-body").innerHTML='<div class="mnu-empty">Ningún comensal del plano tiene alergias apuntadas.'+
       '<br><span style="font-size:14px">Se escriben en el plano, entre paréntesis, detrás del nombre: '+
-      '«Rosa Fabra (alérgica: marisco)».</span></div>';
+      '«Rosa Fabra (alérgica: marisco)».</span></div>'+renderAperitivosAdaptados();
+    wireAperitivosAdaptados();
     return;
   }
   var conPlato=lista.filter(function(g){ return g.sustituto; }).length;
@@ -3676,13 +3791,23 @@ function renderAlergias(){
       (lista.length===1?" comensal":" comensales")+' con alergia o intolerancia</b> · '+
       conPlato+' con plato decidido · '+(lista.length-conPlato)+' por decidir. '+
       'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
-      'para que el equipo sepa qué llevarle a cada uno.</p>'+cuerpo+'</div>';
+      'para que el equipo sepa qué llevarle a cada uno.</p>'+cuerpo+'</div>'+
+    renderAperitivosAdaptados();
 
   Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato input"),function(inp){
     inp.addEventListener("change",function(){
       if(BR.setSustituto) BR.setSustituto(+inp.dataset.mesa, +inp.dataset.i, inp.value);
       renderAlergias();
     });
+  });
+  wireAperitivosAdaptados();
+}
+function wireAperitivosAdaptados(){
+  var ta=$("aler-aperis-ta"); if(!ta) return;
+  ta.addEventListener("change",function(){
+    var m=menu(); if(!m) return;
+    m.aperitivosAdaptados=ta.value;
+    touchSave();
   });
 }
 
@@ -3735,8 +3860,9 @@ function refreshAll(){ fillEventoInputs(); renderFams(); renderEvStats(); render
 function showMenu(){
   $("appSitting").style.display="none";
   $("appInv").style.display="none";
+  if($("appCam")) $("appCam").style.display="none";
   $("appMenu").style.display="flex";
-  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-inv");
+  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-inv"); document.body.classList.remove("mode-cam");
   document.body.classList.add("mode-menu");
   $("lnch-sitting").className=""; $("lnch-sitting").setAttribute("aria-pressed","false");
   $("lnch-menu").className="on"; $("lnch-menu").setAttribute("aria-pressed","true");
@@ -3746,8 +3872,9 @@ function showMenu(){
 function showSitting(){
   $("appMenu").style.display="none";
   $("appInv").style.display="none";
+  if($("appCam")) $("appCam").style.display="none";
   $("appSitting").style.display="grid";
-  document.body.classList.remove("mode-menu"); document.body.classList.remove("mode-inv");
+  document.body.classList.remove("mode-menu"); document.body.classList.remove("mode-inv"); document.body.classList.remove("mode-cam");
   document.body.classList.add("mode-sitting");
   $("lnch-menu").className=""; $("lnch-menu").setAttribute("aria-pressed","false");
   $("lnch-sitting").className="on"; $("lnch-sitting").setAttribute("aria-pressed","true");
@@ -3763,6 +3890,10 @@ $("mnu-q").addEventListener("input",function(){ q=this.value; renderSeleccion();
 /* si el servidor trae datos más nuevos después de cargar (hydrateFromServer,
    en el script de Sitting), se refresca lo que esté pintado aquí también */
 BR.onExternalChange=refreshAll;
+/* Camareros necesita el total de comensales del evento para calcular cuántos
+   hacen falta, y esa cuenta (plano o a mano, con o sin plano hecho) solo la
+   sabe hacer evTotals — se expone en vez de duplicarla. */
+BR.evTotals=evTotals;
 
 document.body.classList.add("mode-sitting");
 fillEventoInputs();
@@ -4292,12 +4423,6 @@ function renderBody(){
       (h.extra&&!h.categorias.length&&!buscando?'<p class="inv-vacio">Esta sección todavía no tiene ningún grupo.</p>':'')+
       bloques+pie+'</div>';
   });
-  if(!buscando){
-    html+= (form&&form.tipo==="hoja")
-      ? '<div class="inv-form seccion"><input class="h-nombre" placeholder="Nombre de la sección nueva" aria-label="Nombre de la sección nueva">'+
-        '<button class="btn sm h-ok">Crear sección</button><button class="btn sm h-no">Cancelar</button></div>'
-      : '<div class="inv-pie"><button class="btn sm inv-add-h">+ Sección nueva</button></div>';
-  }
   $("inv-body").innerHTML=(hay||!buscando)?html:'<div class="mnu-empty">No hay nada en el inventario que coincida con la búsqueda.</div>';
   engancharBody();
 }
@@ -4377,29 +4502,9 @@ function engancharBody(){
       quitarHoja(bt.dataset.hoja); renderHojas(); renderBody(); renderStats();
     });
   });
-  var bh=b.querySelector("button.inv-add-h");
-  if(bh) bh.addEventListener("click",function(){
-    form={tipo:"hoja"}; renderBody();
-    var f=b.querySelector(".inv-form.seccion .h-nombre"); if(f) f.focus();
-  });
-  var fh=b.querySelector(".inv-form.seccion");
-  if(fh){
-    var crearH=function(){
-      var nom=fh.querySelector(".h-nombre").value.trim();
-      if(!nom){ fh.querySelector(".h-nombre").focus(); return; }
-      if(!añadirHoja(nom)) return;
-      form=null; renderHojas(); renderBody(); renderStats();
-    };
-    fh.querySelector(".h-ok").addEventListener("click",crearH);
-    fh.querySelector(".h-nombre").addEventListener("keydown",function(e){
-      if(e.key==="Enter"){ e.preventDefault(); crearH(); }
-    });
-    fh.querySelector(".h-no").addEventListener("click",function(){ form=null; renderBody(); });
-  }
-  /* los tres formularios comparten clase: el de artículo es el que no es ni de
-     grupo ni de sección (si no, al abrir el de sección se buscaban en él unos
-     campos que no tiene) */
-  var fi=b.querySelector(".inv-form:not(.grupo):not(.seccion)");
+  /* los dos formularios que quedan aquí (artículo y grupo) comparten clase:
+     el de artículo es el que no es de grupo */
+  var fi=b.querySelector(".inv-form:not(.grupo)");
   if(fi){
     var guardar=function(){
       var nom=fi.querySelector(".f-nombre").value.trim();
@@ -4473,8 +4578,9 @@ function renderStats(){
 function showInv(){
   $("appSitting").style.display="none";
   $("appMenu").style.display="none";
+  if($("appCam")) $("appCam").style.display="none";
   $("appInv").style.display="flex";
-  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-menu");
+  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-menu"); document.body.classList.remove("mode-cam");
   document.body.classList.add("mode-inv");
   renderHojas(); renderStats(); renderBody();
   if(window.syncAppbar) window.syncAppbar();
@@ -4487,5 +4593,252 @@ window.invRefrescar=function(){
 window.INVENTARIO_DATA=INVENTARIO_DATA;   /* lo usarán la disponibilidad por evento y las medidas del plano */
 
 $("inv-q").addEventListener("input",function(){ q=this.value; renderBody(); });
+/* «+ Sección» de la barra de arriba: antes era un formulario al pie de la
+   página; ahora vive junto a los demás botones de la barra y pide el nombre
+   con un prompt(), porque desde ahí arriba no hay sitio para un formulario
+   propio y el resto de controles de la barra ya funcionan como botón simple */
+$("ab-inv-new").addEventListener("click",function(){
+  var nom=prompt("Nombre de la sección nueva:");
+  if(nom===null) return;
+  nom=nom.trim();
+  if(!nom) return;
+  if(!añadirHoja(nom)) return;
+  renderHojas(); renderBody(); renderStats();
+});
+})();
+</script>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+var BR=window.SITTING_BRIDGE;
+function esc(t){ return String(t==null?"":t).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function norm(t){ return String(t==null?"":t).toLowerCase()
+  .normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+
+/* ══ Camareros: agenda del negocio (nombre, teléfono) + disponibilidad por
+   evento ══════════════════════════════════════════════════════════════
+   La agenda (quiénes son, sus teléfonos) es del negocio, como el
+   Inventario: se guarda en store.camareros y viaja igual entre pestañas y
+   compañeros (mergeCamareros, en el script de Sitting). Quién viene a CADA
+   evento es distinto — eso vive dentro del propio evento (e.camareros),
+   así que cambia solo con el evento activo, igual que el menú marcado. */
+function agenda(){
+  var st=BR.store;
+  if(!st.camareros) st.camareros={personas:[]};
+  if(!st.camareros.personas) st.camareros.personas=[];
+  return st.camareros;
+}
+function nuevoId(){ return "p."+Date.now().toString(36)+"."+Math.floor(Math.random()*1e6).toString(36); }
+function personas(){ return agenda().personas.filter(function(p){ return !p.borrado; }); }
+function porId(id){ return agenda().personas.filter(function(p){ return p.id===id; })[0]||null; }
+function añadirPersona(d){
+  var nombre=(d.nombre||"").trim(); if(!nombre) return null;
+  var p={id:nuevoId(), nombre:nombre, telefono:(d.telefono||"").trim(),
+         nota:(d.nota||"").trim(), updated:Date.now(), borrado:false};
+  agenda().personas.push(p); BR.save();
+  return p;
+}
+function editarPersona(id,campo,valor){
+  var p=porId(id); if(!p) return;
+  p[campo]=valor; p.updated=Date.now(); BR.save();
+}
+function quitarPersona(id){
+  var p=porId(id); if(!p) return;
+  p.borrado=true; p.updated=Date.now(); BR.save();
+}
+
+var ESTADOS=[["pendiente","Pendiente"],["si","Disponible"],["no","No disponible"]];
+var ETIQUETA={pendiente:"Pendiente de confirmar", si:"Disponible", no:"No disponible"};
+function disponibilidad(id){
+  var e=BR.current();
+  return (e&&e.camareros&&e.camareros[id])||"pendiente";
+}
+function marcarDisponibilidad(id,estado){
+  var e=BR.current(); if(!e) return;
+  e.camareros=e.camareros||{};
+  e.camareros[id]=estado;
+  e.updated=Date.now(); BR.save();
+}
+
+/* cuántos hacen falta para el evento activo: un camarero cada 11 comensales,
+   la misma cuenta que ya se enseña en el Menú (evTotals, por el puente) */
+function necesarios(){
+  var t=BR.evTotals?BR.evTotals():null;
+  return t?t.camareros:0;
+}
+function coincide(p,needle){
+  if(!needle) return true;
+  return (norm(p.nombre)+" "+norm(p.telefono||"")+" "+norm(p.nota||"")).indexOf(needle)>-1;
+}
+
+/* ══ render ══════════════════════════════════════════════════════════ */
+var q="", editando=null, form=null;
+
+function renderStats(){
+  var lista=personas(), nec=necesarios();
+  var si=0,no=0,pend=0;
+  lista.forEach(function(p){
+    var d=disponibilidad(p.id);
+    if(d==="si") si++; else if(d==="no") no++; else pend++;
+  });
+  $("cam-stats").innerHTML=
+    '<div class="stat" title="Un camarero cada 11 comensales"><b>'+nec+'</b><span>necesarios</span></div>'+
+    '<div class="stat'+(si<nec?" alert":"")+'"><b>'+si+'</b><span>disponibles</span></div>'+
+    '<div class="stat"><b>'+pend+'</b><span>pendientes</span></div>'+
+    '<div class="stat"><b>'+no+'</b><span>no disponibles</span></div>';
+  var e=BR.current();
+  $("cam-origen").innerHTML = e
+    ? ('Disponibilidad para <b>'+esc(e.name||"este evento")+'</b>. Para marcar la de otro evento, cámbialo arriba, en «Evento».')
+    : 'Crea o elige un evento arriba para poder marcar la disponibilidad de cada camarero.';
+}
+
+function filaHtml(p){
+  var d=disponibilidad(p.id);
+  return '<div class="cam-row">'+
+    '<div class="cam-info"><span class="cam-nm">'+esc(p.nombre)+'</span>'+
+    (p.telefono?'<span class="cam-tel">'+esc(p.telefono)+'</span>':'')+
+    (p.nota?'<span class="cam-nota">'+esc(p.nota)+'</span>':'')+'</div>'+
+    '<div class="seg cam-disp" data-id="'+esc(p.id)+'" role="group" aria-label="Disponibilidad de '+esc(p.nombre)+'">'+
+      ESTADOS.map(function(es){ return '<button type="button" data-e="'+es[0]+'" aria-pressed="'+(d===es[0]?"true":"false")+'">'+es[1]+'</button>'; }).join("")+
+    '</div>'+
+    '<button class="inv-ed cam-ed" data-id="'+esc(p.id)+'" title="Editar" aria-label="Editar '+esc(p.nombre)+'">✎</button>'+
+    (editando===p.id?panelHtml(p):'')+
+    '</div>';
+}
+function panelHtml(p){
+  return '<div class="inv-panel" data-id="'+esc(p.id)+'">'+
+    '<label>Nombre<input class="p-nombre" type="text" value="'+esc(p.nombre)+'"></label>'+
+    '<label>Teléfono<input class="p-telefono" type="text" value="'+esc(p.telefono||"")+'"></label>'+
+    '<label>Comentario<input class="p-nota" type="text" value="'+esc(p.nota||"")+'"></label>'+
+    '<div class="row"><button class="btn sm danger p-quitar">Quitar de la agenda</button>'+
+    '<button class="btn sm p-cerrar">Cerrar</button></div></div>';
+}
+function formHtml(){
+  return '<div class="inv-form"><input class="f-nombre" type="text" placeholder="Nombre" aria-label="Nombre del camarero">'+
+    '<input class="f-telefono" type="text" placeholder="Teléfono (opcional)" aria-label="Teléfono">'+
+    '<input class="f-nota" type="text" placeholder="Comentario (opcional)" aria-label="Comentario">'+
+    '<button class="btn sm f-ok">Añadir</button><button class="btn sm f-no">Cancelar</button></div>';
+}
+/* la hoja para PDF: misma tabla de dos columnas que ya sabe leer el motor
+   de descarga (bloquesDeHoja) — nombre (con el teléfono como sub-línea) a
+   la izquierda, disponibilidad a la derecha */
+function pdfTablaHtml(){
+  var e=BR.current();
+  var lista=personas().slice().sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+  var filas=lista.map(function(p){
+    return '<tr><td>'+esc(p.nombre)+(p.telefono?' <span class="mnu-base">'+esc(p.telefono)+'</span>':'')+
+      '</td><td class="q">'+esc(ETIQUETA[disponibilidad(p.id)])+'</td></tr>';
+  }).join("");
+  return '<div class="mnu-print-bar"><button class="btn gold sm" id="cam-print-btn">Descargar camareros en PDF</button></div>'+
+    '<div class="sheet"><div class="frame">'+
+    '<header class="doc-head"><div class="eyebrow">Les Moles Events'+(e&&e.name?(" · "+esc(e.name)):"")+'</div>'+
+    '<h2>Camareros</h2><div class="orn"></div><div class="doc-meta">'+necesarios()+' necesarios · '+lista.length+' en la agenda</div></header>'+
+    (lista.length
+      ? '<table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>'
+      : '<p class="mnu-note">Todavía no hay ningún camarero en la agenda.</p>')+
+    '<div class="foot">Les Moles Events</div></div></div>';
+}
+
+function renderBody(){
+  var needle=norm(q.trim());
+  var lista=personas().filter(function(p){ return coincide(p,needle); })
+    .sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+  var html='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>Agenda de camareros</h2><span class="cnt">'+
+    lista.length+(lista.length===1?" persona":" personas")+'</span></div>';
+  html += lista.length ? lista.map(filaHtml).join("") : '<p class="inv-vacio">'+
+    (q.trim()?"Nadie coincide con la búsqueda.":"Todavía no hay ningún camarero apuntado.")+'</p>';
+  if(!q.trim()){
+    html += (form&&form.tipo==="persona") ? formHtml()
+      : '<div class="inv-pie"><button class="btn sm cam-add">+ Añadir camarero</button></div>';
+  }
+  html += '</div>';
+  if(!q.trim()) html += pdfTablaHtml();
+  $("cam-body").innerHTML=html;
+  engancharBody();
+}
+
+function engancharBody(){
+  var b=$("cam-body");
+  Array.prototype.forEach.call(b.querySelectorAll(".cam-disp button"),function(bt){
+    bt.addEventListener("click",function(){
+      marcarDisponibilidad(bt.closest(".cam-disp").dataset.id, bt.dataset.e);
+      renderBody(); renderStats();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll(".cam-ed"),function(bt){
+    bt.addEventListener("click",function(){
+      editando=(editando===bt.dataset.id)?null:bt.dataset.id;
+      renderBody();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll(".inv-panel"),function(pn){
+    var id=pn.dataset.id;
+    [["p-nombre","nombre"],["p-telefono","telefono"],["p-nota","nota"]].forEach(function(par){
+      var inp=pn.querySelector("."+par[0]); if(!inp) return;
+      inp.addEventListener("change",function(){
+        var v=inp.value.trim();
+        if(par[1]==="nombre"&&!v) return;   /* un camarero sin nombre no se sostiene */
+        editarPersona(id,par[1],v);
+        renderBody(); renderStats();
+      });
+    });
+    pn.querySelector(".p-quitar").addEventListener("click",function(){
+      var p=porId(id);
+      if(p&&confirm("¿Quitar a «"+p.nombre+"» de la agenda?")){
+        quitarPersona(id); editando=null; renderBody(); renderStats();
+      }
+    });
+    pn.querySelector(".p-cerrar").addEventListener("click",function(){ editando=null; renderBody(); });
+  });
+  var ba=b.querySelector("button.cam-add");
+  if(ba) ba.addEventListener("click",function(){
+    form={tipo:"persona"}; renderBody();
+    var f=b.querySelector(".inv-form .f-nombre"); if(f) f.focus();
+  });
+  var fi=b.querySelector(".inv-form");
+  if(fi){
+    var guardar=function(){
+      var nombre=fi.querySelector(".f-nombre").value.trim();
+      if(!nombre){ fi.querySelector(".f-nombre").focus(); return; }
+      añadirPersona({nombre:nombre, telefono:fi.querySelector(".f-telefono").value,
+                     nota:fi.querySelector(".f-nota").value});
+      form=null; renderBody(); renderStats();
+    };
+    fi.querySelector(".f-ok").addEventListener("click",guardar);
+    fi.querySelector(".f-nombre").addEventListener("keydown",function(e){
+      if(e.key==="Enter"){ e.preventDefault(); guardar(); }
+    });
+    fi.querySelector(".f-no").addEventListener("click",function(){ form=null; renderBody(); });
+  }
+  var pb=$("cam-print-btn");
+  if(pb) pb.addEventListener("click",function(){
+    pb.disabled=true;
+    var e=BR.current();
+    var base=("Camareros_"+(e&&e.name?e.name:"evento")).replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_");
+    Promise.resolve(BR.descargarHoja("#cam-body .sheet .frame",base)).then(function(){ pb.disabled=false; });
+  });
+}
+
+function showCam(){
+  $("appSitting").style.display="none";
+  $("appMenu").style.display="none";
+  $("appInv").style.display="none";
+  $("appCam").style.display="flex";
+  document.body.classList.remove("mode-sitting"); document.body.classList.remove("mode-menu"); document.body.classList.remove("mode-inv");
+  document.body.classList.add("mode-cam");
+  renderStats(); renderBody();
+  if(window.syncAppbar) window.syncAppbar();
+}
+window.showCam=showCam;
+/* para que un cambio que llegue del servidor (agenda o disponibilidad) se
+   vea sin recargar */
+window.camRefrescar=function(){
+  if(document.body.classList.contains("mode-cam")){ renderStats(); renderBody(); }
+};
+
+$("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 })();
 </script>

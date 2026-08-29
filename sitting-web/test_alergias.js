@@ -96,7 +96,10 @@ async function main() {
   });
 
   await step("dice cuántos faltan por decidir", async () => {
-    assert.match(await page.locator("#mnu-body .mnu-origen").innerText(),
+    // .mnu-origen sale dos veces en esta pantalla: la de arriba (por comensal)
+    // y la del recuadro nuevo de aperitivos adaptados, más abajo — .first() coge
+    // la de comensales
+    assert.match(await page.locator("#mnu-body .mnu-origen").first().innerText(),
       /4 comensales con alergia o intolerancia.*0 con plato decidido.*4 por decidir/s);
   });
 
@@ -106,7 +109,7 @@ async function main() {
     await inp.press("Enter");
     await wait(600);
     assert.equal(await filaDe(page, "Carme Roig").locator("input").inputValue(), "Lubina a la plancha");
-    assert.match(await page.locator("#mnu-body .mnu-origen").innerText(), /1 con plato decidido.*3 por decidir/s);
+    assert.match(await page.locator("#mnu-body .mnu-origen").first().innerText(), /1 con plato decidido.*3 por decidir/s);
   });
 
   await step("EL PLATO SALE EN EL LISTADO POR MESAS", async () => {
@@ -166,6 +169,49 @@ async function main() {
     assert.equal(await filaDe(page, "Pol Sans").locator("input").inputValue(), "Arroz de pato");
     assert.equal(await filaDe(page, "Montse Serra").locator("input").inputValue(), "",
       "a quien no se le ha puesto nada sigue sin nada");
+  });
+
+  await step("hay un recuadro aparte para los aperitivos adaptados del evento, no por comensal", async () => {
+    const caja = page.locator("#aler-aperis-ta");
+    await caja.waitFor({ state: "visible" });
+    assert.equal(await caja.inputValue(), "", "empieza vacío");
+    // va debajo del recuadro de cada comensal, no mezclado con él
+    const debajo = await page.evaluate(() => {
+      const ta = document.querySelector("#aler-aperis-ta");
+      const mesas = document.querySelector(".aler-mesa");
+      return !!(ta && mesas) && !!(mesas.compareDocumentPosition(ta) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    assert.ok(debajo, "el recuadro de aperitivos va después del de los comensales, no mezclado");
+  });
+
+  await step("SE ESCRIBE A MANO Y SE GUARDA, sin tocar los platos por comensal", async () => {
+    const caja = page.locator("#aler-aperis-ta");
+    await caja.fill("Croquetas de jamón — versión sin gluten con base de maicena");
+    await caja.blur();
+    await wait(600);
+    // se va a otra vista y se vuelve, para comprobar que quedó guardado de verdad
+    await page.locator("#ab-sec").selectOption("m-serv"); await wait(500);
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(500);
+    assert.equal(await page.locator("#aler-aperis-ta").inputValue(),
+      "Croquetas de jamón — versión sin gluten con base de maicena", "sigue ahí al volver a la pantalla");
+    assert.equal(await filaDe(page, "Rosa Fabra").locator("input").inputValue(), "Cabrito con setas",
+      "y no ha tocado los platos sustitutivos por comensal");
+  });
+
+  await step("no hace falta tener alergias apuntadas para poder rellenarlo, y cada evento tiene el suyo", async () => {
+    await page.locator("#ab-new").click(); await wait(700);
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
+    assert.match(await page.locator("#mnu-body").innerText(), /Ningún comensal del plano tiene alergias/i,
+      "el aviso de comensales sigue saliendo cuando no hay ninguno");
+    const caja = page.locator("#aler-aperis-ta");
+    await caja.waitFor({ state: "visible" });
+    assert.equal(await caja.inputValue(), "", "el evento nuevo no arrastra el texto del anterior");
+    await caja.fill("Bombón de foie — sin frutos secos");
+    await caja.blur(); await wait(600);
+    await page.locator("#ab-sec").selectOption("plan"); await wait(500);
+    const txt = await page.locator("#src").inputValue();
+    assert.ok(!txt.includes("Bombón de foie"),
+      "los aperitivos adaptados no se guardan en el texto del plano — en el Sitting no hace falta de momento");
   });
 
   await step("cada evento tiene sus alergias, sin mezclarse", async () => {

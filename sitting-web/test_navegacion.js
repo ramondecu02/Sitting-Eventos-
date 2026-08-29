@@ -36,7 +36,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* qué vista está a la vista de verdad */
 async function vistaVisible(page) {
-  const vistas = { sitting: "#appSitting", menu: "#appMenu", inv: "#appInv" };
+  const vistas = { sitting: "#appSitting", menu: "#appMenu", inv: "#appInv", cam: "#appCam" };
   const abiertas = [];
   for (const [nombre, sel] of Object.entries(vistas)) {
     if (await page.locator(sel).isVisible()) abiertas.push(nombre);
@@ -70,6 +70,7 @@ const SECCIONES = [
   ["m-serv",   "menu",    "Check list de servicio"],
   ["m-card",   "menu",    "Menú para imprimir"],
   ["inv",      "inv",     "Todo el material"],
+  ["cam",      "cam",     "Camareros del evento"],
 ];
 
 async function main() {
@@ -98,13 +99,13 @@ async function main() {
     assert.deepEqual(textos, SECCIONES.map((s) => s[2]));
     // y agrupadas, para que se vea qué es del plano y qué del menú
     const grupos = await page.locator("#ab-sec optgroup").evaluateAll((g) => g.map((x) => x.label));
-    assert.deepEqual(grupos, ["Plano de mesas", "Menú del evento", "Inventario"]);
+    assert.deepEqual(grupos, ["Plano de mesas", "Menú del evento", "Inventario", "Camareros"]);
   });
 
   await step("CADA SECCIÓN LLEVA A SU PANTALLA, saltando entre plano y menú", async () => {
     // en desorden a propósito: los saltos son lo que antes obligaba a pasar
     // por el selector "Sitting/Menú"
-    for (const clave of ["m-serv", "list", "inv", "m-aler", "m-sel", "card", "inv", "m-card", "plan"]) {
+    for (const clave of ["m-serv", "list", "inv", "cam", "m-aler", "m-sel", "card", "inv", "cam", "m-card", "plan"]) {
       const esperada = SECCIONES.find((s) => s[0] === clave)[1];
       await page.locator("#ab-sec").selectOption(clave);
       await wait(450);
