@@ -103,7 +103,7 @@ async function main() {
     // y la del recuadro nuevo de aperitivos adaptados, más abajo — .first() coge
     // la de comensales
     assert.match(await page.locator("#mnu-body .mnu-origen").first().innerText(),
-      /4 comensales con alergia o intolerancia.*0 con plato decidido.*4 por decidir/s);
+      /4 comensales con alergia, intolerancia o necesidad especial.*0 con plato decidido.*4 por decidir/s);
   });
 
   await step("SE ESCRIBE EL PLATO SUSTITUTIVO A MANO", async () => {
@@ -316,7 +316,7 @@ async function main() {
   await step("sin alergias en el plano no hay nada que asignar, y lo explica", async () => {
     await page.locator("#ab-new").click(); await wait(700);
     await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
-    assert.match(await page.locator("#mnu-body").innerText(), /Ningún comensal del plano tiene alergias/i,
+    assert.match(await page.locator("#mnu-body").innerText(), /Ningún comensal del plano tiene alergia/i,
       "el aviso de comensales sigue saliendo cuando no hay ninguno");
     assert.equal(await page.locator(".aler-aperis-row").count(), 0, "no hay ninguna alergia que asignar todavía");
     assert.match(await page.locator(".aler-aperis").innerText(), /Todavía no hay ninguna alergia apuntada/i,

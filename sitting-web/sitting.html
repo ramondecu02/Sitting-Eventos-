@@ -12,7 +12,7 @@
   --shadow:0 1px 2px rgba(40,34,24,.06), 0 12px 32px rgba(40,34,24,.10);
   --paper:#FBF8F2; --ink:#26221C; --ink-soft:#6B6257; --ink-fade:#787166;
   --rule:#E0D7C5; --gold-p:#8B6D3F;
-  --ruby:#8E2C48; --sand:#DDBE86; --clay:#947036; --sage:#5F7C55;
+  --ruby:#8E2C48; --sand:#DDBE86; --clay:#947036; --sage:#5F7C55; --teal:#3E7C74;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -200,7 +200,11 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .lc-pax span{font-size:7.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-fade)}
 .guests{columns:2; column-gap:6mm}
 .lcard:not(.wide) .guests{columns:1}
-.g{display:flex; align-items:baseline; gap:6px; font-size:12.5px; line-height:1.75; break-inside:avoid}
+/* flex-wrap:wrap es a propósito: si un comensal tiene muchas etiquetas (varias
+   alergias + varios platos sustitutivos) no caben todas en una línea, y sin esto
+   el nombre se encogía y se partía letra a letra en vez de bajar las etiquetas
+   sobrantes a una segunda línea dentro de la misma columna */
+.g{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; font-size:12.5px; line-height:1.75; break-inside:avoid}
 .g .nm{font-family:"Cormorant Garamond",serif; font-size:15px}
 .g.aler .nm{color:var(--ruby)}
 .tag{font-family:"Barlow Semi Condensed",sans-serif; font-size:8.5px; letter-spacing:.11em; text-transform:uppercase; padding:.5px 5px; border-radius:2px; white-space:nowrap}
@@ -208,6 +212,7 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .tag.n{background:var(--sand); color:#4A3714}
 .tag.t{background:var(--clay); color:#fff}
 .tag.v{background:var(--sage); color:#fff}
+.tag.vg{background:var(--teal); color:#fff}
 .tag.m{border:1px solid var(--gold-p); color:var(--gold-p)}
 /* el plato de quien tiene alergia no es una nota más: es lo que hay que
    servirle a esa persona, así que se ve de lejos */
@@ -218,7 +223,10 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .alerts h3{margin:0 0 3mm; font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--ruby); display:flex; align-items:center; gap:8px}
 .alerts h3::after{content:""; flex:1; height:1px; background:var(--ruby); opacity:.35}
 .al-grid{display:grid; grid-template-columns:1fr 1fr; gap:1.5mm 6mm}
-.al{display:flex; align-items:baseline; gap:7px; font-size:12px}
+/* mismo motivo que en .g: si el nombre no cabe junto con la mesa y la alergia
+   en una sola línea, que baje ".what" entero a la siguiente, no que el nombre
+   se encoja y se parta letra a letra */
+.al{display:flex; flex-wrap:wrap; align-items:baseline; gap:7px; font-size:12px}
 .al .who{font-family:"Cormorant Garamond",serif; font-size:14.5px}
 .al .mesa{font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-fade); white-space:nowrap}
 .al .what{color:var(--ruby); font-size:10.5px; text-transform:uppercase; margin-left:auto; text-align:right}
@@ -240,8 +248,10 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .card .cm{font-size:8px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-p)}
 .card .cn{font-family:"Cormorant Garamond",serif; font-size:27px; line-height:1.12; margin:3mm 0 2mm}
 .card .ct{font-family:"Cormorant Garamond",serif; font-style:italic; font-size:12.5px; color:var(--ink-fade)}
-.card .ca{position:absolute; left:0; right:0; bottom:7mm; font-size:7.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ruby); display:flex; align-items:center; justify-content:center; gap:5px}
-.card .ca::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--ruby)}
+.card .ca{position:absolute; left:0; right:0; bottom:7mm; font-size:7.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ruby); text-align:center}
+.card .ca .caMot{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:5px}
+.card .ca .caMot::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--ruby); flex:none}
+.card .ca .sust{display:block; color:var(--gold-p); margin-top:2px; letter-spacing:.1em}
 .empty{max-width:440px; margin:12vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:20px; font-style:italic}
 
 @media screen and (max-width:1080px){
@@ -523,7 +533,7 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
         <div class="help-body">
           <p>Empieza con <code># Título</code> del evento y <code>@ subtítulo</code> (fecha, lugar). También puedes escribirlos haciendo clic sobre el título del propio plano.</p>
           <p>Cada mesa empieza por <code>M1</code>, <code>MESA 1</code> o <code>TAULA 1</code>, seguida de la forma y el nombre separados por <code>|</code>. Formas: <code>redonda</code>, <code>rectangular</code>, <code>presidencial</code>, <code>cuadrada</code>, <code>ovalada</code>.</p>
-          <p>Debajo, un comensal por línea. Entre paréntesis las marcas: alergias (<code>celíaca</code>, <code>alergia: marisco</code>, <code>sin gluten</code>), <code>niño</code>, <code>trona</code>, <code>vegano</code>, <code>embarazada</code>, o el segundo plato (<code>carne</code>, <code>pescado</code>). Un <code>*</code> al final marca a los protagonistas. Dos personas en una línea: <code>Joan + Maria</code>.</p>
+          <p>Debajo, un comensal por línea. Entre paréntesis las marcas: alergias (<code>celíaca</code>, <code>alergia: marisco</code>, <code>sin gluten</code>), <code>niño</code>, <code>trona</code>, <code>vegetariano</code>, <code>vegano</code>, <code>embarazada</code>, o el segundo plato (<code>carne</code>, <code>pescado</code>). Un <code>*</code> al final marca a los protagonistas. Dos personas en una línea: <code>Joan + Maria</code>.</p>
           <div class="ex"># Boda María y Juan — 15/08/2026
 @ Les Moles Events
 
@@ -720,15 +730,15 @@ var I18N={
      aler:"Al·lèrgies i intoleràncies",noAler:"Cap al·lèrgia registrada",aper:"Aperitius adaptats",thanks:"Gràcies per acompanyar-nos en aquest dia tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Rodona",rect:"Rectangular",presid:"Presidencial",square:"Quadrada",oval:"Ovalada"},
-     leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",aler:"Al·lèrgia / intolerància",veg:"Vegetarià / vegà",star:"Protagonistes"}},
+     leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",aler:"Al·lèrgia / intolerància",veg:"Vegetarià",vegan:"Vegà",preg:"Embarassada",star:"Protagonistes"}},
  es:{plan:"Plano de la sala",list:"Distribución por mesas",taula:"Mesa",pax:"personas",comensals:"comensales",taules:"mesas",nens:"niños",nadons:"bebés",cont:"continuación",
      aler:"Alergias e intolerancias",noAler:"Ninguna alergia registrada",aper:"Aperitivos adaptados",thanks:"Gracias por acompañarnos en un día tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Redonda",rect:"Rectangular",presid:"Presidencial",square:"Cuadrada",oval:"Ovalada"},
-     leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",aler:"Alergia / intolerancia",veg:"Vegetariano / vegano",star:"Protagonistas"}}
+     leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",aler:"Alergia / intolerancia",veg:"Vegetariano",vegan:"Vegano",preg:"Embarazada",star:"Protagonistas"}}
 };
 var COL={adult:{f:"#FFFDF8",s:"#8C8477"},child:{f:"#E7CF9F",s:"#B99A55"},baby:{f:"#A9803F",s:"#7E5F2B"},
-         aler:{f:"#8E2C48",s:"#6E1F37"},veg:{f:"#6E8C62",s:"#4F6B45"},star:"#B08A50"};
+         aler:{f:"#8E2C48",s:"#6E1F37"},veg:{f:"#6E8C62",s:"#4F6B45"},vegan:{f:"#3E7C74",s:"#2C5951"},star:"#B08A50"};
 var TFILL="#FDFAF3",TSTROKE="#C9B182",INK="#26221C",SOFT="#6B6257",FADE="#B0A896",GOLD="#B08A50",RUBY="#8E2C48";
 var GAP=16;
 /* medidas de la sala: cambian según la orientación de cada ubicación */
@@ -1062,7 +1072,11 @@ function classify(raw){
   if(/^(menu|men|2n|2on|segon|segundo|plat|plato|principal)\s*[:=]/.test(n)) return {type:"menu",text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/(nen|nena|nin[oa]|infantil|kid|child)/.test(n)) return {type:"child",text:t};
   if(/(trona|nado|bebe|baby|lactant|sense menu|sin menu)/.test(n)) return {type:"baby",text:t};
-  if(/(vegan|vegetari)/.test(n)) return {type:"veg",text:t};
+  /* vegetariano y vegano son cosas distintas para quien cocina (el vegano no
+     lleva ni huevo ni lácteos): "vegan" nunca aparece dentro de "vegetari",
+     así que el orden entre estas dos líneas no importa */
+  if(/vegan/.test(n)) return {type:"vegan",text:t};
+  if(/vegetari/.test(n)) return {type:"veg",text:t};
   if(/(embaras|embaraz|gestant)/.test(n)) return {type:"preg",text:t};
   if(/(alerg|allerg|intoler|celiac|gluten|anisakis|histamin)/.test(n)) return {type:"aler",text:stripAlerPrefix(t)};
   /* «sin gluten» es alergia; «no viene» NO. Solo cuenta si detrás hay algo comestible. */
@@ -1091,7 +1105,7 @@ function parseGuest(raw){
   }
   if(d>0&&buf) tags=tags.concat(buf.split(/[,;\/]/));   /* paréntesis sin cerrar */
   s=out;
-  var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],menus:[],notes:[],kind:"adult",raw:[]};
+  var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],menus:[],notes:[],kind:"adult",preg:false,raw:[]};
   tags.forEach(function(t){
     var c=classify(t); if(!c) return;
     g.raw.push(t.trim());
@@ -1100,6 +1114,11 @@ function parseGuest(raw){
     else if(c.type==="child") g.kind="child";
     else if(c.type==="baby") g.kind="baby";
     else if(c.type==="veg"){ if(g.kind==="adult") g.kind="veg"; g.notes.push(c.text); }
+    else if(c.type==="vegan"){ if(g.kind==="adult") g.kind="vegan"; g.notes.push(c.text); }
+    /* embarazada no cambia el "kind" (una embarazada puede ser también vegana,
+       o llevar el menú infantil no aplica aquí): es un aviso aparte, igual que
+       el de "protagonista", que se suma sin pisar lo demás */
+    else if(c.type==="preg"){ g.preg=true; g.notes.push(c.text); }
     else g.notes.push(c.text);
   });
   g.mark=g.aler.length?"aler":g.kind;
@@ -1168,21 +1187,24 @@ function serialize(d){
   return out.join("\n").replace(/^\n+/,"")+"\n";
 }
 function totals(d){
-  var t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,tables:d.tables.length};
+  var t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0,tables:d.tables.length};
   d.tables.forEach(function(m){m.guests.forEach(function(g){
     t.pax++;
     if(g.kind==="child")t.child++;else if(g.kind==="baby")t.baby++;else t.adults++;
     if(g.kind==="veg")t.veg++;
+    if(g.kind==="vegan")t.vegan++;
     if(g.aler.length)t.aler++;
   });});
   return t;
 }
 
 /* ══ mesas como primitivas ══════════════════════════════════════════ */
-/* letra dentro del círculo para niño/nadó/vegetariano: quien mire una fotocopia en blanco y
-   negro (o no distinga bien los colores) tiene que poder diferenciarlos igual, no solo por tono */
-var KINDMARK={child:["N","#26221C"],baby:["B","#FFFFFF"],veg:["V","#FFFFFF"]};
-function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full){
+/* letra dentro del círculo para niño/nadó/vegetariano/vegano: quien mire una fotocopia
+   en blanco y negro (o no distinga bien los colores) tiene que poder diferenciarlos
+   igual, no solo por tono. Vegetariano y vegano llevan letras distintas (V / G) porque
+   son restricciones distintas para cocina — el vegano tampoco lleva huevo ni lácteos */
+var KINDMARK={child:["N","#26221C"],baby:["B","#FFFFFF"],veg:["V","#FFFFFF"],vegan:["G","#FFFFFF"]};
+function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
   var c=COL[g.mark]||COL.adult, it=[];
   it.push(C(x,y,16,"transparent",null,1,true));
   var ring=C(x,y,7.6,c.f,g.star?COL.star:c.s,g.star?2.4:1); ring.cls="ring"; it.push(ring);
@@ -1190,7 +1212,14 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full){
   if(km) it.push(TX(x,y+2.7,km[0],{size:7.6,fo:"sansb",a:"middle",c:km[1]}));
   if(g.star) it.push(SR(x+(sx||0)*13,y+(sy||-1)*13,4.4,COL.star));
   it.push(TX(lx,ly,full?g.name:g.short,{size:9.2,fo:g.aler.length?"sansb":"sans",a:anchor,c:g.aler.length?RUBY:"#4A4338"}));
-  if(g.aler.length) it.push(TX(lx,alerBelow?ly+7.6:ly-7.6,clip(g.aler.join(" · "),anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:"#A34D66",ls:.4}));
+  /* en una mesa redonda grande, dos vecinos con la etiqueta cargada (alergias +
+     más de un plato) sí pueden llegar a tocarse si solo se recorta por número de
+     caracteres: cuando la llamante conoce el hueco real hasta el vecino (halfGap)
+     se recorta por ancho real en vez de a ciegas por caracteres */
+  function recorta(txt,charLim){
+    return halfGap?clipW(txt.toUpperCase(),anchor==="middle"?2*halfGap:halfGap,"sans",6.3,.4):clip(txt,charLim).toUpperCase();
+  }
+  if(g.aler.length) it.push(TX(lx,alerBelow?ly+7.6:ly-7.6,recorta(g.aler.join(" · "),anchor==="middle"?15:22),{size:6.3,fo:"sans",a:anchor,c:"#A34D66",ls:.4}));
   /* si a este comensal se le sirve otra cosa, va debajo de su alergia y en
      dorado: en el plano lo que hace falta saber es qué se le lleva. Sin alergia
      el plato ocupa la línea que la alergia habría ocupado. Puede haber más de
@@ -1198,7 +1227,7 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full){
      alergias, con " · ", y el recorte hace el resto. */
   if(g.menus&&g.menus.length){
     var my=g.aler.length?(alerBelow?ly+15.2:ly-15.2):(alerBelow?ly+7.6:ly-7.6);
-    it.push(TX(lx,my,clip(g.menus.join(" · "),anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:GOLD,ls:.4}));
+    it.push(TX(lx,my,recorta(g.menus.join(" · "),anchor==="middle"?15:22),{size:6.3,fo:"sans",a:anchor,c:GOLD,ls:.4}));
   }
   return GR(it,{seat:{t:tnum,i:idx}});
 }
@@ -1215,13 +1244,21 @@ function plate(x,y,w,h,r,sw){var p=R(x,y,w,h,r,TFILL,TSTROKE,sw||1);p.cls="plate
 function bRound(t,L,full){
   var n=Math.max(t.guests.length,1),step=hasAler(t)?49:40;
   var Rr=Math.max(78,(n*step)/(2*Math.PI)),rT=Math.max(46,Rr-27),it=[];
+  /* con mesas grandes, dos comensales vecinos con etiqueta cargada (alergias +
+     más de un plato) pueden estar más cerca entre sí que del texto que ocupan:
+     este es el hueco real hasta el vecino, para recortar por ancho y no solo
+     por número de caracteres. Solo hace falta ser tan estrictos cerca de arriba
+     o abajo del todo, que es donde dos etiquetas convergen la una hacia la
+     otra — a los lados cada una crece hacia fuera, sin nada con lo que chocar,
+     así que ahí se deja el recorte de siempre (más generoso) */
+  var halfGap=Math.max(20,(Rr+13)*Math.sin(Math.PI/n)-4);
   var pl=C(0,0,rT,TFILL,TSTROKE,1); pl.cls="plate"; it.push(pl);
   it.push(C(0,0,rT-4,"none",TSTROKE,0.4));
   t.guests.forEach(function(g,i){
     var a=-Math.PI/2+i*2*Math.PI/n,c=Math.cos(a),s=Math.sin(a);
     var x=Rr*c,y=Rr*s,lx=(Rr+13)*c,ly=(Rr+13)*s,an,dy;
     if(c>0.28){an="start";lx+=3;dy=3.2;} else if(c<-0.28){an="end";lx-=3;dy=3.2;} else {an="middle";dy=s>0?12:-9;}
-    it.push(seatItems(g,t.num,i,x,y,-c,-s,lx,ly+dy,an,s>0,full));
+    it.push(seatItems(g,t.num,i,x,y,-c,-s,lx,ly+dy,an,s>0,full,Math.abs(c)<0.45?halfGap:null));
   });
   return {p:it.concat(centerItems(t,L)),w:2*(Rr+64),h:2*(Rr+30)};
 }
@@ -1645,7 +1682,7 @@ function findTable(n){for(var i=0;i<doc.tables.length;i++)if(doc.tables[i].num==
 function tblAriaLabel(t,L){
   var bits=[(L.taula||"Mesa")+" "+t.num+(t.name?", "+t.name:"")+" — "+(L.shapes[t.shape]||"")+" · "+(t.cap||t.guests.length)];
   var names=t.guests.map(function(g){
-    var tag=g.aler.length?" ("+L.leg.aler+")":g.kind==="child"?" ("+L.leg.child+")":g.kind==="baby"?" ("+L.leg.baby+")":g.kind==="veg"?" ("+L.leg.veg+")":"";
+    var tag=g.aler.length?" ("+L.leg.aler+")":g.kind==="child"?" ("+L.leg.child+")":g.kind==="baby"?" ("+L.leg.baby+")":g.kind==="veg"?" ("+L.leg.veg+")":g.kind==="vegan"?" ("+L.leg.vegan+")":"";
     return g.name+tag;
   });
   bits.push(names.length?names.join(", "):"");
@@ -1769,7 +1806,7 @@ function planPrims(L,full,forExport){
   });
 
   var used={}; doc.tables.forEach(function(t){t.guests.forEach(function(g){used[g.mark]=1;if(g.star)used.star=1;});});
-  var items=["adult","child","baby","aler","veg","star"].filter(function(k){return used[k];})
+  var items=["adult","child","baby","aler","veg","vegan","star"].filter(function(k){return used[k];})
       .map(function(k){var lab=L.leg[k].toUpperCase();return {k:k,lab:lab,w:22+lab.length*6.4};});
   var lw=items.reduce(function(a,it){return a+it.w;},0)+(items.length-1)*22;
   list.push(LN(RW/2-Math.min(280,RW/2-40),RH-72,RW/2+Math.min(280,RW/2-40),RH-72,"#E0D7C5",1));
@@ -2080,6 +2117,7 @@ function guestRow(g,L){
   if(g.kind==="child")tags+='<span class="tag n">'+esc(L.leg.child)+'</span>';
   if(g.kind==="baby")tags+='<span class="tag t">'+esc(L.leg.baby)+'</span>';
   if(g.kind==="veg")tags+='<span class="tag v">'+esc(L.leg.veg)+'</span>';
+  if(g.kind==="vegan")tags+='<span class="tag vg">'+esc(L.leg.vegan)+'</span>';
   (g.menus||[]).forEach(function(p){tags+='<span class="tag m">'+esc(p)+'</span>';});
   g.notes.forEach(function(n){if(!/vegan|vegetari/i.test(n))tags+='<span class="tag o">'+esc(n)+'</span>';});
   return '<div class="g'+(g.aler.length?" aler":"")+'"><span class="nm">'+esc(g.name)+'</span>'+(g.star?'<span class="star">&#9733;</span>':'')+tags+'</div>';
@@ -2115,9 +2153,19 @@ function sheetList(L){
   var al=[];
   doc.tables.forEach(function(t){t.guests.forEach(function(g){
     /* el recuadro de alergias es lo que el equipo mira en el pase: si ya se ha
-       decidido qué come esa persona, tiene que salir aquí, no solo su alergia */
-    if(g.aler.length)al.push('<div class="al"><span class="who">'+esc(g.name)+'</span><span class="mesa">'+esc(L.taula+" "+t.num)+'</span><span class="what">'+esc(g.aler.join(" · "))+
-      (g.menus||[]).map(function(p){ return '<b class="sust">'+esc(p)+'</b>'; }).join("")+'</span></div>');
+       decidido qué come esa persona, tiene que salir aquí, no solo su alergia —
+       y eso vale igual para quien es vegetariano, vegano o está embarazada,
+       aunque no tenga ninguna alergia. Sin alergia, en su lugar sale el motivo.
+       OJO: el segundo plato normal (p.ej. "Joan Serra (carn)") también se
+       guarda en g.menus, pero eso NO es una restricción — sin alergia, sin ser
+       vegetariano/vegano y sin estar embarazada, no pinta nada en este recuadro
+       aunque tenga un plato anotado */
+    var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
+    if(!esRestriccion) return;
+    var tieneMenu=g.menus&&g.menus.length;
+    var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+    al.push('<div class="al"><span class="who">'+esc(g.name)+'</span><span class="mesa">'+esc(L.taula+" "+t.num)+'</span><span class="what">'+esc(motivo)+
+      (tieneMenu?g.menus.map(function(p){ return '<b class="sust">'+esc(p)+'</b>'; }).join(""):"")+'</span></div>');
   });});
   var aperis=aperitivosAdaptadosLista();
   return '<section class="sheet"><div class="frame">'+head(L.list,doc.title||L.list,doc.sub,metaLine(T,L))+
@@ -2133,8 +2181,22 @@ function sheetCards(L){
   var cards=[];
   doc.tables.forEach(function(t){t.guests.forEach(function(g){
     if(g.kind==="baby")return;
+    /* mismo criterio que en el listado, para que quede todo bien enlazado: si no
+       hay alergia pero es vegetariano, vegano o embarazada se muestra el motivo,
+       y si ya hay plato sustitutivo decidido se añade debajo -- así el marcasitios
+       también avisa de la sustitución, no solo la hoja de listado. El segundo
+       plato normal (p.ej. "carn"/"peix" sin ninguna restricción) NO cuenta: no
+       tiene sentido un marcasitios avisando de una alergia que no existe */
+    var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
+    var tieneMenu=g.menus&&g.menus.length;
+    var ca="";
+    if(esRestriccion){
+      var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+      ca='<div class="ca"><span class="caMot">'+esc(motivo)+'</span>'+
+        (tieneMenu?g.menus.map(function(p){ return '<span class="sust">'+esc(p)+'</span>'; }).join(""):"")+'</div>';
+    }
     cards.push('<div class="card"><div class="cm">'+esc(L.taula+" "+t.num)+'</div><div class="cn">'+esc(g.name)+'</div>'+
-      (t.name?'<div class="ct">'+esc(t.name)+'</div>':'')+(g.aler.length?'<div class="ca">'+esc(g.aler.join(" · "))+'</div>':'')+'</div>');
+      (t.name?'<div class="ct">'+esc(t.name)+'</div>':'')+ca+'</div>');
   });});
   if(cards.length%2)cards.push('<div class="card" style="border-color:transparent"></div>');
   return '<section class="sheet"><div class="frame" style="padding:6mm"><div class="cards">'+cards.join("")+'</div></div></section>';
@@ -2187,6 +2249,7 @@ function listPages(L,pw,ph){
         if(g.kind==="child")tags.push({s:L.leg.child.toUpperCase(),bg:"#DDBE86",fg:"#4A3714"});
         if(g.kind==="baby")tags.push({s:L.leg.baby.toUpperCase(),bg:"#9A7538",fg:"#FFFFFF"});
         if(g.kind==="veg")tags.push({s:L.leg.veg.toUpperCase(),bg:"#5F7C55",fg:"#FFFFFF"});
+        if(g.kind==="vegan")tags.push({s:L.leg.vegan.toUpperCase(),bg:"#3E7C74",fg:"#FFFFFF"});
         (g.menus||[]).forEach(function(p){tags.push({s:p.toUpperCase(),bg:null,fg:GOLD});});
         tags.forEach(function(tg){
           var w=textW({s:tg.s,fo:"sans",size:6,ls:.6})+8;
@@ -2201,36 +2264,77 @@ function listPages(L,pw,ph){
   });
 
   var al=[];
-  doc.tables.forEach(function(t){t.guests.forEach(function(g){ if(g.aler.length) al.push({n:g.name,t:t.num,a:g.aler.join(" · "),m:(g.menus&&g.menus.length)?g.menus.join(" + "):null}); });});
+  /* este aviso no es solo de alergias: vegetarianos, veganos y embarazadas
+     también pueden tener ya decidido qué se les sirve, y el equipo del pase
+     necesita verlo aquí igual — si no hay alergia, en su lugar sale el motivo
+     (vegetariano/vegano/embarazada) para que la fila siga teniendo sentido.
+     El segundo plato normal ("Joan Serra (carn)") también se guarda en
+     g.menus pero no es ninguna restricción: sin alergia y sin ser
+     vegetariano/vegano/embarazada no tiene que salir en este aviso */
+  doc.tables.forEach(function(t){t.guests.forEach(function(g){
+    var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
+    if(!esRestriccion) return;
+    var tieneMenu=g.menus&&g.menus.length;
+    var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+    al.push({n:g.name,t:t.num,a:motivo,m:tieneMenu?g.menus.join(" + "):null});
+  });});
+  /* cada aviso va en una columna de ancho fijo: el nombre a la izquierda y, a la
+     derecha, mesa+alergia en una línea compacta (se recorta con "…" si no cabe —
+     el detalle completo ya sale en la tarjeta de cada mesa) y, debajo, el o los
+     platos sustitutivos partidos en líneas propias — así ninguno de los tres
+     invade nunca al de al lado, tenga la alergia o el plato el largo que tenga */
+  var colTextW=(W-24)/2-8;
+  function prepararAlergia(a){
+    var nomW=textW({s:a.n,fo:"ser",size:11,ls:0});
+    var derFull=(L.taula+" "+a.t+" · "+a.a).toUpperCase();
+    var der=clipW(derFull,Math.max(30,colTextW-nomW-10),"sans",6.8,.5);
+    var lineasPlato=[];
+    if(a.m){
+      /* si ya se ha decidido qué come, va debajo de la alergia: en el pase lo
+         que hace falta saber es qué se le lleva, no solo de qué es alérgico */
+      lineasPlato=partir(a.m.toUpperCase(),colTextW,"sans",6.8,.5);
+      if(lineasPlato.length>3) lineasPlato=[lineasPlato[0],lineasPlato[1],clipW(lineasPlato.slice(2).join(" "),colTextW,"sans",6.8,.5)];
+    }
+    return {n:a.n,der:der,lineasPlato:lineasPlato};
+  }
+  function altoFila(par){
+    var maxL=0;
+    par.forEach(function(p){ if(p) maxL=Math.max(maxL,p.lineasPlato.length); });
+    return 13+maxL*10;
+  }
+  var prep=al.map(prepararAlergia), filasAl=[];
+  for(var fi=0;fi<prep.length;fi+=2) filasAl.push([prep[fi],prep[fi+1]]);
   /* un aviso de alergias que no cabe entero ni en una página nueva se reparte en varios
      bloques seguidos: una alergia que se sale de la página no puede desaparecer sin más */
-  var maxAlRows=Math.max(4,Math.floor((ph-2*M-16-26-10)/13)), perAlChunk=maxAlRows*2;
-  var alChunks=[];
-  if(!al.length) alChunks.push([]);
-  else for(var ai=0;ai<al.length;ai+=perAlChunk) alChunks.push(al.slice(ai,ai+perAlChunk));
-  alChunks.forEach(function(als,aci){
-    var ah=26+Math.max(1,Math.ceil(als.length/2))*13+10;
+  var maxAlH=ph-2*M-16-26-10, alChunks=[];
+  if(!filasAl.length) alChunks.push([]);
+  else {
+    var alChunk=[], alChunkH=0;
+    filasAl.forEach(function(fila){
+      var fh=altoFila(fila);
+      if(alChunk.length&&alChunkH+fh>maxAlH){ alChunks.push(alChunk); alChunk=[]; alChunkH=0; }
+      alChunk.push(fila); alChunkH+=fh;
+    });
+    alChunks.push(alChunk);
+  }
+  alChunks.forEach(function(filasChunk,aci){
+    var ah=26+filasChunk.reduce(function(s,f){return s+altoFila(f);},0)+10;
     nl(ah);
     cur.push(R(M,y,W,ah,0,"none",RUBY,0.9));
     cur.push(TX(M+12,y+16,L.aler.toUpperCase()+(aci?" ("+L.cont+")":""),{size:7.5,fo:"sans",a:"start",c:RUBY,ls:2}));
-    if(!als.length) cur.push(TX(M+12,y+32,L.noAler,{size:11,fo:"ser",a:"start",c:FADE}));
-    als.forEach(function(a,i){
-      var cx=M+12+(i%2)*(W-24)/2, cy=y+32+Math.floor(i/2)*13;
-      cur.push(TX(cx,cy,a.n,{size:11,fo:"ser",a:"start",c:INK}));
-      /* si ya se ha decidido qué come, va delante de la alergia: en el pase lo
-         que hace falta saber es qué se le lleva, no solo de qué es alérgico */
-      var der=(L.taula+" "+a.t+" · "+a.a).toUpperCase();
-      var derX=cx+(W-24)/2-8-textW({s:der,fo:"sans",size:6.8,ls:.5});
-      cur.push(TX(cx+(W-24)/2-8,cy,der,{size:6.8,fo:"sans",a:"end",c:RUBY,ls:.5}));
-      /* puede haber más de un plato sustitutivo (" + " entre ellos), y esta fila es
-         compacta y no salta de línea: se recorta por ancho real para que nunca choque
-         ni con el nombre (a la izquierda) ni con la alergia (a la derecha) — el
-         detalle completo, sin recortar, ya sale arriba en la tarjeta de cada mesa */
-      if(a.m){
-        var huecoIni=cx+textW({s:a.n,fo:"ser",size:11,ls:0})+10, huecoFin=derX-8;
-        var mTxt=clipW(a.m.toUpperCase(),Math.max(20,huecoFin-huecoIni),"sans",6.8,.5);
-        cur.push(TX(huecoFin,cy,mTxt,{size:6.8,fo:"sans",a:"end",c:GOLD,ls:.5}));
-      }
+    if(!filasChunk.length) cur.push(TX(M+12,y+32,L.noAler,{size:11,fo:"ser",a:"start",c:FADE}));
+    var fy=y+32;
+    filasChunk.forEach(function(fila){
+      fila.forEach(function(p,k){
+        if(!p) return;
+        var cx=M+12+k*(W-24)/2, derX=cx+colTextW;
+        cur.push(TX(cx,fy,p.n,{size:11,fo:"ser",a:"start",c:INK}));
+        cur.push(TX(derX,fy,p.der,{size:6.8,fo:"sans",a:"end",c:RUBY,ls:.5}));
+        p.lineasPlato.forEach(function(linea,li){
+          cur.push(TX(derX,fy+11+li*10,linea,{size:6.8,fo:"sans",a:"end",c:GOLD,ls:.5}));
+        });
+      });
+      fy+=altoFila(fila);
     });
     y+=ah+16;
   });
@@ -2278,9 +2382,32 @@ function cardPages(L,pw,ph){
     cur.push(TX(x+cw/2,y+chh/2-26,(L.taula+" "+t.num).toUpperCase(),{size:6.5,fo:"sans",a:"middle",c:GOLD,ls:2.4}));
     cur.push(TX(x+cw/2,y+chh/2+2,g.name,{size:20,fo:"ser",a:"middle",c:INK}));
     if(t.name) cur.push(TX(x+cw/2,y+chh/2+18,clip(t.name,30),{size:10,fo:"seri",a:"middle",c:FADE}));
-    if(g.aler.length){
-      cur.push(C(x+cw/2-textW({s:g.aler.join(" · ").toUpperCase(),fo:"sans",size:6,ls:1.4})/2-6,y+chh-22,2.2,RUBY,null,0));
-      cur.push(TX(x+cw/2+3,y+chh-20,g.aler.join(" · ").toUpperCase(),{size:6,fo:"sans",a:"middle",c:RUBY,ls:1.4}));
+    var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
+    var tieneMenu=g.menus&&g.menus.length;
+    if(esRestriccion){
+      /* mismo criterio que en el listado: si no hay alergia pero es vegetariano,
+         vegano o embarazada, sale el motivo -- y si ya hay plato sustitutivo
+         decidido se añade debajo, en dorado, para que en la mesa se sepa qué
+         llevar a ese sitio exacto (insistencia de Ramon: el marcasitios tiene
+         que enlazar también con las sustituciones, no solo el listado). El
+         segundo plato normal ("carn"/"peix" sin ninguna restricción) no cuenta
+         como motivo: no tiene sentido avisar de una alergia que no existe */
+      var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+      var motTxt=clipW(motivo.toUpperCase(),cw-30,"sans",6,1.4);
+      var lineasPlato=[];
+      if(tieneMenu){
+        lineasPlato=partir(g.menus.join(" + ").toUpperCase(),cw-30,"sans",6,1.4);
+        if(lineasPlato.length>2) lineasPlato=[lineasPlato[0],clipW(lineasPlato.slice(1).join(" "),cw-30,"sans",6,1.4)];
+      }
+      /* la última línea del bloque se ancla siempre al mismo punto de antes
+         (chh-20) y el resto crece hacia arriba -- así una tarjeta con solo
+         alergia (el caso más común) se ve exactamente igual que siempre */
+      var lineH=9, firstY=y+chh-20-lineasPlato.length*lineH;
+      cur.push(C(x+cw/2-textW({s:motTxt,fo:"sans",size:6,ls:1.4})/2-6,firstY-2,2.2,RUBY,null,0));
+      cur.push(TX(x+cw/2+3,firstY,motTxt,{size:6,fo:"sans",a:"middle",c:RUBY,ls:1.4}));
+      lineasPlato.forEach(function(linea,li){
+        cur.push(TX(x+cw/2,firstY+lineH*(li+1),linea,{size:6,fo:"sans",a:"middle",c:GOLD,ls:1.4}));
+      });
     }
     n++;
   });});
@@ -2471,8 +2598,17 @@ function hojaPages(bloques,pw,ph){
       nl(26); y+=11;
       cur.push(R(M,y-7.5,9,9,1.5,"none",SOFT,0.7));
       var x2=M+15;
-      cur.push(TX(x2,y,b.txt,{size:11.5,fo:"sansb",a:"start",c:INK}));
-      if(b.sub) cur.push(TX(pw-M,y,b.sub.toUpperCase(),{size:6.8,fo:"sans",a:"end",c:FADE,ls:1.2}));
+      /* igual que en pantalla (fila flex con las raciones ancladas a la derecha):
+         si el nombre del plato es largo se parte en varias líneas y las raciones
+         quedan alineadas con la primera, nunca encima ni fuera de la página */
+      var subW2=b.sub?textW({s:b.sub.toUpperCase(),fo:"sans",size:6.8,ls:1.2}):0;
+      var libre2=Math.max(40,pw-M-x2-(subW2?subW2+10:0));
+      var lineasPl=partir(b.txt,libre2,"sansb",11.5,0), y0pl=y;
+      lineasPl.forEach(function(ln,i){
+        if(i){ nl(16); y+=15; }
+        cur.push(TX(x2,y,ln,{size:11.5,fo:"sansb",a:"start",c:INK}));
+      });
+      if(b.sub) cur.push(TX(pw-M,y0pl,b.sub.toUpperCase(),{size:6.8,fo:"sans",a:"end",c:FADE,ls:1.2}));
       y+=15; return;
     }
     if(b.t==="fila"){
@@ -2493,8 +2629,12 @@ function hojaPages(bloques,pw,ph){
       y+=5; cur.push(LN(M,y,pw-M,y,"#F1EADA",0.5)); y+=11; return;
     }
     if(b.t==="item"){
-      nl(18);
-      cur.push(TX(pw/2,y,b.txt,{size:12,fo:"ser",a:"middle",c:INK})); y+=17; return;
+      /* en pantalla es una lista que envuelve el texto que no cabe (mnu-card-list);
+         aquí igual, para que un nombre de plato largo nunca se salga de la página */
+      var lineasIt=partir(b.txt,W,"ser",12,0);
+      nl(1+17*Math.max(1,lineasIt.length));
+      lineasIt.forEach(function(ln){ cur.push(TX(pw/2,y,ln,{size:12,fo:"ser",a:"middle",c:INK})); y+=17; });
+      return;
     }
     if(b.t==="pasos"){
       var lp=partir("Montaje: "+b.txt,W-15,"seri",8.5,0);
@@ -3240,9 +3380,12 @@ window.SITTING_BRIDGE={
     var out=[];
     doc.tables.forEach(function(m){
       m.guests.forEach(function(g,i){
-        if(!g.aler.length) return;
+        /* no es solo alergias: vegetarianos, veganos y embarazadas también
+           necesitan que se decida qué se les sirve, así que también entran
+           aquí aunque no tengan ninguna alergia apuntada */
+        if(!g.aler.length&&g.kind!=="veg"&&g.kind!=="vegan"&&!g.preg) return;
         out.push({mesa:m.num, mesaNombre:m.name||"", i:i, nombre:g.name,
-                  aler:g.aler.slice(), sustitutos:(g.menus||[]).slice(), kind:g.kind});
+                  aler:g.aler.slice(), sustitutos:(g.menus||[]).slice(), kind:g.kind, preg:!!g.preg});
       });
     });
     return out;
@@ -3271,7 +3414,7 @@ window.SITTING_BRIDGE={
     var d=parse(e.text||""), t=totals(d);
     return {
       pax:t.pax, adults:t.adults, child:t.child, baby:t.baby,
-      aler:t.aler, veg:t.veg, tables:d.tables.length,
+      aler:t.aler, veg:t.veg, vegan:t.vegan, tables:d.tables.length,
       mesas:d.tables.map(function(m){
         return {num:m.num, name:m.name||"", pax:m.guests.length, cap:m.cap||0};
       })
@@ -3876,9 +4019,10 @@ function renderAperitivosAdaptados(lista){
 function renderAlergias(){
   var lista=BR.alergias?BR.alergias():[];
   if(!lista.length){
-    $("mnu-body").innerHTML='<div class="mnu-empty">Ningún comensal del plano tiene alergias apuntadas.'+
+    $("mnu-body").innerHTML='<div class="mnu-empty">Ningún comensal del plano tiene alergia, ni es vegetariano, '+
+      'vegano o está embarazada.'+
       '<br><span style="font-size:14px">Se escriben en el plano, entre paréntesis, detrás del nombre: '+
-      '«Rosa Fabra (alérgica: marisco)».</span></div>'+renderAperitivosAdaptados(lista);
+      '«Rosa Fabra (alérgica: marisco)», «Anna Serra (vegetariana)», «Tània (vegana)», «Eva Prats (embarazada)».</span></div>'+renderAperitivosAdaptados(lista);
     wireAperitivosAdaptados();
     return;
   }
@@ -3909,9 +4053,15 @@ function renderAlergias(){
       '<span class="cnt">'+gs.length+(gs.length===1?" comensal":" comensales")+'</span></div>'+
       gs.map(function(g){
         var platos=(g.sustitutos&&g.sustitutos.length)?g.sustitutos:[""];
+        /* el motivo por el que está aquí no siempre es una alergia: puede ser
+           vegetariano, vegano o estar embarazada, y hasta varios a la vez */
+        var motivos=g.aler.map(function(a){ return '<span class="tag a">'+esc(a)+'</span>'; }).join("")+
+          (g.kind==="veg"?'<span class="tag v">Vegetariano</span>':"")+
+          (g.kind==="vegan"?'<span class="tag vg">Vegano</span>':"")+
+          (g.preg?'<span class="tag o">Embarazada</span>':"");
         return '<div class="aler-row'+((g.sustitutos&&g.sustitutos.length)?" hecho":"")+'">'+
           '<span class="aler-nm">'+esc(g.nombre)+'</span>'+
-          g.aler.map(function(a){ return '<span class="tag a">'+esc(a)+'</span>'; }).join("")+
+          motivos+
           '<div class="aler-plato" data-mesa="'+num+'" data-i="'+g.i+'">'+
           '<span class="aler-plato-lbl">Le servimos</span>'+
           '<div class="aler-plato-items">'+
@@ -3931,7 +4081,7 @@ function renderAlergias(){
 
   $("mnu-body").innerHTML=datalist+
     '<div class="mnu-fam-section"><p class="mnu-origen"><b>'+lista.length+
-      (lista.length===1?" comensal":" comensales")+' con alergia o intolerancia</b> · '+
+      (lista.length===1?" comensal":" comensales")+' con alergia, intolerancia o necesidad especial (vegetariano, vegano o embarazada)</b> · '+
       conPlato+' con plato decidido · '+(lista.length-conPlato)+' por decidir. '+
       'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
       'para que el equipo sepa qué llevarle a cada uno. Si hace falta más de un plato '+
