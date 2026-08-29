@@ -3,16 +3,17 @@
  * test_alergias.js — la hoja de Alergias del Menú.
  *
  * Lo que pidió Ramon: ver quién tiene alergia, con su nombre y su alergia,
- * poder escribirle a mano el plato sustitutivo, y que eso se refleje «tanto en
- * el sitting como en la lista de mesas».
+ * poder escribirle a mano el plato sustitutivo (más de uno si hace falta,
+ * como un primero y un segundo sustitutivos distintos), y que eso se refleje
+ * «tanto en el sitting como en la lista de mesas».
  *
  * Las alergias no se vuelven a escribir en ningún sitio: ya están en el plano,
- * entre paréntesis detrás del nombre. Y el plato sustitutivo tampoco se guarda
- * en una lista aparte — se guarda DENTRO del plano, como una etiqueta más del
- * comensal. Por eso aparece solo en el plano de sala y en el listado por mesas:
- * es el mismo dato, no una copia que haya que mantener sincronizada. Esta
- * prueba comprueba justo eso, que es lo que evita que un día el plano y la
- * cocina digan cosas distintas.
+ * entre paréntesis detrás del nombre. Y los platos sustitutivos tampoco se
+ * guardan en una lista aparte — se guardan DENTRO del plano, como etiquetas más
+ * del comensal (una «Menú: ...» por cada uno). Por eso aparecen solo en el
+ * plano de sala y en el listado por mesas: es el mismo dato, no una copia que
+ * haya que mantener sincronizada. Esta prueba comprueba justo eso, que es lo
+ * que evita que un día el plano y la cocina digan cosas distintas.
  *
  * Arranque: igual que los otros tests, ver la cabecera de test_smoke.js.
  */
@@ -106,11 +107,11 @@ async function main() {
   });
 
   await step("SE ESCRIBE EL PLATO SUSTITUTIVO A MANO", async () => {
-    const inp = filaDe(page, "Carme Roig").locator("input");
+    const inp = filaDe(page, "Carme Roig").locator(".aler-plato-row input");
     await inp.fill("Lubina a la plancha");
     await inp.press("Enter");
     await wait(600);
-    assert.equal(await filaDe(page, "Carme Roig").locator("input").inputValue(), "Lubina a la plancha");
+    assert.equal(await filaDe(page, "Carme Roig").locator(".aler-plato-row input").inputValue(), "Lubina a la plancha");
     assert.match(await page.locator("#mnu-body .mnu-origen").first().innerText(), /1 con plato decidido.*3 por decidir/s);
   });
 
@@ -151,11 +152,11 @@ async function main() {
 
   await step("borrar el plato lo quita de todas partes", async () => {
     await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
-    const inp = filaDe(page, "Carme Roig").locator("input");
+    const inp = filaDe(page, "Carme Roig").locator(".aler-plato-row input");
     await inp.fill("");
     await inp.press("Enter");
     await wait(600);
-    assert.equal(await filaDe(page, "Carme Roig").locator("input").inputValue(), "");
+    assert.equal(await filaDe(page, "Carme Roig").locator(".aler-plato-row input").inputValue(), "");
     await page.locator("#ab-sec").selectOption("plan"); await wait(500);
     const txt = await page.locator("#src").inputValue();
     assert.match(txt, /Carme Roig \(alérgica: marisco\)/, "la alergia se queda, el plato se va");
@@ -165,13 +166,90 @@ async function main() {
   await step("cambiar el plato de un comensal no toca a los demás", async () => {
     await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
     for (const [quien, plato] of [["Rosa Fabra", "Cabrito con setas"], ["Pol Sans", "Arroz de pato"]]) {
-      const inp = filaDe(page, quien).locator("input");
+      const inp = filaDe(page, quien).locator(".aler-plato-row input");
       await inp.fill(plato); await inp.press("Enter"); await wait(500);
     }
-    assert.equal(await filaDe(page, "Rosa Fabra").locator("input").inputValue(), "Cabrito con setas");
-    assert.equal(await filaDe(page, "Pol Sans").locator("input").inputValue(), "Arroz de pato");
-    assert.equal(await filaDe(page, "Montse Serra").locator("input").inputValue(), "",
+    assert.equal(await filaDe(page, "Rosa Fabra").locator(".aler-plato-row input").inputValue(), "Cabrito con setas");
+    assert.equal(await filaDe(page, "Pol Sans").locator(".aler-plato-row input").inputValue(), "Arroz de pato");
+    assert.equal(await filaDe(page, "Montse Serra").locator(".aler-plato-row input").inputValue(), "",
       "a quien no se le ha puesto nada sigue sin nada");
+  });
+
+  // Ramon, tras ver la primera versión (un solo campo por comensal): «en la opción
+  // de elegir plato adaptado, poder también añadir plato por cada comensal, que no
+  // sea uno solo el que se pueda añadir». Se mantiene el campo de texto libre de
+  // siempre (con sus mismas sugerencias), pero ahora se puede añadir más de uno por
+  // persona — un primero y un segundo sustitutivos, por ejemplo — con «+»/«−».
+  await step("SE PUEDE AÑADIR MÁS DE UN PLATO AL MISMO COMENSAL", async () => {
+    // por defecto hay un único campo vacío, listo para escribir sin tener que
+    // darle antes a «+» — es el caso de siempre, el de la mayoría de alérgicos
+    const fila = filaDe(page, "Carme Roig");
+    assert.equal(await fila.locator(".aler-plato-row").count(), 1, "empieza con un solo campo, vacío");
+    await fila.locator(".aler-plato-row input").first().fill("Croquetas de jamón sin gluten");
+    // sin quitar el foco del campo, se pide un segundo plato con «+»: tiene que
+    // añadirse sin perder lo que se acaba de escribir. (Con la primera versión de
+    // esto, un clic en «+» justo después de escribir —sin un clic en medio que ya
+    // hubiera guardado— competía con el guardado automático y el clic se perdía.)
+    await fila.locator(".aler-plato-add").click();
+    await wait(400);
+    assert.equal(await fila.locator(".aler-plato-row").count(), 2, "se ha añadido un segundo campo");
+    await fila.locator(".aler-plato-row").nth(1).locator("input").fill("Sorbete de limón");
+    await fila.locator(".aler-plato-row").nth(1).locator("input").press("Enter");
+    await wait(600);
+    const filaTrasGuardar = filaDe(page, "Carme Roig");
+    assert.equal(await filaTrasGuardar.locator(".aler-plato-row").count(), 2, "los dos platos siguen ahí tras guardar");
+    assert.equal(await filaTrasGuardar.locator(".aler-plato-row").nth(0).locator("input").inputValue(),
+      "Croquetas de jamón sin gluten");
+    assert.equal(await filaTrasGuardar.locator(".aler-plato-row").nth(1).locator("input").inputValue(), "Sorbete de limón");
+    // y no ha tocado los platos de los demás comensales, que se guardan cada uno
+    // por su lado
+    assert.equal(await filaDe(page, "Rosa Fabra").locator(".aler-plato-row input").inputValue(), "Cabrito con setas");
+    assert.equal(await filaDe(page, "Pol Sans").locator(".aler-plato-row input").inputValue(), "Arroz de pato");
+    assert.equal(await filaDe(page, "Montse Serra").locator(".aler-plato-row input").inputValue(), "");
+  });
+
+  await step("los dos platos de Carme salen juntos en el plano de sala y en el listado por mesas", async () => {
+    await page.locator("#ab-sec").selectOption("plan"); await wait(500);
+    const txt = await page.locator("#src").inputValue();
+    assert.match(txt, /Carme Roig \(alérgica: marisco, Menú: Croquetas de jamón sin gluten, Menú: Sorbete de limón\)/,
+      "una etiqueta «Menú:» por cada plato, las dos dentro del mismo paréntesis del comensal");
+
+    const textos = await page.evaluate(() =>
+      [].map.call(document.querySelectorAll("#room text"), (t) => t.textContent));
+    assert.ok(textos.some((t) => /^CROQUETAS DE J/i.test(t)),
+      "en el plano de sala salen los dos juntos (recortados, como todo lo del plano de sala): " +
+      JSON.stringify(textos));
+
+    await page.locator("#ab-sec").selectOption("list"); await wait(700);
+    const tarjeta = page.locator(".lcard").filter({ hasText: "Carme Roig" });
+    assert.equal(await tarjeta.locator(".g", { hasText: "Carme Roig" }).locator(".tag.m").count(), 2,
+      "dos etiquetas de plato en su tarjeta de mesa, sin recortar");
+    const cajaCarme = page.locator(".al").filter({ hasText: "Carme Roig" });
+    assert.equal(await cajaCarme.locator(".sust").count(), 2,
+      "y los dos apilados, uno debajo del otro, en el recuadro de alergias del pie");
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
+  });
+
+  await step("quitar uno de los dos platos deja el otro tal cual", async () => {
+    const fila = filaDe(page, "Carme Roig");
+    await fila.locator(".aler-plato-row").nth(1).locator(".aler-plato-rm").click();
+    await wait(600);
+    const filaTras = filaDe(page, "Carme Roig");
+    assert.equal(await filaTras.locator(".aler-plato-row").count(), 1, "vuelve a quedar un único campo");
+    assert.equal(await filaTras.locator(".aler-plato-row input").inputValue(), "Croquetas de jamón sin gluten",
+      "el que queda es el primero, no se ha perdido ni cambiado");
+  });
+
+  await step("quitar el último plato no deja el hueco sin sitio donde escribir: lo vacía", async () => {
+    const fila = filaDe(page, "Carme Roig");
+    await fila.locator(".aler-plato-row").first().locator(".aler-plato-rm").click();
+    await wait(600);
+    const filaTras = filaDe(page, "Carme Roig");
+    assert.equal(await filaTras.locator(".aler-plato-row").count(), 1, "sigue habiendo un campo, no desaparece del todo");
+    assert.equal(await filaTras.locator(".aler-plato-row input").inputValue(), "", "y está vacío");
+    assert.ok(!/hecho/.test(await filaTras.getAttribute("class")), "ya no cuenta como decidido");
+    assert.match(await page.locator("#mnu-body .mnu-origen").first().innerText(), /2 con plato decidido.*2 por decidir/s,
+      "Rosa y Pol siguen decididos; Carme (recién vaciada) y Montse, por decidir");
   });
 
   const filaAperis = (page, alergiaRe) =>
@@ -254,6 +332,23 @@ async function main() {
     assert.equal(await filaAperis(page, "^marisco$").locator("input").inputValue(),
       "Croquetas de jamón — versión sin gluten con base de maicena",
       "el primer evento conserva lo suyo aunque se hayan creado otros por medio");
+  });
+
+  await step("los aperitivos adaptados también salen en el listado por mesas, no solo en la pantalla de editarlos", async () => {
+    // el listado (pantalla y PDF) es lo que el equipo se lleva el día del
+    // evento — si el aperitivo adaptado solo vive en la pantalla de edición,
+    // nadie en cocina lo ve el día del pase
+    await page.locator("#ab-sec").selectOption("list"); await wait(700);
+    const caja = page.locator(".alerts.aperis");
+    await caja.waitFor({ state: "visible" });
+    assert.equal(await caja.locator(".al").count(), 1,
+      "solo la alergia que tiene algo escrito (marisco); marisc/lactosa/frutos secos siguen vacías");
+    const texto = await caja.innerText();
+    assert.match(texto, /MARISCO/);
+    assert.match(texto, /Croquetas de jamón/);
+    assert.ok(!/LACTOSA/.test(texto) && !/FRUTOS SECOS/i.test(texto),
+      "una alergia sin aperitivo asignado no aporta nada en un papel para el pase, así que no sale");
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(500);
   });
 
   await step("sin errores de JS en toda la prueba", async () => {

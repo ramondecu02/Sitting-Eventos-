@@ -223,6 +223,17 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .al .mesa{font-size:8px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-fade); white-space:nowrap}
 .al .what{color:var(--ruby); font-size:10.5px; text-transform:uppercase; margin-left:auto; text-align:right}
 .al .what .sust{display:block; color:var(--gold-p); font-weight:600; letter-spacing:.02em}
+/* el recuadro de aperitivos adaptados es harina de otro costal: una fila por
+   alergia (no por comensal), sin mesa, y con texto libre que puede ser largo
+   — por eso no comparte el diseño en dos columnas ni el texto en mayúsculas
+   pensado para "MARISCO Y LACTOSA", solo la caja y el título a juego */
+.alerts.aperis{border-color:var(--gold-p)}
+.alerts.aperis h3{color:var(--gold-p)}
+.alerts.aperis h3::after{background:var(--gold-p)}
+.alerts.aperis .al-grid{grid-template-columns:1fr}
+.alerts.aperis .al{display:block}
+.alerts.aperis .al .who{font-family:"Barlow Semi Condensed",sans-serif; font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:var(--ruby)}
+.alerts.aperis .al .what{display:block; margin:2px 0 0; color:var(--ink); font-size:12.5px; text-align:left; text-transform:none; font-family:"Cormorant Garamond",serif}
 .foot{text-align:center; margin-top:6mm; font-family:"Cormorant Garamond",serif; font-style:italic; font-size:12.5px; color:var(--ink-fade)}
 .cards{display:grid; grid-template-columns:1fr 1fr; gap:0}
 .card{border:1px dashed var(--rule); height:53mm; padding:6mm 5mm; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; break-inside:avoid; position:relative}
@@ -367,9 +378,12 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
   padding:10px 6px; border-bottom:1px solid var(--c-line)}
 .aler-row:last-child{border-bottom:0}
 .aler-row .aler-nm{font-family:"Cormorant Garamond",serif; font-size:16.5px; color:var(--ruby)}
-.aler-plato{display:flex; align-items:center; gap:8px; margin-left:auto; flex:0 1 340px;
+.aler-plato{display:flex; align-items:flex-start; gap:8px; margin-left:auto; flex:0 1 340px;
   font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--c-mut)}
-.aler-plato input{flex:1; min-width:0}
+.aler-plato-lbl{white-space:nowrap; padding-top:7px}
+.aler-plato-items{flex:1; min-width:0; display:flex; flex-direction:column; gap:6px}
+.aler-plato-row{display:flex; align-items:center; gap:6px}
+.aler-plato-row input{flex:1; min-width:0}
 .aler-row.hecho .aler-plato{color:var(--gold-p)}
 .aler-aperis{max-width:820px; margin:8px auto 24px; padding-top:18px; border-top:1px dashed var(--c-line)}
 .aler-aperis-row{display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px solid var(--c-line)}
@@ -703,12 +717,12 @@ var $=function(id){return document.getElementById(id);};
 /* ══ idiomas ════════════════════════════════════════════════════════ */
 var I18N={
  ca:{plan:"Plànol de la sala",list:"Distribució per taules",taula:"Taula",pax:"persones",comensals:"comensals",taules:"taules",nens:"nens",nadons:"nadons",cont:"continuació",
-     aler:"Al·lèrgies i intoleràncies",noAler:"Cap al·lèrgia registrada",thanks:"Gràcies per acompanyar-nos en aquest dia tan especial",
+     aler:"Al·lèrgies i intoleràncies",noAler:"Cap al·lèrgia registrada",aper:"Aperitius adaptats",thanks:"Gràcies per acompanyar-nos en aquest dia tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Rodona",rect:"Rectangular",presid:"Presidencial",square:"Quadrada",oval:"Ovalada"},
      leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",aler:"Al·lèrgia / intolerància",veg:"Vegetarià / vegà",star:"Protagonistes"}},
  es:{plan:"Plano de la sala",list:"Distribución por mesas",taula:"Mesa",pax:"personas",comensals:"comensales",taules:"mesas",nens:"niños",nadons:"bebés",cont:"continuación",
-     aler:"Alergias e intolerancias",noAler:"Ninguna alergia registrada",thanks:"Gracias por acompañarnos en un día tan especial",
+     aler:"Alergias e intolerancias",noAler:"Ninguna alergia registrada",aper:"Aperitivos adaptados",thanks:"Gracias por acompañarnos en un día tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Redonda",rect:"Rectangular",presid:"Presidencial",square:"Cuadrada",oval:"Ovalada"},
      leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",aler:"Alergia / intolerancia",veg:"Vegetariano / vegano",star:"Protagonistas"}}
@@ -1077,12 +1091,12 @@ function parseGuest(raw){
   }
   if(d>0&&buf) tags=tags.concat(buf.split(/[,;\/]/));   /* paréntesis sin cerrar */
   s=out;
-  var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],menu:null,notes:[],kind:"adult",raw:[]};
+  var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],menus:[],notes:[],kind:"adult",raw:[]};
   tags.forEach(function(t){
     var c=classify(t); if(!c) return;
     g.raw.push(t.trim());
     if(c.type==="aler") g.aler.push(c.text);
-    else if(c.type==="menu") g.menu=c.text;
+    else if(c.type==="menu") g.menus.push(c.text);
     else if(c.type==="child") g.kind="child";
     else if(c.type==="baby") g.kind="baby";
     else if(c.type==="veg"){ if(g.kind==="adult") g.kind="veg"; g.notes.push(c.text); }
@@ -1179,10 +1193,12 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full){
   if(g.aler.length) it.push(TX(lx,alerBelow?ly+7.6:ly-7.6,clip(g.aler.join(" · "),anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:"#A34D66",ls:.4}));
   /* si a este comensal se le sirve otra cosa, va debajo de su alergia y en
      dorado: en el plano lo que hace falta saber es qué se le lleva. Sin alergia
-     el plato ocupa la línea que la alergia habría ocupado. */
-  if(g.menu){
+     el plato ocupa la línea que la alergia habría ocupado. Puede haber más de
+     un plato (p.ej. primero y segundo sustitutivos): se juntan igual que las
+     alergias, con " · ", y el recorte hace el resto. */
+  if(g.menus&&g.menus.length){
     var my=g.aler.length?(alerBelow?ly+15.2:ly-15.2):(alerBelow?ly+7.6:ly-7.6);
-    it.push(TX(lx,my,clip(g.menu,anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:GOLD,ls:.4}));
+    it.push(TX(lx,my,clip(g.menus.join(" · "),anchor==="middle"?15:22).toUpperCase(),{size:6.3,fo:"sans",a:anchor,c:GOLD,ls:.4}));
   }
   return GR(it,{seat:{t:tnum,i:idx}});
 }
@@ -2064,9 +2080,28 @@ function guestRow(g,L){
   if(g.kind==="child")tags+='<span class="tag n">'+esc(L.leg.child)+'</span>';
   if(g.kind==="baby")tags+='<span class="tag t">'+esc(L.leg.baby)+'</span>';
   if(g.kind==="veg")tags+='<span class="tag v">'+esc(L.leg.veg)+'</span>';
-  if(g.menu)tags+='<span class="tag m">'+esc(g.menu)+'</span>';
+  (g.menus||[]).forEach(function(p){tags+='<span class="tag m">'+esc(p)+'</span>';});
   g.notes.forEach(function(n){if(!/vegan|vegetari/i.test(n))tags+='<span class="tag o">'+esc(n)+'</span>';});
   return '<div class="g'+(g.aler.length?" aler":"")+'"><span class="nm">'+esc(g.name)+'</span>'+(g.star?'<span class="star">&#9733;</span>':'')+tags+'</div>';
+}
+/* los aperitivos adaptados por alergia (del Menú, sección Alergias) también son
+   del pase, igual que el plato sustitutivo de cada comensal — así que el
+   listado que se lleva el equipo el día del evento los enseña también, no solo
+   la pantalla de edición. Se listan una vez por alergia, no por comensal (así
+   se guardan), y solo las que ya tienen algo escrito: una alergia sin
+   aperitivo asignado no aporta nada en un papel para el pase. */
+function aperitivosAdaptadosLista(){
+  var e=current(), mapa=(e&&e.menu&&e.menu.aperitivosPorAlergia)||{};
+  var vistas={}, out=[];
+  doc.tables.forEach(function(t){ t.guests.forEach(function(g){
+    (g.aler||[]).forEach(function(a){
+      var k=(a||"").replace(/\s+/g," ").trim().toLowerCase();
+      if(!k||vistas[k]) return; vistas[k]=true;
+      if(mapa[k]) out.push({alergia:k,texto:mapa[k]});
+    });
+  });});
+  out.sort(function(a,b){ return a.alergia<b.alergia?-1:a.alergia>b.alergia?1:0; });
+  return out;
 }
 function sheetList(L){
   var T=totals(doc);
@@ -2082,12 +2117,17 @@ function sheetList(L){
     /* el recuadro de alergias es lo que el equipo mira en el pase: si ya se ha
        decidido qué come esa persona, tiene que salir aquí, no solo su alergia */
     if(g.aler.length)al.push('<div class="al"><span class="who">'+esc(g.name)+'</span><span class="mesa">'+esc(L.taula+" "+t.num)+'</span><span class="what">'+esc(g.aler.join(" · "))+
-      (g.menu?'<b class="sust">'+esc(g.menu)+'</b>':'')+'</span></div>');
+      (g.menus||[]).map(function(p){ return '<b class="sust">'+esc(p)+'</b>'; }).join("")+'</span></div>');
   });});
+  var aperis=aperitivosAdaptadosLista();
   return '<section class="sheet"><div class="frame">'+head(L.list,doc.title||L.list,doc.sub,metaLine(T,L))+
     '<div class="list-grid">'+cards+'</div><div class="alerts"><h3>'+esc(L.aler)+'</h3>'+
     (al.length?'<div class="al-grid">'+al.join("")+'</div>':'<div class="al"><span class="who" style="color:#9C9384">'+esc(L.noAler)+'</span></div>')+
-    '</div><div class="foot">'+esc(L.thanks)+'</div></div></section>';
+    '</div>'+
+    (aperis.length?'<div class="alerts aperis"><h3>'+esc(L.aper)+'</h3><div class="al-grid">'+
+      aperis.map(function(x){ return '<div class="al"><span class="who">'+esc(x.alergia.toUpperCase())+'</span><span class="what">'+esc(x.texto)+'</span></div>'; }).join("")+
+      '</div></div>':'')+
+    '<div class="foot">'+esc(L.thanks)+'</div></div></section>';
 }
 function sheetCards(L){
   var cards=[];
@@ -2147,7 +2187,7 @@ function listPages(L,pw,ph){
         if(g.kind==="child")tags.push({s:L.leg.child.toUpperCase(),bg:"#DDBE86",fg:"#4A3714"});
         if(g.kind==="baby")tags.push({s:L.leg.baby.toUpperCase(),bg:"#9A7538",fg:"#FFFFFF"});
         if(g.kind==="veg")tags.push({s:L.leg.veg.toUpperCase(),bg:"#5F7C55",fg:"#FFFFFF"});
-        if(g.menu)tags.push({s:g.menu.toUpperCase(),bg:null,fg:GOLD});
+        (g.menus||[]).forEach(function(p){tags.push({s:p.toUpperCase(),bg:null,fg:GOLD});});
         tags.forEach(function(tg){
           var w=textW({s:tg.s,fo:"sans",size:6,ls:.6})+8;
           if(tx+w>M+16+((i%cols)+1)*(W-24)/cols-6) return;
@@ -2161,7 +2201,7 @@ function listPages(L,pw,ph){
   });
 
   var al=[];
-  doc.tables.forEach(function(t){t.guests.forEach(function(g){ if(g.aler.length) al.push({n:g.name,t:t.num,a:g.aler.join(" · "),m:g.menu||null}); });});
+  doc.tables.forEach(function(t){t.guests.forEach(function(g){ if(g.aler.length) al.push({n:g.name,t:t.num,a:g.aler.join(" · "),m:(g.menus&&g.menus.length)?g.menus.join(" + "):null}); });});
   /* un aviso de alergias que no cabe entero ni en una página nueva se reparte en varios
      bloques seguidos: una alergia que se sale de la página no puede desaparecer sin más */
   var maxAlRows=Math.max(4,Math.floor((ph-2*M-16-26-10)/13)), perAlChunk=maxAlRows*2;
@@ -2180,12 +2220,48 @@ function listPages(L,pw,ph){
       /* si ya se ha decidido qué come, va delante de la alergia: en el pase lo
          que hace falta saber es qué se le lleva, no solo de qué es alérgico */
       var der=(L.taula+" "+a.t+" · "+a.a).toUpperCase();
+      var derX=cx+(W-24)/2-8-textW({s:der,fo:"sans",size:6.8,ls:.5});
       cur.push(TX(cx+(W-24)/2-8,cy,der,{size:6.8,fo:"sans",a:"end",c:RUBY,ls:.5}));
-      if(a.m) cur.push(TX(cx+(W-24)/2-8-textW({s:der,fo:"sans",size:6.8,ls:.5})-8,cy,
-        a.m.toUpperCase(),{size:6.8,fo:"sans",a:"end",c:GOLD,ls:.5}));
+      /* puede haber más de un plato sustitutivo (" + " entre ellos), y esta fila es
+         compacta y no salta de línea: se recorta por ancho real para que nunca choque
+         ni con el nombre (a la izquierda) ni con la alergia (a la derecha) — el
+         detalle completo, sin recortar, ya sale arriba en la tarjeta de cada mesa */
+      if(a.m){
+        var huecoIni=cx+textW({s:a.n,fo:"ser",size:11,ls:0})+10, huecoFin=derX-8;
+        var mTxt=clipW(a.m.toUpperCase(),Math.max(20,huecoFin-huecoIni),"sans",6.8,.5);
+        cur.push(TX(huecoFin,cy,mTxt,{size:6.8,fo:"sans",a:"end",c:GOLD,ls:.5}));
+      }
     });
     y+=ah+16;
   });
+  /* los aperitivos adaptados por alergia van en su propio recuadro, en dorado
+     para no confundirlo con el de arriba (que es el aviso, en rubí): una fila
+     por alergia, no por comensal, con el texto partido en líneas para que
+     quepa aunque sea largo */
+  var aperis=aperitivosAdaptadosLista();
+  if(aperis.length){
+    var etqW=12;
+    aperis.forEach(function(x){ etqW=Math.max(etqW,textW({s:x.alergia.toUpperCase(),fo:"sans",size:8,ls:.6})); });
+    etqW+=16;
+    var filasAp=aperis.map(function(x){
+      var lineas=partir(x.texto,W-24-etqW,"ser",10.5,0);
+      return {alergia:x.alergia,lineas:lineas.length?lineas:[""]};
+    });
+    var totalLineasAp=filasAp.reduce(function(n,f){ return n+f.lineas.length; },0);
+    var ah2=26+totalLineasAp*13+10;
+    nl(ah2);
+    cur.push(R(M,y,W,ah2,0,"none",GOLD,0.9));
+    cur.push(TX(M+12,y+16,L.aper.toUpperCase(),{size:7.5,fo:"sans",a:"start",c:GOLD,ls:2}));
+    var cyAp=y+32;
+    filasAp.forEach(function(f){
+      cur.push(TX(M+12,cyAp,f.alergia.toUpperCase(),{size:8,fo:"sans",a:"start",c:RUBY,ls:.6}));
+      f.lineas.forEach(function(ln){
+        cur.push(TX(M+12+etqW,cyAp,ln,{size:10.5,fo:"ser",a:"start",c:INK}));
+        cyAp+=13;
+      });
+    });
+    y=cyAp+16;
+  }
   nl(14);
   cur.push(TX(pw/2,y,L.thanks,{size:10,fo:"seri",a:"middle",c:FADE}));
   pages.push(cur);
@@ -2343,6 +2419,21 @@ function partir(t,ancho,fo,size,ls){
   });
   if(cur) li.push(cur);
   return li;
+}
+/* como clip(), pero recortando por ancho real en vez de por número de
+   caracteres: para sitios donde el hueco disponible no es fijo (cambia según
+   lo que haya al lado, en la misma línea) y un recorte por caracteres se
+   quedaría corto o se pasaría según la palabra. Busca por bisección el prefijo
+   más largo que cabe, con el "…" ya incluido en la medida. */
+function clipW(s,ancho,fo,size,ls){
+  s=(s||"").toString();
+  if(textW({s:s,fo:fo,size:size,ls:ls||0})<=ancho) return s;
+  var lo=0,hi=s.length,best="…";
+  while(lo<=hi){
+    var mid=(lo+hi)>>1, cand=s.slice(0,mid).trim()+"…";
+    if(textW({s:cand,fo:fo,size:size,ls:ls||0})<=ancho){ best=cand; lo=mid+1; } else hi=mid-1;
+  }
+  return best;
 }
 
 function hojaPages(bloques,pw,ph){
@@ -3151,25 +3242,27 @@ window.SITTING_BRIDGE={
       m.guests.forEach(function(g,i){
         if(!g.aler.length) return;
         out.push({mesa:m.num, mesaNombre:m.name||"", i:i, nombre:g.name,
-                  aler:g.aler.slice(), sustituto:g.menu||null, kind:g.kind});
+                  aler:g.aler.slice(), sustitutos:(g.menus||[]).slice(), kind:g.kind});
       });
     });
     return out;
   },
-  /* El plato sustitutivo se guarda DENTRO del plano, como una etiqueta más del
-     comensal («Menú: Lubina»), no en una lista aparte. Así sale solo en el
+  /* Los platos sustitutivos se guardan DENTRO del plano, como etiquetas más del
+     comensal («Menú: Lubina»), no en una lista aparte. Así salen solo en el
      plano de sala y en el listado por mesas, que es donde el equipo lo mira el
-     día del evento, sin tener que sincronizar dos sitios. */
-  setSustituto:function(mesa,i,plato){
+     día del evento, sin tener que sincronizar dos sitios. Puede haber más de
+     uno (primero y segundo sustitutivos, por ejemplo): se reescriben todas las
+     etiquetas "Menú:" de ese comensal de una vez, en el orden recibido. */
+  setSustitutos:function(mesa,i,platos){
     if(!doc) doc=parse(current()?current().text:"");
     var t=findTable(mesa); if(!t) return false;
     var g=t.guests[i]; if(!g) return false;
     g.raw=g.raw.filter(function(tag){
       var c=classify(tag); return !(c&&c.type==="menu");
     });
-    plato=(plato||"").trim();
-    if(plato) g.raw.push("Menú: "+plato);
-    g.menu=plato||null;
+    var limpios=(platos||[]).map(function(p){ return (p||"").trim(); }).filter(Boolean);
+    limpios.forEach(function(p){ g.raw.push("Menú: "+p); });
+    g.menus=limpios;
     commit();
     return true;
   },
@@ -3789,7 +3882,7 @@ function renderAlergias(){
     wireAperitivosAdaptados();
     return;
   }
-  var conPlato=lista.filter(function(g){ return g.sustituto; }).length;
+  var conPlato=lista.filter(function(g){ return g.sustitutos&&g.sustitutos.length; }).length;
   /* sugerencias: primero los platos marcados para este evento, después el resto
      del catálogo. Se pueden escribir a mano igual, la lista solo ahorra teclear */
   var marcados=selectedDishes().map(function(d){ return d.name; });
@@ -3804,18 +3897,34 @@ function renderAlergias(){
   lista.forEach(function(g){ (porMesa[g.mesa]=porMesa[g.mesa]||[]).push(g); });
   var mesas=Object.keys(porMesa).map(Number).sort(function(a,b){ return a-b; });
 
+  /* un comensal puede necesitar más de un plato sustitutivo (primero y segundo,
+     por ejemplo): se enseña una fila de campo por cada uno que ya tenga, y como
+     mínimo una vacía para poder escribir el primero sin tener que darle antes
+     a "+". El botón "+" añade otra fila vacía; el "−" quita la suya, o si es
+     la última que queda, simplemente la vacía en vez de dejar el hueco sin sitio
+     donde escribir. */
   var cuerpo=mesas.map(function(num){
     var gs=porMesa[num], nom=gs[0].mesaNombre;
     return '<div class="aler-mesa"><div class="mnu-fam-h"><h2>Mesa '+num+(nom?' · '+esc(nom):'')+'</h2>'+
       '<span class="cnt">'+gs.length+(gs.length===1?" comensal":" comensales")+'</span></div>'+
       gs.map(function(g){
-        return '<div class="aler-row'+(g.sustituto?" hecho":"")+'">'+
+        var platos=(g.sustitutos&&g.sustitutos.length)?g.sustitutos:[""];
+        return '<div class="aler-row'+((g.sustitutos&&g.sustitutos.length)?" hecho":"")+'">'+
           '<span class="aler-nm">'+esc(g.nombre)+'</span>'+
           g.aler.map(function(a){ return '<span class="tag a">'+esc(a)+'</span>'; }).join("")+
-          '<label class="aler-plato">Le servimos'+
-          '<input type="text" list="aler-platos" data-mesa="'+num+'" data-i="'+g.i+'" '+
-          'value="'+esc(g.sustituto||"")+'" placeholder="plato sustitutivo" '+
-          'aria-label="Plato para '+esc(g.nombre)+'"></label>'+
+          '<div class="aler-plato" data-mesa="'+num+'" data-i="'+g.i+'">'+
+          '<span class="aler-plato-lbl">Le servimos</span>'+
+          '<div class="aler-plato-items">'+
+          platos.map(function(p){
+            return '<div class="aler-plato-row">'+
+              '<input type="text" list="aler-platos" value="'+esc(p)+'" placeholder="plato sustitutivo" '+
+              'aria-label="Plato para '+esc(g.nombre)+'">'+
+              '<button type="button" class="btn ico aler-plato-rm" aria-label="Quitar este plato de '+esc(g.nombre)+'" title="Quitar este plato">−</button>'+
+              '</div>';
+          }).join("")+
+          '</div>'+
+          '<button type="button" class="btn ico aler-plato-add" aria-label="Añadir otro plato para '+esc(g.nombre)+'" title="Añadir otro plato">+</button>'+
+          '</div>'+
           '</div>';
       }).join("")+'</div>';
   }).join("");
@@ -3825,16 +3934,74 @@ function renderAlergias(){
       (lista.length===1?" comensal":" comensales")+' con alergia o intolerancia</b> · '+
       conPlato+' con plato decidido · '+(lista.length-conPlato)+' por decidir. '+
       'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
-      'para que el equipo sepa qué llevarle a cada uno.</p>'+cuerpo+'</div>'+
+      'para que el equipo sepa qué llevarle a cada uno. Si hace falta más de un plato '+
+      'para la misma persona, «+» añade otro.</p>'+cuerpo+'</div>'+
     renderAperitivosAdaptados(lista);
 
-  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato input"),function(inp){
-    inp.addEventListener("change",function(){
-      if(BR.setSustituto) BR.setSustituto(+inp.dataset.mesa, +inp.dataset.i, inp.value);
-      renderAlergias();
-    });
-  });
+  wirePlatos();
   wireAperitivosAdaptados();
+}
+/* fila de un plato sustitutivo (input + quitar): la misma tanto si viene del
+   servidor como si la crea el botón "+", para que ambas se comporten igual */
+function nuevaFilaPlato(nombre){
+  var row=document.createElement("div"); row.className="aler-plato-row";
+  var inp=document.createElement("input");
+  inp.type="text"; inp.setAttribute("list","aler-platos"); inp.placeholder="plato sustitutivo";
+  inp.setAttribute("aria-label","Plato para "+nombre);
+  var rm=document.createElement("button");
+  rm.type="button"; rm.className="btn ico aler-plato-rm";
+  rm.setAttribute("aria-label","Quitar este plato de "+nombre); rm.title="Quitar este plato";
+  rm.textContent="−";
+  row.appendChild(inp); row.appendChild(rm);
+  return row;
+}
+function commitPlatoBox(box){
+  var mesa=+box.dataset.mesa, i=+box.dataset.i;
+  var platos=Array.prototype.map.call(box.querySelectorAll(".aler-plato-row input"),function(inp){
+    return inp.value.trim();
+  }).filter(Boolean);
+  if(BR.setSustitutos) BR.setSustitutos(mesa,i,platos);
+  renderAlergias();
+}
+/* todo delegado en la caja entera (no en cada fila): así una fila añadida con
+   «+» ya responde sin tener que recablearla aparte, y no hay que decidir cada
+   vez si un nodo concreto sigue siendo el mismo tras un redibujado.
+
+   Se guarda al SALIR de la caja de un comensal entera, no en cada input por
+   separado: si guardáramos en cuanto un campo pierde el foco, un clic en «+»
+   o «−» justo después de escribir competiría con el redibujado (el botón que
+   se acaba de pulsar desaparecería a medio clic, porque renderAlergias()
+   reconstruye toda la pantalla, y ese clic se perdería). Moverse DENTRO de la
+   misma caja — de un plato a otro, o a su «+»/«−» — no cuenta como salir;
+   solo cuenta cuando el foco va a parar fuera de ella. Y para quien pulsa
+   Intro en vez de hacer clic en otro sitio (no mueve el foco, así que no hay
+   «salir» que detectar) se guarda directamente al vuelo de esa tecla. */
+function wirePlatoBox(box){
+  box.addEventListener("click",function(e){
+    if(e.target.closest(".aler-plato-add")){
+      var nombre=box.closest(".aler-row").querySelector(".aler-nm").textContent;
+      var row=nuevaFilaPlato(nombre);
+      box.querySelector(".aler-plato-items").appendChild(row);
+      row.querySelector("input").focus();
+      return;
+    }
+    var rm=e.target.closest(".aler-plato-rm");
+    if(rm){
+      var fila=rm.closest(".aler-plato-row"), items=box.querySelector(".aler-plato-items");
+      if(items.children.length>1) items.removeChild(fila); else fila.querySelector("input").value="";
+      commitPlatoBox(box);
+    }
+  });
+  box.addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&e.target.tagName==="INPUT"){ e.preventDefault(); commitPlatoBox(box); }
+  });
+  box.addEventListener("focusout",function(e){
+    if(box.contains(e.relatedTarget)) return;
+    commitPlatoBox(box);
+  });
+}
+function wirePlatos(){
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato"),function(box){ wirePlatoBox(box); });
 }
 function wireAperitivosAdaptados(){
   Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-aperis-in"),function(inp){
