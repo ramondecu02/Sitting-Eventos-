@@ -427,7 +427,9 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .mnu-steps li{margin-bottom:2px}
 
 /* — Producción / Compra / Servicio / Menú: hojas imprimibles — */
-.mnu-print-bar{display:flex; justify-content:flex-end; max-width:210mm; margin:0 auto 14px}
+.mnu-print-bar{display:flex; justify-content:flex-end; align-items:center; gap:12px; max-width:210mm; margin:0 auto 14px}
+.paper-pick{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--c-mut)}
+.paper-pick select{width:auto; padding:6px 8px; font-size:13px}
 .mnu-body .sheet{margin:0 auto 24px}
 .mnu-sheet-fam{font-family:"Cormorant Garamond",serif; font-weight:600; font-size:17px; color:var(--gold-p); margin:20px 0 8px; padding-bottom:4px; border-bottom:1px solid var(--rule)}
 .mnu-sheet-fam:first-of-type{margin-top:0}
@@ -1225,23 +1227,24 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
   var km=KINDMARK[g.kind];
   if(km) it.push(TX(x,y+2.7,km[0],{size:7.6,fo:"sansb",a:"middle",c:km[1]}));
   if(g.star) it.push(SR(x+(sx||0)*13,y+(sy||-1)*13,4.4,COL.star));
-  it.push(TX(lx,ly,full?g.name:g.short,{size:9.2,fo:g.aler.length?"sansb":"sans",a:anchor,c:g.aler.length?RUBY:"#4A4338"}));
-  /* en una mesa redonda grande, dos vecinos con la etiqueta cargada (alergias +
-     más de un plato) sí pueden llegar a tocarse si solo se recorta por número de
-     caracteres: cuando la llamante conoce el hueco real hasta el vecino (halfGap)
-     se recorta por ancho real en vez de a ciegas por caracteres */
+  it.push(TX(lx,ly,full?g.name:g.short,{size:9.6,fo:g.aler.length?"sansb":"sans",a:anchor,c:g.aler.length?RUBY:"#3A342C"}));
+  /* la alergia y el plato adaptado se veían muy pequeños y claros al imprimir el
+     plano (todo se reduce para caber en la hoja): van más grandes, más oscuros y
+     en negrita. La alergia en rubí; el plato adaptado, debajo, en dorado oscuro
+     (es lo que hay que llevarle). En una mesa redonda grande, dos vecinos con la
+     etiqueta cargada pueden tocarse: cuando la llamante conoce el hueco real
+     hasta el vecino (halfGap) se recorta por ancho real; si no, por caracteres. */
   function recorta(txt,charLim){
-    return halfGap?clipW(txt.toUpperCase(),anchor==="middle"?2*halfGap:halfGap,"sans",6.3,.4):clip(txt,charLim).toUpperCase();
+    return halfGap?clipW(txt.toUpperCase(),anchor==="middle"?2*halfGap:halfGap,"sansb",7.6,.2):clip(txt,charLim).toUpperCase();
   }
-  if(g.aler.length) it.push(TX(lx,alerBelow?ly+7.6:ly-7.6,recorta(g.aler.join(" · "),anchor==="middle"?15:22),{size:6.3,fo:"sans",a:anchor,c:"#A34D66",ls:.4}));
-  /* si a este comensal se le sirve otra cosa, va debajo de su alergia y en
-     dorado: en el plano lo que hace falta saber es qué se le lleva. Sin alergia
-     el plato ocupa la línea que la alergia habría ocupado. Puede haber más de
-     un plato (p.ej. primero y segundo sustitutivos): se juntan igual que las
-     alergias, con " · ", y el recorte hace el resto. */
+  if(g.aler.length) it.push(TX(lx,alerBelow?ly+9:ly-9,recorta(g.aler.join(" · "),anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:"#8E2C48",ls:.2}));
+  /* si a este comensal se le sirve otra cosa, va debajo de su alergia, en
+     dorado oscuro: en el plano lo que hace falta saber es qué se le lleva. Sin
+     alergia el plato ocupa la línea que la alergia habría ocupado. Puede haber
+     más de un plato: se juntan con " · " y el recorte hace el resto. */
   if(g.menus&&g.menus.length){
-    var my=g.aler.length?(alerBelow?ly+15.2:ly-15.2):(alerBelow?ly+7.6:ly-7.6);
-    it.push(TX(lx,my,recorta(g.menus.join(" · "),anchor==="middle"?15:22),{size:6.3,fo:"sans",a:anchor,c:GOLD,ls:.4}));
+    var my=g.aler.length?(alerBelow?ly+18.4:ly-18.4):(alerBelow?ly+9:ly-9);
+    it.push(TX(lx,my,recorta(g.menus.join(" · "),anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:"#8A6A34",ls:.2}));
   }
   return GR(it,{seat:{t:tnum,i:idx}});
 }
@@ -2245,13 +2248,13 @@ function listPages(L,pw,ph){
        varias tarjetas seguidas marcadas "(continuación)" — si no, los últimos comensales de
        una mesa muy larga (banquete, barra libre agrupada como una sola "mesa"…) se dibujaban
        por debajo del borde de la página y desaparecían del PDF sin ningún aviso */
-    var maxRows=Math.max(4,Math.floor((ph-2*M-16-40)/13)), perChunk=maxRows*cols;
+    var maxRows=Math.max(4,Math.floor((ph-2*M-16-40)/15)), perChunk=maxRows*cols;
     var chunks=[];
     if(!t.guests.length) chunks.push([]);
     else for(var ci=0;ci<t.guests.length;ci+=perChunk) chunks.push(t.guests.slice(ci,ci+perChunk));
     chunks.forEach(function(gs,ci){
       var rows=Math.max(1,Math.ceil(gs.length/cols));
-      var bh=30+rows*13+10;
+      var bh=30+rows*15+12;
       nl(bh);
       var y0=y;
       cur.push(R(M,y0,W,bh,0,"none","#E0D7C5",0.7));
@@ -2263,21 +2266,21 @@ function listPages(L,pw,ph){
       cur.push(TX(pw-M-10,y0+28,L.pax.toUpperCase(),{size:6,fo:"sans",a:"end",c:FADE,ls:1.4}));
       cur.push(LN(M+10,y0+32,pw-M-10,y0+32,"#E0D7C5",0.6));
       gs.forEach(function(g,i){
-        var cx=M+16+(i%cols)*(W-24)/cols, cy=y0+44+Math.floor(i/cols)*13;
-        cur.push(TX(cx,cy,g.name+(g.star?"  *":""),{size:10.5,fo:"ser",a:"start",c:g.aler.length?RUBY:INK}));
-        var tx=cx+textW({s:g.name+(g.star?"  *":""),fo:"ser",size:10.5,ls:0})+7;
+        var cx=M+16+(i%cols)*(W-24)/cols, cy=y0+46+Math.floor(i/cols)*15;
+        cur.push(TX(cx,cy,g.name+(g.star?"  *":""),{size:11.5,fo:"ser",a:"start",c:g.aler.length?RUBY:INK}));
+        var tx=cx+textW({s:g.name+(g.star?"  *":""),fo:"ser",size:11.5,ls:0})+7;
         var tags=[];
         g.aler.forEach(function(a){tags.push({s:a.toUpperCase(),bg:RUBY,fg:"#FFFFFF"});});
         if(g.kind==="child")tags.push({s:L.leg.child.toUpperCase(),bg:"#DDBE86",fg:"#4A3714"});
         if(g.kind==="baby")tags.push({s:L.leg.baby.toUpperCase(),bg:"#9A7538",fg:"#FFFFFF"});
         if(g.kind==="veg")tags.push({s:L.leg.veg.toUpperCase(),bg:"#5F7C55",fg:"#FFFFFF"});
         if(g.kind==="vegan")tags.push({s:L.leg.vegan.toUpperCase(),bg:"#3E7C74",fg:"#FFFFFF"});
-        (g.menus||[]).forEach(function(p){tags.push({s:p.toUpperCase(),bg:null,fg:GOLD});});
+        (g.menus||[]).forEach(function(p){tags.push({s:p.toUpperCase(),bg:null,fg:"#8A6A34"});});
         tags.forEach(function(tg){
-          var w=textW({s:tg.s,fo:"sans",size:6,ls:.6})+8;
+          var w=textW({s:tg.s,fo:"sansb",size:7,ls:.4})+9;
           if(tx+w>M+16+((i%cols)+1)*(W-24)/cols-6) return;
-          cur.push(R(tx,cy-6.5,w,9,1.5,tg.bg||"none",tg.bg?null:GOLD,0.5));
-          cur.push(TX(tx+w/2,cy,tg.s,{size:6,fo:"sans",a:"middle",c:tg.fg,ls:.6}));
+          cur.push(R(tx,cy-7.5,w,11,1.6,tg.bg||"none",tg.bg?null:"#8A6A34",0.7));
+          cur.push(TX(tx+w/2,cy,tg.s,{size:7,fo:"sansb",a:"middle",c:tg.fg,ls:.4}));
           tx+=w+4;
         });
       });
@@ -2307,22 +2310,23 @@ function listPages(L,pw,ph){
      invade nunca al de al lado, tenga la alergia o el plato el largo que tenga */
   var colTextW=(W-24)/2-8;
   function prepararAlergia(a){
-    var nomW=textW({s:a.n,fo:"ser",size:11,ls:0});
+    var nomW=textW({s:a.n,fo:"ser",size:12.5,ls:0});
     var derFull=(L.taula+" "+a.t+" · "+a.a).toUpperCase();
-    var der=clipW(derFull,Math.max(30,colTextW-nomW-10),"sans",6.8,.5);
+    var der=clipW(derFull,Math.max(34,colTextW-nomW-10),"sansb",8.5,.4);
     var lineasPlato=[];
     if(a.m){
       /* si ya se ha decidido qué come, va debajo de la alergia: en el pase lo
-         que hace falta saber es qué se le lleva, no solo de qué es alérgico */
-      lineasPlato=partir(a.m.toUpperCase(),colTextW,"sans",6.8,.5);
-      if(lineasPlato.length>3) lineasPlato=[lineasPlato[0],lineasPlato[1],clipW(lineasPlato.slice(2).join(" "),colTextW,"sans",6.8,.5)];
+         que hace falta saber es qué se le lleva, no solo de qué es alérgico.
+         Va más grande y en dorado oscuro para que se lea bien impreso */
+      lineasPlato=partir(a.m.toUpperCase(),colTextW,"sansb",9,.3);
+      if(lineasPlato.length>3) lineasPlato=[lineasPlato[0],lineasPlato[1],clipW(lineasPlato.slice(2).join(" "),colTextW,"sansb",9,.3)];
     }
     return {n:a.n,der:der,lineasPlato:lineasPlato};
   }
   function altoFila(par){
     var maxL=0;
     par.forEach(function(p){ if(p) maxL=Math.max(maxL,p.lineasPlato.length); });
-    return 13+maxL*10;
+    return 16+maxL*12;
   }
   var prep=al.map(prepararAlergia), filasAl=[];
   for(var fi=0;fi<prep.length;fi+=2) filasAl.push([prep[fi],prep[fi+1]]);
@@ -2340,20 +2344,20 @@ function listPages(L,pw,ph){
     alChunks.push(alChunk);
   }
   alChunks.forEach(function(filasChunk,aci){
-    var ah=26+filasChunk.reduce(function(s,f){return s+altoFila(f);},0)+10;
+    var ah=30+filasChunk.reduce(function(s,f){return s+altoFila(f);},0)+12;
     nl(ah);
     cur.push(R(M,y,W,ah,0,"none",RUBY,0.9));
-    cur.push(TX(M+12,y+16,L.aler.toUpperCase()+(aci?" ("+L.cont+")":""),{size:7.5,fo:"sans",a:"start",c:RUBY,ls:2}));
-    if(!filasChunk.length) cur.push(TX(M+12,y+32,L.noAler,{size:11,fo:"ser",a:"start",c:FADE}));
-    var fy=y+32;
+    cur.push(TX(M+12,y+18,L.aler.toUpperCase()+(aci?" ("+L.cont+")":""),{size:9,fo:"sans",a:"start",c:RUBY,ls:2}));
+    if(!filasChunk.length) cur.push(TX(M+12,y+36,L.noAler,{size:12,fo:"ser",a:"start",c:FADE}));
+    var fy=y+36;
     filasChunk.forEach(function(fila){
       fila.forEach(function(p,k){
         if(!p) return;
         var cx=M+12+k*(W-24)/2, derX=cx+colTextW;
-        cur.push(TX(cx,fy,p.n,{size:11,fo:"ser",a:"start",c:INK}));
-        cur.push(TX(derX,fy,p.der,{size:6.8,fo:"sans",a:"end",c:RUBY,ls:.5}));
+        cur.push(TX(cx,fy,p.n,{size:12.5,fo:"ser",a:"start",c:INK}));
+        cur.push(TX(derX,fy,p.der,{size:8.5,fo:"sansb",a:"end",c:RUBY,ls:.4}));
         p.lineasPlato.forEach(function(linea,li){
-          cur.push(TX(derX,fy+11+li*10,linea,{size:6.8,fo:"sans",a:"end",c:GOLD,ls:.5}));
+          cur.push(TX(derX,fy+13+li*12,linea,{size:9,fo:"sansb",a:"end",c:"#8A6A34",ls:.3}));
         });
       });
       fy+=altoFila(fila);
@@ -2693,10 +2697,12 @@ function hojaPages(bloques,pw,ph){
    hoja que hay en pantalla y el nombre del archivo, y se encarga de leerla
    y bajarla. Un solo motor de PDF para cualquier hoja de la aplicación,
    la lea quien la lea. */
-function descargarHoja(selector,nombreArchivo){
+function descargarHoja(selector,nombreArchivo,paperSize){
   var frame=document.querySelector(selector);
   if(!frame){ toast("No hay ninguna hoja que descargar todavía.",true); return Promise.resolve(); }
-  var P=PAPERS[($("paper")&&$("paper").value)||"A4"]||PAPERS.A4;
+  /* el tamaño lo elige quien descarga (A4 o A3, justo al lado del botón): una
+     hoja con muchas mesas o muchos platos cuadra mejor en A3 */
+  var P=PAPERS[paperSize||($("paper")&&$("paper").value)||"A4"]||PAPERS.A4;
   var prims=hojaPages(bloquesDeHoja(frame),P.w,P.h);
   var pages=prims.map(function(pr){ return pageOf(pr,P.w,P.h,null); });
   var bytes=buildPDF(pages);
@@ -2706,8 +2712,8 @@ function descargarHoja(selector,nombreArchivo){
     toast("No se ha podido descargar el PDF.",true);
   });
 }
-function descargarHojaMenu(nombreArchivo){
-  return descargarHoja("#mnu-body .sheet .frame",nombreArchivo);
+function descargarHojaMenu(nombreArchivo,paperSize){
+  return descargarHoja("#mnu-body .sheet .frame",nombreArchivo,paperSize);
 }
 function pageOf(prims,w,h,fit){
   var used={img:{},gs:{}}, ctx;
@@ -3762,17 +3768,27 @@ function openDish(d){
    navegador: tablas partidas por la mitad y márgenes distintos en cada
    ordenador. Ahora se descarga un PDF hecho aquí, igual que el plano y el
    listado, que sale igual en todas partes y se puede mandar por WhatsApp. */
+/* el tamaño de papel elegido para las hojas del Menú se recuerda entre
+   repintados (cambiar una marca o un plato vuelve a dibujar la hoja): si no,
+   el selector volvería a A4 cada vez */
+var mnuPaper="A4";
 function printBar(label){
-  return '<div class="mnu-print-bar"><button class="btn gold sm" id="mnu-print-btn" data-hoja="'+esc(label)+'">Descargar '+esc(label)+' en PDF</button></div>';
+  return '<div class="mnu-print-bar">'+
+    '<label class="paper-pick">Papel <select class="paper-sel" aria-label="Tamaño de papel">'+
+      '<option value="A4"'+(mnuPaper==="A4"?" selected":"")+'>A4</option>'+
+      '<option value="A3"'+(mnuPaper==="A3"?" selected":"")+'>A3</option></select></label>'+
+    '<button class="btn gold sm" id="mnu-print-btn" data-hoja="'+esc(label)+'">Descargar '+esc(label)+' en PDF</button></div>';
 }
 function wirePrintBtn(){
+  var sel=$("mnu-body").querySelector(".paper-sel");
+  if(sel) sel.addEventListener("change",function(){ mnuPaper=sel.value; });
   var b=$("mnu-print-btn"); if(!b) return;
   b.addEventListener("click",function(){
     var e=ev();
     var base=((e&&e.name)||"evento").replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_")||"evento";
     var hoja=(b.dataset.hoja||"hoja").replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_");
     b.disabled=true;
-    Promise.resolve(BR.descargarHojaMenu(base+"_"+hoja)).then(function(){ b.disabled=false; });
+    Promise.resolve(BR.descargarHojaMenu(base+"_"+hoja,mnuPaper)).then(function(){ b.disabled=false; });
   });
 }
 function docHead(title,t){
@@ -5256,7 +5272,7 @@ function coincide(p,needle){
 }
 
 /* ══ render ══════════════════════════════════════════════════════════ */
-var q="", editando=null, form=null;
+var q="", editando=null, form=null, camPaper="A4";
 
 function renderStats(){
   var lista=personas(), nec=necesarios();
@@ -5329,7 +5345,11 @@ function pdfTablaHtml(){
   /* la nota de arriba va FUERA de .sheet a propósito: es para quien mira la
      pantalla, no tiene que salir dentro del PDF */
   return '<p class="mnu-note cam-pdf-nota">La hoja que se descarga lleva <b>solo los camareros confirmados</b> (marcados «Disponible»), con su <b>hora de entrada</b> a este evento — lista para contabilidad y para organizar el turno. Los pendientes de confirmar y los que no vienen no salen.</p>'+
-    '<div class="mnu-print-bar"><button class="btn gold sm" id="cam-print-btn">Descargar confirmados en PDF</button></div>'+
+    '<div class="mnu-print-bar">'+
+      '<label class="paper-pick">Papel <select class="paper-sel" aria-label="Tamaño de papel">'+
+        '<option value="A4"'+(camPaper==="A4"?" selected":"")+'>A4</option>'+
+        '<option value="A3"'+(camPaper==="A3"?" selected":"")+'>A3</option></select></label>'+
+      '<button class="btn gold sm" id="cam-print-btn">Descargar confirmados en PDF</button></div>'+
     '<div class="sheet"><div class="frame">'+
     '<header class="doc-head"><div class="eyebrow">Les Moles Events'+(e&&e.name?(" · "+esc(e.name)):"")+'</div>'+
     '<h2>Camareros confirmados</h2><div class="orn"></div><div class="doc-meta">'+confirmados.length+' confirmado'+(confirmados.length===1?"":"s")+' · '+necesarios()+' necesarios</div></header>'+
@@ -5418,12 +5438,14 @@ function engancharBody(){
     });
     fi.querySelector(".f-no").addEventListener("click",function(){ form=null; renderBody(); });
   }
+  var paperSel=b.querySelector(".paper-sel");
+  if(paperSel) paperSel.addEventListener("change",function(){ camPaper=paperSel.value; });
   var pb=$("cam-print-btn");
   if(pb) pb.addEventListener("click",function(){
     pb.disabled=true;
     var e=BR.current();
     var base=("Camareros_"+(e&&e.name?e.name:"evento")).replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_");
-    Promise.resolve(BR.descargarHoja("#cam-body .sheet .frame",base)).then(function(){ pb.disabled=false; });
+    Promise.resolve(BR.descargarHoja("#cam-body .sheet .frame",base,camPaper)).then(function(){ pb.disabled=false; });
   });
 }
 

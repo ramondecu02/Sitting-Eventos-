@@ -216,8 +216,8 @@ async function main() {
 
     const textos = await page.evaluate(() =>
       [].map.call(document.querySelectorAll("#room text"), (t) => t.textContent));
-    assert.ok(textos.some((t) => /^CROQUETAS DE J/i.test(t)),
-      "en el plano de sala salen los dos juntos (recortados, como todo lo del plano de sala): " +
+    assert.ok(textos.some((t) => /^CROQUETAS DE/i.test(t)),
+      "en el plano de sala sale el plato (recortado, como todo lo del plano de sala): " +
       JSON.stringify(textos));
 
     await page.locator("#ab-sec").selectOption("list"); await wait(700);

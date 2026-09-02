@@ -47,12 +47,20 @@ function plano(mesas, porMesa) {
   }
   return t;
 }
-/* escribe el plano en Sitting y vuelve al Menú */
+/* escribe el plano en Sitting y vuelve al Menú.
+   El plano se pone con evaluate (value + evento input) en vez de .fill(): con
+   planos muy grandes (300 comensales) la comprobación de "estabilidad" de
+   Playwright sobre el textarea puede colgarse aunque el campo es perfectamente
+   editable — así que se rellena como haría un pegado real, que es justo lo que
+   la app espera. No cambia lo que se prueba (las cifras del Servicio). */
 async function ponerPlano(page, mesas, porMesa) {
   await page.locator("#ab-sec").selectOption("plan");
   await page.locator("#appSitting").waitFor({ state: "visible" });
-  await page.locator("#src").fill(plano(mesas, porMesa));
-  await page.locator("#src").dispatchEvent("input");
+  await page.evaluate((txt) => {
+    const s = document.getElementById("src");
+    s.value = txt;
+    s.dispatchEvent(new Event("input", { bubbles: true }));
+  }, plano(mesas, porMesa));
   await wait(700);
   await page.locator("#ab-sec").selectOption("m-sel");
   await page.locator("#appMenu").waitFor({ state: "visible" });
