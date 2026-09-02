@@ -399,6 +399,19 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .aler-aperis-row{display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px solid var(--c-line)}
 .aler-aperis-row:last-child{border-bottom:0}
 .aler-aperis-row input{flex:1; min-width:0; font-family:"Barlow Semi Condensed","Karla",sans-serif; font-size:13.5px}
+/* ── Bebida del evento ── */
+.beb-edit{max-width:820px; margin:0 auto}
+.beb-intro{max-width:820px; margin:0 auto 22px}
+.beb-cat{margin:0 auto 22px}
+.beb-cat .mnu-origen{margin:6px 0 4px}
+.beb-rows{display:flex; flex-direction:column; gap:8px; margin:10px 0 6px}
+.beb-row{display:flex; align-items:center; gap:8px; padding:6px 4px; border-bottom:1px solid var(--c-line)}
+.beb-row:last-child{border-bottom:0}
+.beb-row .beb-prod{flex:1 1 auto; min-width:0}
+.beb-row .beb-qty{width:88px; flex:0 0 auto; text-align:right; background:var(--field); border:1px solid var(--c-line-2); border-radius:5px; padding:8px 10px; color:var(--c-ink)}
+.beb-row .beb-uni{flex:0 0 auto; font-size:12.5px; color:var(--c-mut); min-width:60px}
+.beb-row .beb-uni.beb-auto{font-style:italic; color:var(--gold-p); min-width:120px}
+.beb-add{margin-top:2px}
 .mnu-empty{max-width:440px; margin:14vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:19px; font-style:italic; line-height:1.7}
 .mnu-dish-h{display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0}
 .mnu-dish-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px}
@@ -679,6 +692,7 @@ Lluc (trona)</div>
       <button role="tab" aria-selected="false" data-v="prod">Producción</button>
       <button role="tab" aria-selected="false" data-v="compra">Compra</button>
       <button role="tab" aria-selected="false" data-v="serv">Servicio</button>
+      <button role="tab" aria-selected="false" data-v="bebida">Bebida</button>
       <button role="tab" aria-selected="false" data-v="card">Menú</button>
     </div>
     <div class="mnu-search" id="mnu-search-wrap">
@@ -1434,6 +1448,10 @@ function migrate(e){
      arriba, que van dentro del propio plano). Clave: la alergia tal como la
      detecta el plano, recortada y en minúsculas; valor: texto libre. */
   e.menu.aperitivosPorAlergia=e.menu.aperitivosPorAlergia||{};
+  /* bebidas del evento (vino blanco, tinto, cava, cava rosado, jamón) — de
+     momento a mano: por cada categoría, una lista de {prod, qty}. El jamón no
+     guarda cantidad: se coge del propio menú del evento para no cruzar cifras. */
+  e.menu.bebidas=e.menu.bebidas||{};
   /* disponibilidad de cada camarero PARA ESTE EVENTO: personaId -> "si"|"no"|"pendiente".
      El que no aparece en el mapa se trata como pendiente (todavía sin marcar). */
   e.camareros=e.camareros||{};
@@ -3295,6 +3313,7 @@ var SECCIONES=[
   {k:"m-compra", g:"Menú del evento", t:"Lista de la compra"},
   {k:"m-aler",   g:"Menú del evento", t:"Alergias y sustituciones"},
   {k:"m-serv",   g:"Menú del evento", t:"Check list de servicio"},
+  {k:"m-bebida", g:"Menú del evento", t:"Bebida del evento"},
   {k:"m-card",   g:"Menú del evento", t:"Menú para imprimir"},
   /* el inventario no es de un evento concreto: es el material del negocio,
      el mismo para todos. Va en su propio grupo para que se note. */
@@ -4165,6 +4184,178 @@ function wireAperitivosAdaptados(){
   });
 }
 
+/* ══ Bebida del evento ════════════════════════════════════════════════
+   Una hoja con las bebidas que hay que preparar para el evento, para pasarla
+   al equipo de sala. En esta primera versión es manual: por cada categoría se
+   elige el producto de una lista y se escribe la cantidad a mano. Se deja
+   preparado para la fase siguiente, en la que el vino y el cava se calcularán
+   solos a partir de los comensales adultos del sitting (como el menú de
+   comida). El JAMÓN es la excepción desde ya: su cantidad no se escribe a
+   mano, se coge directamente de lo marcado en el menú del evento, para que no
+   haya dos cifras distintas (la de aquí y la de la escandalla). */
+var BEBIDA_CATS=[
+  {key:"blanco",     label:"Vino blanco", unidad:"botellas", opciones:[
+    "Les Moles Blanc","Carmen's 2022","El perro verde","Blanc de Marges","Lusco Albariño","El Fanio Albet i Noya"]},
+  {key:"tinto",      label:"Vino tinto", unidad:"botellas", opciones:[
+    "Les Moles Criança","Finca Resalso Emilio Moro","Sierra Cantabria Crianza","Tinto Figuero 12","Viña Izadi - Orben"]},
+  {key:"cava",       label:"Cava", unidad:"botellas", opciones:[
+    "Oriol Rossell Brut Reserva","Oriol Rossell Brut Nature Gran Reserva","Gramona La Cuvée Brut Reserva",
+    "Celler Kripta Brut Reserva","Gramona Imperial","Agustí Torelló Magnum","Lleopardi","Llopart"]},
+  {key:"cavaRosado", label:"Cava rosado", unidad:"botellas", opciones:[
+    "Cava Oriol Rossell Brut rosado","Raventós de Nit"]},
+  {key:"jamon",      label:"Jamón", delMenu:true, opciones:[
+    "Jamón Ibérico Cebo de Campo Blázquez","Jamón de bellota Blázquez","Jamón Joselito 5J"]}
+];
+function catByKey(k){ return BEBIDA_CATS.filter(function(c){return c.key===k;})[0]; }
+function bebidas(){ var m=menu(); if(!m) return null; m.bebidas=m.bebidas||{}; return m.bebidas; }
+function bebidaRows(catKey){ var b=bebidas(); if(!b) return []; if(!b[catKey]) b[catKey]=[]; return b[catKey]; }
+
+/* El jamón que hay que preparar sale del propio menú del evento: se cogen los
+   platos marcados que se sirven en plato de jamón (o cuyo nombre empieza por
+   "Jamón") y se suma el jamón de sus ingredientes, escalado a los comensales
+   igual que en Producción — así es EXACTAMENTE la misma cifra que la
+   escandalla, no una copia que se pueda quedar atrás. "Croquetas de jamón" no
+   cuenta: no es jamón para cortar. */
+function jamonDelMenu(){
+  var t=evTotals();
+  var platos=selectedDishes().filter(function(d){
+    return /jam[oó]n/i.test(d.servicio||"") || /^\s*jam[oó]n/i.test(d.name||"");
+  });
+  var gr=0, pend=false;
+  platos.forEach(function(d){
+    d.ingredients.forEach(function(ing){
+      if(/jam[oó]n/i.test(ing.name)){
+        if(ing.qty==null) pend=true; else gr+=ing.qty*t.total;
+      }
+    });
+  });
+  return {platos:platos.map(function(d){return d.name;}), gramos:gr, total:t.total,
+          marcado:platos.length>0, pendiente:pend};
+}
+function jamonCantidadTexto(jm){
+  if(!jm.marcado) return "marca el jamón en el menú";
+  if(jm.gramos>0) return fmtAmount(jm.gramos,"gr")+" · del menú";
+  return jm.pendiente ? "cantidad pendiente en el Excel" : "del menú";
+}
+
+function bebOptions(cat,sel){
+  return '<option value="">Elegir…</option>'+cat.opciones.map(function(o){
+    return '<option value="'+esc(o)+'"'+(o===sel?" selected":"")+'>'+esc(o)+'</option>';
+  }).join("");
+}
+function bebRowHtml(cat,row){
+  row=row||{};
+  var prodSel='<select class="beb-prod" aria-label="Producto de '+esc(cat.label)+'">'+bebOptions(cat,row.prod||"")+'</select>';
+  var rm='<button type="button" class="btn ico beb-rm" title="Quitar" aria-label="Quitar">−</button>';
+  if(cat.delMenu){
+    return '<div class="beb-row">'+prodSel+
+      '<span class="beb-uni beb-auto">'+esc(jamonCantidadTexto(jamonDelMenu()))+'</span>'+rm+'</div>';
+  }
+  return '<div class="beb-row">'+prodSel+
+    '<input type="number" class="beb-qty" min="0" step="1" value="'+esc(row.qty||"")+'" placeholder="0" aria-label="Cantidad de '+esc(cat.label)+'">'+
+    '<span class="beb-uni">'+esc(cat.unidad)+'</span>'+rm+'</div>';
+}
+function renderBebida(){
+  var jm=jamonDelMenu();
+  var html='<div class="beb-edit">';
+  html+='<p class="mnu-note beb-intro">La <b>hoja de bebidas del evento</b> para el equipo de sala: qué vino, cava y jamón hay que preparar. '+
+    'De momento se elige el producto de cada lista y se escribe la cantidad a mano; más adelante, con los parámetros definidos, el vino y el cava se '+
+    'calcularán solos a partir de los <b>comensales adultos</b> del sitting, igual que el menú de comida. '+
+    '<b>El jamón</b> ya sale directamente de lo marcado en «Elegir platos», para que no haya dos cifras distintas. '+
+    'Cuando esté todo puesto, se descarga en PDF más abajo.</p>';
+  BEBIDA_CATS.forEach(function(cat){
+    html+='<div class="beb-cat" data-cat="'+cat.key+'">';
+    html+='<div class="mnu-fam-h"><h2>'+esc(cat.label)+'</h2><span class="cnt">'+(cat.delMenu?"del menú del evento":"a mano")+'</span></div>';
+    if(cat.delMenu){
+      if(jm.marcado){
+        html+='<p class="mnu-origen"><b>Del menú del evento</b> · '+
+          (jm.gramos>0?esc(fmtAmount(jm.gramos,"gr"))+' de jamón para '+jm.total+' comensales'
+                      :(jm.pendiente?'cantidad de jamón pendiente en el Excel':'jamón marcado en el menú'))+
+          '. Sale de «Elegir platos»; si cambia el menú, cambia aquí sola. Elige abajo qué jamón se sirve.</p>';
+      }else{
+        html+='<p class="mnu-origen">Marca el jamón en <b>«Elegir platos»</b> del menú del evento y aquí saldrá sola la cantidad, sin cruzar cifras. Aun así puedes dejar elegido ya qué jamón se sirve.</p>';
+      }
+    }
+    var rows=bebidaRows(cat.key);
+    var rowsHtml=rows.length?rows.map(function(r){return bebRowHtml(cat,r);}).join(""):bebRowHtml(cat,{});
+    html+='<div class="beb-rows">'+rowsHtml+'</div>';
+    html+='<button type="button" class="btn sm beb-add" data-cat="'+cat.key+'">+ Añadir '+esc(cat.delMenu?"jamón":cat.label.toLowerCase())+'</button>';
+    html+='</div>';
+  });
+  html+='</div>';
+  $("mnu-body").innerHTML=html+'<div id="beb-sheet-wrap"></div>';
+  renderBebidaSheet();
+  wireBebida();
+}
+/* la hoja limpia (read-only) que se descarga: se lee del HTML que está en
+   pantalla, igual que el resto de hojas del Menú. Se vuelve a pintar sola cada
+   vez que se cambia algo arriba, así lo que se baja en PDF es justo lo puesto. */
+function renderBebidaSheet(){
+  var wrap=$("beb-sheet-wrap"); if(!wrap) return;
+  var t=evTotals(), jm=jamonDelMenu(), b=bebidas()||{};
+  var secciones="";
+  BEBIDA_CATS.forEach(function(cat){
+    if(cat.delMenu){
+      var prods=(b.jamon||[]).map(function(r){return r.prod;}).filter(Boolean);
+      if(!jm.marcado && !prods.length) return;
+      var cant=jamonCantidadTexto(jm);
+      var filas=prods.length
+        ? prods.map(function(p){ return '<tr><td>'+esc(p)+'</td><td class="q">'+esc(cant)+'</td></tr>'; }).join("")
+        : '<tr><td>Jamón (marca por elegir)</td><td class="q">'+esc(cant)+'</td></tr>';
+      secciones+='<h3 class="mnu-sheet-fam">'+esc(cat.label)+'</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>';
+      return;
+    }
+    var rows=(b[cat.key]||[]).filter(function(r){return r.prod||r.qty;});
+    if(!rows.length) return;
+    var filas=rows.map(function(r){
+      var cant=(r.qty!==""&&r.qty!=null)?fmtNum(+r.qty,0)+" "+cat.unidad:"cantidad por definir";
+      return '<tr><td>'+esc(r.prod||"(producto por elegir)")+'</td><td class="q">'+esc(cant)+'</td></tr>';
+    }).join("");
+    secciones+='<h3 class="mnu-sheet-fam">'+esc(cat.label)+'</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>';
+  });
+  var cuerpo=secciones||'<p class="mnu-note">Todavía no has apuntado ninguna bebida. Elige productos y cantidades arriba y aquí saldrá la hoja para el equipo de sala.</p>';
+  wrap.innerHTML=printBar("bebida")+'<div class="sheet"><div class="frame">'+
+    docHead("Bebida",t)+cuerpo+'<div class="foot">Les Moles Events</div></div></div>';
+  wirePrintBtn();
+}
+function commitBebidaCat(catEl){
+  var cat=catEl.dataset.cat;
+  var rows=Array.prototype.map.call(catEl.querySelectorAll(".beb-row"),function(r){
+    var s=r.querySelector(".beb-prod"), q=r.querySelector(".beb-qty");
+    return {prod:s?s.value:"", qty:q?q.value.trim():""};
+  }).filter(function(r){ return r.prod||r.qty; });
+  var b=bebidas(); if(!b) return;
+  b[cat]=rows;
+  touchSave();
+  renderBebidaSheet();
+}
+/* toda la categoría delega en un solo sitio, como en Alergias: así una fila
+   recién añadida con «+» ya responde sin recablearla. Se guarda al cambiar un
+   producto o una cantidad (change = al soltar el campo), no en cada tecla, para
+   no repintar la hoja mientras se escribe. Añadir/quitar filas es DOM directo
+   (no se repinta el editor entero) para no perder lo que haya en el resto. */
+function wireBebida(){
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".beb-cat"),function(catEl){
+    catEl.addEventListener("change",function(e){
+      if(e.target.classList.contains("beb-prod")||e.target.classList.contains("beb-qty")) commitBebidaCat(catEl);
+    });
+    catEl.addEventListener("click",function(e){
+      if(e.target.closest(".beb-add")){
+        var cat=catByKey(catEl.dataset.cat), box=catEl.querySelector(".beb-rows");
+        box.insertAdjacentHTML("beforeend",bebRowHtml(cat,{}));
+        var sel=box.lastElementChild.querySelector(".beb-prod"); if(sel) sel.focus();
+        return;
+      }
+      if(e.target.closest(".beb-rm")){
+        var box2=catEl.querySelector(".beb-rows"), fila=e.target.closest(".beb-row");
+        if(box2.children.length>1) box2.removeChild(fila);
+        else { var s=fila.querySelector(".beb-prod"); if(s) s.value=""; var q=fila.querySelector(".beb-qty"); if(q) q.value=""; }
+        commitBebidaCat(catEl);
+      }
+    });
+  });
+}
+
 /* ══ Menú: tarjeta limpia con los platos marcados ═════════════════════ */
 function renderTarjeta(){
   var sel=selectedDishes();
@@ -4193,6 +4384,7 @@ function renderMnuBody(){
   else if(mnuView==="compra") renderCompra();
   else if(mnuView==="aler") renderAlergias();
   else if(mnuView==="serv") renderServicio();
+  else if(mnuView==="bebida") renderBebida();
   else if(mnuView==="card") renderTarjeta();
 }
 function setMnuView(v){

@@ -58,7 +58,7 @@ Diego
 Elena
 `;
 
-/* las 8 secciones, con la vista a la que pertenece cada una */
+/* las secciones, con la vista a la que pertenece cada una */
 const SECCIONES = [
   ["plan",     "sitting", "Plano de sala"],
   ["list",     "sitting", "Listado por mesas"],
@@ -68,6 +68,7 @@ const SECCIONES = [
   ["m-compra", "menu",    "Lista de la compra"],
   ["m-aler",   "menu",    "Alergias y sustituciones"],
   ["m-serv",   "menu",    "Check list de servicio"],
+  ["m-bebida", "menu",    "Bebida del evento"],
   ["m-card",   "menu",    "Menú para imprimir"],
   ["inv",      "inv",     "Todo el material"],
   ["cam",      "cam",     "Camareros del evento"],
@@ -105,7 +106,7 @@ async function main() {
   await step("CADA SECCIÓN LLEVA A SU PANTALLA, saltando entre plano y menú", async () => {
     // en desorden a propósito: los saltos son lo que antes obligaba a pasar
     // por el selector "Sitting/Menú"
-    for (const clave of ["m-serv", "list", "inv", "cam", "m-aler", "m-sel", "card", "inv", "cam", "m-card", "plan"]) {
+    for (const clave of ["m-serv", "list", "inv", "cam", "m-aler", "m-bebida", "m-sel", "card", "inv", "cam", "m-card", "plan"]) {
       const esperada = SECCIONES.find((s) => s[0] === clave)[1];
       await page.locator("#ab-sec").selectOption(clave);
       await wait(450);
