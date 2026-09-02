@@ -234,7 +234,8 @@ async function main() {
     assert.match(texto, /turno de tarde/i);
   });
 
-  await step("DESCARGAR LA AGENDA EN PDF, con la disponibilidad de este evento", async () => {
+  await step("LA HOJA PARA CONTABILIDAD LLEVA SOLO LOS CONFIRMADOS", async () => {
+    // en este evento Marta está "Disponible" (confirmada): tiene que salir
     const espera = page.waitForEvent("download");
     await page.locator("#cam-print-btn").click();
     const d = await espera;
@@ -243,9 +244,36 @@ async function main() {
     const buf = fs.readFileSync(destino);
     assert.equal(buf.slice(0, 5).toString(), "%PDF-", "es un PDF de verdad");
     assert.ok(buf.toString("latin1").includes("%%EOF"), "el PDF está entero");
-    assert.ok(contiene(buf, "Camareros"), "el título");
-    assert.ok(contiene(buf, NOMBRE), "el nombre del camarero");
-    assert.ok(contiene(buf, "Disponible"), "su disponibilidad para este evento");
+    assert.ok(contiene(buf, "confirmados"), "el título deja claro que son los confirmados");
+    assert.ok(contiene(buf, NOMBRE), "el confirmado sale");
+    assert.ok(contiene(buf, "600 999 888"), "con su teléfono, para contabilidad");
+  });
+
+  await step("un camarero que NO viene no entra en la hoja de contabilidad", async () => {
+    // añadimos a alguien y lo marcamos "No disponible": no debe salir en el PDF
+    const NO_VIENE = token + " No Viene";
+    await page.locator("button.cam-add").click(); await wait(300);
+    await page.locator(".inv-form .f-nombre").fill(NO_VIENE);
+    await page.locator(".inv-form .f-ok").click(); await wait(500);
+    await fila(page, NO_VIENE).locator('.cam-disp button[data-e="no"]').click(); await wait(400);
+    // y otro pendiente de confirmar (ni se toca): tampoco debe salir
+    const PENDIENTE = token + " Sin Confirmar";
+    await page.locator("button.cam-add").click(); await wait(300);
+    await page.locator(".inv-form .f-nombre").fill(PENDIENTE);
+    await page.locator(".inv-form .f-ok").click(); await wait(500);
+
+    const espera = page.waitForEvent("download");
+    await page.locator("#cam-print-btn").click();
+    const d = await espera;
+    const destino = path.join(dir, "camareros2.pdf");
+    await d.saveAs(destino);
+    const buf = fs.readFileSync(destino);
+    assert.ok(contiene(buf, NOMBRE), "el confirmado sigue saliendo");
+    assert.ok(!contiene(buf, NO_VIENE), "el que no viene NO sale en la hoja de contabilidad");
+    assert.ok(!contiene(buf, PENDIENTE), "el pendiente de confirmar tampoco sale");
+    // pero en la pantalla de gestión sí se ven los tres (para poder marcarlos)
+    assert.equal(await fila(page, NO_VIENE).count(), 1, "el que no viene sigue en la agenda de la pantalla");
+    assert.equal(await fila(page, PENDIENTE).count(), 1, "y el pendiente también");
   });
 
   await step("QUITAR UN CAMARERO DE LA AGENDA", async () => {

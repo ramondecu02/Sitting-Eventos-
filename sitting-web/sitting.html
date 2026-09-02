@@ -402,16 +402,14 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 /* ── Bebida del evento ── */
 .beb-edit{max-width:820px; margin:0 auto}
 .beb-intro{max-width:820px; margin:0 auto 22px}
-.beb-cat{margin:0 auto 22px}
-.beb-cat .mnu-origen{margin:6px 0 4px}
-.beb-rows{display:flex; flex-direction:column; gap:8px; margin:10px 0 6px}
-.beb-row{display:flex; align-items:center; gap:8px; padding:6px 4px; border-bottom:1px solid var(--c-line)}
-.beb-row:last-child{border-bottom:0}
-.beb-row .beb-prod{flex:1 1 auto; min-width:0}
-.beb-row .beb-qty{width:88px; flex:0 0 auto; text-align:right; background:var(--field); border:1px solid var(--c-line-2); border-radius:5px; padding:8px 10px; color:var(--c-ink)}
-.beb-row .beb-uni{flex:0 0 auto; font-size:12.5px; color:var(--c-mut); min-width:60px}
-.beb-row .beb-uni.beb-auto{font-style:italic; color:var(--gold-p); min-width:120px}
-.beb-add{margin-top:2px}
+.beb-cat{margin:0 auto 18px; padding-bottom:14px; border-bottom:1px solid var(--c-line)}
+.beb-cat:last-child{border-bottom:0}
+.beb-line{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin:8px 0}
+.beb-botellas{font-family:"Cormorant Garamond",serif; font-size:22px; font-weight:600; color:var(--gold-p); flex:0 0 auto}
+.beb-desglose{font-size:12px; color:var(--c-mut); line-height:1.5}
+.beb-marca{display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap}
+.beb-marca-lbl{font-size:12.5px; color:var(--ink-soft); white-space:nowrap}
+.beb-marca .beb-prod{flex:1 1 260px; min-width:0; max-width:420px}
 .mnu-empty{max-width:440px; margin:14vh auto; text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif; font-size:19px; font-style:italic; line-height:1.7}
 .mnu-dish-h{display:flex; align-items:flex-start; gap:10px; flex:1; min-width:0}
 .mnu-dish-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:5px}
@@ -4185,31 +4183,63 @@ function wireAperitivosAdaptados(){
 }
 
 /* ══ Bebida del evento ════════════════════════════════════════════════
-   Una hoja con las bebidas que hay que preparar para el evento, para pasarla
-   al equipo de sala. En esta primera versión es manual: por cada categoría se
-   elige el producto de una lista y se escribe la cantidad a mano. Se deja
-   preparado para la fase siguiente, en la que el vino y el cava se calcularán
-   solos a partir de los comensales adultos del sitting (como el menú de
-   comida). El JAMÓN es la excepción desde ya: su cantidad no se escribe a
-   mano, se coge directamente de lo marcado en el menú del evento, para que no
-   haya dos cifras distintas (la de aquí y la de la escandalla). */
+   La previsión de bebidas del evento, para pasarle al equipo de sala una hoja
+   con lo que hay que preparar. Las cantidades se CALCULAN SOLAS a partir de
+   los comensales del sitting (parámetros de Ramon, ver BEBIDA_CATS); lo único
+   que se elige a mano es qué producto se sirve de cada uno. El agua cuenta a
+   todos los comensales (adultos y niños); el vino, el cava y el cava rosado
+   van sobre los adultos. El jamón es aparte: su cantidad sale de lo marcado en
+   el menú del evento, para no cruzar cifras con la escandalla.
+
+   Cada categoría define su población (todos los comensales o solo adultos),
+   sus tramos (una botella cada N personas — el aperitivo y el banquete son dos
+   tramos que se suman) y cómo se redondea el total (al alza salvo el tinto,
+   que va a la baja). Cambiar cualquiera de estos números es cambiar una línea
+   aquí; el resto de la app lo recoge solo. */
 var BEBIDA_CATS=[
-  {key:"blanco",     label:"Vino blanco", unidad:"botellas", opciones:[
+  /* agua: 1 botella cada 1,33 personas, contando a TODOS (adultos y niños), al alza */
+  {key:"agua",       label:"Agua", auto:true, poblacion:"total",   redondeo:"ceil",
+    tramos:[{div:1.33}]},
+  /* vino blanco: aperitivo (1 cada 6,667) + banquete (1 cada 4), sobre adultos, al alza */
+  {key:"blanco",     label:"Vino blanco", auto:true, poblacion:"adultos", redondeo:"ceil",
+    tramos:[{etq:"aperitivo",div:6.667},{etq:"banquete",div:4}], opciones:[
     "Les Moles Blanc","Carmen's 2022","El perro verde","Blanc de Marges","Lusco Albariño","El Fanio Albet i Noya"]},
-  {key:"tinto",      label:"Vino tinto", unidad:"botellas", opciones:[
+  /* vino tinto: aperitivo (1 cada 10) + banquete (1 cada 6,667), sobre adultos, a la baja */
+  {key:"tinto",      label:"Vino tinto", auto:true, poblacion:"adultos", redondeo:"floor",
+    tramos:[{etq:"aperitivo",div:10},{etq:"banquete",div:6.667}], opciones:[
     "Les Moles Criança","Finca Resalso Emilio Moro","Sierra Cantabria Crianza","Tinto Figuero 12","Viña Izadi - Orben"]},
-  {key:"cava",       label:"Cava", unidad:"botellas", opciones:[
+  /* cava: solo banquete, 1 cada 4, sobre adultos, al alza */
+  {key:"cava",       label:"Cava", auto:true, poblacion:"adultos", redondeo:"ceil",
+    tramos:[{etq:"banquete",div:4}], opciones:[
     "Oriol Rossell Brut Reserva","Oriol Rossell Brut Nature Gran Reserva","Gramona La Cuvée Brut Reserva",
     "Celler Kripta Brut Reserva","Gramona Imperial","Agustí Torelló Magnum","Lleopardi","Llopart"]},
-  {key:"cavaRosado", label:"Cava rosado", unidad:"botellas", opciones:[
+  /* cava rosado: solo aperitivo, 1 cada 6,25, sobre adultos, al alza */
+  {key:"cavaRosado", label:"Cava rosado", auto:true, poblacion:"adultos", redondeo:"ceil",
+    tramos:[{etq:"aperitivo",div:6.25}], opciones:[
     "Cava Oriol Rossell Brut rosado","Raventós de Nit"]},
+  /* jamón: cantidad del menú del evento, no de un parámetro por comensal */
   {key:"jamon",      label:"Jamón", delMenu:true, opciones:[
     "Jamón Ibérico Cebo de Campo Blázquez","Jamón de bellota Blázquez","Jamón Joselito 5J"]}
 ];
 function catByKey(k){ return BEBIDA_CATS.filter(function(c){return c.key===k;})[0]; }
 function bebidas(){ var m=menu(); if(!m) return null; m.bebidas=m.bebidas||{}; return m.bebidas; }
-function bebidaRows(catKey){ var b=bebidas(); if(!b) return []; if(!b[catKey]) b[catKey]=[]; return b[catKey]; }
+/* de cada categoría solo se guarda a mano la marca elegida ({prod:"..."});
+   la cantidad no se guarda, se calcula al vuelo — así nunca hay una cifra
+   escrita que pueda discrepar de los comensales reales del sitting */
+function bebidaMarca(catKey){ var b=bebidas(); if(!b) return ""; var r=b[catKey]; return (r&&r.prod)||""; }
+function setBebidaMarca(catKey,prod){ var b=bebidas(); if(!b) return; if(prod) b[catKey]={prod:prod}; else delete b[catKey]; touchSave(); }
 
+/* la previsión de una categoría: población (todos o adultos), cada tramo
+   (aperitivo/banquete) dividido por su parámetro, la suma sin redondear y el
+   total ya redondeado como pida la categoría */
+function calcBebida(cat){
+  var t=evTotals();
+  var base = cat.poblacion==="total" ? t.total : t.adultos;
+  var tramos=(cat.tramos||[]).map(function(tr){ return {etq:tr.etq||"", div:tr.div, val:base>0?base/tr.div:0}; });
+  var suma=tramos.reduce(function(s,tr){ return s+tr.val; },0);
+  var botellas = base>0 ? (cat.redondeo==="floor"?Math.floor(suma):Math.ceil(suma)) : 0;
+  return {base:base, tramos:tramos, suma:suma, botellas:botellas};
+}
 /* El jamón que hay que preparar sale del propio menú del evento: se cogen los
    platos marcados que se sirven en plato de jamón (o cuyo nombre empieza por
    "Jamón") y se suma el jamón de sus ingredientes, escalado a los comensales
@@ -4232,10 +4262,15 @@ function jamonDelMenu(){
   return {platos:platos.map(function(d){return d.name;}), gramos:gr, total:t.total,
           marcado:platos.length>0, pendiente:pend};
 }
-function jamonCantidadTexto(jm){
+function jamonBotellasTexto(jm){
+  if(!jm.marcado) return "márcalo en el menú";
+  if(jm.gramos>0) return fmtAmount(jm.gramos,"gr")+" de jamón";
+  return jm.pendiente ? "cantidad pendiente en el Excel" : "jamón marcado";
+}
+function jamonCantHoja(jm){
   if(!jm.marcado) return "marca el jamón en el menú";
   if(jm.gramos>0) return fmtAmount(jm.gramos,"gr")+" · del menú";
-  return jm.pendiente ? "cantidad pendiente en el Excel" : "del menú";
+  return jm.pendiente ? "pendiente en el Excel" : "del menú";
 }
 
 function bebOptions(cat,sel){
@@ -4243,43 +4278,33 @@ function bebOptions(cat,sel){
     return '<option value="'+esc(o)+'"'+(o===sel?" selected":"")+'>'+esc(o)+'</option>';
   }).join("");
 }
-function bebRowHtml(cat,row){
-  row=row||{};
-  var prodSel='<select class="beb-prod" aria-label="Producto de '+esc(cat.label)+'">'+bebOptions(cat,row.prod||"")+'</select>';
-  var rm='<button type="button" class="btn ico beb-rm" title="Quitar" aria-label="Quitar">−</button>';
-  if(cat.delMenu){
-    return '<div class="beb-row">'+prodSel+
-      '<span class="beb-uni beb-auto">'+esc(jamonCantidadTexto(jamonDelMenu()))+'</span>'+rm+'</div>';
-  }
-  return '<div class="beb-row">'+prodSel+
-    '<input type="number" class="beb-qty" min="0" step="1" value="'+esc(row.qty||"")+'" placeholder="0" aria-label="Cantidad de '+esc(cat.label)+'">'+
-    '<span class="beb-uni">'+esc(cat.unidad)+'</span>'+rm+'</div>';
+function marcaPregunta(cat){ return cat.delMenu ? "¿Qué jamón se sirve?" : "¿Qué "+cat.label.toLowerCase()+" se sirve?"; }
+function marcaSelectHtml(cat){
+  return '<div class="beb-marca"><label class="beb-marca-lbl" for="beb-m-'+cat.key+'">'+esc(marcaPregunta(cat))+'</label>'+
+    '<select class="beb-prod" id="beb-m-'+cat.key+'" data-cat="'+cat.key+'" aria-label="'+esc(marcaPregunta(cat))+'">'+
+    bebOptions(cat,bebidaMarca(cat.key))+'</select></div>';
 }
 function renderBebida(){
-  var jm=jamonDelMenu();
   var html='<div class="beb-edit">';
-  html+='<p class="mnu-note beb-intro">La <b>hoja de bebidas del evento</b> para el equipo de sala: qué vino, cava y jamón hay que preparar. '+
-    'De momento se elige el producto de cada lista y se escribe la cantidad a mano; más adelante, con los parámetros definidos, el vino y el cava se '+
-    'calcularán solos a partir de los <b>comensales adultos</b> del sitting, igual que el menú de comida. '+
-    '<b>El jamón</b> ya sale directamente de lo marcado en «Elegir platos», para que no haya dos cifras distintas. '+
-    'Cuando esté todo puesto, se descarga en PDF más abajo.</p>';
+  html+='<p class="mnu-note beb-intro">La <b>previsión de bebidas del evento</b>, para el equipo de sala. '+
+    'Las cantidades <b>se calculan solas</b> a partir de los comensales del sitting: el <b>agua</b> cuenta a '+
+    'todos (adultos y niños); el <b>vino, el cava y el cava rosado</b> van sobre los <b>adultos</b>. Lo único que '+
+    'hay que elegir a mano es qué producto se sirve de cada uno. <b>El jamón</b> sale de lo marcado en «Elegir '+
+    'platos» del menú. Cuando esté, se descarga la hoja en PDF más abajo.</p>';
   BEBIDA_CATS.forEach(function(cat){
     html+='<div class="beb-cat" data-cat="'+cat.key+'">';
-    html+='<div class="mnu-fam-h"><h2>'+esc(cat.label)+'</h2><span class="cnt">'+(cat.delMenu?"del menú del evento":"a mano")+'</span></div>';
+    html+='<div class="mnu-fam-h"><h2>'+esc(cat.label)+'</h2><span class="cnt">'+(cat.delMenu?"del menú del evento":"automático")+'</span></div>';
     if(cat.delMenu){
-      if(jm.marcado){
-        html+='<p class="mnu-origen"><b>Del menú del evento</b> · '+
-          (jm.gramos>0?esc(fmtAmount(jm.gramos,"gr"))+' de jamón para '+jm.total+' comensales'
-                      :(jm.pendiente?'cantidad de jamón pendiente en el Excel':'jamón marcado en el menú'))+
-          '. Sale de «Elegir platos»; si cambia el menú, cambia aquí sola. Elige abajo qué jamón se sirve.</p>';
-      }else{
-        html+='<p class="mnu-origen">Marca el jamón en <b>«Elegir platos»</b> del menú del evento y aquí saldrá sola la cantidad, sin cruzar cifras. Aun así puedes dejar elegido ya qué jamón se sirve.</p>';
-      }
+      var jm=jamonDelMenu();
+      if(jm.marcado) html+='<div class="beb-line"><span class="beb-botellas">'+esc(jamonBotellasTexto(jm))+'</span></div>';
+      else html+='<div class="beb-line"><span class="beb-desglose">Márcalo en «Elegir platos» del menú y la cantidad sale sola.</span></div>';
+      html+=marcaSelectHtml(cat);
+    }else{
+      var c=calcBebida(cat);
+      if(c.base) html+='<div class="beb-line"><span class="beb-botellas">'+c.botellas+' botellas</span></div>';
+      else html+='<div class="beb-line"><span class="beb-desglose">En cuanto el sitting tenga comensales, sale la cantidad.</span></div>';
+      if(cat.opciones) html+=marcaSelectHtml(cat);
     }
-    var rows=bebidaRows(cat.key);
-    var rowsHtml=rows.length?rows.map(function(r){return bebRowHtml(cat,r);}).join(""):bebRowHtml(cat,{});
-    html+='<div class="beb-rows">'+rowsHtml+'</div>';
-    html+='<button type="button" class="btn sm beb-add" data-cat="'+cat.key+'">+ Añadir '+esc(cat.delMenu?"jamón":cat.label.toLowerCase())+'</button>';
     html+='</div>';
   });
   html+='</div>';
@@ -4289,69 +4314,41 @@ function renderBebida(){
 }
 /* la hoja limpia (read-only) que se descarga: se lee del HTML que está en
    pantalla, igual que el resto de hojas del Menú. Se vuelve a pintar sola cada
-   vez que se cambia algo arriba, así lo que se baja en PDF es justo lo puesto. */
+   vez que se cambia la marca de algo, así lo que se baja en PDF es justo lo que
+   se está mirando. Una sola tabla: cada bebida con su producto y su cantidad. */
 function renderBebidaSheet(){
   var wrap=$("beb-sheet-wrap"); if(!wrap) return;
-  var t=evTotals(), jm=jamonDelMenu(), b=bebidas()||{};
-  var secciones="";
+  var t=evTotals(), jm=jamonDelMenu();
+  var filas="";
   BEBIDA_CATS.forEach(function(cat){
     if(cat.delMenu){
-      var prods=(b.jamon||[]).map(function(r){return r.prod;}).filter(Boolean);
-      if(!jm.marcado && !prods.length) return;
-      var cant=jamonCantidadTexto(jm);
-      var filas=prods.length
-        ? prods.map(function(p){ return '<tr><td>'+esc(p)+'</td><td class="q">'+esc(cant)+'</td></tr>'; }).join("")
-        : '<tr><td>Jamón (marca por elegir)</td><td class="q">'+esc(cant)+'</td></tr>';
-      secciones+='<h3 class="mnu-sheet-fam">'+esc(cat.label)+'</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>';
+      var marcaJ=bebidaMarca("jamon");
+      if(!jm.marcado && !marcaJ) return;
+      var etqJ = marcaJ ? cat.label+" · "+marcaJ : cat.label;
+      filas+='<tr><td>'+esc(etqJ)+'</td><td class="q">'+esc(jamonCantHoja(jm))+'</td></tr>';
       return;
     }
-    var rows=(b[cat.key]||[]).filter(function(r){return r.prod||r.qty;});
-    if(!rows.length) return;
-    var filas=rows.map(function(r){
-      var cant=(r.qty!==""&&r.qty!=null)?fmtNum(+r.qty,0)+" "+cat.unidad:"cantidad por definir";
-      return '<tr><td>'+esc(r.prod||"(producto por elegir)")+'</td><td class="q">'+esc(cant)+'</td></tr>';
-    }).join("");
-    secciones+='<h3 class="mnu-sheet-fam">'+esc(cat.label)+'</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>';
+    var c=calcBebida(cat);
+    if(!c.base) return;
+    var marca=cat.opciones?bebidaMarca(cat.key):"";
+    var etq = marca ? cat.label+" · "+marca : cat.label;
+    filas+='<tr><td>'+esc(etq)+'</td><td class="q">'+c.botellas+' botellas</td></tr>';
   });
-  var cuerpo=secciones||'<p class="mnu-note">Todavía no has apuntado ninguna bebida. Elige productos y cantidades arriba y aquí saldrá la hoja para el equipo de sala.</p>';
+  var cuerpo=filas
+    ? '<h3 class="mnu-sheet-fam">Bebidas del evento</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>'
+    : '<p class="mnu-note">En cuanto el sitting tenga comensales, aquí saldrá la previsión de bebidas para el equipo de sala.</p>';
   wrap.innerHTML=printBar("bebida")+'<div class="sheet"><div class="frame">'+
     docHead("Bebida",t)+cuerpo+'<div class="foot">Les Moles Events</div></div></div>';
   wirePrintBtn();
 }
-function commitBebidaCat(catEl){
-  var cat=catEl.dataset.cat;
-  var rows=Array.prototype.map.call(catEl.querySelectorAll(".beb-row"),function(r){
-    var s=r.querySelector(".beb-prod"), q=r.querySelector(".beb-qty");
-    return {prod:s?s.value:"", qty:q?q.value.trim():""};
-  }).filter(function(r){ return r.prod||r.qty; });
-  var b=bebidas(); if(!b) return;
-  b[cat]=rows;
-  touchSave();
-  renderBebidaSheet();
-}
-/* toda la categoría delega en un solo sitio, como en Alergias: así una fila
-   recién añadida con «+» ya responde sin recablearla. Se guarda al cambiar un
-   producto o una cantidad (change = al soltar el campo), no en cada tecla, para
-   no repintar la hoja mientras se escribe. Añadir/quitar filas es DOM directo
-   (no se repinta el editor entero) para no perder lo que haya en el resto. */
+/* lo único editable es la marca de cada categoría (un desplegable): al
+   cambiarla se guarda y se repinta la hoja. Las cantidades no se tocan a mano,
+   así que no hay filas que añadir ni quitar. */
 function wireBebida(){
-  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".beb-cat"),function(catEl){
-    catEl.addEventListener("change",function(e){
-      if(e.target.classList.contains("beb-prod")||e.target.classList.contains("beb-qty")) commitBebidaCat(catEl);
-    });
-    catEl.addEventListener("click",function(e){
-      if(e.target.closest(".beb-add")){
-        var cat=catByKey(catEl.dataset.cat), box=catEl.querySelector(".beb-rows");
-        box.insertAdjacentHTML("beforeend",bebRowHtml(cat,{}));
-        var sel=box.lastElementChild.querySelector(".beb-prod"); if(sel) sel.focus();
-        return;
-      }
-      if(e.target.closest(".beb-rm")){
-        var box2=catEl.querySelector(".beb-rows"), fila=e.target.closest(".beb-row");
-        if(box2.children.length>1) box2.removeChild(fila);
-        else { var s=fila.querySelector(".beb-prod"); if(s) s.value=""; var q=fila.querySelector(".beb-qty"); if(q) q.value=""; }
-        commitBebidaCat(catEl);
-      }
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".beb-prod"),function(sel){
+    sel.addEventListener("change",function(){
+      setBebidaMarca(sel.dataset.cat, sel.value);
+      renderBebidaSheet();
     });
   });
 }
@@ -5268,23 +5265,31 @@ function formHtml(){
     '<input class="f-nota" type="text" placeholder="Comentario (opcional)" aria-label="Comentario">'+
     '<button class="btn sm f-ok">Añadir</button><button class="btn sm f-no">Cancelar</button></div>';
 }
-/* la hoja para PDF: misma tabla de dos columnas que ya sabe leer el motor
-   de descarga (bloquesDeHoja) — nombre (con el teléfono como sub-línea) a
-   la izquierda, disponibilidad a la derecha */
+/* la hoja para PDF: la que se le pasa a contabilidad, así que lleva SOLO los
+   camareros confirmados para este evento (los marcados «Disponible») — el que
+   está pendiente de confirmar o no viene no debe entrar en esa lista. Es una
+   tabla de dos columnas que ya sabe leer el motor de descarga (bloquesDeHoja):
+   nombre (con el comentario como sub-línea, por si dice "coche propio" y demás)
+   a la izquierda, teléfono a la derecha. La disponibilidad no hace falta
+   ponerla: si sale en la hoja es porque está confirmado. */
 function pdfTablaHtml(){
   var e=BR.current();
   var lista=personas().slice().sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
-  var filas=lista.map(function(p){
-    return '<tr><td>'+esc(p.nombre)+(p.telefono?' <span class="mnu-base">'+esc(p.telefono)+'</span>':'')+
-      '</td><td class="q">'+esc(ETIQUETA[disponibilidad(p.id)])+'</td></tr>';
+  var confirmados=lista.filter(function(p){ return disponibilidad(p.id)==="si"; });
+  var filas=confirmados.map(function(p){
+    return '<tr><td>'+esc(p.nombre)+(p.nota?' <span class="mnu-base">'+esc(p.nota)+'</span>':'')+
+      '</td><td class="q">'+esc(p.telefono||"—")+'</td></tr>';
   }).join("");
-  return '<div class="mnu-print-bar"><button class="btn gold sm" id="cam-print-btn">Descargar camareros en PDF</button></div>'+
+  /* la nota de arriba va FUERA de .sheet a propósito: es para quien mira la
+     pantalla, no tiene que salir dentro del PDF */
+  return '<p class="mnu-note cam-pdf-nota">La hoja que se descarga es para <b>contabilidad</b>: lleva <b>solo los camareros confirmados</b> (marcados «Disponible»). Los pendientes de confirmar y los que no vienen no salen.</p>'+
+    '<div class="mnu-print-bar"><button class="btn gold sm" id="cam-print-btn">Descargar confirmados en PDF</button></div>'+
     '<div class="sheet"><div class="frame">'+
     '<header class="doc-head"><div class="eyebrow">Les Moles Events'+(e&&e.name?(" · "+esc(e.name)):"")+'</div>'+
-    '<h2>Camareros</h2><div class="orn"></div><div class="doc-meta">'+necesarios()+' necesarios · '+lista.length+' en la agenda</div></header>'+
-    (lista.length
+    '<h2>Camareros confirmados</h2><div class="orn"></div><div class="doc-meta">'+confirmados.length+' confirmado'+(confirmados.length===1?"":"s")+' · '+necesarios()+' necesarios</div></header>'+
+    (confirmados.length
       ? '<table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>'
-      : '<p class="mnu-note">Todavía no hay ningún camarero en la agenda.</p>')+
+      : '<p class="mnu-note">Todavía no hay ningún camarero confirmado para este evento. Marca «Disponible» a los que vienen y saldrán aquí, listos para contabilidad.</p>')+
     '<div class="foot">Les Moles Events</div></div></div>';
 }
 
