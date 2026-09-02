@@ -523,9 +523,24 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 
       <div>
         <span class="lbl" id="bglbl">Plano de fondo</span>
-        <div class="row" style="flex-wrap:wrap">
+        <div class="row" style="flex-wrap:wrap;gap:6px">
           <button class="btn sm" id="bgUp">Subir plano</button>
+          <button class="btn sm" id="bgFit" title="Dar a la zona de trabajo la misma forma que el plano">Ajustar sala al plano</button>
           <button class="btn sm danger" id="bgDel">Quitar</button>
+        </div>
+        <label class="toggle" for="planoEv" style="gap:6px;margin-top:6px">
+          <input type="checkbox" id="planoEv">
+          <span class="mini">Plano solo de este evento (catering)</span>
+        </label>
+        <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center">
+          <span class="mini">Medidas reales</span>
+          <input type="text" inputmode="decimal" id="roomW" placeholder="ancho" style="width:64px" aria-label="Ancho de la sala en metros">
+          <span class="mini">×</span>
+          <input type="text" inputmode="decimal" id="roomH" placeholder="largo" style="width:64px" aria-label="Largo de la sala en metros">
+          <span class="mini">m</span>
+          <button class="btn sm" id="roomApply" title="Ajustar la sala a su tamaño real para que las mesas cuadren">Escala</button>
+        </div>
+        <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center">
           <span class="mini">Opacidad</span>
           <input type="range" id="bgOp" min="10" max="100" value="55" style="width:70px" aria-label="Opacidad del plano">
         </div>
@@ -825,11 +840,62 @@ function rotateRoomTo(to){
   renderPlan(); syncLocUI();
 }
 
+/* ══ plano de catering: encajar la sala en el plano y darle escala real ══
+   Dos cosas para poder trabajar sobre el plano de una sala que nos pasan:
+   1) que la ZONA DE TRABAJO tenga la MISMA FORMA que el plano (o que la sala
+      real), para que el plano se vea entero y las mesas caigan «dentro»;
+   2) una ESCALA REAL en metros, para que las mesas —dibujadas a su tamaño
+      legible de siempre— ocupen la parte del salón que de verdad ocupan, y se
+      vea si caben o no. No se encogen las mesas (se perdería la letra que
+      acabamos de agrandar): se ajusta el TAMAÑO de la sala a la escala de las
+      mesas. Una mesa redonda de 10 ≈ 2,4 m de hueco, y se dibuja a 156 px de
+      diámetro → 65 px por metro es la referencia que hace que todo cuadre. */
+var REF_PXM=65;      // px por metro de referencia
+var RMAX_CAL=3600;   // con escala real se admite una sala mayor que a mano
+function orientForWH(w,h){ return h>w?"p":"l"; }
+/* como setRoomSize pero admitiendo un tope mayor (salas grandes de catering);
+   mantiene las mesas en su sitio relativo, igual que el resto de reajustes */
+function resizeRoom(w,h,maxCap){
+  setRoom();
+  var p=plan(), ow=p.rw||RW, oh=p.rh||RH, hi=maxCap||RMAX;
+  var nw=Math.max(RMIN,Math.min(hi,Math.round(w))), nh=Math.max(RMIN,Math.min(hi,Math.round(h)));
+  var kx=nw/ow, ky=(nh-BT-74)/Math.max(1,oh-BT-74);
+  Object.keys(p.pos).forEach(function(n){
+    var q=p.pos[n]; p.pos[n]={x:Math.round(q.x*kx), y:Math.round(BT+(q.y-BT)*ky)};
+  });
+  p.rw=nw; p.rh=nh;
+}
+/* px por metro que hay AHORA mismo, si la sala tiene medidas reales puestas */
+function pxPerM(){ var rm=plan().roomM; if(!rm||!rm.w) return 0; setRoom(); return RW/rm.w; }
+/* la sala toma la forma (proporción) del plano subido: «identifica el espacio» */
+function fitRoomToPlano(silent){
+  var b=planoGet(); if(!b||!b.w||!b.h){ if(!silent) toast("Primero sube un plano.",true); return false; }
+  var ar=b.w/b.h, target=1500, w,h;
+  if(ar>=1){ w=target; h=Math.round(target/ar); } else { h=target; w=Math.round(target*ar); }
+  plan().orient=orientForWH(w,h);
+  resizeRoom(w,h,RMAX);
+  renderPlan(); syncLocUI(); save();
+  setTimeout(function(){userZoomed=false;fitZoom(false);},20);
+  return true;
+}
+/* la sala toma su TAMAÑO REAL a partir de las medidas en metros: «que cuadren» */
+function applyRealScale(silent){
+  var p=plan(), rm=p.roomM; if(!rm||!rm.w||!rm.h){ if(!silent) toast("Pon el ancho y el largo de la sala en metros.",true); return false; }
+  var pxm=REF_PXM, w=rm.w*pxm, h=rm.h*pxm, longest=Math.max(w,h);
+  if(longest>RMAX_CAL){ var k=RMAX_CAL/longest; w*=k; h*=k; }
+  p.orient=orientForWH(w,h);
+  resizeRoom(w,h,RMAX_CAL);
+  renderPlan(); syncLocUI(); save();
+  setTimeout(function(){userZoomed=false;fitZoom(false);},20);
+  return true;
+}
+
 /* ══ utilidades ═════════════════════════════════════════════════════ */
 function norm(s){return (s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");}
 function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function titleHTML(t){return esc(t).replace(/_([^_]+)_/g,"<i>$1</i>");}
 function clip(s,n){s=(s||"").toString();return s.length>n?s.slice(0,n-1).trim()+"…":s;}
+function fmtM(v){ var s=(Math.round(v*10)/10).toFixed(1).replace(".",","); return s.replace(/,0$/,""); }
 function toast(msg,err,actLabel,actFn){
   var t=document.createElement("div"); t.className="toast"+(err?" err":"");
   t.setAttribute("role",err?"alert":"status"); t.setAttribute("aria-live",err?"assertive":"polite");
@@ -852,7 +918,7 @@ function EL(x,y,rx,ry,f,s,sw){return {k:"e",x:x,y:y,rx:rx,ry:ry,f:f,s:s,sw:sw||1
 function LN(x1,y1,x2,y2,s,sw){return {k:"l",x1:x1,y1:y1,x2:x2,y2:y2,s:s,sw:sw||1};}
 function TX(x,y,str,o){o=o||{};return {k:"t",x:x,y:y,s:str==null?"":String(str),size:o.size||10,fo:o.fo||"ser",a:o.a||"start",c:o.c||INK,ls:o.ls||0};}
 function SR(x,y,r,f){return {k:"s",x:x,y:y,r:r,f:f};}
-function IM(x,y,w,h,key,op){return {k:"i",x:x,y:y,w:w,h:h,key:key,op:op==null?1:op};}
+function IM(x,y,w,h,src,op){return {k:"i",x:x,y:y,w:w,h:h,src:src,op:op==null?1:op};}
 function GR(items,m){return {k:"g",items:items,m:m||{}};}
 
 function starPts(cx,cy,r){
@@ -879,7 +945,7 @@ function toSVG(list){
     else if(p.k==="l") out+='<line x1="'+f(p.x1)+'" y1="'+f(p.y1)+'" x2="'+f(p.x2)+'" y2="'+f(p.y2)+'" stroke="'+p.s+'" stroke-width="'+p.sw+'"/>';
     else if(p.k==="t") out+='<text x="'+f(p.x)+'" y="'+f(p.y)+'" text-anchor="'+({start:"start",middle:"middle",end:"end"}[p.a])+'" '+SVGFONT[p.fo]+' font-size="'+p.size+'" fill="'+p.c+'"'+(p.ls?' letter-spacing="'+p.ls+'"':"")+'>'+esc(p.s)+'</text>';
     else if(p.k==="s"){ var pts=starPts(p.x,p.y,p.r).map(function(a){return f(a[0])+","+f(a[1]);}).join(" "); out+='<polygon points="'+pts+'" fill="'+p.f+'"/>'; }
-    else if(p.k==="i") out+='<image href="'+BG[p.key].src+'" x="'+f(p.x)+'" y="'+f(p.y)+'" width="'+f(p.w)+'" height="'+f(p.h)+'" opacity="'+p.op+'" preserveAspectRatio="none"/>';
+    else if(p.k==="i") out+='<image href="'+p.src+'" x="'+f(p.x)+'" y="'+f(p.y)+'" width="'+f(p.w)+'" height="'+f(p.h)+'" opacity="'+p.op+'" preserveAspectRatio="none"/>';
   }
   return out;
   function f(v){return Math.round(v*10)/10;}
@@ -1581,6 +1647,50 @@ function flagSave(){
 }
 function saveBG(){ try{ localStorage.setItem(BGKEY,JSON.stringify(BG)); return true; }catch(e){ toast("El plano ocupa demasiado para guardarlo en el navegador.",true); return false; } }
 
+/* ══ plano de fondo: común a la ubicación, o propio de un evento (catering) ══
+   Los dos salones de Les Moles (interior/exterior) usan SIEMPRE el mismo plano,
+   así que ese se guarda una sola vez por ubicación (BG, compartido entre todos
+   los eventos). Pero cuando vamos a un catering fuera, cada boda es en una sala
+   distinta: ahí el plano es de ESE evento y no debe aparecer en los demás. Eso
+   se marca con plan().ownPlano y el plano se guarda en su propia clave por
+   evento y ubicación, para no engordar el almacén de eventos ni mezclarse. */
+var PLANOEVKEY="cv_sitting_plano_ev";
+function planoOwn(){ var p=plan(); return !!(p&&p.ownPlano); }
+function planoKey(loca){ return PLANOEVKEY+"__"+current().id+"__"+(loca||loc()); }
+function planoGet(){
+  if(planoOwn()){ try{ var r=localStorage.getItem(planoKey()); return r?JSON.parse(r):null; }catch(e){ return null; } }
+  return BG[loc()]||null;
+}
+function planoSet(obj){
+  if(planoOwn()){
+    try{ localStorage.setItem(planoKey(),JSON.stringify(obj)); return true; }
+    catch(e){ toast("El plano ocupa demasiado para guardarlo en el navegador.",true); return false; }
+  }
+  BG[loc()]=obj; return saveBG();
+}
+function planoDel(){
+  if(planoOwn()){ try{ localStorage.removeItem(planoKey()); }catch(e){} return true; }
+  delete BG[loc()]; return saveBG();
+}
+/* al borrar un evento, se llevan también sus planos propios (todas las ubicaciones) */
+function borrarPlanosDeEvento(id){
+  try{
+    var pre=PLANOEVKEY+"__"+id+"__", i, quitar=[];
+    for(i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(pre)===0) quitar.push(k); }
+    quitar.forEach(function(k){ localStorage.removeItem(k); });
+  }catch(e){}
+}
+/* al MARCAR «solo de este evento», si aún no hay plano propio pero sí uno común,
+   se COPIA el común dentro del evento (así se sigue viendo y ya se puede tocar
+   sin afectar a los demás). Nunca se borra el común (es de todos los eventos), y
+   al DESMARCAR no se toca nada: vuelve a verse el común y el propio queda
+   guardado por si se vuelve a marcar (se limpia al borrar el evento). */
+function alCambiarPlanoPropio(){
+  if(!planoOwn()) return;
+  var propio=null; try{ propio=localStorage.getItem(planoKey()); }catch(e){}
+  if(!propio && BG[loc()]){ try{ localStorage.setItem(planoKey(),JSON.stringify(BG[loc()])); }catch(e){} }
+}
+
 /* ══ sincronización con el servidor (equipo compartido) ═══════════════
    El guardado local (arriba) sigue mandando: la herramienta funciona al
    instante y sin conexión, igual que siempre. Por encima, cada guardado
@@ -1799,13 +1909,34 @@ function planPrims(L,full,forExport){
   setRoom();
   var p=plan(), T=totals(doc), list=[];
   list.push(R(0,0,RW,RH,0,"#FBF8F2",null,0)); list[list.length-1].cls="roombg";
-  if(BG[loc()]){
-    /* el plano del restaurante se encaja entero (sin deformar) en la zona de trabajo */
-    var bi=BG[loc()], ar=bi.w/bi.h;
+  var _plano=planoGet(), _imR=null;
+  if(_plano&&_plano.src){
+    /* el plano se encaja entero (sin deformar) en la zona de trabajo */
+    var bi=_plano, ar=bi.w/bi.h;
     var aw=RW-40, ah=RH-118-84, ax=20, ay=118;
     var iw=aw, ih=aw/ar;
     if(ih>ah){ ih=ah; iw=ah*ar; }
-    list.push(IM(ax+(aw-iw)/2, ay+(ah-ih)/2, iw, ih, loc(), (p.bgOp==null?55:p.bgOp)/100));
+    _imR={x:ax+(aw-iw)/2, y:ay+(ah-ih)/2, w:iw, h:ih};
+    list.push(IM(_imR.x, _imR.y, iw, ih, bi.src, (p.bgOp==null?55:p.bgOp)/100));
+  }
+  /* escala real: barra de metros + medidas de la sala, sobre el plano (o, si no
+     hay plano, sobre la zona de trabajo). Así el montaje «cuadra» a ojo. */
+  if(p.roomM&&p.roomM.w&&p.roomM.h){
+    var pxm=pxPerM(); if(pxm>0){
+      var box=_imR||{x:24,y:124,w:RW-48,h:RH-208};
+      /* número «bonito» de metros para la barra (~20% del ancho dibujado) */
+      var wantM=(box.w*0.20)/pxm, niceSteps=[1,2,5,10,20,50], stepM=niceSteps[0];
+      for(var _s=0;_s<niceSteps.length;_s++){ if(niceSteps[_s]<=wantM*1.3) stepM=niceSteps[_s]; }
+      var barPx=stepM*pxm, bx=box.x+16, by=box.y+box.h-20;
+      list.push(R(bx-6,by-16,barPx+52,30,4,"rgba(255,253,248,0.82)",null,0));
+      list.push(LN(bx,by,bx+barPx,by,INK,2.4));
+      list.push(LN(bx,by-5,bx,by+5,INK,2.4));
+      list.push(LN(bx+barPx,by-5,bx+barPx,by+5,INK,2.4));
+      list.push(TX(bx+barPx+8,by+4,stepM+" m",{size:12,fo:"sansb",c:INK}));
+      var dimTxt=fmtM(p.roomM.w)+" × "+fmtM(p.roomM.h)+" m";
+      list.push(R(box.x+box.w-16-(dimTxt.length*7.4+16),box.y+8,dimTxt.length*7.4+16,24,4,"rgba(255,253,248,0.82)",null,0));
+      list.push(TX(box.x+box.w-24,box.y+25,dimTxt,{size:13,fo:"sansb",a:"end",c:INK}));
+    }
   }
   if(!forExport){ var g=R(0,0,RW,RH,0,"url(#grid)",null,0); g.cls="gridbg"; list.push(g); }
   list.push(R(14,14,RW-28,RH-28,0,"none","#E4D9C0",1));
@@ -2986,9 +3117,16 @@ function syncLocUI(){
   setRoom(); var rl=$("rsz"); if(rl) rl.textContent=RW+"×"+RH;
   $("salon").style.display=(plan().template==="s17")?"":"none";
   Array.prototype.forEach.call($("locseg").children,function(b){ b.setAttribute("aria-pressed",b.dataset.loc===l?"true":"false"); });
-  $("bglbl").textContent="Plano de fondo — "+(l==="interior"?"salón interior":"zona exterior")+(BG[l]?" (común a todos los eventos)":" (sin plano)");
-  $("bgDel").disabled=!BG[l];
+  var own=planoOwn(), tienePlano=!!planoGet(), rm=plan().roomM;
+  $("planoEv").checked=own;
+  var donde=own?"de este evento":(l==="interior"?"salón interior":"zona exterior");
+  var estado=tienePlano?(own?" (propio)":" (común a todos los eventos)"):" (sin plano)";
+  $("bglbl").textContent="Plano de fondo — "+donde+estado;
+  $("bgDel").disabled=!tienePlano;
+  $("bgFit").disabled=!tienePlano;
   $("bgOp").value=(plan().bgOp==null?55:plan().bgOp);
+  $("roomW").value=(rm&&rm.w)?String(rm.w).replace(".",","):"";
+  $("roomH").value=(rm&&rm.h)?String(rm.h).replace(".",","):"";
 }
 
 /* ══ traspaso de eventos entre personas ═════════════════════════════ */
@@ -3137,12 +3275,19 @@ $("del").addEventListener("click",function(){
   if(store.events.length<2){ toast("Es el único evento guardado. Crea otro antes de borrar este.",true); return; }
   arm(btn,"Borrar","¿Seguro?",function(){
     var dead=current(), idx=store.events.indexOf(dead);
+    /* los planos propios (catering) de este evento se guardan para poder
+       deshacer; luego se borran del navegador para no dejar restos */
+    var planosMuertos={};
+    try{ var pre=PLANOEVKEY+"__"+dead.id+"__", i;
+      for(i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(pre)===0) planosMuertos[k]=localStorage.getItem(k); } }catch(e){}
+    borrarPlanosDeEvento(dead.id);
     store.events=store.events.filter(function(e){return e.id!==dead.id;});
     deletedIds[dead.id]=1;
     store.active=store.events[0].id; sel=null; undoStack=[]; refreshUndo(); $("src").value=current().text; prevText=current().text;
     syncPrefs(); fillSelect(); render(); save();
     toast("Evento «"+(dead.name||"")+"» borrado.",false,"Deshacer",function(){
       delete deletedIds[dead.id];
+      try{ Object.keys(planosMuertos).forEach(function(k){ localStorage.setItem(k,planosMuertos[k]); }); }catch(e){}
       store.events.splice(Math.max(0,idx),0,dead); store.active=dead.id;
       $("src").value=dead.text; prevText=dead.text; fillSelect(); syncPrefs(); render(); save();
       toast("Evento recuperado.");
@@ -3163,6 +3308,42 @@ Array.prototype.forEach.call($("locseg").children,function(b){
     render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
   });
 });
+/* Recorta el plano a la SALA. Dos intentos, de más fino a más bruto:
+   1) si el plano tiene la sala rellena de color (tan, gris…) —como el del DOMO—
+      se recorta a esa mancha de color, que deja fuera el rótulo del título y las
+      cotas, y así las mesas caen justo dentro de la sala;
+   2) si no hay relleno (planos de solo líneas), se quitan los márgenes en
+      blanco, como antes.
+   Nunca deja un recorte disparatado (ni <22% ni prácticamente todo). {x,y,w,h}. */
+function zonaDelPlano(cx,W,H){
+  var d; try{ d=cx.getImageData(0,0,W,H).data; }catch(e){ return {x:0,y:0,w:W,h:H}; }
+  var nwX0=W,nwY0=H,nwX1=0,nwY1=0,nwHay=false;         // no-blanco (márgenes)
+  var flX0=W,flY0=H,flX1=0,flY1=0,flHay=false,flN=0;   // relleno de color (sala)
+  var x,y,i,r,g,b,mn,mx;
+  for(y=0;y<H;y++){ for(x=0;x<W;x++){ i=(y*W+x)*4; r=d[i];g=d[i+1];b=d[i+2];
+    mn=r<g?(r<b?r:b):(g<b?g:b); mx=r>g?(r>b?r:b):(g>b?g:b);
+    if(mn<244){ nwHay=true;
+      if(x<nwX0)nwX0=x; if(x>nwX1)nwX1=x; if(y<nwY0)nwY0=y; if(y>nwY1)nwY1=y; }
+    if(mn<244 && (mx-mn)>18 && mx>120){ flHay=true; flN++;   // color con algo de saturación
+      if(x<flX0)flX0=x; if(x>flX1)flX1=x; if(y<flY0)flY0=y; if(y>flY1)flY1=y; }
+  } }
+  var pad=Math.round(Math.min(W,H)*0.012);
+  function encaja(x0,y0,x1,y1){
+    x0=Math.max(0,x0-pad); y0=Math.max(0,y0-pad); x1=Math.min(W-1,x1+pad); y1=Math.min(H-1,y1+pad);
+    return {x:x0,y:y0,w:x1-x0+1,h:y1-y0+1};
+  }
+  /* 1) relleno de color, si es una mancha grande y no ocupa casi todo */
+  if(flHay){
+    var fr=encaja(flX0,flY0,flX1,flY1), area=fr.w*fr.h;
+    if(flN>W*H*0.10 && area>W*H*0.20 && area<W*H*0.92 && fr.w>W*0.2 && fr.h>H*0.2) return fr;
+  }
+  /* 2) márgenes en blanco */
+  if(nwHay){
+    var nr=encaja(nwX0,nwY0,nwX1,nwY1);
+    if(nr.w*nr.h >= W*H*0.40) return nr;
+  }
+  return {x:0,y:0,w:W,h:H};
+}
 $("bgUp").addEventListener("click",function(){ $("bgFile").click(); });
 $("bgFile").addEventListener("change",function(){
   var f=this.files&&this.files[0]; this.value="";
@@ -3176,9 +3357,21 @@ $("bgFile").addEventListener("change",function(){
       cv.width=Math.round(img.width*sc); cv.height=Math.round(img.height*sc);
       var cx=cv.getContext("2d"); cx.fillStyle="#fff"; cx.fillRect(0,0,cv.width,cv.height);
       cx.drawImage(img,0,0,cv.width,cv.height);
-      BG[loc()]={src:cv.toDataURL("image/jpeg",0.72),w:cv.width,h:cv.height};
-      if(saveBG()){ toast("Plano cargado en «"+(loc()==="interior"?"Interior":"Exterior")+"»."); syncLocUI(); renderPlan(); }
-      else { delete BG[loc()]; }
+      var r=zonaDelPlano(cx,cv.width,cv.height), cv2=cv, cx2=cx;
+      if(r.w!==cv.width||r.h!==cv.height){
+        cv2=document.createElement("canvas"); cv2.width=r.w; cv2.height=r.h;
+        cx2=cv2.getContext("2d"); cx2.fillStyle="#fff"; cx2.fillRect(0,0,r.w,r.h);
+        cx2.drawImage(cv,r.x,r.y,r.w,r.h,0,0,r.w,r.h);
+      }
+      var obj={src:cv2.toDataURL("image/jpeg",0.72),w:cv2.width,h:cv2.height};
+      if(planoSet(obj)){
+        var yaEscala=plan().roomM&&plan().roomM.w;
+        toast("Plano cargado"+(planoOwn()?" en este evento":" en «"+(loc()==="interior"?"Interior":"Exterior")+"»")+".");
+        syncLocUI();
+        /* la sala toma la forma del plano al momento; si aún no hay medidas
+           reales, así ya «identifica el espacio» sin tocar nada más */
+        if(!yaEscala) fitRoomToPlano(true); else { renderPlan(); }
+      }
     };
     img.onerror=function(){ toast("No se ha podido leer la imagen.",true); };
     img.src=fr.result;
@@ -3186,9 +3379,25 @@ $("bgFile").addEventListener("change",function(){
   fr.onerror=function(){ toast("No se ha podido leer el archivo.",true); };
   fr.readAsDataURL(f);
 });
+$("bgFit").addEventListener("click",function(){ pushUndo(); fitRoomToPlano(); });
 $("bgDel").addEventListener("click",function(){
-  var btn=this; if(!BG[loc()]) return;
-  arm(btn,"Quitar","¿Seguro?",function(){ delete BG[loc()]; saveBG(); syncLocUI(); renderPlan(); toast("Plano de fondo quitado."); });
+  var btn=this; if(!planoGet()) return;
+  arm(btn,"Quitar","¿Seguro?",function(){ planoDel(); syncLocUI(); renderPlan(); toast("Plano de fondo quitado."); });
+});
+$("planoEv").addEventListener("change",function(){
+  plan().ownPlano=this.checked;
+  alCambiarPlanoPropio();
+  save(); syncLocUI(); renderPlan();
+});
+function leerMedidas(){
+  var w=parseFloat(($("roomW").value||"").replace(",",".")), h=parseFloat(($("roomH").value||"").replace(",","."));
+  if(!(w>0)||!(h>0)) return null;
+  return {w:Math.min(200,w), h:Math.min(200,h)};
+}
+$("roomApply").addEventListener("click",function(){
+  var m=leerMedidas();
+  if(!m){ toast("Pon el ancho y el largo de la sala en metros.",true); return; }
+  pushUndo(); plan().roomM=m; applyRealScale();
 });
 $("bgOp").addEventListener("input",function(){ plan().bgOp=+this.value; renderPlan(); });
 $("bgOp").addEventListener("change",save);

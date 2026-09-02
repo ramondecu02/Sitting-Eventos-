@@ -151,13 +151,14 @@ async function main() {
     await wait(300);
     await page.locator("#ab-sec").selectOption("m-bebida");
     await wait(400);
-    // 95 gr × 70 comensales = 6650 gr = 6,65 kg
-    assert.match(await botellas("jamon"), /6,65 kg/, "la cantidad de jamón sale escalada del menú");
+    // 95 gr POR ADULTO (solo adultos, no los niños): 65 × 95 = 6175 gr = 6,17 kg
+    // (truncado a 2 decimales, como cuenta Ramon a mano)
+    assert.match(await botellas("jamon"), /6,17 kg/, "el jamón se escala solo por adultos, del menú");
     await cat("jamon").locator(".beb-prod").selectOption({ label: "Jamón Joselito 5J" });
     await cat("jamon").locator(".beb-prod").dispatchEvent("change");
     await wait(200);
     const hoja = await page.locator("#beb-sheet-wrap .frame").innerText();
-    assert.match(hoja, /Jamón · Jamón Joselito 5J[\s\S]{0,30}(6,65 kg|del menú)/i);
+    assert.match(hoja, /Jamón · Jamón Joselito 5J[\s\S]{0,30}(6,17 kg|del menú)/i);
   });
 
   await step("todo se guarda dentro del evento y sobrevive a recargar", async () => {
