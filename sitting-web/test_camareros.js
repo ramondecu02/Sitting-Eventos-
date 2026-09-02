@@ -276,6 +276,41 @@ async function main() {
     assert.equal(await fila(page, PENDIENTE).count(), 1, "y el pendiente también");
   });
 
+  await step("LA HORA DE ENTRADA es de cada evento y solo para quien viene", async () => {
+    // seguimos en el evento 1, con NOMBRE Disponible: tiene campo de hora
+    const ev1 = await page.locator("#ab-ev").inputValue();
+    const f = fila(page, NOMBRE);
+    assert.equal(await f.locator(".cam-hora-in").count(), 1, "el confirmado tiene campo de hora de entrada");
+    await f.locator(".cam-hora-in").fill("18:30");
+    await f.locator(".cam-hora-in").dispatchEvent("change");
+    await wait(400);
+    // sale en la hoja que se descarga
+    const espera = page.waitForEvent("download");
+    await page.locator("#cam-print-btn").click();
+    const d = await espera;
+    const destino = path.join(dir, "camareros3.pdf");
+    await d.saveAs(destino);
+    const buf = fs.readFileSync(destino);
+    assert.ok(contiene(buf, "18:30"), "la hora de entrada sale en la hoja");
+    assert.ok(contiene(buf, NOMBRE), "junto al camarero confirmado");
+    // ES DE CADA EVENTO: en el otro evento NOMBRE está «No disponible» → ni campo de hora
+    const evs = await page.locator("#ab-ev option").evaluateAll((os) => os.map((o) => o.value));
+    const ev2 = evs.find((v) => v !== ev1);
+    await page.locator("#ab-ev").selectOption(ev2); await wait(600);
+    await page.locator("#ab-sec").selectOption("cam"); await wait(500);
+    assert.equal(await fila(page, NOMBRE).locator(".cam-hora-in").count(), 0,
+      "en el otro evento no viene: no se le pide hora");
+    // y si lo marco disponible aquí, su hora empieza VACÍA (no hereda las 18:30 del otro evento)
+    await fila(page, NOMBRE).locator('.cam-disp button[data-e="si"]').click(); await wait(400);
+    assert.equal(await fila(page, NOMBRE).locator(".cam-hora-in").inputValue(), "",
+      "la hora es de cada evento: aquí arranca en blanco");
+    // volviendo al evento 1, sigue a las 18:30
+    await page.locator("#ab-ev").selectOption(ev1); await wait(600);
+    await page.locator("#ab-sec").selectOption("cam"); await wait(500);
+    assert.equal(await fila(page, NOMBRE).locator(".cam-hora-in").inputValue(), "18:30",
+      "en su evento, la hora que se puso se conserva");
+  });
+
   await step("QUITAR UN CAMARERO DE LA AGENDA", async () => {
     page.once("dialog", (d) => d.accept());
     const f = fila(page, NOMBRE);
