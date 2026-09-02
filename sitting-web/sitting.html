@@ -2587,88 +2587,100 @@ function clipW(s,ancho,fo,size,ls){
 
 function hojaPages(bloques,pw,ph){
   var M=46, W=pw-2*M, pages=[], cur=[], y=M+24, cab=null;
+  /* estas hojas se leen a toda prisa en cocina y en sala: letra más grande y
+     tinta más oscura que el resto (un dorado más apagado para los encabezados,
+     y negro de verdad para nombres y cantidades) para que se lean de un vistazo */
+  var GP="#8A6A34";
   function nl(h){ if(y+h>ph-M-20){ pie(); pages.push(cur); cur=[]; y=M+24; } }
   function pie(){
     cur.push(LN(M,ph-M-14,pw-M,ph-M-14,"#E4D9C0",0.6));
     cur.push(TX(pw/2,ph-M,"Les Moles Events"+(cab&&cab.titulo?"  ·  "+cab.titulo:""),
-      {size:6.8,fo:"sans",a:"middle",c:FADE,ls:1.6}));
+      {size:7.5,fo:"sans",a:"middle",c:SOFT,ls:1.6}));
   }
   bloques.forEach(function(b){
     if(b.t==="cab"){
       cab=b;
-      if(b.eyebrow){ cur.push(TX(pw/2,y,b.eyebrow.toUpperCase(),{size:8,fo:"sans",a:"middle",c:GOLD,ls:2.6})); y+=28; }
-      cur.push(TX(pw/2,y,b.titulo,{size:26,fo:"ser",a:"middle",c:INK})); y+=16;
-      cur.push(LN(pw/2-64,y,pw/2+64,y,"#D8C8A8",0.7)); y+=13;
-      if(b.meta){ cur.push(TX(pw/2,y,b.meta.toUpperCase(),{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1.6})); y+=28; }
+      if(b.eyebrow){ cur.push(TX(pw/2,y,b.eyebrow.toUpperCase(),{size:8.5,fo:"sans",a:"middle",c:GP,ls:2.6})); y+=29; }
+      cur.push(TX(pw/2,y,b.titulo,{size:27,fo:"ser",a:"middle",c:INK})); y+=17;
+      cur.push(LN(pw/2-66,y,pw/2+66,y,"#CBB889",0.9)); y+=15;
+      if(b.meta){ cur.push(TX(pw/2,y,b.meta.toUpperCase(),{size:8.5,fo:"sans",a:"middle",c:SOFT,ls:1.6})); y+=30; }
       return;
     }
     if(b.t==="sec"){
-      nl(40); y+=10;
-      cur.push(TX(M,y,b.txt.toUpperCase(),{size:9,fo:"sans",a:"start",c:GOLD,ls:2}));
-      y+=7; cur.push(LN(M,y,pw-M,y,"#D8C8A8",0.7)); y+=16; return;
+      nl(44); y+=11;
+      cur.push(TX(M,y,b.txt.toUpperCase(),{size:10.5,fo:"sans",a:"start",c:GP,ls:2}));
+      y+=8; cur.push(LN(M,y,pw-M,y,"#CBB889",0.9)); y+=18; return;
     }
     if(b.t==="fam"){
-      nl(34); y+=6;
+      nl(38); y+=8;
       var x=M;
-      if(b.txt){ cur.push(TX(x,y,b.txt,{size:14,fo:"ser",a:"start",c:INK}));
-                 x+=textW({s:b.txt,fo:"ser",size:14,ls:0})+9; }
-      if(b.sub) cur.push(TX(x,y,b.sub.toUpperCase(),{size:6.8,fo:"sans",a:"start",c:FADE,ls:1.2}));
-      y+=6; cur.push(LN(M,y,pw-M,y,"#EFE7D5",0.6)); y+=14; return;
+      if(b.txt){ cur.push(TX(x,y,b.txt,{size:16,fo:"ser",a:"start",c:INK}));
+                 x+=textW({s:b.txt,fo:"ser",size:16,ls:0})+10; }
+      if(b.sub) cur.push(TX(x,y,b.sub.toUpperCase(),{size:8,fo:"sans",a:"start",c:SOFT,ls:1.2}));
+      y+=8; cur.push(LN(M,y,pw-M,y,"#E4D9C0",0.8)); y+=16; return;
     }
-    if(b.t==="est"){ nl(24); y+=7; cur.push(TX(M,y,b.txt.toUpperCase(),{size:6.8,fo:"sans",a:"start",c:GOLD,ls:1.8})); y+=12; return; }
+    if(b.t==="est"){ nl(27); y+=9; cur.push(TX(M,y,b.txt.toUpperCase(),{size:8.5,fo:"sans",a:"start",c:GP,ls:1.8})); y+=14; return; }
     if(b.t==="plato"){
-      nl(26); y+=11;
-      cur.push(R(M,y-7.5,9,9,1.5,"none",SOFT,0.7));
-      var x2=M+15;
+      nl(28); y+=12;
+      cur.push(R(M,y-8.5,10,10,1.5,"none",SOFT,0.9));
+      var x2=M+17;
       /* igual que en pantalla (fila flex con las raciones ancladas a la derecha):
          si el nombre del plato es largo se parte en varias líneas y las raciones
          quedan alineadas con la primera, nunca encima ni fuera de la página */
-      var subW2=b.sub?textW({s:b.sub.toUpperCase(),fo:"sans",size:6.8,ls:1.2}):0;
+      var subW2=b.sub?textW({s:b.sub.toUpperCase(),fo:"sans",size:8,ls:1.2}):0;
       var libre2=Math.max(40,pw-M-x2-(subW2?subW2+10:0));
-      var lineasPl=partir(b.txt,libre2,"sansb",11.5,0), y0pl=y;
+      var lineasPl=partir(b.txt,libre2,"sansb",13,0), y0pl=y;
       lineasPl.forEach(function(ln,i){
-        if(i){ nl(16); y+=15; }
-        cur.push(TX(x2,y,ln,{size:11.5,fo:"sansb",a:"start",c:INK}));
+        if(i){ nl(18); y+=17; }
+        cur.push(TX(x2,y,ln,{size:13,fo:"sansb",a:"start",c:INK}));
       });
-      if(b.sub) cur.push(TX(pw-M,y0pl,b.sub.toUpperCase(),{size:6.8,fo:"sans",a:"end",c:FADE,ls:1.2}));
-      y+=15; return;
+      if(b.sub) cur.push(TX(pw-M,y0pl,b.sub.toUpperCase(),{size:8,fo:"sans",a:"end",c:GP,ls:1.2}));
+      y+=17; return;
     }
     if(b.t==="fila"){
-      nl(16);
-      var qx=pw-M, qw=b.der?textW({s:b.der,fo:"sans",size:8.5,ls:.4}):0;
-      var tx=M+(b.chk?15:0);
-      var libre=W-(b.chk?15:0)-qw-16;
-      var lineas=partir(b.izq,libre,"ser",10.5,0);
-      if(b.chk) cur.push(R(M,y-7,8.4,8.4,1.4,"none",SOFT,0.7));
+      nl(20);
+      var derSize=12, qx=pw-M, qw=b.der?textW({s:b.der,fo:"sansb",size:derSize,ls:.3}):0;
+      var tx=M+(b.chk?16:0);
+      var libre=W-(b.chk?16:0)-qw-18;
+      var lineas=partir(b.izq,libre,"ser",12.5,0);
+      if(b.chk) cur.push(R(M,y-8.5,9.6,9.6,1.5,"none",SOFT,0.9));
       lineas.forEach(function(ln,i){
-        if(i){ nl(14); }
-        cur.push(TX(tx,y,ln,{size:10.5,fo:"ser",a:"start",c:INK}));
-        if(i<lineas.length-1) y+=12.5;
+        if(i){ nl(16); }
+        cur.push(TX(tx,y,ln,{size:12.5,fo:"ser",a:"start",c:INK}));
+        if(i<lineas.length-1) y+=15;
       });
-      var subx=tx+textW({s:lineas[lineas.length-1]||"",fo:"ser",size:10.5,ls:0})+8;
-      if(b.sub) cur.push(TX(subx,y,b.sub.toUpperCase(),{size:6,fo:"sans",a:"start",c:FADE,ls:1.2}));
-      if(b.der) cur.push(TX(qx,y,b.der,{size:8.5,fo:"sans",a:"end",c:SOFT,ls:.4}));
-      y+=5; cur.push(LN(M,y,pw-M,y,"#F1EADA",0.5)); y+=11; return;
+      /* la sub-línea (en Camareros, el teléfono y el comentario) se veía muy
+         tenue y pequeña: Ramon la quiere grande y clara, que son datos que se
+         miran de verdad — así que va oscura y a tamaño casi de nombre, sin
+         mayúsculas forzadas para que un teléfono se lea natural. Se recorta al
+         hueco que queda hasta la cantidad/hora de la derecha, para no pisarla */
+      var subx=tx+textW({s:lineas[lineas.length-1]||"",fo:"ser",size:12.5,ls:0})+10;
+      if(b.sub){
+        var subMax=qx-(qw?qw+14:0)-subx;
+        if(subMax>34){ cur.push(TX(subx,y,clipW(b.sub,subMax,"sans",10.5,.2),{size:10.5,fo:"sans",a:"start",c:INK,ls:.2})); }
+      }
+      if(b.der) cur.push(TX(qx,y,b.der,{size:derSize,fo:"sansb",a:"end",c:INK,ls:.3}));
+      y+=7; cur.push(LN(M,y,pw-M,y,"#E8DEC8",0.7)); y+=13; return;
     }
     if(b.t==="item"){
       /* en pantalla es una lista que envuelve el texto que no cabe (mnu-card-list);
          aquí igual, para que un nombre de plato largo nunca se salga de la página */
-      var lineasIt=partir(b.txt,W,"ser",12,0);
-      nl(1+17*Math.max(1,lineasIt.length));
-      lineasIt.forEach(function(ln){ cur.push(TX(pw/2,y,ln,{size:12,fo:"ser",a:"middle",c:INK})); y+=17; });
+      var lineasIt=partir(b.txt,W,"ser",14,0);
+      nl(2+19*Math.max(1,lineasIt.length));
+      lineasIt.forEach(function(ln){ cur.push(TX(pw/2,y,ln,{size:14,fo:"ser",a:"middle",c:INK})); y+=19; });
       return;
     }
     if(b.t==="pasos"){
-      var lp=partir("Montaje: "+b.txt,W-15,"seri",8.5,0);
-      nl(4+lp.length*10.5);
-      lp.forEach(function(ln){ cur.push(TX(M+15,y,ln,{size:8.5,fo:"seri",a:"start",c:FADE})); y+=10.5; });
+      var lp=partir("Montaje: "+b.txt,W-17,"seri",9.5,0);
+      nl(5+lp.length*12);
+      lp.forEach(function(ln){ cur.push(TX(M+17,y,ln,{size:9.5,fo:"seri",a:"start",c:SOFT})); y+=12; });
       return;
     }
     if(b.t==="nota"){
-      var ls2=partir(b.txt,W,"seri",9,0);
-      nl(6+ls2.length*11);
-      y+=4;
-      ls2.forEach(function(ln){ cur.push(TX(M,y,ln,{size:9,fo:"seri",a:"start",c:SOFT})); y+=11; });
+      var ls2=partir(b.txt,W,"seri",10.5,0);
+      nl(7+ls2.length*13);
+      y+=5;
+      ls2.forEach(function(ln){ cur.push(TX(M,y,ln,{size:10.5,fo:"seri",a:"start",c:INK})); y+=13; });
       y+=4; return;
     }
     if(b.t==="esp"){ y+=b.h||8; return; }
@@ -4248,9 +4260,10 @@ function calcBebida(cat){
 }
 /* El jamón que hay que preparar sale del propio menú del evento: se cogen los
    platos marcados que se sirven en plato de jamón (o cuyo nombre empieza por
-   "Jamón") y se suma el jamón de sus ingredientes, escalado a los comensales
-   igual que en Producción — así es EXACTAMENTE la misma cifra que la
-   escandalla, no una copia que se pueda quedar atrás. "Croquetas de jamón" no
+   "Jamón") y se suma el jamón de sus ingredientes — la ración por persona
+   (95 gr en el escandallo) sale del propio menú. Se escala SOLO por los
+   ADULTOS: el jamón del aperitivo lo comen los adultos, no los niños (Ramon:
+   «95 gr por adulto, solo contamos los adultos aquí»). "Croquetas de jamón" no
    cuenta: no es jamón para cortar. */
 function jamonDelMenu(){
   var t=evTotals();
@@ -4261,21 +4274,28 @@ function jamonDelMenu(){
   platos.forEach(function(d){
     d.ingredients.forEach(function(ing){
       if(/jam[oó]n/i.test(ing.name)){
-        if(ing.qty==null) pend=true; else gr+=ing.qty*t.total;
+        if(ing.qty==null) pend=true; else gr+=ing.qty*t.adultos;
       }
     });
   });
-  return {platos:platos.map(function(d){return d.name;}), gramos:gr, total:t.total,
+  return {platos:platos.map(function(d){return d.name;}), gramos:gr, adultos:t.adultos,
           marcado:platos.length>0, pendiente:pend};
+}
+/* el jamón se cuenta en kg TRUNCANDO a dos decimales, no redondeando: 71
+   adultos × 95 gr = 6745 gr, que son 6,74 kg (no 6,75) — así cuadra con la
+   cuenta que hace Ramon a mano. Por debajo de 1 kg se enseña en gramos. */
+function jamonAmount(gr){
+  if(gr<1000) return fmtNum(Math.round(gr),0)+" gr";
+  return fmtNum(Math.floor(gr/10)/100,2)+" kg";
 }
 function jamonBotellasTexto(jm){
   if(!jm.marcado) return "márcalo en el menú";
-  if(jm.gramos>0) return fmtAmount(jm.gramos,"gr")+" de jamón";
+  if(jm.gramos>0) return jamonAmount(jm.gramos)+" de jamón";
   return jm.pendiente ? "cantidad pendiente en el Excel" : "jamón marcado";
 }
 function jamonCantHoja(jm){
   if(!jm.marcado) return "marca el jamón en el menú";
-  if(jm.gramos>0) return fmtAmount(jm.gramos,"gr")+" · del menú";
+  if(jm.gramos>0) return jamonAmount(jm.gramos)+" · del menú";
   return jm.pendiente ? "pendiente en el Excel" : "del menú";
 }
 
