@@ -351,6 +351,21 @@ async function main() {
     assert.match(await page.locator('.rep-row[data-fase="barralibre"] .rep-cam').first().locator("option:checked").innerText(), new RegExp(token));
   });
 
+  await step("EL REPARTO SE DESCARGA EN PDF, como los demás listados", async () => {
+    // seguimos en el reparto, con Aperitivo «Recibir invitados» → Marta y Barra Libre → Marta
+    const espera = page.waitForEvent("download");
+    await page.locator("#rep-print-btn").click();
+    const d = await espera;
+    const destino = path.join(dir, "reparto.pdf");
+    await d.saveAs(destino);
+    const buf = fs.readFileSync(destino);
+    assert.equal(buf.slice(0, 5).toString(), "%PDF-", "es un PDF de verdad");
+    assert.match(d.suggestedFilename(), /\.pdf$/i);
+    assert.ok(contiene(buf, "Reparto de camareros"), "lleva el título de la hoja");
+    assert.ok(contiene(buf, "Recibir invitados"), "la función escrita sale");
+    assert.ok(contiene(buf, NOMBRE), "y el camarero asignado a esa función");
+  });
+
   await step("el reparto se guarda: al salir y volver sigue ahí", async () => {
     await page.locator("#ab-sec").selectOption("cam"); await wait(500);
     await page.locator("#ab-sec").selectOption("cam-rep"); await wait(600);
