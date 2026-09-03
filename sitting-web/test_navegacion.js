@@ -72,6 +72,7 @@ const SECCIONES = [
   ["m-card",   "menu",    "Menú para imprimir"],
   ["inv",      "inv",     "Todo el material"],
   ["cam",      "cam",     "Camareros del evento"],
+  ["cam-rep",  "cam",     "Reparto de camareros"],
 ];
 
 async function main() {

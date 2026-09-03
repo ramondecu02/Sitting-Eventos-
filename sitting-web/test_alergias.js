@@ -136,18 +136,42 @@ async function main() {
       "es una etiqueta más del comensal en el texto del plano");
   });
 
-  await step("EL PLATO SALE TAMBIÉN EN EL PLANO DE SALA", async () => {
+  await step("EL PLATO YA NO SALE EN EL PLANO DE SALA (sí la alergia)", async () => {
     await wait(500);
-    // en el plano los textos van recortados para que quepan junto a la silla,
-    // igual que ya se recortaban las alergias: el nombre entero está en el
-    // listado y en la hoja de alergias
+    // los platos se han sacado del sitting (petición de Ramon): recargaban el
+    // plano y lo que de verdad se consulta ahí es la alergia. El plato ya solo
+    // va en el listado por mesas, con su color por tiempo. La alergia se queda.
     const textos = await page.evaluate(() =>
       [].map.call(document.querySelectorAll("#room text"), (t) => t.textContent));
-    assert.ok(textos.some((t) => /^LUBINA A LA/i.test(t)),
-      "el plano dibujado lleva el plato junto al comensal: " + JSON.stringify(textos));
+    assert.ok(!textos.some((t) => /LUBINA/i.test(t)),
+      "el plato ya NO se dibuja en el plano de sala: " + JSON.stringify(textos));
     assert.ok(textos.some((t) => /^MARISCO/i.test(t)),
-      "y sigue diciendo la alergia, no la sustituye — «marisco» limpio, sin el «alérgica:» delante " +
-      "(antes se quedaba pegado con acento, y en el plano salía cortado como «ALÉRGICA: MARI»)");
+      "y sigue diciendo la alergia, limpia, sin el «alérgica:» delante");
+  });
+
+  await step("MARCAR EL TIEMPO del plato (Segundo) lo colorea y viaja con el evento", async () => {
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
+    const sel = filaDe(page, "Carme Roig").locator(".aler-plato-row .aler-plato-curso").first();
+    await sel.selectOption("segundo"); await wait(700);
+    // el tiempo viaja en el texto del comensal como «Segundo: …»
+    await page.locator("#ab-sec").selectOption("plan"); await wait(400);
+    assert.match(await page.locator("#src").inputValue(),
+      /Carme Roig \(alérgica: marisco, Segundo: Lubina a la plancha\)/,
+      "el tiempo elegido se guarda en el texto del comensal");
+    // en el listado sale la leyenda y la etiqueta del plato con el color del Segundo
+    await page.locator("#ab-sec").selectOption("list");
+    await page.locator("#appSitting").waitFor({ state: "visible" });
+    await wait(700);
+    assert.equal(await page.locator(".curso-leg .curso-leg-it").filter({ hasText: "Segundo" }).count(), 1,
+      "el listado lleva la leyenda de los tiempos");
+    const bg = await page.locator(".g", { hasText: "Carme Roig" }).locator(".tag.m").first()
+      .evaluate((el) => el.style.backgroundColor);
+    assert.equal(bg.replace(/\s/g, ""), "rgb(176,99,42)",
+      "la etiqueta del plato sale con el color del Segundo (#B0632A), sale: " + bg);
+    // volver a dejarlo sin tiempo para el resto de la prueba (que comprueba «Menú:»)
+    await page.locator("#ab-sec").selectOption("m-aler"); await wait(600);
+    await filaDe(page, "Carme Roig").locator(".aler-plato-row .aler-plato-curso").first().selectOption("");
+    await wait(700);
   });
 
   await step("borrar el plato lo quita de todas partes", async () => {
@@ -208,17 +232,17 @@ async function main() {
     assert.equal(await filaDe(page, "Montse Serra").locator(".aler-plato-row input").inputValue(), "");
   });
 
-  await step("los dos platos de Carme salen juntos en el plano de sala y en el listado por mesas", async () => {
+  await step("los dos platos de Carme se guardan en el plano y salen en el listado por mesas", async () => {
     await page.locator("#ab-sec").selectOption("plan"); await wait(500);
     const txt = await page.locator("#src").inputValue();
     assert.match(txt, /Carme Roig \(alérgica: marisco, Menú: Croquetas de jamón sin gluten, Menú: Sorbete de limón\)/,
       "una etiqueta «Menú:» por cada plato, las dos dentro del mismo paréntesis del comensal");
 
+    // ya no se dibujan en el plano de sala (los platos se sacaron del sitting)
     const textos = await page.evaluate(() =>
       [].map.call(document.querySelectorAll("#room text"), (t) => t.textContent));
-    assert.ok(textos.some((t) => /^CROQUETAS DE/i.test(t)),
-      "en el plano de sala sale el plato (recortado, como todo lo del plano de sala): " +
-      JSON.stringify(textos));
+    assert.ok(!textos.some((t) => /CROQUETAS/i.test(t)),
+      "los platos ya no están en el plano de sala: " + JSON.stringify(textos));
 
     await page.locator("#ab-sec").selectOption("list"); await wait(700);
     const tarjeta = page.locator(".lcard").filter({ hasText: "Carme Roig" });

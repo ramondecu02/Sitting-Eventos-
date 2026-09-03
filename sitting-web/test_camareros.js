@@ -311,6 +311,66 @@ async function main() {
       "en su evento, la hora que se puso se conserva");
   });
 
+  await step("REPARTO: apartado aparte, con comida/cena y los cuatro tiempos", async () => {
+    // seguimos en el evento 1, con NOMBRE (Marta) «Disponible»
+    await page.locator("#ab-sec").selectOption("cam-rep"); await wait(600);
+    assert.equal(await page.locator('.cam-tabs button[data-cv="rep"]').getAttribute("aria-selected"), "true",
+      "la pestaña Reparto queda activa");
+    const fases = await page.locator(".rep-fase h2").allInnerTexts();
+    assert.deepEqual(fases, ["Aperitivo", "Comida", "Cafés y Preparación de Barra", "Barra Libre"],
+      "los cuatro tiempos de la boda, en orden");
+    assert.equal(await page.locator('.rep-tipo button[data-t="comida"]').getAttribute("aria-pressed"), "true",
+      "por defecto, comida");
+  });
+
+  await step("SOLO se pueden repartir los camareros confirmados del evento", async () => {
+    await page.locator('.rep-add[data-fase="aperitivo"]').click(); await wait(500);
+    const opts = await page.locator('.rep-row[data-fase="aperitivo"] .rep-cam option').allInnerTexts();
+    assert.ok(opts.some((o) => o.includes(NOMBRE)), "el confirmado sí se puede elegir");
+    assert.ok(!opts.some((o) => o.includes("No Viene")), "el que no viene NO se puede repartir");
+    assert.ok(!opts.some((o) => o.includes("Sin Confirmar")), "el pendiente de confirmar tampoco");
+  });
+
+  await step("asignar una función y marcar CENA se guarda", async () => {
+    const row = page.locator('.rep-row[data-fase="aperitivo"]').first();
+    await row.locator(".rep-fn").fill("Recibir invitados");
+    await row.locator(".rep-fn").dispatchEvent("change"); await wait(200);
+    await row.locator(".rep-cam").selectOption({ label: NOMBRE }); await wait(300);
+    await page.locator('.rep-tipo button[data-t="cena"]').click(); await wait(300);
+    assert.equal(await page.locator('.rep-tipo button[data-t="cena"]').getAttribute("aria-pressed"), "true");
+  });
+
+  await step("un mismo camarero puede ir en VARIAS funciones", async () => {
+    await page.locator('.rep-add[data-fase="barralibre"]').click(); await wait(500);
+    const row = page.locator('.rep-row[data-fase="barralibre"]').first();
+    await row.locator(".rep-fn").fill("Barra");
+    await row.locator(".rep-fn").dispatchEvent("change"); await wait(200);
+    await row.locator(".rep-cam").selectOption({ label: NOMBRE }); await wait(300);
+    // Marta queda asignada en Aperitivo Y en Barra Libre — es lo que se pedía
+    assert.match(await page.locator('.rep-row[data-fase="aperitivo"] .rep-cam').first().locator("option:checked").innerText(), new RegExp(token));
+    assert.match(await page.locator('.rep-row[data-fase="barralibre"] .rep-cam').first().locator("option:checked").innerText(), new RegExp(token));
+  });
+
+  await step("el reparto se guarda: al salir y volver sigue ahí", async () => {
+    await page.locator("#ab-sec").selectOption("cam"); await wait(500);
+    await page.locator("#ab-sec").selectOption("cam-rep"); await wait(600);
+    assert.equal(await page.locator('.rep-tipo button[data-t="cena"]').getAttribute("aria-pressed"), "true", "cena se conservó");
+    assert.equal(await page.locator('.rep-row[data-fase="aperitivo"] .rep-fn').first().inputValue(), "Recibir invitados",
+      "la función escrita se conservó");
+    assert.equal(await page.locator('.rep-row[data-fase="barralibre"]').count(), 1, "y la segunda función también");
+  });
+
+  await step("el reparto es de CADA evento: el otro evento arranca sin funciones", async () => {
+    const evs = await page.locator("#ab-ev option").evaluateAll((os) => os.map((o) => o.value));
+    const ev1 = await page.locator("#ab-ev").inputValue();
+    const ev2 = evs.find((v) => v !== ev1);
+    await page.locator("#ab-ev").selectOption(ev2); await wait(600);
+    await page.locator("#ab-sec").selectOption("cam-rep"); await wait(600);
+    assert.equal(await page.locator(".rep-row").count(), 0, "el otro evento no arrastra el reparto del primero");
+    await page.locator("#ab-ev").selectOption(ev1); await wait(600);
+    await page.locator("#ab-sec").selectOption("cam"); await wait(500);
+  });
+
   await step("QUITAR UN CAMARERO DE LA AGENDA", async () => {
     page.once("dialog", (d) => d.accept());
     const f = fila(page, NOMBRE);
