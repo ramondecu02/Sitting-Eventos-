@@ -25,38 +25,54 @@ Las contraseñas se guardan con **PBKDF2-SHA256** (100k iteraciones) + salt.
 Roles: `admin`, `eventos`, `cocina`, `compras`, `servicio`. El administrador crea
 al resto del equipo desde **«Usuarios y roles»** (barra lateral).
 
-## Desplegar conectando el repositorio de GitHub (recomendado)
-1. Panel de Cloudflare → **Workers & Pages → Create → Workers → Connect to Git**.
-2. Elige el repositorio `ramondecu02/sitting-eventos-` (rama de trabajo actual).
-3. **Root directory / directorio raíz**: `cloudflare`
-   - Build command: *(vacío)* · Deploy command: `npx wrangler deploy`
-   - (Cloudflare detecta `wrangler.toml`; el binding D1 y los assets ya están configurados.)
-4. Crea el secreto de sesión: Worker → **Settings → Variables and Secrets → Add → Secret**
+## Desplegar como Cloudflare **Pages** conectando GitHub (recomendado)
+Se despliega como **Pages** (URL `*.pages.dev`), no como Worker suelto.
+
+1. Panel de Cloudflare → **Workers & Pages → Create → Pages → Connect to Git**.
+2. Elige el repositorio `ramondecu02/Sitting-Eventos-`.
+3. Configura la compilación (**Set up builds and deployments**):
+   - **Production branch / rama de producción**: `claude/les-moles-events-redesign-848773`
+     (la rama donde vive esta app; si luego se fusiona a `main`, usa `main`).
+   - **Root directory / directorio raíz**: `cloudflare`
+   - **Build command / comando de compilación**: *(vacío)*
+   - **Build output directory / directorio de salida**: `public`
+   - Cloudflare lee `wrangler.toml`, que fija `pages_build_output_dir = ./public`
+     y **el binding de D1 (`DB`) se aplica solo**: no hay que añadirlo a mano.
+4. (Opcional pero recomendado) Secreto de sesión:
+   **Settings → Variables and secrets → Add → tipo Secret**
    - Nombre: `SESSION_SECRET` · Valor: una cadena aleatoria larga, p. ej.
      `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-5. **Deploy**. Cloudflare da una URL `https://lesmoles-events.<tu-subdominio>.workers.dev`.
-6. Abre la URL → **crea la cuenta de administrador** → ya estás dentro.
+5. **Save and Deploy**. Cloudflare da una URL `https://lesmoles-events.pages.dev`.
+6. Comprueba `https://<tu-url>/api/me` → debe responder
+   `{"authed":false,"setup":true}`. Entonces abre la app → **crea la cuenta de
+   administrador** → ya estás dentro.
 
-Cada `git push` a la rama vuelve a desplegar automáticamente.
+Cada `git push` a la rama de producción vuelve a desplegar automáticamente.
 
-## Alternativa: desplegar desde tu ordenador (Wrangler)
+> Si `/api/me` responde `{"error":"not-found"}`, se está sirviendo un
+> despliegue **antiguo**: entra en el proyecto → pestaña **Deployments** →
+> **Retry deployment** (o **Create deployment**) sobre el último commit, y
+> confirma que el directorio de salida es `public`.
+
+## Alternativa: desplegar desde tu ordenador (Wrangler, Pages)
 ```bash
 cd cloudflare
 npm install
 npx wrangler login
-npx wrangler secret put SESSION_SECRET   # pega una cadena aleatoria larga
-npx wrangler deploy
+npx wrangler pages deploy public --project-name=lesmoles-events
+# Secreto de sesión (una sola vez):
+npx wrangler pages secret put SESSION_SECRET --project-name=lesmoles-events
 ```
 
 ## Base de datos
 La D1 `lesmoles-events` (id `d972615b-2a59-4fa1-8126-3f3de7e39cc6`) ya está creada
-y con el esquema aplicado. Para recrear el esquema en otro entorno:
+y con el esquema (`users`, `store`) **aplicado**. Para recrearlo en otro entorno:
 ```bash
 npx wrangler d1 execute lesmoles-events --remote --file=./schema.sql
 ```
 
 ## Dominio propio
-Worker → **Settings → Domains & Routes → Add → Custom Domain**
+Pages → tu proyecto → **Custom domains → Set up a domain**
 (p. ej. `eventos.lesmoles.com`). Cloudflare gestiona el certificado.
 
 ## Notas

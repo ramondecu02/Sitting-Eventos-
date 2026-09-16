@@ -1,20 +1,27 @@
-name = "lesmoles-events"
-main = "src/worker.js"
-compatibility_date = "2025-09-16"
+# Les Moles Events — configuración de Cloudflare **Pages**
+# ---------------------------------------------------------------------------
+# El proyecto se despliega como Cloudflare Pages (URL *.pages.dev).
+# La carpeta de salida es ./public, que contiene:
+#   - index.html   (la aplicación, un único HTML autónomo)
+#   - _worker.js   (el backend: /api/*, sesión y datos sobre D1)
+# En "modo avanzado" de Pages, _worker.js atiende TODAS las peticiones y sirve
+# los estáticos con env.ASSETS.fetch(); /api/* lo gestiona el propio Worker.
+#
+# Al usar wrangler.toml en Pages, el binding de D1 de aquí abajo se aplica
+# AUTOMÁTICAMENTE en cada despliegue: no hace falta añadirlo a mano en el panel.
 
-# La aplicación (un único HTML) se sirve como asset estático.
-# El Worker atiende /api/* y el resto cae en los assets.
-[assets]
-directory = "./public"
-binding = "ASSETS"
+name = "lesmoles-events"
+compatibility_date = "2025-09-16"
+pages_build_output_dir = "./public"
 
 # Base de datos D1 (ya creada en la cuenta). Guarda usuarios y el documento
-# compartido de eventos.
+# compartido de eventos. Este binding se inyecta como env.DB.
 [[d1_databases]]
 binding = "DB"
 database_name = "lesmoles-events"
 database_id = "d972615b-2a59-4fa1-8126-3f3de7e39cc6"
 
-# SESSION_SECRET NO va aquí (es un secreto). Configúralo con:
-#   npx wrangler secret put SESSION_SECRET
-# o en el panel de Cloudflare: Worker → Settings → Variables and Secrets.
+# SESSION_SECRET NO va aquí (es un secreto). Configúralo en el panel:
+#   Pages → tu proyecto → Settings → Variables and secrets → Add → tipo "Secret".
+# Si no se define, el Worker usa un valor por defecto (funciona, pero es menos
+# seguro): conviene ponerlo.
