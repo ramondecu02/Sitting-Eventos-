@@ -1203,6 +1203,47 @@ body.authed .gate{display:none}
 .share-off{background:none; border:0; color:var(--ruby); font-size:12.5px; cursor:pointer;
   padding:4px 0; text-decoration:underline}
 .share-off:hover{opacity:.8}
+/* ══ Home: conmutador Lista/Calendario, meses y calendario ═════════════ */
+.home-viewbar{display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:space-between;
+  max-width:1320px; width:100%; margin:0 auto; padding:4px 44px 0}
+.home-viewseg{display:inline-flex; background:var(--bg-2); border:1px solid var(--c-line); border-radius:100px; padding:3px}
+.hv-btn{border:0; background:none; padding:8px 18px; border-radius:100px; font-family:"Barlow Semi Condensed",sans-serif;
+  letter-spacing:.06em; font-size:13px; color:var(--c-mut); cursor:pointer; font-weight:600}
+.hv-btn[aria-pressed="true"]{background:var(--nav-bg); color:var(--nav-ink)}
+.home-viewbar .home-search{margin:0; flex:1 1 260px; max-width:420px}
+@media(max-width:640px){ .home-viewbar{padding:4px 16px 0} }
+/* cabecera de mes en la lista */
+.home-month{grid-column:1/-1; display:flex; align-items:baseline; gap:12px; margin:20px 2px 2px; padding-bottom:8px;
+  border-bottom:1px solid var(--c-line)}
+.home-month:first-child{margin-top:4px}
+.home-month h3{font-family:"Cormorant Garamond",serif; font-weight:600; font-size:24px; margin:0; color:var(--c-ink)}
+.home-month span{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.14em; text-transform:uppercase;
+  font-size:11px; color:var(--olive-deep)}
+/* calendario */
+.home-cal{flex:1; min-height:0; overflow-y:auto; padding:16px 44px 56px; max-width:1320px; width:100%; margin:0 auto}
+.cal-top{display:flex; align-items:center; gap:14px; margin-bottom:16px; flex-wrap:wrap}
+.cal-nav{display:inline-flex; align-items:center; gap:6px}
+.cal-nav b{font-family:"Cormorant Garamond",serif; font-size:24px; font-weight:600; min-width:210px; text-align:center}
+.cal-ico{width:36px; height:36px; border:1px solid var(--c-line-2); background:var(--panel); border-radius:8px; cursor:pointer;
+  font-size:18px; color:var(--c-ink); line-height:1}
+.cal-ico:hover{background:var(--bg-2)}
+.cal-spacer{flex:1}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--c-line); border:1px solid var(--c-line); border-radius:var(--r); overflow:hidden}
+.cal-dow{background:var(--bg-2); text-align:center; padding:8px 4px; font-family:"Barlow Semi Condensed",sans-serif;
+  letter-spacing:.1em; text-transform:uppercase; font-size:11px; color:var(--c-mut)}
+.cal-cell{background:var(--panel); min-height:104px; padding:6px 7px; display:flex; flex-direction:column; gap:4px}
+.cal-cell.other{background:var(--bg); }
+.cal-cell.other .cal-day{color:var(--c-faint)}
+.cal-day{font-family:"Cormorant Garamond",serif; font-size:15px; color:var(--c-mut); align-self:flex-end; line-height:1}
+.cal-cell.today .cal-day{background:var(--olive); color:#fff; border-radius:100px; width:24px; height:24px;
+  display:flex; align-items:center; justify-content:center; align-self:flex-end}
+.cal-ev{display:block; width:100%; text-align:left; border:0; cursor:pointer; background:color-mix(in srgb,var(--olive) 16%,transparent);
+  border-left:3px solid var(--olive-deep); color:var(--c-ink); border-radius:4px; padding:3px 6px; font-size:11.5px;
+  line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.cal-ev:hover{background:color-mix(in srgb,var(--olive) 28%,transparent)}
+.cal-ev b{font-weight:700}
+.cal-ev small{color:var(--c-mut); font-size:10px}
+@media(max-width:640px){ .home-cal{padding:12px 16px 28px} .cal-cell{min-height:74px} .cal-nav b{min-width:150px; font-size:20px} }
 </style>
 
 <div class="applayout">
@@ -1512,8 +1553,15 @@ Lluc (trona)</div>
     </div>
   </div>
   <div class="home-stats" id="home-stats"></div>
-  <div class="home-search"><input type="text" id="home-q" placeholder="Buscar evento por nombre…" aria-label="Buscar evento"></div>
+  <div class="home-viewbar">
+    <div class="home-viewseg" id="home-viewseg" role="tablist" aria-label="Ver eventos como">
+      <button class="hv-btn" data-hv="lista" type="button" aria-pressed="true">Lista por meses</button>
+      <button class="hv-btn" data-hv="calendario" type="button" aria-pressed="false">Calendario</button>
+    </div>
+    <div class="home-search" id="home-search"><input type="text" id="home-q" placeholder="Buscar evento por nombre…" aria-label="Buscar evento"></div>
+  </div>
   <div class="home-grid" id="home-grid"></div>
+  <div class="home-cal" id="home-cal" hidden></div>
 </div>
 
 <div class="resumen" id="appResumen">
@@ -4808,8 +4856,33 @@ function renderHomeStats(){
   ];
   host.innerHTML=cells.map(function(c){ return '<div class="hstat'+(c.a?" accent":"")+'"><b>'+c.n+'</b><span>'+c.l+'</span></div>'; }).join("");
 }
+var homeView="lista";      /* "lista" (por meses) | "calendario" */
+var calMonth=null;          /* Date al día 1 del mes mostrado en el calendario */
+/* clave AAAA-MM de la fecha del evento (o null si no tiene fecha) */
+function eventMonthKey(e){ var f=e.ficha&&e.ficha.fecha; var m=f&&/^(\d{4})-(\d{2})/.exec(f); return m?(m[1]+"-"+m[2]):null; }
+function evFechaMs(e){ var f=e.ficha&&e.ficha.fecha; if(!f) return null; var d=new Date(f+"T00:00:00"); return isNaN(d)?null:d.getTime(); }
+function capFirst(s){ return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
+function mesLargo(y,mo){ try{ return capFirst(new Date(y,mo,1).toLocaleDateString("es-ES",{month:"long",year:"numeric"})); }catch(_){ return (mo+1)+"/"+y; } }
+/* una tarjeta de evento (se reutiliza en la lista por meses) */
+function evCardEl(e){
+  var d=null,t=null; try{ d=parse(e.text||""); t=totals(d); }catch(_){}
+  var mesas=d?d.tables.length:0, pax=t?t.pax:0, sub=evSubtitulo(e);
+  var cat=eventoCategoria((d&&d.title||"")+" "+(e.name||""));
+  var pct=eventoProgreso(e).pct;
+  var card=document.createElement("button"); card.type="button"; card.className="evcard"; card.dataset.id=e.id;
+  card.innerHTML=
+    '<div class="ev-cat">'+escH(cat)+'</div>'+
+    '<div class="ev-nm">'+escH(e.name||"Sin título")+'</div>'+
+    '<div class="ev-sub">'+escH(sub||"Sin fecha ni lugar")+'</div>'+
+    '<div class="ev-stats">'+
+      '<span class="evpill"><b>'+pax+'</b><span>invitados</span></span>'+
+      '<span class="evpill"><b>'+mesas+'</b><span>'+(mesas===1?"mesa":"mesas")+'</span></span>'+
+    '</div>'+
+    '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>';
+  card.addEventListener("click",function(){ abrirEvento(e.id); });
+  return card;
+}
 function renderHome(){
-  var grid=$("home-grid"); if(!grid) return;
   /* saludo personalizado según la sesión y la hora del día */
   var u=(window.LM_SESSION&&window.LM_SESSION.user)?window.LM_SESSION.user():null;
   var gEl=$("home-greet");
@@ -4819,35 +4892,116 @@ function renderHome(){
   }
   var iEl=$("home-intro"); if(iEl&&u) iEl.textContent="Estos son tus próximos eventos en Les Moles. Elige uno para gestionarlo de principio a fin.";
   renderHomeStats();
+  var seg=$("home-viewseg");
+  if(seg) Array.prototype.forEach.call(seg.children,function(b){ b.setAttribute("aria-pressed", b.dataset.hv===homeView?"true":"false"); });
+  var searchWrap=$("home-search"); if(searchWrap) searchWrap.style.display=(homeView==="calendario")?"none":"";
+  var grid=$("home-grid"), cal=$("home-cal");
+  if(homeView==="calendario"){ if(grid) grid.style.display="none"; if(cal){ cal.hidden=false; cal.style.display=""; renderHomeCalendar(); } }
+  else { if(cal){ cal.hidden=true; cal.style.display="none"; } if(grid){ grid.style.display=""; renderHomeList(); } }
+}
+function renderHomeList(){
+  var grid=$("home-grid"); if(!grid) return;
   var q=(($("home-q")&&$("home-q").value)||"").trim().toLowerCase();
   grid.innerHTML="";
-  var nw=document.createElement("button"); nw.type="button"; nw.className="evcard new";
-  nw.innerHTML='<span class="plusmark" aria-hidden="true">+</span><span class="nl">Nuevo evento</span>';
-  nw.addEventListener("click",nuevoDesdeHome);
-  grid.appendChild(nw);
   var evs=store.events.filter(function(e){ return !q || (e.name||"").toLowerCase().indexOf(q)>=0; });
-  /* orden: los que tienen fecha próxima primero (cuenta atrás), sin fecha al final */
-  evs.sort(function(a,b){ var da=diasRestantes(a),db=diasRestantes(b);
-    var ka=(da==null?1e9:(da<0?1e8-da:da)), kb=(db==null?1e9:(db<0?1e8-db:db)); return ka-kb; });
-  if(!evs.length && q){ var em=document.createElement("div"); em.className="home-empty"; em.textContent="Ningún evento coincide con «"+q+"»."; grid.appendChild(em); return; }
+  /* cronológico ascendente; los que no tienen fecha, al final */
+  evs.sort(function(a,b){ var ma=evFechaMs(a),mb=evFechaMs(b); if(ma==null&&mb==null) return 0; if(ma==null) return 1; if(mb==null) return -1; return ma-mb; });
+  if(!evs.length){ var em=document.createElement("div"); em.className="home-empty"; em.style.gridColumn="1/-1"; em.textContent=q?("Ningún evento coincide con «"+q+"»."):"Todavía no hay eventos. Crea el primero con «+ Nuevo evento»."; grid.appendChild(em); return; }
+  var curKey="__init__";
   evs.forEach(function(e){
-    var d=null,t=null; try{ d=parse(e.text||""); t=totals(d); }catch(_){}
-    var mesas=d?d.tables.length:0, pax=t?t.pax:0, sub=evSubtitulo(e);
-    var cat=eventoCategoria((d&&d.title||"")+" "+(e.name||""));
-    var pct=eventoProgreso(e).pct;
-    var card=document.createElement("button"); card.type="button"; card.className="evcard"; card.dataset.id=e.id;
-    card.innerHTML=
-      '<div class="ev-cat">'+escH(cat)+'</div>'+
-      '<div class="ev-nm">'+escH(e.name||"Sin título")+'</div>'+
-      '<div class="ev-sub">'+escH(sub||"Sin fecha ni lugar")+'</div>'+
-      '<div class="ev-stats">'+
-        '<span class="evpill"><b>'+pax+'</b><span>invitados</span></span>'+
-        '<span class="evpill"><b>'+mesas+'</b><span>'+(mesas===1?"mesa":"mesas")+'</span></span>'+
-      '</div>'+
-      '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>';
-    card.addEventListener("click",function(){ abrirEvento(e.id); });
-    grid.appendChild(card);
+    var key=eventMonthKey(e);
+    if(key!==curKey){
+      curKey=key;
+      var head=document.createElement("div"); head.className="home-month";
+      var n=evs.filter(function(x){ return eventMonthKey(x)===key; }).length;
+      var titulo, m2=key&&/^(\d{4})-(\d{2})$/.exec(key);
+      titulo = m2 ? mesLargo(+m2[1],(+m2[2])-1) : "Sin fecha";
+      head.innerHTML='<h3>'+escH(titulo)+'</h3><span>'+n+' '+(n===1?"evento":"eventos")+'</span>';
+      grid.appendChild(head);
+    }
+    grid.appendChild(evCardEl(e));
   });
+}
+function defaultCalMonth(){
+  var now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  var best=null;
+  store.events.forEach(function(e){ var ms=evFechaMs(e); if(ms!=null&&ms>=today&&(best==null||ms<best)) best=ms; });
+  var d=best!=null?new Date(best):now;
+  return new Date(d.getFullYear(),d.getMonth(),1);
+}
+function renderHomeCalendar(){
+  var cal=$("home-cal"); if(!cal) return;
+  if(!calMonth) calMonth=defaultCalMonth();
+  var y=calMonth.getFullYear(), mo=calMonth.getMonth();
+  var byDay={};
+  store.events.forEach(function(e){ var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
+    if(m&&+m[1]===y&&(+m[2]-1)===mo){ var dd=+m[3]; (byDay[dd]=byDay[dd]||[]).push(e); } });
+  var dows=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+  var first=new Date(y,mo,1), startDow=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
+  var now=new Date(), isThisMonth=(now.getFullYear()===y&&now.getMonth()===mo), todayD=now.getDate();
+  var html='<div class="cal-top"><div class="cal-nav">'+
+      '<button class="cal-ico" id="cal-prev" type="button" aria-label="Mes anterior">‹</button>'+
+      '<b>'+escH(mesLargo(y,mo))+'</b>'+
+      '<button class="cal-ico" id="cal-next" type="button" aria-label="Mes siguiente">›</button></div>'+
+      '<button class="cal-ico" id="cal-today" type="button" title="Ir a hoy" style="width:auto;padding:0 12px;font-size:13px">Hoy</button>'+
+      '<div class="cal-spacer"></div>'+
+      '<button class="btn sm" id="cal-print" type="button">Imprimir</button></div>';
+  html+='<div class="cal-grid">';
+  dows.forEach(function(w){ html+='<div class="cal-dow">'+w+'</div>'; });
+  var cells=Math.ceil((startDow+days)/7)*7;
+  for(var i=0;i<cells;i++){
+    var dnum=i-startDow+1, inMonth=(dnum>=1&&dnum<=days);
+    var cls="cal-cell"+(inMonth?"":" other")+(inMonth&&isThisMonth&&dnum===todayD?" today":"");
+    html+='<div class="'+cls+'">';
+    if(inMonth){
+      html+='<span class="cal-day">'+dnum+'</span>';
+      (byDay[dnum]||[]).forEach(function(e){
+        var d=null,t=null; try{ d=parse(e.text||""); t=totals(d); }catch(_){}
+        html+='<button class="cal-ev" type="button" data-id="'+escH(e.id)+'" title="'+escH(e.name||"Evento")+'"><b>'+escH(e.name||"Evento")+'</b>'+(t&&t.pax?' <small>'+t.pax+' pax</small>':'')+'</button>';
+      });
+    }
+    html+='</div>';
+  }
+  html+='</div>';
+  cal.innerHTML=html;
+  var pv=$("cal-prev"); if(pv) pv.addEventListener("click",function(){ calMonth=new Date(y,mo-1,1); renderHomeCalendar(); });
+  var nx=$("cal-next"); if(nx) nx.addEventListener("click",function(){ calMonth=new Date(y,mo+1,1); renderHomeCalendar(); });
+  var td=$("cal-today"); if(td) td.addEventListener("click",function(){ var n=new Date(); calMonth=new Date(n.getFullYear(),n.getMonth(),1); renderHomeCalendar(); });
+  var pr=$("cal-print"); if(pr) pr.addEventListener("click",function(){ imprimirCalendario(y,mo); });
+  Array.prototype.forEach.call(cal.querySelectorAll(".cal-ev"),function(b){ b.addEventListener("click",function(){ abrirEvento(b.dataset.id); }); });
+}
+/* impresión: se abre una ventana limpia con el calendario del mes y se manda a
+   imprimir; así el equipo lo puede colgar en cocina/sala. */
+function imprimirCalendario(y,mo){
+  var byDay={};
+  store.events.forEach(function(e){ var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
+    if(m&&+m[1]===y&&(+m[2]-1)===mo){ (byDay[+m[3]]=byDay[+m[3]]||[]).push(e); } });
+  var dows=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
+  var first=new Date(y,mo,1), startDow=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
+  var rows="", cells=Math.ceil((startDow+days)/7)*7, cellHtml="";
+  for(var i=0;i<cells;i++){
+    var dnum=i-startDow+1, inMonth=(dnum>=1&&dnum<=days);
+    cellHtml+='<td'+(inMonth?"":' class="other"')+'>';
+    if(inMonth){ cellHtml+='<div class="d">'+dnum+'</div>';
+      (byDay[dnum]||[]).forEach(function(e){ var pax=""; try{ pax=totals(parse(e.text||"")).pax; }catch(_){}
+        cellHtml+='<div class="ev">'+escH(e.name||"Evento")+(pax?' · '+pax+' pax':'')+'</div>'; });
+    }
+    cellHtml+='</td>';
+    if((i+1)%7===0){ rows+='<tr>'+cellHtml+'</tr>'; cellHtml=""; }
+  }
+  var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Calendario · '+escH(mesLargo(y,mo))+' · Les Moles Events</title>'+
+    '<style>@page{size:landscape;margin:14mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0}'+
+    'h1{font-size:22px;margin:0 0 2px;font-weight:600}.sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;margin-bottom:14px}'+
+    'table{width:100%;border-collapse:collapse;table-layout:fixed}th{font:600 10px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#555;padding:6px 4px;border:1px solid #ccc;background:#f3f1ea}'+
+    'td{border:1px solid #ccc;height:96px;vertical-align:top;padding:4px 5px}td.other{background:#faf9f5}.d{font-size:14px;text-align:right;color:#666;margin-bottom:3px}'+
+    '.ev{font:600 10px/1.25 Arial,sans-serif;background:#eef0e6;border-left:3px solid #6E7D50;border-radius:3px;padding:2px 4px;margin-bottom:2px;overflow:hidden}'+
+    '.foot{margin-top:12px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
+    '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos</div>'+
+    '<table><thead><tr>'+dows.map(function(w){return '<th>'+w+'</th>';}).join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="foot">Generado desde Les Moles Events</div></body></html>';
+  var w=window.open("","_blank"); if(!w){ toast("Permite las ventanas emergentes para imprimir.",true); return; }
+  w.document.open(); w.document.write(doc); w.document.close();
+  setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },350);
 }
 function showHome(){
   document.body.classList.add("mode-home");
@@ -5439,6 +5593,9 @@ $("side-ctx").addEventListener("click",showHome);
 $("side-out").addEventListener("click",function(){ var f=document.querySelector("form.ab-out"); if(f) f.submit(); });
 $("home-new").addEventListener("click",nuevoDesdeHome);
 $("home-q").addEventListener("input",renderHome);
+(function(){ var seg=$("home-viewseg"); if(!seg) return;
+  Array.prototype.forEach.call(seg.children,function(b){ b.addEventListener("click",function(){ homeView=b.dataset.hv; renderHome(); }); });
+})();
 window.irASeccion=irASeccion;
 (function(){ var qp=$("home-q-plan"), qi=$("home-q-inv");
   if(qp) qp.addEventListener("click",function(){ irASeccion("plan"); });
