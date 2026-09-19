@@ -630,6 +630,8 @@ body.mode-plan .planv{display:flex}
 .pv-eyebrow::after{content:""; width:26px; height:1px; background:color-mix(in srgb,var(--olive) 55%,transparent)}
 .pv-title{margin:0; font-family:"Cormorant Garamond",Georgia,serif; font-weight:600; font-size:40px; line-height:1; color:var(--c-ink); text-wrap:balance}
 .pv-sub{margin-top:10px; font-size:13px; color:var(--c-mut)}
+.pv-guide{margin:10px 0 0; max-width:760px; font-size:13px; line-height:1.55; color:var(--c-mut);
+  padding-left:12px; border-left:2px solid color-mix(in srgb,var(--olive) 45%,var(--c-line))}
 .pv-actions{display:flex; gap:9px; align-items:center; flex-wrap:wrap}
 .pv-sec{display:flex; align-items:center; gap:12px; margin:30px 0 14px; font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--c-faint); font-weight:700}
 .pv-sec::after{content:""; flex:1; height:1px; background:var(--c-line)}
@@ -5454,10 +5456,23 @@ function fld(label,path,val,type,opts){
 function planHeader(e,k){
   var meta={crm:"Ficha y contacto",timeline:"Cronología del evento",tareas:"Tareas",prov:"Proveedores",presup:"Presupuesto",comm:"Comunicación",fotos:"Fotografías",docs:"Documentos"}[k]||"";
   var eb={crm:"Planificación",timeline:"Planificación",tareas:"Planificación",prov:"Planificación",presup:"Planificación",comm:"Planificación",fotos:"Recursos",docs:"Recursos"}[k]||"Planificación";
+  /* una línea que explica para qué sirve cada sección: hace la app más
+     orientativa para todo el equipo, no solo para quien la montó. */
+  var guia={
+    crm:"Datos del evento, contacto y estado comercial. La fecha que pongas aquí es la que manda en el calendario.",
+    timeline:"Fija las fechas clave: primer contacto, visita, degustación, reunión final… y el día del evento.",
+    tareas:"Checklist por fases. Toca cada tarea para marcarla pendiente, en proceso, hecha o bloqueada.",
+    prov:"Florista, DJ, fotógrafo, autobuses… con su contacto, precio y estado de confirmación.",
+    presup:"Precios por menú (las cantidades salen solas del plano), extras y seguimiento de pagos.",
+    comm:"Bitácora de llamadas, WhatsApp, emails, reuniones y visitas con la pareja.",
+    fotos:"Biblioteca de fotos del espacio, montajes, gastronomía e inspiración (común a todos los eventos).",
+    docs:"Enlaces y documentos del evento: planos, marcasitios, menús y lo que necesite el equipo."
+  }[k]||"";
   var d; try{ d=parse(e.text||""); }catch(_){ d={sub:""}; }
-  var sub=(e.name||"Sin título")+(d.sub?" · "+d.sub:"");
+  var sub=(nombreLimpio(e.name)||"Sin título")+(d.sub?" · "+d.sub:"");
   return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+escH(eb)+'</div>'+
-    '<h1 class="pv-title">'+escH(meta)+'</h1><div class="pv-sub">'+escH(sub)+'</div></div></header>';
+    '<h1 class="pv-title">'+escH(meta)+'</h1><div class="pv-sub">'+escH(sub)+'</div>'+
+    (guia?'<p class="pv-guide">'+escH(guia)+'</p>':'')+'</div></header>';
 }
 
 function showPlan(k){
