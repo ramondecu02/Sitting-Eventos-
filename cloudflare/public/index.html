@@ -515,6 +515,7 @@ body.mode-resumen .resumen{display:flex}
 .rsm-title{margin:0; font-family:"Cormorant Garamond",Georgia,serif; font-weight:600; font-size:52px;
   line-height:.95; letter-spacing:.003em; color:var(--c-ink); text-wrap:balance}
 .rsm-meta{margin-top:15px; display:flex; flex-wrap:wrap; gap:7px 22px; font-size:13px; color:var(--c-mut)}
+.rsm-actions{margin-top:16px}
 .rsm-meta .mi{display:inline-flex; align-items:center; gap:8px}
 .rsm-meta .mi svg{width:15px; height:15px; color:var(--c-faint); flex:0 0 auto}
 .rsm-meta .mi b{color:var(--c-ink); font-weight:600; font-variant-numeric:tabular-nums}
@@ -5205,6 +5206,59 @@ function ringSvg(pct){
     '<circle class="ring-fg" cx="39" cy="39" r="'+r+'" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/>'+
     '</svg><div class="ring-num">'+pct+'<span>%</span></div></div>';
 }
+/* imprime (o guarda como PDF) una hoja-resumen del evento de una página: datos,
+   cifras, menú elegido y balance económico. Usa un iframe oculto para que
+   funcione también dentro del visor (sin ventanas emergentes). */
+function imprimirResumen(e){
+  if(!e) return;
+  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0}; }
+  var F=e.ficha||{}, P=e.presupuesto||{}, pt=presupTotals(e);
+  var nombre=nombreLimpio(e.name)||"Evento";
+  var fechaTxt=F.fecha?dmyFromISO(F.fecha):(d.sub||"");
+  /* menú elegido, agrupado por familia (MENU_DATA es global) */
+  var dishMap=(e.menu&&e.menu.dishes)||{}, fams=[];
+  if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){
+    var ds=f.dishes.filter(function(x){return dishMap[x._uid];}).map(function(x){return x.name;});
+    if(ds.length) fams.push({lab:f.label,ds:ds});
+  });
+  var menuHTML=fams.length?fams.map(function(f){ return '<div class="mgrp"><h4>'+escH(f.lab)+'</h4><ul>'+f.ds.map(function(n){return '<li>'+escH(n)+'</li>';}).join("")+'</ul></div>'; }).join(""):'<p class="muted">Menú por definir.</p>';
+  var adultos=t.adults-(t.staff||0);
+  var cif=[["Invitados",t.pax],["Adultos",adultos],["Niños",t.child]];
+  if(t.baby)cif.push(["Bebés",t.baby]); if(t.staff)cif.push(["Staff",t.staff]);
+  cif.push(["Mesas",d.tables.length]); if(t.aler)cif.push(["Alergias",t.aler]);
+  var cifHTML=cif.map(function(c){return '<div class="cf"><b>'+c[1]+'</b><span>'+escH(c[0])+'</span></div>';}).join("");
+  var datos=[];
+  if(F.tipo)datos.push(["Tipo",F.tipo]);
+  if(fechaTxt)datos.push(["Fecha",fechaTxt]);
+  if(F.ubicacion)datos.push(["Lugar",F.ubicacion]);
+  if(F.ceremoniaLugar||F.ceremoniaHora)datos.push(["Ceremonia",[F.ceremoniaLugar,F.ceremoniaHora].filter(Boolean).join(" · ")]);
+  if(F.llegadaRest)datos.push(["Llegada",F.llegadaRest]);
+  if(F.telefono)datos.push(["Contacto",[F.parejaA,F.telefono].filter(Boolean).join(" · ")]);
+  var datosHTML=datos.map(function(x){return '<tr><th>'+escH(x[0])+'</th><td>'+escH(x[1])+'</td></tr>';}).join("");
+  var balHTML=pt.total>0?('<table class="bal"><tr><th>Total previsto</th><td>'+fmtEur(pt.total)+'</td></tr>'+
+    '<tr><th>Cobrado</th><td>'+fmtEur(pt.pagado)+'</td></tr><tr><th>Pendiente</th><td>'+fmtEur(pt.pend)+'</td></tr></table>'):'<p class="muted">Precios por definir.</p>';
+  var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>'+escH(nombre)+' · Les Moles Events</title>'+
+    '<style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0;font-size:12px}'+
+    'h1{font-size:26px;margin:0 0 2px;font-weight:600}.eyebrow{font:600 10px/1 Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#6E7D50;margin-bottom:10px}'+
+    'h2{font:600 11px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;border-bottom:1px solid #ddd;padding-bottom:5px;margin:20px 0 10px}'+
+    '.cifras{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.cf{border:1px solid #ddd;border-radius:6px;padding:8px 14px;text-align:center;min-width:74px}.cf b{display:block;font-size:22px;font-weight:600}.cf span{font:600 8px/1 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#777}'+
+    'table{border-collapse:collapse}table.bal,table.datos{width:100%}th{text-align:left;color:#555;font:600 11px/1.5 Arial,sans-serif;padding:4px 10px 4px 0;vertical-align:top;white-space:nowrap;width:120px}td{padding:4px 0;font-size:13px}'+
+    '.mgrp{margin-bottom:10px}.mgrp h4{font:600 10px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6E7D50;margin:0 0 4px}.mgrp ul{margin:0;padding-left:18px}.mgrp li{font-size:13px;line-height:1.5}'+
+    '.cols{display:flex;gap:30px}.cols>div{flex:1}.muted{color:#999;font-style:italic}.foot{margin-top:22px;border-top:1px solid #ddd;padding-top:8px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
+    '<div class="eyebrow">Les Moles Events'+(F.tipo?' · '+escH(F.tipo):'')+'</div><h1>'+escH(nombre)+'</h1>'+
+    '<h2>Cifras</h2><div class="cifras">'+cifHTML+'</div>'+
+    '<div class="cols"><div><h2>Datos</h2><table class="datos">'+(datosHTML||'<tr><td class="muted">Sin datos.</td></tr>')+'</table>'+
+      '<h2>Balance</h2>'+balHTML+'</div>'+
+      '<div><h2>Menú</h2>'+menuHTML+'</div></div>'+
+    '<div class="foot">Les Moles Events · Hoja de evento generada '+dmyFromISO(new Date().toISOString().slice(0,10))+'</div></body></html>';
+  var ifr=document.createElement("iframe"); ifr.setAttribute("aria-hidden","true");
+  ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
+  document.body.appendChild(ifr);
+  var w=ifr.contentWindow, dd=w.document; dd.open(); dd.write(doc); dd.close();
+  var done=false; function go(){ if(done)return; done=true; try{ w.focus(); w.print(); }catch(_){} setTimeout(function(){ ifr.parentNode&&ifr.parentNode.removeChild(ifr); },1200); }
+  if(dd.readyState==="complete") setTimeout(go,300); else ifr.onload=function(){ setTimeout(go,300); };
+  setTimeout(go,800);
+}
 function showResumen(){
   document.body.classList.remove("mode-home","mode-sitting","mode-menu","mode-inv","mode-cam","mode-plan","has-subnav");
   document.body.classList.add("mode-resumen");
@@ -5298,6 +5352,7 @@ function renderResumen(){
             '<span class="mi">'+ICONS.people+'<b>'+pax+'</b><span>invitados</span></span>'+
             '<span class="mi">'+ICONS.pin+'<b>'+mesas+'</b><span>mesa'+(mesas===1?"":"s")+'</span></span>'+
           '</div>'+
+          '<div class="rsm-actions"><button type="button" class="btn sm" id="rsm-print">Imprimir resumen</button></div>'+
         '</div>'+
         '<div class="rsm-ring">'+ringSvg(prog.pct)+'<div class="ring-cap">Preparación<br>del evento</div></div>'+
       '</header>'+
@@ -5317,6 +5372,7 @@ function renderResumen(){
   Array.prototype.forEach.call(host.querySelectorAll(".rcard"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".check-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".alert-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
+  var _rp=$("rsm-print"); if(_rp) _rp.addEventListener("click",function(){ imprimirResumen(current()); });
 
   /* ── Compartir con los novios: enlace público de solo lectura ── */
   if(!e.share) e.share={on:false,id:""};
