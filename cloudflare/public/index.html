@@ -1240,10 +1240,16 @@ body.authed .gate{display:none}
 .cal-ev{display:block; width:100%; text-align:left; border:0; cursor:pointer; background:color-mix(in srgb,var(--olive) 16%,transparent);
   border-left:3px solid var(--olive-deep); color:var(--c-ink); border-radius:4px; padding:3px 6px; font-size:11.5px;
   line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.cal-ev:hover{background:color-mix(in srgb,var(--olive) 28%,transparent)}
+.cal-ev:hover{filter:brightness(0.97)}
 .cal-ev b{font-weight:700}
 .cal-ev small{color:var(--c-mut); font-size:10px}
+.cal-pay{background:color-mix(in srgb,var(--gold) 15%,transparent); border-left-color:var(--gold)}
 @media(max-width:640px){ .home-cal{padding:12px 16px 28px} .cal-cell{min-height:74px} .cal-nav b{min-width:150px; font-size:20px} }
+.evcard{border-top:3px solid var(--evcol,var(--c-line))}
+.ev-dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle}
+.cal-legend{display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:14px; padding-top:12px; border-top:1px solid var(--c-line)}
+.cal-lg{display:inline-flex; align-items:center; gap:6px; font-family:"Barlow Semi Condensed",sans-serif; font-size:12px; color:var(--c-mut)}
+.cal-lg i{width:10px; height:10px; border-radius:3px; display:inline-block}
 </style>
 
 <div class="applayout">
@@ -2852,6 +2858,36 @@ function current(){for(var i=0;i<store.events.length;i++)if(store.events[i].id==
 function loc(){ return current().loc||"interior"; }
 function plan(){ return current().plans[loc()]; }
 function eventName(t){var m=(t||"").match(/^#\s*(.+)$/m);return m?m[1].replace(/_/g,"").trim():"Evento sin título";}
+/* ══ coherencia de la FECHA entre el sitting y la ficha ════════════════
+   La fecha se puede escribir en el título del sitting («# Boda … — 12/09/2026»)
+   o en «Ficha y contacto». Sea cual sea, tiene que acabar en e.ficha.fecha, que
+   es de donde beben el resumen y el calendario. Estas utilidades convierten
+   entre el formato del título (DD/MM/AAAA) y el de la ficha (AAAA-MM-DD) y
+   permiten reescribir la fecha del título sin tocar el resto. */
+function isoFromAny(s){
+  var m=/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/.exec(s||"");
+  if(m){ return m[3]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[1]).slice(-2); }
+  var i=/(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s||"");
+  if(i){ return i[1]+"-"+("0"+i[2]).slice(-2)+"-"+("0"+i[3]).slice(-2); }
+  return "";
+}
+function dmyFromISO(iso){ var m=/(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?(m[3]+"/"+m[2]+"/"+m[1]):""; }
+/* fecha que aparece en la línea de título «#» del sitting (o "") */
+function dateISOFromTitle(text){ var m=(text||"").match(/^#[ \t]*(.+)$/m); return m?isoFromAny(m[1]):""; }
+/* reescribe (o añade) la fecha en la línea de título del sitting, dejando el
+   resto del nombre igual. Devuelve el texto nuevo. */
+function setTitleDate(text,iso){
+  var dmy=dmyFromISO(iso); if(!dmy) return text;
+  var lines=(text||"").split(/\n/), done=false;
+  for(var i=0;i<lines.length;i++){
+    if(/^#/.test(lines[i])){
+      var base=lines[i].replace(/^#[ \t]*/,"").replace(/\s*[—\-–]\s*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}\s*$/,"").replace(/\s*\d{4}-\d{1,2}-\d{1,2}\s*$/,"").trim();
+      lines[i]="# "+base+" — "+dmy; done=true; break;
+    }
+  }
+  if(!done) lines.unshift("# Evento — "+dmy);
+  return lines.join("\n");
+}
 function findTable(n){for(var i=0;i<doc.tables.length;i++)if(doc.tables[i].num===n)return doc.tables[i];return null;}
 /* nombre accesible de una mesa: quien no vea el plano (lector de pantalla) necesita saber
    qué mesa es y quién se sienta en ella sin depender del color de los asientos */
@@ -4312,6 +4348,10 @@ function onInput(){
   }
   clearTimeout(typeTm); typeTm=setTimeout(function(){typing=0;},900);
   e.text=$("src").value; e.name=eventName(e.text); e.updated=Date.now(); prevText=e.text;
+  /* si en el título del sitting hay fecha, se copia a la ficha (que es de donde
+     lee el calendario): así escribir la fecha en el sitting ya la pone en el
+     calendario, sin tener que repetirla en «Ficha y contacto». */
+  var _iso=dateISOFromTitle(e.text); if(_iso&&e.ficha) e.ficha.fecha=_iso;
   fillSelect(); render(); clearTimeout(tmr); tmr=setTimeout(save,400);
 }
 function newEvent(text,name){
@@ -4351,6 +4391,39 @@ function nuevoEvento(){
   var nom="Evento "+dd+"/"+mm+"/"+f.getFullYear();
   newEvent("# "+nom+"\n@ fecha · Les Moles Events\n\nM1 | Redonda | Nombre de la mesa\n",nom);
   if(!document.body.classList.contains("mode-menu")) $("src").focus();
+}
+/* alta guiada: primero lo esencial (nombre, tipo y fecha) y de ahí al sitting.
+   Así la fecha queda en la ficha (y en el calendario) desde el minuto uno. */
+function openNewEvent(){
+  if(ovlOpen) return; ovlOpen=true;
+  var tipos=TIPO_EVENTO.map(function(t){return '<option>'+esc(t)+'</option>';}).join("");
+  var ovl=document.createElement("div"); ovl.className="ovl";
+  ovl.innerHTML='<div class="ovl-box"><div class="ovl-head"><h3>Nuevo evento</h3><div class="spacer"></div>'+
+    '<button class="btn" id="ne-x" type="button">Cerrar</button></div>'+
+    '<div class="ovl-note">Empieza por lo esencial. Después montas el sitting, el menú y el resto.</div>'+
+    '<div class="ovl-body" style="flex-direction:column;align-items:stretch;gap:12px">'+
+      '<label class="fld"><span class="lbl">Nombre del evento</span><input id="ne-nom" placeholder="p. ej. Boda de Marta i Jordi"></label>'+
+      '<label class="fld"><span class="lbl">Tipo de evento</span><select id="ne-tipo">'+tipos+'</select></label>'+
+      '<label class="fld"><span class="lbl">Fecha</span><input id="ne-fecha" type="date"></label>'+
+      '<div class="users-err" id="ne-err" hidden></div>'+
+      '<div style="margin-top:2px"><button class="btn gold big" id="ne-crear" type="button">Crear y montar el sitting</button></div>'+
+    '</div></div>';
+  document.body.appendChild(ovl);
+  function close(){ ovl.remove(); ovlOpen=false; }
+  ovl.addEventListener("click",function(e){ if(e.target===ovl) close(); });
+  $("ne-x").addEventListener("click",close);
+  setTimeout(function(){ var n=$("ne-nom"); if(n) n.focus(); },60);
+  $("ne-crear").addEventListener("click",function(){
+    var nom=($("ne-nom").value||"").trim(), tipo=$("ne-tipo").value||"Boda", fecha=$("ne-fecha").value||"";
+    if(!nom){ var er=$("ne-err"); if(er){ er.textContent="Ponle un nombre al evento."; er.hidden=false; } return; }
+    var titulo="# "+nom+(fecha?(" — "+dmyFromISO(fecha)):"")+"\n@ Les Moles Events\n\nM1 | Redonda | Nombre de la mesa\n";
+    newEvent(titulo,nom);
+    var e=current(); if(e){ e.ficha=e.ficha||{}; e.ficha.tipo=tipo; if(fecha) e.ficha.fecha=fecha; e.updated=Date.now(); save(); }
+    close();
+    document.body.classList.remove("mode-home");
+    irASeccion("plan");
+    var src=$("src"); if(src&&!document.body.classList.contains("mode-menu")) src.focus();
+  });
 }
 $("del").addEventListener("click",function(){
   var btn=this;
@@ -4702,7 +4775,7 @@ function syncAppbar(){
 }
 $("ab-ev").addEventListener("change",function(){ switchActiveEvent(this.value); });
 $("ab-sec").addEventListener("change",function(){ irASeccion(this.value); });
-$("ab-new").addEventListener("click",nuevoEvento);
+$("ab-new").addEventListener("click",openNewEvent);
 window.syncAppbar=syncAppbar;
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -4867,11 +4940,12 @@ function mesLargo(y,mo){ try{ return capFirst(new Date(y,mo,1).toLocaleDateStrin
 function evCardEl(e){
   var d=null,t=null; try{ d=parse(e.text||""); t=totals(d); }catch(_){}
   var mesas=d?d.tables.length:0, pax=t?t.pax:0, sub=evSubtitulo(e);
-  var cat=eventoCategoria((d&&d.title||"")+" "+(e.name||""));
+  var cat=eventoTipo(e), col=tipoColor(cat);
   var pct=eventoProgreso(e).pct;
   var card=document.createElement("button"); card.type="button"; card.className="evcard"; card.dataset.id=e.id;
+  card.style.setProperty("--evcol",col);
   card.innerHTML=
-    '<div class="ev-cat">'+escH(cat)+'</div>'+
+    '<div class="ev-cat" style="color:'+col+'"><i class="ev-dot" style="background:'+col+'"></i>'+escH(cat)+'</div>'+
     '<div class="ev-nm">'+escH(e.name||"Sin título")+'</div>'+
     '<div class="ev-sub">'+escH(sub||"Sin fecha ni lugar")+'</div>'+
     '<div class="ev-stats">'+
@@ -4929,13 +5003,27 @@ function defaultCalMonth(){
   var d=best!=null?new Date(best):now;
   return new Date(d.getFullYear(),d.getMonth(),1);
 }
+/* qué hay en cada día del mes: eventos (en su fecha) y pagos/señales (en la
+   fecha en que se registraron), para verlos juntos en el calendario. */
+function calItemsByDay(y,mo){
+  var map={};
+  function push(day,it){ (map[day]=map[day]||[]).push(it); }
+  store.events.forEach(function(e){
+    var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
+    if(m&&+m[1]===y&&(+m[2]-1)===mo){ var t=null; try{ t=totals(parse(e.text||"")); }catch(_){}
+      push(+m[3],{kind:"event", id:e.id, name:e.name||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0}); }
+    ((e.presupuesto&&e.presupuesto.pagos)||[]).forEach(function(p){
+      var pm=p.fecha&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(p.fecha);
+      if(pm&&+pm[1]===y&&(+pm[2]-1)===mo) push(+pm[3],{kind:"pay", id:e.id, concepto:(p.concepto||"Pago"), importe:(+p.importe||0), ev:(e.name||"Evento")});
+    });
+  });
+  return map;
+}
 function renderHomeCalendar(){
   var cal=$("home-cal"); if(!cal) return;
   if(!calMonth) calMonth=defaultCalMonth();
   var y=calMonth.getFullYear(), mo=calMonth.getMonth();
-  var byDay={};
-  store.events.forEach(function(e){ var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
-    if(m&&+m[1]===y&&(+m[2]-1)===mo){ var dd=+m[3]; (byDay[dd]=byDay[dd]||[]).push(e); } });
+  var byDay=calItemsByDay(y,mo);
   var dows=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
   var first=new Date(y,mo,1), startDow=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
   var now=new Date(), isThisMonth=(now.getFullYear()===y&&now.getMonth()===mo), todayD=now.getDate();
@@ -4955,27 +5043,34 @@ function renderHomeCalendar(){
     html+='<div class="'+cls+'">';
     if(inMonth){
       html+='<span class="cal-day">'+dnum+'</span>';
-      (byDay[dnum]||[]).forEach(function(e){
-        var d=null,t=null; try{ d=parse(e.text||""); t=totals(d); }catch(_){}
-        html+='<button class="cal-ev" type="button" data-id="'+escH(e.id)+'" title="'+escH(e.name||"Evento")+'"><b>'+escH(e.name||"Evento")+'</b>'+(t&&t.pax?' <small>'+t.pax+' pax</small>':'')+'</button>';
+      (byDay[dnum]||[]).forEach(function(it){
+        if(it.kind==="pay"){
+          html+='<button class="cal-ev cal-pay" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">💶 <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
+        } else {
+          var col=tipoColor(it.tipo);
+          html+='<button class="cal-ev" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo)+'" style="border-left-color:'+col+';background:'+col+'22"><b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
+        }
       });
     }
     html+='</div>';
   }
   html+='</div>';
+  var tset={}; store.events.forEach(function(e){ tset[eventoTipo(e)]=1; });
+  var tkeys=Object.keys(tset).sort();
+  if(tkeys.length) html+='<div class="cal-legend">'+tkeys.map(function(t){ return '<span class="cal-lg"><i style="background:'+tipoColor(t)+'"></i>'+esc(t)+'</span>'; }).join("")+'</div>';
   cal.innerHTML=html;
   var pv=$("cal-prev"); if(pv) pv.addEventListener("click",function(){ calMonth=new Date(y,mo-1,1); renderHomeCalendar(); });
   var nx=$("cal-next"); if(nx) nx.addEventListener("click",function(){ calMonth=new Date(y,mo+1,1); renderHomeCalendar(); });
   var td=$("cal-today"); if(td) td.addEventListener("click",function(){ var n=new Date(); calMonth=new Date(n.getFullYear(),n.getMonth(),1); renderHomeCalendar(); });
   var pr=$("cal-print"); if(pr) pr.addEventListener("click",function(){ imprimirCalendario(y,mo); });
-  Array.prototype.forEach.call(cal.querySelectorAll(".cal-ev"),function(b){ b.addEventListener("click",function(){ abrirEvento(b.dataset.id); }); });
+  Array.prototype.forEach.call(cal.querySelectorAll(".cal-ev"),function(b){ b.addEventListener("click",function(){ abrirEvento(b.dataset.id, b.dataset.sec); }); });
 }
-/* impresión: se abre una ventana limpia con el calendario del mes y se manda a
-   imprimir; así el equipo lo puede colgar en cocina/sala. */
+/* impresión: se genera el calendario del mes en un IFRAME oculto y se manda a
+   imprimir (el diálogo permite «Guardar como PDF»). Se usa iframe en vez de una
+   ventana nueva porque las ventanas emergentes suelen estar bloqueadas dentro
+   del visor; así funciona igual en la vista previa y desplegado. */
 function imprimirCalendario(y,mo){
-  var byDay={};
-  store.events.forEach(function(e){ var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
-    if(m&&+m[1]===y&&(+m[2]-1)===mo){ (byDay[+m[3]]=byDay[+m[3]]||[]).push(e); } });
+  var byDay=calItemsByDay(y,mo);
   var dows=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
   var first=new Date(y,mo,1), startDow=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
   var rows="", cells=Math.ceil((startDow+days)/7)*7, cellHtml="";
@@ -4983,41 +5078,51 @@ function imprimirCalendario(y,mo){
     var dnum=i-startDow+1, inMonth=(dnum>=1&&dnum<=days);
     cellHtml+='<td'+(inMonth?"":' class="other"')+'>';
     if(inMonth){ cellHtml+='<div class="d">'+dnum+'</div>';
-      (byDay[dnum]||[]).forEach(function(e){ var pax=""; try{ pax=totals(parse(e.text||"")).pax; }catch(_){}
-        cellHtml+='<div class="ev">'+escH(e.name||"Evento")+(pax?' · '+pax+' pax':'')+'</div>'; });
+      (byDay[dnum]||[]).forEach(function(it){
+        if(it.kind==="pay"){ cellHtml+='<div class="ev pay">💶 '+escH(it.concepto)+(it.importe?' · '+fmtEur(it.importe):'')+'</div>'; }
+        else { var col=tipoColor(it.tipo); cellHtml+='<div class="ev" style="border-left-color:'+col+';background:'+col+'22">'+escH(it.name)+(it.pax?' · '+it.pax+' pax':'')+'</div>'; }
+      });
     }
     cellHtml+='</td>';
     if((i+1)%7===0){ rows+='<tr>'+cellHtml+'</tr>'; cellHtml=""; }
   }
+  var tset={}; store.events.forEach(function(e){ tset[eventoTipo(e)]=1; });
+  var legend=Object.keys(tset).sort().map(function(t){ return '<span class="lg"><i style="background:'+tipoColor(t)+'"></i>'+escH(t)+'</span>'; }).join("");
   var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Calendario · '+escH(mesLargo(y,mo))+' · Les Moles Events</title>'+
-    '<style>@page{size:landscape;margin:14mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0}'+
-    'h1{font-size:22px;margin:0 0 2px;font-weight:600}.sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;margin-bottom:14px}'+
+    '<style>@page{size:landscape;margin:12mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0}'+
+    'h1{font-size:22px;margin:0 0 2px;font-weight:600}.sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;margin-bottom:10px}'+
+    '.leg{margin:0 0 12px;font:10px Arial,sans-serif;color:#555}.leg .lg{display:inline-flex;align-items:center;gap:4px;margin-right:12px}.leg i{width:9px;height:9px;border-radius:2px;display:inline-block}'+
     'table{width:100%;border-collapse:collapse;table-layout:fixed}th{font:600 10px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#555;padding:6px 4px;border:1px solid #ccc;background:#f3f1ea}'+
-    'td{border:1px solid #ccc;height:96px;vertical-align:top;padding:4px 5px}td.other{background:#faf9f5}.d{font-size:14px;text-align:right;color:#666;margin-bottom:3px}'+
+    'td{border:1px solid #ccc;height:92px;vertical-align:top;padding:4px 5px}td.other{background:#faf9f5}.d{font-size:14px;text-align:right;color:#666;margin-bottom:3px}'+
     '.ev{font:600 10px/1.25 Arial,sans-serif;background:#eef0e6;border-left:3px solid #6E7D50;border-radius:3px;padding:2px 4px;margin-bottom:2px;overflow:hidden}'+
+    '.ev.pay{background:#f4ecdc;border-left-color:#9C7F44}'+
     '.foot{margin-top:12px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
-    '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos</div>'+
+    '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos y pagos</div>'+
+    (legend?'<div class="leg">'+legend+'</div>':'')+
     '<table><thead><tr>'+dows.map(function(w){return '<th>'+w+'</th>';}).join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="foot">Generado desde Les Moles Events</div></body></html>';
-  var w=window.open("","_blank"); if(!w){ toast("Permite las ventanas emergentes para imprimir.",true); return; }
-  w.document.open(); w.document.write(doc); w.document.close();
-  setTimeout(function(){ try{ w.focus(); w.print(); }catch(_){} },350);
+  var ifr=document.createElement("iframe");
+  ifr.setAttribute("aria-hidden","true");
+  ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
+  document.body.appendChild(ifr);
+  var d=ifr.contentWindow.document; d.open(); d.write(doc); d.close();
+  var done=false;
+  function go(){ if(done) return; done=true; try{ ifr.contentWindow.focus(); ifr.contentWindow.print(); }catch(_){}
+    setTimeout(function(){ ifr.parentNode&&ifr.parentNode.removeChild(ifr); },1200); }
+  if(ifr.contentWindow.document.readyState==="complete") setTimeout(go,300); else ifr.onload=function(){ setTimeout(go,300); };
+  setTimeout(go,800);
 }
 function showHome(){
   document.body.classList.add("mode-home");
   document.body.classList.remove("has-subnav");
   renderHome(); syncSidenav();
 }
-function abrirEvento(id){
+function abrirEvento(id,sec){
   if(id&&id!==store.active) switchActiveEvent(id);
   document.body.classList.remove("mode-home");
-  irASeccion("resumen");
+  irASeccion(sec||"resumen");
 }
-function nuevoDesdeHome(){
-  nuevoEvento();
-  document.body.classList.remove("mode-home");
-  irASeccion("plan");
-}
+function nuevoDesdeHome(){ openNewEvent(); }
 window.showHome=showHome;
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -5038,6 +5143,16 @@ function eventoCategoria(txt){
   if(/celebra|fiesta|festa/.test(s)) return "Celebración";
   return "Evento";
 }
+/* color por tipo de evento, para distinguirlos de un vistazo en el calendario
+   y en la lista. Se elige por el tipo de la ficha (o, si no, por el nombre). */
+var TIPO_COL={
+  "Boda":"#8A9A6B", "Evento corporativo":"#3E6DA8", "Comunión":"#C9A227",
+  "Bautizo":"#2E8FA0", "Aniversario":"#B0632A", "Celebración":"#7A4E8E",
+  "Cóctel":"#C0442E", "Catering":"#6E7D50", "Banquete":"#8A5A2B",
+  "Otro":"#6C685F", "Evento":"#6C685F"
+};
+function eventoTipo(e){ return (e&&e.ficha&&e.ficha.tipo)||eventoCategoria(((e&&e.name)||"")+" "+((e&&e.text)||"")); }
+function tipoColor(t){ return TIPO_COL[t]||"#6C685F"; }
 function eventoProgreso(e){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={tables:[]}; t={pax:0}; }
   var m=e.menu||{};
@@ -5340,7 +5455,13 @@ function onPlanEdit(ev){
   var el=ev.target, e=current(); if(!e) return;
   var num=el.getAttribute&&el.type==="number";
   function val(){ return num?(el.value===""?0:(parseFloat(el.value)||0)):el.value; }
-  if(el.hasAttribute&&el.hasAttribute("data-f")){ setPath(e,el.getAttribute("data-f"),val()); planSave(); if(el.hasAttribute("data-live")&&ev.type==="change") renderPlanV(planView); }
+  if(el.hasAttribute&&el.hasAttribute("data-f")){
+    var _f=el.getAttribute("data-f"); setPath(e,_f,val());
+    /* cambiar la fecha en la ficha reescribe también la del título del sitting,
+       para que el plano impreso y el calendario muestren siempre lo mismo. */
+    if(_f==="ficha.fecha"&&val()){ e.text=setTitleDate(e.text,val()); e.name=eventName(e.text); var _src=$("src"); if(_src){ _src.value=e.text; prevText=e.text; } }
+    planSave(); if(el.hasAttribute("data-live")&&ev.type==="change") renderPlanV(planView);
+  }
   else if(el.hasAttribute&&el.hasAttribute("data-arr")){
     var arr=getPath(e,el.getAttribute("data-arr")), i=+el.getAttribute("data-i"), key=el.getAttribute("data-k");
     if(arr&&arr[i]){ arr[i][key]=val(); planSave(); if(el.hasAttribute("data-live")&&ev.type==="change") renderPlanV(planView); }
@@ -5356,6 +5477,8 @@ function onPlanClick(ev){
   else if(act==="extra-add"){ e.presupuesto.extras.push({id:uid(),concepto:"",importe:0}); }
   else if(act==="extra-del"){ e.presupuesto.extras.splice(i,1); }
   else if(act==="pago-add"){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"",importe:0}); }
+  else if(act==="pago-senal"){ var _t1=presupTotals(e).total; e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Señal · 1er pago (65%)",importe:Math.round(_t1*0.65)}); }
+  else if(act==="pago-2"){ var _t2=presupTotals(e).total; e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"2º pago (35%)",importe:Math.round(_t2*0.35)}); }
   else if(act==="pago-del"){ e.presupuesto.pagos.splice(i,1); }
   else if(act==="comm-add"){
     var f=$("comm-fecha"),tp=$("comm-tipo"),nt=$("comm-nota");
@@ -5514,8 +5637,9 @@ function viewPresup(e){
     '<div class="money paid"><div class="m-lbl">Pagado</div><div class="m-num">'+fmtEur(pagado)+'</div><p class="pay-hint">Primer pago 65%: <b>'+fmtEur(total*0.65)+'</b></p></div>'+
     '<div class="money due"><div class="m-lbl">Pendiente</div><div class="m-num">'+fmtEur(pend)+'</div><p class="pay-hint">Segundo pago 35%: <b>'+fmtEur(total*0.35)+'</b></p></div>'+
   '</div>'+
-  '<div class="pv-sec">Seguimiento de pagos</div>'+
-  '<div class="dtable-wrap"><table class="dtable" style="min-width:480px"><thead><tr><th>Fecha</th><th>Concepto</th><th class="rnum">Importe</th><th></th></tr></thead><tbody>'+pagosHTML+'</tbody></table><div class="dtable-foot"><button type="button" class="btn sm" data-act="pago-add">+ Registrar pago</button></div></div>';
+  '<div class="pv-sec">Seguimiento de pagos <span class="pv-sec-note">— cada pago registrado aparece en el calendario en su fecha</span></div>'+
+  '<div class="dtable-wrap"><table class="dtable" style="min-width:480px"><thead><tr><th>Fecha</th><th>Concepto</th><th class="rnum">Importe</th><th></th></tr></thead><tbody>'+pagosHTML+'</tbody></table>'+
+    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm gold" data-act="pago-senal">+ Señal (65%)</button><button type="button" class="btn sm" data-act="pago-2">+ 2º pago (35%)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button></div></div>';
 }
 function viewComm(e){
   var iconT={Llamada:"people",WhatsApp:"drink",Email:"doc","Reunión":"guests",Visita:"pin",Nota:"doc"};
