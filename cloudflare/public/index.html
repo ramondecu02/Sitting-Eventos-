@@ -1650,16 +1650,48 @@ var I18N={
      aler:"Al·lèrgies i intoleràncies",noAler:"Cap al·lèrgia registrada",aper:"Aperitius adaptats",thanks:"Gràcies per acompanyar-nos en aquest dia tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Rodona",rect:"Rectangular",presid:"Presidencial",square:"Quadrada",oval:"Ovalada"},
-     leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",aler:"Al·lèrgia / intolerància",veg:"Vegetarià",vegan:"Vegà",preg:"Embarassada",star:"Protagonistes"}},
+     leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",staff:"Staff",aler:"Al·lèrgia / intolerància",veg:"Vegetarià",vegan:"Vegà",preg:"Embarassada",star:"Protagonistes"}},
  es:{plan:"Plano de la sala",list:"Distribución por mesas",taula:"Mesa",pax:"personas",comensals:"comensales",taules:"mesas",nens:"niños",nadons:"bebés",cont:"continuación",
      aler:"Alergias e intolerancias",noAler:"Ninguna alergia registrada",aper:"Aperitivos adaptados",thanks:"Gracias por acompañarnos en un día tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Redonda",rect:"Rectangular",presid:"Presidencial",square:"Cuadrada",oval:"Ovalada"},
-     leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",aler:"Alergia / intolerancia",veg:"Vegetariano",vegan:"Vegano",preg:"Embarazada",star:"Protagonistas"}}
+     leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",staff:"Staff",aler:"Alergia / intolerancia",veg:"Vegetariano",vegan:"Vegano",preg:"Embarazada",star:"Protagonistas"}}
 };
 var COL={adult:{f:"#FFFDF8",s:"#8C8477"},child:{f:"#E7CF9F",s:"#B99A55"},baby:{f:"#A9803F",s:"#7E5F2B"},
-         aler:{f:"#8E2C48",s:"#6E1F37"},veg:{f:"#5E9A3F",s:"#3F6E27"},vegan:{f:"#127D6B",s:"#0C5A4D"},star:"#6E7D50"};
+         aler:{f:"#8E2C48",s:"#6E1F37"},veg:{f:"#5E9A3F",s:"#3F6E27"},vegan:{f:"#127D6B",s:"#0C5A4D"},
+         staff:{f:"#5B6B87",s:"#3E4A63"},star:"#6E7D50"};
 var TFILL="#FDFAF3",TSTROKE="#C9B182",INK="#26221C",SOFT="#6B6257",FADE="#B0A896",GOLD="#6E7D50",RUBY="#8E2C48";
+/* ══ familias de alérgeno ══════════════════════════════════════════════
+   Cada alergia/intolerancia se agrupa en una familia con su color, para
+   distinguirlas de un vistazo en el plano y en el listado. El orden importa:
+   se prueba de arriba abajo y gana la primera que encaje. «otras» es el cajón
+   de sastre (color rubí). El texto se compara ya normalizado (sin tildes). */
+var ALER_FAMS=[
+  {key:"gluten",      label:"Gluten",        c:"#B67A1E", rx:/(gluten|celiac|celiaqu|trigo|blat|espelta)/},
+  {key:"marisco",     label:"Marisco",       c:"#C0442E", rx:/(marisc|crustac|gamba|langost|molusc|mejill|almeja|calamar|pulpo|sepia)/},
+  {key:"frutosSecos", label:"Frutos secos",  c:"#8A5A2B", rx:/(fruit ?sec|fruits ?secs|fruto ?seco|frutos ?secos|fruita ?seca|\bnou\b|nuez|nueces|avellana|almendr|ametlla|anacard|pistach|cacahuet|cacaue)/},
+  {key:"lacteos",     label:"Lácteos",       c:"#3E6DA8", rx:/(lactos|lacte|\bllet\b|leche|queso|formatge|\bnata\b|mantequilla)/},
+  {key:"huevo",       label:"Huevo",         c:"#C79A1E", rx:/(huevo|\bous?\b|\begg\b)/},
+  {key:"pescado",     label:"Pescado",       c:"#2E8FA0", rx:/(pescado|\bpeix\b|anisakis|histamin|bacalla|bacalao|atun|salmon|merluza)/},
+  {key:"soja",        label:"Soja",          c:"#7C7A2B", rx:/soja/},
+  {key:"sesamo",      label:"Sésamo",        c:"#B08968", rx:/(sesam|sésam|ajonjol)/},
+  {key:"mostaza",     label:"Mostaza",       c:"#C9A227", rx:/(mostas|mostaz)/},
+  {key:"apio",        label:"Apio",          c:"#5E8A4A", rx:/(\bapi\b|apio)/},
+  {key:"sulfitos",    label:"Sulfitos",      c:"#7A4E8E", rx:/sulfit/},
+  {key:"legumbres",   label:"Legumbres",     c:"#A0562D", rx:/(llegum|legumbre|garbanz|lenteja)/},
+  {key:"picante",     label:"Picante",       c:"#D06A2A", rx:/(picant|picante)/},
+  {key:"otras",       label:"Otras",         c:RUBY,      rx:/.*/}
+];
+var ALER_BY_KEY={}; ALER_FAMS.forEach(function(f){ ALER_BY_KEY[f.key]=f; });
+/* devuelve TODAS las familias distintas que hay en un texto («marisco y frutos
+   secos» → [marisco, frutosSecos]); sin «otras», que es solo el comodín. */
+function alerFamsIn(text){
+  var n=norm(text), out=[], seen={};
+  for(var i=0;i<ALER_FAMS.length;i++){ var f=ALER_FAMS[i]; if(f.key==="otras") continue;
+    if(f.rx.test(n)&&!seen[f.key]){ seen[f.key]=1; out.push(f); } }
+  return out;
+}
+function alerColor(key){ var f=ALER_BY_KEY[key]; return f?f.c:RUBY; }
 var GAP=16;
 /* platos por tiempo (primero/segundo/postre): cada tiempo tiene su color, para
    verlo de un vistazo en el listado por mesas. El plato sin tiempo marcado sale
@@ -2100,11 +2132,18 @@ function parseGuest(raw){
   }
   if(d>0&&buf) tags=tags.concat(buf.split(/[,;\/]/));   /* paréntesis sin cerrar */
   s=out;
-  var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],menus:[],menusC:[],notes:[],kind:"adult",preg:false,raw:[]};
+  var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],alerFams:[],menus:[],menusC:[],notes:[],kind:"adult",preg:false,raw:[]};
   tags.forEach(function(t){
     var c=classify(t); if(!c) return;
     g.raw.push(t.trim());
-    if(c.type==="aler") g.aler.push(c.text);
+    if(c.type==="aler"){
+      /* un mismo tag puede llevar varias alergias («marisco y frutos secos»):
+         se separan por familia, cada una con su etiqueta y su color. Si no
+         encaja ninguna familia conocida, se conserva el texto tal cual. */
+      var fams=alerFamsIn(c.text);
+      if(fams.length){ fams.forEach(function(f){ if(g.aler.indexOf(f.label)<0){ g.aler.push(f.label); g.alerFams.push(f.key); } }); }
+      else { g.aler.push(c.text); g.alerFams.push("otras"); }
+    }
     else if(c.type==="menu"){ g.menus.push(c.text); g.menusC.push(c.curso||null); }
     else if(c.type==="child") g.kind="child";
     else if(c.type==="baby") g.kind="baby";
@@ -2142,10 +2181,14 @@ function parse(src){
         name.push(p);
       });
       cur={num:h.num!=null?h.num:auto,shape:shape||"round",shapeWord:shapeWord,cap:cap,name:name.join(" · "),guests:[],head:s};
+      /* mesa del personal: si el nombre dice «staff» o «personal», sus adultos
+         se cuentan como STAFF (precio distinto en presupuesto), no como
+         invitados adultos. Se detecta por el nombre, no hay que marcar a cada uno. */
+      cur.staff=/(\bstaff\b|personal)/.test(norm(cur.name||""));
       doc.tables.push(cur); return;
     }
     if(!cur){cur={num:++auto,shape:"round",cap:null,name:"",guests:[]};doc.tables.push(cur);}
-    splitPeople(s).forEach(function(p){var g=parseGuest(p);if(g)cur.guests.push(g);});
+    splitPeople(s).forEach(function(p){var g=parseGuest(p);if(g){ if(cur.staff&&g.kind==="adult"){ g.kind="staff"; g.mark=g.aler.length?"aler":"staff"; } cur.guests.push(g); }});
   });
   /* dos mesas con el mismo número corrompen todo: se renumera la repetida */
   var seen={}, maxN=0;
@@ -2182,10 +2225,15 @@ function serialize(d){
   return out.join("\n").replace(/^\n+/,"")+"\n";
 }
 function totals(d){
-  var t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0,tables:d.tables.length};
+  var t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0,tables:d.tables.length};
   d.tables.forEach(function(m){m.guests.forEach(function(g){
     t.pax++;
-    if(g.kind==="child")t.child++;else if(g.kind==="baby")t.baby++;else t.adults++;
+    /* el staff cuenta como adulto para todo lo general (agua, servicio, plano),
+       y además se lleva su propio recuento para el presupuesto (precio staff). */
+    if(g.kind==="child")t.child++;
+    else if(g.kind==="baby")t.baby++;
+    else if(g.kind==="staff"){ t.staff++; t.adults++; }
+    else t.adults++;
     if(g.kind==="veg")t.veg++;
     if(g.kind==="vegan")t.vegan++;
     if(g.aler.length)t.aler++;
@@ -2198,15 +2246,18 @@ function totals(d){
    en blanco y negro (o no distinga bien los colores) tiene que poder diferenciarlos
    igual, no solo por tono. Vegetariano y vegano llevan letras distintas (V / G) porque
    son restricciones distintas para cocina — el vegano tampoco lleva huevo ni lácteos */
-var KINDMARK={child:["N","#26221C"],baby:["B","#FFFFFF"],veg:["V","#FFFFFF"],vegan:["G","#FFFFFF"]};
+var KINDMARK={child:["N","#26221C"],baby:["B","#FFFFFF"],veg:["V","#FFFFFF"],vegan:["G","#FFFFFF"],staff:["S","#FFFFFF"]};
 function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
-  var c=COL[g.mark]||COL.adult, it=[];
+  /* color de la alergia: el de su familia (marisco, gluten…). Si el comensal
+     tiene varias, manda la primera para el punto; el texto las lista todas. */
+  var alc = g.aler.length ? alerColor((g.alerFams&&g.alerFams[0])||"otras") : null;
+  var c = g.mark==="aler" ? {f:alc,s:alc} : (COL[g.mark]||COL.adult), it=[];
   it.push(C(x,y,16,"transparent",null,1,true));
   var ring=C(x,y,7.6,c.f,g.star?COL.star:c.s,g.star?2.4:1); ring.cls="ring"; it.push(ring);
   var km=KINDMARK[g.kind];
   if(km) it.push(TX(x,y+2.7,km[0],{size:7.6,fo:"sansb",a:"middle",c:km[1]}));
   if(g.star) it.push(SR(x+(sx||0)*13,y+(sy||-1)*13,4.4,COL.star));
-  it.push(TX(lx,ly,full?g.name:g.short,{size:9.6,fo:g.aler.length?"sansb":"sans",a:anchor,c:g.aler.length?RUBY:"#3A342C"}));
+  it.push(TX(lx,ly,full?g.name:g.short,{size:9.6,fo:g.aler.length?"sansb":"sans",a:anchor,c:g.aler.length?alc:"#3A342C"}));
   /* la alergia y el plato adaptado se veían muy pequeños y claros al imprimir el
      plano (todo se reduce para caber en la hoja): van más grandes, más oscuros y
      en negrita. La alergia en rubí; el plato adaptado, debajo, en dorado oscuro
@@ -2216,7 +2267,7 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
   function recorta(txt,charLim){
     return halfGap?clipW(txt.toUpperCase(),anchor==="middle"?2*halfGap:halfGap,"sansb",7.6,.2):clip(txt,charLim).toUpperCase();
   }
-  if(g.aler.length) it.push(TX(lx,alerBelow?ly+9:ly-9,recorta(g.aler.join(" · "),anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:"#8E2C48",ls:.2}));
+  if(g.aler.length) it.push(TX(lx,alerBelow?ly+9:ly-9,recorta(g.aler.join(" · "),anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:alc,ls:.2}));
   /* los platos (primero/segundo/postre) ya NO salen en el sitting: recargaban
      el plano y lo que de verdad se consulta aquí es la alergia. Los platos, con
      su color por tiempo, salen en el LISTADO por mesas (petición de Ramon). */
@@ -2903,9 +2954,25 @@ function planPrims(L,full,forExport){
       label:t?tblAriaLabel(t,L):((L.taula||"Mesa")+" "+num)}));
   });
 
-  var used={}; doc.tables.forEach(function(t){t.guests.forEach(function(g){used[g.mark]=1;if(g.star)used.star=1;});});
-  var items=["adult","child","baby","aler","veg","vegan","star"].filter(function(k){return used[k];})
-      .map(function(k){var lab=L.leg[k].toUpperCase();return {k:k,lab:lab,w:22+lab.length*6.4};});
+  /* leyenda: los tipos de comensal presentes + CADA familia de alergia que
+     aparezca, con su color, para distinguirlas de un vistazo. */
+  var used={}, usedFam={};
+  doc.tables.forEach(function(t){t.guests.forEach(function(g){
+    if(g.aler.length){ if(g.alerFams&&g.alerFams.length) g.alerFams.forEach(function(k){usedFam[k]=1;}); else usedFam.otras=1; }
+    else used[g.mark]=1;
+    if(g.star) used.star=1;
+  });});
+  var items=[];
+  ["adult","child","baby","staff","veg","vegan","star"].forEach(function(k){
+    if(!used[k]) return;
+    var lab=L.leg[k].toUpperCase();
+    items.push({lab:lab,w:22+lab.length*6.4,col:(k==="star"?{f:"#FFFDF8",s:COL.star}:COL[k]),km:KINDMARK[k],sw:(k==="star"?2:1)});
+  });
+  ALER_FAMS.forEach(function(f){
+    if(!usedFam[f.key]) return;
+    var lab=f.label.toUpperCase();
+    items.push({lab:lab,w:22+lab.length*6.4,col:{f:f.c,s:f.c},km:null,sw:1});
+  });
   var lw=items.reduce(function(a,it){return a+it.w;},0)+(items.length-1)*22;
   list.push(LN(RW/2-Math.min(280,RW/2-40),RH-72,RW/2+Math.min(280,RW/2-40),RH-72,"#E0D7C5",1));
   var rows=[items], gap=22;
@@ -2914,9 +2981,9 @@ function planPrims(L,full,forExport){
     var rw=row.reduce(function(a,it){return a+it.w;},0)+(row.length-1)*gap, lx=(RW-rw)/2;
     var yy=RH-(rows.length>1?(ri===0?56:40):45);
     row.forEach(function(it){
-      var c=it.k==="star"?{f:"#FFFDF8",s:COL.star}:COL[it.k];
-      list.push(C(lx+6,yy,5.5,c.f,c.s,it.k==="star"?2:1));
-      var km=KINDMARK[it.k]; if(km) list.push(TX(lx+6,yy+2,km[0],{size:5.6,fo:"sansb",a:"middle",c:km[1]}));
+      var c=it.col;
+      list.push(C(lx+6,yy,5.5,c.f,c.s,it.sw||1));
+      if(it.km) list.push(TX(lx+6,yy+2,it.km[0],{size:5.6,fo:"sansb",a:"middle",c:it.km[1]}));
       list.push(TX(lx+18,yy+3,it.lab,{size:9,fo:"sans",a:"start",c:SOFT,ls:1.1}));
       lx+=it.w+gap;
     });
@@ -5025,12 +5092,16 @@ function setPath(o,path,v){ var ks=path.split("."); for(var i=0;i<ks.length-1;i+
 function getPath(o,path){ var ks=path.split("."); for(var i=0;i<ks.length;i++){ if(o==null) return undefined; o=o[ks[i]]; } return o; }
 function planSave(){ var e=current(); if(e){ e.updated=Date.now(); if(typeof save==="function") save(); } }
 function planCounts(e){
-  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0}; d={tables:[]}; }
-  return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.aler+t.veg+t.vegan};
+  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0}; d={tables:[]}; }
+  return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,staff:(t.staff||0),mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.aler+t.veg+t.vegan};
 }
 function presupTotals(e){
-  var P=e.presupuesto||{}, c=planCounts(e), staff=+(e.ficha&&e.ficha.staff)||0;
-  var menus=(c.adultos*(+P.precioAdulto||0))+(c.ninos*(+P.precioInfantil||0))+(staff*(+P.precioStaff||0));
+  var P=e.presupuesto||{}, c=planCounts(e), fichaStaff=+(e.ficha&&e.ficha.staff)||0;
+  /* el staff sentado en la mesa de staff se cobra a precio staff, no de adulto:
+     se resta de los adultos y se suma al recuento de staff (más los menús staff
+     manuales de la ficha, por si hay personal que no se sienta en el plano). */
+  var staff=(c.staff||0)+fichaStaff, adultosPago=Math.max(0,c.adultos-(c.staff||0));
+  var menus=(adultosPago*(+P.precioAdulto||0))+(c.ninos*(+P.precioInfantil||0))+(staff*(+P.precioStaff||0));
   var extras=0; (P.extras||[]).forEach(function(x){ extras+=(+x.importe||0); });
   var pagado=0; (P.pagos||[]).forEach(function(p){ pagado+=(+p.importe||0); });
   var total=menus+extras;
@@ -5248,9 +5319,10 @@ function viewProv(e){
     '<tbody>'+rows+'</tbody></table><div class="dtable-foot"><button type="button" class="btn sm" data-act="prov-add">+ Añadir proveedor</button></div></div>';
 }
 function viewPresup(e){
-  var P=e.presupuesto, c=planCounts(e), staff=+e.ficha.staff||0;
+  var P=e.presupuesto, c=planCounts(e), fichaStaff=+e.ficha.staff||0;
+  var staff=(c.staff||0)+fichaStaff, adultosPago=Math.max(0,c.adultos-(c.staff||0));
   var lineas=[
-    {n:"Menú adulto",cant:c.adultos,precio:+P.precioAdulto||0},
+    {n:"Menú adulto",cant:adultosPago,precio:+P.precioAdulto||0},
     {n:"Menú infantil",cant:c.ninos,precio:+P.precioInfantil||0},
     {n:"Menú staff",cant:staff,precio:+P.precioStaff||0}
   ];
@@ -5463,7 +5535,7 @@ window.SITTING_BRIDGE={
     var e=current(); if(!e) return null;
     var d=parse(e.text||""), t=totals(d);
     return {
-      pax:t.pax, adults:t.adults, child:t.child, baby:t.baby,
+      pax:t.pax, adults:t.adults, child:t.child, baby:t.baby, staff:t.staff,
       aler:t.aler, veg:t.veg, vegan:t.vegan, tables:d.tables.length,
       mesas:d.tables.map(function(m){
         return {num:m.num, name:m.name||"", pax:m.guests.length, cap:m.cap||0};
@@ -5561,6 +5633,7 @@ function evTotals(){
   var camareros = total>0 ? Math.ceil(total/11) : 0;
   return {
     adultos:adultos, ninos:ninos, tronas:tronas, total:total,
+    staff: delPlano?(pt.staff||0):0,
     conCubierto: total-tronas,
     mesasAper: adultos>0?Math.ceil(adultos/pma):0,
     mesasBanq: mesasBanq, delPlano:delPlano, mesas:mesas, camareros:camareros
