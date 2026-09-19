@@ -464,6 +464,7 @@ body.mode-home .home{display:flex}
 .hstat span{font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut); font-weight:700; display:block; margin-top:7px}
 .hstat.accent{background:color-mix(in srgb,var(--olive) 7%,var(--panel)); border-color:color-mix(in srgb,var(--olive) 26%,var(--c-line))}
 .hstat.accent b{color:var(--olive-deep)}
+.hstat.money b{font-size:23px}
 .home-grid{flex:1; min-height:0; overflow-y:auto; padding:20px 44px 56px; max-width:1320px; width:100%; margin:0 auto;
   display:grid; grid-template-columns:repeat(auto-fill,minmax(256px,1fr)); gap:18px; align-content:start}
 .evcard{position:relative; background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg); padding:20px 20px 17px;
@@ -596,6 +597,9 @@ body.mode-resumen .resumen{display:flex}
   background:color-mix(in srgb,var(--gold) 8%,var(--panel)); border:1px solid color-mix(in srgb,var(--gold) 32%,var(--c-line));
   border-radius:var(--r); padding:12px 15px; color:var(--c-ink); transition:border-color .13s, box-shadow .13s}
 .alert-item:hover{border-color:var(--gold); box-shadow:var(--shadow-sm)}
+.alert-item.urgent{border-color:color-mix(in srgb,var(--ruby) 40%,var(--c-line)); background:color-mix(in srgb,var(--ruby) 5%,var(--panel))}
+.alert-item.urgent:hover{border-color:var(--ruby)}
+.alert-item.urgent .alert-ic{background:var(--ruby)}
 .alert-ic{width:22px; height:22px; flex:0 0 auto; border-radius:50%; background:var(--gold); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:13px}
 .alert-tx{flex:1; min-width:0; font-size:13.5px}
 .alert-item .rcard-arrow{color:var(--c-faint); display:flex}
@@ -4909,7 +4913,7 @@ function evSubtitulo(e){ try{ var m=(e.text||"").match(/^@\s*(.+)$/m); return m?
 function renderHomeStats(){
   var host=$("home-stats"); if(!host) return;
   var now=new Date(), mes=now.getMonth(), anio=now.getFullYear();
-  var prox=0,esteMes=0,inv=0,tareas=0,prep=0,conf=0;
+  var prox=0,esteMes=0,inv=0,tareas=0,prep=0,conf=0, previsto=0,cobrado=0,pend=0;
   var PREP={contacto:1,propuesta:1,visita:1,reserva:1,planificacion:1};
   store.events.forEach(function(e){
     try{ inv+=totals(parse(e.text||"")).pax; }catch(_){}
@@ -4918,6 +4922,7 @@ function renderHomeStats(){
     var tp=tareasPendientes(e); if(tp) tareas+=tp;
     var est=(e.ficha&&e.ficha.estado)||"planificacion";
     if(est==="confirmada") conf++; else if(PREP[est]) prep++;
+    var pt=presupTotals(e); previsto+=pt.total; cobrado+=pt.pagado; pend+=Math.max(0,pt.pend);
   });
   var cells=[
     {n:store.events.length,l:"Eventos",a:true},
@@ -4925,9 +4930,12 @@ function renderHomeStats(){
     {n:esteMes,l:"Este mes"},
     {n:inv,l:"Invitados totales"},
     {n:conf,l:"Confirmados"},
-    {n:tareas,l:"Tareas pendientes"}
+    {n:tareas,l:"Tareas pendientes"},
+    {n:fmtEur(previsto),l:"Ingresos previstos",m:true},
+    {n:fmtEur(cobrado),l:"Cobrado",m:true},
+    {n:fmtEur(pend),l:"Pendiente de cobro",m:true}
   ];
-  host.innerHTML=cells.map(function(c){ return '<div class="hstat'+(c.a?" accent":"")+'"><b>'+c.n+'</b><span>'+c.l+'</span></div>'; }).join("");
+  host.innerHTML=cells.map(function(c){ return '<div class="hstat'+(c.a?" accent":"")+(c.m?" money":"")+'"><b>'+c.n+'</b><span>'+c.l+'</span></div>'; }).join("");
 }
 var homeView="lista";      /* "lista" (por meses) | "calendario" */
 var calMonth=null;          /* Date al día 1 del mes mostrado en el calendario */
@@ -5221,7 +5229,7 @@ function renderResumen(){
 
   var kpis=
     '<div class="kpi accent"><div class="k-lbl">Invitados</div><div class="k-num">'+pax+'</div>'+
-      '<div class="k-sub">'+t.adults+' adulto'+(t.adults===1?"":"s")+' · '+t.child+' niño'+(t.child===1?"":"s")+(t.baby?(' · '+t.baby+' bebé'+(t.baby===1?"":"s")):"")+'</div></div>'+
+      '<div class="k-sub">'+(t.adults-(t.staff||0))+' adulto'+((t.adults-(t.staff||0))===1?"":"s")+' · '+t.child+' niño'+(t.child===1?"":"s")+(t.baby?(' · '+t.baby+' bebé'+(t.baby===1?"":"s")):"")+((t.staff||0)?(' · '+t.staff+' staff'):"")+'</div></div>'+
     '<div class="kpi"><div class="k-lbl">Mesas</div><div class="k-num">'+mesas+'</div><div class="k-sub">de banquete</div></div>'+
     '<div class="kpi"><div class="k-lbl">Menú</div><div class="k-num">'+dishes+'</div><div class="k-sub">plato'+(dishes===1?"":"s")+' elegido'+(dishes===1?"":"s")+'</div></div>'+
     '<div class="kpi"><div class="k-lbl">Personal</div><div class="k-num">'+camSi+(camNeed?' <small>/ '+camNeed+'</small>':"")+'</div><div class="k-sub">camarero'+(camSi===1?"":"s")+' asignado'+(camSi===1?"":"s")+'</div></div>'+
@@ -5272,7 +5280,7 @@ function renderResumen(){
         '<div class="rsm-ring">'+ringSvg(prog.pct)+'<div class="ring-cap">Preparación<br>del evento</div></div>'+
       '</header>'+
       emptyNote+
-      (alertas.length?('<div class="rsm-sech">Atención</div><div class="alertbox">'+alertas.map(function(al){return '<button type="button" class="alert-item" data-k="'+al.k+'"><span class="alert-ic">!</span><span class="alert-tx">'+escH(al.t)+'</span><span class="rcard-arrow">'+ICONS.caret+'</span></button>';}).join("")+'</div>'):"")+
+      (alertas.length?('<div class="rsm-sech">Atención</div><div class="alertbox">'+alertas.map(function(al){return '<button type="button" class="alert-item'+(al.sev==="urgent"?" urgent":"")+'" data-k="'+al.k+'"><span class="alert-ic">!</span><span class="alert-tx">'+escH(al.t)+'</span><span class="rcard-arrow">'+ICONS.caret+'</span></button>';}).join("")+'</div>'):"")+
       '<div class="rsm-sech">Cifras del evento</div>'+
       '<div class="rsm-kpis">'+kpis+'</div>'+
       '<div class="rsm-sech">Secciones</div>'+
@@ -5379,24 +5387,35 @@ function presupTotals(e){
 function tareasPendientes(e){ var tk=e.tareas; if(!tk) return null; return tk.filter(function(x){return x.estado!=="completada";}).length; }
 function diasRestantes(e){ var f=e.ficha&&e.ficha.fecha; if(!f) return null; var d=new Date(f+"T00:00:00"); if(isNaN(d)) return null; return Math.ceil((d-new Date(new Date().toDateString()))/86400000); }
 function eventoAlertas(e){
-  var a=[], c=planCounts(e), m=e.menu||{};
+  var a=[], c=planCounts(e), m=e.menu||{}, P=e.presupuesto||{};
   var dishes=Object.keys(m.dishes||{}).length;
   var bebs=m.bebidas||{}, beb=Object.keys(bebs).some(function(k){var r=bebs[k];return r&&(r.prod||r.qty);});
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){return cam[k]==="si";}).length;
+  var dr=diasRestantes(e);
+  /* "cerca" = quedan 30 días o menos: lo pendiente pasa a ser urgente (rojo). */
+  var cerca=(dr!=null&&dr>=0&&dr<=30);
+  function add(t,k,urgentIfNear){ a.push({t:t,k:k,sev:(urgentIfNear&&cerca)?"urgent":"warn"}); }
   var alerSinPlato=0;
   try{ if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.alergias) window.SITTING_BRIDGE.alergias().forEach(function(g){ if(!g.sustitutos||!g.sustitutos.length) alerSinPlato++; }); }catch(_){}
-  if(c.pax===0) a.push({t:"Todavía no hay invitados en el plano de mesas.",k:"plan"});
-  if(dishes===0) a.push({t:"El menú del banquete está sin definir.",k:"m-sel"});
-  if(alerSinPlato>0) a.push({t:alerSinPlato+(alerSinPlato===1?" invitado con alergia sin plato adaptado.":" invitados con alergia sin plato adaptado."),k:"m-aler"});
-  if(!beb) a.push({t:"Las bebidas del evento no están definidas.",k:"m-bebida"});
-  if(c.pax>0&&camSi===0) a.push({t:"No hay camareros asignados al servicio.",k:"cam"});
+  if(!(e.ficha&&e.ficha.fecha)) a.push({t:"Falta la fecha del evento: no aparecerá en el calendario.",k:"crm",sev:"urgent"});
+  if(c.pax===0) add("Todavía no hay invitados en el plano de mesas.","plan",true);
+  if(dishes===0) add("El menú del banquete está sin definir.","m-sel",true);
+  if(c.pax>0&&!(+P.precioAdulto)) add("Precios del menú sin definir: el presupuesto no cuadra.","presup",false);
+  if(alerSinPlato>0) add(alerSinPlato+(alerSinPlato===1?" invitado con alergia sin plato adaptado.":" invitados con alergia sin plato adaptado."),"m-aler",true);
+  if(!beb) add("Las bebidas del evento no están definidas.","m-bebida",true);
+  if(c.pax>0&&camSi===0) add("No hay camareros asignados al servicio.","cam",true);
   var pt=presupTotals(e);
-  if(pt.total>0&&pt.pend>0.5) a.push({t:"Pago pendiente de "+fmtEur(pt.pend)+".",k:"presup"});
+  if(pt.total>0){
+    if(pt.pagado<=0.5) add("Señal (65%) sin cobrar — "+fmtEur(pt.total*0.65)+".","presup",true);
+    else if(pt.pend>0.5) add("Pendiente de cobro "+fmtEur(pt.pend)+".","presup",true);
+  }
   var provPend=(e.proveedores||[]).filter(function(p){return p.estado!=="Confirmado"&&p.estado!=="Contratado";}).length;
-  if(provPend>0) a.push({t:provPend+(provPend===1?" proveedor sin confirmar.":" proveedores sin confirmar."),k:"prov"});
-  if(!(e.hitos&&e.hitos.reunionFinal)){ var dr=diasRestantes(e); if(dr!=null&&dr<=45&&dr>=0) a.push({t:"La reunión final todavía no está programada.",k:"timeline"}); }
+  if(provPend>0) add(provPend+(provPend===1?" proveedor sin confirmar.":" proveedores sin confirmar."),"prov",true);
+  if(!(e.hitos&&e.hitos.reunionFinal)){ if(dr!=null&&dr<=45&&dr>=0) add("La reunión final todavía no está programada.","timeline",true); }
   var tk=e.tareas||[], bloq=tk.filter(function(x){return x.estado==="bloqueada";}).length;
-  if(bloq>0) a.push({t:bloq+(bloq===1?" tarea bloqueada.":" tareas bloqueadas."),k:"tareas"});
+  if(bloq>0) a.push({t:bloq+(bloq===1?" tarea bloqueada.":" tareas bloqueadas."),k:"tareas",sev:"warn"});
+  /* lo urgente primero */
+  a.sort(function(x,y){ return (y.sev==="urgent"?1:0)-(x.sev==="urgent"?1:0); });
   return a;
 }
 function seedTareas(e){
