@@ -1275,6 +1275,7 @@ body.authed .gate{display:none}
           <input type="text" inputmode="decimal" id="roomH" placeholder="largo" style="width:64px" aria-label="Largo de la sala en metros">
           <span class="mini">m</span>
           <button class="btn sm" id="roomApply" title="Ajustar la sala a su tamaño real para que las mesas cuadren">Escala</button>
+          <button class="btn sm danger" id="roomClear" title="Quitar la escala real y volver al tamaño libre" hidden>Quitar escala</button>
         </div>
         <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center">
           <span class="mini">Opacidad</span>
@@ -4095,6 +4096,7 @@ function syncLocUI(){
   $("bgOp").value=(plan().bgOp==null?55:plan().bgOp);
   $("roomW").value=(rm&&rm.w)?String(rm.w).replace(".",","):"";
   $("roomH").value=(rm&&rm.h)?String(rm.h).replace(".",","):"";
+  var rc=$("roomClear"); if(rc) rc.hidden=!(rm&&rm.w&&rm.h);
 }
 
 /* ══ traspaso de eventos entre personas ═════════════════════════════ */
@@ -4362,6 +4364,13 @@ $("roomApply").addEventListener("click",function(){
   var m=leerMedidas();
   if(!m){ toast("Pon el ancho y el largo de la sala en metros.",true); return; }
   pushUndo(); plan().roomM=m; applyRealScale();
+});
+$("roomClear").addEventListener("click",function(){
+  var p=plan(); if(!p.roomM||!p.roomM.w) return;
+  pushUndo(); p.roomM=null;
+  $("roomW").value=""; $("roomH").value="";
+  renderPlan(); syncLocUI(); save();
+  toast("Escala quitada. La sala vuelve al tamaño libre.");
 });
 $("bgOp").addEventListener("input",function(){ plan().bgOp=+this.value; renderPlan(); });
 $("bgOp").addEventListener("change",save);
@@ -6296,7 +6305,11 @@ function setBebidaMarca(catKey,prod){ var b=bebidas(); if(!b) return; if(prod) b
    total ya redondeado como pida la categoría */
 function calcBebida(cat){
   var t=evTotals();
-  var base = cat.poblacion==="total" ? t.total : t.adultos;
+  /* el personal (menús staff) también bebe: se suma a la base tanto en el agua
+     (sobre el total) como en el vino y el cava (sobre los adultos: el staff
+     cuenta como adulto). Se coge de «Menús staff» de la ficha del evento. */
+  var e=ev(); var staff = (e&&e.ficha) ? (Math.max(0,+e.ficha.staff)||0) : 0;
+  var base = (cat.poblacion==="total" ? t.total : t.adultos) + staff;
   var tramos=(cat.tramos||[]).map(function(tr){ return {etq:tr.etq||"", div:tr.div, val:base>0?base/tr.div:0}; });
   var suma=tramos.reduce(function(s,tr){ return s+tr.val; },0);
   var botellas = base>0 ? (cat.redondeo==="floor"?Math.floor(suma):Math.ceil(suma)) : 0;
@@ -6358,7 +6371,8 @@ function renderBebida(){
   var html='<div class="beb-edit">';
   html+='<p class="mnu-note beb-intro">La <b>previsión de bebidas del evento</b>, para el equipo de sala. '+
     'Las cantidades <b>se calculan solas</b> a partir de los comensales del sitting: el <b>agua</b> cuenta a '+
-    'todos (adultos y niños); el <b>vino, el cava y el cava rosado</b> van sobre los <b>adultos</b>. Lo único que '+
+    'todos (adultos y niños); el <b>vino, el cava y el cava rosado</b> van sobre los <b>adultos</b>. En ambos '+
+    'casos se suma el <b>personal</b> (los «menús staff» de la ficha del evento). Lo único que '+
     'hay que elegir a mano es qué producto se sirve de cada uno. <b>El jamón</b> sale de lo marcado en «Elegir '+
     'platos» del menú. Cuando esté, se descarga la hoja en PDF más abajo.</p>';
   BEBIDA_CATS.forEach(function(cat){
