@@ -47,6 +47,7 @@ async function api(request, env, url) {
   if (p === "/api/setup" && m === "POST") return setupRoute(request, env);
   if (p === "/api/login" && m === "POST") return loginRoute(request, env);
   if (p === "/api/logout" && m === "POST") return logoutRoute();
+  if (p === "/api/share" && m === "GET") return shareRoute(request, env, url);
   if (p === "/api/store" && m === "GET") return storeGet(request, env);
   if (p === "/api/store" && m === "PUT") return storePut(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
@@ -90,6 +91,56 @@ function logoutRoute() {
   const r = json({ ok: true });
   r.headers.append("Set-Cookie", `${COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
   return r;
+}
+
+/* ── enlace público para los novios (solo lectura, sin sesión) ──────────
+   Devuelve únicamente lo celebrativo del evento marcado como compartido:
+   nombres, fecha, lugar, ceremonia, nº de invitados/mesas (calculado aquí
+   para no exponer la lista de invitados ni sus alergias), platos elegidos y
+   fotos. NUNCA presupuesto, proveedores, comunicaciones ni datos de contacto. */
+async function shareRoute(request, env, url) {
+  const token = (url.searchParams.get("t") || "").trim();
+  if (!token) return json({ error: "not-found" }, 404);
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  let doc; try { doc = JSON.parse((row && row.data) || "{}"); } catch (_) { doc = {}; }
+  const events = (doc && doc.events) || [];
+  const ev = events.find((e) => e && e.share && e.share.on && e.share.id === token);
+  if (!ev) return json({ error: "not-found" }, 404);
+  const F = ev.ficha || {};
+  const counts = countPlano(ev.text || "");
+  const pub = {
+    tipo: F.tipo || "Evento",
+    title: ev.name || "",
+    fecha: F.fecha || "",
+    ubicacion: F.ubicacion || "",
+    parejaA: F.parejaA || "",
+    parejaB: F.parejaB || "",
+    ceremoniaLugar: F.ceremoniaLugar || "",
+    ceremoniaHora: F.ceremoniaHora || "",
+    ceremoniaDur: F.ceremoniaDur || "",
+    llegadaRest: F.llegadaRest || "",
+    foto: F.foto || "",
+    invitados: counts.invitados,
+    mesas: counts.mesas,
+    dishes: (ev.menu && ev.menu.dishes) || {},
+    fotos: Array.isArray(ev.fotos) ? ev.fotos.slice(0, 30) : []
+  };
+  return json({ event: pub });
+}
+/* Cuenta invitados y mesas del texto del plano SIN exponer los nombres:
+   una mesa por línea «M<n> | …», un invitado por línea que no sea cabecera
+   (#/@), cabecera de mesa ni comentario. */
+function countPlano(text) {
+  let invitados = 0, mesas = 0;
+  (text || "").split(/\r?\n/).forEach((ln) => {
+    const t = ln.trim();
+    if (!t) return;
+    if (/^[#@]/.test(t)) return;                 // título / ubicación
+    if (/^M\S*\s*\|/i.test(t)) { mesas++; return; } // cabecera de mesa
+    if (/^\/\//.test(t)) return;                 // comentario
+    invitados++;
+  });
+  return { invitados, mesas };
 }
 
 /* ── almacén compartido ─────────────────────────────────────────────── */

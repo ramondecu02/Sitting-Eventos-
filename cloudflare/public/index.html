@@ -1121,6 +1121,88 @@ body.authed .gate{display:none}
 .u-me{font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--c-faint); white-space:nowrap}
 .users-err{background:color-mix(in srgb,var(--ruby) 10%,transparent); color:var(--ruby); border:1px solid color-mix(in srgb,var(--ruby) 35%,var(--c-line)); border-radius:7px; padding:8px 11px; font-size:12px; margin-top:12px}
 @media screen and (max-width:640px){ .users-card .fldset{grid-template-columns:1fr} }
+/* ══ Página pública de los novios (solo lectura) ═══════════════════════ */
+#novios{display:none; position:fixed; inset:0; z-index:10000; overflow-y:auto;
+  background:var(--bg); color:var(--c-ink); font-family:"Karla",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+#novios.on{display:block}
+.nv-hero{position:relative; min-height:78vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; padding:64px 24px;
+  background:#151412; color:#F2EFE6; overflow:hidden;}
+.nv-hero-bg{position:absolute; inset:0; background-size:cover; background-position:center;
+  opacity:.30; filter:saturate(.85);}
+.nv-hero-bg::after{content:""; position:absolute; inset:0;
+  background:radial-gradient(120% 90% at 50% 30%, rgba(21,20,18,.35), rgba(21,20,18,.86));}
+.nv-hero>*{position:relative; z-index:1}
+.nv-eyebrow{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.32em;
+  text-transform:uppercase; font-size:12px; color:#C9C3B4;}
+.nv-brand{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.34em;
+  text-transform:uppercase; font-size:13px; color:#E8E3D6; margin-bottom:26px;}
+.nv-brand b{font-weight:600}
+.nv-rule{width:54px; height:2px; background:var(--olive-2); margin:22px auto; border:0}
+.nv-names{font-family:"Cormorant Garamond",Georgia,serif; font-weight:600;
+  font-size:clamp(38px,8vw,86px); line-height:1.02; margin:6px 0 4px;}
+.nv-amp{display:block; font-style:italic; font-weight:400; color:var(--olive-2);
+  font-size:.5em; margin:4px 0;}
+.nv-when{font-family:"Cormorant Garamond",serif; font-size:clamp(19px,3.4vw,26px);
+  color:#EDE8DB; margin-top:8px;}
+.nv-where{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; font-size:12.5px; color:#B7B1A2; margin-top:12px;}
+.nv-wrap{max-width:960px; margin:0 auto; padding:0 24px}
+.nv-sec{padding:56px 0; border-bottom:1px solid var(--c-line)}
+.nv-sec:last-child{border-bottom:0}
+.nv-sec-h{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.26em;
+  text-transform:uppercase; font-size:12px; color:var(--olive-deep); text-align:center;
+  margin:0 0 6px;}
+.nv-sec-t{font-family:"Cormorant Garamond",serif; font-weight:600; text-align:center;
+  font-size:clamp(26px,4.4vw,38px); margin:0 0 30px;}
+.nv-stats{display:flex; flex-wrap:wrap; gap:16px; justify-content:center}
+.nv-stat{flex:1 1 150px; max-width:220px; text-align:center; background:var(--panel);
+  border:1px solid var(--c-line); border-radius:var(--r-lg); padding:24px 16px;
+  box-shadow:var(--shadow-sm)}
+.nv-stat b{display:block; font-family:"Cormorant Garamond",serif; font-weight:600;
+  font-size:44px; line-height:1; color:var(--c-ink)}
+.nv-stat span{display:block; margin-top:8px; font-family:"Barlow Semi Condensed",sans-serif;
+  letter-spacing:.16em; text-transform:uppercase; font-size:11.5px; color:var(--c-mut)}
+.nv-detail{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:14px; max-width:720px; margin:0 auto}
+.nv-detail div{background:var(--panel); border:1px solid var(--c-line);
+  border-radius:var(--r); padding:16px 18px}
+.nv-detail .k{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.14em;
+  text-transform:uppercase; font-size:11px; color:var(--olive-deep)}
+.nv-detail .v{font-family:"Cormorant Garamond",serif; font-size:22px; margin-top:4px;
+  color:var(--c-ink)}
+.nv-menu-fam{margin:0 auto 26px; max-width:620px; text-align:center}
+.nv-menu-fam h4{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.2em;
+  text-transform:uppercase; font-size:12px; color:var(--olive-deep);
+  margin:0 0 12px; padding-bottom:8px; border-bottom:1px solid var(--c-line)}
+.nv-menu-fam ul{list-style:none; margin:0; padding:0}
+.nv-menu-fam li{font-family:"Cormorant Garamond",serif; font-size:20px; line-height:1.5;
+  color:var(--c-ink); padding:3px 0}
+.nv-gallery{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px}
+.nv-gallery img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:var(--r);
+  border:1px solid var(--c-line)}
+.nv-foot{text-align:center; padding:48px 24px; background:#151412; color:#B7B1A2;
+  font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.22em;
+  text-transform:uppercase; font-size:12px}
+.nv-foot b{display:block; font-family:"Cormorant Garamond",serif; letter-spacing:.04em;
+  text-transform:none; font-size:24px; color:#EDE8DB; margin-bottom:10px}
+.nv-empty{text-align:center; color:var(--c-mut); font-family:"Cormorant Garamond",serif;
+  font-size:22px; padding:80px 24px}
+@media(max-width:600px){ .nv-sec{padding:40px 0} .nv-hero{min-height:70vh} }
+/* tarjeta «compartir con los novios» dentro del Resumen */
+.share-card{background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg);
+  padding:20px 22px; box-shadow:var(--shadow-sm); margin-top:18px}
+.share-h{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.14em; text-transform:uppercase;
+  font-size:12px; color:var(--olive-deep); margin-bottom:8px}
+.share-p{color:var(--c-mut); font-size:13.5px; line-height:1.55; margin:0 0 14px; max-width:640px}
+.share-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px}
+.share-url{flex:1 1 260px; min-width:0; padding:9px 12px; border:1px solid var(--c-line-2);
+  border-radius:var(--r); background:var(--field); color:var(--c-ink); font-size:13px}
+.share-off{background:none; border:0; color:var(--ruby); font-size:12.5px; cursor:pointer;
+  padding:4px 0; text-decoration:underline}
+.share-off:hover{opacity:.8}
 </style>
 
 <div class="applayout">
@@ -1552,6 +1634,9 @@ Lluc (trona)</div>
     </div>
   </div>
 </div>
+
+<!-- ══ Página pública para los novios (solo lectura, sin login) ══════════ -->
+<div id="novios" aria-hidden="true"></div>
 
 <script>
 (function(){
@@ -2380,6 +2465,10 @@ function migrate(e){
   P.pagos=P.pagos||[];     /* [{id,fecha,concepto,importe}] */
   /* comunicaciones: bitácora de contactos con la pareja */
   e.comunicaciones=e.comunicaciones||[]; /* [{id,fecha,tipo,nota}] */
+  /* enlace para los novios: página pública de solo lectura. on=activo,
+     id=token secreto de la URL (?novios=<id>). Solo se comparte lo
+     celebrativo; nunca presupuesto, contactos ni la lista de invitados. */
+  if(!e.share) e.share={on:false,id:""};
   return e;
 }
 function load(){
@@ -4853,6 +4942,34 @@ function renderResumen(){
   Array.prototype.forEach.call(host.querySelectorAll(".rcard"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".check-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".alert-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
+
+  /* ── Compartir con los novios: enlace público de solo lectura ── */
+  if(!e.share) e.share={on:false,id:""};
+  var base=location.origin+location.pathname;
+  var link=(e.share.id?base+"?novios="+e.share.id:"");
+  var shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card">'+
+    '<div class="share-h">Compartir con los novios</div>'+
+    (e.share.on
+      ? '<p class="share-p">Enlace activo. Cualquiera con el enlace ve una página de solo lectura con la fecha, el lugar, el menú y las fotos. No muestra presupuesto, contactos ni la lista de invitados.</p>'+
+        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly value="'+escH(link)+'">'+
+        '<button class="btn" id="rsm-share-copy" type="button">Copiar</button>'+
+        '<button class="btn" id="rsm-share-open" type="button">Abrir</button></div>'+
+        '<button class="share-off" id="rsm-share-off" type="button">Desactivar enlace</button>'
+      : '<p class="share-p">Crea una página pública y elegante para enviar a los novios: portada con sus nombres y la fecha, el menú elegido y las fotos. No muestra presupuesto, contactos ni la lista de invitados.</p>'+
+        '<button class="btn gold" id="rsm-share-on" type="button">Generar enlace</button>')+
+    '</section></div>';
+  host.insertAdjacentHTML("beforeend",shareHTML);
+  var _on=$("rsm-share-on"); if(_on) _on.addEventListener("click",function(){
+    if(!e.share.id) e.share.id="n"+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
+    e.share.on=true; e.updated=Date.now(); save(); renderResumen();
+  });
+  var _off=$("rsm-share-off"); if(_off) _off.addEventListener("click",function(){ e.share.on=false; e.updated=Date.now(); save(); renderResumen(); });
+  var _cp=$("rsm-share-copy"); if(_cp) _cp.addEventListener("click",function(){
+    var i=$("rsm-share-url"); if(!i) return; i.select();
+    try{ navigator.clipboard.writeText(i.value); }catch(_){ try{ document.execCommand("copy"); }catch(__){} }
+    _cp.textContent="Copiado ✓"; setTimeout(function(){ _cp.textContent="Copiar"; },1500);
+  });
+  var _op=$("rsm-share-open"); if(_op) _op.addEventListener("click",function(){ var i=$("rsm-share-url"); if(i) window.open(i.value,"_blank"); });
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -5324,6 +5441,15 @@ window.SITTING_BRIDGE={
   cursoColor:cursoColor,
   cursosInfo:function(){ return CURSOS; },
   cursoOrder:function(){ return CURSO_ORDER.slice(); },
+  /* todos los eventos (función: ve siempre el store actual aunque se recargue);
+     lo usa la página de los novios en modo demostración para buscar por token. */
+  allEvents:function(){ return (store&&store.events)||[]; },
+  /* conteo de invitados/mesas de un texto de plano cualquiera (no del activo);
+     lo usa la página de los novios en modo demostración (sin backend). */
+  totalsForText:function(txt){
+    var d=parse(txt||""), t=totals(d);
+    return {invitados:t.pax, mesas:d.tables.length};
+  },
   planTotals:function(){
     var e=current(); if(!e) return null;
     var d=parse(e.text||""), t=totals(d);
@@ -7543,6 +7669,121 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════
+   PÁGINA DE LOS NOVIOS — vista pública de solo lectura.
+   Se abre con ?novios=<token> en la URL. Salta el login por completo y pinta
+   una página elegante con lo celebrativo del evento: nombres, fecha, lugar,
+   ceremonia, nº de invitados/mesas, el menú elegido y las fotos. Los datos
+   llegan del backend (/api/share) o, sin backend (Artifact), del almacén
+   local. Nunca muestra presupuesto, contactos ni la lista de invitados.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];}); }
+  var MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  function fmtFecha(f){
+    if(!f) return "";
+    var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(f); if(m){ var dd=+m[3]; return dd+" de "+MESES[(+m[2])-1]+" de "+m[1]; }
+    return f;
+  }
+  function dishesElegidos(dishMap){
+    dishMap=dishMap||{};
+    var out=[];
+    if(typeof MENU_DATA==="undefined") return out;
+    MENU_DATA.forEach(function(fam){
+      var ds=fam.dishes.filter(function(d){ return dishMap[d._uid]; }).map(function(d){ return d.name; });
+      if(ds.length) out.push({label:fam.label, dishes:ds});
+    });
+    return out;
+  }
+  function render(d){
+    var host=document.getElementById("novios"); if(!host) return;
+    if(!d){ host.innerHTML='<div class="nv-empty">Este enlace no está disponible.<br>Pide a Les Moles que vuelva a compartirlo.</div>'; host.classList.add("on"); return; }
+    var nombres = (d.parejaA||d.parejaB)
+      ? (esc(d.parejaA||"")+(d.parejaB?'<span class="nv-amp">&</span>'+esc(d.parejaB):""))
+      : esc(d.title||"Nuestro evento");
+    var hero='<div class="nv-hero">'+
+      (d.foto?'<div class="nv-hero-bg" style="background-image:url('+JSON.stringify(d.foto)+')"></div>':'')+
+      '<div class="nv-brand"><b>LES MOLES</b> · EVENTS</div>'+
+      '<div class="nv-eyebrow">'+esc(d.tipo||"Evento")+'</div>'+
+      '<h1 class="nv-names">'+nombres+'</h1>'+
+      (d.fecha?'<div class="nv-when">'+esc(fmtFecha(d.fecha))+'</div>':'')+
+      (d.ubicacion?'<div class="nv-where">'+esc(d.ubicacion)+'</div>':'')+
+      '</div>';
+
+    var cifras='';
+    if((d.invitados||0)>0||(d.mesas||0)>0){
+      cifras='<section class="nv-sec"><div class="nv-wrap"><div class="nv-stats">'+
+        ((d.invitados||0)>0?'<div class="nv-stat"><b>'+d.invitados+'</b><span>Invitados</span></div>':'')+
+        ((d.mesas||0)>0?'<div class="nv-stat"><b>'+d.mesas+'</b><span>Mesas</span></div>':'')+
+        '</div></div></section>';
+    }
+
+    var det=[];
+    if(d.ceremoniaLugar||d.ceremoniaHora) det.push({k:"Ceremonia", v:[d.ceremoniaLugar,d.ceremoniaHora].filter(Boolean).join(" · ")});
+    if(d.ceremoniaDur) det.push({k:"Duración", v:d.ceremoniaDur});
+    if(d.llegadaRest) det.push({k:"Llegada a Les Moles", v:d.llegadaRest});
+    var dia='';
+    if(det.length){
+      dia='<section class="nv-sec"><div class="nv-wrap"><div class="nv-sec-h">El día</div>'+
+        '<h2 class="nv-sec-t">Cómo será la jornada</h2><div class="nv-detail">'+
+        det.map(function(x){ return '<div><div class="k">'+esc(x.k)+'</div><div class="v">'+esc(x.v)+'</div></div>'; }).join("")+
+        '</div></div></section>';
+    }
+
+    var fams=dishesElegidos(d.dishes), menu='';
+    if(fams.length){
+      menu='<section class="nv-sec"><div class="nv-wrap"><div class="nv-sec-h">Gastronomía</div>'+
+        '<h2 class="nv-sec-t">El menú</h2>'+
+        fams.map(function(f){ return '<div class="nv-menu-fam"><h4>'+esc(f.label)+'</h4><ul>'+
+          f.dishes.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join("")+'</ul></div>'; }).join("")+
+        '</div></section>';
+    }
+
+    var gal='';
+    if(d.fotos&&d.fotos.length){
+      gal='<section class="nv-sec"><div class="nv-wrap"><div class="nv-sec-h">Recuerdos</div>'+
+        '<h2 class="nv-sec-t">Galería</h2><div class="nv-gallery">'+
+        d.fotos.map(function(src){ return '<img loading="lazy" src="'+esc(src)+'" alt="">'; }).join("")+
+        '</div></div></section>';
+    }
+
+    var foot='<div class="nv-foot"><b>Les Moles Events</b>Gastronomía · Naturaleza · Momentos únicos</div>';
+    host.innerHTML=hero+cifras+dia+menu+gal+foot;
+    host.classList.add("on");
+    try{ document.title=(d.parejaA?d.parejaA+(d.parejaB?" & "+d.parejaB:""):(d.title||"Evento"))+" · Les Moles Events"; }catch(_){}
+  }
+
+  function fromLocal(token){
+    var BR=window.SITTING_BRIDGE; if(!BR||!BR.allEvents) return null;
+    var e=BR.allEvents().filter(function(x){ return x&&x.share&&x.share.on&&x.share.id===token; })[0];
+    if(!e) return null;
+    var F=e.ficha||{}, c=BR.totalsForText?BR.totalsForText(e.text||""):{invitados:0,mesas:0};
+    return { tipo:F.tipo||"Evento", title:e.name||"", fecha:F.fecha||"", ubicacion:F.ubicacion||"",
+      parejaA:F.parejaA||"", parejaB:F.parejaB||"", ceremoniaLugar:F.ceremoniaLugar||"", ceremoniaHora:F.ceremoniaHora||"",
+      ceremoniaDur:F.ceremoniaDur||"", llegadaRest:F.llegadaRest||"", foto:F.foto||"",
+      invitados:c.invitados||0, mesas:c.mesas||0, dishes:(e.menu&&e.menu.dishes)||{}, fotos:(e.fotos||[]).slice(0,30) };
+  }
+
+  window.showNovios=function(token){
+    document.documentElement.style.background="#151412";
+    fetch("/api/share?t="+encodeURIComponent(token),{headers:{"Accept":"application/json"}})
+      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+      .then(function(j){ render(j&&j.event); })
+      .catch(function(){ render(fromLocal(token)); });
+  };
+  /* token de la URL: ?novios=<id> (o #novios=<id>) */
+  window.novioToken=function(){
+    try{
+      var u=new URL(location.href); var t=u.searchParams.get("novios");
+      if(!t&&location.hash){ var m=/novios=([^&]+)/.exec(location.hash); if(m) t=decodeURIComponent(m[1]); }
+      return t||"";
+    }catch(_){ return ""; }
+  };
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
    SESIÓN Y ACCESO — puerta de entrada a la aplicación.
    MODO DUAL:
    · Con backend (Cloudflare Worker + D1): login/logout/sesión reales contra
@@ -7694,6 +7935,12 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* Arranque: preguntamos al servidor por la sesión. Si no hay backend
      (Artifact), caemos a modo demostración con la sesión local. */
   (async function boot(){
+    /* enlace de los novios: página pública, sin login. Si la URL trae el token
+       lo mostramos y no seguimos con la sesión. */
+    try{
+      var nt=window.novioToken&&window.novioToken();
+      if(nt){ document.body.classList.remove("authed"); window.showNovios&&window.showNovios(nt); return; }
+    }catch(_){}
     try{
       var r=await fetch("/api/me",{headers:{"Accept":"application/json"}});
       if(r.ok){
