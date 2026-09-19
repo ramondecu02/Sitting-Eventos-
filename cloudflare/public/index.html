@@ -2876,6 +2876,10 @@ function isoFromAny(s){
   return "";
 }
 function dmyFromISO(iso){ var m=/(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?(m[3]+"/"+m[2]+"/"+m[1]):""; }
+/* nombre del evento SIN la fecha final: para no enseñar dos fechas (la del
+   nombre y la de la ficha/calendario), en pantalla se muestra el nombre limpio
+   y la fecha aparte. El texto del título del sitting conserva su fecha. */
+function nombreLimpio(name){ return String(name||"").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim(); }
 /* fecha que aparece en la línea de título «#» del sitting (o "") */
 function dateISOFromTitle(text){ var m=(text||"").match(/^#[ \t]*(.+)$/m); return m?isoFromAny(m[1]):""; }
 /* reescribe (o añade) la fecha en la línea de título del sitting, dejando el
@@ -4737,6 +4741,9 @@ function seccionActual(){
   return enMenu ? "m-"+(window.mnuViewActual?window.mnuViewActual():"sel") : view;
 }
 function irASeccion(k){
+  /* si el rol del usuario no puede ver esta sección, se le lleva al Resumen
+     (que ven todos): así ningún enlace deja entrar donde no corresponde. */
+  if(k&&k!=="resumen"&&!puedeVer(k)) k="resumen";
   document.body.classList.remove("mode-home");
   document.body.classList.remove("mode-resumen");
   document.body.classList.remove("mode-plan");
@@ -4809,8 +4816,12 @@ var ICONS={
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5"/></svg>',
   caret:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'
 };
-function grupos(){ var gs=[],seen={}; SECCIONES.forEach(function(s){ if(!seen[s.g]){seen[s.g]=1; gs.push(s.g);} }); return gs; }
-function seccionesDe(g){ return SECCIONES.filter(function(s){ return s.g===g; }); }
+/* ¿el usuario de la sesión puede ver esta sección? En modo demostración y para
+   el administrador devuelve siempre true; con backend real y un rol acotado
+   (Cocina, Compras, Servicio…) solo deja ver las secciones de ese rol. */
+function puedeVer(k){ try{ return (window.LM_SESSION&&window.LM_SESSION.can)?window.LM_SESSION.can(k):true; }catch(_){ return true; } }
+function grupos(){ var gs=[],seen={}; SECCIONES.forEach(function(s){ if(!puedeVer(s.k)) return; if(!seen[s.g]){seen[s.g]=1; gs.push(s.g);} }); return gs; }
+function seccionesDe(g){ return SECCIONES.filter(function(s){ return s.g===g && puedeVer(s.k); }); }
 function grupoDeSeccion(k){ for(var i=0;i<SECCIONES.length;i++) if(SECCIONES[i].k===k) return SECCIONES[i].g; return null; }
 function grupoCorto(g){ return g.split(" ")[0]; }
 
@@ -4891,7 +4902,7 @@ function syncSidenav(){
       b.classList.toggle("active",!enHome&&b.dataset.k===actual);
     });
   });
-  var c=current(); var nm=$("side-ctx-nm"); if(nm) nm.textContent=c?(c.name||"Sin título"):"—";
+  var c=current(); var nm=$("side-ctx-nm"); if(nm) nm.textContent=c?(nombreLimpio(c.name)||"Sin título"):"—";
   var ctx=$("side-ctx"); if(ctx) ctx.classList.toggle("on",enHome);
   // barra inferior (móvil)
   var tb=$("tabbar");
@@ -4954,7 +4965,7 @@ function evCardEl(e){
   card.style.setProperty("--evcol",col);
   card.innerHTML=
     '<div class="ev-cat" style="color:'+col+'"><i class="ev-dot" style="background:'+col+'"></i>'+escH(cat)+'</div>'+
-    '<div class="ev-nm">'+escH(e.name||"Sin título")+'</div>'+
+    '<div class="ev-nm">'+escH(nombreLimpio(e.name)||"Sin título")+'</div>'+
     '<div class="ev-sub">'+escH(sub||"Sin fecha ni lugar")+'</div>'+
     '<div class="ev-stats">'+
       '<span class="evpill"><b>'+pax+'</b><span>invitados</span></span>'+
@@ -5019,7 +5030,7 @@ function calItemsByDay(y,mo){
   store.events.forEach(function(e){
     var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
     if(m&&+m[1]===y&&(+m[2]-1)===mo){ var t=null; try{ t=totals(parse(e.text||"")); }catch(_){}
-      push(+m[3],{kind:"event", id:e.id, name:e.name||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0}); }
+      push(+m[3],{kind:"event", id:e.id, name:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0}); }
     ((e.presupuesto&&e.presupuesto.pagos)||[]).forEach(function(p){
       var pm=p.fecha&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(p.fecha);
       if(pm&&+pm[1]===y&&(+pm[2]-1)===mo) push(+pm[3],{kind:"pay", id:e.id, concepto:(p.concepto||"Pago"), importe:(+p.importe||0), ev:(e.name||"Evento")});
@@ -5202,7 +5213,7 @@ function renderResumen(){
   var camNeed=pax>0?Math.ceil(pax/11):0;
   var prog=eventoProgreso(e);
   var cat=eventoCategoria((d.title||"")+" "+(e.name||""));
-  var title=escH(d.title||e.name||"Sin título");
+  var title=escH(nombreLimpio(d.title||e.name)||"Sin título");
   var sub=escH(d.sub||evSubtitulo(e)||"Sin fecha ni lugar");
   var estado=(e.ficha&&e.ficha.estado)||"planificacion";
   var estadoT=CICLO_T[estado]||"Planificación";
@@ -5727,6 +5738,9 @@ function viewDocs(e){
 }
 
 renderSidenav(); renderTabbar();
+/* reconstruir la navegación cuando cambia la sesión (al iniciar sesión ya se
+   conoce el rol): el menú, la barra inferior y el subnav se filtran por rol. */
+window.LM_refreshNav=function(){ try{ renderSidenav(); renderTabbar(); if(document.body.classList.contains("has-subnav")&&typeof renderMsub==="function") renderMsub(); }catch(_){ } };
 (function(){
   var lg=document.querySelector(".ab-logo"), sm=$("side-mark");
   if(lg&&sm&&lg.getAttribute("src")) sm.src=lg.getAttribute("src"); else if(sm) sm.style.display="none";
@@ -8224,6 +8238,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function enterApp(){
     document.body.classList.add("authed"); closeLogin();
+    /* la navegación se reconstruye ahora que ya se sabe el rol (filtra secciones) */
+    try{ if(window.LM_refreshNav) window.LM_refreshNav(); }catch(_){}
     try{ if(window.showHome) window.showHome(); else if(window.showResumen) window.showResumen(); }catch(_){}
     /* al entrar, traemos el estado compartido del servidor (si lo hay) */
     try{ if(backend && window.hydrateFromServer) window.hydrateFromServer(); }catch(_){}
