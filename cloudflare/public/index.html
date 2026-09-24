@@ -130,7 +130,7 @@ body.mode-inv .ab-inv-new{display:inline-block}
    Las cabeceras que repetían la marca y el enlace de Salir dentro de cada
    vista sí se han quitado del todo: escondidas seguían saliendo dos veces en
    la página (el mismo fallo que ya hubo en móvil con el logo duplicado). */
-#appbar,#launcher,#tabs,#mnu-tabs,#ev-row,#mnu-ev-field{display:none!important}
+#appbar,#launcher,#tabs,#mnu-tabs,#cam-tabs,#ev-row,#mnu-ev-field{display:none!important}
 
 .app{display:grid; grid-template-columns:minmax(300px,368px) 1fr; height:calc(100vh - var(--ab-h)); overflow:hidden}
 .editor{background:var(--panel); border-right:1px solid var(--c-line); display:flex; flex-direction:column; min-height:0; overflow:hidden}
@@ -846,6 +846,9 @@ body.mode-plan .planv{display:flex}
   .msubnav button.active{background:color-mix(in srgb,var(--olive) 20%,transparent); border-color:var(--olive); color:var(--olive); font-weight:700}
   .home-head{padding:22px 18px 12px}
   .home-title h1{font-size:32px}
+  .ph-title{font-size:25px}
+  .ph-ic{width:36px; height:36px; border-radius:10px}
+  .panel-head{gap:11px}
   .home-title p{font-size:12.5px}
   .home-search{padding:0 18px 4px}
   .home-stats{padding:10px 18px 4px; grid-template-columns:repeat(3,1fr); gap:8px}
@@ -887,6 +890,24 @@ body.mode-plan .planv{display:flex}
 /* ══ Menú — catálogo, selección y preparación ═════════════════════════ */
 .app-menu{height:calc(100vh - var(--ab-h)); display:flex; flex-direction:column; background:var(--bg); overflow:hidden}
 .mnu-top{padding:16px 22px 14px; border-bottom:1px solid var(--c-line); background:var(--panel); display:flex; flex-direction:column; gap:12px}
+/* cabecera de pantalla (Menú / Inventario / Camareros) — como el título del panel de eventos */
+.panel-head{display:flex; align-items:center; gap:14px; padding:6px 0 4px}
+.ph-ic{flex:0 0 auto; width:42px; height:42px; border-radius:12px; display:grid; place-items:center; color:var(--olive-deep); background:color-mix(in srgb,var(--olive) 12%,transparent); border:1px solid color-mix(in srgb,var(--olive) 26%,var(--c-line))}
+.ph-ic svg{width:21px; height:21px}
+.ph-tx{min-width:0}
+.ph-eyebrow{font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--olive-deep); font-weight:700}
+.ph-title{margin:3px 0 0; font-family:"Cormorant Garamond",Georgia,serif; font-weight:600; font-size:32px; line-height:1; color:var(--c-ink)}
+.ph-sub{margin-top:5px; font-size:12.5px; color:var(--c-mut); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+/* ajustes del evento del Menú: agrupados y plegables (antes, un campo suelto) */
+.mnu-ajustes{flex-basis:100%; border:1px solid var(--c-line); border-radius:var(--r); background:var(--bg); padding:0}
+.mnu-ajustes summary{cursor:pointer; list-style:none; padding:9px 12px; font-size:12.5px; font-weight:700; color:var(--c-ink)}
+.mnu-ajustes summary::-webkit-details-marker{display:none}
+.mnu-ajustes summary::before{content:"▸"; display:inline-block; margin-right:7px; color:var(--c-faint); transition:transform .15s}
+.mnu-ajustes[open] summary::before{transform:rotate(90deg)}
+.mnu-ajustes summary span{font-weight:400; color:var(--c-mut)}
+.mnu-ajustes summary:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:var(--r)}
+.mnu-ajustes-body{display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; padding:4px 12px 12px}
+.mnu-ajustes-nota{flex-basis:100%; margin:0; font-size:11.5px; color:var(--c-mut)}
 .mnu-note{font-size:11.5px; color:var(--c-mut); line-height:1.5}
 .mnu-origen{margin:6px 0 0; font-size:11.5px; color:var(--c-mut); line-height:1.5; flex-basis:100%}
 .mnu-origen b{color:var(--ink-soft); font-weight:600}
@@ -1567,11 +1588,13 @@ Lluc (trona)</div>
 
 <div class="app-menu" id="appMenu" style="display:none">
   <div class="mnu-top">
+    <header class="panel-head"><span class="ph-ic" id="mnu-ph-ic" aria-hidden="true"></span><div class="ph-tx"><div class="ph-eyebrow" id="mnu-ph-eb"></div><h1 class="ph-title" id="mnu-ph-title"></h1><div class="ph-sub" id="mnu-ph-sub"></div></div></header>
     <div class="mnu-evento">
       <div class="mnu-ev-field">
         <span id="mnu-ev-field"><label class="lbl" for="mnu-ev">Evento</label>
         <select id="mnu-ev"></select></span>
       </div>
+      <details class="mnu-ajustes" id="mnu-ajustes"><summary>Ajustes del evento <span id="mnu-ajustes-res"></span></summary><div class="mnu-ajustes-body">
       <div class="mnu-ev-field sm man" id="f-adultos">
         <label class="lbl" for="ev-adultos">Adultos</label>
         <input type="number" id="ev-adultos" min="0">
@@ -1588,6 +1611,8 @@ Lluc (trona)</div>
         <label class="lbl" for="ev-pmb" title="Personas por mesa en el banquete">Personas por mesa (banquete)</label>
         <input type="number" id="ev-pmb" min="1">
       </div>
+      <p class="mnu-ajustes-nota">Con el plano de mesas hecho, los adultos, los niños y las mesas de banquete salen solos del plano; aquí solo queda cuántas personas van por mesa en el aperitivo.</p>
+      </div></details>
       <div class="stats" id="mnu-stats"></div>
       <p class="mnu-origen" id="mnu-origen"></p>
     </div>
@@ -1603,13 +1628,14 @@ Lluc (trona)</div>
       <input type="text" id="mnu-q" placeholder="Buscar plato o ingrediente…" aria-label="Buscar plato o ingrediente">
     </div>
     <div class="mnu-fams" id="mnu-fams"></div>
-    <div class="mnu-note" id="mnu-note">Catálogo de <b>CHECK_LIST_EVENTOS_CASTELL_VIDAL.xlsx</b> — es el menú del evento que tengas elegido arriba. Marca aquí los platos y <b>Producción</b>, <b>Lista de la compra</b> y <b>Check list de servicio</b> se generan solos (se cambia de una a otra en «Sección», arriba a la derecha) y se pueden imprimir. Se guarda para todo el equipo, igual que el plano de mesas.</div>
+    <div class="mnu-note" id="mnu-note">Marca aquí los platos del menú de este evento. <b>Producción</b>, <b>Lista de la compra</b>, <b>Check list de servicio</b>, <b>Bebida</b> y el <b>Menú para imprimir</b> se generan solos: están en «Menú del evento», en la barra lateral (en el móvil, en la barra de abajo), y se descargan en PDF. Se guarda para todo el equipo.</div>
   </div>
   <div class="mnu-body" id="mnu-body"></div>
 </div>
 
 <div class="app-menu" id="appInv" style="display:none">
   <div class="mnu-top">
+    <header class="panel-head"><span class="ph-ic" id="inv-ph-ic" aria-hidden="true"></span><div class="ph-tx"><div class="ph-eyebrow" id="inv-ph-eb"></div><h1 class="ph-title" id="inv-ph-title"></h1><div class="ph-sub" id="inv-ph-sub"></div></div></header>
     <div class="mnu-evento">
       <div class="stats" id="inv-stats"></div>
       <p class="mnu-origen" id="inv-origen"></p>
@@ -1625,6 +1651,7 @@ Lluc (trona)</div>
 
 <div class="app-menu" id="appCam" style="display:none">
   <div class="mnu-top">
+    <header class="panel-head"><span class="ph-ic" id="cam-ph-ic" aria-hidden="true"></span><div class="ph-tx"><div class="ph-eyebrow" id="cam-ph-eb"></div><h1 class="ph-title" id="cam-ph-title"></h1><div class="ph-sub" id="cam-ph-sub"></div></div></header>
     <div class="cam-tabs" id="cam-tabs" role="tablist" aria-label="Camareros">
       <button type="button" role="tab" data-cv="list" aria-selected="true">Listado</button>
       <button type="button" role="tab" data-cv="rep" aria-selected="false">Reparto</button>
@@ -3296,7 +3323,7 @@ function renderPlan(){
   setRoom();
   var L=I18N[$("lang").value]||I18N.ca, full=$("full").checked, p=plan();
   computeBoxes(L,full);
-  if(!doc.tables.length){ $("canvas").innerHTML='<div class="empty">Escribe la lista de invitados a la izquierda y el plano aparecerá aquí.</div>'; return; }
+  if(!doc.tables.length){ $("canvas").innerHTML='<div class="empty">Escribe la lista de invitados por mesas y el plano aparecerá aquí.</div>'; return; }
   /* Las mesas que ya no están en el texto se APARTAN, no se borran: mientras se reescribe
      una cabecera («M4» → «M» → «M7») la mesa deja de existir un instante, y borrar aquí
      perdía para siempre su sitio, su tamaño y su giro. */
@@ -4569,7 +4596,7 @@ function renderView(){
   $("hint").style.display=isPlan?"block":"none";
   $("pdfBtn").textContent=isPlan?"Exportar plano":(view==="list"?"Exportar listado":"Exportar marcasitios");
   if(isPlan) renderPlan();
-  else $("sheets").innerHTML=doc.tables.length?(view==="list"?sheetList(L):sheetCards(L)):'<div class="empty">Escribe la lista de invitados a la izquierda.</div>';
+  else $("sheets").innerHTML=doc.tables.length?(view==="list"?sheetList(L):sheetCards(L)):'<div class="empty">Escribe la lista de invitados por mesas y aparecerá aquí.</div>';
   showProp(); setPage();
 }
 function render(){
@@ -4763,13 +4790,13 @@ function openNewEvent(){
   var ovl=document.createElement("div"); ovl.className="ovl";
   ovl.innerHTML='<div class="ovl-box"><div class="ovl-head"><h3>Nuevo evento</h3><div class="spacer"></div>'+
     '<button class="btn" id="ne-x" type="button">Cerrar</button></div>'+
-    '<div class="ovl-note">Empieza por lo esencial. Después montas el sitting, el menú y el resto.</div>'+
+    '<div class="ovl-note">Empieza por lo esencial. Después montas el plano de mesas, el menú y el resto.</div>'+
     '<div class="ovl-body" style="flex-direction:column;align-items:stretch;gap:12px">'+
       '<label class="fld"><span class="lbl">Nombre del evento</span><input id="ne-nom" placeholder="p. ej. Boda de Marta i Jordi"></label>'+
       '<label class="fld"><span class="lbl">Tipo de evento</span><select id="ne-tipo">'+tipos+'</select></label>'+
       '<label class="fld"><span class="lbl">Fecha</span><input id="ne-fecha" type="date"></label>'+
       '<div class="users-err" id="ne-err" hidden></div>'+
-      '<div style="margin-top:2px"><button class="btn gold big" id="ne-crear" type="button">Crear y montar el sitting</button></div>'+
+      '<div style="margin-top:2px"><button class="btn gold big" id="ne-crear" type="button">Crear y montar el plano</button></div>'+
     '</div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; }
@@ -5167,7 +5194,26 @@ function syncAppbar(){
   }
   secSel.value=seccionActual();
   if(typeof syncSidenav==="function"){ try{ syncSidenav(); }catch(_){ } }
+  try{ syncPanelHead(); }catch(_){ }
 }
+/* cabecera de Menú, Inventario y Camareros: dónde estás (sección), de qué
+   grupo y —si la sección es de un evento— de qué evento. Mismo estilo que el
+   título del panel de eventos, para que se sienta la misma app. */
+function syncPanelHead(){
+  var b=document.body.classList, key=b.contains("mode-menu")?"mnu":b.contains("mode-inv")?"inv":b.contains("mode-cam")?"cam":null;
+  if(!key) return;
+  var k=seccionActual(), sec=null; SECCIONES.forEach(function(x){ if(x.k===k) sec=x; });
+  var g=sec?sec.g:(key==="inv"?"Inventario":key==="cam"?"Camareros":"Menú del evento");
+  var e=current(), sub;
+  if(key==="inv") sub="Material del negocio · el mismo para todos los eventos";
+  else sub=e?(nombreLimpio(e.name)||"Sin título")+(evSubtitulo(e,true)?" · "+evSubtitulo(e,true):""):"Ningún evento elegido";
+  var ic=$(key+"-ph-ic"), eb=$(key+"-ph-eb"), ti=$(key+"-ph-title"), sb=$(key+"-ph-sub");
+  if(ic) ic.innerHTML=ICONS[g]||"";
+  if(eb) eb.textContent=g;
+  if(ti) ti.textContent=sec?sec.t:g;
+  if(sb) sb.textContent=sub;
+}
+window.syncPanelHead=syncPanelHead;
 $("ab-ev").addEventListener("change",function(){ switchActiveEvent(this.value); });
 $("ab-sec").addEventListener("change",function(){ irASeccion(this.value); });
 $("ab-new").addEventListener("click",openNewEvent);
@@ -6584,6 +6630,13 @@ function fillEventoInputs(){
   Array.prototype.forEach.call(document.querySelectorAll(".mnu-ev-field.man"),function(el){
     el.style.display = hayPlano ? "none" : "";
   });
+  /* resumen en la propia etiqueta, para no tener que abrirlo para saberlo */
+  var res=$("mnu-ajustes-res"), aj=$("mnu-ajustes"), nota=document.querySelector(".mnu-ajustes-nota");
+  if(res) res.textContent="· "+(m.pMesaAper||7)+" por mesa de aperitivo"+(hayPlano?"":" · "+(m.adultos||0)+" adultos, "+(m.ninos||0)+" niños");
+  if(nota) nota.style.display=hayPlano?"":"none";
+  /* sin plano, los comensales se escriben aquí: se abre solo para que se vea */
+  if(aj&&!hayPlano&&!aj.dataset.auto){ aj.open=true; aj.dataset.auto="1"; }
+  if(window.syncPanelHead) try{ window.syncPanelHead(); }catch(_){}
 }
 function renderEvStats(){
   var t=evTotals();
@@ -6602,7 +6655,7 @@ function renderEvStats(){
     n.innerHTML='<b>Del plano de mesas</b> · '+esc(d.join(" · "))+
       ' · repartidos en '+t.mesasBanq+' mesa'+(t.mesasBanq===1?"":"s")+
       (min===max ? ' de '+max : ' de entre '+min+' y '+max+' comensales')+
-      '. Cambia el plano en Sitting y estas cifras se actualizan solas.';
+      '. Si cambias el plano de mesas, estas cifras se actualizan solas.';
     n.style.display="";
   }else{
     n.innerHTML='El plano de mesas todavía está vacío, así que los comensales se '+
@@ -6778,7 +6831,7 @@ function docHead(title,t){
     '<div class="orn"></div><div class="doc-meta">'+t.total+' comensales</div></header>';
 }
 function emptyPrep(){
-  return '<div class="mnu-empty">No has marcado ningún plato todavía.<br><span style="font-size:14px">Elige «Elegir platos» arriba y marca los del menú.</span></div>';
+  return '<div class="mnu-empty">No has marcado ningún plato todavía.<br><span style="font-size:14px">Márcalos en «Elegir platos», dentro de «Menú del evento».</span></div>';
 }
 
 /* el jamón (el ibérico que se sirve como estación/aperitivo) se cuenta SOLO por
@@ -7000,7 +7053,7 @@ function renderServicio(){
 
   var html=printBar("check list de servicio")+'<div class="sheet"><div class="frame">'+docHead("Check list de servicio",t)+
     '<p class="mnu-note"><b>Camareros necesarios: '+t.camareros+'</b> — uno cada '+(BR.ratioCamarero?BR.ratioCamarero():11)+' comensales. '+
-    'La disponibilidad de cada uno se marca en «Camareros», arriba a la derecha.</p>'+
+    'La disponibilidad de cada uno se marca en «Camareros del evento», en la barra lateral.</p>'+
     (sel.length
       ? ((platos.length||cubiertos.length?(block("Platos",platos)+block("Cubiertos",cubiertos)):'<p class="mnu-note">Los platos marcados no tienen vajilla o cubiertos asociados en el Excel.</p>')+
          (mob?('<h2 class="mnu-sheet-sec">Mobiliario y utensilios de estación</h2>'+mob):'')+
@@ -7382,7 +7435,7 @@ function marcaSelectHtml(cat){
 function renderBebida(){
   var html='<div class="beb-edit">';
   html+='<p class="mnu-note beb-intro">La <b>previsión de bebidas del evento</b>, para el equipo de sala. '+
-    'Las cantidades <b>se calculan solas</b> a partir de los comensales del sitting: el <b>agua</b> cuenta a '+
+    'Las cantidades <b>se calculan solas</b> a partir de los comensales del plano de mesas: el <b>agua</b> cuenta a '+
     'todos (adultos y niños); el <b>vino, el cava y el cava rosado</b> van sobre los <b>adultos</b>. En ambos '+
     'casos cuenta también el <b>personal</b>: la mesa de staff del plano o, si en la ficha hay más «menús staff», esos (no se suman los dos). Lo único que '+
     'hay que elegir a mano es qué producto se sirve de cada uno. <b>El jamón</b> sale de lo marcado en «Elegir '+
@@ -7398,7 +7451,7 @@ function renderBebida(){
     }else{
       var c=calcBebida(cat);
       if(c.base) html+='<div class="beb-line"><span class="beb-botellas">'+c.botellas+' botellas</span></div>';
-      else html+='<div class="beb-line"><span class="beb-desglose">En cuanto el sitting tenga comensales, sale la cantidad.</span></div>';
+      else html+='<div class="beb-line"><span class="beb-desglose">En cuanto el plano de mesas tenga comensales, sale la cantidad.</span></div>';
       if(cat.opciones) html+=marcaSelectHtml(cat);
     }
     html+='</div>';
@@ -7432,7 +7485,7 @@ function renderBebidaSheet(){
   });
   var cuerpo=filas
     ? '<h3 class="mnu-sheet-fam">Bebidas del evento</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>'
-    : '<p class="mnu-note">En cuanto el sitting tenga comensales, aquí saldrá la previsión de bebidas para el equipo de sala.</p>';
+    : '<p class="mnu-note">En cuanto el plano de mesas tenga comensales, aquí saldrá la previsión de bebidas para el equipo de sala.</p>';
   wrap.innerHTML=printBar("bebida")+'<div class="sheet"><div class="frame">'+
     docHead("Bebida",t)+cuerpo+'<div class="foot">Les Moles Events</div></div></div>';
   wirePrintBtn();
@@ -8443,8 +8496,8 @@ function renderStats(){
       return sinAlta?'<div class="stat alert" title="Confirmados a los que todavía no se ha puesto fecha de alta"><b>'+sinAlta+'</b><span>sin fecha de alta</span></div>':''; })();
   var e=BR.current();
   $("cam-origen").innerHTML = e
-    ? ('Disponibilidad para <b>'+esc(e.name||"este evento")+'</b>. Para marcar la de otro evento, cámbialo arriba, en «Evento».')
-    : 'Crea o elige un evento arriba para poder marcar la disponibilidad de cada camarero.';
+    ? ('Disponibilidad para <b>'+esc(e.name||"este evento")+'</b>. Para marcar la de otro evento, elígelo en «Eventos» (arriba en la barra lateral; en el móvil, en la barra de abajo).')
+    : 'Crea o elige un evento en «Eventos» para poder marcar la disponibilidad de cada camarero.';
 }
 
 function filaHtml(p){
