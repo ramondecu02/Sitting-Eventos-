@@ -14,7 +14,9 @@
  *   PUT  /api/store             guarda el documento (requiere sesión)
  *   GET  /api/users             lista de usuarios (solo admin)
  *   POST /api/users             crea usuario {email,name,role,password} (solo admin)
+ *   PATCH  /api/users           {id, password?, role?, name?} cambia clave/rol (solo admin)
  *   DELETE /api/users?id=..     elimina usuario (solo admin)
+ *   GET  /api/share?t=..        datos públicos del evento compartido con los novios
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -52,12 +54,29 @@ async function api(request, env, url) {
   if (p === "/api/store" && m === "PUT") return storePut(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
+  if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
   if (p === "/api/users" && m === "DELETE") return usersDelete(request, env, url);
   return json({ error: "not-found" }, 404);
 }
 
 /* ── sesión ─────────────────────────────────────────────────────────── */
-function secret(env) { return env.SESSION_SECRET || "insecure-dev-secret-change-me"; }
+/* clave para firmar la cookie de sesión: la variable SESSION_SECRET si está
+   configurada; si no, una clave aleatoria que se genera UNA vez y se guarda en
+   D1 (tabla meta). Antes se usaba una clave fija escrita en el código, con la
+   que cualquiera que leyese el repositorio podía fabricar una sesión de admin. */
+let SECRET_CACHE = null;
+async function secret(env) {
+  if (env.SESSION_SECRET) return env.SESSION_SECRET;
+  if (SECRET_CACHE) return SECRET_CACHE;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)").run();
+  let row = await env.DB.prepare("SELECT v FROM meta WHERE k='session_secret'").first();
+  if (!row) {
+    await env.DB.prepare("INSERT OR IGNORE INTO meta (k, v) VALUES ('session_secret', ?)").bind(randomHex(32)).run();
+    row = await env.DB.prepare("SELECT v FROM meta WHERE k='session_secret'").first();
+  }
+  SECRET_CACHE = row.v;
+  return SECRET_CACHE;
+}
 
 async function meRoute(request, env) {
   const s = await session(request, env);
@@ -127,18 +146,36 @@ async function shareRoute(request, env, url) {
   };
   return json({ event: pub });
 }
-/* Cuenta invitados y mesas del texto del plano SIN exponer los nombres:
-   una mesa por línea «M<n> | …», un invitado por línea que no sea cabecera
-   (#/@), cabecera de mesa ni comentario. */
+/* Cuenta invitados y mesas del texto del plano SIN exponer los nombres, con
+   las mismas reglas que el plano de la app: cabeceras «M1 |», «MESA 1»,
+   «TAULA 3», «MESA PRESIDENCIAL», «[4]», «5 |»…; varias personas en una línea
+   con «+» o «&»; y la mesa de STAFF / PERSONAL no cuenta como invitados. */
+const SHAPE_RX = /(presidencial|presidencia|novios|nuvis|honor|rectangular|rectangle|rect|larga|llarga|imperial|alargad|cuadrad|quadra|square|ovalad|oval|eliptica|redond|rodon|rodo|round|circular|redona)/;
+function normTxt(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+function isHeader(s) {
+  let m;
+  if (/^\[(\d+)\]/.test(s)) return { rest: s.replace(/^\[\d+\]\s*/, "") };
+  if ((m = s.match(/^(?:mesa|taula|table)\b\s*(?:n[º°o]?\.?\s*(?=\d))?(\d+)?\s*(.*)$/i))) return { rest: m[2] };
+  if ((m = s.match(/^[mt]\s*\d+\s*(?:[|·:\-\/]\s*(.*))?$/i))) return { rest: m[1] || "" };
+  if ((m = s.match(/^[mt]\s*\d+\s+(.+)$/i))) return { rest: m[1] };
+  if ((m = s.match(/^\d+\s*[|·]\s*(.*)$/))) return { rest: m[1] };
+  if ((m = s.match(/^\d+\s*[)\.:]\s*(.*)$/)) && (!m[1].trim() || SHAPE_RX.test(normTxt(m[1])) || /^\d+\s*$/.test(m[1].trim()))) return { rest: m[1] };
+  return null;
+}
+function peopleIn(line) {
+  let n = 1, d = 0;
+  for (const ch of line) { if (ch === "(" || ch === "[") d++; else if (ch === ")" || ch === "]") d--; else if (d === 0 && (ch === "+" || ch === "&")) n++; }
+  return n;
+}
 function countPlano(text) {
-  let invitados = 0, mesas = 0;
+  let invitados = 0, mesas = 0, staff = false, implicit = false;
   (text || "").split(/\r?\n/).forEach((ln) => {
     const t = ln.trim();
-    if (!t) return;
-    if (/^[#@]/.test(t)) return;                 // título / ubicación
-    if (/^M\S*\s*\|/i.test(t)) { mesas++; return; } // cabecera de mesa
-    if (/^\/\//.test(t)) return;                 // comentario
-    invitados++;
+    if (!t || /^[#@]/.test(t) || /^\/\//.test(t)) return;
+    const h = isHeader(t);
+    if (h) { mesas++; staff = /(\bstaff\b|personal)/.test(normTxt(h.rest)); return; }
+    if (!mesas && !implicit) { mesas++; implicit = true; }
+    if (!staff) invitados += peopleIn(t.replace(/^\s*[-–•]\s+/, ""));
   });
   return { invitados, mesas };
 }
@@ -187,6 +224,36 @@ async function usersCreate(request, env) {
   return json({ ok: true, user: pubUser(user) });
 }
 
+async function usersPatch(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  if (s.role !== "admin") return json({ error: "forbidden" }, 403);
+  const b = await body(request);
+  const id = (b.id || "").trim();
+  if (!id) return json({ error: "invalid" }, 400);
+  const row = await env.DB.prepare("SELECT id FROM users WHERE id=?").bind(id).first();
+  if (!row) return json({ error: "not-found", message: "Ese usuario ya no existe." }, 404);
+  if (b.role != null) {
+    const role = String(b.role).trim();
+    if (ROLES.indexOf(role) < 0) return json({ error: "invalid", message: "Rol no válido." }, 400);
+    if (id === s.uid && role !== "admin") return json({ error: "self", message: "No puedes quitarte el rol de administrador a ti mismo." }, 400);
+    await env.DB.prepare("UPDATE users SET role=? WHERE id=?").bind(role, id).run();
+  }
+  if (b.name != null) {
+    const name = String(b.name).trim();
+    if (!name) return json({ error: "invalid", message: "El nombre no puede quedar vacío." }, 400);
+    await env.DB.prepare("UPDATE users SET name=? WHERE id=?").bind(name, id).run();
+  }
+  if (b.password != null) {
+    const pass = String(b.password);
+    if (pass.length < 6) return json({ error: "invalid", message: "La contraseña debe tener 6 caracteres o más." }, 400);
+    const salt = randomHex(16);
+    const hash = await pbkdf2(pass, salt);
+    await env.DB.prepare("UPDATE users SET pass_hash=?, pass_salt=? WHERE id=?").bind(hash, salt, id).run();
+  }
+  return json({ ok: true });
+}
+
 async function usersDelete(request, env, url) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
@@ -217,14 +284,20 @@ function pubUser(u) { return { id: u.uid || u.id, email: u.email, name: u.name, 
 /* ── sesión firmada (HMAC) ──────────────────────────────────────────── */
 async function withSession(resp, env, user) {
   const exp = Date.now() + SESSION_DAYS * 864e5;
-  const token = await makeToken(secret(env), { uid: user.id, email: user.email, name: user.name, role: user.role, exp });
+  const token = await makeToken(await secret(env), { uid: user.id, email: user.email, name: user.name, role: user.role, exp });
   resp.headers.append("Set-Cookie", `${COOKIE}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}`);
   return resp;
 }
 async function session(request, env) {
   const token = cookie(request, COOKIE);
   if (!token) return null;
-  return readToken(secret(env), token);
+  const pl = await readToken(await secret(env), token);
+  if (!pl) return null;
+  /* el usuario tiene que seguir existiendo, y manda su rol ACTUAL: si el admin
+     lo borra o le cambia el rol, surte efecto ya, no cuando caduque la cookie */
+  const u = await env.DB.prepare("SELECT id, email, name, role FROM users WHERE id=?").bind(pl.uid).first();
+  if (!u) return null;
+  return { uid: u.id, email: u.email, name: u.name, role: u.role, exp: pl.exp };
 }
 function cookie(request, name) {
   const c = request.headers.get("Cookie") || "";

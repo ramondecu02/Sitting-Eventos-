@@ -17,9 +17,16 @@ presupuesto, cronología, tareas, fotografías, documentos e inventario).
 | `/api/login` | POST | Inicia sesión (email + contraseña) → cookie firmada. |
 | `/api/logout` | POST | Cierra la sesión. |
 | `/api/store` | GET/PUT | Documento compartido del negocio (eventos, inventario…). |
-| `/api/users` | GET/POST/DELETE | Gestión de usuarios (solo administrador). |
+| `/api/users` | GET/POST/PATCH/DELETE | Gestión de usuarios (solo administrador): crear, cambiar rol, poner contraseña nueva, eliminar. |
+| `/api/share?t=…` | GET | Página pública de los novios (sin teléfonos, presupuesto ni lista de invitados). |
 
 La sesión es una cookie **HttpOnly, Secure, firmada con HMAC** (`SESSION_SECRET`).
+Si `SESSION_SECRET` no está configurada, el worker genera una clave aleatoria la
+primera vez y la guarda en D1 (tabla `meta`); nunca usa una clave fija del código.
+Cada petición comprueba que el usuario sigue existiendo y usa su rol actual: si
+el administrador lo elimina o le cambia el rol, el cambio es inmediato.
+**Contraseña olvidada**: un administrador pone una nueva desde «Usuarios y roles»
+(botón «Contraseña»); la app no envía emails.
 Las contraseñas se guardan con **PBKDF2-SHA256** (100k iteraciones) + salt.
 
 Roles: `admin`, `eventos`, `cocina`, `compras`, `servicio`. El administrador crea
