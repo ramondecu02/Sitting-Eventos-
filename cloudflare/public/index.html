@@ -186,6 +186,12 @@ details.help[open] summary::before{content:"−  "}
 .toggle input{accent-color:var(--olive-deep); width:14px; height:14px}
 .grp{display:flex; align-items:center; gap:6px; flex-wrap:nowrap; padding-left:9px; border-left:1px solid var(--c-line)}
 .tbrk{flex-basis:100%; width:0; height:0; margin:0; padding:0}
+/* la barra del plano: sus controles no se aplastan (los desplegables quedaban
+   como una flecha sola); si no caben, bajan a otra línea ordenados */
+#plan-tools{flex-wrap:wrap; row-gap:8px}
+#plan-tools > *{flex-shrink:0}
+#plan-tools select{width:auto; max-width:220px}
+#addMark{font-weight:700; cursor:pointer}
 .mini{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut)}
 input[type=range]{width:82px; accent-color:var(--olive-deep)}
 .hintbar{display:block; padding:7px 16px; font-size:12px; line-height:1.6; color:var(--c-mut); background:var(--bg-2); border-bottom:1px solid var(--c-line)}
@@ -793,6 +799,14 @@ body.mode-plan .planv{display:flex}
 .doc-card{display:flex; align-items:center; gap:13px; background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg); padding:15px 16px; cursor:pointer; text-align:left; font:inherit; color:inherit; transition:border-color .14s, box-shadow .14s, transform .14s}
 .pp-presu-bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 6px}
 .pp-presu-bar .pv-sec-note{font-size:12px; color:var(--c-mut)}
+/* elementos de sala en el plano */
+#room .mark{cursor:grab}
+#room .mark:focus{outline:none}
+#room .mark:focus-visible rect:first-child,#room .mark.sel rect:first-child{stroke:#1F6FB2; stroke-width:2.4}
+.mk-panel{position:absolute; z-index:20; width:220px; background:var(--panel); border:1px solid var(--c-line-2); border-radius:10px; box-shadow:var(--shadow); padding:10px; display:flex; flex-direction:column; gap:8px; font-size:12px}
+.mk-panel label{display:flex; flex-direction:column; gap:4px; color:var(--c-mut); font-weight:700; font-size:10px; letter-spacing:.1em; text-transform:uppercase}
+.mk-panel input,.mk-panel select{font:inherit; font-size:13px; letter-spacing:0; text-transform:none; font-weight:400; color:var(--c-ink); background:var(--field); border:1px solid var(--c-line-2); border-radius:6px; padding:6px 8px}
+.mk-row{display:flex; gap:6px; justify-content:space-between}
 .doc-card.doc-main{border-color:color-mix(in srgb,var(--olive) 40%,var(--c-line)); background:color-mix(in srgb,var(--olive) 7%,var(--panel))}
 .doc-card:hover{border-color:var(--c-line-2); box-shadow:var(--shadow); transform:translateY(-2px)}
 .doc-ic{width:38px; height:38px; flex:0 0 auto; border-radius:9px; background:var(--bg-2); color:var(--olive-deep); display:flex; align-items:center; justify-content:center}
@@ -1366,6 +1380,48 @@ body.authed .gate{display:none}
 .cal-legend{display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:14px; padding-top:12px; border-top:1px solid var(--c-line)}
 .cal-lg{display:inline-flex; align-items:center; gap:6px; font-family:"Barlow Semi Condensed",sans-serif; font-size:12px; color:var(--c-mut)}
 .cal-lg i{width:10px; height:10px; border-radius:3px; display:inline-block}
+/* ══ FASE 1 — paneles internos (Menú, Inventario, Camareros) ══════════
+   Misma familia visual que el panel de eventos: cabecera compacta con las
+   cifras a la derecha, ayudas plegadas, filas en sans con cifras tabulares. */
+.panel-head{flex-wrap:wrap; row-gap:10px}
+.ph-stats{margin-left:auto; display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end}
+.ph-stats .stat{padding:5px 11px}
+.ph-stats .stat b{font-variant-numeric:tabular-nums}
+.ph-help{border-top:1px dashed var(--c-line); padding-top:6px}
+.ph-help summary{cursor:pointer; list-style:none; font-size:12px; font-weight:700; color:var(--c-mut); display:inline-flex; align-items:center; gap:6px; padding:2px 0}
+.ph-help summary::-webkit-details-marker{display:none}
+.ph-help summary::before{content:"?"; display:inline-grid; place-items:center; width:17px; height:17px; border-radius:50%; border:1px solid var(--c-line-2); font-size:10.5px; color:var(--c-mut)}
+.ph-help summary:hover{color:var(--c-ink)}
+.ph-help summary:focus-visible{outline:2px solid var(--focus); outline-offset:3px; border-radius:4px}
+.ph-help-body{display:flex; flex-direction:column; gap:6px; padding:6px 0 2px; max-width:900px}
+.ph-help-body .mnu-note,.ph-help-body .mnu-origen{font-size:12.5px; color:var(--c-mut); margin:0}
+.mnu-top{gap:11px}
+.mnu-row .nm,.inv-row .nm,.cam-nm{font-family:"Karla",system-ui,sans-serif; font-size:14px; font-weight:500; color:var(--c-ink); letter-spacing:0}
+.aler-row .aler-nm{font-family:"Karla",system-ui,sans-serif; font-size:14px; font-weight:700}
+.mnu-row,.inv-row{min-height:42px}
+.cam-row{min-height:50px}
+.mnu-row .sv,.inv-row .md{font-size:11px; color:var(--c-mut)}
+.mnu-row .cu,.inv-row .nt{font-size:10.5px}
+.inv-row .qt input,.cam-tel,.mnu-fam-h .cnt,.stat b{font-variant-numeric:tabular-nums}
+.mnu-note,.mnu-origen,.inv-vacio,.cam-nota{color:var(--c-mut)}
+/* estado vacío */
+.es{max-width:460px; margin:9vh auto; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; padding:0 16px}
+.es-ic{width:54px; height:54px; border-radius:16px; display:grid; place-items:center; color:var(--olive-deep); background:color-mix(in srgb,var(--olive) 12%,transparent); border:1px solid color-mix(in srgb,var(--olive) 26%,var(--c-line)); margin-bottom:6px}
+.es-ic svg{width:26px; height:26px}
+.es-t{margin:0; font-family:"Cormorant Garamond",Georgia,serif; font-size:23px; font-weight:600; color:var(--c-ink); line-height:1.15}
+.es-d{margin:0 0 6px; font-size:13px; color:var(--c-mut); line-height:1.55}
+@media print{ .es{display:none!important} }
+@media (max-width:760px){
+  .ph-stats{margin-left:0; flex-basis:100%; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; justify-content:flex-start; padding-bottom:2px}
+  .ph-stats::-webkit-scrollbar{display:none}
+  .ph-stats .stat{flex:0 0 auto; padding:4px 9px}
+  .mnu-fams{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px}
+  .mnu-fams::-webkit-scrollbar{display:none}
+  .mnu-fams > *{flex:0 0 auto}
+  .mnu-top{padding:12px 14px 10px; gap:9px}
+  .es{margin:5vh auto}
+}
+.panel-head .ph-tx{flex:1 1 0; min-width:0}
 </style>
 
 <div class="applayout">
@@ -1496,6 +1552,17 @@ Lluc (trona)</div>
       <div class="grp" id="plan-tools">
         <button class="btn sm" id="addT">+ Mesa</button>
         <button class="btn sm" id="auto" title="Recolocar todas las mesas">Ordenar</button>
+        <select id="addMark" class="btn sm" aria-label="Añadir un elemento de sala (WC, salida de camareros…)" title="Añadir WC, salida de camareros, cocina, barra…">
+          <option value="">+ Elemento de sala…</option>
+          <option value="wc">WC</option>
+          <option value="salida">Salida de camareros</option>
+          <option value="cocina">Cocina</option>
+          <option value="barra">Barra</option>
+          <option value="dj">DJ · Música</option>
+          <option value="pista">Pista de baile</option>
+          <option value="entrada">Entrada de invitados</option>
+          <option value="texto">Texto libre</option>
+        </select>
         <label class="toggle" for="tpl" style="gap:6px"><span class="mini">Plantilla</span>
           <select id="tpl" style="width:auto;padding:5px 8px;font-size:12px">
             <option value="">Sin paredes</option>
@@ -1509,6 +1576,12 @@ Lluc (trona)</div>
           <button data-o="p" aria-pressed="true" title="Vertical" aria-label="Vertical">▯</button>
           <button data-o="l" aria-pressed="false" title="Apaisado" aria-label="Apaisado">▭</button>
         </div>
+        <button class="btn ico" id="rotL" type="button" title="Girar todo el plano un cuarto de vuelta a la izquierda" aria-label="Girar el plano a la izquierda">⟲</button>
+        <button class="btn ico" id="rotR" type="button" title="Girar todo el plano un cuarto de vuelta a la derecha" aria-label="Girar el plano a la derecha">⟳</button>
+        <label class="mini" id="puerta-lbl" style="display:inline-flex;align-items:center;gap:5px">Entrada
+          <select id="puerta" aria-label="Pared de la entrada">
+            <option value="izq">izquierda</option><option value="arr">arriba</option><option value="der">derecha</option><option value="abj">abajo</option>
+          </select></label>
         <button class="btn ico" id="rsm" title="Reducir la sala" aria-label="Reducir la sala">−</button>
         <button class="btn ico" id="rbg" title="Ampliar la sala" aria-label="Ampliar la sala">+</button>
         <span class="mini" id="rsz" style="min-width:62px">960×1400</span>
@@ -1907,6 +1980,7 @@ function setRoomSize(w,h){
     var q=p.pos[n];
     p.pos[n]={x:Math.round(q.x*kx), y:Math.round(BT+(q.y-BT)*ky)};
   });
+  (p.marcas||[]).forEach(function(m){ m.x=Math.round(m.x*kx); m.y=Math.round(BT+(m.y-BT)*ky); });
   /* cambiar el tamaño a mano NO gira el plano: si al ensanchar la sala se
      cambiara también la orientación, el contorno pegaría un volantazo de 90°
      en cuanto la hoja fuera más ancha que alta, con las mesas quietas. Girar
@@ -1923,35 +1997,51 @@ function setRoomSize(w,h){
    vacía. La hoja gira en el mismo sentido que las agujas del reloj: lo que
    estaba arriba pasa a la derecha. */
 function rotateRoomTo(to){
-  var p=plan();
   setRoom();
   /* si ya está en esa orientación, el botón sigue sirviendo para volver a la
      medida estándar de hoja (comportamiento de siempre) */
   if(orientOf()===to){ setRoomSize(to==="p"?960:1400, to==="p"?1400:960); return; }
-  var r0=contentRect(), cw=(to==="l"), ow=RW, oh=RH, rel={};
+  /* vertical → apaisado es un cuarto de vuelta a la derecha; el de vuelta, a la izquierda */
+  girarPlano(to==="l");
+}
+/* hacia dónde queda cada pared al girar un cuarto de vuelta */
+var PARED_CW={izq:"arr",arr:"der",der:"abj",abj:"izq"}, PARED_CCW={arr:"izq",der:"arr",abj:"der",izq:"abj"};
+/* giro de la forma real de la sala (plantilla «17 mesas») y pared de la entrada
+   (plantilla «rectangular»). Sin guardar, salen de la orientación como siempre. */
+function giroDe(p){ p=p||plan(); return p.giro!=null?p.giro:(orientOf()==="l"?90:0); }
+function puertaDe(p){ p=p||plan(); return p.puerta||(orientOf()==="l"?"arr":"izq"); }
+/* girar TODO el plano un cuarto de vuelta (cw = a la derecha). El contorno,
+   la entrada, las mesas y los elementos de sala (WC, salida de camareros…)
+   giran juntos, como si giraras el papel. Dos veces seguidas = media vuelta:
+   así se puede poner la entrada abajo y «ver el plano desde la puerta». */
+function girarPlano(cw){
+  var p=plan();
+  setRoom();
+  var puerta0=puertaDe(p), giro0=giroDe(p);
+  var r0=contentRect(), ow=RW, oh=RH, rel={};
   Object.keys(p.pos).forEach(function(n){
     var q=p.pos[n];
     rel[n]={a:(q.x-r0.x)/r0.w, b:(q.y-r0.y)/r0.h};
   });
+  var relM=(p.marcas||[]).map(function(m){ return {a:(m.x-r0.x)/r0.w, b:(m.y-r0.y)/r0.h}; });
+  var to=orientOf()==="p"?"l":"p";
   p.rw=oh; p.rh=ow; p.orient=to;   /* la hoja gira: alto y ancho se intercambian */
+  p.puerta=(cw?PARED_CW:PARED_CCW)[puerta0];
+  p.giro=(giro0+(cw?90:270))%360;
   setRoom();
   var r1=contentRect();
-  Object.keys(rel).forEach(function(n){
-    var o=rel[n], a=cw?(1-o.b):o.b, b=cw?o.a:(1-o.a);
-    p.pos[n]={x:Math.round(r1.x+a*r1.w), y:Math.round(r1.y+b*r1.h)};
-  });
+  function lleva(o){ var a=cw?(1-o.b):o.b, b=cw?o.a:(1-o.a); return {x:Math.round(r1.x+a*r1.w), y:Math.round(r1.y+b*r1.h)}; }
+  Object.keys(rel).forEach(function(n){ p.pos[n]=lleva(rel[n]); });
+  (p.marcas||[]).forEach(function(m,i){ var q=lleva(relM[i]); m.x=q.x; m.y=q.y; if(m.dir) m.dir=(cw?PARED_CW:PARED_CCW)[m.dir]; });
   /* las mesas alargadas (rectangulares y presidenciales) dan también su cuarto
      de vuelta: una mesa que cruzaba la sala a lo ancho la sigue cruzando */
   if(typeof doc!=="undefined"&&doc&&doc.tables) Object.keys(p.pos).forEach(function(n){
     var t=findTable(+n);
     if(t&&(t.shape==="rect"||t.shape==="presid")) p.vert[n]=!p.vert[n];
   });
-  /* las mesas se achican lo mismo que se achica la sala por su lado más justo,
-     para que al girar no se junten más de lo que ya estaban (si no, en una hoja
-     apaisada, que es más baja, los nombres de dos mesas seguidas se pisan).
-     El paso vertical→apaisado es el que encoge y el de vuelta deshace justo ese
-     mismo factor, así girar y volver deja el tamaño exactamente como estaba. */
-  var f=cw?Math.min(r1.w/r0.h,r1.h/r0.w):1/Math.min(r0.w/r1.h,r0.h/r1.w);
+  /* las mesas se achican lo mismo que se achica la sala por su lado más justo
+     al pasar a apaisado, y el paso de vuelta deshace justo ese factor */
+  var f=(to==="l")?Math.min(r1.w/r0.h,r1.h/r0.w):1/Math.min(r0.w/r1.h,r0.h/r1.w);
   p.scale=(p.scale||1)*f;
   renderPlan(); syncLocUI();
 }
@@ -1979,6 +2069,7 @@ function resizeRoom(w,h,maxCap){
   Object.keys(p.pos).forEach(function(n){
     var q=p.pos[n]; p.pos[n]={x:Math.round(q.x*kx), y:Math.round(BT+(q.y-BT)*ky)};
   });
+  (p.marcas||[]).forEach(function(m){ m.x=Math.round(m.x*kx); m.y=Math.round(BT+(m.y-BT)*ky); });
   p.rw=nw; p.rh=nh;
 }
 /* px por metro que hay AHORA mismo, si la sala tiene medidas reales puestas */
@@ -2052,6 +2143,7 @@ function toSVG(list){
       /* tabindex+role+aria-label: sin esto no había ninguna forma de mover una mesa sin ratón */
       else if(m.tbl!=null) attr=' class="tbl'+(m.cls||"")+'" data-t="'+m.tbl+'" tabindex="0" role="button" aria-label="'+esc(m.label||"")+'"';
       else if(m.edit) attr=' class="edit" data-edit="'+m.edit+'"';
+      else if(m.mark!=null) attr=' class="mark'+(m.cls||"")+'" data-mk="'+esc(m.mark)+'" tabindex="0" role="button" aria-label="'+esc(m.label||"")+'"';
       var tr=m.tx!=null?' transform="translate('+m.tx+','+m.ty+') scale('+(m.s||1)+')"':"";
       out+='<g'+attr+tr+'>'+toSVG(p.items)+'</g>';
     }
@@ -3140,13 +3232,15 @@ var SALON={L:100,R:861,T:150,B:1290,dx:627,dy:573,g1:640,g2:800};
    reciben ahora las dos coordenadas porque al girar ya no son independientes
    (la x nueva depende de la y vieja, y viceversa). */
 function salonMap(){
-  var S=SALON, land=orientOf()==="l";
-  var pw=land?(S.B-S.T):(S.R-S.L), ph=land?(S.R-S.L):(S.B-S.T);
+  var S=SALON, g=giroDe(), w0=S.R-S.L, h0=S.B-S.T, rota=(g===90||g===270);
+  var pw=rota?h0:w0, ph=rota?w0:h0;
   var aw=RW-96, ah=RH-BT-104;
   var k=Math.min(aw/pw,ah/ph);
   var ox=(RW-pw*k)/2, oy=BT+(ah-ph*k)/2;
-  function fx(x,y){ return land?ox+(S.B-y)*k:ox+(x-S.L)*k; }
-  function fy(x,y){ return land?oy+(x-S.L)*k:oy+(y-S.T)*k; }
+  function uv(x,y){ var u=x-S.L, v=y-S.T;
+    if(g===90) return [h0-v,u]; if(g===180) return [w0-u,h0-v]; if(g===270) return [v,w0-u]; return [u,v]; }
+  function fx(x,y){ return ox+uv(x,y)[0]*k; }
+  function fy(x,y){ return oy+uv(x,y)[1]*k; }
   return {k:k,fx:fx,fy:fy,x:ox,y:oy,w:pw*k,h:ph*k};
 }
 /* marco en el que vive el dibujo dentro de la hoja. Es la referencia con la
@@ -3177,6 +3271,22 @@ function entranceMarkTop(it,ey,gL,gR,k){
   it.push(LN(ex-10,tip-14,ex,tip,GOLD,2.4)); it.push(LN(ex+10,tip-14,ex,tip,GOLD,2.4));
   it.push(TX(ex+Math.max(10,14*k),ay+ah/2,"ENTRADA",{size:Math.max(7,9*k),fo:"sans",a:"start",c:GOLD,ls:1.2}));
 }
+/* la marca de entrada en la pared de la derecha (flecha hacia la izquierda)
+   y en la de abajo (flecha hacia arriba), las dos dibujadas dentro de la sala */
+function entranceMarkRight(it,ex,gTop,gBot,k){
+  var ey=(gTop+gBot)/2, aw=Math.max(26,44*k), ax=ex-8, tip=ax-aw;
+  it.push(LN(ex,gTop,ex,gBot,"#E7D9BC",Math.max(1.4,2*k)));
+  it.push(LN(ax,ey+5,tip,ey+5,GOLD,2.4));
+  it.push(LN(tip+14,ey-5,tip,ey+5,GOLD,2.4)); it.push(LN(tip+14,ey+15,tip,ey+5,GOLD,2.4));
+  it.push(TX(ax-aw/2,ey-Math.max(9,12*k),"ENTRADA",{size:Math.max(7,9*k),fo:"sans",a:"middle",c:GOLD,ls:1.2}));
+}
+function entranceMarkBottom(it,ey,gL,gR,k){
+  var ex=(gL+gR)/2, ah=Math.max(26,44*k), ay=ey-8, tip=ay-ah;
+  it.push(LN(gL,ey,gR,ey,"#E7D9BC",Math.max(1.4,2*k)));
+  it.push(LN(ex,ay,ex,tip,GOLD,2.4));
+  it.push(LN(ex-10,tip+14,ex,tip,GOLD,2.4)); it.push(LN(ex+10,tip+14,ex,tip,GOLD,2.4));
+  it.push(TX(ex+Math.max(10,14*k),ay-ah/2+4,"ENTRADA",{size:Math.max(7,9*k),fo:"sans",a:"start",c:GOLD,ls:1.2}));
+}
 function wallPrims(){
   var p=plan(), W="#8C8C8C", it=[];
   if(p.template==="s17"){
@@ -3193,21 +3303,53 @@ function wallPrims(){
        vertical es la de arriba en apaisado): si no, las mesas girarían pero la
        puerta se quedaría quieta, y cambiaría cuál es la mesa que está al lado
        de la entrada. */
-    var k=RW/960, sw2=Math.max(2.6,5.5*k);
-    if(orientOf()==="l"){
-      var h1=BL+(BR-BL)*0.43, h2=BL+(BR-BL)*0.57;
-      it.push(LN(BL,BB,BL,BT,W,sw2)); it.push(LN(BL,BB,BR,BB,W,sw2)); it.push(LN(BR,BB,BR,BT,W,sw2));
-      it.push(LN(BL,BT,h1,BT,W,sw2)); it.push(LN(h2,BT,BR,BT,W,sw2));
-      entranceMarkTop(it,BT,h1,h2,k);
-      return it;
-    }
-    var g1=BT+(BB-BT)*0.43, g2=BT+(BB-BT)*0.57;
-    it.push(LN(BL,BB,BR,BB,W,sw2)); it.push(LN(BR,BB,BR,BT,W,sw2)); it.push(LN(BR,BT,BL,BT,W,sw2));
-    it.push(LN(BL,BT,BL,g1,W,sw2)); it.push(LN(BL,g2,BL,BB,W,sw2));
-    entranceMark(it,BL,g1,g2,k);
+    var k=Math.min(RW,RH)/960, sw2=Math.max(2.6,5.5*k), pu=puertaDe(p);
+    var h1=BL+(BR-BL)*0.43, h2=BL+(BR-BL)*0.57, g1=BT+(BB-BT)*0.43, g2=BT+(BB-BT)*0.57;
+    /* cada pared entera, menos la de la entrada, que lleva el hueco de la puerta */
+    if(pu==="arr"){ it.push(LN(BL,BT,h1,BT,W,sw2)); it.push(LN(h2,BT,BR,BT,W,sw2)); } else it.push(LN(BL,BT,BR,BT,W,sw2));
+    if(pu==="der"){ it.push(LN(BR,BT,BR,g1,W,sw2)); it.push(LN(BR,g2,BR,BB,W,sw2)); } else it.push(LN(BR,BT,BR,BB,W,sw2));
+    if(pu==="abj"){ it.push(LN(BL,BB,h1,BB,W,sw2)); it.push(LN(h2,BB,BR,BB,W,sw2)); } else it.push(LN(BL,BB,BR,BB,W,sw2));
+    if(pu==="izq"){ it.push(LN(BL,BT,BL,g1,W,sw2)); it.push(LN(BL,g2,BL,BB,W,sw2)); } else it.push(LN(BL,BT,BL,BB,W,sw2));
+    if(pu==="arr") entranceMarkTop(it,BT,h1,h2,k);
+    else if(pu==="der") entranceMarkRight(it,BR,g1,g2,k);
+    else if(pu==="abj") entranceMarkBottom(it,BB,h1,h2,k);
+    else entranceMark(it,BL,g1,g2,k);
     return it;
   }
   return [];
+}
+/* Elementos de sala que el equipo necesita ver en el plano (WC, salida de
+   camareros, cocina, barra…). Se colocan arrastrándolos, giran con el plano y
+   salen en el PDF. p.marcas = [{id, t, x, y, txt, dir}] en coordenadas de la
+   sala; dir = pared hacia la que apunta la flecha (opcional). */
+var MARCA_TIPOS=[
+  {t:"wc",txt:"WC"},
+  {t:"salida",txt:"SALIDA CAMAREROS",dir:"der"},
+  {t:"cocina",txt:"COCINA"},
+  {t:"barra",txt:"BARRA"},
+  {t:"dj",txt:"DJ · MÚSICA"},
+  {t:"pista",txt:"PISTA DE BAILE"},
+  {t:"entrada",txt:"ENTRADA INVITADOS",dir:"abj"},
+  {t:"texto",txt:"TEXTO"}
+];
+var selMark=null;
+function marcaPrims(m,forExport){
+  var txt=(m.txt||"").toUpperCase()||"—", wc=m.t==="wc";
+  var size=wc?15:11, tw=textW({s:txt,fo:"sansb",size:size,ls:wc?1:1.4});
+  var w=Math.max(wc?58:70,tw+28), h=wc?40:30, it=[];
+  it.push(R(-w/2,-h/2,w,h,wc?8:15,"#FFFDF8",m.t==="salida"?RUBY:GOLD,1.4));
+  if(wc){ it.push(R(-w/2+4,-h/2+4,w-8,h-8,6,"none","#E4D9C0",0.8)); }
+  it.push(TX(0,size*0.36,txt,{size:size,fo:"sansb",a:"middle",c:m.t==="salida"?RUBY:INK,ls:wc?1:1.4}));
+  if(m.dir){
+    var c=m.t==="salida"?RUBY:GOLD, L=26, d=m.dir;
+    var sx=d==="der"?w/2+4:d==="izq"?-w/2-4:0, sy=d==="abj"?h/2+4:d==="arr"?-h/2-4:0;
+    var ex=sx+(d==="der"?L:d==="izq"?-L:0), ey=sy+(d==="abj"?L:d==="arr"?-L:0);
+    it.push(LN(sx,sy,ex,ey,c,2.4));
+    if(d==="der"||d==="izq"){ var sg=d==="der"?-1:1; it.push(LN(ex+sg*9,ey-7,ex,ey,c,2.4)); it.push(LN(ex+sg*9,ey+7,ex,ey,c,2.4)); }
+    else { var sv=d==="abj"?-1:1; it.push(LN(ex-7,ey+sv*9,ex,ey,c,2.4)); it.push(LN(ex+7,ey+sv*9,ex,ey,c,2.4)); }
+  }
+  var s=Math.max(0.85,Math.min(1.6,Math.min(RW,RH)/960));
+  return GR(it,{mark:m.id,cls:(!forExport&&selMark===m.id)?" sel":"",tx:m.x,ty:m.y,s:s,label:"Elemento de sala: "+txt+". Arrastra para moverlo; Intro para editarlo."});
 }
 function planPrims(L,full,forExport){
   setRoom();
@@ -3253,6 +3395,8 @@ function planPrims(L,full,forExport){
   var ss=[]; ss.push(TX(RW/2,105,doc.sub||"",{size:15,fo:"seri",a:"middle",c:SOFT}));
   if(!forExport) ss.unshift(hitbox(RW/2-Math.min(280,RW/2-30),90,Math.min(560,RW-60),20));
   list.push(GR(ss,{edit:"sub"}));
+
+  (p.marcas||[]).forEach(function(m){ list.push(marcaPrims(m,forExport)); });
 
   var zord=doc.tables.map(function(t){return t.num;}).sort(function(a,b){
     var ia=p.z.indexOf(a),ib=p.z.indexOf(b); return (ia<0?-1:ia)-(ib<0?-1:ib);
@@ -3391,8 +3535,15 @@ function bindRoom(){
     if(ae&&/input|textarea/i.test(ae.tagName||"")&&!ae.classList.contains("titleedit")) ae.blur();
     var ed=e.target.closest(".edit");
     if(ed){ startTitleEdit(ed.dataset.edit); e.preventDefault(); return; }
+    var mk=e.target.closest(".mark");
+    if(mk){
+      var mm=marcaPorId(mk.dataset.mk); if(!mm) return;
+      var ptm=svgPoint(svg,e);
+      drag={type:"mark",id:mm.id,dx:mm.x-ptm.x,dy:mm.y-ptm.y,moved:false,ox:e.clientX,oy:e.clientY,el:mk,snap:snapshot()};
+      svg.setPointerCapture(e.pointerId); e.preventDefault(); return;
+    }
     var seat=e.target.closest(".seat"), tbl=e.target.closest(".tbl");
-    if(!tbl){ if(sel!==null){sel=null;renderPlan();showProp();} return; }
+    if(!tbl){ if(sel!==null||selMark!==null){sel=null;selMark=null;renderPlan();showProp();} return; }
     var num=+tbl.dataset.t;
     if(seat){
       drag={type:"guest",t:num,i:+seat.dataset.i,moved:false,ox:e.clientX,oy:e.clientY,el:seat,snap:snapshot()};
@@ -3414,6 +3565,14 @@ function bindRoom(){
       if(Math.abs(e.clientX-drag.ox)<4&&Math.abs(e.clientY-drag.oy)<4) return;
       drag.moved=true;
     }
+    if(drag.type==="mark"){
+      var ptk=svgPoint(svg,e), mk2=marcaPorId(drag.id); if(!mk2) return;
+      mk2.x=Math.max(30,Math.min(RW-30,Math.round((ptk.x+drag.dx)/4)*4));
+      mk2.y=Math.max(BT-50,Math.min(RH-40,Math.round((ptk.y+drag.dy)/4)*4));
+      var sc=drag.el.getAttribute("transform").replace(/translate\([^)]*\)/,"translate("+mk2.x+","+mk2.y+")");
+      drag.el.setAttribute("transform",sc);
+      return;
+    }
     if(drag.type==="table"){
       var pt=svgPoint(svg,e),p=plan(),bx=null,i;
       for(i=0;i<boxes.length;i++) if(boxes[i].num===drag.t) bx=boxes[i];
@@ -3433,6 +3592,11 @@ function bindRoom(){
   function end(e){
     if(!drag) return; var d=drag; drag=null;
     if(chip){chip.remove();chip=null;}
+    if(d.type==="mark"){
+      if(!d.moved){ selMark=d.id; sel=null; renderPlan(); showProp(); abrirPanelMarca(d.id); }
+      else { pushUndo(d.snap); save(); }
+      return;
+    }
     if(d.type==="table"){
       d.el.classList.remove("dragging");
       if(!d.moved){sel=d.t;renderPlan();showProp();} else {pushUndo(d.snap);bringFront(d.t);save();}
@@ -3450,6 +3614,15 @@ function bindRoom(){
      propiedades, igual que un clic sin mover), y las flechas la desplazan paso a paso — antes
      no había ninguna forma de mover una mesa sin ratón */
   svg.addEventListener("keydown",function(e){
+    var mkk=e.target.closest&&e.target.closest(".mark");
+    if(mkk){
+      var mo=marcaPorId(mkk.dataset.mk); if(!mo) return;
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); selMark=mo.id; pendingFocus='#room .mark[data-mk="'+mo.id+'"]'; renderPlan(); abrirPanelMarca(mo.id); return; }
+      if(e.key==="Delete"||e.key==="Backspace"){ e.preventDefault(); quitarMarca(mo.id); return; }
+      var st=e.shiftKey?40:8, ddx=0, ddy=0;
+      if(e.key==="ArrowRight")ddx=st; else if(e.key==="ArrowLeft")ddx=-st; else if(e.key==="ArrowDown")ddy=st; else if(e.key==="ArrowUp")ddy=-st; else return;
+      e.preventDefault(); pushUndo(); mo.x+=ddx; mo.y+=ddy; pendingFocus='#room .mark[data-mk="'+mo.id+'"]'; renderPlan(); save(); return;
+    }
     var tbl=e.target.closest&&e.target.closest(".tbl"); if(!tbl) return;
     var num=+tbl.dataset.t;
     if(e.key==="Enter"||e.key===" "){
@@ -3468,6 +3641,39 @@ function bindRoom(){
     pushUndo(); p.pos[num]=q; bringFront(num); sel=num;
     pendingFocus='#room .tbl[data-t="'+num+'"]'; renderPlan(); showProp(); save();
   });
+}
+function marcaPorId(id){ var ms=plan().marcas||[]; for(var i=0;i<ms.length;i++) if(ms[i].id===id) return ms[i]; return null; }
+function quitarMarca(id){ var p=plan(); pushUndo(); p.marcas=(p.marcas||[]).filter(function(m){ return m.id!==id; }); selMark=null; cerrarPanelMarca(); renderPlan(); save(); }
+function anadirMarca(t){
+  var def=null; MARCA_TIPOS.forEach(function(x){ if(x.t===t) def=x; }); if(!def) return;
+  var p=plan(); setRoom(); pushUndo(); p.marcas=p.marcas||[];
+  /* aparece en el centro de la zona útil, un poco desplazada si ya hay otras */
+  var n=p.marcas.length, m={id:"mk"+Date.now().toString(36)+n, t:t, x:Math.round(RW/2+((n%5)-2)*40), y:Math.round((BT+BB)/2+((n%3)-1)*40), txt:def.txt};
+  if(def.dir) m.dir=def.dir;
+  p.marcas.push(m); selMark=m.id; sel=null;
+  pendingFocus='#room .mark[data-mk="'+m.id+'"]'; renderPlan(); showProp(); save(); abrirPanelMarca(m.id);
+  toast("Arrástralo a su sitio en el plano. Clic encima para cambiar el texto o la flecha.");
+}
+/* panelito flotante para editar un elemento (texto, flecha, quitar) */
+function cerrarPanelMarca(){ var o=$("mk-panel"); if(o) o.remove(); }
+function abrirPanelMarca(id){
+  cerrarPanelMarca();
+  var m=marcaPorId(id), wrap=document.querySelector("#canvas .roomwrap"); if(!m||!wrap) return;
+  var DIRS=[["","Sin flecha"],["izq","← izquierda"],["arr","↑ arriba"],["der","→ derecha"],["abj","↓ abajo"]];
+  var d=document.createElement("div"); d.id="mk-panel"; d.className="mk-panel"; d.setAttribute("role","dialog"); d.setAttribute("aria-label","Editar elemento de sala");
+  d.innerHTML='<label>Texto<input id="mk-txt" type="text" value="'+esc(m.txt||"")+'"></label>'+
+    '<label>Flecha<select id="mk-dir">'+DIRS.map(function(x){ return '<option value="'+x[0]+'"'+((m.dir||"")===x[0]?" selected":"")+'>'+x[1]+'</option>'; }).join("")+'</select></label>'+
+    '<div class="mk-row"><button type="button" class="btn sm danger" id="mk-del">Quitar</button><button type="button" class="btn sm" id="mk-ok">Hecho</button></div>';
+  var s=Math.max(0.85,Math.min(1.6,Math.min(RW,RH)/960));
+  d.style.left=Math.max(0,Math.min(RW*zoom-230,m.x*zoom-110))+"px";
+  d.style.top=Math.max(0,(m.y+30*s)*zoom+8)+"px";
+  wrap.appendChild(d);
+  var ti=$("mk-txt"); ti.focus(); ti.select();
+  ti.addEventListener("change",function(){ pushUndo(); m.txt=ti.value.trim()||m.txt; renderPlan(); save(); abrirPanelMarca(id); });
+  ti.addEventListener("keydown",function(e){ if(e.key==="Enter"){ ti.blur(); } if(e.key==="Escape"){ cerrarPanelMarca(); } });
+  $("mk-dir").addEventListener("change",function(){ pushUndo(); var v=this.value; if(v) m.dir=v; else delete m.dir; renderPlan(); save(); abrirPanelMarca(id); });
+  $("mk-del").addEventListener("click",function(){ quitarMarca(id); });
+  $("mk-ok").addEventListener("click",function(){ selMark=null; cerrarPanelMarca(); renderPlan(); });
 }
 function bringFront(n){var p=plan();p.z=p.z.filter(function(x){return x!==n;});p.z.push(n);}
 function swapGuests(a,b){
@@ -4622,6 +4828,7 @@ function syncLocUI(){
   Array.prototype.forEach.call($("orientseg").children,function(b){ b.setAttribute("aria-pressed",b.dataset.o===o?"true":"false"); });
   $("tpl").value=plan().template||"";
   setRoom(); var rl=$("rsz"); if(rl) rl.textContent=RW+"×"+RH;
+  var pl=$("puerta-lbl"), ps=$("puerta"); if(pl){ pl.style.display=plan().template==="rect"?"inline-flex":"none"; if(ps) ps.value=puertaDe(); }
   var fs=$("fitsheet"); if(fs){ var sv=salaVsHoja(); fs.style.display=sv.real?"none":"";
     fs.classList.toggle("gold",sv.alargada);
     fs.title=sv.alargada?"La sala es más alargada que la hoja y el plano impreso saldría estrecho: pulsa para darle la forma de la hoja":"Dar a la sala la forma de la hoja (A4/A3)"; }
@@ -5027,6 +5234,10 @@ $("p-del").addEventListener("click",function(){ if(sel!==null) deleteTable(sel);
 $("undo").addEventListener("click",undo);
 function bumpRoom(f){ pushUndo(); setRoom(); setRoomSize(RW*f,RH*f); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},20); }
 $("rsm").addEventListener("click",function(){ bumpRoom(1/1.12); });
+$("rotL").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(false); render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30); });
+$("rotR").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(true); render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30); });
+$("puerta").addEventListener("change",function(){ pushUndo(); plan().puerta=this.value; renderPlan(); save(); });
+$("addMark").addEventListener("change",function(){ var v=this.value; this.value=""; if(v) anadirMarca(v); });
 /* proporción de la sala frente a la de la hoja (lado largo / lado corto) */
 function salaVsHoja(){
   setRoom(); var P=PAPERS[$("paper").value]||PAPERS.A4;
@@ -5199,6 +5410,15 @@ function syncAppbar(){
 /* cabecera de Menú, Inventario y Camareros: dónde estás (sección), de qué
    grupo y —si la sección es de un evento— de qué evento. Mismo estilo que el
    título del panel de eventos, para que se sienta la misma app. */
+/* estado vacío con intención: icono, una frase clara y la acción sugerida.
+   opts = {ic, t, d, btn, k}  (k = sección a la que lleva el botón) */
+window.LM_empty=function(o){
+  o=o||{};
+  return '<div class="es"><span class="es-ic" aria-hidden="true">'+(ICONS[o.ic]||ICONS.doc||"")+'</span>'+
+    '<p class="es-t">'+o.t+'</p>'+(o.d?'<p class="es-d">'+o.d+'</p>':'')+
+    (o.btn?'<button type="button" class="btn gold sm" data-goto="'+escH(o.k||"")+'">'+escH(o.btn)+'</button>':'')+'</div>';
+};
+document.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-goto]"); if(!b) return; var k=b.getAttribute("data-goto"); if(k) irASeccion(k); });
 function syncPanelHead(){
   var b=document.body.classList, key=b.contains("mode-menu")?"mnu":b.contains("mode-inv")?"inv":b.contains("mode-cam")?"cam":null;
   if(!key) return;
@@ -5667,7 +5887,7 @@ function imprimirResumen(e){
   var adultos=t.adults-(t.staff||0);
   var cif=[["Invitados",t.pax],["Adultos",adultos],["Niños",t.child]];
   if(t.baby)cif.push(["Bebés",t.baby]); if(t.staff)cif.push(["Staff",t.staff]);
-  cif.push(["Mesas",d.tables.length]); if(t.aler)cif.push(["Alergias",t.aler]);
+  cif.push(["Mesas aperitivo",mesasAperitivo(e)]); cif.push(["Mesas banquete",d.tables.length]); if(t.aler)cif.push(["Alergias",t.aler]);
   var cifHTML=cif.map(function(c){return '<div class="cf"><b>'+c[1]+'</b><span>'+escH(c[0])+'</span></div>';}).join("");
   var datos=[];
   if(F.tipo)datos.push(["Tipo",F.tipo]);
@@ -5708,7 +5928,7 @@ function imprimirResumen(e){
       '<h2>Balance</h2>'+balHTML+'</div>'+
       '<div><h2>Menú</h2>'+menuHTML+'</div></div>'+
     '<h2>Alergias y dietas</h2>'+alerHTML+
-    '<h2>Mesas</h2>'+mesasHTML+
+    '<h2>Mesas</h2><p style="margin:0 0 8px;font-size:12.5px"><b>Aperitivo:</b> '+mesasAperitivo(e)+' mesas ('+(+(e.menu&&e.menu.pMesaAper)||7)+' personas por mesa) · <b>Banquete:</b> '+d.tables.length+' mesas</p>'+mesasHTML+
     (F.notas?'<h2>Cosas a tener en cuenta</h2><div class="notas">'+escH(F.notas)+'</div>':'')+
     '<div class="foot">Les Moles Events · Hoja de evento generada '+dmyFromISO(new Date().toISOString().slice(0,10))+'</div></body></html>';
   var ifr=document.createElement("iframe"); ifr.setAttribute("aria-hidden","true");
@@ -5731,7 +5951,7 @@ function renderResumen(){
   if(!e){ host.innerHTML='<div class="rsm-inner"><p class="empty">Selecciona un evento para ver su resumen.</p></div>'; return; }
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={title:"",sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0}; }
   var m=e.menu||{};
-  var mesas=d.tables.length, pax=t.pax;
+  var mesas=d.tables.length, pax=t.pax, mesasAper=mesasAperitivo(e);
   var dishes=Object.keys(m.dishes||{}).length;
   var bebs=m.bebidas||{}; var bebCount=Object.keys(bebs).filter(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty); }).length;
   var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
@@ -5766,7 +5986,8 @@ function renderResumen(){
   var kpis=
     '<div class="kpi accent"><div class="k-lbl">Invitados</div><div class="k-num">'+pax+'</div>'+
       '<div class="k-sub">'+(t.adults-(t.staff||0))+' adulto'+((t.adults-(t.staff||0))===1?"":"s")+' · '+t.child+' niño'+(t.child===1?"":"s")+(t.baby?(' · '+t.baby+' bebé'+(t.baby===1?"":"s")):"")+((t.staff||0)?(' · '+t.staff+' staff'):"")+'</div></div>'+
-    '<div class="kpi"><div class="k-lbl">Mesas</div><div class="k-num">'+mesas+'</div><div class="k-sub">de banquete</div></div>'+
+    '<div class="kpi"><div class="k-lbl">Mesas aperitivo</div><div class="k-num">'+mesasAper+'</div><div class="k-sub">'+(+(e.menu&&e.menu.pMesaAper)||7)+' personas por mesa</div></div>'+
+    '<div class="kpi"><div class="k-lbl">Mesas banquete</div><div class="k-num">'+mesas+'</div><div class="k-sub">del plano de mesas</div></div>'+
     '<div class="kpi"><div class="k-lbl">Menú</div><div class="k-num">'+dishes+'</div><div class="k-sub">plato'+(dishes===1?"":"s")+' elegido'+(dishes===1?"":"s")+'</div></div>'+
     '<div class="kpi"><div class="k-lbl">Personal</div><div class="k-num">'+camSi+(camNeed?' <small>/ '+camNeed+'</small>':"")+'</div><div class="k-sub">camarero'+(camSi===1?"":"s")+' asignado'+(camSi===1?"":"s")+'</div></div>'+
     '<div class="kpi"><div class="k-lbl">Presupuesto</div><div class="k-num" style="font-size:27px;white-space:nowrap">'+(pt.total>0?fmtEur(pt.total):"—")+'</div><div class="k-sub">'+(pt.total>0?("pendiente "+fmtEur(pt.pend)):"sin precios aún")+'</div></div>'+
@@ -5810,7 +6031,7 @@ function renderResumen(){
             '<span class="badge '+(estado==="confirmada"||estado==="celebrada"?"done":(estado==="cerrada"?"todo":"prog"))+'">'+escH(estadoT)+'</span>'+
             (dias!=null?'<span class="mi">'+ICONS.cal+'<span>'+escH(capFirst(new Date(e.ficha.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})))+'</span><b>'+(dias>1?("faltan "+dias+" días"):dias===1?"falta 1 día":dias===0?"es hoy":("hace "+(-dias)+" días"))+'</b></span>':'<span class="mi">'+ICONS.cal+'<span>'+sub+'</span></span>')+
             '<span class="mi">'+ICONS.people+'<b>'+pax+'</b><span>invitados</span></span>'+
-            '<span class="mi">'+ICONS.pin+'<b>'+mesas+'</b><span>mesa'+(mesas===1?"":"s")+'</span></span>'+
+            '<span class="mi">'+ICONS.pin+'<b>'+mesasAper+'</b><span>mesas aperitivo ·</span><b>'+mesas+'</b><span>banquete</span></span>'+
           '</div>'+
           '<div class="rsm-actions"><button type="button" class="btn sm" id="rsm-print">Imprimir resumen</button></div>'+
         '</div>'+
@@ -5927,6 +6148,9 @@ function planCounts(e){
    (la ficha sirve para el personal que no se sienta en el plano o para
    reservar menús antes de tener el sitting). */
 function staffMenus(e,c){ c=c||planCounts(e); return Math.max(c.staff||0, Math.max(0,+(e.ficha&&e.ficha.staff)||0)); }
+/* mesas de aperitivo: la misma cuenta que el Menú (adultos entre las personas
+   por mesa de aperitivo de ese evento) — van ANTES que las de banquete */
+function mesasAperitivo(e,c){ c=c||planCounts(e); var pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7); return c.adultos>0?Math.ceil(c.adultos/pma):0; }
 function presupTotals(e){
   var P=e.presupuesto||{}, c=planCounts(e);
   /* el staff sentado en la mesa de staff se cobra a precio staff, no de adulto:
@@ -6756,7 +6980,7 @@ function renderSeleccion(){
     }
     html+='</div>';
   });
-  $("mnu-body").innerHTML=any?html:'<div class="mnu-empty">No hay platos que coincidan con la búsqueda.</div>';
+  $("mnu-body").innerHTML=any?html:window.LM_empty({ic:"Menú del evento",t:"Ningún plato coincide con «"+esc(q)+"»",d:"Prueba con otra palabra o con un ingrediente (p. ej. «gamba», «bacalao»)."});
   wireSelRows();
 }
 
@@ -6831,7 +7055,7 @@ function docHead(title,t){
     '<div class="orn"></div><div class="doc-meta">'+t.total+' comensales</div></header>';
 }
 function emptyPrep(){
-  return '<div class="mnu-empty">No has marcado ningún plato todavía.<br><span style="font-size:14px">Márcalos en «Elegir platos», dentro de «Menú del evento».</span></div>';
+  return window.LM_empty({ic:"Menú del evento",t:"Todavía no hay platos marcados",d:"Esta hoja se hace sola en cuanto elijas los platos del menú del evento.",btn:"Elegir platos",k:"m-sel"});
 }
 
 /* el jamón (el ibérico que se sirve como estación/aperitivo) se cuenta SOLO por
@@ -7112,10 +7336,7 @@ function renderAperitivosAdaptados(lista){
 function renderAlergias(){
   var lista=BR.alergias?BR.alergias():[];
   if(!lista.length){
-    $("mnu-body").innerHTML='<div class="mnu-empty">Ningún comensal del plano tiene alergia, ni es vegetariano, '+
-      'vegano o está embarazada.'+
-      '<br><span style="font-size:14px">Se escriben en el plano, entre paréntesis, detrás del nombre: '+
-      '«Rosa Fabra (alérgica: marisco)», «Anna Serra (vegetariana)», «Tània (vegana)», «Eva Prats (embarazada)».</span></div>'+renderAperitivosAdaptados(lista);
+    $("mnu-body").innerHTML=window.LM_empty({ic:"Plano de mesas",t:"Nadie con alergias ni dietas especiales",d:"Se escriben en el plano, entre paréntesis, detrás del nombre: «Rosa Fabra (alérgica: marisco)», «Anna Serra (vegetariana)», «Eva Prats (embarazada)».",btn:"Ir al plano de mesas",k:"plan"})+renderAperitivosAdaptados(lista);
     wireAperitivosAdaptados();
     return;
   }
@@ -7642,6 +7863,20 @@ BR.menuParams={
   /* cuántos eventos tienen marcado un plato (para avisar antes de borrarlo) */
   usoPlato:function(uid){ var n=0; (BR.allEvents?BR.allEvents():[]).forEach(function(e){ if(e.menu&&e.menu.dishes&&e.menu.dishes[uid]) n++; }); return n; }
 };
+
+/* Fase 1: cada panel interno lleva sus cifras en la cabecera y las notas
+   largas dentro de «¿Cómo funciona?», plegado. Se MUEVEN los mismos nodos
+   (los ids no cambian), así todo lo que los rellena sigue funcionando. */
+[["appMenu","mnu-stats",["mnu-origen","mnu-note"]],["appInv","inv-stats",["inv-origen","inv-note"]],["appCam","cam-stats",["cam-origen","cam-note"]]].forEach(function(c){
+  var panel=$(c[0]); if(!panel) return;
+  var top=panel.querySelector(".mnu-top"), head=panel.querySelector(".panel-head"), st=$(c[1]);
+  if(head&&st){ st.classList.add("ph-stats"); head.appendChild(st); }
+  var det=document.createElement("details"); det.className="ph-help";
+  det.innerHTML='<summary>¿Cómo funciona?</summary><div class="ph-help-body"></div>';
+  var body=det.querySelector(".ph-help-body");
+  c[2].forEach(function(id){ var el=$(id); if(el) body.appendChild(el); });
+  if(top) top.appendChild(det);
+});
 
 document.body.classList.add("mode-sitting");
 fillEventoInputs();
@@ -8171,7 +8406,7 @@ function renderBody(){
       (h.extra&&!h.categorias.length&&!buscando?'<p class="inv-vacio">Esta sección todavía no tiene ningún grupo.</p>':'')+
       bloques+pie+'</div>';
   });
-  $("inv-body").innerHTML=(hay||!buscando)?html:'<div class="mnu-empty">No hay nada en el inventario que coincida con la búsqueda.</div>';
+  $("inv-body").innerHTML=(hay||!buscando)?html:window.LM_empty({ic:"Inventario",t:"Nada en el inventario coincide con la búsqueda",d:"Prueba con otra palabra, una medida o una categoría."});
   engancharBody();
 }
 
@@ -8633,7 +8868,7 @@ function renderReparto(){
     '<p class="rep-aviso">No hay camareros confirmados para este evento. Ve al <b>Listado</b> y marca «Disponible» a los que vienen para poder asignarlos.</p>';
   var cuerpo;
   if(!conf.length && !hayFunciones){
-    cuerpo=aviso;
+    cuerpo=window.LM_empty({ic:"Camareros",t:"Todavía no hay camareros confirmados",d:"Marca «Disponible» a los que vienen a este evento y aquí podrás repartirlos por tiempos y funciones.",btn:"Ir a Camareros del evento",k:"cam"});
   }else{
     cuerpo=aviso+FASES.map(function(f){
       var filas=r.fases[f.k]||[];
@@ -8703,8 +8938,9 @@ function renderBody(){
     .sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
   var html='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>Agenda de camareros</h2><span class="cnt">'+
     lista.length+(lista.length===1?" persona":" personas")+'</span></div>';
-  html += lista.length ? lista.map(filaHtml).join("") : '<p class="inv-vacio">'+
-    (q.trim()?"Nadie coincide con la búsqueda.":"Todavía no hay ningún camarero apuntado.")+'</p>';
+  html += lista.length ? lista.map(filaHtml).join("") : (q.trim()
+    ? window.LM_empty({ic:"Camareros",t:"Nadie coincide con «"+esc(q.trim())+"»",d:"Busca por nombre, teléfono o comentario."})
+    : window.LM_empty({ic:"Camareros",t:"Todavía no hay camareros en la agenda",d:"Añade al equipo abajo: nombre y teléfono. La agenda es la misma para todos los eventos."}));
   if(!q.trim()){
     html += (form&&form.tipo==="persona") ? formHtml()
       : '<div class="inv-pie"><button class="btn sm cam-add">+ Añadir camarero</button></div>';
