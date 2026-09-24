@@ -799,6 +799,42 @@ body.mode-plan .planv{display:flex}
 .doc-card{display:flex; align-items:center; gap:13px; background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg); padding:15px 16px; cursor:pointer; text-align:left; font:inherit; color:inherit; transition:border-color .14s, box-shadow .14s, transform .14s}
 .pp-presu-bar{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 6px}
 .pp-presu-bar .pv-sec-note{font-size:12px; color:var(--c-mut)}
+/* agenda con los novios */
+.cal-hito{background:var(--panel); border-left-style:dashed}
+.cal-hito.done{opacity:.55}
+.cal-hito.late{background:color-mix(in srgb,var(--ruby) 12%,transparent); border-left-color:var(--ruby)!important}
+.ag-list{display:flex; flex-direction:column; gap:0; padding:6px 16px}
+.ag-row{display:grid; grid-template-columns:28px 120px 1fr auto auto; gap:12px; align-items:center; padding:11px 0; border-bottom:1px solid var(--c-line)}
+.ag-row:last-child{border-bottom:0}
+.ag-ic{font-size:17px; text-align:center}
+.ag-date{font-variant-numeric:tabular-nums; font-weight:700; color:var(--c-ink); display:flex; flex-direction:column}
+.ag-date small,.ag-tx small{font-weight:400; font-size:11.5px; color:var(--c-mut)}
+.ag-tx{display:flex; flex-direction:column; gap:1px; color:var(--c-ink)}
+.ag-st{font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:var(--c-mut); white-space:nowrap}
+.ag-row.done .ag-tx,.ag-row.done .ag-date{opacity:.6}
+.ag-row.done .ag-st{color:var(--olive-deep)}
+.ag-row.late .ag-st{color:var(--ruby-tx)}
+@media (max-width:760px){ .ag-row{grid-template-columns:24px 1fr auto; } .ag-date{grid-column:2} .ag-tx{grid-column:2/-1} .ag-st{grid-column:3; grid-row:1} .ag-row .btn{grid-column:2/-1; justify-self:start} }
+.home-agenda{max-width:1320px; width:100%; margin:0 auto; padding:8px 44px 4px}
+.home-agenda:empty{display:none}
+.ha-head{display:flex; align-items:baseline; gap:10px; margin:8px 0 10px}
+.ha-head b{font-family:"Cormorant Garamond",serif; font-size:22px; font-weight:600; color:var(--c-ink)}
+.ha-head span{font-size:12px; color:var(--c-mut)}
+.ha-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:8px}
+.ha-row{display:grid; grid-template-columns:26px 74px 1fr; gap:10px; align-items:center; text-align:left; background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg); padding:10px 12px; font:inherit; color:inherit; cursor:pointer}
+.ha-row:hover{border-color:var(--c-line-2)}
+.ha-row.soon{border-color:color-mix(in srgb,var(--gold) 50%,var(--c-line))}
+.ha-row.late{border-color:color-mix(in srgb,var(--ruby) 45%,var(--c-line)); background:color-mix(in srgb,var(--ruby) 6%,var(--panel))}
+.ha-ic{font-size:16px; text-align:center}
+.ha-date{font-weight:700; font-variant-numeric:tabular-nums; display:flex; flex-direction:column; color:var(--c-ink)}
+.ha-date small{font-weight:400; font-size:11px; color:var(--c-mut)}
+.ha-row.late .ha-date small{color:var(--ruby-tx); font-weight:700}
+.ha-tx{display:flex; flex-direction:column; min-width:0}
+.ha-tx b{font-size:13px; color:var(--c-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ha-tx small{font-size:11.5px; color:var(--c-mut)}
+.ha-more{grid-column:1/-1; margin:0; font-size:12px; color:var(--c-mut)}
+@media (max-width:760px){ .home-agenda{padding:6px 18px 2px} }
+.ag-imp{white-space:nowrap;color:var(--gold-d,#9C7F44);font-weight:600}
 /* elementos de sala en el plano */
 #room .mark{cursor:grab}
 #room .mark:focus{outline:none}
@@ -1555,13 +1591,14 @@ Lluc (trona)</div>
         <select id="addMark" class="btn sm" aria-label="Añadir un elemento de sala (WC, salida de camareros…)" title="Añadir WC, salida de camareros, cocina, barra…">
           <option value="">+ Elemento de sala…</option>
           <option value="wc">WC</option>
-          <option value="salida">Salida de camareros</option>
+          <option value="salida">E C · entrada de camareros</option>
           <option value="cocina">Cocina</option>
           <option value="barra">Barra</option>
           <option value="dj">DJ · Música</option>
           <option value="pista">Pista de baile</option>
           <option value="entrada">Entrada de invitados</option>
           <option value="texto">Texto libre</option>
+          <option value="lm">↺ Colocar E C y WC como en el salón</option>
         </select>
         <label class="toggle" for="tpl" style="gap:6px"><span class="mini">Plantilla</span>
           <select id="tpl" style="width:auto;padding:5px 8px;font-size:12px">
@@ -1755,6 +1792,7 @@ Lluc (trona)</div>
     </div>
   </div>
   <div class="home-stats" id="home-stats"></div>
+  <div class="home-agenda" id="home-agenda"></div>
   <div class="home-viewbar">
     <div class="home-viewseg" id="home-viewseg" role="tablist" aria-label="Ver eventos como">
       <button class="hv-btn" data-hv="lista" type="button" aria-pressed="true">Lista por meses</button>
@@ -2765,7 +2803,7 @@ function migrate(e){
     var p=e.plans[k]=e.plans[k]||blankPlan("p",defTpl(k));
     p.pos=p.pos||{};p.size=p.size||{};p.vert=p.vert||{};p.z=p.z||[];p.scale=p.scale||1;
     if(p.template===undefined) p.template=defTpl(k);
-    if(!p.orient||(p.orient==="l"&&!Object.keys(p.pos).length)) p.orient="p";
+    if(!p.orient||(p.orient==="l"&&!Object.keys(p.pos).length&&!p.puerta)) p.orient="p";
     if(k==="interior"&&!e.tplFixed&&p.template==="s17"&&!e.plans.exterior.template){ p.template=null; e.plans.exterior.template="s17"; }
   });
   e.tplFixed=1;
@@ -2806,6 +2844,12 @@ function migrate(e){
   }catch(_){} }
   /* la entrada se dibujaba en el plano exterior; pasa al interior (plantilla "rect") —
      los eventos ya migrados no tenían plantilla en el interior, así que se la damos una vez */
+  /* entrada de camareros (E C) y WC tal como están en el salón de Les Moles:
+     se colocan una vez en los planos interiores con la plantilla de paredes */
+  if(!e.marcasLM){ var _pi=e.plans&&e.plans.interior;
+    if(_pi&&(_pi.template||"rect")==="rect"&&!_pi.ownPlano&&!(_pi.marcas||[]).some(function(m){ return m.t==="wc"||m.t==="salida"; }))
+      _pi.marcas=(_pi.marcas||[]).concat(marcasLesMoles(_pi));
+    e.marcasLM=1; }
   if(!e.tplFixed2){ if(!e.plans.interior.template) e.plans.interior.template="rect"; e.tplFixed2=1; }
   /* datos del Menú (platos marcados, comensales) — viajan con el evento y se
      sincronizan con el mismo mecanismo (mergeStore/pushRemote) que el plano */
@@ -3324,7 +3368,7 @@ function wallPrims(){
    sala; dir = pared hacia la que apunta la flecha (opcional). */
 var MARCA_TIPOS=[
   {t:"wc",txt:"WC"},
-  {t:"salida",txt:"SALIDA CAMAREROS",dir:"der"},
+  {t:"salida",txt:"E C",dir:"arr"},
   {t:"cocina",txt:"COCINA"},
   {t:"barra",txt:"BARRA"},
   {t:"dj",txt:"DJ · MÚSICA"},
@@ -3332,6 +3376,28 @@ var MARCA_TIPOS=[
   {t:"entrada",txt:"ENTRADA INVITADOS",dir:"abj"},
   {t:"texto",txt:"TEXTO"}
 ];
+/* E C y WC de Les Moles en un plano con la entrada ABAJO (así se ve el
+   sitting desde la puerta): E C arriba a la derecha, saliendo por la pared de
+   arriba; WC en la pared derecha, un poco por encima de la mitad. (a,b) son
+   fracciones del rectángulo de las paredes. Si la entrada está en otra pared
+   se giran igual que gira el plano entero (girarPlano). */
+var LM_MARCAS=[{t:"salida",txt:"E C",a:0.93,b:0.035,dir:"arr"},{t:"wc",txt:"WC",a:0.95,b:0.45,dir:"der"}];
+function marcasLesMoles(p){
+  var vert=(p.orient||"p")==="p", rw=p.rw||(vert?960:1400), rh=p.rh||(vert?1400:960);
+  var puerta=p.puerta||(p.orient==="l"?"arr":"izq"), pasos={abj:0,izq:1,arr:2,der:3}[puerta]||0;
+  var x0=34, x1=rw-34, y0=124, y1=rh-74, k=Date.now().toString(36);
+  return LM_MARCAS.map(function(d,i){
+    var a=d.a, b=d.b, dir=d.dir;
+    for(var j=0;j<pasos;j++){ var na=1-b, nb=a; a=na; b=nb; dir=PARED_CW[dir]; }
+    return {id:"mk"+k+"lm"+i, t:d.t, txt:d.txt, dir:dir, x:Math.round(x0+a*(x1-x0)), y:Math.round(y0+b*(y1-y0))};
+  });
+}
+function colocarMarcasLM(){
+  var p=plan(); setRoom(); pushUndo();
+  p.marcas=(p.marcas||[]).filter(function(m){ return m.t!=="wc"&&m.t!=="salida"; }).concat(marcasLesMoles(p));
+  selMark=null; renderPlan(); showProp(); save();
+  toast("E C y WC colocados como en el salón. Puedes arrastrarlos si hace falta.");
+}
 var selMark=null;
 function marcaPrims(m,forExport){
   var txt=(m.txt||"").toUpperCase()||"—", wc=m.t==="wc";
@@ -4952,7 +5018,8 @@ function onInput(){
   fillSelect(); render(); clearTimeout(tmr); tmr=setTimeout(save,400);
 }
 function newEvent(text,name){
-  var e=migrate({id:"e"+Date.now()+Math.floor(Math.random()*999),text:text,name:name||eventName(text),updated:Date.now()});
+  var _pl=blankPlan("l","rect"); _pl.rw=1400; _pl.rh=960; _pl.puerta="abj"; _pl.giro=270;
+  var e=migrate({id:"e"+Date.now()+Math.floor(Math.random()*999),text:text,name:name||eventName(text),updated:Date.now(),plans:{interior:_pl}});
   store.events.unshift(e); store.active=e.id; sel=null; undoStack=[]; refreshUndo(); setUserSize(1);
   $("src").value=e.text; prevText=e.text; fillSelect(); render(); save();
 }
@@ -5237,7 +5304,7 @@ $("rsm").addEventListener("click",function(){ bumpRoom(1/1.12); });
 $("rotL").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(false); render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30); });
 $("rotR").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(true); render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30); });
 $("puerta").addEventListener("change",function(){ pushUndo(); plan().puerta=this.value; renderPlan(); save(); });
-$("addMark").addEventListener("change",function(){ var v=this.value; this.value=""; if(v) anadirMarca(v); });
+$("addMark").addEventListener("change",function(){ var v=this.value; this.value=""; if(v==="lm") colocarMarcasLM(); else if(v) anadirMarca(v); });
 /* proporción de la sala frente a la de la hoja (lado largo / lado corto) */
 function salaVsHoja(){
   setRoom(); var P=PAPERS[$("paper").value]||PAPERS.A4;
@@ -5590,6 +5657,24 @@ function evSubtitulo(e,conAnio){
     return bits.join(" · ");
   }catch(_){ return ""; }
 }
+/* «Próximos avisos»: lo vencido y lo de los próximos 21 días de TODOS los
+   eventos (documento, pagos, reuniones), en orden de fecha */
+function renderHomeAgenda(){
+  var host=$("home-agenda"); if(!host) return;
+  var items=[];
+  store.events.forEach(function(e){ var dr=diasRestantes(e); if(dr==null||dr<0) return;
+    hitosAuto(e).forEach(function(h){ if(!h.done&&h.falta<=21) items.push({e:e,h:h}); }); });
+  items.sort(function(a,b){ return a.h.fecha<b.h.fecha?-1:1; });
+  if(!items.length){ host.innerHTML=""; return; }
+  host.innerHTML='<div class="ha-head"><b>Próximos avisos</b><span>pagos, reuniones y documentos de los próximos 21 días</span></div><div class="ha-list">'+
+    items.slice(0,8).map(function(x){ var h=x.h;
+      var cuando=h.falta<0?"Vencido":h.falta===0?"Hoy":h.falta===1?"Mañana":"En "+h.falta+" días";
+      return '<button type="button" class="ha-row'+(h.falta<0?" late":h.falta<=3?" soon":"")+'" data-id="'+escH(x.e.id)+'" data-sec="'+(h.tipo==="pago"?"presup":"timeline")+'">'+
+        '<span class="ha-ic">'+(AG_IC[h.tipo]||"•")+'</span><span class="ha-date">'+escH(dmyFromISO(h.fecha).slice(0,5))+'<small>'+cuando+'</small></span>'+
+        '<span class="ha-tx"><b>'+escH(hitoTxt(h))+'</b><small>'+escH(nombreLimpio(x.e.name)||"Evento")+'</small></span></button>';
+    }).join("")+(items.length>8?'<p class="ha-more">y '+(items.length-8)+' más en el calendario</p>':'')+'</div>';
+  Array.prototype.forEach.call(host.querySelectorAll(".ha-row"),function(b){ b.addEventListener("click",function(){ abrirEvento(b.dataset.id,b.dataset.sec); }); });
+}
 function renderHomeStats(){
   var host=$("home-stats"); if(!host) return;
   var now=new Date(), mes=now.getMonth(), anio=now.getFullYear();
@@ -5658,7 +5743,7 @@ function renderHome(){
     else gEl.textContent="Eventos";
   }
   var iEl=$("home-intro"); if(iEl&&u) iEl.textContent="Estos son tus próximos eventos en Les Moles. Elige uno para gestionarlo de principio a fin.";
-  renderHomeStats();
+  renderHomeStats(); renderHomeAgenda();
   var seg=$("home-viewseg");
   if(seg) Array.prototype.forEach.call(seg.children,function(b){ b.setAttribute("aria-pressed", b.dataset.hv===homeView?"true":"false"); });
   var searchWrap=$("home-search"); if(searchWrap) searchWrap.style.display=(homeView==="calendario")?"none":"";
@@ -5705,6 +5790,10 @@ function calItemsByDay(y,mo){
     var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
     if(m&&+m[1]===y&&(+m[2]-1)===mo){ var t=null; try{ t=totals(parse(e.text||"")); }catch(_){}
       push(+m[3],{kind:"event", id:e.id, name:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0}); }
+    hitosAuto(e).forEach(function(h){
+      var hm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(h.fecha);
+      if(hm&&+hm[1]===y&&(+hm[2]-1)===mo) push(+hm[3],{kind:"hito", id:e.id, h:h, ev:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e)});
+    });
     ((e.presupuesto&&e.presupuesto.pagos)||[]).forEach(function(p){
       var pm=p.fecha&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(p.fecha);
       if(pm&&+pm[1]===y&&(+pm[2]-1)===mo) push(+pm[3],{kind:"pay", id:e.id, concepto:(p.concepto||"Pago"), importe:(+p.importe||0), ev:(e.name||"Evento")});
@@ -5737,7 +5826,11 @@ function renderHomeCalendar(){
     if(inMonth){
       html+='<span class="cal-day">'+dnum+'</span>';
       (byDay[dnum]||[]).forEach(function(it){
-        if(it.kind==="pay"){
+        if(it.kind==="hito"){
+          var hh=it.h, colH=tipoColor(it.tipo);
+          html+='<button class="cal-ev cal-hito'+(hh.done?" done":"")+(!hh.done&&hh.falta<0?" late":"")+'" type="button" data-id="'+escH(it.id)+'" data-sec="'+(hh.tipo==="pago"?"presup":"timeline")+'" title="'+escH(hitoTxt(hh)+" · "+it.ev)+'" style="border-left-color:'+colH+'">'+
+            (hh.done?"✓ ":(AG_IC[hh.tipo]||"•")+" ")+'<b>'+escH(hh.t)+'</b> <small>'+escH(it.ev)+(hh.importe?" · "+fmtEur(hh.importe):"")+'</small></button>';
+        } else if(it.kind==="pay"){
           html+='<button class="cal-ev cal-pay" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">💶 <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
         } else {
           var col=tipoColor(it.tipo);
@@ -5772,7 +5865,8 @@ function imprimirCalendario(y,mo){
     cellHtml+='<td'+(inMonth?"":' class="other"')+'>';
     if(inMonth){ cellHtml+='<div class="d">'+dnum+'</div>';
       (byDay[dnum]||[]).forEach(function(it){
-        if(it.kind==="pay"){ cellHtml+='<div class="ev pay">💶 '+escH(it.concepto)+(it.importe?' · '+fmtEur(it.importe):'')+'</div>'; }
+        if(it.kind==="hito"){ cellHtml+='<div class="ev hito'+(it.h.done?' done':'')+'">'+(it.h.done?"✓ ":(AG_IC[it.h.tipo]||"•")+" ")+escH(it.h.t)+' · '+escH(it.ev)+(it.h.importe?' · '+fmtEur(it.h.importe):'')+'</div>'; }
+        else if(it.kind==="pay"){ cellHtml+='<div class="ev pay">💶 '+escH(it.concepto)+(it.importe?' · '+fmtEur(it.importe):'')+'</div>'; }
         else { var col=tipoColor(it.tipo); cellHtml+='<div class="ev" style="border-left-color:'+col+';background:'+col+'22">'+escH(it.name)+(it.pax?' · '+it.pax+' pax':'')+'</div>'; }
       });
     }
@@ -5789,6 +5883,7 @@ function imprimirCalendario(y,mo){
     'td{border:1px solid #ccc;height:92px;vertical-align:top;padding:4px 5px}td.other{background:#faf9f5}.d{font-size:14px;text-align:right;color:#666;margin-bottom:3px}'+
     '.ev{font:600 10px/1.25 Arial,sans-serif;background:#eef0e6;border-left:3px solid #6E7D50;border-radius:3px;padding:2px 4px;margin-bottom:2px;overflow:hidden}'+
     '.ev.pay{background:#f4ecdc;border-left-color:#9C7F44}'+
+    '.ev.hito{background:#fff;border-left:3px dashed #8A9A6B}.ev.hito.done{opacity:.55}'+
     '.foot{margin-top:12px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
     '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos y pagos</div>'+
     (legend?'<div class="leg">'+legend+'</div>':'')+
@@ -6164,6 +6259,45 @@ function presupTotals(e){
 }
 function tareasPendientes(e){ var tk=e.tareas; if(!tk) return null; return tk.filter(function(x){return x.estado!=="completada";}).length; }
 function diasRestantes(e){ var f=e.ficha&&e.ficha.fecha; if(!f) return null; var d=new Date(f+"T00:00:00"); if(isNaN(d)) return null; return Math.ceil((d-new Date(new Date().toDateString()))/86400000); }
+/* ══ AGENDA AUTOMÁTICA DEL EVENTO ═════════════════════════════════════
+   A partir de la fecha del evento se programan solos los pasos con los
+   novios (valores de Les Moles; se cambian en Parámetros → Agenda):
+     · la señal (1.000 €) se cobra lo primero, al reservar
+     · 25 días antes: enviar el documento (datos, listado de mesas, adultos,
+       niños, staff…)          · 18 días antes: primer pago (65 %)
+     · 11 días antes: reunión de dudas   · 4 días antes: última reunión
+     · 2 días antes: último pago y se cierran los cambios
+   Salen en el calendario, en los avisos del evento y en «Próximos avisos». */
+var AGENDA_DEF={senal:1000, hitos:[
+  {id:"doc",  tipo:"documento", dias:25, t:"Enviar el documento a los novios", d:"Datos del evento, listado de mesas, adultos, niños, staff…"},
+  {id:"pago1",tipo:"pago",      dias:18, t:"Primer pago"},
+  {id:"reu1", tipo:"reunion",   dias:11, t:"Reunión de dudas"},
+  {id:"reu2", tipo:"reunion",   dias:4,  t:"Última reunión"},
+  {id:"pago2",tipo:"pago",      dias:2,  t:"Último pago · se cierran los cambios", resto:true, cierre:true}
+]};
+function agendaCfg(){ var d=paramData("agenda"); return (d&&d.hitos&&d.hitos.length)?d:AGENDA_DEF; }
+function isoDe(d){ return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+function hitosAuto(e){
+  var f=e&&e.ficha&&e.ficha.fecha; if(!f) return [];
+  var base=new Date(f+"T00:00:00"); if(isNaN(base)) return [];
+  var cfg=agendaCfg(), pt=presupTotals(e), senal=Math.max(0,+cfg.senal||0), pct=pctSenal(), hechos=e.agendaHecho||{};
+  var hoy=new Date(new Date().toDateString());
+  return cfg.hitos.map(function(h){
+    var d=new Date(base); d.setDate(d.getDate()-(+h.dias||0));
+    var imp=null, done=!!hechos[h.id], auto=false;
+    if(h.tipo==="pago"){
+      if(h.resto){ imp=Math.max(0,pt.total-senal-pt.total*pct/100); if(pt.total>0&&pt.pend<=0.5){ done=true; auto=true; } }
+      else { imp=pt.total*pct/100; if(pt.total>0&&pt.pagado>=senal+imp-1){ done=true; auto=true; } }
+    }
+    var t=h.t+(h.tipo==="pago"&&!h.resto?" ("+pct+"%)":"");
+    return {id:h.id, t:t, d:h.d||"", tipo:h.tipo, fecha:isoDe(d), dias:+h.dias||0, importe:imp, done:done, auto:auto, cierre:!!h.cierre,
+            falta:Math.round((d-hoy)/86400000)};
+  }).sort(function(a,b){ return a.fecha<b.fecha?-1:1; });
+}
+/* ¿el evento ya no admite cambios? (pasado el hito de cierre y antes del día) */
+function cambiosCerrados(e){ var c=hitosAuto(e).filter(function(h){ return h.cierre; })[0]; var dr=diasRestantes(e); return !!(c&&c.falta<=0&&dr!=null&&dr>=0)?c:null; }
+var AG_IC={documento:"📄",pago:"💶",reunion:"🗓",tarea:"✔"};
+function hitoTxt(h){ return h.t+(h.importe!=null&&h.importe>0?" · "+fmtEur(h.importe):""); }
 function eventoAlertas(e){
   var a=[], c=planCounts(e), m=e.menu||{}, P=e.presupuesto||{};
   var dishes=Object.keys(m.dishes||{}).length;
@@ -6186,14 +6320,25 @@ function eventoAlertas(e){
   if(!beb) add("Las bebidas del evento no están definidas.","m-bebida",true);
   if(c.pax>0&&camSi===0) add("No hay camareros asignados al servicio.","cam",true);
   var pt=presupTotals(e);
+  /* la señal fija (1.000 €) es lo primero que se cobra, al reservar */
+  var _cfg=agendaCfg();
+  if(+_cfg.senal>0&&pt.pagado<+_cfg.senal-0.5&&(dr==null||dr>=0)) a.push({t:"Señal de "+fmtEur(+_cfg.senal)+" sin cobrar (se cobra al reservar).",k:"presup",sev:"urgent"});
+  /* agenda automática: lo vencido, urgente; lo de las próximas 2 semanas, aviso */
+  if(dr==null||dr>=0) hitosAuto(e).forEach(function(h){
+    if(h.done) return;
+    var k=h.tipo==="pago"?"presup":"timeline";
+    if(h.falta<0) a.push({t:"Vencido el "+dmyFromISO(h.fecha)+": "+hitoTxt(h)+".",k:k,sev:"urgent"});
+    else if(h.falta<=14) a.push({t:(h.falta===0?"Hoy":h.falta===1?"Mañana":"El "+dmyFromISO(h.fecha)+" (en "+h.falta+" días)")+": "+hitoTxt(h)+".",k:k,sev:h.falta<=3?"urgent":"warn"});
+  });
+  var _cc=cambiosCerrados(e);
+  if(_cc) a.push({t:"Cambios cerrados desde el "+dmyFromISO(_cc.fecha)+": cualquier cambio de mesas o menú, confirmarlo con cocina y sala.",k:"timeline",sev:"warn"});
   if(pt.total>0){
-    if(pt.pagado<=0.5) add("Señal ("+pctSenal()+"%) sin cobrar — "+fmtEur(pt.total*pctSenal()/100)+".","presup",true);
-    else if(pt.pend>0.5) add("Pendiente de cobro "+fmtEur(pt.pend)+".","presup",true);
+    if(pt.pend>0.5) add("Pendiente de cobro "+fmtEur(pt.pend)+".","presup",true);
     else if(pt.pend<-0.5) a.push({t:"Se ha cobrado "+fmtEur(-pt.pend)+" más de lo presupuestado: revisa pagos o extras.",k:"presup",sev:"warn"});
   }
   var provPend=(e.proveedores||[]).filter(function(p){return p.estado!=="Confirmado"&&p.estado!=="Contratado";}).length;
   if(provPend>0) add(provPend+(provPend===1?" proveedor sin confirmar.":" proveedores sin confirmar."),"prov",true);
-  if(!(e.hitos&&e.hitos.reunionFinal)){ if(dr!=null&&dr<=45&&dr>=0) add("La reunión final todavía no está programada.","timeline",true); }
+  if(!(e.hitos&&e.hitos.reunionFinal)&&!agendaCfg().hitos.some(function(h){return h.tipo==="reunion";})){ if(dr!=null&&dr<=45&&dr>=0) add("La reunión final todavía no está programada.","timeline",true); }
   var tk=e.tareas||[], bloq=tk.filter(function(x){return x.estado==="bloqueada";}).length;
   if(bloq>0) a.push({t:bloq+(bloq===1?" tarea bloqueada.":" tareas bloqueadas."),k:"tareas",sev:"warn"});
   var venc=tareasVencidas(e);
@@ -6325,6 +6470,9 @@ function onPlanClick(ev){
   else if(act==="doc-del"){ e.docs=e.docs||[]; e.docs.splice(i,1); }
   else if(act==="goto"){ irASeccion(b.getAttribute("data-k")); return; }
   else if(act==="doc-resumen"){ imprimirResumen(e); return; }
+  else if(act==="ag-toggle"){ var _k=b.getAttribute("data-k"); e.agendaHecho=e.agendaHecho||{}; if(e.agendaHecho[_k]) delete e.agendaHecho[_k]; else e.agendaHecho[_k]=hoyISO(); }
+  else if(act==="ag-pago"){ var _h=hitosAuto(e).filter(function(x){ return x.id===b.getAttribute("data-k"); })[0];
+    if(_h){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:_h.t,importe:Math.round((_h.importe||0)*100)/100}); toast("Pago registrado: "+_h.t+" · "+fmtEur(_h.importe||0)+". Revisa la fecha y el importe en Presupuesto."); } }
   else if(act==="presu-pdf"){ descargarPresupuesto(e,($("paper")&&$("paper").value)||"A4"); return; }
   else return;
   planSave(); renderPlanV(planView);
@@ -6381,7 +6529,22 @@ function viewTimeline(e){
       '<div class="tl-body"><b>'+escH(h.t)+'</b>'+(now?'<span class="tl-now-tag">Siguiente</span>':"")+
       '<span class="tl-date"><input type="date" data-hito="'+h.k+'" value="'+escH(date||"")+'"></span></div></div>';
   }).join("");
-  return '<div class="pv-sec">Cronología del ciclo <span class="pv-sec-note">— marca la fecha de cada hito</span></div>'+
+  var ag=hitosAuto(e), cfg=agendaCfg(), agHTML;
+  if(!ag.length) agHTML='<div class="pcard"><p class="muted" style="margin:0">Pon la fecha del evento en «Ficha y contacto» y la agenda (documento, pagos y reuniones) se programa sola.</p></div>';
+  else agHTML='<div class="pcard ag-list">'+
+    (+cfg.senal>0?'<div class="ag-row'+(presupTotals(e).pagado>=+cfg.senal-0.5?" done":"")+'"><span class="ag-ic">💶</span><span class="ag-date">Al reservar</span><span class="ag-tx"><b>Señal</b> <span class="ag-imp">'+fmtEur(+cfg.senal)+'</span></span><span class="ag-st">'+(presupTotals(e).pagado>=+cfg.senal-0.5?"Cobrada":"Pendiente")+'</span></div>':'')+
+    ag.map(function(h){
+      var st=h.done?(h.auto?"Cobrado":"Hecho"):(h.falta<0?"Vencido":h.falta===0?"Hoy":"En "+h.falta+" días");
+      var accion=h.done?(h.auto?"":'<button type="button" class="btn sm" data-act="ag-toggle" data-k="'+escH(h.id)+'">Deshacer</button>')
+        :(h.tipo==="pago"?'<button type="button" class="btn sm gold" data-act="ag-pago" data-k="'+escH(h.id)+'">Registrar pago</button>'
+                          :'<button type="button" class="btn sm" data-act="ag-toggle" data-k="'+escH(h.id)+'">Marcar hecho</button>');
+      return '<div class="ag-row'+(h.done?" done":"")+(!h.done&&h.falta<0?" late":"")+'"><span class="ag-ic">'+(AG_IC[h.tipo]||"•")+'</span>'+
+        '<span class="ag-date">'+escH(dmyFromISO(h.fecha))+'<small>'+h.dias+' días antes</small></span>'+
+        '<span class="ag-tx"><b>'+escH(h.t)+'</b>'+(h.importe?' <span class="ag-imp">'+fmtEur(h.importe)+'</span>':'')+(h.d?'<small>'+escH(h.d)+'</small>':'')+'</span>'+
+        '<span class="ag-st">'+st+'</span>'+accion+'</div>';
+    }).join("")+'</div>';
+  return '<div class="pv-sec">Agenda con los novios <span class="pv-sec-note">— se programa sola a partir de la fecha del evento; sale en el calendario y en los avisos</span></div>'+agHTML+
+    '<div class="pv-sec">Cronología del ciclo <span class="pv-sec-note">— marca la fecha de cada hito</span></div>'+
     '<div class="pcard"><div class="tl">'+rows+'</div></div>';
 }
 function viewTareas(e){
