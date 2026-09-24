@@ -2647,7 +2647,8 @@ function migrate(e){
   if(!e.tplFixed2){ if(!e.plans.interior.template) e.plans.interior.template="rect"; e.tplFixed2=1; }
   /* datos del Menú (platos marcados, comensales) — viajan con el evento y se
      sincronizan con el mismo mecanismo (mergeStore/pushRemote) que el plano */
-  e.menu=e.menu||{adultos:0,ninos:0,pMesaAper:7,pMesaBanq:10,dishes:{}};
+  if(!e.menu){ var _sv={}; try{ _sv=(store&&store.params&&store.params.sec&&store.params.sec.servicio&&store.params.sec.servicio.data)||{}; }catch(_){}
+    e.menu={adultos:0,ninos:0,pMesaAper:+_sv.pMesaAper||7,pMesaBanq:+_sv.pMesaBanq||10,dishes:{}}; }
   e.menu.dishes=e.menu.dishes||{};
   /* aperitivos del cóctel adaptados, uno por cada alergia DISTINTA que haya en
      el plano del evento — no por comensal (eso son los platos sustitutivos de
@@ -2691,9 +2692,11 @@ function migrate(e){
   /* presupuesto: precios por tipo de menú, extras y pagos registrados */
   e.presupuesto=e.presupuesto||{};
   var P=e.presupuesto;
-  if(P.precioAdulto==null) P.precioAdulto=0;
-  if(P.precioInfantil==null) P.precioInfantil=0;
-  if(P.precioStaff==null) P.precioStaff=0;
+  /* evento nuevo: los precios de partida salen de Parámetros → Presupuesto y pagos */
+  var _cm={}; try{ _cm=(store&&store.params&&store.params.sec&&store.params.sec.comercial&&store.params.sec.comercial.data)||{}; }catch(_){}
+  if(P.precioAdulto==null) P.precioAdulto=+_cm.precioAdulto||0;
+  if(P.precioInfantil==null) P.precioInfantil=+_cm.precioInfantil||0;
+  if(P.precioStaff==null) P.precioStaff=+_cm.precioStaff||0;
   P.extras=P.extras||[];   /* [{id,concepto,importe}] */
   P.pagos=P.pagos||[];     /* [{id,fecha,concepto,importe}] */
   /* comunicaciones: bitácora de contactos con la pareja */
@@ -2744,6 +2747,7 @@ function mergeStore(){
   store.inventario=mergeInv(store.inventario,disk.inventario);
   store.invExtra=mergeInvExtra(store.invExtra,disk.invExtra);
   store.camareros=mergeCamareros(store.camareros,disk.camareros);
+  store.params=mergeParams(store.params,disk.params);
   if(!current()) store.active=out.length?out[0].id:null;
   return store;
 }
@@ -2930,6 +2934,7 @@ function hydrateFromServer(){
       var before=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
       var invBefore=JSON.stringify([store.inventario||{},store.invExtra||{}]);
       var camBefore=JSON.stringify(store.camareros||{});
+      var parBefore=JSON.stringify(store.params||{});
       /* El inventario y la agenda de camareros son del negocio, no de un evento:
          se combinan siempre, aunque el servidor todavía no tenga ningún evento.
          Antes esto colgaba de que hubiera eventos y, en un equipo que aún no
@@ -2938,6 +2943,10 @@ function hydrateFromServer(){
       store.invExtra=mergeInvExtra(store.invExtra,remote.invExtra);
       store.camareros=mergeCamareros(store.camareros,remote.camareros);
       if(remote.prefs) store.prefs=Object.assign({},remote.prefs,store.prefs);
+      store.params=mergeParams(store.params,remote.params);
+      var parCambia=JSON.stringify(store.params||{})!==parBefore;
+      if(parCambia){ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){} aplicarParams();
+        try{ if(document.body.classList.contains("mode-plan")) renderPlanV(planView); if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.onExternalChange) window.SITTING_BRIDGE.onExternalChange(); }catch(_){} }
       if(remote.events&&remote.events.length){
         /* si lo único que había en este navegador era la boda de ejemplo sin tocar y el
            servidor ya trae eventos de verdad, no la mezclamos: un compañero que entra por
@@ -4916,7 +4925,14 @@ var SECCIONES=[
   {k:"cam",      g:"Camareros", t:"Camareros del evento"},
   {k:"cam-rep",  g:"Camareros", t:"Reparto de camareros"},
   {k:"docs",     g:"Recursos", t:"Documentos"},
-  {k:"fotos",    g:"Recursos", t:"Fotografías"}
+  {k:"fotos",    g:"Recursos", t:"Fotografías"},
+  /* parámetros del negocio: solo el administrador (los demás roles tienen
+     lista blanca de secciones y no incluyen ninguna p-*) */
+  {k:"p-platos",   g:"Parámetros", t:"Platos y escandallo"},
+  {k:"p-bebidas",  g:"Parámetros", t:"Bebidas"},
+  {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
+  {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
+  {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"}
 ];
 function seccionActual(){
   if(document.body.classList.contains("mode-resumen")) return "resumen";
@@ -4983,6 +4999,7 @@ window.syncAppbar=syncAppbar;
 var lastSec="plan";
 function escH(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];});}
 var ICONS={
+  "Parámetros":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>',
   "Plano de mesas":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2.6"/><circle cx="8.5" cy="8.5" r="1.9"/><circle cx="15.5" cy="8.5" r="1.9"/><circle cx="8.5" cy="15.5" r="1.9"/><circle cx="15.5" cy="15.5" r="1.9"/></svg>',
   "Menú del evento":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 18.5h18"/><path d="M5 18.5a7 7 0 0 1 14 0"/><path d="M12 8.2V6.6"/><circle cx="12" cy="5.1" r="1.15" fill="currentColor" stroke="none"/></svg>',
@@ -5011,7 +5028,7 @@ function seccionesDe(g){ return SECCIONES.filter(function(s){ return s.g===g && 
 function grupoDeSeccion(k){ for(var i=0;i<SECCIONES.length;i++) if(SECCIONES[i].k===k) return SECCIONES[i].g; return null; }
 function grupoCorto(g){ return g.split(" ")[0]; }
 
-var GRUPO_NEGOCIO={"Inventario":1};
+var GRUPO_NEGOCIO={"Inventario":1,"Parámetros":1};
 function renderSidenav(){
   var nav=$("side-nav"); if(!nav) return;
   nav.innerHTML="";
@@ -5490,7 +5507,7 @@ function renderResumen(){
   var dishes=Object.keys(m.dishes||{}).length;
   var bebs=m.bebidas||{}; var bebCount=Object.keys(bebs).filter(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty); }).length;
   var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
-  var camNeed=pax>0?Math.ceil(pax/11):0;
+  var camNeed=pax>0?Math.ceil(pax/ratioCamarero()):0;
   var prog=eventoProgreso(e);
   var cat=eventoCategoria((d.title||"")+" "+(e.name||""));
   var title=escH(nombreLimpio(d.title||e.name)||"Sin título");
@@ -5625,7 +5642,8 @@ function renderResumen(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1};
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-tareas":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
   {k:"reserva",t:"Reserva"},{k:"planificacion",t:"Planificación"},{k:"confirmada",t:"Confirmada"},
@@ -5717,7 +5735,7 @@ function eventoAlertas(e){
   if(c.pax>0&&camSi===0) add("No hay camareros asignados al servicio.","cam",true);
   var pt=presupTotals(e);
   if(pt.total>0){
-    if(pt.pagado<=0.5) add("Señal (65%) sin cobrar — "+fmtEur(pt.total*0.65)+".","presup",true);
+    if(pt.pagado<=0.5) add("Señal ("+pctSenal()+"%) sin cobrar — "+fmtEur(pt.total*pctSenal()/100)+".","presup",true);
     else if(pt.pend>0.5) add("Pendiente de cobro "+fmtEur(pt.pend)+".","presup",true);
     else if(pt.pend<-0.5) a.push({t:"Se ha cobrado "+fmtEur(-pt.pend)+" más de lo presupuestado: revisa pagos o extras.",k:"presup",sev:"warn"});
   }
@@ -5776,6 +5794,10 @@ function showPlan(k){
 window.showPlan=showPlan;
 function renderPlanV(k){
   var host=$("plan-scroll"); if(!host) return;
+  if(String(k).indexOf("p-")===0){
+    if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
+    if(window.LM_renderParam) window.LM_renderParam(k,host); return;
+  }
   var e=current();
   if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
   var top=host.scrollTop;
@@ -5798,6 +5820,7 @@ function renderPlanV(k){
   }
 }
 function onPlanEdit(ev){
+  if(String(planView).indexOf("p-")===0) return;   /* Parámetros tiene sus propios manejadores */
   var el=ev.target, e=current(); if(!e) return;
   var num=el.getAttribute&&el.type==="number";
   function val(){ return num?(el.value===""?0:(parseFloat(el.value)||0)):el.value; }
@@ -5814,6 +5837,7 @@ function onPlanEdit(ev){
   } else if(el.hasAttribute&&el.hasAttribute("data-hito")){ e.hitos[el.getAttribute("data-hito")]=el.value; planSave(); if(ev.type==="change") renderPlanV(planView); }
 }
 function onPlanClick(ev){
+  if(String(planView).indexOf("p-")===0) return;
   var b=ev.target.closest?ev.target.closest("[data-act]"):null; if(!b) return;
   var e=current(); if(!e) return;
   var act=b.getAttribute("data-act"), i=+b.getAttribute("data-i");
@@ -5824,10 +5848,10 @@ function onPlanClick(ev){
   else if(act==="extra-del"){ e.presupuesto.extras.splice(i,1); }
   else if(act==="pago-add"){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"",importe:0}); }
   /* importes al céntimo (como se cobran de verdad: 65% de 26.111,20 = 16.972,28) */
-  else if(act==="pago-senal"){ var _t1=presupTotals(e).total; e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Señal · 1er pago (65%)",importe:Math.round(_t1*65)/100}); }
+  else if(act==="pago-senal"){ var _t1=presupTotals(e).total; e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Señal · 1er pago ("+pctSenal()+"%)",importe:Math.round(_t1*pctSenal())/100}); }
   /* el 2º pago es lo que queda por cobrar (si hubo una señal aparte, el 35% no cuadraría) */
-  else if(act==="pago-2"){ var _p2=presupTotals(e), _r=Math.max(0,Math.round(_p2.pend*100)/100), _35=Math.round(_p2.total*35)/100;
-    e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:Math.abs(_r-_35)<0.02?"2º pago (35%)":"2º pago (resto pendiente)",importe:_r}); }
+  else if(act==="pago-2"){ var _p2=presupTotals(e), _r=Math.max(0,Math.round(_p2.pend*100)/100), _35=Math.round(_p2.total*(100-pctSenal()))/100;
+    e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:Math.abs(_r-_35)<0.02?"2º pago ("+(100-pctSenal())+"%)":"2º pago (resto pendiente)",importe:_r}); }
   else if(act==="pago-del"){ e.presupuesto.pagos.splice(i,1); }
   else if(act==="comm-add"){
     var f=$("comm-fecha"),tp=$("comm-tipo"),nt=$("comm-nota");
@@ -5993,13 +6017,13 @@ function viewPresup(e){
   '<div class="pv-sec">Balance</div>'+
   '<div class="money-row">'+
     '<div class="money"><div class="m-lbl">Total previsto</div><div class="m-num">'+fmtEur(total)+'</div><p class="pay-hint">Menús <b>'+fmtEur(menus)+'</b> + extras <b>'+fmtEur(extras)+'</b></p></div>'+
-    '<div class="money paid"><div class="m-lbl">Pagado</div><div class="m-num">'+fmtEur(pagado)+'</div><p class="pay-hint">Primer pago 65%: <b>'+fmtEur(total*0.65)+'</b></p></div>'+
+    '<div class="money paid"><div class="m-lbl">Pagado</div><div class="m-num">'+fmtEur(pagado)+'</div><p class="pay-hint">Primer pago '+pctSenal()+'%: <b>'+fmtEur(total*pctSenal()/100)+'</b></p></div>'+
     (pend<-0.005?'<div class="money due over"><div class="m-lbl">Cobrado de más</div><div class="m-num">'+fmtEur(-pend)+'</div><p class="pay-hint">Revisa los pagos o añade el extra que falta</p></div>':
-    '<div class="money due"><div class="m-lbl">Pendiente</div><div class="m-num">'+fmtEur(pend)+'</div><p class="pay-hint">'+(pend<0.005&&total>0?"<b>Todo cobrado</b>":'Segundo pago 35%: <b>'+fmtEur(total*0.35)+'</b>')+'</p></div>')+
+    '<div class="money due"><div class="m-lbl">Pendiente</div><div class="m-num">'+fmtEur(pend)+'</div><p class="pay-hint">'+(pend<0.005&&total>0?"<b>Todo cobrado</b>":'Segundo pago '+(100-pctSenal())+'%: <b>'+fmtEur(total*(100-pctSenal())/100)+'</b>')+'</p></div>')+
   '</div>'+
   '<div class="pv-sec">Seguimiento de pagos <span class="pv-sec-note">— cada pago registrado aparece en el calendario en su fecha</span></div>'+
   '<div class="dtable-wrap"><table class="dtable" style="min-width:480px"><thead><tr><th>Fecha</th><th>Concepto</th><th class="rnum">Importe</th><th></th></tr></thead><tbody>'+pagosHTML+'</tbody></table>'+
-    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm gold" data-act="pago-senal">+ Señal (65%)</button><button type="button" class="btn sm" data-act="pago-2">+ 2º pago (35%)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button></div></div>';
+    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn sm gold" data-act="pago-senal">+ Señal ('+pctSenal()+'%)</button><button type="button" class="btn sm" data-act="pago-2">+ 2º pago ('+(100-pctSenal())+'%)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button></div></div>';
 }
 function viewComm(e){
   var iconT={Llamada:"people",WhatsApp:"drink",Email:"doc","Reunión":"guests",Visita:"pin",Nota:"doc"};
@@ -6098,6 +6122,48 @@ window.addEventListener("load",function(){ setTimeout(function(){ if(!userZoomed
 /* la app arranca en el panel de eventos, no dentro de un evento */
 showHome();
 
+/* ══ PARÁMETROS DEL NEGOCIO (solo administrador) ══════════════════════
+   Todo lo que la app calcula sola (platos y escandallo, vajilla, bebidas,
+   camareros, montaje, pagos, tareas…) tenía los valores escritos en el
+   código. Ahora cada bloque puede sobrescribirse desde «Parámetros»: se
+   guarda en store.params.sec[bloque] = {updated, by, data} y viaja con el
+   resto del almacén compartido. data=null significa «valores de fábrica».
+   Se combina bloque a bloque (gana el más reciente), igual que los eventos,
+   y el servidor solo acepta cambios de un administrador. */
+function mergeParams(mio,otro){
+  var out={v:1,sec:{}}, a=(mio&&mio.sec)||{}, b=(otro&&otro.sec)||{};
+  Object.keys(b).forEach(function(k){ out.sec[k]=b[k]; });
+  Object.keys(a).forEach(function(k){ var x=a[k], y=out.sec[k]; if(x&&(!y||(x.updated||0)>=(y.updated||0))) out.sec[k]=x; });
+  return out;
+}
+function paramMeta(sec){ return (store.params&&store.params.sec&&store.params.sec[sec])||null; }
+function paramData(sec){ var m=paramMeta(sec); return (m&&m.data!=null)?m.data:null; }
+var PARAM_HOOKS=[];
+function aplicarParams(){ PARAM_HOOKS.forEach(function(fn){ try{ fn(); }catch(err){ try{ console.warn("parámetros:",err); }catch(_){} } }); }
+function setParam(sec,data){
+  store.params=store.params&&store.params.sec?store.params:{v:1,sec:{}};
+  var u=null; try{ u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
+  store.params.sec[sec]={updated:Date.now(), by:(u&&(u.name||u.email))||"", data:data==null?null:JSON.parse(JSON.stringify(data))};
+  aplicarParams(); save();
+}
+/* valores sueltos con su valor de fábrica */
+function paramVal(sec,key,def){ var d=paramData(sec); return (d&&d[key]!=null&&d[key]!=="")?d[key]:def; }
+function ratioCamarero(){ var r=+paramVal("servicio","ratioCamarero",11); return r>0?r:11; }
+function pctSenal(){ var p=+paramVal("comercial","senal",65); return (p>0&&p<100)?p:65; }
+/* listas del propio script principal: se guardan las de fábrica y se
+   reemplazan EN SU SITIO (los selects y los cálculos las leen de ahí) */
+var TIPO_EVENTO_DEF=TIPO_EVENTO.slice(), PROV_SERV_DEF=PROV_SERV.slice(), FASES_DEF=JSON.parse(JSON.stringify(FASES));
+function reemplazar(arr,nuevo){ arr.length=0; nuevo.forEach(function(x){ arr.push(x); }); }
+PARAM_HOOKS.push(function(){
+  var c=paramData("comercial")||{}, t=paramData("tareas");
+  reemplazar(TIPO_EVENTO,(c.tipos&&c.tipos.length)?c.tipos:TIPO_EVENTO_DEF);
+  reemplazar(PROV_SERV,(c.provServ&&c.provServ.length)?c.provServ:PROV_SERV_DEF);
+  var fs=JSON.parse(JSON.stringify(FASES_DEF));
+  if(t&&t.fases) fs.forEach(function(f){ var o=t.fases[f.k]; if(Array.isArray(o)) f.items=o.slice(); });
+  reemplazar(FASES,fs); FASES.forEach(function(f){ FASE_T[f.k]=f.t; });
+});
+aplicarParams();
+
 /* ══ puente hacia el Menú (script aparte, misma página) ═══════════════
    El Menú vive en su propio IIFE; en vez de fusionar los dos scripts (con
    riesgo de que choquen nombres como $/esc), se le pasan solo las piezas
@@ -6105,6 +6171,8 @@ showHome();
    y viajen por el mismo mergeStore/pushRemote/mergeRemote de siempre. */
 window.SITTING_BRIDGE={
   store:store,
+  param:paramData, paramMeta:paramMeta, setParam:setParam, onParams:function(fn){ PARAM_HOOKS.push(fn); try{ fn(); }catch(err){ try{ console.warn("parámetros:",err); }catch(_){} } },
+  ratioCamarero:ratioCamarero, pctSenal:pctSenal,
   current:current,
   save:save,
   eventName:eventName,
@@ -6275,7 +6343,7 @@ function evTotals(){
   /* un camarero cada 11 comensales — sobre el total, el mismo número que se
      enseña en todas partes como "comensales" (si se contara solo conCubierto,
      esta cifra no cuadraría con la que se ve al lado). */
-  var camareros = total>0 ? Math.ceil(total/11) : 0;
+  var camareros = total>0 ? Math.ceil(total/(BR.ratioCamarero?BR.ratioCamarero():11)) : 0;
   return {
     adultos:adultos, ninos:ninos, tronas:tronas, total:total,
     staff: delPlano?(pt.staff||0):0,
@@ -6339,7 +6407,7 @@ function renderEvStats(){
     '<div class="stat"><b>'+t.mesasBanq+'</b><span>mesas banquete</span></div>'+
     '<div class="stat"><b>'+t.mesasAper+'</b><span>mesas aperitivo</span></div>'+
     '<div class="stat"><b>'+selectedDishes().length+'</b><span>platos marcados</span></div>'+
-    '<div class="stat" title="Un camarero cada 11 comensales"><b>'+t.camareros+'</b><span>camareros</span></div>';
+    '<div class="stat" title="Un camarero cada '+(BR.ratioCamarero?BR.ratioCamarero():11)+' comensales"><b>'+t.camareros+'</b><span>camareros</span></div>';
   var n=$("mnu-origen"); if(!n) return;
   if(t.delPlano){
     var d=[t.adultos+" adultos"+(t.staff?" (de ellos "+t.staff+" de staff)":""), t.ninos+" niños"];
@@ -6745,7 +6813,7 @@ function renderServicio(){
   }).join("");
 
   var html=printBar("check list de servicio")+'<div class="sheet"><div class="frame">'+docHead("Check list de servicio",t)+
-    '<p class="mnu-note"><b>Camareros necesarios: '+t.camareros+'</b> — uno cada 11 comensales. '+
+    '<p class="mnu-note"><b>Camareros necesarios: '+t.camareros+'</b> — uno cada '+(BR.ratioCamarero?BR.ratioCamarero():11)+' comensales. '+
     'La disponibilidad de cada uno se marca en «Camareros», arriba a la derecha.</p>'+
     (sel.length
       ? ((platos.length||cubiertos.length?(block("Platos",platos)+block("Cubiertos",cubiertos)):'<p class="mnu-note">Los platos marcados no tienen vajilla o cubiertos asociados en el Excel.</p>')+
@@ -7279,6 +7347,51 @@ BR.onExternalChange=refreshAll;
    hacen falta, y esa cuenta (plano o a mano, con o sin plano hecho) solo la
    sabe hacer evTotals — se expone en vez de duplicarla. */
 BR.evTotals=evTotals;
+
+/* ══ Parámetros (solo administrador): catálogo de platos con su escandallo,
+   vajilla y cubiertos, bebidas y montaje. Se guardan las copias de fábrica y
+   se reemplazan EN SU SITIO los datos que usa todo el Menú, así producción,
+   compra, check list, bebida y minuta salen ya con los valores nuevos. Cada
+   plato conserva su identificador (uid) aunque se renombre o se reordene: es
+   lo que usan los eventos para saber qué platos tienen marcados. */
+function clon(x){ return JSON.parse(JSON.stringify(x)); }
+var DEF_MENU=MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f.dishes.map(function(d){
+  return {uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; })}; });
+var DEF_CATALOGO=clon(CATALOGO_DATA), DEF_MOBILIARIO=clon(MOBILIARIO_DATA), DEF_BEBIDAS=clon(BEBIDA_CATS);
+function enSuSitio(arr,nuevo){ arr.length=0; clon(nuevo).forEach(function(x){ arr.push(x); }); }
+function aplicarParamsMenu(){
+  var pm=BR.param("platos"), fams=(pm&&pm.fams&&pm.fams.length)?pm.fams:DEF_MENU;
+  MENU_DATA.length=0;
+  fams.forEach(function(f){ MENU_DATA.push({key:f.key,label:f.label,dishes:(f.dishes||[]).map(function(d){
+    var x=clon(d); x._uid=d.uid; x._famLabel=f.label; x._famKey=f.key; delete x.uid;
+    x.ingredients=x.ingredients||[]; x.steps=x.steps||[]; if(!x.station) x.station=null; return x; })}); });
+  Object.keys(DISH_BY_UID).forEach(function(k){ delete DISH_BY_UID[k]; });
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ DISH_BY_UID[d._uid]=d; }); });
+  var pc=BR.param("catalogo"); enSuSitio(CATALOGO_DATA,(pc&&pc.items)?pc.items:DEF_CATALOGO);
+  Object.keys(CATALOGO_BY_ART).forEach(function(k){ delete CATALOGO_BY_ART[k]; });
+  CATALOGO_DATA.forEach(function(c){ CATALOGO_BY_ART[c.articulo]=c; });
+  var pb=BR.param("bebidas");
+  DEF_BEBIDAS.forEach(function(def){
+    var cat=catByKey(def.key); if(!cat) return;
+    var o=(pb&&pb.cats&&pb.cats[def.key])||{};
+    ["label","poblacion","redondeo","tramos","opciones"].forEach(function(k){
+      if(o[k]!=null) cat[k]=clon(o[k]); else if(def[k]!=null) cat[k]=clon(def[k]); else delete cat[k]; });
+  });
+  var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
+}
+BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.contains("mode-menu")) refreshAll(); }catch(_){} });
+/* lo que la pantalla de Parámetros necesita leer: los valores de fábrica y
+   los que están en uso ahora mismo, con la forma en que se guardan */
+BR.menuParams={
+  fabrica:function(){ return {platos:{fams:clon(DEF_MENU)}, catalogo:{items:clon(DEF_CATALOGO)}, bebidas:{cats:DEF_BEBIDAS.reduce(function(o,c){ o[c.key]=clon(c); return o; },{})}, montaje:{reglas:clon(DEF_MOBILIARIO)}}; },
+  actual:function(){ return {
+    platos:{fams:MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f.dishes.map(function(d){ return {uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; })}; })},
+    catalogo:{items:clon(CATALOGO_DATA)},
+    bebidas:{cats:BEBIDA_CATS.reduce(function(o,c){ o[c.key]=clon(c); return o; },{})},
+    montaje:{reglas:clon(MOBILIARIO_DATA)} }; },
+  /* cuántos eventos tienen marcado un plato (para avisar antes de borrarlo) */
+  usoPlato:function(uid){ var n=0; (BR.allEvents?BR.allEvents():[]).forEach(function(e){ if(e.menu&&e.menu.dishes&&e.menu.dishes[uid]) n++; }); return n; }
+};
 
 document.body.classList.add("mode-sitting");
 fillEventoInputs();
@@ -8084,6 +8197,7 @@ var FASES=[
   {k:"cafesbarra", t:"Cafés y Preparación de Barra"},
   {k:"barralibre", t:"Barra Libre"}
 ];
+var FUNCIONES_DEF=["Servir mesas","Pase de cocina","Barra","Cafés","Recoger mesas","Aperitivo · bandejas","Estación de jamón","Cava y brindis"]; BR.funcionesDef=FUNCIONES_DEF;
 function reparto(){
   var e=BR.current(); if(!e) return {tipo:"comida",fases:{}};
   if(!e.reparto) e.reparto={tipo:"comida",fases:{}};
@@ -8115,7 +8229,7 @@ function renderStats(){
     if(d==="si") si++; else if(d==="no") no++; else pend++;
   });
   $("cam-stats").innerHTML=
-    '<div class="stat" title="Un camarero cada 11 comensales"><b>'+nec+'</b><span>necesarios</span></div>'+
+    '<div class="stat" title="Un camarero cada '+(BR.ratioCamarero?BR.ratioCamarero():11)+' comensales"><b>'+nec+'</b><span>necesarios</span></div>'+
     '<div class="stat'+(si<nec?" alert":"")+'"><b>'+si+'</b><span>disponibles</span></div>'+
     '<div class="stat"><b>'+pend+'</b><span>pendientes</span></div>'+
     '<div class="stat"><b>'+no+'</b><span>no disponibles</span></div>';
@@ -8256,7 +8370,7 @@ function renderReparto(){
       var filas=r.fases[f.k]||[];
       var rows=filas.map(function(row,idx){
         return '<div class="rep-row" data-fase="'+f.k+'" data-idx="'+idx+'">'+
-          '<input type="text" class="rep-fn" value="'+esc(row.fn)+'" placeholder="Función (p. ej. servir mesas 1-4)" aria-label="Función">'+
+          '<input type="text" class="rep-fn" list="rep-funciones" value="'+esc(row.fn)+'" placeholder="Función (p. ej. servir mesas 1-4)" aria-label="Función">'+
           camSelectHTML(row.id,conf)+
           '<button type="button" class="btn ico rep-del" aria-label="Quitar esta función" title="Quitar">−</button>'+
           '</div>';
@@ -8271,7 +8385,10 @@ function renderReparto(){
   /* debajo del editor, la hoja imprimible (como en el Listado): se ve la
      previsualización y se descarga en PDF. En cuanto hay algo que repartir. */
   var extra=(conf.length||hayFunciones) ? pdfRepartoHtml() : "";
-  $("cam-body").innerHTML='<div class="mnu-fam-section rep-wrap">'+top+cuerpo+'</div>'+extra;
+  /* funciones habituales (Parámetros → Servicio y camareros) como sugerencias */
+  var _sv=(BR.param&&BR.param("servicio"))||{}, _fns=(_sv.funciones&&_sv.funciones.length)?_sv.funciones:FUNCIONES_DEF;
+  var dl='<datalist id="rep-funciones">'+_fns.map(function(f){ return '<option value="'+esc(f)+'"></option>'; }).join("")+'</datalist>';
+  $("cam-body").innerHTML=dl+'<div class="mnu-fam-section rep-wrap">'+top+cuerpo+'</div>'+extra;
   engancharReparto();
 }
 function engancharReparto(){
@@ -8753,6 +8870,470 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       if(SESSION.isAuthed()) enterApp(); else showGate();
     }
   })();
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   PARÁMETROS DEL NEGOCIO — pantalla (solo administrador)
+   Edita los valores con los que la app calcula sola: platos y escandallo,
+   vajilla y cubiertos, bebidas, camareros, montaje, pagos y tareas. Cada
+   cambio se guarda al momento (BR.setParam) y se aplica a todo: producción,
+   compra, check list, bebida, presupuesto… Los datos viven en el almacén
+   compartido, así que llegan al resto del equipo. «Restaurar valores de
+   fábrica» vuelve a los del código en ese bloque.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+var BR=window.SITTING_BRIDGE; if(!BR) return;
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function clon(x){ return JSON.parse(JSON.stringify(x)); }
+function num(v){ var n=parseFloat(String(v==null?"":v).replace(",",".")); return isFinite(n)?n:null; }
+function lineas(t){ return String(t||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean); }
+function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+function esAdmin(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); return !!u&&u.role==="admin"; }catch(_){ return false; } }
+function fmtFechaHora(ms){ try{ var d=new Date(ms); return d.toLocaleDateString("es-ES")+" "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } }
+function toastP(msg){ var t=document.createElement("div"); t.className="pp-toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.classList.add("on"); },10); setTimeout(function(){ t.classList.remove("on"); setTimeout(function(){ t.remove(); },300); },2200); }
+
+var M=BR.menuParams;
+var TIPOS_ART=["PLATO","CUBIERTO","MOBILIARIO","UTENSILIO"];
+var BASES_ART=["COMENSAL","MESA APERITIVO","MESA BANQUETE","PLATO","EVENTO"];
+var BASE_T={"COMENSAL":"por comensal","MESA APERITIVO":"por mesa de aperitivo","MESA BANQUETE":"por mesa de banquete","PLATO":"por plato (fijo)","EVENTO":"una vez por evento"};
+var UNIDADES=["gr","uds","ml"];
+var FASES_T={"6m":"6 meses antes","3m":"3 meses antes","1m":"1 mes antes","1s":"1 semana antes","dia":"Día del evento"};
+var FASES_DEF_ITEMS={
+  "6m":["Confirmar menú","Confirmar proveedores","Revisar guion de ceremonia"],
+  "3m":["Lista provisional de invitados","Distribución de mesas","Música y momentos","Decoración y flores"],
+  "1m":["Lista definitiva de invitados","Alergias e intolerancias","Menús especiales (infantil/staff)","Plano de sala definitivo"],
+  "1s":["Reunión final con la pareja","Confirmación de proveedores","Asignar personal de servicio","Plan de montaje"],
+  "dia":["Montaje de sala","Ceremonia","Aperitivo","Banquete","Barra libre","Fiesta"]};
+var TIPOS_DEF=["Boda","Evento corporativo","Comunión","Bautizo","Aniversario","Celebración","Cóctel","Catering","Otro"];
+var PROV_DEF=["Florista","DJ / Música","Fotógrafo","Videógrafo","Autobuses","Monitores infantiles","Fotomatón","Candy Bar","Decoración","Ceremonia","Transporte","Otros"];
+
+/* ── estado de la pantalla ── */
+var ui={fam:null, q:"", open:null, catQ:""};
+var VISTAS={
+  "p-platos":  {t:"Platos y escandallo", secs:["platos"], guia:"El catálogo de platos del menú con su escandallo por comensal: con estas cantidades se calculan la producción y la lista de la compra de cada evento. La vajilla y los cubiertos de cada plato alimentan el check list de servicio."},
+  "p-bebidas": {t:"Bebidas", secs:["bebidas"], guia:"Cuántas botellas se prevén por persona en cada momento (aperitivo y banquete) y qué marcas se pueden elegir en cada evento."},
+  "p-servicio":{t:"Servicio y camareros", secs:["servicio","catalogo","montaje"], guia:"Cuántos comensales atiende cada camarero, las personas por mesa de partida, el catálogo de vajilla y cubiertos, y el material de montaje y de cada estación."},
+  "p-comercial":{t:"Presupuesto y pagos", secs:["comercial"], guia:"Porcentaje del primer pago, precios de partida de los eventos nuevos, tipos de evento y servicios de proveedores."},
+  "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."}
+};
+
+/* datos de trabajo: lo que hay en uso (con los valores de fábrica si nadie
+   ha tocado ese bloque) */
+function datos(sec){
+  var a=M?M.actual():{};
+  if(sec==="platos"||sec==="catalogo"||sec==="bebidas"||sec==="montaje") return a[sec];
+  var d=BR.param(sec)?clon(BR.param(sec)):{};
+  if(sec==="servicio"){ if(d.ratioCamarero==null) d.ratioCamarero=11; if(d.pMesaAper==null) d.pMesaAper=7; if(d.pMesaBanq==null) d.pMesaBanq=10;
+    if(!d.funciones) d.funciones=(BR.funcionesDef||[]).slice(); }
+  if(sec==="comercial"){ if(d.senal==null) d.senal=65; ["precioAdulto","precioInfantil","precioStaff"].forEach(function(k){ if(d[k]==null) d[k]=0; });
+    if(!d.tipos) d.tipos=TIPOS_DEF.slice(); if(!d.provServ) d.provServ=PROV_DEF.slice(); }
+  if(sec==="tareas"){ d.fases=d.fases||{}; Object.keys(FASES_T).forEach(function(k){ if(!d.fases[k]) d.fases[k]=FASES_DEF_ITEMS[k].slice(); }); }
+  return d;
+}
+function guardar(sec,d,msg){ BR.setParam(sec,d); if(msg) toastP(msg); }
+
+/* ── cabecera común ── */
+function cabecera(k){
+  var v=VISTAS[k];
+  var metas=v.secs.map(function(s){ return {s:s,m:BR.paramMeta(s)}; });
+  var tocado=metas.filter(function(x){ return x.m&&x.m.data!=null; });
+  var ult=metas.filter(function(x){ return x.m; }).sort(function(a,b){ return (b.m.updated||0)-(a.m.updated||0); })[0];
+  var estado=tocado.length
+    ? '<span class="pp-state mod">Modificado</span> Último cambio: '+esc(fmtFechaHora(ult.m.updated))+(ult.m.by?' · '+esc(ult.m.by):'')
+    : (ult?'<span class="pp-state">Valores de fábrica</span> Restaurados el '+esc(fmtFechaHora(ult.m.updated)):'<span class="pp-state">Valores de fábrica</span>');
+  return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div>'+
+    '<h1 class="pv-title">'+esc(v.t)+'</h1><div class="pv-sub pp-meta">'+estado+'</div>'+
+    '<p class="pv-guide">'+esc(v.guia)+' Los cambios se guardan solos y se aplican a todos los eventos.</p></div>'+
+    (tocado.length?'<div class="pv-actions"><button type="button" class="btn sm danger" data-pa="reset" data-secs="'+esc(v.secs.join(","))+'">Restaurar valores de fábrica</button></div>':'')+
+    '</header>';
+}
+
+/* ══ PLATOS Y ESCANDALLO ══════════════════════════════════════════════ */
+function vPlatos(){
+  var d=datos("platos"), fams=d.fams||[];
+  if(!ui.fam||!fams.some(function(f){ return f.key===ui.fam; })) ui.fam=fams.length?fams[0].key:null;
+  var cat=datos("catalogo").items||[];
+  var arts={}; cat.forEach(function(c){ arts[c.articulo]=c.categoria; });
+  var estaciones={}; fams.forEach(function(f){ f.dishes.forEach(function(x){ if(x.station) estaciones[x.station]=1; }); });
+  var dl='<datalist id="pp-dl-serv">'+cat.filter(function(c){ return c.categoria==="PLATO"; }).map(function(c){ return '<option value="'+esc(c.articulo)+'">'; }).join("")+'</datalist>'+
+    '<datalist id="pp-dl-cub">'+cat.filter(function(c){ return c.categoria==="CUBIERTO"; }).map(function(c){ return '<option value="'+esc(c.articulo)+'">'; }).join("")+'</datalist>'+
+    '<datalist id="pp-dl-est">'+Object.keys(estaciones).sort().map(function(s){ return '<option value="'+esc(s)+'">'; }).join("")+'</datalist>';
+  var chips='<div class="pp-chips" role="tablist">'+fams.map(function(f){
+    return '<button type="button" role="tab" class="pp-chip'+(f.key===ui.fam&&!ui.q?' on':'')+'" data-pa="fam" data-k="'+esc(f.key)+'" aria-selected="'+(f.key===ui.fam&&!ui.q)+'">'+esc(f.label)+' <b>'+f.dishes.length+'</b></button>'; }).join("")+'</div>';
+  var qn=norm(ui.q), lista=[];
+  fams.forEach(function(f){ f.dishes.forEach(function(x){
+    if(qn){ if(norm(x.name).indexOf(qn)>-1||(x.ingredients||[]).some(function(i){ return norm(i.name).indexOf(qn)>-1; })) lista.push({f:f,d:x}); }
+    else if(f.key===ui.fam) lista.push({f:f,d:x}); }); });
+  var filas=lista.map(function(it){ return filaPlato(it.f,it.d,fams,arts); }).join("")||'<p class="pp-empty">'+(qn?'Ningún plato ni ingrediente coincide con «'+esc(ui.q)+'».':'Esta familia no tiene platos.')+'</p>';
+  var totalPl=0; fams.forEach(function(f){ totalPl+=f.dishes.length; });
+  return dl+'<div class="pp-bar">'+
+      '<input type="search" class="pp-search" data-pp="q" value="'+esc(ui.q)+'" placeholder="Buscar plato o ingrediente en los '+totalPl+' platos…" aria-label="Buscar plato o ingrediente">'+
+      '<button type="button" class="btn gold sm" data-pa="dish-new">+ Nuevo plato'+(ui.q?'':' en '+esc((fams.filter(function(f){ return f.key===ui.fam; })[0]||{}).label||""))+'</button></div>'+
+    chips+'<div class="pp-list">'+filas+'</div>';
+}
+function avisosPlato(x,arts){
+  var av=[];
+  /* igual que el check list: varios artículos se separan con «+» */
+  String(x.servicio||"").split("+").map(function(s){ return s.trim(); }).filter(function(s){ return s&&s!=="—"; }).forEach(function(v){
+    if(arts[v]!=="PLATO"&&arts[v]!=="CUBIERTO") av.push("La vajilla «"+v+"» no está en el catálogo: no saldrá en el check list."); });
+  String(x.cubiertos||"").split("+").map(function(s){ return s.trim(); }).filter(function(s){ return s&&s!=="—"; }).forEach(function(c){
+    if(arts[c]!=="CUBIERTO"&&arts[c]!=="PLATO") av.push("El cubierto «"+c+"» no está en el catálogo: no saldrá en el check list.");
+  });
+  if(!(x.ingredients||[]).length) av.push("Sin escandallo: no suma nada en producción ni en la compra.");
+  return av;
+}
+function filaPlato(f,x,fams,arts){
+  var abierto=ui.open===x.uid, av=avisosPlato(x,arts);
+  var meta=[x.servicio&&x.servicio!=="—"?x.servicio:null, x.cubiertos&&x.cubiertos!=="—"?x.cubiertos:null, x.station?("Estación: "+x.station):null].filter(Boolean).join(" · ");
+  var h='<div class="pp-dish'+(abierto?' open':'')+'" data-uid="'+esc(x.uid)+'">'+
+    '<button type="button" class="pp-dish-h" data-pa="dish-open" data-uid="'+esc(x.uid)+'" aria-expanded="'+abierto+'">'+
+      '<span class="pp-dish-nm">'+esc(x.name||"(sin nombre)")+(ui.q?' <span class="pp-fam">'+esc(f.label)+'</span>':'')+'</span>'+
+      '<span class="pp-dish-meta">'+esc(meta||"sin vajilla ni cubiertos")+'</span>'+
+      '<span class="pp-dish-n">'+(x.ingredients||[]).length+' ingr.'+(av.length?' <span class="pp-warn-dot" title="'+esc(av.join(" "))+'">!</span>':'')+'</span></button>';
+  if(!abierto) return h+'</div>';
+  var ing=(x.ingredients||[]).map(function(i,ix){
+    return '<tr><td><input type="text" data-pp="ing" data-i="'+ix+'" data-k="name" value="'+esc(i.name)+'" aria-label="Ingrediente"></td>'+
+      '<td class="rnum"><input type="text" inputmode="decimal" data-pp="ing" data-i="'+ix+'" data-k="qty" value="'+esc(i.qty==null?"":String(i.qty).replace(".",","))+'" aria-label="Cantidad por comensal" style="width:90px;text-align:right"></td>'+
+      '<td><select data-pp="ing" data-i="'+ix+'" data-k="unit" aria-label="Unidad">'+['<option value=""'+(!i.unit?" selected":"")+'>—</option>'].concat(UNIDADES.map(function(u){ return '<option'+(i.unit===u?" selected":"")+'>'+u+'</option>'; })).join("")+'</select></td>'+
+      '<td><button type="button" class="row-del" data-pa="ing-del" data-i="'+ix+'" aria-label="Quitar ingrediente">×</button></td></tr>';
+  }).join("");
+  var uso=M&&M.usoPlato?M.usoPlato(x.uid):0;
+  h+='<div class="pp-dish-body">'+
+    (av.length?'<ul class="pp-avisos">'+av.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')+
+    '<div class="fldset">'+
+      '<label class="fld"><span class="lbl">Nombre del plato</span><input type="text" data-pp="dish" data-k="name" value="'+esc(x.name)+'"></label>'+
+      '<label class="fld"><span class="lbl">Familia</span><select data-pp="dish" data-k="fam">'+fams.map(function(ff){ return '<option value="'+esc(ff.key)+'"'+(ff.key===f.key?" selected":"")+'>'+esc(ff.label)+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">Vajilla (servicio)</span><input type="text" list="pp-dl-serv" data-pp="dish" data-k="servicio" value="'+esc(x.servicio==="—"?"":x.servicio)+'" placeholder="p. ej. PLATO LLANO"></label>'+
+      '<label class="fld"><span class="lbl">Cubiertos <small>(varios con +)</small></span><input type="text" list="pp-dl-cub" data-pp="dish" data-k="cubiertos" value="'+esc(x.cubiertos==="—"?"":x.cubiertos)+'" placeholder="p. ej. TENEDOR + CUCHILLO CARNE"></label>'+
+      '<label class="fld"><span class="lbl">Estación <small>(si va en una)</small></span><input type="text" list="pp-dl-est" data-pp="dish" data-k="station" value="'+esc(x.station||"")+'" placeholder="—"></label>'+
+    '</div>'+
+    '<div class="pp-subh">Escandallo <span>— cantidad por comensal</span></div>'+
+    '<div class="dtable-wrap"><table class="dtable pp-ing" style="min-width:420px"><thead><tr><th>Ingrediente</th><th class="rnum">Cantidad</th><th>Unidad</th><th></th></tr></thead><tbody>'+
+      (ing||'<tr><td colspan="4" class="pp-empty">Sin ingredientes.</td></tr>')+'</tbody></table>'+
+      '<div class="dtable-foot"><button type="button" class="btn sm" data-pa="ing-add">+ Ingrediente</button></div></div>'+
+    '<label class="fld" style="margin-top:14px"><span class="lbl">Pasos de preparación <small>(uno por línea)</small></span><textarea data-pp="dish" data-k="steps" rows="3">'+esc((x.steps||[]).join("\n"))+'</textarea></label>'+
+    '<div class="pp-dish-foot"><span class="pp-uso">'+(uso?('Marcado en '+uso+(uso===1?' evento':' eventos')):'No está marcado en ningún evento')+'</span>'+
+      '<button type="button" class="btn sm" data-pa="dish-dup">Duplicar</button>'+
+      '<button type="button" class="btn sm danger" data-pa="dish-del">Eliminar plato</button></div>'+
+  '</div>';
+  return h+'</div>';
+}
+function buscaPlato(d,uid){ var r=null; (d.fams||[]).forEach(function(f,fi){ f.dishes.forEach(function(x,xi){ if(x.uid===uid) r={f:f,fi:fi,x:x,xi:xi}; }); }); return r; }
+function nuevoUid(fk){ return fk+"#n"+Date.now().toString(36)+Math.floor(Math.random()*1e3).toString(36); }
+
+/* ══ BEBIDAS ══════════════════════════════════════════════════════════ */
+function vBebidas(){
+  var d=datos("bebidas"), cats=d.cats||{};
+  var orden=["agua","blanco","tinto","cava","cavaRosado","jamon"].filter(function(k){ return cats[k]; });
+  Object.keys(cats).forEach(function(k){ if(orden.indexOf(k)<0) orden.push(k); });
+  return '<div class="pp-grid2">'+orden.map(function(k){
+    var c=cats[k];
+    var ej=null;
+    if(!c.delMenu&&c.tramos){ var base=100, suma=0; c.tramos.forEach(function(t){ if(+t.div>0) suma+=base/+t.div; }); ej=c.redondeo==="floor"?Math.floor(suma):Math.ceil(suma); }
+    return '<div class="pcard pp-card" data-cat="'+esc(k)+'"><div class="pcard-h"><h3>'+esc(c.label)+'</h3>'+(ej!=null?'<span class="pp-ej">con 100 '+(c.poblacion==="total"?"personas":"adultos")+' → <b>'+ej+' botellas</b></span>':'<span class="pp-ej">cantidad del escandallo del menú</span>')+'</div>'+
+      '<div class="fldset">'+
+        '<label class="fld"><span class="lbl">Nombre</span><input type="text" data-pp="beb" data-k="label" value="'+esc(c.label)+'"></label>'+
+        (c.delMenu?'':
+        '<label class="fld"><span class="lbl">Se calcula sobre</span><select data-pp="beb" data-k="poblacion"><option value="total"'+(c.poblacion==="total"?" selected":"")+'>Todos (adultos y niños)</option><option value="adultos"'+(c.poblacion!=="total"?" selected":"")+'>Solo adultos</option></select></label>'+
+        '<label class="fld"><span class="lbl">Redondeo</span><select data-pp="beb" data-k="redondeo"><option value="ceil"'+(c.redondeo!=="floor"?" selected":"")+'>Al alza</option><option value="floor"'+(c.redondeo==="floor"?" selected":"")+'>A la baja</option></select></label>')+
+      '</div>'+
+      (c.delMenu?'<p class="pp-note">El jamón no lleva un parámetro por persona: la cantidad sale del escandallo del plato de jamón marcado en el menú (Platos y escandallo).</p>':
+      '<div class="pp-subh">Previsión <span>— una botella cada…</span></div>'+
+      (c.tramos||[]).map(function(t,ti){
+        return '<div class="pp-tramo"><input type="text" data-pp="tramo" data-i="'+ti+'" data-k="etq" value="'+esc(t.etq||"")+'" placeholder="Momento (aperitivo, banquete…)" aria-label="Momento">'+
+          '<span>1 botella cada</span><input type="text" inputmode="decimal" data-pp="tramo" data-i="'+ti+'" data-k="div" value="'+esc(String(t.div).replace(".",","))+'" aria-label="Personas por botella" style="width:78px;text-align:right"><span>personas</span>'+
+          '<button type="button" class="row-del" data-pa="tramo-del" data-i="'+ti+'" aria-label="Quitar">×</button></div>';
+      }).join("")+'<button type="button" class="btn sm" data-pa="tramo-add">+ Momento</button>')+
+      '<label class="fld" style="margin-top:14px"><span class="lbl">Marcas para elegir <small>(una por línea)</small></span><textarea data-pp="beb" data-k="opciones" rows="4">'+esc((c.opciones||[]).join("\n"))+'</textarea></label>'+
+      '</div>';
+  }).join("")+'</div>';
+}
+
+/* ══ SERVICIO Y CAMAREROS ═════════════════════════════════════════════ */
+function vServicio(){
+  var sv=datos("servicio"), cat=datos("catalogo").items||[], mon=datos("montaje").reglas||[];
+  var pl=datos("platos"), usoArt={};
+  (pl.fams||[]).forEach(function(f){ f.dishes.forEach(function(x){
+    String(x.servicio||"").split("+").concat(String(x.cubiertos||"").split("+")).forEach(function(a){ a=String(a||"").trim(); if(a) usoArt[a]=(usoArt[a]||0)+1; }); }); });
+  var nombres=[]; (pl.fams||[]).forEach(function(f){ f.dishes.forEach(function(x){ nombres.push(x.name); }); });
+  var ests={}; (pl.fams||[]).forEach(function(f){ f.dishes.forEach(function(x){ if(x.station) ests[x.station]=1; }); });
+  var qn=norm(ui.catQ);
+  var filasCat=cat.map(function(c,ci){ return {c:c,ci:ci}; }).filter(function(o){ return !qn||norm(o.c.articulo).indexOf(qn)>-1; }).map(function(o){ var c=o.c, ci=o.ci;
+    return '<tr><td><input type="text" data-pp="art" data-i="'+ci+'" data-k="articulo" value="'+esc(c.articulo)+'" aria-label="Artículo"></td>'+
+      '<td><select data-pp="art" data-i="'+ci+'" data-k="categoria" aria-label="Tipo">'+TIPOS_ART.map(function(t){ return '<option'+(c.categoria===t?" selected":"")+'>'+t+'</option>'; }).join("")+'</select></td>'+
+      '<td><select data-pp="art" data-i="'+ci+'" data-k="base" aria-label="Se cuenta">'+BASES_ART.map(function(b){ return '<option value="'+b+'"'+(c.base===b?" selected":"")+'>'+BASE_T[b]+'</option>'; }).join("")+'</select></td>'+
+      '<td class="rnum"><input type="text" inputmode="decimal" data-pp="art" data-i="'+ci+'" data-k="unidades" value="'+esc(c.unidades)+'" style="width:64px;text-align:right" aria-label="Unidades"></td>'+
+      '<td class="rnum pp-uso">'+(usoArt[c.articulo]?usoArt[c.articulo]+(usoArt[c.articulo]===1?' plato':' platos'):'—')+'</td>'+
+      '<td><button type="button" class="row-del" data-pa="art-del" data-i="'+ci+'" aria-label="Quitar artículo">×</button></td></tr>'; }).join("");
+  var reglas=mon.map(function(r,ri){
+    var cu=r.cuando||{tipo:"evento"};
+    function items(kind,label){
+      return '<div class="pp-subh">'+label+'</div>'+(r[kind]||[]).map(function(it,ii){
+        return '<div class="pp-tramo"><input type="text" data-pp="mon-it" data-r="'+ri+'" data-kind="'+kind+'" data-i="'+ii+'" data-k="art" value="'+esc(it.art)+'" placeholder="Artículo" aria-label="Artículo">'+
+          '<input type="text" inputmode="decimal" data-pp="mon-it" data-r="'+ri+'" data-kind="'+kind+'" data-i="'+ii+'" data-k="uds" value="'+esc(it.uds==null?"":it.uds)+'" placeholder="a ojo" style="width:78px;text-align:right" aria-label="Unidades"><span>uds</span>'+
+          '<button type="button" class="row-del" data-pa="mon-it-del" data-r="'+ri+'" data-kind="'+kind+'" data-i="'+ii+'" aria-label="Quitar">×</button></div>';
+      }).join("")+'<button type="button" class="btn sm" data-pa="mon-it-add" data-r="'+ri+'" data-kind="'+kind+'">+ '+(kind==="mobiliario"?"Mobiliario":"Utensilio")+'</button>';
+    }
+    return '<div class="pcard pp-card"><div class="pcard-h"><h3>'+esc(r.nombre||"Regla sin nombre")+'</h3><button type="button" class="btn sm danger" data-pa="mon-del" data-r="'+ri+'">Eliminar</button></div>'+
+      '<div class="fldset">'+
+        '<label class="fld"><span class="lbl">Nombre</span><input type="text" data-pp="mon" data-r="'+ri+'" data-k="nombre" value="'+esc(r.nombre)+'"></label>'+
+        '<label class="fld"><span class="lbl">Cuándo se monta</span><select data-pp="mon" data-r="'+ri+'" data-k="cuandoTipo"><option value="evento"'+(cu.tipo==="evento"?" selected":"")+'>En todos los eventos</option><option value="plato"'+(cu.tipo==="plato"?" selected":"")+'>Si se sirve el plato…</option><option value="estacion"'+(cu.tipo==="estacion"?" selected":"")+'>Si hay la estación…</option></select></label>'+
+        (cu.tipo!=="evento"?'<label class="fld"><span class="lbl">'+(cu.tipo==="plato"?"Plato":"Estación")+'</span><input type="text" list="'+(cu.tipo==="plato"?"pp-dl-platos":"pp-dl-est2")+'" data-pp="mon" data-r="'+ri+'" data-k="cuandoValor" value="'+esc(cu.valor||"")+'"></label>':'')+
+        '<label class="fld"><span class="lbl">Se cuenta</span><select data-pp="mon" data-r="'+ri+'" data-k="base">'+["EVENTO","COMENSAL","MESA BANQUETE","MESA APERITIVO"].map(function(b){ return '<option value="'+b+'"'+(r.base===b?" selected":"")+'>'+BASE_T[b]+'</option>'; }).join("")+'</select></label>'+
+      '</div>'+items("mobiliario","Mobiliario")+items("utensilios","Utensilios")+
+      (r.cubiertosSegundos?'<p class="pp-note">Además se suman los cubiertos de los segundos según el menú (dos juegos si hay carne y pescado).</p>':'')+
+      '<label class="fld" style="margin-top:12px"><span class="lbl">Nota para el equipo</span><textarea data-pp="mon" data-r="'+ri+'" data-k="nota" rows="2">'+esc(r.nota||"")+'</textarea></label></div>';
+  }).join("");
+  return '<datalist id="pp-dl-platos">'+nombres.map(function(n){ return '<option value="'+esc(n)+'">'; }).join("")+'</datalist>'+
+    '<datalist id="pp-dl-est2">'+Object.keys(ests).sort().map(function(n){ return '<option value="'+esc(n)+'">'; }).join("")+'</datalist>'+
+    '<div class="pv-sec">Camareros</div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Comensales por camarero</span><input type="text" inputmode="decimal" data-pp="sv" data-k="ratioCamarero" value="'+esc(sv.ratioCamarero)+'"></label>'+
+      '<div class="fld"><span class="lbl">Ejemplo</span><div class="fld-val">150 comensales → <b>'+Math.ceil(150/(+sv.ratioCamarero||11))+' camareros</b></div></div>'+
+      '<label class="fld wide" style="grid-column:1/-1"><span class="lbl">Funciones habituales del reparto <small>(una por línea; salen como sugerencia en «Reparto de camareros»)</small></span><textarea data-pp="sv" data-k="funciones" rows="4">'+esc((sv.funciones||[]).join("\n"))+'</textarea></label>'+
+    '</div></div>'+
+    '<div class="pv-sec">Mesas <span class="pv-sec-note">— valores de partida para eventos nuevos (cada evento puede cambiarlos)</span></div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Personas por mesa de aperitivo</span><input type="text" inputmode="numeric" data-pp="sv" data-k="pMesaAper" value="'+esc(sv.pMesaAper)+'"></label>'+
+      '<label class="fld"><span class="lbl">Personas por mesa de banquete</span><input type="text" inputmode="numeric" data-pp="sv" data-k="pMesaBanq" value="'+esc(sv.pMesaBanq)+'"></label>'+
+    '</div></div>'+
+    '<div class="pv-sec">Catálogo de vajilla y cubiertos <span class="pv-sec-note">— '+cat.length+' artículos; los platos los usan por su nombre exacto</span></div>'+
+    '<div class="pp-bar"><input type="search" class="pp-search" data-pp="catq" value="'+esc(ui.catQ)+'" placeholder="Buscar artículo…" aria-label="Buscar artículo"></div>'+
+    '<div class="dtable-wrap"><table class="dtable" style="min-width:640px"><thead><tr><th>Artículo</th><th>Tipo</th><th>Se cuenta</th><th class="rnum">Uds</th><th class="rnum">Uso</th><th></th></tr></thead><tbody>'+(filasCat||'<tr><td colspan="6" class="pp-empty">Ningún artículo coincide.</td></tr>')+'</tbody></table>'+
+      '<div class="dtable-foot"><button type="button" class="btn sm" data-pa="art-add">+ Artículo</button></div></div>'+
+    '<div class="pv-sec">Montaje y estaciones <span class="pv-sec-note">— material que se prepara según el evento, los platos o las estaciones</span></div>'+
+    '<div class="pp-grid2">'+reglas+'</div><div style="margin-top:12px"><button type="button" class="btn sm gold" data-pa="mon-add">+ Regla de montaje</button></div>';
+}
+
+/* ══ PRESUPUESTO Y PAGOS ══════════════════════════════════════════════ */
+function vComercial(){
+  var c=datos("comercial");
+  return '<div class="pv-sec">Pagos</div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Primer pago / señal (%)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="senal" value="'+esc(c.senal)+'"></label>'+
+      '<div class="fld"><span class="lbl">Segundo pago</span><div class="fld-val"><b>'+(100-(+c.senal||65))+' %</b> (el resto)</div></div>'+
+    '</div></div>'+
+    '<div class="pv-sec">Precios de partida <span class="pv-sec-note">— se ponen solos al crear un evento; en cada evento se pueden cambiar</span></div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Menú adulto (€)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="precioAdulto" value="'+esc(c.precioAdulto)+'"></label>'+
+      '<label class="fld"><span class="lbl">Menú infantil (€)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="precioInfantil" value="'+esc(c.precioInfantil)+'"></label>'+
+      '<label class="fld"><span class="lbl">Menú staff (€)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="precioStaff" value="'+esc(c.precioStaff)+'"></label>'+
+    '</div></div>'+
+    '<div class="pv-sec">Listas</div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Tipos de evento <small>(uno por línea)</small></span><textarea data-pp="cm" data-k="tipos" rows="8">'+esc((c.tipos||[]).join("\n"))+'</textarea></label>'+
+      '<label class="fld"><span class="lbl">Servicios de proveedores <small>(uno por línea)</small></span><textarea data-pp="cm" data-k="provServ" rows="8">'+esc((c.provServ||[]).join("\n"))+'</textarea></label>'+
+    '</div></div>';
+}
+
+/* ══ TAREAS POR FASE ══════════════════════════════════════════════════ */
+function vTareas(){
+  var t=datos("tareas");
+  return '<div class="pp-grid2">'+Object.keys(FASES_T).map(function(k){
+    return '<div class="pcard"><div class="pcard-h"><h3>'+esc(FASES_T[k])+'</h3><span class="pp-ej">'+(t.fases[k]||[]).length+' tareas</span></div>'+
+      '<label class="fld"><span class="lbl">Tareas <small>(una por línea)</small></span><textarea data-pp="fase" data-k="'+k+'" rows="6">'+esc((t.fases[k]||[]).join("\n"))+'</textarea></label></div>';
+  }).join("")+'</div>';
+}
+
+/* ══ pintar ══════════════════════════════════════════════════════════ */
+var hostRef=null, vistaActual=null;
+function render(k,host){
+  hostRef=host||hostRef; vistaActual=k||vistaActual; if(!hostRef||!vistaActual) return;
+  var top=hostRef.scrollTop, body;
+  if(!esAdmin()) body='<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div>';
+  else if(!M) body='<div class="pcard"><p>No se han podido cargar los datos del menú.</p></div>';
+  else if(vistaActual==="p-platos") body=vPlatos();
+  else if(vistaActual==="p-bebidas") body=vBebidas();
+  else if(vistaActual==="p-servicio") body=vServicio();
+  else if(vistaActual==="p-comercial") body=vComercial();
+  else body=vTareas();
+  hostRef.innerHTML='<div class="pv-inner pp-root" data-vista="'+esc(vistaActual)+'">'+cabecera(vistaActual)+body+'</div>';
+  hostRef.scrollTop=top;
+  if(!hostRef.__ppBound){ hostRef.__ppBound=true; hostRef.addEventListener("change",onChange); hostRef.addEventListener("input",onInput); hostRef.addEventListener("click",onClick); }
+}
+window.LM_renderParam=render;
+function enParam(){ return hostRef&&hostRef.querySelector(".pp-root"); }
+
+/* búsqueda en vivo sin repintar el campo (se conserva el foco) */
+var qTm=null;
+function onInput(ev){
+  if(!enParam()) return;
+  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(pp!=="q"&&pp!=="catq") return;
+  clearTimeout(qTm); qTm=setTimeout(function(){
+    if(pp==="q") ui.q=el.value; else ui.catQ=el.value;
+    var pos=el.selectionStart; render();
+    var n=hostRef.querySelector('[data-pp="'+pp+'"]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} }
+  },220);
+}
+
+function onChange(ev){
+  if(!enParam()) return;
+  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(!pp||pp==="q"||pp==="catq") return;
+  var k=el.getAttribute("data-k"), i=+el.getAttribute("data-i"), v=el.value;
+  if(pp==="dish"||pp==="ing"){
+    var d=datos("platos"), hit=buscaPlato(d,ui.open); if(!hit) return;
+    var x=hit.x;
+    if(pp==="dish"){
+      if(k==="name"){ if(!v.trim()){ toastP("El plato necesita un nombre."); render(); return; } x.name=v.trim(); }
+      else if(k==="servicio"||k==="cubiertos") x[k]=v.trim()||"—";
+      else if(k==="station") x.station=v.trim()||null;
+      else if(k==="steps") x.steps=lineas(v);
+      else if(k==="fam"){ var dest=d.fams.filter(function(f){ return f.key===v; })[0]; if(dest&&dest!==hit.f){ hit.f.dishes.splice(hit.xi,1); dest.dishes.push(x); ui.fam=v; } }
+    } else {
+      var ing=x.ingredients[i]; if(!ing) return;
+      if(k==="qty"){ var n=num(v); if(n==null||n<0){ toastP("Cantidad no válida."); render(); return; } ing.qty=n; }
+      else if(k==="unit") ing.unit=v||null;
+      else ing.name=v.trim();
+    }
+    guardar("platos",d); render(); return;
+  }
+  if(pp==="beb"||pp==="tramo"){
+    var cat=el.closest(".pp-card").getAttribute("data-cat"), bd=datos("bebidas"), c=bd.cats[cat]; if(!c) return;
+    if(pp==="beb"){ if(k==="opciones") c.opciones=lineas(v); else if(k==="label"){ if(!v.trim()){ render(); return; } c.label=v.trim(); } else c[k]=v; }
+    else { var t=c.tramos[i]; if(!t) return; if(k==="div"){ var dv=num(v); if(!(dv>0)){ toastP("Tiene que ser un número mayor que 0."); render(); return; } t.div=dv; } else t.etq=v.trim(); }
+    guardar("bebidas",{cats:bd.cats}); render(); return;
+  }
+  if(pp==="sv"){
+    var sv=datos("servicio");
+    if(k==="funciones") sv.funciones=lineas(v);
+    else { var nv=num(v); if(!(nv>0)){ toastP("Tiene que ser un número mayor que 0."); render(); return; } sv[k]=k==="ratioCamarero"?nv:Math.round(nv); }
+    guardar("servicio",sv); render(); return;
+  }
+  if(pp==="art"){
+    var cd=datos("catalogo"), a=cd.items[i]; if(!a) return;
+    if(k==="unidades"){ var u=num(v); if(u==null||u<0){ toastP("Unidades no válidas."); render(); return; } a.unidades=u; }
+    else if(k==="articulo"){ var nuevo=v.trim().toUpperCase(); if(!nuevo){ render(); return; }
+      if(cd.items.some(function(o,oi){ return oi!==i&&o.articulo===nuevo; })){ toastP("Ya existe un artículo con ese nombre."); render(); return; }
+      var viejo=a.articulo; a.articulo=nuevo;
+      /* renombrar un artículo actualiza los platos que lo usan, para que no se desenganchen */
+      if(viejo&&viejo!==nuevo){ var pd=datos("platos"), cambiados=0;
+        pd.fams.forEach(function(f){ f.dishes.forEach(function(x){
+          if(x.servicio===viejo){ x.servicio=nuevo; cambiados++; }
+          var cs=String(x.cubiertos||"").split("+").map(function(s){ return s.trim(); });
+          if(cs.indexOf(viejo)>-1){ x.cubiertos=cs.map(function(s){ return s===viejo?nuevo:s; }).join(" + "); cambiados++; } }); });
+        if(cambiados){ guardar("platos",pd); toastP("Renombrado también en "+cambiados+" plato"+(cambiados===1?"":"s")+"."); } }
+    }
+    else a[k]=v;
+    guardar("catalogo",cd); render(); return;
+  }
+  if(pp==="mon"||pp==="mon-it"){
+    var md=datos("montaje"), r=md.reglas[+el.getAttribute("data-r")]; if(!r) return;
+    if(pp==="mon"){
+      if(k==="cuandoTipo"){ r.cuando=v==="evento"?{tipo:"evento"}:{tipo:v,valor:""}; }
+      else if(k==="cuandoValor"){ r.cuando=r.cuando||{tipo:"plato"}; r.cuando.valor=v.trim(); }
+      else if(k==="nota"){ if(v.trim()) r.nota=v.trim(); else delete r.nota; }
+      else r[k]=k==="nombre"?v.trim():v;
+    } else {
+      var arr=r[el.getAttribute("data-kind")]||[], it=arr[i]; if(!it) return;
+      if(k==="uds"){ if(v.trim()===""){ it.uds=null; } else { var q=num(v); if(q==null||q<0){ toastP("Unidades no válidas."); render(); return; } it.uds=q; } }
+      else it.art=v.trim();
+    }
+    guardar("montaje",md); render(); return;
+  }
+  if(pp==="cm"){
+    var cm=datos("comercial");
+    if(k==="tipos"||k==="provServ"){ var l=lineas(v); if(!l.length){ toastP("La lista no puede quedar vacía."); render(); return; } cm[k]=l; }
+    else if(k==="senal"){ var p=num(v); if(!(p>0&&p<100)){ toastP("El porcentaje tiene que estar entre 1 y 99."); render(); return; } cm.senal=p; }
+    else { var pr=num(v); if(pr==null||pr<0){ toastP("Precio no válido."); render(); return; } cm[k]=pr; }
+    guardar("comercial",cm); render(); return;
+  }
+  if(pp==="fase"){ var td=datos("tareas"); td.fases[k]=lineas(v); guardar("tareas",td); render(); return; }
+}
+
+function onClick(ev){
+  if(!enParam()) return;
+  var b=ev.target.closest?ev.target.closest("[data-pa]"):null; if(!b) return;
+  var a=b.getAttribute("data-pa"), i=+b.getAttribute("data-i");
+  if(a==="fam"){ ui.fam=b.getAttribute("data-k"); ui.q=""; ui.open=null; render(); return; }
+  if(a==="dish-open"){ var u=b.getAttribute("data-uid"); ui.open=ui.open===u?null:u; render(); return; }
+  if(a==="reset"){
+    var secs=(b.getAttribute("data-secs")||"").split(",");
+    if(!window.confirm("¿Volver a los valores de fábrica en «"+VISTAS[vistaActual].t+"»? Se perderán los cambios hechos aquí."+
+      (secs.indexOf("catalogo")>-1?"\n\nSi renombraste artículos del catálogo, los platos que los usan quedarán marcados con «!» en Platos y escandallo para revisarlos.":""))) return;
+    secs.forEach(function(s){ BR.setParam(s,null); }); ui.open=null; toastP("Valores de fábrica restaurados."); render(); return;
+  }
+  var d, hit;
+  if(a==="dish-new"){
+    d=datos("platos"); var fk=ui.fam||(d.fams[0]&&d.fams[0].key); var f=d.fams.filter(function(x){ return x.key===fk; })[0]; if(!f) return;
+    var nu={uid:nuevoUid(fk),name:"Plato nuevo",servicio:"—",cubiertos:"—",station:null,ingredients:[],steps:[]};
+    f.dishes.unshift(nu); ui.q=""; ui.fam=fk; ui.open=nu.uid; guardar("platos",d,"Plato creado: ponle nombre y escandallo."); render();
+    var inp=hostRef.querySelector('.pp-dish.open [data-k="name"]'); if(inp){ inp.focus(); inp.select(); } return;
+  }
+  if(a==="dish-dup"||a==="dish-del"||a==="ing-add"||a==="ing-del"){
+    d=datos("platos"); hit=buscaPlato(d,ui.open); if(!hit) return;
+    if(a==="dish-dup"){ var cp=clon(hit.x); cp.uid=nuevoUid(hit.f.key); cp.name=hit.x.name+" (copia)"; hit.f.dishes.splice(hit.xi+1,0,cp); ui.open=cp.uid; guardar("platos",d,"Plato duplicado."); }
+    else if(a==="dish-del"){
+      var uso=M.usoPlato(hit.x.uid);
+      if(!window.confirm("¿Eliminar «"+hit.x.name+"» del catálogo?"+(uso?"\n\nEstá marcado en "+uso+(uso===1?" evento":" eventos")+": dejará de salir en su producción, compra y minuta.":""))) return;
+      hit.f.dishes.splice(hit.xi,1); ui.open=null; guardar("platos",d,"Plato eliminado.");
+    }
+    else if(a==="ing-add"){ hit.x.ingredients.push({name:"",qty:0,unit:"gr"}); guardar("platos",d); render();
+      var ins=hostRef.querySelectorAll('.pp-dish.open input[data-pp="ing"][data-k="name"]'); if(ins.length) ins[ins.length-1].focus(); return; }
+    else if(a==="ing-del"){ hit.x.ingredients.splice(i,1); guardar("platos",d); }
+    render(); return;
+  }
+  if(a==="tramo-add"||a==="tramo-del"){
+    var cat=b.closest(".pp-card").getAttribute("data-cat"), bd=datos("bebidas"), c=bd.cats[cat]; if(!c) return;
+    c.tramos=c.tramos||[];
+    if(a==="tramo-add") c.tramos.push({etq:"",div:10}); else c.tramos.splice(i,1);
+    guardar("bebidas",{cats:bd.cats}); render(); return;
+  }
+  if(a==="art-add"){ var cd=datos("catalogo"); var n=1; while(cd.items.some(function(o){ return o.articulo==="ARTÍCULO NUEVO"+(n>1?" "+n:""); })) n++;
+    cd.items.push({articulo:"ARTÍCULO NUEVO"+(n>1?" "+n:""),categoria:"PLATO",base:"COMENSAL",unidades:1}); ui.catQ=""; guardar("catalogo",cd); render();
+    var rows=hostRef.querySelectorAll('input[data-pp="art"][data-k="articulo"]'); if(rows.length){ rows[rows.length-1].focus(); rows[rows.length-1].select(); } return; }
+  if(a==="art-del"){ var cd2=datos("catalogo"), art=cd2.items[i]; if(!art) return;
+    if(!window.confirm("¿Quitar «"+art.articulo+"» del catálogo? Los platos que lo usen dejarán de sumarlo en el check list.")) return;
+    cd2.items.splice(i,1); guardar("catalogo",cd2); render(); return; }
+  if(a.indexOf("mon")===0){
+    var md=datos("montaje"), r=md.reglas[+b.getAttribute("data-r")];
+    if(a==="mon-add"){ md.reglas.push({nombre:"Regla nueva",cuando:{tipo:"evento"},base:"EVENTO",mobiliario:[],utensilios:[]}); }
+    else if(!r) return;
+    else if(a==="mon-del"){ if(!window.confirm("¿Eliminar la regla «"+(r.nombre||"")+"»?")) return; md.reglas.splice(+b.getAttribute("data-r"),1); }
+    else if(a==="mon-it-add"){ var kind=b.getAttribute("data-kind"); r[kind]=r[kind]||[]; r[kind].push({art:"",uds:1}); }
+    else if(a==="mon-it-del"){ (r[b.getAttribute("data-kind")]||[]).splice(i,1); }
+    guardar("montaje",md); render(); return;
+  }
+}
+
+/* estilos propios */
+var st=document.createElement("style");
+st.textContent=
+".pp-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}"+
+".pp-state{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--bg-2);color:var(--c-mut);border:1px solid var(--c-line)}"+
+".pp-state.mod{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--c-ink);border-color:color-mix(in srgb,var(--gold) 40%,var(--c-line))}"+
+".pp-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 12px}"+
+".pp-search{flex:1;min-width:220px;background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:9px 12px;color:var(--c-ink);font:inherit}"+
+".pp-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}"+
+".pp-chip{border:1px solid var(--c-line-2);background:var(--panel);color:var(--c-mut);border-radius:99px;padding:6px 12px;font:inherit;font-size:12.5px;cursor:pointer}"+
+".pp-chip b{color:var(--c-faint);font-weight:600;margin-left:3px}"+
+".pp-chip.on{background:color-mix(in srgb,var(--olive) 16%,transparent);border-color:var(--olive);color:var(--c-ink);font-weight:700}"+
+".pp-list{display:flex;flex-direction:column;gap:6px}"+
+".pp-dish{background:var(--panel);border:1px solid var(--c-line);border-radius:var(--r-lg)}"+
+".pp-dish.open{border-color:color-mix(in srgb,var(--olive) 45%,var(--c-line));box-shadow:var(--shadow-sm)}"+
+".pp-dish-h{display:grid;grid-template-columns:minmax(180px,1.3fr) 2fr auto;gap:14px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:12px 16px;font:inherit;color:inherit;cursor:pointer}"+
+".pp-dish-nm{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--c-ink)}"+
+".pp-fam{font-family:Karla,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--olive-deep);margin-left:6px}"+
+".pp-dish-meta{font-size:12px;color:var(--c-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"+
+".pp-dish-n{font-size:12px;color:var(--c-faint);white-space:nowrap}"+
+".pp-warn-dot{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--gold);color:#fff;font-size:11px;font-weight:700;margin-left:4px}"+
+".pp-dish-body{padding:4px 16px 16px;border-top:1px solid var(--c-line)}"+
+".pp-avisos{margin:12px 0;padding:10px 12px 10px 28px;background:color-mix(in srgb,var(--gold) 10%,transparent);border-radius:var(--r-sm);font-size:12.5px;color:var(--c-ink)}"+
+".pp-subh{margin:18px 0 8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--c-faint)}"+
+".pp-subh span{letter-spacing:0;text-transform:none;font-weight:400;color:var(--c-mut)}"+
+".pp-dish-foot{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}"+
+".pp-uso{font-size:12px;color:var(--c-mut);margin-right:auto}"+
+".pp-empty{color:var(--c-mut);font-style:italic;padding:10px 4px}"+
+".pp-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}"+
+".pp-card .pcard-h{align-items:center}"+
+".pp-ej{font-size:12px;color:var(--c-mut)}"+
+".pp-tramo{display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap}"+
+".pp-tramo input{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:7px 9px;color:var(--c-ink);font:inherit;font-size:13px}"+
+".pp-tramo input:first-child{flex:1;min-width:140px}"+
+".pp-tramo span{font-size:12px;color:var(--c-mut)}"+
+".pp-note{font-size:12.5px;color:var(--c-mut);margin:12px 0 0;line-height:1.5}"+
+".fld .lbl small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--c-faint)}"+
+".pp-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,10px);opacity:0;background:var(--c-ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;z-index:300;transition:.2s}"+
+".pp-toast.on{opacity:1;transform:translate(-50%,0)}"+
+"@media (max-width:760px){.pp-grid2{grid-template-columns:1fr}.pp-dish-h{grid-template-columns:1fr auto}.pp-dish-meta{grid-column:1/-1;grid-row:2}}";
+document.head.appendChild(st);
 })();
 </script>
 

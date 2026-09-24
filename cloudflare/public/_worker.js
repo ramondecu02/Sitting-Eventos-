@@ -194,10 +194,31 @@ async function storePut(request, env) {
   if (!s) return json({ error: "unauth" }, 401);
   let txt = await request.text();
   if (!txt) return json({ error: "empty" }, 400);
-  try { JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
+  let incoming;
+  try { incoming = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
+  /* Parámetros del negocio (platos, escandallo, bebidas, camareros…): solo los
+     cambia un administrador. Se combinan sección a sección y gana la más
+     reciente, así un compañero con una copia vieja no deshace un cambio. */
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  let prev = {}; try { prev = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { prev = {}; }
+  if (incoming && typeof incoming === "object") {
+    incoming.params = mergeParams(prev.params, incoming.params, s.role === "admin");
+    txt = JSON.stringify(incoming);
+  }
   await env.DB.prepare("INSERT INTO store (id, data, updated) VALUES (1, ?1, ?2) ON CONFLICT(id) DO UPDATE SET data=?1, updated=?2")
     .bind(txt, Date.now()).run();
   return json({ ok: true });
+}
+
+function mergeParams(prev, inc, isAdmin) {
+  const out = { v: 1, sec: {} };
+  const ps = (prev && prev.sec) || {}, is = (inc && inc.sec) || {};
+  Object.keys(ps).forEach((k) => { out.sec[k] = ps[k]; });
+  if (isAdmin) Object.keys(is).forEach((k) => {
+    const a = is[k], b = out.sec[k];
+    if (a && (!b || (a.updated || 0) > (b.updated || 0))) out.sec[k] = a;
+  });
+  return out;
 }
 
 /* ── usuarios (solo admin) ──────────────────────────────────────────── */
