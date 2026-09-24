@@ -329,12 +329,19 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 @media print{
   body{background:#fff}
   .editor,.topbar,.propbar,.hintbar,.toast{display:none!important}
-  .app{display:block; height:auto; overflow:visible}
-  .stage{display:block; background:#fff}
-  .sheets,.canvas{display:block; overflow:visible; padding:0}
+  /* !important: el JS pone display:grid en línea al volver al sitting, y con la
+     rejilla de pantalla la hoja se quedaba en la columna estrecha del editor
+     (plano cortado por la izquierda y media hoja en blanco) */
+  .app{display:block!important; height:auto!important; overflow:visible!important}
+  .stage{display:block!important; width:auto!important; background:#fff}
+  .sheets,.canvas{overflow:visible!important; padding:0!important; width:auto!important}
+  .canvas[style*="flex"],.sheets[style*="flex"]{display:block!important}   /* la vista oculta sigue oculta */
+  .rsz,#rsz-h{display:none!important}
   .sheet{width:auto; max-width:none; box-shadow:none; padding:0; background:#fff}
   .frame{border:0; padding:0}
   .room{box-shadow:none; background:#fff}
+  .roomwrap,.room{width:auto!important; height:auto!important}
+  #room{display:block; width:auto!important; height:auto!important; max-width:var(--print-w,190mm); max-height:var(--print-h,275mm); margin:0 auto; break-inside:avoid}
   #room .gridbg{display:none}
   #room .roombg{fill:#fff}
   body.mode-menu .app,body.mode-menu .launcher{display:none!important}
@@ -826,6 +833,19 @@ body.mode-plan .planv{display:flex}
   .evcard .ev-nm{font-size:19px}
 }
 @media print{ .tabbar,.msubnav,.sidenav{display:none!important} .mainwrap{height:auto;overflow:visible} .applayout{display:block;height:auto;overflow:visible} }
+/* Imprimir (Ctrl+P) desde Inicio, Resumen o Planificación: esas pantallas son
+   capas encima del sitting con su propio scroll, así que al imprimir salía solo
+   la primera hoja (el resto quedaba dentro del scroll) y por detrás el sitting.
+   Se imprime SOLO la pantalla abierta y entera, sin botones de edición. */
+@media print{
+  body.mode-plan .mainwrap>*:not(#appPlan),
+  body.mode-resumen .mainwrap>*:not(#appResumen),
+  body.mode-home .mainwrap>*:not(#appHome){display:none!important}
+  .planv,.resumen,.home{position:static!important; inset:auto!important; overflow:visible!important; height:auto!important; background:#fff!important}
+  .planv-scroll,.rsm-scroll,.home-grid{overflow:visible!important; height:auto!important; flex:none!important; padding-bottom:0!important}
+  .rsm-actions,.row-del,.tk-del,.dtable-foot,.home-actions,.home-search,#home-viewseg,.u-del,.pv-actions{display:none!important}
+  .pcard,.kpi,.rsm-card,.task,.phase-h,.money,.dtable tr,.evcard{break-inside:avoid}
+}
 
 .launcher{position:fixed; top:10px; right:16px; z-index:150; display:flex; background:var(--panel); border:1px solid var(--c-line-2); border-radius:7px; padding:2px; gap:2px; box-shadow:var(--shadow)}
 .launcher-brand{display:none}
@@ -1428,6 +1448,7 @@ Lluc (trona)</div>
         <button class="btn ico" id="rsm" title="Reducir la sala" aria-label="Reducir la sala">−</button>
         <button class="btn ico" id="rbg" title="Ampliar la sala" aria-label="Ampliar la sala">+</button>
         <span class="mini" id="rsz" style="min-width:62px">960×1400</span>
+        <button class="btn sm" id="fitsheet" type="button" title="Dar a la sala la forma de la hoja (A4/A3) sin mover el orden de las mesas">Ajustar a la hoja</button>
       </div>
       <span class="tbrk" aria-hidden="true"></span>
       <div class="grp" id="mesas-tools">
@@ -2586,6 +2607,24 @@ function migrate(e){
     if(k==="interior"&&!e.tplFixed&&p.template==="s17"&&!e.plans.exterior.template){ p.template=null; e.plans.exterior.template="s17"; }
   });
   e.tplFixed=1;
+  /* salas alargadas por el crecimiento automático de antes (+300 px hacia abajo
+     cada vez que no cabía una mesa): se les da UNA vez la forma de la hoja
+     ensanchando el lado corto (las mesas conservan orden y tamaño, solo se
+     separan). Las salas con medidas reales no se tocan: son el salón de verdad. */
+  if(!e.fitV1){
+    ["interior","exterior"].forEach(function(k){
+      var p=e.plans&&e.plans[k]; if(!p||!p.rw||!p.rh||(p.roomM&&p.roomM.w)) return;
+      var hoja=841.89/595.28, lo=Math.max(p.rw,p.rh), co=Math.min(p.rw,p.rh);
+      if(lo/co<=hoja*1.25) return;
+      if(p.rh>=p.rw){ var nw=Math.min(3600,Math.round(p.rh/hoja)), kx=nw/p.rw;
+        Object.keys(p.pos||{}).forEach(function(n){ var q=p.pos[n]; p.pos[n]={x:Math.round(q.x*kx),y:q.y}; });
+        p.rw=nw; }
+      else { var nh=Math.min(3600,Math.round(p.rw/hoja)), ky=(nh-198)/Math.max(1,p.rh-198);
+        Object.keys(p.pos||{}).forEach(function(n){ var q=p.pos[n]; p.pos[n]={x:q.x,y:Math.round(124+(q.y-124)*ky)}; });
+        p.rh=nh; }
+    });
+    e.fitV1=1;
+  }
   /* numeración v2: las mesas sin número escrito ya no roban el número de las
      que sí lo llevan. Las posiciones guardadas (clave = nº de mesa) se remapean
      una sola vez para que cada mesa siga donde estaba en el plano. */
@@ -3226,8 +3265,16 @@ function renderPlan(){
       var s=freeSlot(b,boxes,p);
       /* no cabe una mesa más: se alarga la sala (nadie se mueve) en vez de apilarla encima
          de otra o desordenar con un realineado completo las que ya estaban colocadas */
-      while(!s&&grown<8&&(p.rh||RH)<RMAX){ p.rh=Math.min(RMAX,(p.rh||RH)+300); setRoom(); grown++; s=freeSlot(b,boxes,p); }
-      if(s) p.pos[b.num]=s; else relayout=true;
+      /* antes se alargaba SOLO hacia abajo (+300 cada vez): la sala acababa
+         siendo una tira (960×2000) y el plano impreso salía alargado. Ahora
+         crece por igual en ancho y alto, con la forma de la hoja. Con medidas
+         reales la sala no cambia (es el salón de verdad): la mesa se deja en
+         el centro para colocarla a mano, sin desordenar las demás. */
+      var real=!!(p.roomM&&p.roomM.w);
+      while(!s&&!real&&grown<6&&Math.max(p.rw||RW,p.rh||RH)*1.12<=RMAX){ setRoom(); resizeRoom(RW*1.12,RH*1.12); setRoom(); grown++; s=freeSlot(b,boxes,p); }
+      if(s) p.pos[b.num]=s;
+      else if(real){ setRoom(); p.pos[b.num]={x:Math.round(RW/2),y:Math.round(RH/2)}; try{ toast("La mesa "+b.num+" no cabe en un hueco libre: está en el centro, colócala a mano."); }catch(_){} }
+      else relayout=true;
     });
   }
   if(relayout){ var a=autoLayout(boxes,p); p.scale=a.scale; p.pos=a.pos; }
@@ -3468,7 +3515,8 @@ function metaLine(T,L){
 }
 function guestRow(g,L){
   var tags="";
-  g.aler.forEach(function(a){tags+='<span class="tag a">'+esc(a)+'</span>';});
+  /* cada alergia con el color de su familia, el mismo que en el plano */
+  g.aler.forEach(function(a,ai){tags+='<span class="tag a" style="background:'+alerColor((g.alerFams||[])[ai])+'">'+esc(a)+'</span>';});
   if(g.kind==="child")tags+='<span class="tag n">'+esc(L.leg.child)+'</span>';
   if(g.kind==="baby")tags+='<span class="tag t">'+esc(L.leg.baby)+'</span>';
   if(g.kind==="veg")tags+='<span class="tag v">'+esc(L.leg.veg)+'</span>';
@@ -3476,7 +3524,7 @@ function guestRow(g,L){
   (g.menus||[]).forEach(function(p,i){var col=cursoColor((g.menusC||[])[i]);
     tags+='<span class="tag m" style="background:'+col+';color:#fff;border-color:'+col+'">'+esc(p)+'</span>';});
   g.notes.forEach(function(n){if(!/vegan|vegetari/i.test(n))tags+='<span class="tag o">'+esc(n)+'</span>';});
-  return '<div class="g'+(g.aler.length?" aler":"")+'"><span class="nm">'+esc(g.name)+'</span>'+(g.star?'<span class="star">&#9733;</span>':'')+tags+'</div>';
+  return '<div class="g'+(g.aler.length?" aler":"")+'"><span class="nm"'+(g.aler.length?' style="color:'+alerColor((g.alerFams||[])[0])+'"':"")+'>'+esc(g.name)+'</span>'+(g.star?'<span class="star">&#9733;</span>':'')+tags+'</div>';
 }
 /* los aperitivos adaptados por alergia (del Menú, sección Alergias) también son
    del pase, igual que el plato sustitutivo de cada comensal — así que el
@@ -3623,10 +3671,10 @@ function listPages(L,pw,ph){
       cur.push(LN(M+10,y0+32,pw-M-10,y0+32,"#E0D7C5",0.6));
       gs.forEach(function(g,i){
         var cx=M+16+(i%cols)*(W-24)/cols, cy=y0+46+Math.floor(i/cols)*15;
-        cur.push(TX(cx,cy,g.name+(g.star?"  *":""),{size:11.5,fo:"ser",a:"start",c:g.aler.length?RUBY:INK}));
+        cur.push(TX(cx,cy,g.name+(g.star?"  *":""),{size:11.5,fo:"ser",a:"start",c:g.aler.length?alerColor((g.alerFams||[])[0]):INK}));
         var tx=cx+textW({s:g.name+(g.star?"  *":""),fo:"ser",size:11.5,ls:0})+7;
         var tags=[];
-        g.aler.forEach(function(a){tags.push({s:a.toUpperCase(),bg:RUBY,fg:"#FFFFFF"});});
+        g.aler.forEach(function(a,ai){tags.push({s:a.toUpperCase(),bg:alerColor((g.alerFams||[])[ai]),fg:"#FFFFFF"});});
         if(g.kind==="child")tags.push({s:L.leg.child.toUpperCase(),bg:"#DDBE86",fg:"#4A3714"});
         if(g.kind==="baby")tags.push({s:L.leg.baby.toUpperCase(),bg:"#9A7538",fg:"#FFFFFF"});
         if(g.kind==="veg")tags.push({s:L.leg.veg.toUpperCase(),bg:"#5E9A3F",fg:"#FFFFFF"});
@@ -4279,6 +4327,10 @@ function openExport(kind){
   bPng.addEventListener("click",saveAllPng);
 }
 function deliver(name,data){
+  /* nombre de archivo sin tildes ni símbolos: con «producción» o «menú» algunos
+     navegadores guardaban el archivo como «download» sin extensión, y los
+     acentos dan guerra al mandarlo por WhatsApp o abrirlo en Windows */
+  try{ name=String(name).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\w.\-]+/g,"_").replace(/_+/g,"_"); }catch(_){}
   var w;
   try{ w=(window.claude&&window.claude.use)?window.claude.use("downloads"):null; }
   catch(e){ w=null; }
@@ -4336,15 +4388,25 @@ function render(){
   syncLocUI(); renderStats(); renderView();
 }
 function setPage(){
-  var st=$("pagestyle"), paper=$("paper").value, land=view==="plan";
-  st.textContent="@page{size:"+(land?paper+" landscape":paper+" portrait")+"; margin:"+(land?"8mm":"10mm")+"}";
-  document.documentElement.style.setProperty("--print-w",paper==="A3"?"404mm":"281mm");
+  /* el plano se imprime en la orientación de la SALA (antes siempre apaisado:
+     una sala vertical salía cortada en 3 hojas) y encajado entero en una hoja */
+  var st=$("pagestyle"), paper=$("paper").value, isPlan=view==="plan";
+  if(isPlan) setRoom();
+  var land=isPlan&&RW>RH, mg=isPlan?8:10;
+  var pw=paper==="A3"?297:210, ph=paper==="A3"?420:297;
+  if(land){ var tmp=pw; pw=ph; ph=tmp; }
+  st.textContent="@page{size:"+paper+(land?" landscape":" portrait")+"; margin:"+mg+"mm}";
+  document.documentElement.style.setProperty("--print-w",(pw-2*mg)+"mm");
+  document.documentElement.style.setProperty("--print-h",(ph-2*mg-2)+"mm");
 }
 function syncLocUI(){
   var l=loc(), o=orientOf();
   Array.prototype.forEach.call($("orientseg").children,function(b){ b.setAttribute("aria-pressed",b.dataset.o===o?"true":"false"); });
   $("tpl").value=plan().template||"";
   setRoom(); var rl=$("rsz"); if(rl) rl.textContent=RW+"×"+RH;
+  var fs=$("fitsheet"); if(fs){ var sv=salaVsHoja(); fs.style.display=sv.real?"none":"";
+    fs.classList.toggle("gold",sv.alargada);
+    fs.title=sv.alargada?"La sala es más alargada que la hoja y el plano impreso saldría estrecho: pulsa para darle la forma de la hoja":"Dar a la sala la forma de la hoja (A4/A3)"; }
   $("salon").style.display=(plan().template==="s17")?"":"none";
   Array.prototype.forEach.call($("locseg").children,function(b){ b.setAttribute("aria-pressed",b.dataset.loc===l?"true":"false"); });
   var own=planoOwn(), tienePlano=!!planoGet(), rm=plan().roomM;
@@ -4563,7 +4625,7 @@ $("share").addEventListener("click",openShare);
 $("ex-boda").addEventListener("click",function(){newEvent(EX_BODA);});
 $("full").addEventListener("change",function(){ prefs().full=this.checked; save(); render(); });
 $("lang").addEventListener("change",function(){ prefs().lang=this.value; save(); render(); });
-$("paper").addEventListener("change",function(){ prefs().paper=this.value; setPage(); save(); });
+$("paper").addEventListener("change",function(){ prefs().paper=this.value; setPage(); syncLocUI(); save(); });
 $("pdfBtn").addEventListener("click",function(){openExport(view);});
 
 Array.prototype.forEach.call($("locseg").children,function(b){
@@ -4747,6 +4809,28 @@ $("p-del").addEventListener("click",function(){ if(sel!==null) deleteTable(sel);
 $("undo").addEventListener("click",undo);
 function bumpRoom(f){ pushUndo(); setRoom(); setRoomSize(RW*f,RH*f); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},20); }
 $("rsm").addEventListener("click",function(){ bumpRoom(1/1.12); });
+/* proporción de la sala frente a la de la hoja (lado largo / lado corto) */
+function salaVsHoja(){
+  setRoom(); var P=PAPERS[$("paper").value]||PAPERS.A4;
+  var hoja=P.h/P.w, sala=Math.max(RW,RH)/Math.min(RW,RH);
+  return {hoja:hoja, sala:sala, alargada:sala>hoja*1.08, real:!!(plan().roomM&&plan().roomM.w)};
+}
+/* «Ajustar a la hoja»: la sala toma la forma del papel ensanchando el lado
+   corto (o alargando el largo si la sala es más ancha que la hoja). Las mesas
+   conservan su orden y su tamaño, solo se separan en esa dirección, así que el
+   plano impreso llena la hoja en vez de salir como una tira estrecha. */
+function ajustarAHoja(){
+  var r=salaVsHoja();
+  if(r.real){ toast("Esta sala tiene medidas reales: su forma es la del salón y no se cambia.",true); return; }
+  pushUndo(); setRoom();
+  var vert=RH>=RW, w=RW, h=RH;
+  if(r.sala>r.hoja){ if(vert) w=Math.round(RH/r.hoja); else h=Math.round(RW/r.hoja); }
+  else { if(vert) h=Math.round(RW*r.hoja); else w=Math.round(RH*r.hoja); }
+  resizeRoom(w,h,RMAX_CAL); renderPlan(); syncLocUI(); save();
+  setTimeout(function(){userZoomed=false;fitZoom(false);},20);
+  toast("Sala ajustada a la hoja "+($("paper").value||"A4")+" ("+plan().rw+"×"+plan().rh+").");
+}
+$("fitsheet").addEventListener("click",ajustarAHoja);
 $("rbg").addEventListener("click",function(){ bumpRoom(1.12); });
 Array.prototype.forEach.call($("orientseg").children,function(b){
   b.addEventListener("click",function(){
@@ -5233,7 +5317,7 @@ function imprimirCalendario(y,mo){
   var tset={}; store.events.forEach(function(e){ tset[eventoTipo(e)]=1; });
   var legend=Object.keys(tset).sort().map(function(t){ return '<span class="lg"><i style="background:'+tipoColor(t)+'"></i>'+escH(t)+'</span>'; }).join("");
   var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Calendario · '+escH(mesLargo(y,mo))+' · Les Moles Events</title>'+
-    '<style>@page{size:landscape;margin:12mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0}'+
+    '<style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0}'+
     'h1{font-size:22px;margin:0 0 2px;font-weight:600}.sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;margin-bottom:10px}'+
     '.leg{margin:0 0 12px;font:10px Arial,sans-serif;color:#555}.leg .lg{display:inline-flex;align-items:center;gap:4px;margin-right:12px}.leg i{width:9px;height:9px;border-radius:2px;display:inline-block}'+
     'table{width:100%;border-collapse:collapse;table-layout:fixed}th{font:600 10px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#555;padding:6px 4px;border:1px solid #ccc;background:#f3f1ea}'+
@@ -5327,7 +5411,7 @@ function imprimirResumen(e){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0}; }
   var F=e.ficha||{}, P=e.presupuesto||{}, pt=presupTotals(e);
   var nombre=nombreLimpio(e.name)||"Evento";
-  var fechaTxt=F.fecha?dmyFromISO(F.fecha):(d.sub||"");
+  var fechaTxt=F.fecha?(function(){ try{ return capFirst(new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})); }catch(_){ return dmyFromISO(F.fecha); } })():(d.sub||"");
   /* menú elegido, agrupado por familia (MENU_DATA es global) */
   var dishMap=(e.menu&&e.menu.dishes)||{}, fams=[];
   if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){
@@ -5350,7 +5434,18 @@ function imprimirResumen(e){
   if(F.telefono||F.contacto||F.email)datos.push(["Contacto",[F.contacto||F.parejaA,F.telefono,F.email].filter(Boolean).join(" · ")]);
   var datosHTML=datos.map(function(x){return '<tr><th>'+escH(x[0])+'</th><td>'+escH(x[1])+'</td></tr>';}).join("");
   var balHTML=pt.total>0?('<table class="bal"><tr><th>Total previsto</th><td>'+fmtEur(pt.total)+'</td></tr>'+
-    '<tr><th>Cobrado</th><td>'+fmtEur(pt.pagado)+'</td></tr><tr><th>Pendiente</th><td>'+fmtEur(pt.pend)+'</td></tr></table>'):'<p class="muted">Precios por definir.</p>';
+    '<tr><th>Cobrado</th><td>'+fmtEur(pt.pagado)+'</td></tr><tr><th>'+(pt.pend<-0.005?"Cobrado de más":"Pendiente")+'</th><td>'+fmtEur(Math.abs(pt.pend))+'</td></tr></table>'+
+    ((P.pagos||[]).length?'<table class="pagos">'+(P.pagos||[]).slice().sort(function(a,b){ return String(a.fecha||"").localeCompare(String(b.fecha||"")); }).map(function(p){
+      return '<tr><td>'+escH(p.fecha?dmyFromISO(p.fecha):"—")+'</td><td>'+escH(p.concepto||"Pago")+'</td><td class="r">'+fmtEur(p.importe)+'</td></tr>'; }).join("")+'</table>':"")):'<p class="muted">Precios por definir.</p>';
+  /* lo que el equipo necesita el día del evento: quién tiene alergia o dieta,
+     en qué mesa y qué se le sirve; y el reparto de comensales por mesa */
+  var alerRows=[];
+  d.tables.forEach(function(tb){ tb.guests.forEach(function(g){
+    if(!(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)) return;
+    var mot=g.aler.slice(); if(g.kind==="veg") mot.push("Vegetariano"); if(g.kind==="vegan") mot.push("Vegano"); if(g.preg) mot.push("Embarazada");
+    alerRows.push('<tr><td>'+escH(g.name)+'</td><td>'+escH(mesaTxt(tb,I18N.es))+'</td><td>'+escH(mot.join(" · "))+'</td><td>'+escH((g.menus||[]).join(" + ")||"por decidir")+'</td></tr>'); }); });
+  var alerHTML=alerRows.length?'<table class="lst"><tr><th>Comensal</th><th>Mesa</th><th>Motivo</th><th>Se le sirve</th></tr>'+alerRows.join("")+'</table>':'<p class="muted">Nadie con alergias ni dietas especiales.</p>';
+  var mesasHTML=d.tables.length?'<div class="mesas">'+d.tables.map(function(tb){ return '<span><b>'+escH(mesaTxt(tb,I18N.es))+'</b> '+tb.guests.length+'</span>'; }).join("")+'</div>':'<p class="muted">Sin mesas.</p>';
   var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>'+escH(nombre)+' · Les Moles Events</title>'+
     '<style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0;font-size:12px}'+
     'h1{font-size:26px;margin:0 0 2px;font-weight:600}.eyebrow{font:600 10px/1 Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#6E7D50;margin-bottom:10px}'+
@@ -5358,12 +5453,18 @@ function imprimirResumen(e){
     '.cifras{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.cf{border:1px solid #ddd;border-radius:6px;padding:8px 14px;text-align:center;min-width:74px}.cf b{display:block;font-size:22px;font-weight:600}.cf span{font:600 8px/1 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#777}'+
     'table{border-collapse:collapse}table.bal,table.datos{width:100%}th{text-align:left;color:#555;font:600 11px/1.5 Arial,sans-serif;padding:4px 10px 4px 0;vertical-align:top;white-space:nowrap;width:120px}td{padding:4px 0;font-size:13px}'+
     '.mgrp{margin-bottom:10px}.mgrp h4{font:600 10px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6E7D50;margin:0 0 4px}.mgrp ul{margin:0;padding-left:18px}.mgrp li{font-size:13px;line-height:1.5}'+
+    'table.pagos{width:100%;margin-top:8px}table.pagos td{font-size:11.5px;padding:2px 0;color:#444}td.r{text-align:right}'+
+    'table.lst{width:100%}table.lst th{width:auto;border-bottom:1px solid #ddd}table.lst td{font-size:12px;padding:3px 8px 3px 0;border-bottom:1px solid #f0ece2}'+
+    '.mesas{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px}.mesas b{font-weight:600}.notas{white-space:pre-wrap;font-size:12.5px}'+
     '.cols{display:flex;gap:30px}.cols>div{flex:1}.muted{color:#999;font-style:italic}.foot{margin-top:22px;border-top:1px solid #ddd;padding-top:8px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
     '<div class="eyebrow">Les Moles Events'+(F.tipo?' · '+escH(F.tipo):'')+'</div><h1>'+escH(nombre)+'</h1>'+
     '<h2>Cifras</h2><div class="cifras">'+cifHTML+'</div>'+
     '<div class="cols"><div><h2>Datos</h2><table class="datos">'+(datosHTML||'<tr><td class="muted">Sin datos.</td></tr>')+'</table>'+
       '<h2>Balance</h2>'+balHTML+'</div>'+
       '<div><h2>Menú</h2>'+menuHTML+'</div></div>'+
+    '<h2>Alergias y dietas</h2>'+alerHTML+
+    '<h2>Mesas</h2>'+mesasHTML+
+    (F.notas?'<h2>Cosas a tener en cuenta</h2><div class="notas">'+escH(F.notas)+'</div>':'')+
     '<div class="foot">Les Moles Events · Hoja de evento generada '+dmyFromISO(new Date().toISOString().slice(0,10))+'</div></body></html>';
   var ifr=document.createElement("iframe"); ifr.setAttribute("aria-hidden","true");
   ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
@@ -6766,6 +6867,9 @@ function renderAlergias(){
   }).join("");
 
   $("mnu-body").innerHTML=datalist+
+    '<div class="mnu-print-bar"><label class="paper-pick">Papel <select class="paper-sel" id="aler-paper" aria-label="Tamaño de papel">'+
+      '<option value="A4"'+(mnuPaper==="A4"?" selected":"")+'>A4</option><option value="A3"'+(mnuPaper==="A3"?" selected":"")+'>A3</option></select></label>'+
+      '<button class="btn gold sm" id="aler-print-btn" type="button">Descargar hoja de alergias para cocina (PDF)</button></div>'+
     '<div class="mnu-fam-section"><p class="mnu-origen"><b>'+lista.length+
       (lista.length===1?" comensal":" comensales")+' con alergia, intolerancia o necesidad especial (vegetariano, vegano o embarazada)</b> · '+
       conPlato+' con plato decidido · '+(lista.length-conPlato)+' por decidir. '+
@@ -6776,6 +6880,40 @@ function renderAlergias(){
 
   wirePlatos();
   wireAperitivosAdaptados();
+  var ap=$("aler-paper"); if(ap) ap.addEventListener("change",function(){ mnuPaper=ap.value; });
+  var ab=$("aler-print-btn"); if(ab) ab.addEventListener("click",function(){ descargarAlergias(ab); });
+}
+/* hoja de alergias para cocina y sala: por mesa, quién, por qué y qué se le
+   sirve (o «POR DECIDIR»), y al final los aperitivos adaptados. Se monta en el
+   momento de descargar, con lo último que se haya escrito, y se quita después */
+function descargarAlergias(btn){
+  var lista=BR.alergias?BR.alergias():[], m=menu()||{}, mapa=m.aperitivosPorAlergia||{}, t=evTotals();
+  var porMesa={}; lista.forEach(function(g){ (porMesa[g.mesa]=porMesa[g.mesa]||[]).push(g); });
+  var mesas=Object.keys(porMesa).map(Number).sort(function(a,b){ return a-b; });
+  var sin=lista.filter(function(g){ return !(g.sustitutos&&g.sustitutos.length); }).length;
+  var html='<div class="sheet aler-print" style="display:none"><div class="frame">'+
+    '<header class="doc-head"><div class="eyebrow">Les Moles Events'+(ev()&&ev().name?(" · "+esc(ev().name)):"")+'</div><h2>Alergias y dietas</h2>'+
+    '<div class="orn"></div><div class="doc-meta">'+lista.length+' comensales · '+(lista.length-sin)+' con plato · '+sin+' por decidir</div></header>';
+  mesas.forEach(function(num){
+    var gs=porMesa[num], lbl=gs[0].mesaLbl||("Mesa "+num);
+    html+='<h2>'+esc(lbl)+'</h2><table>'+gs.map(function(g){
+      var mot=g.aler.slice(); if(g.kind==="veg") mot.push("Vegetariano"); if(g.kind==="vegan") mot.push("Vegano"); if(g.preg) mot.push("Embarazada");
+      var pl=(g.sustitutos||[]).filter(Boolean).join(" + ");
+      return '<tr><td>'+esc(g.nombre)+' <span class="mnu-base">'+esc(mot.join(" · "))+'</span></td><td>'+esc(pl||"POR DECIDIR")+'</td></tr>';
+    }).join("")+'</table>';
+  });
+  var dist=alergiasDistintas(lista);
+  if(dist.length){
+    html+='<h2>Aperitivos adaptados</h2><table>'+dist.map(function(k){
+      return '<tr><td>'+esc(k)+'</td><td>'+esc(mapa[k]||"POR DECIDIR")+'</td></tr>'; }).join("")+'</table>';
+  }
+  html+='</div></div>';
+  var box=document.createElement("div"); box.innerHTML=html; var sh=box.firstChild;
+  $("mnu-body").appendChild(sh);
+  var e=ev(), base=((e&&e.name)||"evento").replace(/\s+/g,"_")+"_alergias";
+  btn.disabled=true;
+  Promise.resolve(BR.descargarHoja("#mnu-body .aler-print .frame",base,mnuPaper)).then(function(){
+    btn.disabled=false; if(sh.parentNode) sh.parentNode.removeChild(sh); });
 }
 /* selector del tiempo del plato (primero/segundo/postre), con el color del
    tiempo elegido — igual que se verá luego en el listado por mesas */
