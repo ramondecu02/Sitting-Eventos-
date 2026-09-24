@@ -38,7 +38,14 @@ export default {
       }
     }
     // Resto: la aplicación (assets estáticos). SPA de un solo HTML.
-    return env.ASSETS.fetch(request);
+    // El HTML no se guarda en caché: así ningún navegador (Firefox tiende a
+    // quedarse con copias) sigue usando una versión vieja tras publicar.
+    const res = await env.ASSETS.fetch(request);
+    const ct = res.headers.get("Content-Type") || "";
+    if (ct.indexOf("text/html") === -1) return res;
+    const out = new Response(res.body, res);
+    out.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    return out;
   },
 };
 
