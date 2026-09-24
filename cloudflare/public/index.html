@@ -263,6 +263,48 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .ovl-body img{max-width:min(100%,540px); height:auto; box-shadow:0 2px 12px rgba(0,0,0,.18); background:#fff; border-radius:2px}
 .ovl-wait{padding:40px; color:var(--c-mut); font-style:italic; text-align:center}
 .sr-only{position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
+/* escaleta */
+.esc-edit{max-width:900px; margin:0 auto 18px; background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg,12px); padding:16px 18px; display:flex; flex-direction:column; gap:14px}
+.esc-ed-h{display:flex; flex-direction:column; gap:3px}
+.esc-ed-h b{font-family:"Cormorant Garamond",serif; font-size:20px; font-weight:600}
+.esc-ed-h span{font-size:12.5px; color:var(--c-mut)}
+.esc-horas{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.esc-chks{display:flex; gap:8px 18px; flex-wrap:wrap; font-size:13px; padding-top:4px}
+.esc-chks .ag-chk{display:inline-flex; gap:7px; align-items:center; width:auto; text-transform:none; letter-spacing:0; font-size:13px; color:var(--c-ink)}
+.esc-chks input[type=checkbox]{width:auto!important; flex:none; margin:0}
+.esc-notas{grid-column:1/-1}
+.esc-ovs{font-size:12.5px; color:var(--c-mut)}
+.mnu-esc .esc-t td.esc-q{text-align:right; white-space:nowrap; font-weight:700; font-variant-numeric:tabular-nums; width:64px}
+.mnu-esc .esc-t td[data-esc-k]{cursor:pointer; border-radius:4px}
+.mnu-esc .esc-t td[data-esc-k]:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
+.mnu-esc .esc-t td.ov{color:#9C7F44}
+.mnu-esc .esc-t td.ov::after{content:" ✎"; font-weight:400; font-size:11px}
+.mnu-esc .esc-t tr.tot td{font-weight:700; border-top:1.5px solid currentColor}
+.mnu-esc .esc-t tr.esc-sub td:first-child{padding-left:22px; font-style:italic}
+.mnu-esc .esc-mesa{color:#6C685F; font-weight:400}
+.mnu-esc .esc-mot{text-align:right; font-weight:600}
+.mnu-esc .esc-horario{display:flex; border:1px solid #E4D9C0; border-radius:6px; background:#FBF8F2; margin:0 0 18px}
+.mnu-esc .esc-horario div{flex:1; text-align:center; padding:8px 6px; display:flex; flex-direction:column; gap:3px}
+.mnu-esc .esc-horario div + div{border-left:1px solid #E4D9C0}
+.mnu-esc .esc-horario span{font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:#6E7D50}
+.mnu-esc .esc-horario b{font-size:18px; color:#1A1A1A}
+.mnu-esc .esc-horario span{min-height:12px}
+.mnu-esc .esc-cols{columns:2 250px; column-gap:26px}
+.mnu-esc .esc-t{width:100%; max-width:100%; min-width:0; table-layout:fixed; font-size:13px}
+.mnu-esc .esc-t td:first-child{overflow-wrap:anywhere}
+.mnu-esc .esc-t col.esc-qcol{width:64px}
+.mnu-esc .esc-t td{padding:4px 2px; vertical-align:top; border-bottom:1px solid #EFE7D6}
+.mnu-esc .esc-sec h3{font-family:"Cormorant Garamond",serif; font-size:19px; font-weight:600; border-bottom:1px solid #CBB889; padding-bottom:3px}
+.mnu-esc .esc-sec{break-inside:avoid-column; margin-bottom:16px}
+.mnu-esc .esc-sec h3{margin:0 0 4px; display:flex; justify-content:space-between; align-items:baseline; gap:8px}
+.mnu-esc .esc-h3sub{font-family:"Barlow Semi Condensed",sans-serif; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#6C685F; font-weight:600}
+.mnu-esc tr.esc-head td{padding-top:10px; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:#6E7D50; font-weight:700; border-bottom:0}
+.mnu-esc tr.esc-al td .mnu-base{color:#1A1A1A; font-weight:700}
+.mnu-esc .esc-nota{white-space:pre-wrap}
+.mnu-esc td .mnu-base{display:block; font-size:11.5px; color:#4A463F; font-weight:400; font-style:normal; text-transform:none; letter-spacing:0; margin-top:1px}
+.esc-qin{width:70px; text-align:right; padding:3px 6px; font:inherit}
+.esc-aviso{font-size:12.5px; color:#6C685F; font-style:italic}
+@media print{ .esc-edit{display:none!important} .mnu-esc .esc-t td.ov::after{content:""} }
 .imp-box{max-width:min(1060px,96vw)}
 .imp-body{align-items:stretch!important; max-height:62vh}
 .imp-src.file textarea,.imp-src.file .imp-plbl{display:none}
@@ -1788,6 +1830,7 @@ Lluc (trona)</div>
       <button role="tab" aria-selected="false" data-v="compra">Compra</button>
       <button role="tab" aria-selected="false" data-v="serv">Servicio</button>
       <button role="tab" aria-selected="false" data-v="bebida">Bebida</button>
+      <button role="tab" aria-selected="false" data-v="esc">Escaleta</button>
       <button role="tab" aria-selected="false" data-v="card">Menú</button>
     </div>
     <div class="mnu-search" id="mnu-search-wrap">
@@ -2952,7 +2995,7 @@ function migrate(e){
   if(F.tipo==null) F.tipo="Boda";
   if(F.estado==null) F.estado="planificacion"; /* contacto·propuesta·visita·reserva·planificacion·confirmada·celebrada·cerrada */
   if(F.ubicacion==null) F.ubicacion="Les Moles · Ulldecona";
-  ["fecha","parejaA","parejaB","contacto","telefono","email","origen","comoNos","ceremoniaLugar","ceremoniaHora","ceremoniaDur","llegadaRest","minutas","notas","foto"].forEach(function(k){ if(F[k]==null) F[k]=""; });
+  ["fecha","parejaA","parejaB","contacto","telefono","email","origen","comoNos","ceremoniaLugar","ceremoniaHora","ceremoniaDur","llegadaRest","horaAperitivo","horaBanquete","horaBarra","minutas","notas","foto"].forEach(function(k){ if(F[k]==null) F[k]=""; });
   if(F.staff==null) F.staff=0;
   /* evento con la fecha escrita solo en el sitting (título «#» o línea «@») y la
      ficha vacía: salía «Sin fecha» en el inicio y no aparecía en el calendario */
@@ -4554,6 +4597,91 @@ function descargarHoja(selector,nombreArchivo,paperSize){
     toast("No se ha podido descargar el PDF.",true);
   });
 }
+/* ══ la escaleta en PDF, en dos columnas (como la hoja de Excel que se hacía
+   a mano): cabecera con el horario del día y, debajo, los bloques uno tras
+   otro llenando la columna izquierda y luego la derecha. Letra compacta pero
+   legible; cantidades en negrita a la derecha; nombres y detalles debajo. ══ */
+function escaletaPages(md,pw,ph){
+  var M=32, W=pw-2*M, G=20, CW=(W-G)/2, pages=[], cur=[], top=0, col=0, y=0;
+  var GP="#6E7D50", SUBC="#4A463F", RULE="#E8DEC8";
+  function pie(){
+    cur.push(LN(M,ph-M+4,pw-M,ph-M+4,"#E4D9C0",0.6));
+    cur.push(TX(pw/2,ph-M+16,"Les Moles Events  ·  Escaleta  ·  "+md.titulo,{size:6.8,fo:"sans",a:"middle",c:SOFT,ls:1.2}));
+  }
+  function cabecera(primera){
+    var yy=M+10;
+    if(!primera){
+      cur.push(TX(M,yy,"ESCALETA",{size:7,fo:"sans",a:"start",c:GP,ls:2.2}));
+      cur.push(TX(pw-M,yy,md.titulo,{size:9,fo:"ser",a:"end",c:INK}));
+      yy+=8; cur.push(LN(M,yy,pw-M,yy,"#CBB889",0.8)); return yy+14;
+    }
+    cur.push(TX(pw/2,yy,"ESCALETA",{size:8,fo:"sans",a:"middle",c:GP,ls:2.6})); yy+=22;
+    partir(md.titulo,W,"ser",20,0).forEach(function(ln){ cur.push(TX(pw/2,yy,ln,{size:20,fo:"ser",a:"middle",c:INK})); yy+=23; });
+    yy-=9; cur.push(LN(pw/2-60,yy,pw/2+60,yy,"#CBB889",0.9)); yy+=13;
+    if(md.fecha){ cur.push(TX(pw/2,yy,md.fecha.toUpperCase(),{size:7.8,fo:"sans",a:"middle",c:SOFT,ls:1.4})); yy+=12; }
+    if(md.horas.length){
+      /* banda con el horario: una casilla por momento del día */
+      var n=md.horas.length, cw=W/n, bh=34; yy+=4;
+      cur.push(R(M,yy,W,bh,5,"#FBF8F2","#E4D9C0",0.8));
+      md.horas.forEach(function(x,i){
+        var cx=M+cw*i+cw/2;
+        if(i) cur.push(LN(M+cw*i,yy+6,M+cw*i,yy+bh-6,"#E4D9C0",0.7));
+        cur.push(TX(cx,yy+12,clipW(x.l.toUpperCase(),cw-10,"sans",6.6,1),{size:6.6,fo:"sans",a:"middle",c:GP,ls:1}));
+        cur.push(TX(cx,yy+27,x.v,{size:12.5,fo:"sansb",a:"middle",c:INK}));
+      });
+      yy+=bh+14;
+    } else yy+=8;
+    return yy;
+  }
+  function pagina(){ pie(); pages.push(cur); cur=[]; top=cabecera(false); col=0; y=top; }
+  function cabe(h){ return y+h<=ph-M-6; }
+  function sitio(h){ if(cabe(h)) return false; if(col===0){ col=1; y=top; } else pagina(); return true; }
+  function X(){ return M+col*(CW+G); }
+  /* medir una fila antes de pintarla (para no partirla entre columnas) */
+  function mide(f){
+    if(f.head) return {h:15};
+    if(f.nota){ var ln=partir(f.txt,CW,"sans",8.4,0); return {h:ln.length*10.5+6,ln:ln}; }
+    if(f.alerg&&f.sub){ var tw=textW({s:f.txt,fo:"sans",size:8.8,ls:0}), mw=textW({s:f.sub,fo:"sansb",size:8.2,ls:0});
+      if(tw+mw+14<=CW) return {h:18,lt:[f.txt],ls:[],qw:0,ind:0,alq:f.sub}; }
+    var q=f.q||"", qw=q?textW({s:q,fo:"sansb",size:9.2,ls:0})+8:0, ind=f.ind?10:0;
+    var lt=partir(f.txt,CW-qw-ind,f.tot?"sansb":"sans",8.8,0);
+    var ls=f.sub?partir(f.sub,CW-ind-(f.alerg?0:qw),"sans",7.4,0):[];
+    return {h:5+lt.length*11+ls.length*9.2+4, lt:lt, ls:ls, qw:qw, ind:ind};
+  }
+  top=cabecera(true); y=top;
+  md.secs.forEach(function(sc){
+    var ms=sc.filas.map(mide), hCab=21;
+    sitio(hCab+(ms[0]?ms[0].h:0));
+    var x=X();
+    cur.push(TX(x,y+11,sc.t,{size:12,fo:"ser",a:"start",c:INK}));
+    if(sc.sub) cur.push(TX(x+CW,y+11,sc.sub.toUpperCase(),{size:6.6,fo:"sans",a:"end",c:SOFT,ls:1}));
+    y+=16; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
+    sc.filas.forEach(function(f,i){
+      var m=ms[i];
+      if(sitio(m.h+(f.head&&ms[i+1]?ms[i+1].h:0))){ x=X(); cur.push(TX(x,y+8,(sc.t+" (sigue)").toUpperCase(),{size:6.6,fo:"sans",a:"start",c:SOFT,ls:1})); y+=12; }
+      x=X();
+      if(f.head){ cur.push(TX(x,y+11,f.head.toUpperCase(),{size:7,fo:"sansb",a:"start",c:GP,ls:1.4})); y+=15; return; }
+      if(f.nota){ m.ln.forEach(function(l,j){ cur.push(TX(x,y+10+j*10.5,l,{size:8.4,fo:"sans",a:"start",c:INK})); }); y+=m.h; return; }
+      if(f.tot) cur.push(LN(x,y+1,x+CW,y+1,INK,0.8));
+      var yy=y+5;
+      m.lt.forEach(function(l,j){ yy+=j?11:8.5; cur.push(TX(x+m.ind,yy,l,{size:8.8,fo:f.tot?"sansb":"sans",a:"start",c:INK})); if(j===0&&f.q) cur.push(TX(x+CW,yy,f.q,{size:9.2,fo:"sansb",a:"end",c:f.ov?"#9C7F44":INK})); if(j===0&&m.alq) cur.push(TX(x+CW,yy,m.alq,{size:8.2,fo:"sansb",a:"end",c:INK})); });
+      m.ls.forEach(function(l){ yy+=9.2; cur.push(TX(x+m.ind,yy,l,{size:7.4,fo:"sans",a:"start",c:f.alerg?INK:SUBC})); });
+      y+=m.h; cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5));
+    });
+    y+=9;
+  });
+  if(md.avisos&&md.avisos.length){ md.avisos.forEach(function(a){ var ln=partir(a,CW,"sans",7.4,0); sitio(ln.length*9+4); ln.forEach(function(l){ y+=9; cur.push(TX(X(),y,l,{size:7.4,fo:"sans",a:"start",c:SOFT})); }); y+=4; }); }
+  pie(); pages.push(cur);
+  return pages;
+}
+function descargarEscaleta(md,nombreArchivo,paperSize){
+  if(!md){ toast("No hay ningún evento abierto.",true); return Promise.resolve(); }
+  var P=PAPERS[paperSize||"A4"]||PAPERS.A4;
+  var pages=escaletaPages(md,P.w,P.h).map(function(pr){ return pageOf(pr,P.w,P.h,null); });
+  return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
+    toast("Escaleta descargada ("+pages.length+(pages.length===1?" página":" páginas")+").");
+  }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
+}
 /* ══ la minuta (menú para los invitados), en PDF propio ══════════════
    No es una hoja de trabajo: todo va CENTRADO, con cada tiempo del menú
    (Aperitivos, Entrantes, Pescados…) como una cabecera clara entre dos
@@ -5722,6 +5850,7 @@ var SECCIONES=[
   {k:"m-aler",   g:"Menú del evento", t:"Alergias y sustituciones"},
   {k:"m-serv",   g:"Menú del evento", t:"Check list de servicio"},
   {k:"m-bebida", g:"Menú del evento", t:"Bebida del evento"},
+  {k:"m-esc",    g:"Menú del evento", t:"Escaleta"},
   {k:"m-card",   g:"Menú del evento", t:"Menú para imprimir"},
   /* el inventario no es de un evento concreto: es el material del negocio,
      el mismo para todos. Va en su propio grupo para que se note. */
@@ -6924,6 +7053,9 @@ function viewFicha(e){
     fld("Hora de la ceremonia","ficha.ceremoniaHora",F.ceremoniaHora)+
     fld("Duración","ficha.ceremoniaDur",F.ceremoniaDur)+
     fld("Hora llegada al restaurante","ficha.llegadaRest",F.llegadaRest)+
+    fld("Hora del aperitivo","ficha.horaAperitivo",F.horaAperitivo)+
+    fld("Hora del banquete","ficha.horaBanquete",F.horaBanquete)+
+    fld("Hora de la barra libre","ficha.horaBarra",F.horaBarra)+
   '</div></div>'+
   '<div class="pv-sec">Notas</div>'+
   '<div class="pcard"><div class="fldset">'+
@@ -7100,6 +7232,7 @@ function viewDocs(e){
     {k:"plan",t:"Plano de sala",s:"Distribución y seating"},
     {k:"list",t:"Listado por mesas",s:"Invitados, alergias y menús"},
     {k:"card",t:"Marcasitios",s:"Tarjetas de sitio"},
+    {k:"m-esc",t:"Escaleta",s:"Hoja de servicio del día"},
     {k:"m-card",t:"Menú del evento",s:"Minuta para imprimir"},
     {k:"m-prod",t:"Producción",s:"Hoja de cocina"},
     {k:"m-compra",t:"Lista de la compra",s:"Compras del evento"},
@@ -7217,7 +7350,10 @@ window.SITTING_BRIDGE={
   /* las hojas del Menú (y de Camareros) se bajan en PDF con el mismo motor que el plano */
   descargarHojaMenu:descargarHojaMenu,
   descargarMinuta:descargarMinuta,
+  descargarEscaleta:descargarEscaleta,
   descargarHoja:descargarHoja,
+  planDoc:function(){ return parse(current()?current().text:""); },
+  mesaLbl:function(t){ return mesaTxt(t,I18N.es); },
   alergias:function(){
     if(!doc) doc=parse(current()?current().text:"");
     var out=[];
@@ -7619,7 +7755,9 @@ function wirePrintBtn(){
     var base=((e&&e.name)||"evento").replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_")||"evento";
     var hoja=(b.dataset.hoja||"hoja").replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_");
     b.disabled=true;
-    var prom=(b.dataset.hoja==="menú"&&BR.descargarMinuta)?BR.descargarMinuta(datosMinuta(),base+"_"+hoja,mnuPaper):BR.descargarHojaMenu(base+"_"+hoja,mnuPaper);
+    var prom=(b.dataset.hoja==="menú"&&BR.descargarMinuta)?BR.descargarMinuta(datosMinuta(),base+"_"+hoja,mnuPaper)
+      :(b.dataset.hoja==="escaleta"&&BR.descargarEscaleta)?BR.descargarEscaleta(escModelo(),base+"_"+hoja,mnuPaper)
+      :BR.descargarHojaMenu(base+"_"+hoja,mnuPaper);
     Promise.resolve(prom).then(function(){ b.disabled=false; });
   });
 }
@@ -7882,7 +8020,8 @@ function renderServicio(){
 function alergiasDistintas(lista){
   var vistas={}, out=[];
   (lista||[]).forEach(function(g){
-    (g.aler||[]).forEach(function(a){
+    var dietas=[]; if(g.kind==="vegan") dietas.push("vegano"); if(g.kind==="veg") dietas.push("vegetariano"); if(g.preg) dietas.push("embarazada");
+    (g.aler||[]).concat(dietas).forEach(function(a){
       var k=(a||"").replace(/\s+/g," ").trim().toLowerCase();
       if(!k||vistas[k]) return;
       vistas[k]=true; out.push(k);
@@ -8327,6 +8466,251 @@ function renderTarjeta(){
   wirePrintBtn();
 }
 
+/* ══ ESCALETA ══════════════════════════════════════════════════════════
+   La hoja de servicio del día (la «escaleta» que se hacía a mano en Excel):
+   horario, recuento de menús, alergias por mesa, aperitivo con cantidades,
+   adaptaciones, estaciones, platos por tiempo con quién come otra cosa,
+   menú staff, menú infantil, bebidas y extras. TODO sale del evento — plano,
+   platos marcados, sustitutos de cada invitado, bebidas — y se recalcula
+   solo. Lo único que se escribe aquí: las horas, qué platos lleva el menú
+   staff, la tarta, los extras y, si hace falta, una cantidad corregida a mano
+   (queda marcada y se puede volver al cálculo). Se guarda en e.menu.escaleta. */
+var ESC_TIEMPOS={primero:["ENTRANTES","MARISCO","CREMAS"], segundo:["PESCADOS","SORBETES","CARNES"], postre:["POSTRES"]};
+function escCfg(){ var m=menu(); if(!m) return {ov:{}}; m.escaleta=m.escaleta||{}; m.escaleta.ov=m.escaleta.ov||{}; return m.escaleta; }
+function escNorm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim(); }
+/* cómo se cuenta un plato en la escaleta: por persona o por mesa (y cuántos) */
+function escUnidad(d){
+  if(d.escUd) return d.escUd;
+  var n=escNorm(d.name);
+  if(d._famKey==="APERITIVOS"&&/^(chips|crujiente|pan |coca |encurtid)/.test(n)) return "mesa";
+  if(d._famKey==="NIÑOS"&&/^(jamon|pan )/.test(n)) return "mesa";
+  return "persona";
+}
+function escPor(d){ if(d.escN>0) return +d.escN; return (d._famKey==="NIÑOS"&&/croquet/.test(escNorm(d.name)))?2:1; }
+function escEsEstacion(d){
+  if(d.escBloque) return d.escBloque==="est";
+  if(d._famKey==="ESTACIONES"||d._famKey==="RECENA") return true;
+  if(d._famKey!=="APERITIVOS") return false;
+  return (!!d.station&&!/croquet/i.test(d.station))||/^arroz/.test(escNorm(d.name));
+}
+/* quién come qué, contado sobre el plano */
+function escCuentas(){
+  var doc=BR.planDoc?BR.planDoc():{tables:[]}, t=evTotals();
+  var c={adultos:0,adapt:0,ninos:0,ninosAdapt:0,staff:0,staffAdapt:0,tronas:0,mesasNinos:0,gente:[],delPlano:false};
+  doc.tables.forEach(function(tb){ var kids=0, lbl=BR.mesaLbl?BR.mesaLbl(tb):("Mesa "+tb.num);
+    tb.guests.forEach(function(g){
+      var ad=!!(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg);
+      if(g.kind==="child"){ c.ninos++; if(ad) c.ninosAdapt++; kids++; }
+      else if(g.kind==="baby"){ c.tronas++; kids++; }
+      else if(g.kind==="staff"){ c.staff++; if(ad) c.staffAdapt++; }
+      else { c.adultos++; if(ad) c.adapt++; }
+      c.gente.push({g:g,mesa:lbl,mesaNum:tb.num});
+    });
+    if(kids) c.mesasNinos++; });
+  if(c.gente.length) c.delPlano=true;
+  else { c.adultos=t.adultos; c.ninos=t.ninos; c.mesasNinos=t.ninos?1:0; }
+  var e=ev(); c.staff=Math.max(c.staff,Math.max(0,+(e&&e.ficha&&e.ficha.staff)||0));
+  c.mesasAper=t.mesasAper;
+  return c;
+}
+/* «Berta, Blanca y Marcel (Mesa 3) · Irene (Mesa 1)» */
+function escNombres(lista){
+  var por={}, orden=[];
+  lista.forEach(function(p){ var k=p.mesa; if(!por[k]){ por[k]=[]; orden.push(k); } por[k].push(p.nombre); });
+  function y(a){ return a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1]; }
+  return orden.map(function(k){ return y(por[k])+" ("+k+")"; }).join(" · ");
+}
+function primerNombre(n){ var p=String(n||"").split(" "); return p.length>1&&p[1].length<=2?p.slice(0,2).join(" "):p[0]; }
+/* los platos del banquete por tiempo, y a quién se le cambia cada uno.
+   El sustituto de un tiempo («Segundo: crema de calabaza») sustituye a los
+   ÚLTIMOS platos de ese tiempo (el pescetariano cambia la carne, no el
+   pescado); si el sustituto habla de tarta, sustituye a la tarta. */
+function escBanquete(c,cfg){
+  var sel=selectedDishes(), out=[];
+  ["primero","segundo","postre"].forEach(function(k){
+    var ds=sel.filter(function(d){ return ESC_TIEMPOS[k].indexOf(d._famKey)>-1; }).map(function(d){ return {d:d,uid:d._uid,name:d.name,subs:{},fuera:0,sorbete:d._famKey==="SORBETES"}; });
+    if(k==="postre"&&cfg.tarta) ds.push({uid:"tarta",name:cfg.tarta,subs:{},fuera:0,tarta:true});
+    out.push({k:k,platos:ds});
+  });
+  c.gente.forEach(function(p){
+    var g=p.g; if(g.kind==="child"||g.kind==="baby"||g.kind==="staff") return;
+    var porC={}; (g.menus||[]).forEach(function(txt,i){ var ck=(g.menusC||[])[i]||"segundo"; (porC[ck]=porC[ck]||[]).push(txt); });
+    out.forEach(function(ti){
+      var subs=porC[ti.k]; if(!subs||!ti.platos.length) return;
+      var pool=ti.platos.filter(function(x){ return !x.sorbete&&!x.tarta; }), tarta=ti.platos.filter(function(x){ return x.tarta; })[0];
+      var resto=[];
+      subs.forEach(function(s){ if(tarta&&/tarta|pastel|pastis/.test(escNorm(s))) asigna(tarta,s); else resto.push(s); });
+      if(!pool.length&&tarta){ resto.forEach(function(s){ asigna(tarta,s); }); return; }
+      resto.forEach(function(s,i){ var ix=Math.max(0,pool.length-resto.length+i); asigna(pool[Math.min(ix,pool.length-1)],s); });
+      function asigna(pl,s){ var kk=escNorm(s); pl.subs[kk]=pl.subs[kk]||{txt:s,gente:[]}; pl.subs[kk].gente.push({nombre:primerNombre(g.name),mesa:p.mesa}); pl.fuera++; }
+    });
+  });
+  return out;
+}
+function escStaffDefault(ban){
+  var pri=ban[0].platos, seg=ban[1].platos.filter(function(x){ return !x.sorbete; }), pos=ban[2].platos.filter(function(x){ return !x.tarta; });
+  return [pri[0],seg[seg.length-1],pos[0]].filter(Boolean).map(function(x){ return x.uid; });
+}
+/* ── el modelo: lo mismo sirve para la pantalla y para el PDF ──
+   fila: {txt, sub, q, k (clave para corregir), calc, tot, head, ind} */
+function escModelo(){
+  var e=ev(); if(!e) return null;
+  var cfg=escCfg(), c=escCuentas(), F=e.ficha||{}, sel=selectedDishes(), ban=escBanquete(c,cfg);
+  var staffSel=cfg.staff||escStaffDefault(ban);
+  function Q(k,calc){ var ov=cfg.ov[k], hay=(ov!=null&&ov!==""); return {k:k,calc:String(calc),q:hay?String(ov):String(calc),ov:hay}; }
+  function fila(txt,sub,qo){ var f={txt:txt,sub:sub||""}; if(qo){ f.k=qo.k; f.calc=qo.calc; f.q=qo.q; f.ov=qo.ov; } return f; }
+  var fecha=""; try{ if(F.fecha){ var s=new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1); } }catch(_){}
+  var horas=[]; if(F.ceremoniaHora||F.ceremoniaLugar) horas.push({l:"Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),v:F.ceremoniaHora||"—"});
+  if(F.horaAperitivo) horas.push({l:"Aperitivo",v:F.horaAperitivo}); if(F.horaBanquete) horas.push({l:"Banquete",v:F.horaBanquete}); if(F.horaBarra) horas.push({l:"Barra libre",v:F.horaBarra});
+  var md={titulo:String(e.name||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim(), fecha:fecha, horas:horas, secs:[], avisos:[], cuentas:c, ban:ban, staffSel:staffSel, cfg:cfg};
+  var adTot=c.adultos;
+  /* menús */
+  var fm=[fila("Menú adulto",null,Q("n:ad",c.adultos-c.adapt)), fila("Menú adulto adaptado",null,Q("n:ada",c.adapt)), {txt:"Total menú adulto",q:String(adTot),tot:true},
+    fila("Menú infantil",null,Q("n:in",c.ninos-c.ninosAdapt))];
+  if(c.ninosAdapt) fm.push(fila("Menú infantil adaptado",null,Q("n:ina",c.ninosAdapt)));
+  fm.push(fila("Menú staff",null,Q("n:st",c.staff-c.staffAdapt)));
+  if(c.staffAdapt) fm.push(fila("Menú staff adaptado",null,Q("n:sta",c.staffAdapt)));
+  fm.push({txt:"Total menús",q:String(c.adultos+c.ninos+c.staff),tot:true});
+  if(c.tronas) fm.push({txt:"Bebés en trona (sin menú)",q:String(c.tronas)});
+  md.secs.push({t:"Menús",filas:fm});
+  /* alergias */
+  var al=c.gente.filter(function(p){ var g=p.g; return g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg; });
+  if(al.length) md.secs.push({t:"Alergias",sub:"nombre y mesa",filas:al.map(function(p){
+    var g=p.g, mot=g.aler.slice(); if(g.kind==="vegan") mot.push("vegano"); if(g.kind==="veg") mot.push("vegetariano"); if(g.preg) mot.push("embarazada");
+    return {txt:g.name+" ("+p.mesa+")", sub:mot.map(function(m){ return m.charAt(0).toUpperCase()+m.slice(1); }).join(", "), alerg:true}; })});
+  /* aperitivo */
+  var aper=sel.filter(function(d){ return d._famKey==="APERITIVOS"&&!escEsEstacion(d); });
+  if(aper.length) md.secs.push({t:"Aperitivo",sub:c.mesasAper+" mesas · "+adTot+" adultos",filas:aper.map(function(d){
+    var calc, sub=null;
+    if(esDishJamon(d)){ var gr=0; d.ingredients.forEach(function(i){ if(/jam[oó]n/i.test(i.name)&&i.qty!=null) gr+=i.qty*adTot; }); calc=gr>0?jamonAmount(gr):adTot; sub=gr>0?"a cortar":null; }
+    else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa"; }
+    else calc=adTot*escPor(d);
+    return fila(d.name,sub,Q("ap:"+d._uid,calc)); })});
+  /* adaptaciones del aperitivo (por alergia o dieta, con quién) */
+  var mapa=(menu()&&menu().aperitivosPorAlergia)||{}, grupos={}, gOrden=[];
+  al.forEach(function(p){ var g=p.g, claves=g.aler.map(function(a){ return String(a).replace(/\s+/g," ").trim().toLowerCase(); });
+    if(g.kind==="vegan") claves.push("vegano"); if(g.kind==="veg") claves.push("vegetariano"); if(g.preg) claves.push("embarazada");
+    var txt=claves.map(function(k){ return mapa[k]; }).filter(Boolean).filter(function(v,i,a){ return a.indexOf(v)===i; }).join(" + ");
+    if(!txt) return; if(!grupos[txt]){ grupos[txt]=[]; gOrden.push(txt); } grupos[txt].push({nombre:primerNombre(g.name),mesa:p.mesa}); });
+  if(gOrden.length) md.secs.push({t:"Adaptaciones del aperitivo",filas:gOrden.map(function(txt){
+    return fila(escNombres(grupos[txt]),txt,Q("aa:"+escNorm(txt).slice(0,40),grupos[txt].length)); })});
+  /* estaciones y recena */
+  var est=sel.filter(escEsEstacion), grp={}, eo=[];
+  est.forEach(function(d){ var k=d._famKey==="RECENA"?"Recena":(d.station?d.station.charAt(0)+d.station.slice(1).toLowerCase():d.name); if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
+  if(eo.length) md.secs.push({t:"Estaciones y recena",filas:eo.map(function(k){
+    var ds=grp[k], sub=(ds.length>1||ds[0].name!==k)?ds.map(function(d){ return d.name; }).join(" · "):null;
+    return fila(k,sub,Q("es:"+escNorm(k),adTot*escPor(ds[0]))); })});
+  /* banquete, tiempo a tiempo, con los sustitutos debajo de cada plato */
+  var fb=[], nPlato=0;
+  ban.forEach(function(ti){ ti.platos.forEach(function(x){
+    fb.push({head:x.tarta?"Tarta":x.sorbete?"Sorbete":ti.k==="postre"?"Postre":(++nPlato)+"º plato"});
+    fb.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
+    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.ind=true; fb.push(f); });
+  }); });
+  if(fb.length) md.secs.push({t:"Menú",sub:adTot+" adultos",filas:fb});
+  /* menú staff */
+  var todos=[]; ban.forEach(function(ti){ ti.platos.forEach(function(x){ todos.push(x); }); }); md.todos=todos;
+  var stP=todos.filter(function(x){ return staffSel.indexOf(x.uid)>-1; });
+  if(c.staff>0&&stP.length) md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:stP.map(function(x){ return fila(x.name,null,Q("st:"+x.uid,c.staff)); })});
+  /* menú infantil */
+  var inf=sel.filter(function(d){ return d._famKey==="NIÑOS"; });
+  if(c.ninos>0&&(inf.length||cfg.tarta)){
+    var fi=inf.map(function(d){ var m=escUnidad(d)==="mesa"; return fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d))); });
+    if(cfg.tarta) fi.push(fila("Tarta",null,Q("in:tarta",c.ninos)));
+    md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
+  }
+  /* bebidas */
+  var bl=BEBIDA_CATS.filter(function(cat){ return bebidaMarca(cat.key); });
+  if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(cat){ var r=calcBebida(cat), m=bebidaMarca(cat.key);
+    return {txt:m, sub:escNorm(m)===escNorm(cat.label)?"":cat.label, q:r.botellas?r.botellas+" bot.":""}; })});
+  /* al final */
+  var ex=[]; if(cfg.bombones) ex.push({txt:"Cajita de bombones personalizados"}); if(cfg.cafes!==false) ex.push({txt:"Cafés y licores"});
+  if(ex.length) md.secs.push({t:"Al final",filas:ex});
+  if(cfg.notas) md.secs.push({t:"Notas",filas:[{txt:cfg.notas,nota:true}]});
+  if(!c.delPlano) md.avisos.push("El plano todavía no tiene invitados: las cantidades salen de los comensales escritos a mano en «Elegir platos».");
+  if(!sel.length) md.avisos.push("Todavía no hay platos marcados en «Elegir platos».");
+  return md;
+}
+function renderEscaleta(){
+  var md=escModelo(); if(!md){ $("mnu-body").innerHTML=""; return; }
+  var e=ev(), cfg=md.cfg, c=md.cuentas, F=e.ficha||{};
+  /* ── panel de edición (no se imprime) ── */
+  var nov=Object.keys(cfg.ov).length;
+  var ed='<div class="esc-edit">'+
+    '<div class="esc-ed-h"><b>Datos de la escaleta</b><span>Todo lo demás sale solo del plano, del menú marcado y de las bebidas. Pulsa una cantidad de la hoja para corregirla.</span></div>'+
+    '<div class="fldset esc-horas">'+
+      escIn("Ceremonia (hora)","ceremoniaHora",F.ceremoniaHora,"text","19:00")+escIn("Ceremonia (lugar)","ceremoniaLugar",F.ceremoniaLugar,"text","Les Moles")+
+      escIn("Aperitivo","horaAperitivo",F.horaAperitivo,"text","20:00")+escIn("Banquete","horaBanquete",F.horaBanquete,"text","21:15")+escIn("Barra libre","horaBarra",F.horaBarra,"text","00:30")+
+    '</div>'+
+    '<div class="fldset esc-extras">'+
+      '<label class="fld"><span class="lbl">Tarta</span><input type="text" data-esc="tarta" value="'+esc(cfg.tarta||"")+'" placeholder="p. ej. Sopa de la reina"></label>'+
+      '<div class="fld"><span class="lbl">Extras</span><div class="esc-chks">'+
+        '<label class="ag-chk"><input type="checkbox" data-esc="bombones"'+(cfg.bombones?" checked":"")+'> Cajita de bombones personalizados</label>'+
+        '<label class="ag-chk"><input type="checkbox" data-esc="cafes"'+(cfg.cafes!==false?" checked":"")+'> Cafés y licores</label></div></div>'+
+      '<label class="fld esc-notas"><span class="lbl">Notas para cocina y sala</span><textarea data-esc="notas" rows="2" placeholder="Opcional">'+esc(cfg.notas||"")+'</textarea></label>'+
+    '</div>'+
+    (md.todos.length?'<div class="fld"><span class="lbl">Menú staff <small>('+c.staff+' '+(c.staff===1?"persona":"personas")+') — qué platos lleva</small></span><div class="esc-chks">'+
+      md.todos.map(function(x){ return '<label class="ag-chk"><input type="checkbox" data-esc-staff="'+esc(x.uid)+'"'+(md.staffSel.indexOf(x.uid)>-1?" checked":"")+'> '+esc(x.name)+'</label>'; }).join("")+'</div></div>':'')+
+    (nov?'<div class="esc-ovs">'+nov+(nov===1?" cantidad corregida":" cantidades corregidas")+' a mano (marcadas con ✎) · <button type="button" class="imp-back" data-esc-act="ov-reset">volver todas al cálculo</button></div>':'')+
+  '</div>';
+  /* ── la hoja ── */
+  var h='<div class="sheet mnu-esc"><div class="frame">'+
+    '<header class="doc-head"><div class="eyebrow">Escaleta</div><h2>'+esc(md.titulo)+'</h2>'+(md.fecha?'<div class="doc-meta">'+esc(md.fecha)+'</div>':'')+'</header>'+
+    (md.horas.length?'<div class="esc-horario">'+md.horas.map(function(x){ return '<div><span>'+esc(x.l)+'</span><b>'+esc(x.v)+'</b></div>'; }).join("")+'</div>':'<p class="esc-aviso">Pon las horas del día arriba (ceremonia, aperitivo, banquete y barra libre).</p>')+
+    '<div class="esc-cols">';
+  md.secs.forEach(function(sc){
+    h+='<section class="esc-sec"><h3>'+esc(sc.t)+(sc.sub?' <span class="esc-h3sub">'+esc(sc.sub)+'</span>':'')+'</h3><table class="mnu-table esc-t"><colgroup><col><col class="esc-qcol"></colgroup>';
+    sc.filas.forEach(function(f){
+      if(f.head){ h+='<tr class="esc-head"><td colspan="2">'+esc(f.head)+'</td></tr>'; return; }
+      if(f.nota){ h+='<tr><td colspan="2" class="esc-nota">'+esc(f.txt)+'</td></tr>'; return; }
+      var qtd=f.k?'<td class="esc-q'+(f.ov?" ov":"")+'" data-esc-k="'+esc(f.k)+'" data-esc-calc="'+esc(f.calc)+'" tabindex="0" role="button" aria-label="'+esc(f.txt)+': '+esc(f.q)+'. Pulsa para corregir" title="'+(f.ov?"Corregido a mano (calculado: "+esc(f.calc)+")":"Pulsa para corregir la cantidad")+'">'+esc(f.q)+'</td>'
+                 :'<td class="esc-q">'+esc(f.q||"")+'</td>';
+      h+='<tr class="'+(f.tot?"tot":"")+(f.ind?" esc-sub":"")+(f.alerg?" esc-al":"")+'"><td>'+esc(f.txt)+(f.sub?'<span class="mnu-base">'+esc(f.sub)+'</span>':'')+'</td>'+qtd+'</tr>';
+    });
+    h+='</table></section>';
+  });
+  h+='</div>'+md.avisos.map(function(a){ return '<p class="esc-aviso">'+esc(a)+'</p>'; }).join("")+'<div class="foot">Les Moles · Ulldecona</div></div></div>';
+  $("mnu-body").innerHTML=printBar("escaleta")+ed+h;
+  wirePrintBtn();
+  wireEscaleta();
+}
+function escIn(lbl,k,v,type,ph){ return '<label class="fld"><span class="lbl">'+esc(lbl)+'</span><input type="'+type+'" data-esc-f="'+k+'" value="'+esc(v||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></label>'; }
+function wireEscaleta(){
+  var body=$("mnu-body"); if(body.__escBound) return; body.__escBound=true;
+  body.addEventListener("change",function(ev2){
+    if(mnuView!=="esc") return;
+    var t=ev2.target, e=ev(); if(!e) return; var cfg=escCfg();
+    if(t.hasAttribute("data-esc-f")){ e.ficha=e.ficha||{}; e.ficha[t.getAttribute("data-esc-f")]=t.value.trim(); }
+    else if(t.hasAttribute("data-esc")){ var k=t.getAttribute("data-esc"); if(t.type==="checkbox") cfg[k]=t.checked; else cfg[k]=t.value.trim(); }
+    else if(t.hasAttribute("data-esc-staff")){ var ban=escBanquete(escCuentas(),cfg), cur=(cfg.staff||escStaffDefault(ban)).slice(), u=t.getAttribute("data-esc-staff");
+      if(t.checked){ if(cur.indexOf(u)<0) cur.push(u); } else cur=cur.filter(function(x){ return x!==u; }); cfg.staff=cur; }
+    else return;
+    touchSave(); renderEscaleta();
+  });
+  function editar(td){
+    if(!td||td.querySelector("input")) return;
+    var cfg=escCfg(), k=td.getAttribute("data-esc-k"), calc=td.getAttribute("data-esc-calc");
+    var inp=document.createElement("input"); inp.type="text"; inp.value=td.textContent; inp.className="esc-qin"; inp.setAttribute("aria-label","Cantidad corregida (vacío = la calculada: "+calc+")");
+    td.textContent=""; td.appendChild(inp); inp.focus(); inp.select();
+    var hecho=false;
+    function fin(guardar){ if(hecho) return; hecho=true;
+      if(guardar){ var v=inp.value.trim(); if(!v||v===calc) delete cfg.ov[k]; else cfg.ov[k]=v; touchSave(); }
+      renderEscaleta(); var n=$("mnu-body").querySelector('[data-esc-k="'+k.replace(/"/g,'\\"')+'"]'); if(n) n.focus(); }
+    inp.addEventListener("keydown",function(e2){ if(e2.key==="Enter"){ e2.preventDefault(); fin(true); } else if(e2.key==="Escape"){ e2.preventDefault(); fin(false); } });
+    inp.addEventListener("blur",function(){ fin(true); });
+  }
+  body.addEventListener("click",function(ev2){
+    if(mnuView!=="esc") return;
+    var a=ev2.target.closest("[data-esc-act]");
+    if(a&&a.getAttribute("data-esc-act")==="ov-reset"){ if(!window.confirm("¿Volver todas las cantidades corregidas a mano al cálculo automático?")) return; escCfg().ov={}; touchSave(); renderEscaleta(); return; }
+    var td=ev2.target.closest("td[data-esc-k]"); if(td) editar(td);
+  });
+  body.addEventListener("keydown",function(ev2){
+    if(mnuView!=="esc") return;
+    var td=ev2.target.closest&&ev2.target.closest("td[data-esc-k]"); if(td&&(ev2.key==="Enter"||ev2.key===" ")&&ev2.target===td){ ev2.preventDefault(); editar(td); }
+  });
+}
+
 /* ══ navegación entre las 5 vistas ════════════════════════════════════ */
 var mnuView="sel";
 window.mnuViewActual=function(){ return mnuView; };
@@ -8338,6 +8722,7 @@ function renderMnuBody(){
   else if(mnuView==="serv") renderServicio();
   else if(mnuView==="bebida") renderBebida();
   else if(mnuView==="card") renderTarjeta();
+  else if(mnuView==="esc") renderEscaleta();
 }
 function setMnuView(v){
   mnuView=v;
@@ -8430,7 +8815,7 @@ BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.con
 BR.menuParams={
   fabrica:function(){ return {platos:{fams:clon(DEF_MENU)}, catalogo:{items:clon(DEF_CATALOGO)}, bebidas:{cats:DEF_BEBIDAS.reduce(function(o,c){ o[c.key]=clon(c); return o; },{})}, montaje:{reglas:clon(DEF_MOBILIARIO)}}; },
   actual:function(){ return {
-    platos:{fams:MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f.dishes.map(function(d){ return {uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; })}; })},
+    platos:{fams:MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f.dishes.map(function(d){ var o={uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; ["escUd","escN","escBloque"].forEach(function(k){ if(d[k]!=null) o[k]=d[k]; }); return o; })}; })},
     catalogo:{items:clon(CATALOGO_DATA)},
     bebidas:{cats:BEBIDA_CATS.reduce(function(o,c){ o[c.key]=clon(c); return o; },{})},
     montaje:{reglas:clon(MOBILIARIO_DATA)} }; },
@@ -9775,10 +10160,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","plan","list","card","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-card","cam","cam-rep","fotos","docs"]},
-    cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","inv","docs"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","plan","list","card","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","fotos","docs"]},
+    cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","prov","presup","inv","docs"]},
-    servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","m-serv","plan","list","docs"]}
+    servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","docs"]}
   };
   var $=function(id){ return document.getElementById(id); };
   function readLocal(){ try{ var r=localStorage.getItem(AUTHKEY); return r?JSON.parse(r):null; }catch(_){ return null; } }
@@ -10113,6 +10498,12 @@ function filaPlato(f,x,fams,arts){
       '<label class="fld"><span class="lbl">Cubiertos <small>(varios con +)</small></span><input type="text" list="pp-dl-cub" data-pp="dish" data-k="cubiertos" value="'+esc(x.cubiertos==="—"?"":x.cubiertos)+'" placeholder="p. ej. TENEDOR + CUCHILLO CARNE"></label>'+
       '<label class="fld"><span class="lbl">Estación <small>(si va en una)</small></span><input type="text" list="pp-dl-est" data-pp="dish" data-k="station" value="'+esc(x.station||"")+'" placeholder="—"></label>'+
     '</div>'+
+    '<div class="pp-subh">En la escaleta <span>— cómo se cuenta este plato en la hoja de servicio</span></div>'+
+    '<div class="fldset">'+
+      '<label class="fld"><span class="lbl">Se cuenta</span><select data-pp="dish" data-k="escUd"><option value=""'+(!x.escUd?" selected":"")+'>Automático</option><option value="persona"'+(x.escUd==="persona"?" selected":"")+'>Por persona</option><option value="mesa"'+(x.escUd==="mesa"?" selected":"")+'>Por mesa (de aperitivo o de niños)</option></select></label>'+
+      '<label class="fld"><span class="lbl">Unidades por persona o mesa</span><input type="text" inputmode="decimal" data-pp="dish" data-k="escN" value="'+esc(x.escN||"")+'" placeholder="1"></label>'+
+      (f.key==="APERITIVOS"?'<label class="fld"><span class="lbl">Bloque</span><select data-pp="dish" data-k="escBloque"><option value=""'+(!x.escBloque?" selected":"")+'>Automático</option><option value="aper"'+(x.escBloque==="aper"?" selected":"")+'>Aperitivo</option><option value="est"'+(x.escBloque==="est"?" selected":"")+'>Estaciones y recena</option></select></label>':'')+
+    '</div>'+
     '<div class="pp-subh">Escandallo <span>— cantidad por comensal</span></div>'+
     '<div class="dtable-wrap"><table class="dtable pp-ing" style="min-width:420px"><thead><tr><th>Ingrediente</th><th class="rnum">Cantidad</th><th>Unidad</th><th></th></tr></thead><tbody>'+
       (ing||'<tr><td colspan="4" class="pp-empty">Sin ingredientes.</td></tr>')+'</tbody></table>'+
@@ -10308,6 +10699,8 @@ function onChange(ev){
       if(k==="name"){ if(!v.trim()){ toastP("El plato necesita un nombre."); render(); return; } x.name=v.trim(); }
       else if(k==="servicio"||k==="cubiertos") x[k]=v.trim()||"—";
       else if(k==="station") x.station=v.trim()||null;
+      else if(k==="escUd"||k==="escBloque"){ if(v) x[k]=v; else delete x[k]; }
+      else if(k==="escN"){ var en=num(v); if(v.trim()&&!(en>0)){ toastP("Tiene que ser un número mayor que 0."); render(); return; } if(en>0) x.escN=en; else delete x.escN; }
       else if(k==="steps") x.steps=lineas(v);
       else if(k==="fam"){ var dest=d.fams.filter(function(f){ return f.key===v; })[0]; if(dest&&dest!==hit.f){ hit.f.dishes.splice(hit.xi,1); dest.dishes.push(x); ui.fam=v; } }
     } else {
