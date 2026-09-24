@@ -41,7 +41,7 @@
   /* fondos neutros claros: blanco roto · crema muy claro · gris muy claro */
   --bg:#F3F1EA; --bg-2:#EAE7DD; --panel:#FFFFFF; --field:#FFFFFF;
   /* negro clásico / suave para texto y contraste */
-  --c-ink:#1A1A1A; --c-mut:#6C685F; --c-faint:#9A958A;
+  --c-ink:#1A1A1A; --c-mut:#6C685F; --c-faint:#716C63;
   --c-line:#E7E2D7; --c-line-2:#D7D1C4;
   /* verde oliva claro y desaturado — color de identidad y acento */
   --olive:#8A9A6B; --olive-2:#A2AD7C; --olive-deep:#6E7D50; --olive-ink:#17190F;
@@ -63,7 +63,7 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#141413; --bg-2:#1C1C1A; --panel:#1F1F1C; --field:#181817;
-    --c-ink:#ECEAE2; --c-mut:#A29E93; --c-faint:#7C7A70;
+    --c-ink:#ECEAE2; --c-mut:#A29E93; --c-faint:#8F8C82;
     --c-line:#2E2E2A; --c-line-2:#3C3C36;
     --olive:#A2AD7C; --olive-2:#B4BE92; --olive-deep:#8A9A6B; --olive-ink:#16180F;
     --gold:#C4A25C; --focus:#A2AD7C; --ruby-tx:#E58CA3;
@@ -74,7 +74,7 @@
 }
 :root[data-theme="dark"]{
   --bg:#141413; --bg-2:#1C1C1A; --panel:#1F1F1C; --field:#181817;
-  --c-ink:#ECEAE2; --c-mut:#A29E93; --c-faint:#7C7A70;
+  --c-ink:#ECEAE2; --c-mut:#A29E93; --c-faint:#8F8C82;
   --c-line:#2E2E2A; --c-line-2:#3C3C36;
   --olive:#A2AD7C; --olive-2:#B4BE92; --olive-deep:#8A9A6B; --olive-ink:#16180F;
   --gold:#C4A25C; --focus:#A2AD7C; --ruby-tx:#E58CA3;
@@ -262,6 +262,29 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .ovl-body{padding:16px 18px 22px; display:flex; flex-direction:column; gap:14px; align-items:center; max-height:66vh; overflow:auto; background:var(--bg)}
 .ovl-body img{max-width:min(100%,540px); height:auto; box-shadow:0 2px 12px rgba(0,0,0,.18); background:#fff; border-radius:2px}
 .ovl-wait{padding:40px; color:var(--c-mut); font-style:italic; text-align:center}
+.sr-only{position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
+.imp-box{max-width:min(1060px,96vw)}
+.imp-body{align-items:stretch!important; max-height:62vh}
+.imp-src.file textarea,.imp-src.file .imp-plbl{display:none}
+.imp-back{background:none; border:0; padding:0; font:inherit; font-size:12px; color:var(--olive-deep); text-decoration:underline; cursor:pointer}
+.imp-src textarea{width:100%; height:110px!important; min-height:0!important; font:12px/1.45 ui-monospace,Menlo,Consolas,monospace; white-space:pre; overflow:auto}
+.imp-file{margin-top:8px; gap:10px; align-items:center; flex-wrap:wrap}
+.imp-file label.btn{cursor:pointer}
+#imp-hoja{width:auto; max-width:100%}
+.imp-file input[type=file]:focus-visible + span, .imp-file label.btn:focus-within{outline:2px solid var(--focus)}
+.imp-map-h{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; font-size:13px}
+.imp-cols{display:flex; gap:10px; overflow-x:auto; padding-bottom:6px}
+.imp-col{flex:0 0 168px; border:1px solid var(--c-line); border-radius:8px; background:var(--panel); padding:9px 10px; font-size:12px}
+.imp-col.on{border-color:color-mix(in srgb,var(--olive) 55%,var(--c-line))}
+.imp-col-t{font-weight:700; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.imp-col select{width:100%; font-size:12px; padding:5px 7px}
+.imp-col-ej{margin-top:7px; color:var(--c-mut); line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.imp-sum{font-size:14px; margin-bottom:6px}
+.imp-warn{margin:6px 0 10px; padding:9px 12px 9px 26px; border-radius:6px; background:color-mix(in srgb,var(--gold) 12%,transparent); font-size:12.5px; line-height:1.5}
+p.imp-warn{padding-left:12px}
+.imp-pre{margin:6px 0 0; max-height:260px; overflow:auto; background:var(--panel); border:1px solid var(--c-line); border-radius:6px; padding:10px 12px; font:12px/1.5 ui-monospace,Menlo,Consolas,monospace; white-space:pre-wrap}
+.imp-foot{display:flex; gap:14px; align-items:center; flex-wrap:wrap; padding:12px 18px; border-top:1px solid var(--c-line); background:var(--panel)}
+.imp-modo{display:flex; gap:16px; flex-wrap:wrap; font-size:13px}
 .ovl-note.warn{background:color-mix(in srgb,var(--ruby) 10%,var(--bg-2)); color:var(--c-ink); border-bottom-color:var(--ruby)}
 .ov-sheet{display:flex; flex-direction:column; gap:7px; align-items:center; width:100%}
 .ov-sheetbar{display:flex; align-items:center; gap:10px; padding-bottom:6px}
@@ -485,6 +508,14 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .side-foot{border-top-color:var(--nav-line)}
 .side-foot button{color:var(--nav-mut)}
 .side-foot button:hover{color:var(--nav-ink)}
+/* indicador de guardado: tranquilo y honesto */
+.saveind{display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--nav-mut); margin-bottom:4px}
+.saveind i{width:7px; height:7px; border-radius:50%; background:#8A9A6B; flex:none}
+.saveind[data-st="saving"] i{background:#C8A96A; animation:saveP 1s ease-in-out infinite alternate}
+.saveind[data-st="local"] i{background:#9C9384}
+.saveind[data-st="off"] i{background:#C8A96A}
+@keyframes saveP{from{opacity:.35}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){ .saveind[data-st="saving"] i{animation:none} }
 
 .mainwrap{flex:1; min-width:0; position:relative; height:100vh; overflow:hidden; background:var(--bg)}
 
@@ -817,8 +848,8 @@ body.mode-plan .planv{display:flex}
 @media (max-width:760px){ .ag-row{grid-template-columns:24px 1fr auto; } .ag-date{grid-column:2} .ag-tx{grid-column:2/-1} .ag-st{grid-column:3; grid-row:1} .ag-row .btn{grid-column:2/-1; justify-self:start} }
 .home-agenda{max-width:1320px; width:100%; margin:0 auto; padding:8px 44px 4px}
 .home-agenda:empty{display:none}
-.ha-head{display:flex; align-items:baseline; gap:10px; margin:8px 0 10px}
-.ha-head b{font-family:"Cormorant Garamond",serif; font-size:22px; font-weight:600; color:var(--c-ink)}
+.ha-head{display:flex; align-items:baseline; gap:4px 10px; margin:8px 0 10px; flex-wrap:wrap}
+.ha-head b{white-space:nowrap; font-family:"Cormorant Garamond",serif; font-size:22px; font-weight:600; color:var(--c-ink)}
 .ha-head span{font-size:12px; color:var(--c-mut)}
 .ha-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:8px}
 .ha-row{display:grid; grid-template-columns:26px 74px 1fr; gap:10px; align-items:center; text-align:left; background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg); padding:10px 12px; font:inherit; color:inherit; cursor:pointer}
@@ -1375,8 +1406,31 @@ body.authed .gate{display:none}
 .home-viewseg{display:inline-flex; background:var(--bg-2); border:1px solid var(--c-line); border-radius:100px; padding:3px}
 .hv-btn{border:0; background:none; padding:8px 18px; border-radius:100px; font-family:"Barlow Semi Condensed",sans-serif;
   letter-spacing:.06em; font-size:13px; color:var(--c-mut); cursor:pointer; font-weight:600}
-.hv-btn[aria-pressed="true"]{background:var(--nav-bg); color:var(--nav-ink)}
+.hv-btn[aria-pressed="true"]{background:var(--c-ink); color:var(--panel)}
 .home-viewbar .home-search{margin:0; flex:1 1 260px; max-width:420px}
+.home-filters{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.home-when .hv-btn{padding:8px 14px}
+.home-tipo{width:auto; padding:8px 12px; border-radius:100px; font-size:13px; background:var(--panel); border:1px solid var(--c-line-2); color:var(--c-ink)}
+.home-more{grid-column:1/-1; font-size:13px; color:var(--c-mut); padding:8px 2px}
+.home-more button{background:none; border:0; padding:0; font:inherit; color:var(--olive-deep); text-decoration:underline; cursor:pointer}
+/* tarjeta: el botón de la tarjeta y, encima, «Duplicar» (no se anidan botones) */
+.evcard-w{position:relative; display:flex; min-width:0}
+.evcard-w > .evcard{flex:1; min-width:0}
+.ev-dup{position:absolute; top:14px; right:14px; z-index:2; width:30px; height:30px; display:grid; place-items:center; border:1px solid var(--c-line-2);
+  background:var(--panel); color:var(--c-mut); border-radius:8px; padding:0; cursor:pointer; opacity:0; transition:opacity .15s}
+.ev-dup svg{width:15px; height:15px}
+.evcard-w:hover .ev-dup,.ev-dup:focus-visible{opacity:1}
+.ev-dup:hover{color:var(--c-ink); border-color:var(--c-ink)}
+@media (hover:none){ .ev-dup{opacity:1} }
+.ev-tags{display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:10px; padding-right:34px}
+.evcard .ev-tags .ev-cat{margin-bottom:0}
+.ev-est{font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; border-radius:100px; padding:3px 9px;
+  border:1px solid var(--c-line-2); color:var(--c-mut)}
+.ev-est.conf{border-color:color-mix(in srgb,var(--olive) 55%,transparent); color:var(--olive-deep)}
+.ev-est.done{opacity:.7}
+.ev-week{font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; border-radius:100px; padding:3px 9px;
+  background:color-mix(in srgb,var(--gold) 18%,transparent); color:var(--c-ink)}
+.evcard.past{opacity:.78}
 @media(max-width:640px){ .home-viewbar{padding:4px 16px 0} }
 /* cabecera de mes en la lista */
 .home-month{grid-column:1/-1; display:flex; align-items:baseline; gap:12px; margin:20px 2px 2px; padding-bottom:8px;
@@ -1468,7 +1522,7 @@ body.authed .gate{display:none}
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -1500,6 +1554,7 @@ body.authed .gate{display:none}
         <div class="row">
           <select id="ev" aria-label="Evento guardado" style="display:none"></select>
           <button class="btn sm" id="share" title="Pasar este evento a un compañero o guardar una copia">Compartir</button>
+          <button class="btn sm" id="dupEv" title="Crear una copia de este evento (plano, menú, precios) sin fecha ni pagos">Duplicar</button>
           <button class="btn sm danger" id="del">Borrar</button>
         </div>
       </div>
@@ -1572,6 +1627,7 @@ Lluc (trona)</div>
       </details>
 
       <div class="row" style="flex-wrap:wrap">
+        <button class="btn sm" id="imp-xls" type="button" title="Pegar una tabla de Excel o subir un .xlsx / .csv con los invitados">Importar de Excel / CSV</button>
         <button class="btn ghost sm" id="ex-boda">Boda de ejemplo</button>
       </div>
     </div>
@@ -1797,6 +1853,14 @@ Lluc (trona)</div>
     <div class="home-viewseg" id="home-viewseg" role="tablist" aria-label="Ver eventos como">
       <button class="hv-btn" data-hv="lista" type="button" aria-pressed="true">Lista por meses</button>
       <button class="hv-btn" data-hv="calendario" type="button" aria-pressed="false">Calendario</button>
+    </div>
+    <div class="home-filters" id="home-filters">
+      <div class="home-viewseg home-when" id="home-when" role="group" aria-label="Qué eventos mostrar">
+        <button class="hv-btn" data-when="prox" type="button" aria-pressed="true">Próximos</button>
+        <button class="hv-btn" data-when="pas" type="button" aria-pressed="false">Pasados</button>
+        <button class="hv-btn" data-when="todos" type="button" aria-pressed="false">Todos</button>
+      </div>
+      <select id="home-tipo" class="home-tipo" aria-label="Filtrar por tipo de evento"><option value="">Todos los tipos</option></select>
     </div>
     <div class="home-search" id="home-search"><input type="text" id="home-q" placeholder="Buscar evento por nombre…" aria-label="Buscar evento"></div>
   </div>
@@ -3086,17 +3150,29 @@ function alCambiarPlanoPropio(){
    una petición por cada tecla), y al terminar de cargar se trae lo último
    que haya en el servidor y se combina con lo de este navegador exactamente
    igual que ya se combinan dos pestañas entre sí (mergeStore). */
-var remoteTimer=null, remoteBusy=false, remoteQueued=false, remoteFail=false;
+var remoteTimer=null, remoteBusy=false, remoteQueued=false, remoteFail=false, retryTimer=null;
+function hayServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); }catch(_){ return false; } }
+/* indicador de la barra lateral: «Guardado», «Guardando…», «Guardado en este
+   dispositivo» (sin servidor, p. ej. el Artifact) o «Sin conexión» (se guarda
+   aquí y se sube solo al volver la conexión) */
+var SAVE_TXT={ok:"Guardado",saving:"Guardando…",local:"Guardado en este dispositivo",off:"Sin conexión · guardado aquí, se subirá solo"};
+function setSaveState(st){ var el=$("saveind"); if(!el) return; el.setAttribute("data-st",st); var sp=el.querySelector("span"); if(sp) sp.textContent=SAVE_TXT[st]||"";
+  el.title=st==="ok"?"Los cambios están guardados en el servidor de Les Moles y los ve todo el equipo.":st==="local"?"Sin servidor: los cambios se guardan en este navegador.":st==="off"?"No hay conexión con el servidor. Los cambios están a salvo en este navegador y se subirán solos.":""; }
+window.addEventListener("online",function(){ if(remoteFail) pushRemote(); });
 function flagRemote(msg){
   var el=$("syncwarn"); if(!el) return;
   if(msg){ el.textContent=msg; el.style.display="block"; } else { el.style.display="none"; }
 }
 function queueRemoteSave(){
   clearTimeout(remoteTimer);
+  if(!hayServidor()){ setSaveState("local"); return; }   /* sin servidor no se intenta subir nada */
+  if(!remoteFail) setSaveState("saving");
   remoteTimer=setTimeout(pushRemote,900);
 }
 function pushRemote(){
+  if(!hayServidor()){ setSaveState("local"); return; }
   if(remoteBusy){ remoteQueued=true; return; }
+  clearTimeout(retryTimer);
   remoteBusy=true;
   /* la boda de ejemplo sin tocar no se sube: es solo un punto de partida local,
      no algo que el resto del equipo deba ver en su lista de eventos */
@@ -3106,13 +3182,17 @@ function pushRemote(){
   }
   fetch("/api/store",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(toSend)})
     .then(function(r){
+      if(r.status===401){ var e401=new Error("401"); e401.auth=true; throw e401; }
       if(!r.ok) throw new Error("http "+r.status);
       if(remoteFail){ remoteFail=false; flagRemote(null); }
+      setSaveState("ok");
     })
-    .catch(function(){
-      if(!remoteFail){ remoteFail=true;
-        flagRemote("No se ha podido guardar en el servidor compartido — puede que se haya cerrado la sesión. Tus cambios siguen a salvo en este navegador; se reintentará solo.");
-      }
+    .catch(function(err){
+      remoteFail=true; setSaveState("off");
+      /* solo se avisa en grande si hay que hacer algo (volver a entrar); si es
+         la conexión, basta el indicador: se reintenta solo cada 20 s */
+      if(err&&err.auth) flagRemote("La sesión ha caducado: recarga la página y vuelve a entrar. Tus cambios siguen a salvo en este navegador.");
+      clearTimeout(retryTimer); retryTimer=setTimeout(pushRemote,20000);
     })
     .finally(function(){
       remoteBusy=false;
@@ -3138,6 +3218,7 @@ function hydrateFromServer(){
   fetch("/api/store").then(function(r){
     if(r.status===401){ flagRemote("La sesión ha caducado: recarga la página para volver a entrar."); return null; }
     if(!r.ok) throw new Error("http "+r.status);
+    if(!remoteFail) setSaveState("ok");
     return r.json();
   }).then(function(remote){
       if(!remote) return;
@@ -3938,7 +4019,7 @@ function sheetList(L){
   return '<section class="sheet"><div class="frame">'+head(L.list,doc.title||L.list,doc.sub,metaLine(T,L))+
     cursoLegendHTML()+
     '<div class="list-grid">'+cards+'</div><div class="alerts"><h3>'+esc(L.aler)+'</h3>'+
-    (al.length?'<div class="al-grid">'+al.join("")+'</div>':'<div class="al"><span class="who" style="color:#9C9384">'+esc(L.noAler)+'</span></div>')+
+    (al.length?'<div class="al-grid">'+al.join("")+'</div>':'<div class="al"><span class="who" style="color:#716C63">'+esc(L.noAler)+'</span></div>')+
     '</div>'+
     (aperis.length?'<div class="alerts aperis"><h3>'+esc(L.aper)+'</h3><div class="al-grid">'+
       aperis.map(function(x){ return '<div class="al"><span class="who">'+esc(x.alergia.toUpperCase())+'</span><span class="what">'+esc(x.texto)+'</span></div>'; }).join("")+
@@ -4920,6 +5001,243 @@ function eventCode(e){
   return JSON.stringify({cv:4,name:e.name,text:e.text,loc:e.loc,plans:e.plans,
                          userSize:e.userSize||1,tplFixed:1,tplFixed2:1});
 }
+/* ══ importar invitados desde Excel / CSV ═══════════════════════════════
+   El equipo trabaja la lista en Excel. Aquí se pega la tabla (copiar las
+   celdas en Excel y pegar) o se sube un .csv / .xlsx, se dice qué es cada
+   columna y se convierte al formato de la lista («MESA 3», un comensal por
+   línea, marcas entre paréntesis). El .xlsx se lee en el propio navegador,
+   sin librerías de fuera. ═══════════════════════════════════════════════ */
+var IMP_ROLES=[["","— no usar —"],["nombre","Nombre"],["apellidos","Apellidos"],["mesa","Mesa (número)"],["mesaNombre","Nombre de la mesa"],
+  ["alergias","Alergias / dieta"],["tipo","Adulto / niño / staff"],["menu","Segundo plato"],["obs","Observaciones"]];
+function impTabla(txt){
+  txt=String(txt||"").replace(/^﻿/,"").replace(/\r\n?/g,"\n");
+  var first=(txt.split("\n").filter(function(l){ return l.trim(); })[0])||"";
+  var sep=first.indexOf("\t")>-1?"\t":(first.split(";").length>first.split(",").length?";":",");
+  var rows=[],row=[],cell="",q=false,i,ch;
+  for(i=0;i<txt.length;i++){ ch=txt[i];
+    if(q){ if(ch==='"'){ if(txt[i+1]==='"'){ cell+='"'; i++; } else q=false; } else cell+=ch; }
+    else if(ch==='"'&&!cell.trim()){ q=true; cell=""; }
+    else if(ch===sep){ row.push(cell); cell=""; }
+    else if(ch==="\n"){ row.push(cell); rows.push(row); row=[]; cell=""; }
+    else cell+=ch; }
+  row.push(cell); rows.push(row);
+  return impLimpia(rows);
+}
+function impLimpia(rows){
+  rows=rows.map(function(r){ return (r||[]).map(function(c){ return String(c==null?"":c).replace(/\s+/g," ").trim(); }); })
+    .filter(function(r){ return r.some(function(c){ return c; }); });
+  var w=0; rows.forEach(function(r){ for(var j=r.length-1;j>=0;j--) if(r[j]){ w=Math.max(w,j+1); break; } });
+  return rows.map(function(r){ var o=r.slice(0,w); while(o.length<w) o.push(""); return o; });
+}
+/* .xlsx = zip con XML dentro: se lee el índice del zip, se descomprime con
+   DecompressionStream y se sacan las celdas de cada hoja */
+async function impXlsx(buf){
+  if(typeof DecompressionStream==="undefined") throw new Error("nodecomp");
+  var u8=new Uint8Array(buf), dv=new DataView(buf), eocd=-1, i;
+  for(i=u8.length-22;i>=Math.max(0,u8.length-66000);i--){ if(dv.getUint32(i,true)===0x06054b50){ eocd=i; break; } }
+  if(eocd<0) throw new Error("zip");
+  var n=dv.getUint16(eocd+10,true), off=dv.getUint32(eocd+16,true), files={}, td=new TextDecoder();
+  for(i=0;i<n;i++){ if(dv.getUint32(off,true)!==0x02014b50) break;
+    var nl=dv.getUint16(off+28,true), el=dv.getUint16(off+30,true), cl=dv.getUint16(off+32,true);
+    files[td.decode(u8.subarray(off+46,off+46+nl))]={met:dv.getUint16(off+10,true),csz:dv.getUint32(off+20,true),lho:dv.getUint32(off+42,true)};
+    off+=46+nl+el+cl; }
+  async function leer(name){ var f=files[name]; if(!f) return null;
+    var st=f.lho+30+dv.getUint16(f.lho+26,true)+dv.getUint16(f.lho+28,true), data=u8.subarray(st,st+f.csz);
+    if(f.met===0) return td.decode(data);
+    var out=await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();
+    return td.decode(out); }
+  var P=new DOMParser(), ss=[], each=function(list,fn){ Array.prototype.forEach.call(list,fn); };
+  var sx=await leer("xl/sharedStrings.xml");
+  if(sx) each(P.parseFromString(sx,"application/xml").getElementsByTagName("si"),function(si){ var t=""; each(si.getElementsByTagName("t"),function(x){ t+=x.textContent; }); ss.push(t); });
+  var rel={}, hojas=[];
+  var rx=await leer("xl/_rels/workbook.xml.rels"); if(rx) each(P.parseFromString(rx,"application/xml").getElementsByTagName("Relationship"),function(r){ rel[r.getAttribute("Id")]=r.getAttribute("Target"); });
+  var wx=await leer("xl/workbook.xml");
+  if(wx) each(P.parseFromString(wx,"application/xml").getElementsByTagName("sheet"),function(s){
+    var t=(rel[s.getAttribute("r:id")]||"").replace(/^\//,""); if(t&&t.indexOf("xl/")!==0) t="xl/"+t;
+    if(files[t]) hojas.push({nombre:s.getAttribute("name")||"Hoja",path:t}); });
+  if(!hojas.length) Object.keys(files).filter(function(k){ return /^xl\/worksheets\/sheet\d+\.xml$/.test(k); }).sort().forEach(function(p,ix){ hojas.push({nombre:"Hoja "+(ix+1),path:p}); });
+  function colIdx(ref){ var m=/^([A-Z]+)/.exec(ref||""), c=0; if(!m) return -1; for(var k=0;k<m[1].length;k++) c=c*26+(m[1].charCodeAt(k)-64); return c-1; }
+  for(i=0;i<hojas.length;i++){
+    var d=P.parseFromString(await leer(hojas[i].path),"application/xml"), rows=[];
+    each(d.getElementsByTagName("row"),function(r){ var row=[], pos=0;
+      each(r.getElementsByTagName("c"),function(c){
+        var ci=colIdx(c.getAttribute("r")); if(ci<0) ci=pos; pos=ci+1;
+        var t=c.getAttribute("t"), v=c.getElementsByTagName("v")[0], val="";
+        if(t==="s") val=v?(ss[+v.textContent]||""):"";
+        else if(t==="inlineStr"){ each(c.getElementsByTagName("t"),function(x){ val+=x.textContent; }); }
+        else if(t==="b") val=v&&v.textContent==="1"?"Sí":"No";
+        else val=v?v.textContent:"";
+        row[ci]=val; });
+      rows.push(row); });
+    hojas[i].rows=impLimpia(rows);
+  }
+  return hojas.filter(function(h){ return h.rows.length; });
+}
+function impAdivina(h){
+  var s=norm(h||"");
+  if(!s) return "";
+  if(/alerg|intoler|dieta|celiac/.test(s)) return "alergias";
+  if(/apellid|cognom|surname|last ?name/.test(s)) return "apellidos";
+  if(/(nombre|nom).*(mesa|taula)|(mesa|taula).*(nombre|nom)|grupo/.test(s)) return "mesaNombre";
+  if(/mesa|taula|table/.test(s)) return "mesa";
+  if(/nombre|^nom|name|invitad|comensal|convidat|persona/.test(s)) return "nombre";
+  if(/observ|nota|coment/.test(s)) return "obs";
+  if(/tipo|edad|adult|nin|infant|categor/.test(s)) return "tipo";
+  if(/plato|segundo|principal|menu/.test(s)) return "menu";
+  return "";
+}
+/* ¿la primera fila son títulos? y un primer reparto de columnas */
+function impAnaliza(rows){
+  var r0=rows[0]||[], guesses=r0.map(impAdivina);
+  var cab=guesses.some(Boolean)&&!r0.some(function(c){ return /^\d+$/.test(c); });
+  var roles=cab?guesses.slice():r0.map(function(){ return ""; });
+  if(!cab){
+    /* sin títulos: la columna con números pequeños es la mesa; la primera con texto, el nombre */
+    var datos=rows.slice(0,40);
+    r0.forEach(function(_,j){
+      var vals=datos.map(function(r){ return r[j]; }).filter(Boolean);
+      if(!vals.length) return;
+      var nums=vals.filter(function(v){ return /^(mesa\s*|m\s*|taula\s*)?\d{1,3}$/i.test(v); }).length;
+      if(nums/vals.length>0.7&&roles.indexOf("mesa")<0) roles[j]="mesa";
+    });
+    r0.forEach(function(_,j){ if(!roles[j]&&roles.indexOf("nombre")<0){ var v=datos.map(function(r){ return r[j]; }).filter(Boolean); if(v.length&&v.filter(function(x){ return /[a-záéíóúñç]/i.test(x); }).length/v.length>0.7) roles[j]="nombre"; } });
+  }
+  /* un mismo papel solo una vez (salvo observaciones) */
+  var visto={}; roles=roles.map(function(r){ if(!r||r==="obs") return r; if(visto[r]) return ""; visto[r]=1; return r; });
+  return {cab:cab,roles:roles};
+}
+var IMP_DIETA=/vegetari|vegan|pescetari|embaraz|celiac|sin gluten|sense gluten|no lact|intoler/;
+function impConstruye(rows,roles){
+  var mesas=[], por={}, sinNombre=0, sinMesa=0, pax=0;
+  function get(r,k){ var out=[]; roles.forEach(function(ro,j){ if(ro===k&&r[j]) out.push(r[j]); }); return out.join(" ").trim(); }
+  function limpia(t){ return String(t||"").replace(/[()\[\]|·]/g," ").replace(/\s+[-–\/]\s+/g," ").replace(/\s+/g," ").trim(); }
+  rows.forEach(function(r){
+    var nombre=limpia((get(r,"nombre")+" "+get(r,"apellidos")).replace(/\s*[+&]\s*/g," y "));
+    if(!nombre){ sinNombre++; return; }
+    var mesaV=limpia(get(r,"mesa")), mesaN=limpia(get(r,"mesaNombre")), tipo=norm(get(r,"tipo"));
+    var staff=/staff|personal|proveedor/.test(tipo), num=(mesaV.match(/\d+/)||[])[0], clave, cab;
+    if(num){ clave="n"+(+num); cab="MESA "+(+num); }
+    else if(mesaV){ clave="t"+norm(mesaV); cab="MESA "+mesaV.replace(/^(mesa|taula)\s+/i,"").toUpperCase(); }
+    else if(mesaN){ clave="t"+norm(mesaN); cab="MESA "+mesaN.replace(/^(mesa|taula)\s+/i,"").toUpperCase(); mesaN=""; }
+    else if(staff){ clave="staff"; cab="MESA STAFF"; }
+    else { clave="sin"; cab="MESA SIN ASIGNAR"; sinMesa++; }
+    if(!por[clave]) mesas.push(por[clave]={clave:clave,cab:cab,nom:"",num:num?+num:null,gs:[]});
+    var m=por[clave]; if(mesaN&&!m.nom) m.nom=mesaN;
+    var marcas=[], al=limpia(get(r,"alergias")), mn=norm(get(r,"menu")), obs=limpia(get(r,"obs"));
+    if(al&&!/^(no|ninguna|ninguno|cap|-|—|n\/?a|0|x)$/i.test(al)) marcas.push(IMP_DIETA.test(norm(al))?al:"alergia: "+al);
+    if(/trona|bebe/.test(tipo)) marcas.push("trona"); else if(/nin|infant|nen|kid|child/.test(tipo)) marcas.push("niño");
+    if(/carn/.test(mn)) marcas.push("carne"); else if(/pesc|peix|pez/.test(mn)) marcas.push("pescado"); else if(/vegan/.test(mn)) marcas.push("vegano"); else if(/veget/.test(mn)) marcas.push("vegetariano");
+    if(obs) marcas.push(obs);
+    m.gs.push(nombre+(marcas.length?" ("+marcas.join(") (")+")":"")); pax++;
+  });
+  function orden(m){ var n=norm(m.cab+" "+m.nom); if(m.clave==="sin") return 4; if(m.clave==="staff"||/staff|personal/.test(n)) return 3; if(/presid|novios|nuvis/.test(n)) return 0; return m.num!=null?1:2; }
+  mesas.sort(function(a,b){ var d=orden(a)-orden(b); if(d) return d; if(a.num!=null&&b.num!=null) return a.num-b.num; return 0; });
+  var lines=[]; mesas.forEach(function(m){ lines.push(""); lines.push(m.cab+(m.nom&&norm(m.nom)!==norm(m.cab.replace(/^MESA /,""))?" | "+m.nom:"")); m.gs.forEach(function(g){ lines.push(g); }); });
+  return {text:lines.join("\n").replace(/^\n/,""), mesas:mesas.length, pax:pax, sinNombre:sinNombre, sinMesa:sinMesa, nums:mesas.filter(function(m){ return m.num!=null; }).map(function(m){ return m.num; })};
+}
+function openImport(){
+  if(ovlOpen) return; ovlOpen=true;
+  var e=current(); if(!e){ ovlOpen=false; return; }
+  var st={rows:[],cab:false,roles:[],hojas:null,hoja:0,modo:null};
+  var ovl=document.createElement("div"); ovl.className="ovl";
+  ovl.innerHTML='<div class="ovl-box imp-box" role="dialog" aria-modal="true" aria-labelledby="imp-h"><div class="ovl-head"><h3 id="imp-h">Importar invitados de Excel o CSV</h3><div class="spacer"></div>'+
+    '<button class="btn" id="imp-close" type="button">Cerrar</button></div>'+
+    '<div class="ovl-note">En Excel, selecciona las celdas (con la fila de títulos: <b>Nombre</b>, <b>Mesa</b>, <b>Alergias</b>…), cópialas y pégalas aquí. También puedes subir el archivo <b>.xlsx</b> o <b>.csv</b>. Después indica qué es cada columna y revisa cómo queda antes de importar.</div>'+
+    '<div class="ovl-body imp-body">'+
+      '<div class="imp-src"><label class="lbl imp-plbl" for="imp-paste">Pega aquí las celdas</label>'+
+        '<textarea id="imp-paste" placeholder="Nombre&#9;Mesa&#9;Alergias&#10;Joan Serra&#9;2&#9;&#10;Rosa Fabra&#9;2&#9;marisco"></textarea>'+
+        '<div class="row imp-file"><label class="btn sm" for="imp-file">Subir .xlsx o .csv</label><input type="file" id="imp-file" accept=".xlsx,.csv,.tsv,.txt,text/csv" class="sr-only">'+
+        '<span class="mini" id="imp-fname"></span><select id="imp-hoja" aria-label="Hoja del Excel" hidden></select><button type="button" class="imp-back" id="imp-back" hidden>o pega las celdas</button></div></div>'+
+      '<div id="imp-map" class="imp-map"></div>'+
+      '<div id="imp-prev" class="imp-prev"></div>'+
+    '</div>'+
+    '<div class="imp-foot"><div id="imp-modo" class="imp-modo"></div><div class="spacer"></div><button type="button" class="btn gold" id="imp-ok" disabled>Importar</button></div></div>';
+  document.body.appendChild(ovl);
+  var box=ovl.querySelector(".ovl-box"), untrap=trapFocus(box);
+  function close(){ ovlOpen=false; ovl.remove(); document.removeEventListener("keydown",k); untrap(); }
+  function k(ev){ if(ev.key==="Escape") close(); }
+  document.addEventListener("keydown",k);
+  ovl.addEventListener("pointerdown",function(ev){ if(ev.target===ovl) close(); });
+  ovl.querySelector("#imp-close").addEventListener("click",close);
+  var ta=ovl.querySelector("#imp-paste"), fi=ovl.querySelector("#imp-file"), hs=ovl.querySelector("#imp-hoja");
+  var tieneLista=parse(e.text||"").tables.some(function(t){ return t.guests.length; });
+  st.modo=tieneLista?"add":"rep";
+  function cargar(rows){ st.rows=rows; if(!rows.length){ pinta(); return; } var a=impAnaliza(rows); st.cab=a.cab; st.roles=a.roles; pinta(); }
+  var tmr=null;
+  ta.addEventListener("input",function(){ clearTimeout(tmr); tmr=setTimeout(function(){ st.hojas=null; hs.hidden=true; ovl.querySelector("#imp-fname").textContent=""; cargar(impTabla(ta.value)); },250); });
+  fi.addEventListener("change",function(){
+    var f=fi.files&&fi.files[0]; if(!f) return;
+    ovl.querySelector("#imp-fname").textContent=f.name;
+    var r=new FileReader();
+    if(/\.xlsx$/i.test(f.name)){
+      r.onload=function(){ impXlsx(r.result).then(function(h){
+          if(!h.length){ toast("El Excel no tiene ninguna hoja con datos.",true); return; }
+          st.hojas=h; st.hoja=0; ta.value=""; modoArchivo(true);
+          hs.innerHTML=h.map(function(x,ix){ return '<option value="'+ix+'">'+esc(x.nombre)+' ('+x.rows.length+' filas)</option>'; }).join(""); hs.hidden=h.length<2;
+          cargar(h[0].rows);
+        }).catch(function(err){ toast(err&&err.message==="nodecomp"?"Este navegador no sabe abrir .xlsx: en Excel, «Guardar como» CSV, o copia y pega las celdas.":"No se ha podido leer el Excel. Prueba a copiar y pegar las celdas.",true); }); };
+      r.readAsArrayBuffer(f);
+    } else {
+      r.onload=function(){ st.hojas=null; hs.hidden=true; ta.value=r.result; modoArchivo(true); cargar(impTabla(r.result)); };
+      r.readAsText(f,"utf-8");
+    }
+    fi.value="";
+  });
+  hs.addEventListener("change",function(){ st.hoja=+hs.value; cargar(st.hojas[st.hoja].rows); });
+  function modoArchivo(on){ ovl.querySelector(".imp-src").classList.toggle("file",on); ovl.querySelector("#imp-back").hidden=!on; if(!on){ hs.hidden=true; st.hojas=null; ovl.querySelector("#imp-fname").textContent=""; } }
+  ovl.querySelector("#imp-back").addEventListener("click",function(){ modoArchivo(false); ta.value=""; cargar([]); ta.focus(); });
+  ovl.addEventListener("change",function(ev){
+    var t=ev.target;
+    if(t.matches("[data-imp-rol]")){ st.roles[+t.getAttribute("data-imp-rol")]=t.value; pinta(); }
+    else if(t.id==="imp-cab"){ st.cab=t.checked; pinta(); }
+    else if(t.name==="imp-modo"){ st.modo=t.value; pinta(); }
+  });
+  function datos(){ return st.cab?st.rows.slice(1):st.rows; }
+  function pinta(){
+    var map=ovl.querySelector("#imp-map"), prev=ovl.querySelector("#imp-prev"), ok=ovl.querySelector("#imp-ok"), modo=ovl.querySelector("#imp-modo");
+    if(!st.rows.length){ map.innerHTML=""; prev.innerHTML=""; modo.innerHTML=""; ok.disabled=true; return; }
+    var r0=st.rows[0], ds=datos();
+    map.innerHTML='<div class="imp-map-h"><b>¿Qué es cada columna?</b><label class="ag-chk"><input type="checkbox" id="imp-cab"'+(st.cab?" checked":"")+'> La primera fila son los títulos</label></div>'+
+      '<div class="imp-cols">'+r0.map(function(c,j){
+        var letra=String.fromCharCode(65+(j%26));
+        var ej=ds.map(function(r){ return r[j]; }).filter(Boolean).slice(0,3);
+        return '<div class="imp-col'+(st.roles[j]?" on":"")+'"><div class="imp-col-t">'+esc(st.cab&&c?c:"Columna "+letra)+'</div>'+
+          '<select data-imp-rol="'+j+'" aria-label="Qué contiene la columna '+esc(st.cab&&c?c:letra)+'">'+IMP_ROLES.map(function(o){ return '<option value="'+o[0]+'"'+(st.roles[j]===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select>'+
+          '<div class="imp-col-ej">'+(ej.length?ej.map(esc).join("<br>"):"<i>vacía</i>")+'</div></div>'; }).join("")+'</div>';
+    var hayNombre=st.roles.indexOf("nombre")>-1||st.roles.indexOf("apellidos")>-1;
+    if(!hayNombre){ prev.innerHTML='<p class="imp-warn">Indica qué columna tiene el <b>nombre</b> de cada invitado.</p>'; ok.disabled=true; modo.innerHTML=""; return; }
+    var res=impConstruye(ds,st.roles);
+    var ya={}; parse(e.text||"").tables.forEach(function(t){ if(t.explicit!==false) ya[t.num]=1; });
+    var choque=st.modo==="add"?res.nums.filter(function(n){ return ya[n]; }):[];
+    var avisos=[];
+    if(res.sinMesa) avisos.push(res.sinMesa+(res.sinMesa===1?" invitado no tiene mesa: va a «MESA SIN ASIGNAR».":" invitados no tienen mesa: van a «MESA SIN ASIGNAR»."));
+    if(res.sinNombre) avisos.push(res.sinNombre+(res.sinNombre===1?" fila sin nombre no se importa.":" filas sin nombre no se importan."));
+    if(choque.length) avisos.push("El evento ya tiene "+(choque.length===1?"la mesa ":"las mesas ")+choque.slice(0,8).join(", ")+(choque.length>8?"…":"")+": las importadas se renumerarán. Si es la lista buena, elige «Sustituir».");
+    var lns=res.text.split("\n"), corte=60;
+    prev.innerHTML='<div class="imp-sum"><b>'+res.pax+'</b> invitados en <b>'+res.mesas+'</b> '+(res.mesas===1?"mesa":"mesas")+'</div>'+
+      (avisos.length?'<ul class="imp-warn">'+avisos.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>':'')+
+      '<div class="lbl">Así quedará en la lista</div><pre class="imp-pre">'+esc(lns.slice(0,corte).join("\n"))+(lns.length>corte?"\n… ("+(lns.length-corte)+" líneas más)":"")+'</pre>';
+    modo.innerHTML='<label class="ag-chk"><input type="radio" name="imp-modo" value="add"'+(st.modo==="add"?" checked":"")+'> Añadir a la lista actual</label>'+
+      '<label class="ag-chk"><input type="radio" name="imp-modo" value="rep"'+(st.modo==="rep"?" checked":"")+'> Sustituir las mesas del evento</label>';
+    ok.disabled=!res.pax; ok.textContent=res.pax?"Importar "+res.pax+" invitados":"Importar";
+    ok.onclick=function(){
+      var cur=e.text||"", nuevo;
+      if(st.modo==="rep"){
+        var cabeza=cur.split("\n").filter(function(l){ return /^[#@]/.test(l.trim()); });
+        if(!cabeza.length) cabeza=["# "+(e.name||"Evento")];
+        if(tieneLista&&!window.confirm("Se sustituyen todas las mesas de «"+(nombreLimpio(e.name)||"este evento")+"» por las importadas. Puedes deshacerlo con «Deshacer».")) return;
+        nuevo=cabeza.join("\n")+"\n\n"+res.text+"\n";
+      } else nuevo=cur.replace(/\s+$/,"")+"\n\n"+res.text+"\n";
+      if(document.activeElement) document.activeElement.blur();
+      $("src").value=nuevo; onInput(); typing=0;
+      close();
+      toast("Importados "+res.pax+" invitados en "+res.mesas+(res.mesas===1?" mesa.":" mesas.")+" Colócalas en el plano o ajusta la forma de cada mesa.");
+    };
+  }
+  setTimeout(function(){ ta.focus(); },60);
+}
+window.LM_openImport=openImport;
+
 function openShare(){
   if(ovlOpen) return; ovlOpen=true;
   var e=current();
@@ -5114,6 +5432,8 @@ $("del").addEventListener("click",function(){
   });
 });
 $("share").addEventListener("click",openShare);
+$("imp-xls").addEventListener("click",openImport);
+$("dupEv").addEventListener("click",function(){ var e=current(); if(e) duplicarEvento(e.id); });
 $("ex-boda").addEventListener("click",function(){newEvent(EX_BODA);});
 $("full").addEventListener("change",function(){ prefs().full=this.checked; save(); render(); });
 $("lang").addEventListener("change",function(){ prefs().lang=this.value; save(); render(); });
@@ -5419,7 +5739,8 @@ var SECCIONES=[
   {k:"p-bebidas",  g:"Parámetros", t:"Bebidas"},
   {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
   {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
-  {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"}
+  {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
+  {k:"p-agenda",   g:"Parámetros", t:"Agenda con los novios"}
 ];
 function seccionActual(){
   if(document.body.classList.contains("mode-resumen")) return "resumen";
@@ -5720,10 +6041,13 @@ function evCardEl(e){
   var mesas=d?d.tables.length:0, pax=t?t.pax:0, sub=evSubtitulo(e);
   var cat=eventoTipo(e), col=tipoColor(cat);
   var pct=eventoProgreso(e).pct;
-  var card=document.createElement("button"); card.type="button"; card.className="evcard"; card.dataset.id=e.id;
+  var dr=diasRestantes(e), est=(e.ficha&&e.ficha.estado)||"planificacion";
+  var card=document.createElement("button"); card.type="button"; card.className="evcard"+(dr!=null&&dr<0?" past":""); card.dataset.id=e.id;
   card.style.setProperty("--evcol",col);
   card.innerHTML=
-    '<div class="ev-cat" style="color:'+col+'"><i class="ev-dot" style="background:'+col+'"></i>'+escH(cat)+'</div>'+
+    '<div class="ev-tags"><div class="ev-cat" style="color:'+col+'"><i class="ev-dot" style="background:'+col+'"></i>'+escH(cat)+'</div>'+
+      '<span class="ev-est'+(est==="confirmada"?" conf":(est==="celebrada"||est==="cerrada")?" done":"")+'">'+escH(CICLO_T[est]||"Planificación")+'</span>'+
+      (dr!=null&&dr>=0&&dr<=7?'<span class="ev-week">'+(dr===0?"Hoy":dr===1?"Mañana":"Esta semana")+'</span>':'')+'</div>'+
     '<div class="ev-nm">'+escH(nombreLimpio(e.name)||"Sin título")+'</div>'+
     '<div class="ev-sub">'+escH(sub||"Sin fecha ni lugar")+'</div>'+
     '<div class="ev-stats">'+
@@ -5732,8 +6056,54 @@ function evCardEl(e){
     '</div>'+
     '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>';
   card.addEventListener("click",function(){ abrirEvento(e.id); });
-  return card;
+  var w=document.createElement("div"); w.className="evcard-w"; w.appendChild(card);
+  var dup=document.createElement("button"); dup.type="button"; dup.className="ev-dup"; dup.title="Duplicar evento";
+  dup.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+  dup.setAttribute("aria-label","Duplicar el evento «"+(nombreLimpio(e.name)||"Sin título")+"»");
+  dup.addEventListener("click",function(ev){ ev.stopPropagation(); duplicarEvento(e.id,true); });
+  w.appendChild(dup);
+  return w;
 }
+/* ══ duplicar evento ═══════════════════════════════════════════════════
+   Copia el sitting, el plano (posiciones, giro, elementos de sala), el menú
+   marcado, las bebidas, los precios, los proveedores y el checklist (sin
+   marcar). NO copia lo que es de cada boda: fecha, novios y contacto, pagos,
+   agenda hecha, comunicaciones, camareros, enlace de los novios ni fotos. */
+function duplicarEvento(id,quedarse){
+  var src=null; store.events.forEach(function(x){ if(x.id===id) src=x; }); if(!src) return;
+  var c=JSON.parse(JSON.stringify(src)), DRX=/\s*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\s*\d{4}-\d{1,2}-\d{1,2}/g;
+  c.id="e"+Date.now()+Math.floor(Math.random()*999);
+  /* la fecha también se quita del título y de la línea «@» (si no, volvería sola a la ficha) */
+  var titulado=false;
+  c.text=String(c.text||"").split("\n").map(function(l){
+    if(/^[#@]/.test(l)){ l=l.replace(DRX,"").replace(/[\s·|,\-–—]+$/,"").replace(/^@[\s·|,\-–—]+/,"@ ");
+      if(!titulado&&/^#/.test(l)){ titulado=true; l=l.replace(/\s*\(copia(?: \d+)?\)$/,"");
+        var nombres={}; store.events.forEach(function(x){ nombres[x.name]=1; });
+        var suf=" (copia)", n=2; while(nombres[eventName(l+suf)]){ suf=" (copia "+n+")"; n++; } l+=suf; } }
+    return l; }).join("\n");
+  if(!titulado) c.text="# "+(nombreLimpio(src.name)||"Evento")+" (copia)\n"+c.text;
+  c.name=eventName(c.text);
+  var F=c.ficha=c.ficha||{};
+  ["fecha","parejaA","parejaB","telefono","email","hora","notas"].forEach(function(k){ delete F[k]; });
+  F.estado="contacto";
+  c.presupuesto=c.presupuesto||{}; c.presupuesto.pagos=[];
+  (c.tareas||[]).forEach(function(t){ t.estado="pendiente"; delete t.hecha; delete t.fechaHecha; });
+  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","hitos"].forEach(function(k){ delete c[k]; });
+  c.comunicaciones=[]; c.hitos={}; c.camareros={}; c.camarerosHora={};
+  c.updated=Date.now();
+  /* planos de fondo propios del evento (catering), si los tiene */
+  try{ var pre=PLANOEVKEY+"__"+src.id+"__", ks=[];
+    for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(pre)===0) ks.push(k); }
+    ks.forEach(function(k){ localStorage.setItem(PLANOEVKEY+"__"+c.id+"__"+k.slice(pre.length),localStorage.getItem(k)); }); }catch(_){}
+  c=migrate(c);
+  var idx=store.events.indexOf(src); store.events.splice(idx+1,0,c);
+  store.active=c.id; sel=null; undoStack=[]; refreshUndo();
+  $("src").value=c.text; prevText=c.text; fillSelect(); syncPrefs(); render(); save();
+  if(quedarse&&document.body.classList.contains("mode-home")) renderHome();
+  toast("Evento duplicado: «"+nombreLimpio(c.name)+"». Ponle la fecha en «Ficha y contacto».",false,"Abrir",function(){ abrirEvento(c.id,"crm"); });
+  return c;
+}
+window.LM_duplicarEvento=duplicarEvento;
 function renderHome(){
   /* saludo personalizado según la sesión y la hora del día */
   var u=(window.LM_SESSION&&window.LM_SESSION.user)?window.LM_SESSION.user():null;
@@ -5747,6 +6117,7 @@ function renderHome(){
   var seg=$("home-viewseg");
   if(seg) Array.prototype.forEach.call(seg.children,function(b){ b.setAttribute("aria-pressed", b.dataset.hv===homeView?"true":"false"); });
   var searchWrap=$("home-search"); if(searchWrap) searchWrap.style.display=(homeView==="calendario")?"none":"";
+  var filt=$("home-filters"); if(filt) filt.style.display=(homeView==="calendario")?"none":"";
   var grid=$("home-grid"), cal=$("home-cal");
   if(homeView==="calendario"){ if(grid) grid.style.display="none"; if(cal){ cal.hidden=false; cal.style.display=""; renderHomeCalendar(); } }
   else { if(cal){ cal.hidden=true; cal.style.display="none"; } if(grid){ grid.style.display=""; renderHomeList(); } }
@@ -5755,9 +6126,24 @@ function renderHomeList(){
   var grid=$("home-grid"); if(!grid) return;
   var q=(($("home-q")&&$("home-q").value)||"").trim().toLowerCase();
   grid.innerHTML="";
-  var evs=store.events.filter(function(e){ return !q || (e.name||"").toLowerCase().indexOf(q)>=0; });
-  /* cronológico ascendente; los que no tienen fecha, al final */
-  evs.sort(function(a,b){ var ma=evFechaMs(a),mb=evFechaMs(b); if(ma==null&&mb==null) return 0; if(ma==null) return 1; if(mb==null) return -1; return ma-mb; });
+  /* filtros: próximos (y sin fecha) / pasados / todos, y tipo de evento */
+  var tsel=$("home-tipo"), tipos={};
+  store.events.forEach(function(e){ tipos[eventoTipo(e)]=1; });
+  if(tsel){ var tv=tsel.value; tsel.innerHTML='<option value="">Todos los tipos</option>'+Object.keys(tipos).sort().map(function(t){ return '<option'+(t===tv?" selected":"")+'>'+escH(t)+'</option>'; }).join("");
+    if(tv&&!tipos[tv]) tsel.value=""; }
+  var tipoF=tsel?tsel.value:"";
+  var wseg=$("home-when"); if(wseg) Array.prototype.forEach.call(wseg.children,function(b){ b.setAttribute("aria-pressed",b.dataset.when===homeWhen?"true":"false"); });
+  function pasado(e){ var dr=diasRestantes(e); return dr!=null&&dr<0; }
+  var base=store.events.filter(function(e){ return (!q || (e.name||"").toLowerCase().indexOf(q)>=0) && (!tipoF||eventoTipo(e)===tipoF); });
+  var evs=base.filter(function(e){ return homeWhen==="todos"||(homeWhen==="pas"?pasado(e):!pasado(e)); });
+  /* próximos: del más cercano al más lejano (sin fecha, al final); pasados: del más reciente hacia atrás */
+  var dir=homeWhen==="pas"?-1:1;
+  evs.sort(function(a,b){ var ma=evFechaMs(a),mb=evFechaMs(b); if(ma==null&&mb==null) return 0; if(ma==null) return 1; if(mb==null) return -1; return dir*(ma-mb); });
+  if(!evs.length&&base.length&&homeWhen!=="todos"){
+    var otros=base.length, mm=document.createElement("div"); mm.className="home-more";
+    mm.innerHTML=(homeWhen==="prox"?"No hay eventos próximos":"No hay eventos pasados")+(q||tipoF?" con este filtro":"")+'. <button type="button" data-when-go="todos">Ver los '+otros+' '+(otros===1?"evento":"eventos")+'</button>';
+    grid.appendChild(mm); return;
+  }
   if(!evs.length){ var em=document.createElement("div"); em.className="home-empty"; em.style.gridColumn="1/-1"; em.textContent=q?("Ningún evento coincide con «"+q+"»."):"Todavía no hay eventos. Crea el primero con «+ Nuevo evento»."; grid.appendChild(em); return; }
   var curKey="__init__";
   evs.forEach(function(e){
@@ -5773,7 +6159,18 @@ function renderHomeList(){
     }
     grid.appendChild(evCardEl(e));
   });
+  var fuera=base.length-evs.length;
+  if(fuera>0&&homeWhen!=="todos"){ var mo=document.createElement("div"); mo.className="home-more";
+    mo.innerHTML=fuera+(fuera===1?(homeWhen==="prox"?" evento pasado no se muestra":" evento próximo no se muestra"):(homeWhen==="prox"?" eventos pasados no se muestran":" eventos próximos no se muestran"))+'. <button type="button" data-when-go="'+(homeWhen==="prox"?"pas":"prox")+'">Ver '+(homeWhen==="prox"?"pasados":"próximos")+'</button>';
+    grid.appendChild(mo); }
 }
+var homeWhen="prox"; try{ homeWhen=localStorage.getItem("lm_home_when")||"prox"; }catch(_){}
+function setHomeWhen(v){ homeWhen=v; try{ localStorage.setItem("lm_home_when",v); }catch(_){} renderHomeList(); }
+(function(){
+  var ws=$("home-when"); if(ws) ws.addEventListener("click",function(ev){ var b=ev.target.closest("[data-when]"); if(b) setHomeWhen(b.dataset.when); });
+  var ts=$("home-tipo"); if(ts) ts.addEventListener("change",renderHomeList);
+  var g=$("home-grid"); if(g) g.addEventListener("click",function(ev){ var b=ev.target.closest&&ev.target.closest("[data-when-go]"); if(b) setHomeWhen(b.getAttribute("data-when-go")); });
+})();
 function defaultCalMonth(){
   var now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
   var best=null;
@@ -6128,7 +6525,7 @@ function renderResumen(){
             '<span class="mi">'+ICONS.people+'<b>'+pax+'</b><span>invitados</span></span>'+
             '<span class="mi">'+ICONS.pin+'<b>'+mesasAper+'</b><span>mesas aperitivo ·</span><b>'+mesas+'</b><span>banquete</span></span>'+
           '</div>'+
-          '<div class="rsm-actions"><button type="button" class="btn sm" id="rsm-print">Imprimir resumen</button></div>'+
+          '<div class="rsm-actions"><button type="button" class="btn sm" id="rsm-print">Imprimir resumen</button> <button type="button" class="btn sm" id="rsm-dup" title="Copia del evento (plano, menú, precios) sin fecha ni pagos">Duplicar evento</button></div>'+
         '</div>'+
         '<div class="rsm-ring">'+ringSvg(prog.pct)+'<div class="ring-cap">Preparación<br>del evento</div></div>'+
       '</header>'+
@@ -6149,6 +6546,7 @@ function renderResumen(){
   Array.prototype.forEach.call(host.querySelectorAll(".check-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".alert-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   var _rp=$("rsm-print"); if(_rp) _rp.addEventListener("click",function(){ imprimirResumen(current()); });
+  var _rd=$("rsm-dup"); if(_rd) _rd.addEventListener("click",function(){ var c=duplicarEvento(current().id); if(c) irASeccion("resumen"); });
 
   /* ── Compartir con los novios: enlace público de solo lectura ── */
   if(!e.share) e.share={on:false,id:""};
@@ -6158,7 +6556,7 @@ function renderResumen(){
     '<div class="share-h">Compartir con los novios</div>'+
     (e.share.on
       ? '<p class="share-p">Enlace activo. Cualquiera con el enlace ve una página de solo lectura con la fecha, el lugar, el menú y las fotos. No muestra presupuesto, contactos ni la lista de invitados.</p>'+
-        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly value="'+escH(link)+'">'+
+        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly aria-label="Enlace para los novios" value="'+escH(link)+'">'+
         '<button class="btn" id="rsm-share-copy" type="button">Copiar</button>'+
         '<button class="btn" id="rsm-share-open" type="button">Abrir</button></div>'+
         '<button class="share-off" id="rsm-share-off" type="button">Desactivar enlace</button>'
@@ -6187,7 +6585,7 @@ function renderResumen(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-tareas":1};
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-tareas":1,"p-agenda":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
   {k:"reserva",t:"Reserva"},{k:"planificacion",t:"Planificación"},{k:"confirmada",t:"Confirmada"},
@@ -6275,7 +6673,7 @@ var AGENDA_DEF={senal:1000, hitos:[
   {id:"reu2", tipo:"reunion",   dias:4,  t:"Última reunión"},
   {id:"pago2",tipo:"pago",      dias:2,  t:"Último pago · se cierran los cambios", resto:true, cierre:true}
 ]};
-function agendaCfg(){ var d=paramData("agenda"); return (d&&d.hitos&&d.hitos.length)?d:AGENDA_DEF; }
+function agendaCfg(){ var d=paramData("agenda"); if(!d) return AGENDA_DEF; return {senal:d.senal!=null?d.senal:AGENDA_DEF.senal, hitos:Array.isArray(d.hitos)?d.hitos:AGENDA_DEF.hitos}; }
 function isoDe(d){ return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function hitosAuto(e){
   var f=e&&e.ficha&&e.ficha.fecha; if(!f) return [];
@@ -6408,6 +6806,7 @@ function renderPlanV(k){
   else if(k==="fotos") body=viewFotos(e);
   else if(k==="docs") body=viewDocs(e);
   host.innerHTML='<div class="pv-inner">'+planHeader(e,k)+body+'</div>';
+  etiquetarCampos(host);
   host.scrollTop=top;
   if(!planBound){
     planBound=true;
@@ -6415,6 +6814,18 @@ function renderPlanV(k){
     host.addEventListener("change",onPlanEdit);
     host.addEventListener("click",onPlanClick);
   }
+}
+/* accesibilidad: los campos de las tablas (pagos, extras, proveedores…) no
+   llevan <label> propio; se les da el nombre de su columna, o su texto de ayuda */
+function etiquetarCampos(root){
+  Array.prototype.forEach.call(root.querySelectorAll("input,select,textarea"),function(el){
+    if(el.type==="hidden"||el.getAttribute("aria-label")||el.getAttribute("aria-labelledby")||el.closest("label")) return;
+    if(el.id&&root.querySelector('label[for="'+el.id+'"]')) return;
+    var nm="", td=el.closest("td,th"), tb=el.closest("table");
+    if(td&&tb){ var ths=tb.querySelectorAll("thead th"), ix=Array.prototype.indexOf.call(td.parentNode.children,td); if(ths[ix]) nm=ths[ix].textContent.replace(/\s+/g," ").trim(); }
+    if(!nm) nm=el.getAttribute("placeholder")||el.getAttribute("title")||"";
+    if(nm) el.setAttribute("aria-label",nm);
+  });
 }
 function onPlanEdit(ev){
   if(String(planView).indexOf("p-")===0) return;   /* Parámetros tiene sus propios manejadores */
@@ -6527,7 +6938,7 @@ function viewTimeline(e){
     var dot=done?ICONS.check:"";
     return '<div class="tl-item'+(done?" done":"")+(now?" now":"")+'"><span class="tl-dot">'+dot+'</span>'+
       '<div class="tl-body"><b>'+escH(h.t)+'</b>'+(now?'<span class="tl-now-tag">Siguiente</span>':"")+
-      '<span class="tl-date"><input type="date" data-hito="'+h.k+'" value="'+escH(date||"")+'"></span></div></div>';
+      '<span class="tl-date"><input type="date" data-hito="'+h.k+'" value="'+escH(date||"")+'" aria-label="Fecha: '+escH(h.t)+'"></span></div></div>';
   }).join("");
   var ag=hitosAuto(e), cfg=agendaCfg(), agHTML;
   if(!ag.length) agHTML='<div class="pcard"><p class="muted" style="margin:0">Pon la fecha del evento en «Ficha y contacto» y la agenda (documento, pagos y reuniones) se programa sola.</p></div>';
@@ -6569,7 +6980,7 @@ function viewTareas(e){
         '<button type="button" class="tk-state" data-act="task-state" data-i="'+x.i+'">'+estLbl[st]+'</button>'+
         '<button type="button" class="tk-del" data-act="task-del" data-i="'+x.i+'" aria-label="Eliminar">×</button></div>';
     });
-    html+='<div class="task" style="border-style:dashed;background:transparent"><input id="ta-'+f.k+'" type="text" placeholder="Añadir tarea…" style="flex:1;border:0;background:transparent;font-size:13.5px;padding:2px 4px" data-noedit>'+
+    html+='<div class="task" style="border-style:dashed;background:transparent"><input id="ta-'+f.k+'" type="text" placeholder="Añadir tarea…" aria-label="Añadir tarea: '+escH(f.t)+'" style="flex:1;border:0;background:transparent;font-size:13.5px;padding:2px 4px" data-noedit>'+
       '<button type="button" class="btn sm" data-act="task-add" data-fase="'+f.k+'">Añadir</button></div>';
     html+='</div>';
   });
@@ -6789,7 +7200,7 @@ aplicarParams();
 window.SITTING_BRIDGE={
   store:store,
   param:paramData, paramMeta:paramMeta, setParam:setParam, onParams:function(fn){ PARAM_HOOKS.push(fn); try{ fn(); }catch(err){ try{ console.warn("parámetros:",err); }catch(_){} } },
-  ratioCamarero:ratioCamarero, pctSenal:pctSenal,
+  ratioCamarero:ratioCamarero, pctSenal:pctSenal, agendaDef:AGENDA_DEF,
   current:current,
   save:save,
   eventName:eventName,
@@ -9374,6 +9785,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function writeLocal(u){ try{ if(u) localStorage.setItem(AUTHKEY,JSON.stringify(u)); else localStorage.removeItem(AUTHKEY); }catch(_){ } }
   function nameFromEmail(e){ e=((e||"").split("@")[0]||"Equipo").replace(/[._-]+/g," ").trim(); return e.split(" ").map(function(w){return w?w.charAt(0).toUpperCase()+w.slice(1):w;}).join(" "); }
   var curUser=readLocal(), backend=false, setupMode=false;
+  window.LM_backend=function(){ return backend; };
   /* ¿estamos en la web real (Cloudflare) o en la vista previa (Artifact / archivo)?
      En la web real NUNCA se entra en modo demostración: si el servidor no
      contesta se dice claramente, porque entrar «en demo» enseñaba una app
@@ -9605,8 +10017,9 @@ var VISTAS={
   "p-platos":  {t:"Platos y escandallo", secs:["platos"], guia:"El catálogo de platos del menú con su escandallo por comensal: con estas cantidades se calculan la producción y la lista de la compra de cada evento. La vajilla y los cubiertos de cada plato alimentan el check list de servicio."},
   "p-bebidas": {t:"Bebidas", secs:["bebidas"], guia:"Cuántas botellas se prevén por persona en cada momento (aperitivo y banquete) y qué marcas se pueden elegir en cada evento."},
   "p-servicio":{t:"Servicio y camareros", secs:["servicio","catalogo","montaje"], guia:"Cuántos comensales atiende cada camarero, las personas por mesa de partida, el catálogo de vajilla y cubiertos, y el material de montaje y de cada estación."},
-  "p-comercial":{t:"Presupuesto y pagos", secs:["comercial"], guia:"Porcentaje del primer pago, precios de partida de los eventos nuevos, tipos de evento y servicios de proveedores."},
-  "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."}
+  "p-comercial":{t:"Presupuesto y pagos", secs:["comercial"], guia:"Porcentaje del primer pago (sobre el total), precios de partida de los eventos nuevos, tipos de evento y servicios de proveedores."},
+  "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."},
+  "p-agenda":  {t:"Agenda con los novios", secs:["agenda"], guia:"La señal que se cobra al reservar y los pasos que se programan solos a partir de la fecha de cada evento (documento, pagos, reuniones y cierre de cambios). Salen en el calendario, en los avisos y en la cronología de TODOS los eventos, también los que ya existen."}
 };
 
 /* datos de trabajo: lo que hay en uso (con los valores de fábrica si nadie
@@ -9619,6 +10032,7 @@ function datos(sec){
     if(!d.funciones) d.funciones=(BR.funcionesDef||[]).slice(); }
   if(sec==="comercial"){ if(d.senal==null) d.senal=65; ["precioAdulto","precioInfantil","precioStaff"].forEach(function(k){ if(d[k]==null) d[k]=0; });
     if(!d.tipos) d.tipos=TIPOS_DEF.slice(); if(!d.provServ) d.provServ=PROV_DEF.slice(); }
+  if(sec==="agenda"){ var ad=BR.agendaDef||{senal:1000,hitos:[]}; if(d.senal==null) d.senal=ad.senal; if(!Array.isArray(d.hitos)) d.hitos=clon(ad.hitos); }
   if(sec==="tareas"){ d.fases=d.fases||{}; Object.keys(FASES_T).forEach(function(k){ if(!d.fases[k]) d.fases[k]=FASES_DEF_ITEMS[k].slice(); }); }
   return d;
 }
@@ -9799,8 +10213,8 @@ function vServicio(){
 function vComercial(){
   var c=datos("comercial");
   return '<div class="pv-sec">Pagos</div><div class="pcard"><div class="fldset">'+
-      '<label class="fld"><span class="lbl">Primer pago / señal (%)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="senal" value="'+esc(c.senal)+'"></label>'+
-      '<div class="fld"><span class="lbl">Segundo pago</span><div class="fld-val"><b>'+(100-(+c.senal||65))+' %</b> (el resto)</div></div>'+
+      '<label class="fld"><span class="lbl">Primer pago (%)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="senal" value="'+esc(c.senal)+'"></label>'+
+      '<div class="fld"><span class="lbl">Último pago</span><div class="fld-val"><b>'+(100-(+c.senal||65))+' %</b> menos la señal · las fechas y la señal, en «Agenda con los novios»</div></div>'+
     '</div></div>'+
     '<div class="pv-sec">Precios de partida <span class="pv-sec-note">— se ponen solos al crear un evento; en cada evento se pueden cambiar</span></div><div class="pcard"><div class="fldset">'+
       '<label class="fld"><span class="lbl">Menú adulto (€)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="precioAdulto" value="'+esc(c.precioAdulto)+'"></label>'+
@@ -9822,6 +10236,35 @@ function vTareas(){
   }).join("")+'</div>';
 }
 
+/* ══ AGENDA CON LOS NOVIOS ════════════════════════════════════════════ */
+var AG_TIPOS=[["documento","📄 Documento"],["pago","💶 Pago"],["reunion","🗓 Reunión"],["tarea","✔ Tarea"]];
+function vAgenda(){
+  var a=datos("agenda"), hs=a.hitos.slice().map(function(h,i){ return {h:h,i:i}; }).sort(function(x,y){ return (+y.h.dias||0)-(+x.h.dias||0); });
+  /* ejemplo: una boda dentro de ~2 meses, en sábado */
+  var ej=new Date(); ej.setDate(ej.getDate()+60); ej.setDate(ej.getDate()+((6-ej.getDay()+7)%7));
+  function fe(dias){ var d=new Date(ej); d.setDate(d.getDate()-(+dias||0)); return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2); }
+  var filas=hs.map(function(x){ var h=x.h, i=x.i;
+    return '<div class="ag-prow">'+
+      '<label class="fld ag-pdias"><span class="lbl">Días antes</span><input type="text" inputmode="numeric" data-pp="ag" data-i="'+i+'" data-k="dias" value="'+esc(h.dias)+'"></label>'+
+      '<label class="fld ag-ptipo"><span class="lbl">Tipo</span><select data-pp="ag" data-i="'+i+'" data-k="tipo">'+AG_TIPOS.map(function(t){ return '<option value="'+t[0]+'"'+(h.tipo===t[0]?" selected":"")+'>'+t[1]+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld ag-ptx"><span class="lbl">Qué hay que hacer</span><input type="text" data-pp="ag" data-i="'+i+'" data-k="t" value="'+esc(h.t)+'"></label>'+
+      '<label class="fld ag-pd"><span class="lbl">Detalle <small>(opcional)</small></span><input type="text" data-pp="ag" data-i="'+i+'" data-k="d" value="'+esc(h.d||"")+'"></label>'+
+      '<div class="ag-pflags">'+
+        (h.tipo==="pago"?'<label class="ag-chk"><input type="checkbox" data-pp="ag" data-i="'+i+'" data-k="resto"'+(h.resto?" checked":"")+'> Es el último pago (cobra lo que falta)</label>':'')+
+        '<label class="ag-chk"><input type="checkbox" data-pp="ag" data-i="'+i+'" data-k="cierre"'+(h.cierre?" checked":"")+'> A partir de aquí se cierran los cambios</label>'+
+      '</div>'+
+      '<span class="ag-pej" title="Ejemplo con un evento el '+esc(fe(0))+'">'+esc(fe(h.dias))+'</span>'+
+      '<button type="button" class="row-del" data-pa="ag-del" data-i="'+i+'" aria-label="Quitar este paso">×</button>'+
+    '</div>'; }).join("");
+  return '<div class="pv-sec">Al reservar</div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Señal (€)</span><input type="text" inputmode="decimal" data-pp="ag-senal" value="'+esc(String(a.senal).replace(".",","))+'"></label>'+
+      '<div class="fld"><span class="lbl">Cuándo</span><div class="fld-val">Es lo primero que se cobra. Si no está cobrada, el evento lo avisa en rojo. Pon 0 si no se cobra señal.</div></div>'+
+    '</div></div>'+
+    '<div class="pv-sec">Pasos antes del evento <span class="pv-sec-note">— la columna de la derecha es un ejemplo con un evento el '+esc(fe(0))+'</span></div>'+
+    '<div class="pcard ag-pcard">'+(filas||'<p class="pp-empty">No hay pasos: no se programará nada.</p>')+
+      '<div class="ag-padd"><button type="button" class="btn gold sm" data-pa="ag-add">+ Añadir paso</button></div></div>';
+}
+
 /* ══ pintar ══════════════════════════════════════════════════════════ */
 var hostRef=null, vistaActual=null;
 function render(k,host){
@@ -9833,6 +10276,7 @@ function render(k,host){
   else if(vistaActual==="p-bebidas") body=vBebidas();
   else if(vistaActual==="p-servicio") body=vServicio();
   else if(vistaActual==="p-comercial") body=vComercial();
+  else if(vistaActual==="p-agenda") body=vAgenda();
   else body=vTareas();
   hostRef.innerHTML='<div class="pv-inner pp-root" data-vista="'+esc(vistaActual)+'">'+cabecera(vistaActual)+body+'</div>';
   hostRef.scrollTop=top;
@@ -9924,6 +10368,20 @@ function onChange(ev){
     else { var pr=num(v); if(pr==null||pr<0){ toastP("Precio no válido."); render(); return; } cm[k]=pr; }
     guardar("comercial",cm); render(); return;
   }
+  if(pp==="ag-senal"){ var ag0=datos("agenda"), sn=num(v); if(sn==null||sn<0){ toastP("Importe no válido."); render(); return; } ag0.senal=sn; guardar("agenda",ag0); render(); return; }
+  if(pp==="ag"){
+    var ag=datos("agenda"), h=ag.hitos[i]; if(!h) return;
+    if(k==="dias"){ var dd=num(v); if(dd==null||dd<0||dd>365){ toastP("Pon los días que faltan para el evento (0 a 365)."); render(); return; } h.dias=Math.round(dd); }
+    else if(k==="resto"||k==="cierre"){
+      /* solo un último pago y un cierre de cambios */
+      if(el.checked) ag.hitos.forEach(function(o){ delete o[k]; });
+      if(el.checked) h[k]=true; else delete h[k];
+    }
+    else if(k==="t"){ if(!v.trim()){ toastP("El paso necesita un texto."); render(); return; } h.t=v.trim(); }
+    else if(k==="d"){ if(v.trim()) h.d=v.trim(); else delete h.d; }
+    else if(k==="tipo"){ h.tipo=v; if(v!=="pago") delete h.resto; }
+    guardar("agenda",ag); render(); return;
+  }
   if(pp==="fase"){ var td=datos("tareas"); td.fases[k]=lineas(v); guardar("tareas",td); render(); return; }
 }
 
@@ -9971,6 +10429,11 @@ function onClick(ev){
   if(a==="art-del"){ var cd2=datos("catalogo"), art=cd2.items[i]; if(!art) return;
     if(!window.confirm("¿Quitar «"+art.articulo+"» del catálogo? Los platos que lo usen dejarán de sumarlo en el check list.")) return;
     cd2.items.splice(i,1); guardar("catalogo",cd2); render(); return; }
+  if(a==="ag-add"){ var ag=datos("agenda"); ag.hitos.push({id:"h"+Date.now().toString(36),tipo:"reunion",dias:7,t:"Paso nuevo"}); guardar("agenda",ag,"Paso añadido: pon los días y el texto."); render();
+    var ts=hostRef.querySelectorAll('input[data-pp="ag"][data-k="t"]'); for(var q=0;q<ts.length;q++) if(ts[q].value==="Paso nuevo"){ ts[q].focus(); ts[q].select(); break; } return; }
+  if(a==="ag-del"){ var ag2=datos("agenda"), hh=ag2.hitos[i]; if(!hh) return;
+    if(!window.confirm("¿Quitar «"+hh.t+"» de la agenda? Dejará de salir en todos los eventos.")) return;
+    ag2.hitos.splice(i,1); guardar("agenda",ag2); render(); return; }
   if(a.indexOf("mon")===0){
     var md=datos("montaje"), r=md.reglas[+b.getAttribute("data-r")];
     if(a==="mon-add"){ md.reglas.push({nombre:"Regla nueva",cuando:{tipo:"evento"},base:"EVENTO",mobiliario:[],utensilios:[]}); }
@@ -10012,6 +10475,14 @@ st.textContent=
 ".pp-empty{color:var(--c-mut);font-style:italic;padding:10px 4px}"+
 ".pp-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}"+
 ".pp-card .pcard-h{align-items:center}"+
+".ag-prow{display:grid;grid-template-columns:96px 150px minmax(180px,1.3fr) minmax(160px,1fr) auto 34px;gap:10px 12px;align-items:end;padding:12px 0;border-bottom:1px solid var(--c-line)}"+
+".ag-prow:first-child{padding-top:0}"+
+".ag-pflags{grid-column:1/5;display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--c-ink-2,var(--c-ink))}"+
+".ag-chk{display:inline-flex;gap:7px;align-items:center;cursor:pointer}"+
+".ag-pej{grid-row:1;grid-column:5;align-self:center;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold-d,#9C7F44);padding-top:16px}"+
+".ag-prow .row-del{grid-row:1;grid-column:6;align-self:center;margin-top:16px}"+
+".ag-padd{padding-top:14px}"+
+"@media (max-width:760px){.ag-prow{grid-template-columns:1fr 1fr 34px}.ag-ptx,.ag-pd,.ag-pflags{grid-column:1/3}.ag-pej{grid-column:3;grid-row:2}.ag-prow .row-del{grid-column:3;grid-row:1}}"+
 ".pp-ej{font-size:12px;color:var(--c-mut)}"+
 ".pp-tramo{display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap}"+
 ".pp-tramo input{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:7px 9px;color:var(--c-ink);font:inherit;font-size:13px}"+
