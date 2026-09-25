@@ -302,6 +302,7 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .esc-chip.ad{background:#FCEFE3; color:#5A2A12; border-color:#EBC9AE; font-weight:600}
 .esc-chip button{border:0; background:none; cursor:pointer; color:#A3471F; font-size:14px; line-height:1; padding:0 5px}
 .esc-per-l select{width:auto; font-size:12px; padding:3px 6px}
+.esc-ptxt{flex:1 1 220px; min-width:180px; font-size:12.5px; padding:4px 8px}
 .esc-inf{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px}
 .esc-inf .ag-chk{display:flex; gap:7px; align-items:center; font-size:13px; margin:3px 0; text-transform:none; letter-spacing:0}
 .esc-inf input[type=checkbox]{width:auto!important}
@@ -9224,7 +9225,8 @@ function escHtmlAdaptados(){
         (r.dudosa.length?' <em>revisar: '+esc(r.dudosa.join(", "))+'</em>':'')+
         (r.manual?' <button type="button" class="imp-back" data-esc-pauto="'+esc(r.key)+'">↺ volver a automático</button>':'')+'</div>'+
         '<div class="esc-per-l">'+(r.items.length?r.items.map(function(x){ return '<span class="esc-chip'+(x.ad?" ad":"")+'">'+esc(x.t)+'<button type="button" data-esc-pq="'+esc(r.key)+'" data-id="'+esc(x.id)+'" aria-label="Quitar '+esc(x.t)+' a '+esc(g.name)+'">×</button></span>'; }).join('<i>·</i>'):'<span class="esc-hint">Sin aperitivos</span>')+
-        '<select data-esc-padd="'+esc(r.key)+'" aria-label="Añadir aperitivo a '+esc(g.name)+'"><option value="">+ añadir…</option>'+opts+'<option value="t:">Otro (escribir)…</option></select></div></div>'; }).join("")
+        '<select data-esc-padd="'+esc(r.key)+'" aria-label="Añadir aperitivo a '+esc(g.name)+'"><option value="">+ añadir de la lista…</option>'+opts+'</select>'+
+        '<input type="text" class="esc-ptxt" data-esc-ptxt="'+esc(r.key)+'" placeholder="o escribe un aperitivo adaptado y pulsa Intro" aria-label="Escribir un aperitivo adaptado para '+esc(g.name)+'"></div></div>'; }).join("")
     :'<p class="esc-hint">Nadie con alergia o dieta en el plano: todos toman todos los aperitivos.</p>';
   return {sust:dAd, pers:dPer, AP:AP};
 }
@@ -9338,7 +9340,7 @@ function wireEscaleta(){
   body.addEventListener("change",function(ev2){
     if(mnuView!=="esc"&&mnuView!=="aler") return;
     var t=ev2.target, e=ev(); if(!e) return; var cfg=escCfg();
-    if(mnuView==="aler"&&!t.hasAttribute("data-esc-sust")&&!t.hasAttribute("data-esc-padd")) return;
+    if(mnuView==="aler"&&!t.hasAttribute("data-esc-sust")&&!t.hasAttribute("data-esc-padd")&&!t.hasAttribute("data-esc-ptxt")) return;
     if(t.hasAttribute("data-esc-f")){ e.ficha=e.ficha||{}; e.ficha[t.getAttribute("data-esc-f")]=t.value.trim(); }
     else if(t.hasAttribute("data-esc")){ var k=t.getAttribute("data-esc"); if(t.type==="checkbox") cfg[k]=t.checked; else cfg[k]=k==="staffMenu"||k==="infantilExtra"||k==="ressopo"||k==="notas"?t.value:t.value.trim(); if(k==="staffMenu") delete cfg.staff; }
     else if(t.hasAttribute("data-esc-pos")){ var pu=t.getAttribute("data-esc-pos"), pn=parseInt(t.value,10);
@@ -9348,6 +9350,9 @@ function wireEscaleta(){
     else if(t.hasAttribute("data-esc-sust")){ cfg.aaSust=cfg.aaSust||{}; cfg.aaSust[t.getAttribute("data-esc-sust")]=t.value; }
     else if(t.hasAttribute("data-esc-inf")){ var INF=escInfantil(cfg), cur=INF.elegidos.map(function(d){ return d._uid; }), u=t.getAttribute("data-esc-inf");
       if(t.checked){ if(cur.indexOf(u)<0) cur.push(u); } else cur=cur.filter(function(x){ return x!==u; }); cfg.infantil=cur; }
+    else if(t.hasAttribute("data-esc-ptxt")){ var tx=t.value.trim(); if(!tx) return; var kp=t.getAttribute("data-esc-ptxt");
+      var lp=escFijarPersona(kp); if(lp.indexOf("t:"+tx)<0) lp.push("t:"+tx); touchSave(); escRefrescar();
+      var np=$("mnu-body").querySelector('[data-esc-ptxt="'+kp.replace(/"/g,'\\"')+'"]'); if(np) np.focus(); return; }
     else if(t.hasAttribute("data-esc-padd")&&t.value){ var key=t.getAttribute("data-esc-padd"), v=t.value;
       if(v==="t:"){ var txt=window.prompt("Aperitivo para esta persona:",""); if(!txt||!txt.trim()){ t.value=""; return; } v="t:"+txt.trim(); }
       var l=escFijarPersona(key); if(l.indexOf(v)<0) l.push(v); }
