@@ -8840,8 +8840,9 @@ function escModelo(){
     md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
   /* bebidas */
-  var bl=BEBIDA_CATS.filter(function(cat){ return bebidaMarca(cat.key); });
-  if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(cat){ var r=calcBebida(cat), m=bebidaMarca(cat.key);
+  /* el agua va siempre (es automática, no se elige marca); el resto, si tiene marca elegida */
+  var bl=BEBIDA_CATS.filter(function(cat){ return bebidaMarca(cat.key)||cat.auto; });
+  if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(cat){ var r=calcBebida(cat), m=bebidaMarca(cat.key)||cat.label;
     return {txt:m, sub:escNorm(m)===escNorm(cat.label)?"":cat.label, q:r.botellas?r.botellas+" bot.":""}; })});
   /* al final */
   var ex=[]; if(cfg.bombones) ex.push({txt:"Cajita de bombones personalizados"}); if(cfg.cafes!==false) ex.push({txt:"Cafés y licores"});
