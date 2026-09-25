@@ -291,8 +291,18 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .mnu-esc .esc-horario span{min-height:12px}
 .mnu-esc .esc-cols{columns:2 250px; column-gap:26px}
 .mnu-esc .esc-t{width:100%; max-width:100%; min-width:0; table-layout:fixed; font-size:13px}
-.mnu-esc .esc-t td:first-child{overflow-wrap:anywhere}
-.mnu-esc .esc-t col.esc-qcol{width:64px}
+.mnu-esc .esc-t td:last-child{overflow-wrap:anywhere}
+.mnu-esc .esc-t col.esc-qcol{width:62px}
+.mnu-esc .esc-t td.esc-q{text-align:right; padding-right:12px; font-size:15px}
+.mnu-esc tr.esc-sust td{background:#FCEFE3; color:#A3471F; font-weight:700}
+.mnu-esc tr.esc-sust td:last-child{border-left:3px solid #A3471F}
+.mnu-esc tr.esc-sust td .mnu-base{color:#5A2A12; font-weight:500}
+.mnu-esc .esc-ley{display:flex; align-items:center; gap:7px; font-size:11.5px; color:#A3471F; margin:2px 0 4px}
+.mnu-esc .esc-ley i{width:11px; height:11px; border-radius:2px; background:#FCEFE3; border:1px solid #A3471F}
+.mnu-esc .esc-hq{float:right; letter-spacing:.04em; text-transform:none; font-weight:600}
+.mnu-esc tr.esc-al td{display:table-cell}
+.mnu-esc .esc-alt{display:inline}
+.mnu-esc .esc-alm{float:right; text-align:right; margin-left:10px}
 .mnu-esc .esc-t td{padding:4px 2px; vertical-align:top; border-bottom:1px solid #EFE7D6}
 .mnu-esc .esc-sec h3{font-family:"Cormorant Garamond",serif; font-size:19px; font-weight:600; border-bottom:1px solid #CBB889; padding-bottom:3px}
 .mnu-esc .esc-sec{break-inside:avoid-column; margin-bottom:16px}
@@ -4597,89 +4607,125 @@ function descargarHoja(selector,nombreArchivo,paperSize){
     toast("No se ha podido descargar el PDF.",true);
   });
 }
-/* ══ la escaleta en PDF, en dos columnas (como la hoja de Excel que se hacía
-   a mano): cabecera con el horario del día y, debajo, los bloques uno tras
-   otro llenando la columna izquierda y luego la derecha. Letra compacta pero
-   legible; cantidades en negrita a la derecha; nombres y detalles debajo. ══ */
-function escaletaPages(md,pw,ph){
-  var M=32, W=pw-2*M, G=20, CW=(W-G)/2, pages=[], cur=[], top=0, col=0, y=0;
-  var GP="#6E7D50", SUBC="#4A463F", RULE="#E8DEC8";
+/* ══ la escaleta en PDF: UNA hoja, en dos columnas, pensada para cocina.
+   Cada fila empieza por la CANTIDAD (grande, en negrita) y después el plato,
+   como una comanda. Los platos sustitutivos van justo debajo del plato al que
+   sustituyen, en una franja de color con «Para: Nombre (Mesa X)», para que se
+   vean de un vistazo. Si no cabe en una hoja, se reduce la letra poco a poco
+   (hasta un mínimo legible) antes de pasar a una segunda. ══ */
+var ESC_SUST="#A3471F", ESC_SUSTBG="#FCEFE3";
+function escaletaPages(md,pw,ph,s){
+  s=s||1;
+  var M=30, W=pw-2*M, G=18*s, CW=(W-G)/2, pages=[], cur=[], top=0, col=0, y=0;
+  var GP="#6E7D50", SUBC="#3F3B35", RULE="#E8DEC8";
+  var F={t:8.8*s, q:10.6*s, sub:7.5*s, h:12*s, head:7.2*s, lh:10.6*s, lsub:9*s};
   function pie(){
-    cur.push(LN(M,ph-M+4,pw-M,ph-M+4,"#E4D9C0",0.6));
-    cur.push(TX(pw/2,ph-M+16,"Les Moles Events  ·  Escaleta  ·  "+md.titulo,{size:6.8,fo:"sans",a:"middle",c:SOFT,ls:1.2}));
+    cur.push(LN(M,ph-M+2,pw-M,ph-M+2,"#E4D9C0",0.6));
+    cur.push(TX(pw/2,ph-M+13,"Les Moles Events  ·  Escaleta  ·  "+md.titulo,{size:6.5,fo:"sans",a:"middle",c:SOFT,ls:1.2}));
   }
   function cabecera(primera){
-    var yy=M+10;
+    var yy=M+8;
     if(!primera){
       cur.push(TX(M,yy,"ESCALETA",{size:7,fo:"sans",a:"start",c:GP,ls:2.2}));
       cur.push(TX(pw-M,yy,md.titulo,{size:9,fo:"ser",a:"end",c:INK}));
-      yy+=8; cur.push(LN(M,yy,pw-M,yy,"#CBB889",0.8)); return yy+14;
+      yy+=7; cur.push(LN(M,yy,pw-M,yy,"#CBB889",0.8)); return yy+12;
     }
-    cur.push(TX(pw/2,yy,"ESCALETA",{size:8,fo:"sans",a:"middle",c:GP,ls:2.6})); yy+=22;
-    partir(md.titulo,W,"ser",20,0).forEach(function(ln){ cur.push(TX(pw/2,yy,ln,{size:20,fo:"ser",a:"middle",c:INK})); yy+=23; });
-    yy-=9; cur.push(LN(pw/2-60,yy,pw/2+60,yy,"#CBB889",0.9)); yy+=13;
-    if(md.fecha){ cur.push(TX(pw/2,yy,md.fecha.toUpperCase(),{size:7.8,fo:"sans",a:"middle",c:SOFT,ls:1.4})); yy+=12; }
+    cur.push(TX(pw/2,yy,"ESCALETA",{size:7.5,fo:"sans",a:"middle",c:GP,ls:2.6})); yy+=19*s;
+    partir(md.titulo,W,"ser",18*s,0).forEach(function(ln){ cur.push(TX(pw/2,yy,ln,{size:18*s,fo:"ser",a:"middle",c:INK})); yy+=21*s; });
+    yy-=8*s;
+    if(md.fecha){ cur.push(TX(pw/2,yy+4,md.fecha.toUpperCase(),{size:7.4,fo:"sans",a:"middle",c:SOFT,ls:1.4})); yy+=14; }
     if(md.horas.length){
-      /* banda con el horario: una casilla por momento del día */
-      var n=md.horas.length, cw=W/n, bh=34; yy+=4;
+      var n=md.horas.length, cw=W/n, bh=30*s+4; yy+=2;
       cur.push(R(M,yy,W,bh,5,"#FBF8F2","#E4D9C0",0.8));
       md.horas.forEach(function(x,i){
         var cx=M+cw*i+cw/2;
-        if(i) cur.push(LN(M+cw*i,yy+6,M+cw*i,yy+bh-6,"#E4D9C0",0.7));
-        cur.push(TX(cx,yy+12,clipW(x.l.toUpperCase(),cw-10,"sans",6.6,1),{size:6.6,fo:"sans",a:"middle",c:GP,ls:1}));
-        cur.push(TX(cx,yy+27,x.v,{size:12.5,fo:"sansb",a:"middle",c:INK}));
+        if(i) cur.push(LN(M+cw*i,yy+5,M+cw*i,yy+bh-5,"#E4D9C0",0.7));
+        cur.push(TX(cx,yy+10*s+1,clipW(x.l.toUpperCase(),cw-10,"sans",6.4,1),{size:6.4,fo:"sans",a:"middle",c:GP,ls:1}));
+        cur.push(TX(cx,yy+24*s+2,x.v,{size:12*s,fo:"sansb",a:"middle",c:INK}));
       });
-      yy+=bh+14;
-    } else yy+=8;
+      yy+=bh+11*s;
+    } else yy+=6;
     return yy;
   }
   function pagina(){ pie(); pages.push(cur); cur=[]; top=cabecera(false); col=0; y=top; }
-  function cabe(h){ return y+h<=ph-M-6; }
-  function sitio(h){ if(cabe(h)) return false; if(col===0){ col=1; y=top; } else pagina(); return true; }
+  function sitio(h){ if(y+h<=ph-M-6) return false; if(col===0){ col=1; y=top; } else pagina(); return true; }
   function X(){ return M+col*(CW+G); }
-  /* medir una fila antes de pintarla (para no partirla entre columnas) */
-  function mide(f){
-    if(f.head) return {h:15};
-    if(f.nota){ var ln=partir(f.txt,CW,"sans",8.4,0); return {h:ln.length*10.5+6,ln:ln}; }
-    if(f.alerg&&f.sub){ var tw=textW({s:f.txt,fo:"sans",size:8.8,ls:0}), mw=textW({s:f.sub,fo:"sansb",size:8.2,ls:0});
-      if(tw+mw+14<=CW) return {h:18,lt:[f.txt],ls:[],qw:0,ind:0,alq:f.sub}; }
-    var q=f.q||"", qw=q?textW({s:q,fo:"sansb",size:9.2,ls:0})+8:0, ind=f.ind?10:0;
-    var lt=partir(f.txt,CW-qw-ind,f.tot?"sansb":"sans",8.8,0);
-    var ls=f.sub?partir(f.sub,CW-ind-(f.alerg?0:qw),"sans",7.4,0):[];
-    return {h:5+lt.length*11+ls.length*9.2+4, lt:lt, ls:ls, qw:qw, ind:ind};
+  /* ancho de la columna de cantidades de un bloque: la cantidad más ancha */
+  function anchoQ(sc){ var w=0; sc.filas.forEach(function(f){ var q=f.head?f.hq:f.q; if(q&&!f.alerg) w=Math.max(w,textW({s:q,fo:"sansb",size:F.q,ls:0})); }); return w?Math.max(20*s,w+8*s):0; }
+  function mide(f,QW){
+    if(f.head) return {h:15*s};
+    if(f.nota){ var ln=partir(f.txt,CW,"sans",F.t,0); return {h:ln.length*F.lh+5*s,ln:ln}; }
+    if(f.alerg){
+      var tw=textW({s:f.txt,fo:"sans",size:F.t,ls:0}), mw=textW({s:f.sub||"",fo:"sansb",size:F.t*0.94,ls:0});
+      if(tw+mw+12<=CW) return {h:F.lh+6*s,lt:[f.txt],ls:[],alq:f.sub};
+      return {h:F.lh+F.lsub+6*s,lt:[f.txt],ls:partir(f.sub,CW,"sansb",F.sub,0)};
+    }
+    var pad=f.sust?6*s:0, tx=QW+pad, lt=partir(f.txt,CW-tx-2,f.tot?"sansb":"sans",F.t,0);
+    var subTxt=f.sust&&f.sub?(f.pend?"Pendiente (Alergias y sustituciones): ":"Para: ")+f.sub:f.sub;
+    var ls=subTxt?partir(subTxt,CW-tx-2,"sans",F.sub,0):[];
+    return {h:5*s+lt.length*F.lh+ls.length*F.lsub+(f.sust?5*s:3*s), lt:lt, ls:ls, tx:tx};
   }
   top=cabecera(true); y=top;
   md.secs.forEach(function(sc){
-    var ms=sc.filas.map(mide), hCab=21;
-    sitio(hCab+(ms[0]?ms[0].h:0));
+    /* el banquete y lo que se sirve en mesa van SIEMPRE en la columna derecha,
+       enteros; lo del aperitivo y los recuentos, en la izquierda */
+    if(sc.col===1&&col===0&&pages.length===0&&!md.__flujo){ col=1; y=top; }
+    var QW=anchoQ(sc), ms=sc.filas.map(function(f){ return mide(f,QW); }), hCab=19*s+(sc.leyenda?10*s:0);
+    sitio(hCab+(ms[0]?ms[0].h:0)+(ms[1]&&sc.filas[0].head?ms[1].h:0));
     var x=X();
-    cur.push(TX(x,y+11,sc.t,{size:12,fo:"ser",a:"start",c:INK}));
-    if(sc.sub) cur.push(TX(x+CW,y+11,sc.sub.toUpperCase(),{size:6.6,fo:"sans",a:"end",c:SOFT,ls:1}));
-    y+=16; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
+    cur.push(TX(x,y+11*s,sc.t,{size:F.h,fo:"ser",a:"start",c:INK}));
+    if(sc.sub) cur.push(TX(x+CW,y+11*s,sc.sub.toUpperCase(),{size:6.4,fo:"sans",a:"end",c:SOFT,ls:1}));
+    y+=15*s; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
+    if(sc.leyenda){
+      cur.push(R(x,y+3*s,7*s,7*s,1,ESC_SUSTBG,ESC_SUST,0.8));
+      cur.push(TX(x+11*s,y+9*s,sc.leyenda,{size:6.8*s,fo:"sans",a:"start",c:ESC_SUST}));
+      y+=11*s;
+    }
     sc.filas.forEach(function(f,i){
       var m=ms[i];
-      if(sitio(m.h+(f.head&&ms[i+1]?ms[i+1].h:0))){ x=X(); cur.push(TX(x,y+8,(sc.t+" (sigue)").toUpperCase(),{size:6.6,fo:"sans",a:"start",c:SOFT,ls:1})); y+=12; }
+      if(sitio(m.h+(f.head&&ms[i+1]?ms[i+1].h:0))){ x=X(); cur.push(TX(x,y+8,(sc.t+" (sigue)").toUpperCase(),{size:6.4,fo:"sans",a:"start",c:SOFT,ls:1})); y+=12; }
       x=X();
-      if(f.head){ cur.push(TX(x,y+11,f.head.toUpperCase(),{size:7,fo:"sansb",a:"start",c:GP,ls:1.4})); y+=15; return; }
-      if(f.nota){ m.ln.forEach(function(l,j){ cur.push(TX(x,y+10+j*10.5,l,{size:8.4,fo:"sans",a:"start",c:INK})); }); y+=m.h; return; }
+      if(f.head){
+        cur.push(TX(x,y+11*s,f.head.toUpperCase(),{size:F.head,fo:"sansb",a:"start",c:GP,ls:1.4}));
+        if(f.hq) cur.push(TX(x+CW,y+11*s,f.hq+(f.hqTxt||""),{size:F.head,fo:"sans",a:"end",c:GP,ls:.6}));
+        y+=15*s; return;
+      }
+      if(f.nota){ m.ln.forEach(function(l,j){ cur.push(TX(x,y+9*s+j*F.lh,l,{size:F.t,fo:"sans",a:"start",c:INK})); }); y+=m.h; return; }
+      if(f.alerg){
+        var ya=y+4*s+F.lh*0.8;
+        cur.push(TX(x,ya,f.txt,{size:F.t,fo:"sans",a:"start",c:INK}));
+        if(m.alq) cur.push(TX(x+CW-3,ya,m.alq,{size:F.t*0.94,fo:"sansb",a:"end",c:INK}));
+        m.ls.forEach(function(l,j){ cur.push(TX(x,ya+F.lsub*(j+1),l,{size:F.sub,fo:"sansb",a:"start",c:INK})); });
+        y+=m.h; cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5)); return;
+      }
+      if(f.sust){
+        cur.push(R(x+QW-2*s,y+1.5*s,CW-QW+2*s,m.h-3*s,2,ESC_SUSTBG,null,0));
+        cur.push(R(x+QW-2*s,y+1.5*s,2.2*s,m.h-3*s,0,ESC_SUST,null,0));
+      }
       if(f.tot) cur.push(LN(x,y+1,x+CW,y+1,INK,0.8));
-      var yy=y+5;
-      m.lt.forEach(function(l,j){ yy+=j?11:8.5; cur.push(TX(x+m.ind,yy,l,{size:8.8,fo:f.tot?"sansb":"sans",a:"start",c:INK})); if(j===0&&f.q) cur.push(TX(x+CW,yy,f.q,{size:9.2,fo:"sansb",a:"end",c:f.ov?"#9C7F44":INK})); if(j===0&&m.alq) cur.push(TX(x+CW,yy,m.alq,{size:8.2,fo:"sansb",a:"end",c:INK})); });
-      m.ls.forEach(function(l){ yy+=9.2; cur.push(TX(x+m.ind,yy,l,{size:7.4,fo:"sans",a:"start",c:f.alerg?INK:SUBC})); });
-      y+=m.h; cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5));
+      var yy=y+4*s+F.lh*0.8;
+      if(f.q) cur.push(TX(x+QW-7*s,yy,f.q,{size:F.q,fo:"sansb",a:"end",c:f.sust?ESC_SUST:(f.ov?"#9C7F44":INK)}));
+      m.lt.forEach(function(l,j){ cur.push(TX(x+m.tx,yy+j*F.lh,l,{size:F.t,fo:(f.tot||f.sust)?"sansb":"sans",a:"start",c:f.sust?ESC_SUST:INK})); });
+      var ys=yy+(m.lt.length-1)*F.lh;
+      m.ls.forEach(function(l){ ys+=F.lsub; cur.push(TX(x+m.tx,ys,l,{size:F.sub,fo:"sans",a:"start",c:f.sust?"#5A2A12":SUBC})); });
+      y+=m.h; if(!f.sust) cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5));
     });
-    y+=9;
+    y+=8*s;
   });
-  if(md.avisos&&md.avisos.length){ md.avisos.forEach(function(a){ var ln=partir(a,CW,"sans",7.4,0); sitio(ln.length*9+4); ln.forEach(function(l){ y+=9; cur.push(TX(X(),y,l,{size:7.4,fo:"sans",a:"start",c:SOFT})); }); y+=4; }); }
+  if(md.avisos&&md.avisos.length){ md.avisos.forEach(function(a){ var ln=partir(a,CW,"sans",7.2,0); sitio(ln.length*9+4); ln.forEach(function(l){ y+=9; cur.push(TX(X(),y,l,{size:7.2,fo:"sans",a:"start",c:SOFT})); }); y+=4; }); }
   pie(); pages.push(cur);
   return pages;
 }
 function descargarEscaleta(md,nombreArchivo,paperSize){
   if(!md){ toast("No hay ningún evento abierto.",true); return Promise.resolve(); }
-  var P=PAPERS[paperSize||"A4"]||PAPERS.A4;
-  var pages=escaletaPages(md,P.w,P.h).map(function(pr){ return pageOf(pr,P.w,P.h,null); });
+  var P=PAPERS[paperSize||"A4"]||PAPERS.A4, pr=null;
+  /* se busca la letra más grande con la que todo cabe en UNA hoja */
+  for(var s=1;s>=0.66;s-=0.04){ pr=escaletaPages(md,P.w,P.h,s); if(pr.length===1) break; }
+  /* si con columnas fijas no cabe ni con la letra mínima, se deja fluir */
+  if(pr.length>1){ md.__flujo=true; for(var s2=1;s2>=0.66;s2-=0.04){ pr=escaletaPages(md,P.w,P.h,s2); if(pr.length===1) break; } delete md.__flujo; }
+  var pages=pr.map(function(p){ return pageOf(p,P.w,P.h,null); });
   return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
-    toast("Escaleta descargada ("+pages.length+(pages.length===1?" página":" páginas")+").");
+    toast(pages.length===1?"Escaleta descargada (1 hoja).":"Escaleta descargada ("+pages.length+" páginas: hay mucha información; prueba en A3 para tenerla en una).");
   }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
 }
 /* ══ la minuta (menú para los invitados), en PDF propio ══════════════
@@ -8603,11 +8649,19 @@ function escModelo(){
   /* banquete, tiempo a tiempo, con los sustitutos debajo de cada plato */
   var fb=[], nPlato=0;
   ban.forEach(function(ti){ ti.platos.forEach(function(x){
-    fb.push({head:x.tarta?"Tarta":x.sorbete?"Sorbete":ti.k==="postre"?"Postre":(++nPlato)+"º plato"});
+    fb.push({head:x.tarta?"Tarta":x.sorbete?"Sorbete":ti.k==="postre"?"Postre":(++nPlato)+"º plato", hq:String(adTot), hqTxt:" en total"});
     fb.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
-    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.ind=true; fb.push(f); });
+    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.en=x.name; fb.push(f); });
   }); });
-  if(fb.length) md.secs.push({t:"Menú",sub:adTot+" adultos",filas:fb});
+  /* alergias o dietas de adultos a los que todavía no se ha puesto plato
+     sustitutivo: la cocina tiene que verlo antes de nada */
+  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="child"&&g.kind!=="baby"&&g.kind!=="staff"&&!(g.menus&&g.menus.length); });
+  if(fb.length&&sinSust.length){
+    var fp=fila("Con alergia o dieta y sin plato sustitutivo decidido",escNombres(sinSust.map(function(p){ return {nombre:primerNombre(p.g.name),mesa:p.mesa}; })),null);
+    fp.q=String(sinSust.length); fp.sust=true; fp.pend=true; fb.unshift(fp);
+  }
+  var haySust=fb.some(function(f){ return f.sust; });
+  if(fb.length) md.secs.push({t:"Menú",sub:adTot+" adultos",filas:fb,leyenda:haySust?"En color: plato sustitutivo, para quién y en qué mesa":""});
   /* menú staff */
   var todos=[]; ban.forEach(function(ti){ ti.platos.forEach(function(x){ todos.push(x); }); }); md.todos=todos;
   var stP=todos.filter(function(x){ return staffSel.indexOf(x.uid)>-1; });
@@ -8627,6 +8681,8 @@ function escModelo(){
   var ex=[]; if(cfg.bombones) ex.push({txt:"Cajita de bombones personalizados"}); if(cfg.cafes!==false) ex.push({txt:"Cafés y licores"});
   if(ex.length) md.secs.push({t:"Al final",filas:ex});
   if(cfg.notas) md.secs.push({t:"Notas",filas:[{txt:cfg.notas,nota:true}]});
+  var DER={"Menú":1,"Menú staff":1,"Menú infantil":1,"Bebidas":1,"Al final":1,"Notas":1};
+  md.secs.forEach(function(sc){ sc.col=DER[sc.t]?1:0; });
   if(!c.delPlano) md.avisos.push("El plano todavía no tiene invitados: las cantidades salen de los comensales escritos a mano en «Elegir platos».");
   if(!sel.length) md.avisos.push("Todavía no hay platos marcados en «Elegir platos».");
   return md;
@@ -8659,13 +8715,17 @@ function renderEscaleta(){
     (md.horas.length?'<div class="esc-horario">'+md.horas.map(function(x){ return '<div><span>'+esc(x.l)+'</span><b>'+esc(x.v)+'</b></div>'; }).join("")+'</div>':'<p class="esc-aviso">Pon las horas del día arriba (ceremonia, aperitivo, banquete y barra libre).</p>')+
     '<div class="esc-cols">';
   md.secs.forEach(function(sc){
-    h+='<section class="esc-sec"><h3>'+esc(sc.t)+(sc.sub?' <span class="esc-h3sub">'+esc(sc.sub)+'</span>':'')+'</h3><table class="mnu-table esc-t"><colgroup><col><col class="esc-qcol"></colgroup>';
+    var conQ=sc.filas.some(function(f){ return (f.q||f.hq)&&!f.alerg; });
+    h+='<section class="esc-sec"><h3>'+esc(sc.t)+(sc.sub?' <span class="esc-h3sub">'+esc(sc.sub)+'</span>':'')+'</h3>'+
+      (sc.leyenda?'<div class="esc-ley"><i></i>'+esc(sc.leyenda)+'</div>':'')+
+      '<table class="mnu-table esc-t'+(conQ?"":" sinq")+'"><colgroup>'+(conQ?'<col class="esc-qcol">':'')+'<col></colgroup>';
     sc.filas.forEach(function(f){
-      if(f.head){ h+='<tr class="esc-head"><td colspan="2">'+esc(f.head)+'</td></tr>'; return; }
+      if(f.head){ h+='<tr class="esc-head">'+(conQ?'<td class="esc-q"></td>':'')+'<td>'+esc(f.head)+(f.hq?'<span class="esc-hq">'+esc(f.hq)+' en total</span>':'')+'</td></tr>'; return; }
       if(f.nota){ h+='<tr><td colspan="2" class="esc-nota">'+esc(f.txt)+'</td></tr>'; return; }
+      if(f.alerg){ h+='<tr class="esc-al">'+(conQ?'<td></td>':'')+'<td><span class="esc-alt">'+esc(f.txt)+'</span><b class="esc-alm">'+esc(f.sub)+'</b></td></tr>'; return; }
       var qtd=f.k?'<td class="esc-q'+(f.ov?" ov":"")+'" data-esc-k="'+esc(f.k)+'" data-esc-calc="'+esc(f.calc)+'" tabindex="0" role="button" aria-label="'+esc(f.txt)+': '+esc(f.q)+'. Pulsa para corregir" title="'+(f.ov?"Corregido a mano (calculado: "+esc(f.calc)+")":"Pulsa para corregir la cantidad")+'">'+esc(f.q)+'</td>'
                  :'<td class="esc-q">'+esc(f.q||"")+'</td>';
-      h+='<tr class="'+(f.tot?"tot":"")+(f.ind?" esc-sub":"")+(f.alerg?" esc-al":"")+'"><td>'+esc(f.txt)+(f.sub?'<span class="mnu-base">'+esc(f.sub)+'</span>':'')+'</td>'+qtd+'</tr>';
+      h+='<tr class="'+(f.tot?"tot":"")+(f.sust?" esc-sust":"")+'">'+(conQ?qtd:'')+'<td>'+esc(f.txt)+(f.sub?'<span class="mnu-base">'+(f.pend?"Pendiente (Alergias y sustituciones): ":f.sust?"Para: ":"")+esc(f.sub)+'</span>':'')+'</td></tr>';
     });
     h+='</table></section>';
   });
