@@ -2781,7 +2781,7 @@ function serialize(d){
   return out.join("\n").replace(/^\n+/,"")+"\n";
 }
 function totals(d){
-  var t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0,tables:d.tables.length};
+  var t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0,preg:0,espec:0,tables:d.tables.length};
   d.tables.forEach(function(m){m.guests.forEach(function(g){
     t.pax++;
     /* el staff cuenta como adulto para todo lo general (agua, servicio, plano),
@@ -2793,6 +2793,10 @@ function totals(d){
     if(g.kind==="veg")t.veg++;
     if(g.kind==="vegan")t.vegan++;
     if(g.aler.length)t.aler++;
+    if(g.preg)t.preg++;
+    /* los que necesitan que se decida qué se les sirve: los mismos que salen
+       en «Alergias y sustituciones» y en la escaleta */
+    if(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)t.espec++;
   });});
   return t;
 }
@@ -4121,8 +4125,12 @@ function guestRow(g,L){
    aperitivo asignado no aporta nada en un papel para el pase. */
 function aperitivosAdaptadosLista(){
   var e=current(), mapa=(e&&e.menu&&e.menu.aperitivosPorAlergia)||{};
-  if(e&&e.menu&&Array.isArray(e.menu.aperAdapt)) return e.menu.aperAdapt.filter(function(c){ return c.plato&&c.gente.length; })
-    .map(function(c){ return {alergia:clip(c.plato,34),texto:c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", ")}; });
+  if(e&&e.menu&&Array.isArray(e.menu.aperAdapt)){
+    /* niños, bebés y staff no toman el aperitivo: no salen (igual que en la escaleta) */
+    var no={}; doc.tables.forEach(function(t){ t.guests.forEach(function(g){ if(g.kind==="child"||g.kind==="baby"||g.kind==="staff") no[t.num+"|"+g.name]=1; }); });
+    return e.menu.aperAdapt.map(function(c){ return {plato:c.plato,gente:c.gente.filter(function(x){ return !no[x.k]; })}; }).filter(function(c){ return c.plato&&c.gente.length; })
+      .map(function(c){ return {alergia:clip(c.plato,34),texto:c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", ")}; });
+  }
   var vistas={}, out=[];
   doc.tables.forEach(function(t){ t.guests.forEach(function(g){
     (g.aler||[]).forEach(function(a){
@@ -5331,7 +5339,7 @@ function renderStats(){
   if(T.child)it.push([T.child,"niños"]);
   if(T.baby)it.push([T.baby,"tronas"]);
   $("stats").innerHTML=it.map(function(x){return '<div class="stat"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>';}).join("")+
-    (T.aler?'<div class="stat alert"><b>'+T.aler+'</b><span>alergias</span></div>':'');
+    (T.espec?'<div class="stat alert"><b>'+T.espec+'</b><span>alergias y dietas</span></div>':'');
 }
 function renderView(){
   var L=I18N[$("lang").value]||I18N.ca, isPlan=view==="plan";
@@ -6774,7 +6782,7 @@ function imprimirResumen(e){
   var adultos=t.adults-(t.staff||0);
   var cif=[["Invitados",t.pax],["Adultos",adultos],["Niños",t.child]];
   if(t.baby)cif.push(["Bebés",t.baby]); if(t.staff)cif.push(["Staff",t.staff]);
-  cif.push(["Mesas aperitivo",mesasAperitivo(e)]); cif.push(["Mesas banquete",d.tables.length]); if(t.aler)cif.push(["Alergias",t.aler]);
+  cif.push(["Mesas aperitivo",mesasAperitivo(e)]); cif.push(["Mesas banquete",d.tables.length]); if(t.espec)cif.push(["Alergias y dietas",t.espec]);
   var cifHTML=cif.map(function(c){return '<div class="cf"><b>'+c[1]+'</b><span>'+escH(c[0])+'</span></div>';}).join("");
   var datos=[];
   if(F.tipo)datos.push(["Tipo",F.tipo]);
@@ -6854,7 +6862,7 @@ function renderResumen(){
   function badge(done,prog2){ return done?'<span class="badge done">Completo</span>':(prog2?'<span class="badge prog">En curso</span>':'<span class="badge todo">Pendiente</span>'); }
   var cards=[
     {k:"plan",    ic:"Plano de mesas", lbl:"Plano de sala", hint:mesas+" mesa"+(mesas===1?"":"s")+" · "+pax+" invitado"+(pax===1?"":"s"), bd:badge(mesas>0)},
-    {k:"list",    ic:"guests",         lbl:"Invitados",     hint:pax>0?(pax+" invitado"+(pax===1?"":"s")+(t.aler?" · "+t.aler+" con alergia":"")):"Sin invitados aún", bd:badge(pax>0)},
+    {k:"list",    ic:"guests",         lbl:"Invitados",     hint:pax>0?(pax+" invitado"+(pax===1?"":"s")+(t.espec?" · "+t.espec+" con alergia o dieta":"")):"Sin invitados aún", bd:badge(pax>0)},
     {k:"m-sel",   ic:"Menú del evento",lbl:"Banquete",      hint:dishes>0?(dishes+" plato"+(dishes===1?"":"s")+" del menú"):"Menú por definir", bd:badge(dishes>0)},
     {k:"m-prod",  ic:"prod",           lbl:"Producción",    hint:dishes>0?(dishes+" plato"+(dishes===1?"":"s")+" a preparar"):"Sin platos aún", bd:dishes>0?'<span class="badge prog">Preparar</span>':'<span class="badge todo">Pendiente</span>'},
     {k:"m-compra",ic:"cart",           lbl:"Compras",       hint:"Lista de la compra", bd:dishes>0?'<span class="badge prog">En curso</span>':'<span class="badge todo">Pendiente</span>'},
@@ -6889,15 +6897,18 @@ function renderResumen(){
 
   // alergias y dietas
   var alerPeople=[];
-  d.tables.forEach(function(tb){ tb.guests.forEach(function(g){ if(g.aler&&g.aler.length) alerPeople.push({nm:g.name, mesa:mesaTxt(tb,I18N.es), what:g.aler.join(" · ")}); }); });
+  d.tables.forEach(function(tb){ tb.guests.forEach(function(g){
+    var w=(g.aler||[]).slice(); if(g.kind==="veg") w.push("vegetariano"); if(g.kind==="vegan") w.push("vegano"); if(g.preg) w.push("embarazada");
+    if(w.length) alerPeople.push({nm:g.name, mesa:mesaTxt(tb,I18N.es), what:w.join(" · ")}); }); });
   var alerHTML;
-  if(!t.aler && !t.veg && !t.vegan && !t.baby){
+  if(!t.espec && !t.baby){
     alerHTML='<p class="aler-sum-empty">Sin alergias ni dietas especiales anotadas todavía. Se detectan solas al escribir los invitados.</p>';
   }else{
     var pills='<div class="stats" style="margin-bottom:14px">'+
       (t.aler?'<span class="stat alert"><b>'+t.aler+'</b><span>Alergias</span></span>':"")+
       (t.veg?'<span class="stat"><b>'+t.veg+'</b><span>Vegetarianos</span></span>':"")+
       (t.vegan?'<span class="stat"><b>'+t.vegan+'</b><span>Veganos</span></span>':"")+
+      (t.preg?'<span class="stat"><b>'+t.preg+'</b><span>Embarazadas</span></span>':"")+
       (t.baby?'<span class="stat"><b>'+t.baby+'</b><span>Bebés</span></span>':"")+'</div>';
     var list=alerPeople.slice(0,7).map(function(p){
       return '<span class="ap"><b>'+escH(p.nm)+'</b><span class="apm">'+escH(p.mesa)+' · '+escH(p.what)+'</span></span>';
@@ -7029,7 +7040,7 @@ function getPath(o,path){ var ks=path.split("."); for(var i=0;i<ks.length;i++){ 
 function planSave(){ var e=current(); if(e){ e.updated=Date.now(); if(typeof save==="function") save(); } }
 function planCounts(e){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0}; d={tables:[]}; }
-  return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,staff:(t.staff||0),mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.aler+t.veg+t.vegan};
+  return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,staff:(t.staff||0),mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.espec||0};
 }
 /* menús staff del evento: los de la mesa de staff del plano y «Menús staff» de
    la ficha son la MISMA gente contada dos veces, no se suman: manda el mayor
@@ -7038,7 +7049,9 @@ function planCounts(e){
 function staffMenus(e,c){ c=c||planCounts(e); return Math.max(c.staff||0, Math.max(0,+(e.ficha&&e.ficha.staff)||0)); }
 /* mesas de aperitivo: la misma cuenta que el Menú (adultos entre las personas
    por mesa de aperitivo de ese evento) — van ANTES que las de banquete */
-function mesasAperitivo(e,c){ c=c||planCounts(e); var pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7); return c.adultos>0?Math.ceil(c.adultos/pma):0; }
+/* las mesas de aperitivo son para los menús adultos (los mismos que comen el
+   aperitivo en la escaleta): el staff no está en el aperitivo */
+function mesasAperitivo(e,c){ c=c||planCounts(e); var pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7), ad=Math.max(0,c.adultos-(c.staff||0)); return ad>0?Math.ceil(ad/pma):0; }
 function presupTotals(e){
   var P=e.presupuesto||{}, c=planCounts(e);
   /* el staff sentado en la mesa de staff se cobra a precio staff, no de adulto:
@@ -7781,7 +7794,8 @@ function evTotals(){
     adultos:adultos, ninos:ninos, tronas:tronas, total:total,
     staff: delPlano?(pt.staff||0):0,
     conCubierto: total-tronas,
-    mesasAper: adultos>0?Math.ceil(adultos/pma):0,
+    /* como mesasAperitivo(): sobre los menús adultos, sin el staff */
+    mesasAper: (adultos-(delPlano?(pt.staff||0):0))>0?Math.ceil((adultos-(delPlano?(pt.staff||0):0))/pma):0,
     mesasBanq: mesasBanq, delPlano:delPlano, mesas:mesas, camareros:camareros
   };
 }
@@ -8032,7 +8046,7 @@ function wirePrintBtn(){
 function docHead(title,t){
   var e=ev();
   return '<header class="doc-head"><div class="eyebrow">Les Moles Events'+(e&&e.name?(" · "+esc(e.name)):"")+'</div><h2>'+esc(title)+'</h2>'+
-    '<div class="orn"></div><div class="doc-meta">'+t.total+' comensales</div></header>';
+    '<div class="orn"></div><div class="doc-meta">'+(t.esc?(t.esc.ad+' menús adultos'+(t.esc.ninos?' · '+t.esc.ninos+' infantiles':'')+(t.esc.staff?' · staff aparte ('+t.esc.staff+')':'')):(t.total+' comensales'))+'</div></header>';
 }
 function emptyPrep(){
   return window.LM_empty({ic:"Menú del evento",t:"Todavía no hay platos marcados",d:"Esta hoja se hace sola en cuanto elijas los platos del menú del evento.",btn:"Elegir platos",k:"m-sel"});
@@ -8043,24 +8057,45 @@ function emptyPrep(){
    cifras distintas del mismo jamón. El resto de platos van por comensal. Misma
    forma de reconocerlo que jamonDelMenu: el «servicio» del plato o su nombre. */
 function esDishJamon(d){ return /jam[oó]n/i.test(d.servicio||"") || /^\s*jam[oó]n/i.test(d.name||""); }
-function racionesDe(d,t){ return esDishJamon(d)?t.adultos:t.total; }
+/* Producción y Compra cuentan lo mismo que la escaleta: los platos de los
+   invitados, por los menús ADULTOS (el staff lleva su propio menú y los bebés
+   en trona no comen); los de «Niños», por los niños; y de cada plato del
+   banquete se descuentan los que llevan un plato sustitutivo. */
+function prodCtx(){
+  var cfg=escCfg(), c=escCuentas(), ban=escBanquete(c,cfg), fuera={}, subs=[];
+  ban.forEach(function(ti){ ti.platos.forEach(function(x){ fuera[x.uid]=x.fuera;
+    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; subs.push({txt:sb.txt,de:x.name,n:sb.gente.length,para:escNombres(sb.gente)}); }); }); });
+  /* los aperitivos adaptados, además de los normales (igual que en la escaleta) */
+  var aa={}, aaO=[];
+  escAperitivos(c,cfg).pers.forEach(function(r){ r.items.forEach(function(x){ if(!x.ad) return;
+    if(!aa[x.t]){ aa[x.t]={txt:x.t,gente:[]}; aaO.push(x.t); } aa[x.t].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
+  aaO.forEach(function(k){ subs.unshift({txt:aa[k].txt,de:"aperitivo adaptado",n:aa[k].gente.length,para:escNombres(aa[k].gente),aper:true}); });
+  return {ad:c.adultos, ninos:c.ninos, staff:c.staff, fuera:fuera, subs:subs};
+}
+function racionesDe(d,t){
+  var x=t&&t.esc; if(!x) return esDishJamon(d)?t.adultos:t.total;
+  if(d._famKey==="NIÑOS") return x.ninos;
+  if(x.fuera[d._uid]!=null) return Math.max(0,x.ad-x.fuera[d._uid]);
+  return x.ad;
+}
 /* ══ Producción: por plato, con ingredientes escalados a comensales ══ */
 function prodDishBlock(d,t){
-  var rac=racionesDe(d,t), soloAdultos=esDishJamon(d);
+  var rac=racionesDe(d,t), fu=t.esc&&t.esc.fuera[d._uid]||0;
   var rows=d.ingredients.map(function(ing){
     var val=ing.qty==null?'<span title="Cantidad pendiente en el Excel">pendiente</span>':fmtAmount(ing.qty*rac,ing.unit);
     return '<tr><td>'+esc(ing.name)+'</td><td class="q">'+val+'</td></tr>';
   }).join("");
   var steps=d.steps.length?('<div class="mnu-prep-steps">'+d.steps.map(esc).join(" · ")+'</div>'):"";
   return '<div class="mnu-prep-dish">'+
-    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+' raciones'+(soloAdultos?' (adultos)':'')+'</span></div>'+
+    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+' raciones'+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
+    (fu?'<div class="mnu-prep-steps">'+fu+(fu===1?' lleva':' llevan')+' plato sustitutivo (ver al final)</div>':'')+
     (rows?('<table class="mnu-ing-table sm"><tbody>'+rows+'</tbody></table>'):"")+
     steps+'</div>';
 }
 function renderProduccion(){
   var sel=selectedDishes();
   if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
-  var t=evTotals();
+  var t=evTotals(); t.esc=prodCtx();
   var html=printBar("producción")+'<div class="sheet"><div class="frame">'+docHead("Producción",t);
   MENU_DATA.forEach(function(f){
     var ds=sel.filter(function(d){return d._famKey===f.key;});
@@ -8079,6 +8114,11 @@ function renderProduccion(){
       }
     }
   });
+  if(t.esc.subs.length){
+    html+='<h3 class="mnu-sheet-fam">Aperitivos adaptados y platos sustitutivos</h3>';
+    t.esc.subs.forEach(function(x){ html+='<div class="mnu-prep-dish"><div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(x.txt)+'</b><span class="rac">'+x.n+' raciones</span></div>'+
+      '<div class="mnu-prep-steps">'+(x.aper?'Aperitivo adaptado':'En lugar de: '+esc(x.de))+' · Para: '+esc(x.para)+'</div></div>'; });
+  }
   html+='<div class="foot">Les Moles Events</div></div></div>';
   $("mnu-body").innerHTML=html;
   wirePrintBtn();
@@ -8088,10 +8128,10 @@ function renderProduccion(){
 function renderCompra(){
   var sel=selectedDishes();
   if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
-  var t=evTotals();
+  var t=evTotals(); t.esc=prodCtx();
   var agg={}, pend=0;
   sel.forEach(function(d){
-    var rac=racionesDe(d,t);   /* el jamón, solo por adultos; el resto por comensal */
+    var rac=racionesDe(d,t);   /* lo mismo que en Producción y en la escaleta */
     d.ingredients.forEach(function(ing){
       if(ing.qty==null){ pend++; return; }
       if(!agg[ing.name]) agg[ing.name]={total:0,unit:ing.unit};
@@ -8395,7 +8435,7 @@ function descargarAlergias(btn){
       return '<tr><td>'+esc(g.nombre)+' <span class="mnu-base">'+esc(mot.join(" · "))+'</span></td><td>'+esc(pl||"POR DECIDIR")+'</td></tr>';
     }).join("")+'</table>';
   });
-  var aas=aaLista(lista,false).filter(function(c){ return c.plato&&c.gente.length; });
+  var aas=aaValidas(lista);
   if(aas.length){
     html+='<h2>Aperitivos adaptados</h2><table>'+aas.map(function(c){
       return '<tr><td>'+esc(c.plato)+' <span class="mnu-base">'+esc(c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", "))+'</span></td><td>'+c.gente.length+'</td></tr>'; }).join("")+'</table>';
@@ -8498,6 +8538,15 @@ function wirePlatos(){
    que se toca algo. Se imprimen tarjetas: arriba el aperitivo, debajo los
    nombres, para dejarlas junto a la bandeja. */
 function aaKey(g){ return g.mesa+"|"+g.nombre; }
+/* el aperitivo es de los menús adultos: niños, bebés y staff no lo toman
+   (igual que en la escaleta), así que no entran en los aperitivos adaptados */
+function aaComeAper(g){ return g.kind!=="child"&&g.kind!=="baby"&&g.kind!=="staff"; }
+/* las tarjetas con solo la gente que cuenta (sin tocar lo guardado) */
+function aaValidas(lista){
+  var no={}; (lista||[]).forEach(function(g){ if(!aaComeAper(g)) no[aaKey(g)]=1; });
+  return aaLista(lista,false).map(function(c){ return {id:c.id,plato:c.plato,gente:c.gente.filter(function(x){ return !no[x.k]; })}; })
+    .filter(function(c){ return c.plato&&c.gente.length; });
+}
 function aaMotivos(g){ var m=(g.aler||[]).slice(); if(g.kind==="veg") m.push("vegetariano"); if(g.kind==="vegan") m.push("vegano"); if(g.preg) m.push("embarazada"); return m; }
 function aaLista(lista,crear){
   var m=menu(); if(!m) return [];
@@ -8526,6 +8575,7 @@ function aaGuardar(lista,fn){ var l=aaLista(lista,true); fn(l); touchSave(); ren
 function renderAperitivosAdaptados(lista){
   var cards=aaLista(lista,false), porK={}, porPers=aaPorPersona(), HA=escHtmlAdaptados();
   lista.forEach(function(g){ porK[aaKey(g)]=g; });
+  lista=lista.filter(aaComeAper);
   var asignados={}; cards.forEach(function(c){ c.gente.forEach(function(x){ asignados[x.k]=(asignados[x.k]||0)+1; }); });
   var sin=lista.filter(function(g){ return !asignados[aaKey(g)]; });
   /* sugerencias: los aperitivos del catálogo (los marcados primero) */
@@ -8552,7 +8602,8 @@ function renderAperitivosAdaptados(lista){
         '<div class="aa-top"><input type="text" class="aa-plato" data-id="'+esc(c.id)+'" list="aa-platos" value="'+esc(c.plato||"")+'" placeholder="Aperitivo adaptado (p. ej. Croquetas de setas)" aria-label="Aperitivo adaptado">'+
         '<button type="button" class="btn ico aa-del" data-id="'+esc(c.id)+'" aria-label="Quitar este aperitivo adaptado" title="Quitar este aperitivo">×</button></div>'+
         '<div class="aa-gente">'+c.gente.map(function(x){ var g=porK[x.k];
-          return '<span class="aa-chip'+(g?"":" fuera")+'" title="'+(g?esc(aaMotivos(g).join(", ")):"Ya no está en el plano")+'">'+esc(x.n)+' <small>'+esc(x.m)+(g?"":" · ya no está en el plano")+'</small>'+
+          var nota=!g?"ya no está en el plano":!aaComeAper(g)?(g.kind==="staff"?"staff: no toma aperitivo, no se cuenta":"niño: no toma aperitivo, no se cuenta"):"";
+          return '<span class="aa-chip'+(nota?" fuera":"")+'" title="'+(nota?esc(nota):esc(aaMotivos(g).join(", ")))+'">'+esc(x.n)+' <small>'+esc(x.m)+(nota?" · "+esc(nota):"")+'</small>'+
             '<button type="button" class="aa-rm" data-id="'+esc(c.id)+'" data-k="'+esc(x.k)+'" aria-label="Quitar a '+esc(x.n)+'">×</button></span>'; }).join("")+
           selAdd(c)+'</div></div>';
     }).join("")+'</div>'+
@@ -8575,7 +8626,7 @@ function wireAperitivosAdaptados(){
     else if(t.classList.contains("aa-add")&&t.value){ var id2=t.getAttribute("data-id"), val=t.value;
       aaGuardar(lista,function(l){ var c=l.filter(function(x){ return x.id===id2; })[0]; if(!c) return;
         var nuevos=val.indexOf("p:")===0?lista.filter(function(g){ return aaKey(g)===val.slice(2); })
-          :lista.filter(function(g){ return aaMotivos(g).some(function(a){ return String(a).toLowerCase()===val.slice(2); }); });
+          :lista.filter(aaComeAper).filter(function(g){ return aaMotivos(g).some(function(a){ return String(a).toLowerCase()===val.slice(2); }); });
         nuevos.forEach(function(g){ if(!c.gente.some(function(x){ return x.k===aaKey(g); })) c.gente.push({k:aaKey(g),n:g.nombre,m:g.mesaLbl||("Mesa "+g.mesa)}); }); });
       var s=$("mnu-body").querySelector('.aa-add[data-id="'+id2+'"]'); if(s) s.focus(); }
   });
@@ -8587,7 +8638,7 @@ function wireAperitivosAdaptados(){
       var inp=$("mnu-body").querySelector('.aa-plato[data-id="'+nid+'"]'); if(inp) inp.focus(); return; }
     if(b.id==="aa-pdf-p"){ var ep=ev(), pp=aaPorPersona(), bp=((ep&&ep.name)||"evento").replace(/\s+/g,"_")+"_aperitivos_por_persona";
       b.disabled=true; Promise.resolve(BR.descargarTarjetasPersona&&BR.descargarTarjetasPersona(pp,bp,mnuPaper,ep&&ep.name)).then(function(){ b.disabled=false; }); return; }
-    if(b.id==="aa-pdf"){ var e=ev(), cards=aaLista(lista,false).filter(function(c){ return c.plato&&c.gente.length; });
+    if(b.id==="aa-pdf"){ var e=ev(), cards=aaValidas(lista);
       var base=((e&&e.name)||"evento").replace(/\s+/g,"_")+"_aperitivos_adaptados";
       b.disabled=true; Promise.resolve(BR.descargarTarjetasAper&&BR.descargarTarjetasAper(cards,base,mnuPaper,e&&e.name)).then(function(){ b.disabled=false; }); return; }
     if(b.classList.contains("aa-del")){ var id=b.getAttribute("data-id"), c0=aaLista(lista,false).filter(function(c){ return c.id===id; })[0];
@@ -9030,7 +9081,7 @@ function escAperPersona(p,std,cards,cfg){
 function escRestringido(g){ return !!(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg); }
 function escAperitivos(c,cfg){
   var ae=escAperYEst(cfg), std=ae.aper;
-  var cards=(typeof aaLista==="function"?aaLista(BR.alergias?BR.alergias():[],false):[]).filter(function(x){ return x.plato&&x.gente.length; });
+  var cards=(typeof aaValidas==="function"?aaValidas(BR.alergias?BR.alergias():[]):[]);
   var enCard={}; cards.forEach(function(x){ x.gente.forEach(function(p){ enCard[p.k]=1; }); });
   var gente=c.gente.filter(function(p){ var g=p.g; return g.kind!=="child"&&g.kind!=="baby"&&g.kind!=="staff"; });
   var pers=gente.filter(function(p){ return escRestringido(p.g)||enCard[escKey(p)]||(cfg.aperPers&&cfg.aperPers[escKey(p)]); })
