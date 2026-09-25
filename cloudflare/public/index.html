@@ -317,6 +317,27 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .esc-qin{width:70px; text-align:right; padding:3px 6px; font:inherit}
 .esc-aviso{font-size:12.5px; color:#6C685F; font-style:italic}
 @media print{ .esc-edit{display:none!important} .mnu-esc .esc-t td.ov::after{content:""} }
+/* aperitivos adaptados */
+.aa-list{display:flex; flex-direction:column; gap:10px; margin:10px 0}
+.aa-card{background:var(--panel); border:1px solid var(--c-line); border-left:3px solid #A3471F; border-radius:8px; padding:10px 12px}
+.aa-top{display:flex; gap:8px; align-items:center}
+.aa-plato{flex:1; font-weight:600; font-size:14px}
+.aa-gente{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px}
+.aa-chip{display:inline-flex; align-items:center; gap:5px; background:#FCEFE3; color:#5A2A12; border:1px solid #EBC9AE; border-radius:100px; padding:3px 4px 3px 10px; font-size:13px; font-weight:600}
+.aa-chip small{font-weight:400; color:#7A5A48; font-size:11px}
+.aa-chip.fuera{background:var(--bg-2); color:var(--c-mut); text-decoration:line-through}
+.aa-rm{border:0; background:none; cursor:pointer; font-size:15px; line-height:1; color:#A3471F; padding:0 6px; border-radius:50%}
+.aa-rm:hover{background:#F3D9C6}
+.aa-add{width:auto; max-width:100%; font-size:12.5px; padding:5px 8px}
+.aa-full{font-size:12px; color:var(--c-mut)}
+.aa-foot{display:flex; gap:10px; flex-wrap:wrap}
+.aa-sin{font-size:12.5px; color:#A3471F; margin:10px 0 0}
+.aa-prev{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; margin-top:16px}
+.aa-tarj{background:#FFFDF8; border:1px solid #E4D9C0; border-radius:4px; padding:16px 12px 14px; text-align:center; display:flex; flex-direction:column; gap:3px; color:#1A1A1A; box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.aa-tarj .aa-eb{font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:#9C7F44}
+.aa-tarj b{font-family:"Cormorant Garamond",serif; font-size:19px; font-weight:600; line-height:1.15; margin-top:4px}
+.aa-tarj i{display:block; width:46px; height:1px; background:#CBB889; margin:8px auto}
+.aa-tarj span:not(.aa-eb){font-family:"Cormorant Garamond",serif; font-size:15px}
 .imp-box{max-width:min(1060px,96vw)}
 .imp-body{align-items:stretch!important; max-height:62vh}
 .imp-src.file textarea,.imp-src.file .imp-plbl{display:none}
@@ -4045,6 +4066,8 @@ function guestRow(g,L){
    aperitivo asignado no aporta nada en un papel para el pase. */
 function aperitivosAdaptadosLista(){
   var e=current(), mapa=(e&&e.menu&&e.menu.aperitivosPorAlergia)||{};
+  if(e&&e.menu&&Array.isArray(e.menu.aperAdapt)) return e.menu.aperAdapt.filter(function(c){ return c.plato&&c.gente.length; })
+    .map(function(c){ return {alergia:clip(c.plato,34),texto:c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", ")}; });
   var vistas={}, out=[];
   doc.tables.forEach(function(t){ t.guests.forEach(function(g){
     (g.aler||[]).forEach(function(a){
@@ -4748,6 +4771,44 @@ function descargarEscaleta(md,nombreArchivo,paperSize){
   var pages=pr.map(function(p){ return pageOf(p,P.w,P.h,null); });
   return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
     toast(pages.length===1?"Escaleta descargada (1 hoja).":"Escaleta descargada ("+pages.length+" páginas: hay mucha información; prueba en A3 para tenerla en una).");
+  }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
+}
+/* ══ tarjetas de aperitivos adaptados: una por aperitivo, como un
+   marcasitios grande — arriba el aperitivo, debajo los nombres de quienes
+   lo toman — para dejarla junto a la bandeja. 2 × 3 por hoja A4. ══ */
+function aperCardPages(cards,pw,ph,evento){
+  var M=24, cols=2, rows=3, cw=(pw-2*M)/cols, chh=(ph-2*M)/rows, pages=[], cur=[];
+  cards.forEach(function(c,n){
+    var i=n%(cols*rows); if(i===0&&n>0){ pages.push(cur); cur=[]; }
+    var x=M+(i%cols)*cw, y=M+Math.floor(i/cols)*chh, cx=x+cw/2;
+    cur.push(R(x,y,cw,chh,0,"none","#DCD2BE",0.5));
+    cur.push(R(x+10,y+10,cw-20,chh-20,4,"none","#E9DFC9",0.7));
+    var yy=y+36;
+    cur.push(TX(cx,yy,"APERITIVO ADAPTADO",{size:7.5,fo:"sans",a:"middle",c:GOLD,ls:2.4})); yy+=30;
+    var tam=24, lp=partir(c.plato,cw-44,"ser",tam,0); if(lp.length>2){ tam=18; lp=partir(c.plato,cw-44,"ser",tam,0).slice(0,3); }
+    lp.forEach(function(l){ cur.push(TX(cx,yy,l,{size:tam,fo:"ser",a:"middle",c:INK})); yy+=tam+3; });
+    yy+=2; cur.push(LN(cx-40,yy,cx+40,yy,GOLD,0.9)); yy+=26;
+    /* los nombres: grandes si caben; si son muchos, en dos columnas y más pequeños */
+    var gente=c.gente, libre=y+chh-26-yy, tn=17, lh=22, dosCol=false;
+    if(gente.length*lh>libre){ tn=14; lh=18; if(gente.length*lh>libre){ tn=12; lh=15; dosCol=true; } }
+    var porCol=dosCol?Math.ceil(gente.length/2):gente.length;
+    gente.forEach(function(p,j){
+      var colN=dosCol?Math.floor(j/porCol):0, fila=dosCol?j%porCol:j;
+      var px=dosCol?(colN===0?x+cw*0.28:x+cw*0.72):cx, py=yy+fila*lh;
+      if(py>y+chh-22) return;
+      cur.push(TX(px,py,clipW(p.n,dosCol?cw*0.42:cw-40,"ser",tn,0),{size:tn,fo:"ser",a:"middle",c:INK}));
+    });
+    cur.push(TX(cx,y+chh-18,(evento?clip(evento,40)+"  ·  ":"")+"Les Moles",{size:5.8,fo:"sans",a:"middle",c:FADE,ls:1.4}));
+  });
+  if(cur.length) pages.push(cur);
+  return pages;
+}
+function descargarTarjetasAper(cards,nombreArchivo,paperSize,evento){
+  if(!cards||!cards.length){ toast("No hay ningún aperitivo adaptado con personas.",true); return Promise.resolve(); }
+  var P=PAPERS[paperSize||"A4"]||PAPERS.A4;
+  var pages=aperCardPages(cards,P.w,P.h,evento).map(function(p){ return pageOf(p,P.w,P.h,null); });
+  return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
+    toast("Tarjetas descargadas: "+cards.length+(cards.length===1?" aperitivo":" aperitivos")+".");
   }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
 }
 /* ══ la minuta (menú para los invitados), en PDF propio ══════════════
@@ -7419,6 +7480,7 @@ window.SITTING_BRIDGE={
   descargarHojaMenu:descargarHojaMenu,
   descargarMinuta:descargarMinuta,
   descargarEscaleta:descargarEscaleta,
+  descargarTarjetasAper:descargarTarjetasAper,
   descargarHoja:descargarHoja,
   planDoc:function(){ return parse(current()?current().text:""); },
   mesaLbl:function(t){ return mesaTxt(t,I18N.es); },
@@ -8097,23 +8159,6 @@ function alergiasDistintas(lista){
   });
   return out.sort();
 }
-function renderAperitivosAdaptados(lista){
-  var m=menu();
-  var mapa=(m&&m.aperitivosPorAlergia)||{};
-  var distintas=alergiasDistintas(lista);
-  var cuerpo=!distintas.length
-    ? '<p class="mnu-origen">Todavía no hay ninguna alergia apuntada en el plano. En cuanto se apunte '+
-      'alguna, aparece aquí sola para poder decirle qué aperitivo adaptado le corresponde.</p>'
-    : distintas.map(function(k){
-        return '<div class="aler-aperis-row"><span class="tag a">'+esc(k)+'</span>'+
-          '<input type="text" class="aler-aperis-in" data-alergia="'+esc(k)+'" value="'+esc(mapa[k]||"")+'" '+
-          'placeholder="Aperitivo(s) adaptado(s) para esta alergia" aria-label="Aperitivo adaptado para '+esc(k)+'"></div>';
-      }).join("");
-  return '<div class="mnu-fam-section aler-aperis"><div class="mnu-fam-h"><h2>Aperitivos adaptados del evento</h2></div>'+
-    '<p class="mnu-origen">Una fila por cada alergia que detecta el plano — no por comensal (eso son los platos '+
-    'sustitutivos de arriba). Se escribe a mano qué aperitivo del cóctel se ha adaptado para cada alergia.</p>'+
-    cuerpo+'</div>';
-}
 function renderAlergias(){
   var lista=BR.alergias?BR.alergias():[];
   if(!lista.length){
@@ -8211,10 +8256,10 @@ function descargarAlergias(btn){
       return '<tr><td>'+esc(g.nombre)+' <span class="mnu-base">'+esc(mot.join(" · "))+'</span></td><td>'+esc(pl||"POR DECIDIR")+'</td></tr>';
     }).join("")+'</table>';
   });
-  var dist=alergiasDistintas(lista);
-  if(dist.length){
-    html+='<h2>Aperitivos adaptados</h2><table>'+dist.map(function(k){
-      return '<tr><td>'+esc(k)+'</td><td>'+esc(mapa[k]||"POR DECIDIR")+'</td></tr>'; }).join("")+'</table>';
+  var aas=aaLista(lista,false).filter(function(c){ return c.plato&&c.gente.length; });
+  if(aas.length){
+    html+='<h2>Aperitivos adaptados</h2><table>'+aas.map(function(c){
+      return '<tr><td>'+esc(c.plato)+' <span class="mnu-base">'+esc(c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", "))+'</span></td><td>'+c.gente.length+'</td></tr>'; }).join("")+'</table>';
   }
   html+='</div></div>';
   var box=document.createElement("div"); box.innerHTML=html; var sh=box.firstChild;
@@ -8305,15 +8350,98 @@ function wirePlatoBox(box){
 function wirePlatos(){
   Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato"),function(box){ wirePlatoBox(box); });
 }
+/* ══ aperitivos adaptados, por persona ════════════════════════════════
+   Cada aperitivo adaptado (p. ej. «Croquetas de setas») con las personas a
+   las que va, elegidas entre los que tienen alergia o dieta en el plano. Una
+   persona puede estar en varios. Se guarda en e.menu.aperAdapt:
+   [{id, plato, gente:[{k:"mesa|nombre", n, m}]}]. Los eventos que venían del
+   modelo anterior (un texto por alergia) se convierten solos la primera vez
+   que se toca algo. Se imprimen tarjetas: arriba el aperitivo, debajo los
+   nombres, para dejarlas junto a la bandeja. */
+function aaKey(g){ return g.mesa+"|"+g.nombre; }
+function aaMotivos(g){ var m=(g.aler||[]).slice(); if(g.kind==="veg") m.push("vegetariano"); if(g.kind==="vegan") m.push("vegano"); if(g.preg) m.push("embarazada"); return m; }
+function aaLista(lista,crear){
+  var m=menu(); if(!m) return [];
+  if(Array.isArray(m.aperAdapt)) return m.aperAdapt;
+  /* del modelo anterior: un texto por alergia → una tarjeta por texto */
+  var mapa=m.aperitivosPorAlergia||{}, out=[], por={};
+  (lista||[]).forEach(function(g){ aaMotivos(g).forEach(function(a){
+    var k=String(a).replace(/\s+/g," ").trim().toLowerCase(), txt=(mapa[k]||"").trim(); if(!txt) return;
+    if(!por[txt]){ por[txt]={id:"aa"+out.length+Date.now().toString(36),plato:txt,gente:[]}; out.push(por[txt]); }
+    if(!por[txt].gente.some(function(x){ return x.k===aaKey(g); })) por[txt].gente.push({k:aaKey(g),n:g.nombre,m:g.mesaLbl||("Mesa "+g.mesa)}); }); });
+  if(crear){ m.aperAdapt=out; }
+  return out;
+}
+function aaGuardar(lista,fn){ var l=aaLista(lista,true); fn(l); touchSave(); renderAlergias(); }
+function renderAperitivosAdaptados(lista){
+  var cards=aaLista(lista,false), porK={};
+  lista.forEach(function(g){ porK[aaKey(g)]=g; });
+  var asignados={}; cards.forEach(function(c){ c.gente.forEach(function(x){ asignados[x.k]=(asignados[x.k]||0)+1; }); });
+  var sin=lista.filter(function(g){ return !asignados[aaKey(g)]; });
+  /* sugerencias: los aperitivos del catálogo (los marcados primero) */
+  var marc=selectedDishes().filter(function(d){ return d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES"; }).map(function(d){ return d.name; }), otros=[];
+  MENU_DATA.forEach(function(f){ if(f.key!=="APERITIVOS"&&f.key!=="ESTACIONES") return; f.dishes.forEach(function(d){ if(marc.indexOf(d.name)<0) otros.push(d.name); }); });
+  var dl='<datalist id="aa-platos">'+marc.concat(otros).map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+'</datalist>';
+  /* «todos los que tienen…»: para añadir de una vez a todos los de una alergia */
+  var porMot={}; lista.forEach(function(g){ aaMotivos(g).forEach(function(a){ var k=String(a).toLowerCase(); (porMot[k]=porMot[k]||[]).push(g); }); });
+  function selAdd(c){
+    var dentro={}; c.gente.forEach(function(x){ dentro[x.k]=1; });
+    var libres=lista.filter(function(g){ return !dentro[aaKey(g)]; });
+    if(!libres.length) return '<span class="aa-full">Ya están todos</span>';
+    var grupos=Object.keys(porMot).sort().filter(function(k){ return porMot[k].some(function(g){ return !dentro[aaKey(g)]; }); });
+    return '<select class="aa-add" data-id="'+esc(c.id)+'" aria-label="Añadir persona a '+esc(c.plato||"este aperitivo")+'"><option value="">+ Añadir persona…</option>'+
+      '<optgroup label="Personas">'+libres.map(function(g){ return '<option value="p:'+esc(aaKey(g))+'">'+esc(g.nombre)+' — '+esc(g.mesaLbl||("Mesa "+g.mesa))+' · '+esc(aaMotivos(g).join(", "))+'</option>'; }).join("")+'</optgroup>'+
+      (grupos.length?'<optgroup label="Todos los que tienen…">'+grupos.map(function(k){ return '<option value="a:'+esc(k)+'">Todos con '+esc(k)+' ('+porMot[k].length+')</option>'; }).join("")+'</optgroup>':'')+
+      '</select>';
+  }
+  var h='<div class="mnu-fam-section aa-sec">'+dl+
+    '<div class="mnu-fam-h"><h2>Aperitivos adaptados</h2><span class="cnt">'+cards.length+(cards.length===1?" aperitivo":" aperitivos")+'</span></div>'+
+    '<p class="mnu-origen">Elige cada aperitivo adaptado y a quién va (una persona puede tener varios). Se imprime una tarjeta por aperitivo, con el aperitivo arriba y los nombres debajo, para dejarla junto a la bandeja: así cada uno sabe cuáles son los suyos.</p>'+
+    '<div class="aa-list">'+cards.map(function(c){
+      return '<div class="aa-card" data-id="'+esc(c.id)+'">'+
+        '<div class="aa-top"><input type="text" class="aa-plato" data-id="'+esc(c.id)+'" list="aa-platos" value="'+esc(c.plato||"")+'" placeholder="Aperitivo adaptado (p. ej. Croquetas de setas)" aria-label="Aperitivo adaptado">'+
+        '<button type="button" class="btn ico aa-del" data-id="'+esc(c.id)+'" aria-label="Quitar este aperitivo adaptado" title="Quitar este aperitivo">×</button></div>'+
+        '<div class="aa-gente">'+c.gente.map(function(x){ var g=porK[x.k];
+          return '<span class="aa-chip'+(g?"":" fuera")+'" title="'+(g?esc(aaMotivos(g).join(", ")):"Ya no está en el plano")+'">'+esc(x.n)+' <small>'+esc(x.m)+(g?"":" · ya no está en el plano")+'</small>'+
+            '<button type="button" class="aa-rm" data-id="'+esc(c.id)+'" data-k="'+esc(x.k)+'" aria-label="Quitar a '+esc(x.n)+'">×</button></span>'; }).join("")+
+          selAdd(c)+'</div></div>';
+    }).join("")+'</div>'+
+    '<div class="aa-foot"><button type="button" class="btn gold sm" id="aa-new">+ Añadir aperitivo adaptado</button>'+
+      (cards.some(function(c){ return c.plato&&c.gente.length; })?'<button type="button" class="btn sm" id="aa-pdf">Descargar tarjetas de aperitivos (PDF)</button>':'')+'</div>'+
+    (sin.length&&cards.length?'<p class="aa-sin"><b>Sin aperitivo adaptado:</b> '+sin.map(function(g){ return esc(g.nombre)+' ('+esc(g.mesaLbl||("Mesa "+g.mesa))+')'; }).join(" · ")+'</p>':'')+
+    (cards.some(function(c){ return c.plato&&c.gente.length; })?'<div class="aa-prev">'+cards.filter(function(c){ return c.plato&&c.gente.length; }).map(function(c){
+      return '<div class="aa-tarj"><span class="aa-eb">Aperitivo adaptado</span><b>'+esc(c.plato)+'</b><i></i>'+c.gente.map(function(x){ return '<span>'+esc(x.n)+'</span>'; }).join("")+'</div>'; }).join("")+'</div>':'')+
+  '</div>';
+  return h;
+}
 function wireAperitivosAdaptados(){
-  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-aperis-in"),function(inp){
-    inp.addEventListener("change",function(){
-      var m=menu(); if(!m) return;
-      m.aperitivosPorAlergia=m.aperitivosPorAlergia||{};
-      var k=inp.dataset.alergia, v=inp.value.trim();
-      if(v) m.aperitivosPorAlergia[k]=inp.value; else delete m.aperitivosPorAlergia[k];
-      touchSave();
-    });
+  var body=$("mnu-body"); if(body.__aaBound) return; body.__aaBound=true;
+  body.addEventListener("change",function(ev2){
+    if(mnuView!=="aler") return;
+    var t=ev2.target, lista=BR.alergias?BR.alergias():[];
+    if(t.classList.contains("aa-plato")){ var id=t.getAttribute("data-id"), v=t.value.trim();
+      aaGuardar(lista,function(l){ l.forEach(function(c){ if(c.id===id) c.plato=v; }); }); }
+    else if(t.classList.contains("aa-add")&&t.value){ var id2=t.getAttribute("data-id"), val=t.value;
+      aaGuardar(lista,function(l){ var c=l.filter(function(x){ return x.id===id2; })[0]; if(!c) return;
+        var nuevos=val.indexOf("p:")===0?lista.filter(function(g){ return aaKey(g)===val.slice(2); })
+          :lista.filter(function(g){ return aaMotivos(g).some(function(a){ return String(a).toLowerCase()===val.slice(2); }); });
+        nuevos.forEach(function(g){ if(!c.gente.some(function(x){ return x.k===aaKey(g); })) c.gente.push({k:aaKey(g),n:g.nombre,m:g.mesaLbl||("Mesa "+g.mesa)}); }); });
+      var s=$("mnu-body").querySelector('.aa-add[data-id="'+id2+'"]'); if(s) s.focus(); }
+  });
+  body.addEventListener("click",function(ev2){
+    if(mnuView!=="aler") return;
+    var b=ev2.target.closest&&ev2.target.closest(".aa-rm,.aa-del,#aa-new,#aa-pdf"); if(!b) return;
+    var lista=BR.alergias?BR.alergias():[];
+    if(b.id==="aa-new"){ var nid="aa"+Date.now().toString(36); aaGuardar(lista,function(l){ l.push({id:nid,plato:"",gente:[]}); });
+      var inp=$("mnu-body").querySelector('.aa-plato[data-id="'+nid+'"]'); if(inp) inp.focus(); return; }
+    if(b.id==="aa-pdf"){ var e=ev(), cards=aaLista(lista,false).filter(function(c){ return c.plato&&c.gente.length; });
+      var base=((e&&e.name)||"evento").replace(/\s+/g,"_")+"_aperitivos_adaptados";
+      b.disabled=true; Promise.resolve(BR.descargarTarjetasAper&&BR.descargarTarjetasAper(cards,base,mnuPaper,e&&e.name)).then(function(){ b.disabled=false; }); return; }
+    if(b.classList.contains("aa-del")){ var id=b.getAttribute("data-id"), c0=aaLista(lista,false).filter(function(c){ return c.id===id; })[0];
+      if(c0&&(c0.plato||c0.gente.length)&&!window.confirm("¿Quitar «"+(c0.plato||"este aperitivo")+"»"+(c0.gente.length?" y sus "+c0.gente.length+(c0.gente.length===1?" persona":" personas"):"")+"?")) return;
+      aaGuardar(lista,function(l){ for(var i=l.length-1;i>=0;i--) if(l[i].id===id) l.splice(i,1); }); return; }
+    if(b.classList.contains("aa-rm")){ var id3=b.getAttribute("data-id"), k=b.getAttribute("data-k");
+      aaGuardar(lista,function(l){ l.forEach(function(c){ if(c.id===id3) c.gente=c.gente.filter(function(x){ return x.k!==k; }); }); }); }
   });
 }
 
@@ -8672,14 +8800,10 @@ function escModelo(){
     else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa"; }
     else calc=adTot*escPor(d);
     return fila(d.name,sub,Q("ap:"+d._uid,calc)); })});
-  /* adaptaciones del aperitivo (por alergia o dieta, con quién) */
-  var mapa=(menu()&&menu().aperitivosPorAlergia)||{}, grupos={}, gOrden=[];
-  al.forEach(function(p){ var g=p.g, claves=g.aler.map(function(a){ return String(a).replace(/\s+/g," ").trim().toLowerCase(); });
-    if(g.kind==="vegan") claves.push("vegano"); if(g.kind==="veg") claves.push("vegetariano"); if(g.preg) claves.push("embarazada");
-    var txt=claves.map(function(k){ return mapa[k]; }).filter(Boolean).filter(function(v,i,a){ return a.indexOf(v)===i; }).join(" + ");
-    if(!txt) return; if(!grupos[txt]){ grupos[txt]=[]; gOrden.push(txt); } grupos[txt].push({nombre:primerNombre(g.name),mesa:p.mesa}); });
-  if(gOrden.length) md.secs.push({t:"Adaptaciones del aperitivo",filas:gOrden.map(function(txt){
-    return fila(escNombres(grupos[txt]),txt,Q("aa:"+escNorm(txt).slice(0,40),grupos[txt].length)); })});
+  /* adaptaciones del aperitivo: cada aperitivo adaptado, cuántos y para quién */
+  var aas=aaLista(BR.alergias?BR.alergias():[],false).filter(function(x){ return x.plato&&x.gente.length; });
+  if(aas.length) md.secs.push({t:"Adaptaciones del aperitivo",filas:aas.map(function(x){
+    var f=fila(x.plato,escNombres(x.gente.map(function(p){ return {nombre:primerNombre(p.n),mesa:p.m}; })),Q("aa:"+escNorm(x.plato).slice(0,40),x.gente.length)); f.sust=true; return f; })});
   /* estaciones y recena */
   var est=sel.filter(escEsEstacion), grp={}, eo=[];
   est.forEach(function(d){ var k=d._famKey==="RECENA"?"Recena":(d.station?d.station.charAt(0)+d.station.slice(1).toLowerCase():d.name); if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
