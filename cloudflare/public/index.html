@@ -9110,7 +9110,9 @@ function escModelo(){
   if(AP.std.length){
     var fa2=AP.std.map(function(d,i){
       var sinEl=AP.pers.filter(function(r){ return !r.items.some(function(x){ return x.id==="d:"+d._uid; }); });
-      var comen=Math.max(0,adTot-sinEl.length), calc, sub="";
+      /* los aperitivos normales se preparan para TODOS los menús adultos (se
+         hacen igual); los adaptados van aparte, además */
+      var comen=adTot, calc, sub="";
       /* el jamón se calcula para TODOS los adultos, también los adaptados */
       if(esDishJamon(d)){ var gr2=0; d.ingredients.forEach(function(ig){ if(/jam[oó]n/i.test(ig.name)&&ig.qty!=null) gr2+=ig.qty*adTot; }); calc=gr2>0?jamonAmount(gr2):comen; sub=(marcaJamon?marcaJamon+" · ":"")+"a cortar"; }
       else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa"; }
