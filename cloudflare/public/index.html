@@ -4911,14 +4911,14 @@ function aperPersonaPages(pers,pw,ph,evento){
     cur.push(R(x,y,cw,chh,0,"none","#DCD2BE",0.5));
     cur.push(R(x+10,y+10,cw-20,chh-20,4,"none","#E9DFC9",0.7));
     var yy=y+34;
-    cur.push(TX(cx,yy,"APERITIVOS",{size:7.5,fo:"sans",a:"middle",c:GOLD,ls:2.4})); yy+=28;
+    cur.push(TX(cx,yy,pp.items.length===1?"APERITIVO ADAPTADO":"APERITIVOS ADAPTADOS",{size:7.5,fo:"sans",a:"middle",c:GOLD,ls:2.4})); yy+=28;
     var tam=22, ln=partir(pp.nombre,cw-44,"ser",tam,0); if(ln.length>1){ tam=18; ln=partir(pp.nombre,cw-44,"ser",tam,0).slice(0,2); }
     ln.forEach(function(l){ cur.push(TX(cx,yy,l,{size:tam,fo:"ser",a:"middle",c:INK})); yy+=tam+2; });
     var sub=pp.mesa+(pp.motivo?"  ·  "+pp.motivo:"");
     cur.push(TX(cx,yy+2,clipW(sub.toUpperCase(),cw-40,"sans",6.8,1),{size:6.8,fo:"sans",a:"middle",c:FADE,ls:1})); yy+=12;
     cur.push(LN(cx-40,yy,cx+40,yy,GOLD,0.9)); yy+=22;
     /* la lista de aperitivos: tan grande como quepa */
-    var items=pp.items, libre=y+chh-26-yy, tn=13, lh=17;
+    var items=pp.items, libre=y+chh-26-yy, tn=19, lh=25;
     function lineas(sz){ var t=0; items.forEach(function(it){ t+=partir(it.t,cw-50,"ser",sz,0).length; }); return t; }
     while(tn>8.5&&lineas(tn)*lh>libre){ tn-=0.5; lh=tn*1.3; }
     items.forEach(function(it){
@@ -4932,7 +4932,7 @@ function aperPersonaPages(pers,pw,ph,evento){
   return pages;
 }
 function descargarTarjetasPersona(pers,nombreArchivo,paperSize,evento){
-  if(!pers||!pers.length){ toast("No hay nadie con alergia o dieta en el plano.",true); return Promise.resolve(); }
+  if(!pers||!pers.length){ toast("Nadie tiene todavía un aperitivo adaptado.",true); return Promise.resolve(); }
   var P=PAPERS[paperSize||"A4"]||PAPERS.A4;
   var pages=aperPersonaPages(pers,P.w,P.h,evento).map(function(p){ return pageOf(p,P.w,P.h,null); });
   return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
@@ -8516,7 +8516,10 @@ function aaLista(lista,crear){
 function aaPorPersona(){
   if(typeof escAperitivos!=="function") return [];
   var AP=escAperitivos(escCuentas(),escCfg());
-  return AP.pers.map(function(r){ return {nombre:r.p.g.name, mesa:r.p.mesa, motivo:escGruposDe(r.p.g).join(", "), items:r.items.map(function(x){ return {t:x.t,ad:!!x.ad}; })}; });
+  /* en la tarjeta van SOLO sus aperitivos adaptados (en el orden de salida);
+     quien no tiene ninguno adaptado no lleva tarjeta */
+  return AP.pers.map(function(r){ return {nombre:r.p.g.name, mesa:r.p.mesa, motivo:escGruposDe(r.p.g).join(", "), items:r.items.filter(function(x){ return x.ad; }).map(function(x){ return {t:x.t,ad:false}; })}; })
+    .filter(function(pp){ return pp.items.length; });
 }
 function aaGuardar(lista,fn){ var l=aaLista(lista,true); fn(l); touchSave(); renderAlergias(); }
 function renderAperitivosAdaptados(lista){
@@ -8553,11 +8556,11 @@ function renderAperitivosAdaptados(lista){
           selAdd(c)+'</div></div>';
     }).join("")+'</div>'+
     '<div class="aa-foot"><button type="button" class="btn gold sm" id="aa-new">+ Añadir aperitivo adaptado</button>'+
-      (porPers.length?'<button type="button" class="btn sm" id="aa-pdf-p">Descargar tarjetas por persona (PDF)</button>':'')+
+      (porPers.length?'<button type="button" class="btn sm" id="aa-pdf-p">Descargar tarjetas por persona (PDF) · '+porPers.length+'</button>':'')+
       (cards.some(function(c){ return c.plato&&c.gente.length; })?'<button type="button" class="btn sm" id="aa-pdf">Tarjetas por aperitivo (PDF)</button>':'')+'</div>'+
     (sin.length&&cards.length?'<p class="aa-sin"><b>Sin aperitivo adaptado:</b> '+sin.map(function(g){ return esc(g.nombre)+' ('+esc(g.mesaLbl||("Mesa "+g.mesa))+')'; }).join(" · ")+'</p>':'')+
     (cards.length?'<div class="aa-prev-h">A qué aperitivo sustituye cada uno</div>'+HA.sust:'')+
-    '<div class="aa-prev-h">Aperitivos de cada persona <span>— lo que sale en su tarjeta</span></div>'+HA.pers+
+    '<div class="aa-prev-h">Aperitivos de cada persona <span>— en su tarjeta salen solo los adaptados (en color)</span></div>'+HA.pers+
   '</div>';
   return h;
 }
