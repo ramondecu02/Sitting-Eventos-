@@ -303,6 +303,10 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .esc-chip button{border:0; background:none; cursor:pointer; color:#A3471F; font-size:14px; line-height:1; padding:0 5px}
 .esc-per-l select{width:auto; font-size:12px; padding:3px 6px}
 .esc-ptxt{flex:1 1 220px; min-width:180px; font-size:12.5px; padding:4px 8px}
+.esc-per-no{font-size:12px; color:var(--c-mut); margin-top:3px}
+.aa-sec .esc-per{margin-bottom:8px; padding:10px 12px}
+.aa-sec .esc-per.vacio{border-style:dashed}
+.aa-sec .aa-foot{margin:4px 0 14px}
 .esc-inf{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px}
 .esc-inf .ag-chk{display:flex; gap:7px; align-items:center; font-size:13px; margin:3px 0; text-transform:none; letter-spacing:0}
 .esc-inf input[type=checkbox]{width:auto!important}
@@ -4129,11 +4133,11 @@ function guestRow(g,L){
    aperitivo asignado no aporta nada en un papel para el pase. */
 function aperitivosAdaptadosLista(){
   var e=current(), mapa=(e&&e.menu&&e.menu.aperitivosPorAlergia)||{};
-  if(e&&e.menu&&Array.isArray(e.menu.aperAdapt)){
-    /* niños, bebés y staff no toman el aperitivo: no salen (igual que en la escaleta) */
-    var no={}; doc.tables.forEach(function(t){ t.guests.forEach(function(g){ if(g.kind==="child"||g.kind==="baby"||g.kind==="staff") no[t.num+"|"+g.name]=1; }); });
-    return e.menu.aperAdapt.map(function(c){ return {plato:c.plato,gente:c.gente.filter(function(x){ return !no[x.k]; })}; }).filter(function(c){ return c.plato&&c.gente.length; })
-      .map(function(c){ return {alergia:clip(c.plato,34),texto:c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", ")}; });
+  /* los aperitivos adaptados de cada persona (Alergias · Aperitivos adaptados),
+     agrupados por aperitivo: lo mismo que la escaleta y las tarjetas */
+  var BRx=window.SITTING_BRIDGE;
+  if(BRx&&BRx.aperAdaptResumen&&e&&e.menu&&(Array.isArray(e.menu.aperAdapt)||(e.menu.escaleta&&e.menu.escaleta.aperPers))){
+    try{ return BRx.aperAdaptResumen().map(function(c){ return {alergia:clip(c.plato,34),texto:c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", ")}; }); }catch(_){ return []; }
   }
   var vistas={}, out=[];
   doc.tables.forEach(function(t){ t.guests.forEach(function(g){
@@ -8104,7 +8108,7 @@ function prodDishBlock(d,t){
   }).join("");
   var steps=d.steps.length?('<div class="mnu-prep-steps">'+d.steps.map(esc).join(" · ")+'</div>'):"";
   return '<div class="mnu-prep-dish">'+
-    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+' raciones'+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
+    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+(rac===1?' ración':' raciones')+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
     (fu?'<div class="mnu-prep-steps">'+fu+(fu===1?' lleva':' llevan')+' plato sustitutivo (ver al final)</div>':'')+
     (rows?('<table class="mnu-ing-table sm"><tbody>'+rows+'</tbody></table>'):"")+
     steps+'</div>';
@@ -8133,7 +8137,7 @@ function renderProduccion(){
   });
   if(t.esc.subs.length){
     html+='<h3 class="mnu-sheet-fam">Aperitivos adaptados y platos sustitutivos</h3>';
-    t.esc.subs.forEach(function(x){ html+='<div class="mnu-prep-dish"><div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(x.txt)+'</b><span class="rac">'+x.n+' raciones</span></div>'+
+    t.esc.subs.forEach(function(x){ html+='<div class="mnu-prep-dish"><div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(x.txt)+'</b><span class="rac">'+x.n+(x.n===1?' ración':' raciones')+'</span></div>'+
       '<div class="mnu-prep-steps">'+(x.aper?'Aperitivo adaptado':'En lugar de: '+esc(x.de))+' · Para: '+esc(x.para)+'</div></div>'; });
   }
   html+='<div class="foot">Les Moles Events</div></div></div>';
@@ -8452,7 +8456,7 @@ function descargarAlergias(btn){
       return '<tr><td>'+esc(g.nombre)+' <span class="mnu-base">'+esc(mot.join(" · "))+'</span></td><td>'+esc(pl||"POR DECIDIR")+'</td></tr>';
     }).join("")+'</table>';
   });
-  var aas=aaValidas(lista);
+  var aas=aaResumen();
   if(aas.length){
     html+='<h2>Aperitivos adaptados</h2><table>'+aas.map(function(c){
       return '<tr><td>'+esc(c.plato)+' <span class="mnu-base">'+esc(c.gente.map(function(x){ return x.n+" ("+x.m+")"; }).join(", "))+'</span></td><td>'+c.gente.length+'</td></tr>'; }).join("")+'</table>';
@@ -8588,48 +8592,23 @@ function aaPorPersona(){
   return AP.pers.map(function(r){ return {nombre:r.p.g.name, mesa:r.p.mesa, motivo:escGruposDe(r.p.g).join(", "), items:r.items.filter(function(x){ return x.ad; }).map(function(x){ return {t:x.t,ad:false}; })}; })
     .filter(function(pp){ return pp.items.length; });
 }
+/* los adaptados agrupados por aperitivo: [{plato, gente:[{n,m}]}] */
+function aaResumen(){
+  var por={}, orden=[];
+  aaPorPersona().forEach(function(pp){ pp.items.forEach(function(x){ var k=escNorm(x.t);
+    if(!por[k]){ por[k]={plato:x.t,gente:[]}; orden.push(k); } por[k].gente.push({n:pp.nombre,m:pp.mesa}); }); });
+  return orden.map(function(k){ return por[k]; });
+}
+BR.aperAdaptResumen=aaResumen;
 function aaGuardar(lista,fn){ var l=aaLista(lista,true); fn(l); touchSave(); renderAlergias(); }
 function renderAperitivosAdaptados(lista){
-  var cards=aaLista(lista,false), porK={}, porPers=aaPorPersona(), HA=escHtmlAdaptados();
-  lista.forEach(function(g){ porK[aaKey(g)]=g; });
-  lista=lista.filter(aaComeAper);
-  var asignados={}; cards.forEach(function(c){ c.gente.forEach(function(x){ asignados[x.k]=(asignados[x.k]||0)+1; }); });
-  var sin=lista.filter(function(g){ return !asignados[aaKey(g)]; });
-  /* sugerencias: los aperitivos del catálogo (los marcados primero) */
-  var marc=selectedDishes().filter(function(d){ return d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES"; }).map(function(d){ return d.name; }), otros=[];
-  MENU_DATA.forEach(function(f){ if(f.key!=="APERITIVOS"&&f.key!=="ESTACIONES") return; f.dishes.forEach(function(d){ if(marc.indexOf(d.name)<0) otros.push(d.name); }); });
-  var dl='<datalist id="aa-platos">'+marc.concat(otros).map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+'</datalist>';
-  /* «todos los que tienen…»: para añadir de una vez a todos los de una alergia */
-  var porMot={}; lista.forEach(function(g){ aaMotivos(g).forEach(function(a){ var k=String(a).toLowerCase(); (porMot[k]=porMot[k]||[]).push(g); }); });
-  function selAdd(c){
-    var dentro={}; c.gente.forEach(function(x){ dentro[x.k]=1; });
-    var libres=lista.filter(function(g){ return !dentro[aaKey(g)]; });
-    if(!libres.length) return '<span class="aa-full">Ya están todos</span>';
-    var grupos=Object.keys(porMot).sort().filter(function(k){ return porMot[k].some(function(g){ return !dentro[aaKey(g)]; }); });
-    return '<select class="aa-add" data-id="'+esc(c.id)+'" aria-label="Añadir persona a '+esc(c.plato||"este aperitivo")+'"><option value="">+ Añadir persona…</option>'+
-      '<optgroup label="Personas">'+libres.map(function(g){ return '<option value="p:'+esc(aaKey(g))+'">'+esc(g.nombre)+' — '+esc(g.mesaLbl||("Mesa "+g.mesa))+' · '+esc(aaMotivos(g).join(", "))+'</option>'; }).join("")+'</optgroup>'+
-      (grupos.length?'<optgroup label="Todos los que tienen…">'+grupos.map(function(k){ return '<option value="a:'+esc(k)+'">Todos con '+esc(k)+' ('+porMot[k].length+')</option>'; }).join("")+'</optgroup>':'')+
-      '</select>';
-  }
-  var h='<div class="mnu-fam-section aa-sec">'+dl+
-    '<div class="mnu-fam-h"><h2>Aperitivos adaptados</h2><span class="cnt">'+cards.length+(cards.length===1?" aperitivo":" aperitivos")+'</span></div>'+
-    '<p class="mnu-origen">Elige cada aperitivo adaptado y a quién va (una persona puede tener varios). Se imprime una tarjeta por aperitivo, con el aperitivo arriba y los nombres debajo, para dejarla junto a la bandeja: así cada uno sabe cuáles son los suyos.</p>'+
-    '<div class="aa-list">'+cards.map(function(c){
-      return '<div class="aa-card" data-id="'+esc(c.id)+'">'+
-        '<div class="aa-top"><input type="text" class="aa-plato" data-id="'+esc(c.id)+'" list="aa-platos" value="'+esc(c.plato||"")+'" placeholder="Aperitivo adaptado (p. ej. Croquetas de setas)" aria-label="Aperitivo adaptado">'+
-        '<button type="button" class="btn ico aa-del" data-id="'+esc(c.id)+'" aria-label="Quitar este aperitivo adaptado" title="Quitar este aperitivo">×</button></div>'+
-        '<div class="aa-gente">'+c.gente.map(function(x){ var g=porK[x.k];
-          var nota=!g?"ya no está en el plano":!aaComeAper(g)?(g.kind==="staff"?"staff: no toma aperitivo, no se cuenta":"niño: no toma aperitivo, no se cuenta"):"";
-          return '<span class="aa-chip'+(nota?" fuera":"")+'" title="'+(nota?esc(nota):esc(aaMotivos(g).join(", ")))+'">'+esc(x.n)+' <small>'+esc(x.m)+(nota?" · "+esc(nota):"")+'</small>'+
-            '<button type="button" class="aa-rm" data-id="'+esc(c.id)+'" data-k="'+esc(x.k)+'" aria-label="Quitar a '+esc(x.n)+'">×</button></span>'; }).join("")+
-          selAdd(c)+'</div></div>';
-    }).join("")+'</div>'+
-    '<div class="aa-foot"><button type="button" class="btn gold sm" id="aa-new">+ Añadir aperitivo adaptado</button>'+
-      (porPers.length?'<button type="button" class="btn sm" id="aa-pdf-p">Descargar tarjetas por persona (PDF) · '+porPers.length+'</button>':'')+
-      (cards.some(function(c){ return c.plato&&c.gente.length; })?'<button type="button" class="btn sm" id="aa-pdf">Tarjetas por aperitivo (PDF)</button>':'')+'</div>'+
-    (sin.length&&cards.length?'<p class="aa-sin"><b>Sin aperitivo adaptado:</b> '+sin.map(function(g){ return esc(g.nombre)+' ('+esc(g.mesaLbl||("Mesa "+g.mesa))+')'; }).join(" · ")+'</p>':'')+
-    (cards.length?'<div class="aa-prev-h">A qué aperitivo sustituye cada uno</div>'+HA.sust:'')+
-    '<div class="aa-prev-h">Aperitivos de cada persona <span>— en su tarjeta salen solo los adaptados (en color)</span></div>'+HA.pers+
+  var porPers=aaPorPersona(), HA=escHtmlAdaptados();
+  var conAd=porPers.length, tot=HA.AP.pers.length;
+  var h='<div class="mnu-fam-section aa-sec">'+
+    '<div class="mnu-fam-h"><h2>Aperitivos adaptados</h2><span class="cnt">'+conAd+' de '+tot+(tot===1?" persona":" personas")+'</span></div>'+
+    '<p class="mnu-origen">Escribe (o elige de la lista) el aperitivo adaptado de cada persona; puede tener varios. Sale en la escaleta y en Producción, y se imprime una tarjeta por persona con su nombre y sus aperitivos adaptados, para que el camarero sepa qué llevarle.</p>'+
+    '<div class="aa-foot">'+(conAd?'<button type="button" class="btn gold sm" id="aa-pdf-p">Descargar tarjetas por persona (PDF) · '+conAd+'</button>':'<span class="esc-hint">Cuando alguien tenga un aperitivo adaptado, se podrán descargar las tarjetas.</span>')+'</div>'+
+    HA.pers+
   '</div>';
   return h;
 }
@@ -9068,31 +9047,26 @@ function escSustDe(card,std,cfg){
   return hit?hit._uid:"";
 }
 function escKey(p){ return p.mesaNum+"|"+p.g.name; }
-/* los aperitivos de una persona, SIEMPRE en el orden de salida */
+/* los aperitivos ADAPTADOS de una persona (los normales los toman todos y se
+   cuentan por los menús adultos). Se asignan persona a persona en «Alergias ·
+   Aperitivos adaptados» (cfg.aperPers[clave] = ["t:texto", …]); los eventos
+   antiguos que los tenían por aperitivo (tarjetas) siguen saliendo igual hasta
+   que se toque a esa persona. Van en el orden de salida: un adaptado sale en el
+   sitio del aperitivo al que se parece («Croquetas de setas» → croquetas). */
 function escAperPersona(p,std,cards,cfg){
-  var key=escKey(p), ex=escExcluye(p.g), idx={}, items=[], quitados=[];
+  var key=escKey(p), ex=escExcluye(p.g), idx={}, items=[];
   std.forEach(function(d,i){ idx[d._uid]=i; });
+  function ordTxt(t){ var r=escRaiz(t); if(r.length>=3) for(var i=0;i<std.length;i++){ if(escRaiz(std[i].name)===r&&escNorm(std[i].name)!==escNorm(t)) return i+0.5; } return std.length+0.5; }
+  function ordCard(c){ var u=escSustDe(c,std,cfg); return (u&&idx[u]!=null)?idx[u]+0.5:ordTxt(c.plato); }
   var mias=cards.filter(function(c){ return c.gente.some(function(x){ return x.k===key; }); });
-  var dest={}; mias.forEach(function(c){ dest[c.id]=escSustDe(c,std,cfg); });
-  function ordCard(c){ var u=dest[c.id]; return (u&&idx[u]!=null)?idx[u]+0.5:std.length+0.5; }
   var ov=cfg.aperPers&&cfg.aperPers[key];
-  if(ov){
-    ov.forEach(function(id){
-      if(id.indexOf("d:")===0){ var u=id.slice(2); if(idx[u]!=null) items.push({id:id,t:std[idx[u]].name,ord:idx[u]}); }
-      else if(id.indexOf("c:")===0){ var c=cards.filter(function(x){ return x.id===id.slice(2); })[0]; if(c) items.push({id:id,t:c.plato,ad:true,ord:ordCard(c)}); }
-      else if(id.indexOf("t:")===0) items.push({id:id,t:id.slice(2),ad:true,ord:std.length+1});
-    });
-    std.forEach(function(d){ if(ov.indexOf("d:"+d._uid)<0) quitados.push(d.name); });
-  } else {
-    std.forEach(function(d,i){
-      var repl=mias.filter(function(c){ return dest[c.id]===d._uid; });
-      if(repl.length) repl.forEach(function(c){ items.push({id:"c:"+c.id,t:c.plato,ad:true,ord:i+0.5}); });
-      else if(!escChoca(d,ex)) items.push({id:"d:"+d._uid,t:d.name,ord:i});
-      if(repl.length||escChoca(d,ex)) quitados.push(d.name);
-    });
-    mias.forEach(function(c){ if(!items.some(function(x){ return x.id==="c:"+c.id; })) items.push({id:"c:"+c.id,t:c.plato,ad:true,ord:ordCard(c)}); });
-  }
+  if(ov) ov.forEach(function(id){
+    if(id.indexOf("c:")===0){ var c=cards.filter(function(x){ return x.id===id.slice(2); })[0]; if(c) items.push({id:id,t:c.plato,ad:true,ord:ordCard(c)}); }
+    else if(id.indexOf("t:")===0) items.push({id:id,t:id.slice(2),ad:true,ord:ordTxt(id.slice(2))}); });
+  else mias.forEach(function(c){ items.push({id:"c:"+c.id,t:c.plato,ad:true,ord:ordCard(c)}); });
   items.sort(function(a,b){ return a.ord-b.ord; });
+  /* lo que, por su alergia o dieta, no puede tomar de los normales (orientativo) */
+  var quitados=std.filter(function(d){ return escChoca(d,ex); }).map(function(d){ return d.name; });
   return {key:key,items:items,quitados:quitados,dudosa:ex.dudosa,manual:!!ov,mias:mias};
 }
 function escRestringido(g){ return !!(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg); }
@@ -9177,7 +9151,6 @@ function escModelo(){
   var marcaJamon=bebidaMarca("jamon");
   if(AP.std.length){
     var fa2=AP.std.map(function(d,i){
-      var sinEl=AP.pers.filter(function(r){ return !r.items.some(function(x){ return x.id==="d:"+d._uid; }); });
       /* los aperitivos normales se preparan para TODOS los menús adultos (se
          hacen igual); los adaptados van aparte, además */
       var comen=adTot, calc, sub="";
@@ -9286,17 +9259,16 @@ function escHtmlAdaptados(){
       return '<div class="esc-ad-it"><b>'+esc(cd.plato)+'</b> <small>'+cd.gente.length+(cd.gente.length===1?" persona":" personas")+'</small> <span>sustituye a</span> '+
         '<select data-esc-sust="'+esc(cd.id)+'"><option value="">— se sirve aparte —</option>'+AP.std.map(function(d){ return '<option value="'+esc(d._uid)+'"'+(u===d._uid?" selected":"")+'>'+esc(d.name)+'</option>'; }).join("")+'</select></div>'; }).join("")
     :'<p class="esc-hint">Todavía no hay aperitivos adaptados: créalos arriba.</p>';
-  /* 4 · por persona (retoques) */
-  var dPer=AP.pers.length?'<p class="esc-hint">La lista sale sola según su alergia o dieta (quitando lo que no puede tomar y poniendo su aperitivo adaptado). Si hace falta, quita (×) o añade aperitivos a una persona: se respeta siempre el orden de salida.</p>'+
-    AP.pers.map(function(r){ var g=r.p.g, dentro={}; r.items.forEach(function(x){ dentro[x.id]=1; });
-      var opts=AP.std.filter(function(d){ return !dentro["d:"+d._uid]; }).map(function(d){ return '<option value="d:'+esc(d._uid)+'">'+esc(d.name)+'</option>'; }).join("")+
-        AP.cards.filter(function(cd){ return !dentro["c:"+cd.id]; }).map(function(cd){ return '<option value="c:'+esc(cd.id)+'">'+esc(cd.plato)+' (adaptado)</option>'; }).join("");
-      return '<div class="esc-per'+(r.dudosa.length?" duda":"")+'"><div class="esc-per-h"><b>'+esc(g.name)+'</b> <small>'+esc(r.p.mesa)+' · '+esc(escGruposDe(g).join(", "))+'</small>'+
-        (r.dudosa.length?' <em>revisar: '+esc(r.dudosa.join(", "))+'</em>':'')+
-        (r.manual?' <button type="button" class="imp-back" data-esc-pauto="'+esc(r.key)+'">↺ volver a automático</button>':'')+'</div>'+
-        '<div class="esc-per-l">'+(r.items.length?r.items.map(function(x){ return '<span class="esc-chip'+(x.ad?" ad":"")+'">'+esc(x.t)+'<button type="button" data-esc-pq="'+esc(r.key)+'" data-id="'+esc(x.id)+'" aria-label="Quitar '+esc(x.t)+' a '+esc(g.name)+'">×</button></span>'; }).join('<i>·</i>'):'<span class="esc-hint">Sin aperitivos</span>')+
-        '<select data-esc-padd="'+esc(r.key)+'" aria-label="Añadir aperitivo a '+esc(g.name)+'"><option value="">+ añadir de la lista…</option>'+opts+'</select>'+
-        '<input type="text" class="esc-ptxt" data-esc-ptxt="'+esc(r.key)+'" placeholder="o escribe un aperitivo adaptado y pulsa Intro" aria-label="Escribir un aperitivo adaptado para '+esc(g.name)+'"></div></div>'; }).join("")
+  /* 4 · por persona: sus aperitivos adaptados */
+  var sug={}; MENU_DATA.forEach(function(f){ if(f.key==="APERITIVOS"||f.key==="ESTACIONES") f.dishes.forEach(function(d){ sug[d.name]=1; }); });
+  AP.pers.forEach(function(r){ r.items.forEach(function(x){ sug[x.t]=1; }); });
+  var dPer=AP.pers.length?'<datalist id="aa-sug">'+Object.keys(sug).sort(function(a,b){ return a.localeCompare(b,"es"); }).map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+'</datalist>'+
+    AP.pers.map(function(r){ var g=r.p.g;
+      return '<div class="esc-per'+(r.items.length?"":" vacio")+(r.dudosa.length?" duda":"")+'"><div class="esc-per-h"><b>'+esc(g.name)+'</b> <small>'+esc(r.p.mesa)+' · '+esc(escGruposDe(g).join(", "))+'</small>'+
+        (r.dudosa.length?' <em>revisar: '+esc(r.dudosa.join(", "))+'</em>':'')+'</div>'+
+        (r.quitados.length?'<div class="esc-per-no">No puede tomar: '+esc(r.quitados.join(" · "))+'</div>':'')+
+        '<div class="esc-per-l">'+r.items.map(function(x){ return '<span class="esc-chip ad">'+esc(x.t)+'<button type="button" data-esc-pq="'+esc(r.key)+'" data-id="'+esc(x.id)+'" aria-label="Quitar '+esc(x.t)+' a '+esc(g.name)+'">×</button></span>'; }).join("")+
+        '<input type="text" class="esc-ptxt" list="aa-sug" data-esc-ptxt="'+esc(r.key)+'" placeholder="'+(r.items.length?"+ otro aperitivo adaptado":"Escribe o elige su aperitivo adaptado")+'" aria-label="Añadir un aperitivo adaptado para '+esc(g.name)+'"></div></div>'; }).join("")
     :'<p class="esc-hint">Nadie con alergia o dieta en el plano: todos toman todos los aperitivos.</p>';
   return {sust:dAd, pers:dPer, AP:AP};
 }
