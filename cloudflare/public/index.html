@@ -388,6 +388,10 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .aa-tarj b{font-family:"Cormorant Garamond",serif; font-size:19px; font-weight:600; line-height:1.15; margin-top:4px}
 .aa-tarj i{display:block; width:46px; height:1px; background:#CBB889; margin:8px auto}
 .aa-tarj span:not(.aa-eb){font-family:"Cormorant Garamond",serif; font-size:15px}
+.aa-tarj small{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#8A8272}
+.aa-tarj span.ad{color:#A3471F; font-family:inherit; font-weight:700; font-size:13.5px}
+.aa-prev-h{margin-top:18px; font-weight:700; font-size:14px}
+.aa-prev-h span{font-weight:400; font-size:12.5px; color:var(--c-mut)}
 .imp-box{max-width:min(1060px,96vw)}
 .imp-body{align-items:stretch!important; max-height:62vh}
 .imp-src.file textarea,.imp-src.file .imp-plbl{display:none}
@@ -4897,6 +4901,44 @@ function aperCardPages(cards,pw,ph,evento){
   if(cur.length) pages.push(cur);
   return pages;
 }
+/* tarjetas por persona: arriba el nombre (y su mesa y motivo) y debajo todos
+   los aperitivos que le tocan, en el orden de salida; el adaptado en color */
+function aperPersonaPages(pers,pw,ph,evento){
+  var M=24, cols=2, rows=3, cw=(pw-2*M)/cols, chh=(ph-2*M)/rows, pages=[], cur=[], SUST="#A3471F";
+  pers.forEach(function(pp,n){
+    var i=n%(cols*rows); if(i===0&&n>0){ pages.push(cur); cur=[]; }
+    var x=M+(i%cols)*cw, y=M+Math.floor(i/cols)*chh, cx=x+cw/2;
+    cur.push(R(x,y,cw,chh,0,"none","#DCD2BE",0.5));
+    cur.push(R(x+10,y+10,cw-20,chh-20,4,"none","#E9DFC9",0.7));
+    var yy=y+34;
+    cur.push(TX(cx,yy,"APERITIVOS",{size:7.5,fo:"sans",a:"middle",c:GOLD,ls:2.4})); yy+=28;
+    var tam=22, ln=partir(pp.nombre,cw-44,"ser",tam,0); if(ln.length>1){ tam=18; ln=partir(pp.nombre,cw-44,"ser",tam,0).slice(0,2); }
+    ln.forEach(function(l){ cur.push(TX(cx,yy,l,{size:tam,fo:"ser",a:"middle",c:INK})); yy+=tam+2; });
+    var sub=pp.mesa+(pp.motivo?"  ·  "+pp.motivo:"");
+    cur.push(TX(cx,yy+2,clipW(sub.toUpperCase(),cw-40,"sans",6.8,1),{size:6.8,fo:"sans",a:"middle",c:FADE,ls:1})); yy+=12;
+    cur.push(LN(cx-40,yy,cx+40,yy,GOLD,0.9)); yy+=22;
+    /* la lista de aperitivos: tan grande como quepa */
+    var items=pp.items, libre=y+chh-26-yy, tn=13, lh=17;
+    function lineas(sz){ var t=0; items.forEach(function(it){ t+=partir(it.t,cw-50,"ser",sz,0).length; }); return t; }
+    while(tn>8.5&&lineas(tn)*lh>libre){ tn-=0.5; lh=tn*1.3; }
+    items.forEach(function(it){
+      partir(it.t,cw-50,"ser",tn,0).forEach(function(l){
+        if(yy>y+chh-24) return;
+        cur.push(TX(cx,yy,l,{size:tn,fo:it.ad?"sansb":"ser",a:"middle",c:it.ad?SUST:INK})); yy+=lh; });
+    });
+    cur.push(TX(cx,y+chh-18,(evento?clip(evento,40)+"  ·  ":"")+"Les Moles",{size:5.8,fo:"sans",a:"middle",c:FADE,ls:1.4}));
+  });
+  if(cur.length) pages.push(cur);
+  return pages;
+}
+function descargarTarjetasPersona(pers,nombreArchivo,paperSize,evento){
+  if(!pers||!pers.length){ toast("No hay nadie con alergia o dieta en el plano.",true); return Promise.resolve(); }
+  var P=PAPERS[paperSize||"A4"]||PAPERS.A4;
+  var pages=aperPersonaPages(pers,P.w,P.h,evento).map(function(p){ return pageOf(p,P.w,P.h,null); });
+  return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
+    toast("Tarjetas descargadas: "+pers.length+(pers.length===1?" persona":" personas")+".");
+  }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
+}
 function descargarTarjetasAper(cards,nombreArchivo,paperSize,evento){
   if(!cards||!cards.length){ toast("No hay ningún aperitivo adaptado con personas.",true); return Promise.resolve(); }
   var P=PAPERS[paperSize||"A4"]||PAPERS.A4;
@@ -7575,6 +7617,7 @@ window.SITTING_BRIDGE={
   descargarMinuta:descargarMinuta,
   descargarEscaleta:descargarEscaleta,
   descargarTarjetasAper:descargarTarjetasAper,
+  descargarTarjetasPersona:descargarTarjetasPersona,
   descargarHoja:descargarHoja,
   planDoc:function(){ return parse(current()?current().text:""); },
   mesaLbl:function(t){ return mesaTxt(t,I18N.es); },
@@ -8466,9 +8509,17 @@ function aaLista(lista,crear){
   if(crear){ m.aperAdapt=out; }
   return out;
 }
+/* tarjetas por persona: cada persona con alergia o dieta y TODOS los
+   aperitivos que le tocan, en el orden de salida de la escaleta (el
+   adaptado marcado). Se reparte igual que en la escaleta. */
+function aaPorPersona(){
+  if(typeof escAperitivos!=="function") return [];
+  var AP=escAperitivos(escCuentas(),escCfg());
+  return AP.pers.map(function(r){ return {nombre:r.p.g.name, mesa:r.p.mesa, motivo:escGruposDe(r.p.g).join(", "), items:r.items.map(function(x){ return {t:x.t,ad:!!x.ad}; })}; });
+}
 function aaGuardar(lista,fn){ var l=aaLista(lista,true); fn(l); touchSave(); renderAlergias(); }
 function renderAperitivosAdaptados(lista){
-  var cards=aaLista(lista,false), porK={};
+  var cards=aaLista(lista,false), porK={}, porPers=aaPorPersona();
   lista.forEach(function(g){ porK[aaKey(g)]=g; });
   var asignados={}; cards.forEach(function(c){ c.gente.forEach(function(x){ asignados[x.k]=(asignados[x.k]||0)+1; }); });
   var sin=lista.filter(function(g){ return !asignados[aaKey(g)]; });
@@ -8501,10 +8552,13 @@ function renderAperitivosAdaptados(lista){
           selAdd(c)+'</div></div>';
     }).join("")+'</div>'+
     '<div class="aa-foot"><button type="button" class="btn gold sm" id="aa-new">+ Añadir aperitivo adaptado</button>'+
-      (cards.some(function(c){ return c.plato&&c.gente.length; })?'<button type="button" class="btn sm" id="aa-pdf">Descargar tarjetas de aperitivos (PDF)</button>':'')+'</div>'+
+      (porPers.length?'<button type="button" class="btn sm" id="aa-pdf-p">Descargar tarjetas por persona (PDF)</button>':'')+
+      (cards.some(function(c){ return c.plato&&c.gente.length; })?'<button type="button" class="btn sm" id="aa-pdf">Tarjetas por aperitivo (PDF)</button>':'')+'</div>'+
     (sin.length&&cards.length?'<p class="aa-sin"><b>Sin aperitivo adaptado:</b> '+sin.map(function(g){ return esc(g.nombre)+' ('+esc(g.mesaLbl||("Mesa "+g.mesa))+')'; }).join(" · ")+'</p>':'')+
-    (cards.some(function(c){ return c.plato&&c.gente.length; })?'<div class="aa-prev">'+cards.filter(function(c){ return c.plato&&c.gente.length; }).map(function(c){
-      return '<div class="aa-tarj"><span class="aa-eb">Aperitivo adaptado</span><b>'+esc(c.plato)+'</b><i></i>'+c.gente.map(function(x){ return '<span>'+esc(x.n)+'</span>'; }).join("")+'</div>'; }).join("")+'</div>':'')+
+    (porPers.length?'<div class="aa-prev-h">Tarjetas por persona <span>— arriba el nombre y debajo todos sus aperitivos, en el orden de salida de la escaleta (el adaptado, en color)</span></div>'+
+      '<div class="aa-prev">'+porPers.map(function(pp){
+      return '<div class="aa-tarj pers"><span class="aa-eb">Aperitivos</span><b>'+esc(pp.nombre)+'</b><small>'+esc(pp.mesa)+(pp.motivo?' · '+esc(pp.motivo):'')+'</small><i></i>'+
+        (pp.items.length?pp.items.map(function(x){ return '<span'+(x.ad?' class="ad"':'')+'>'+esc(x.t)+'</span>'; }).join(""):'<span class="aa-full">Marca los aperitivos en «Elegir platos»</span>')+'</div>'; }).join("")+'</div>':'')+
   '</div>';
   return h;
 }
@@ -8524,10 +8578,12 @@ function wireAperitivosAdaptados(){
   });
   body.addEventListener("click",function(ev2){
     if(mnuView!=="aler") return;
-    var b=ev2.target.closest&&ev2.target.closest(".aa-rm,.aa-del,#aa-new,#aa-pdf"); if(!b) return;
+    var b=ev2.target.closest&&ev2.target.closest(".aa-rm,.aa-del,#aa-new,#aa-pdf,#aa-pdf-p"); if(!b) return;
     var lista=BR.alergias?BR.alergias():[];
     if(b.id==="aa-new"){ var nid="aa"+Date.now().toString(36); aaGuardar(lista,function(l){ l.push({id:nid,plato:"",gente:[]}); });
       var inp=$("mnu-body").querySelector('.aa-plato[data-id="'+nid+'"]'); if(inp) inp.focus(); return; }
+    if(b.id==="aa-pdf-p"){ var ep=ev(), pp=aaPorPersona(), bp=((ep&&ep.name)||"evento").replace(/\s+/g,"_")+"_aperitivos_por_persona";
+      b.disabled=true; Promise.resolve(BR.descargarTarjetasPersona&&BR.descargarTarjetasPersona(pp,bp,mnuPaper,ep&&ep.name)).then(function(){ b.disabled=false; }); return; }
     if(b.id==="aa-pdf"){ var e=ev(), cards=aaLista(lista,false).filter(function(c){ return c.plato&&c.gente.length; });
       var base=((e&&e.name)||"evento").replace(/\s+/g,"_")+"_aperitivos_adaptados";
       b.disabled=true; Promise.resolve(BR.descargarTarjetasAper&&BR.descargarTarjetasAper(cards,base,mnuPaper,e&&e.name)).then(function(){ b.disabled=false; }); return; }
@@ -9060,17 +9116,14 @@ function escModelo(){
     if(marcaJamon&&!AP.std.some(esDishJamon)) fa2.push(fila("Jamón · "+marcaJamon,"a cortar",null));
     md.secs.push({t:"Aperitivos",sub:c.mesasAper+" mesas · "+adTot+" adultos",filas:fa2});
   }
-  /* aperitivos adaptados: por persona — arriba el nombre y debajo TODOS los
-     aperitivos que le tocan, en el orden de salida (los adaptados en color).
-     Las personas con la misma lista van juntas. */
-  var grupos={}, gO=[];
-  AP.pers.forEach(function(r){
-    var k=r.items.map(function(x){ return x.id; }).join("|");
-    if(!grupos[k]){ grupos[k]={items:r.items,gente:[],dudas:[],manual:false}; gO.push(k); }
-    grupos[k].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); if(r.dudosa.length) grupos[k].dudas=grupos[k].dudas.concat(r.dudosa); if(r.manual) grupos[k].manual=true; });
-  if(gO.length) md.secs.push({t:"Aperitivos adaptados",sub:AP.pers.length+(AP.pers.length===1?" persona":" personas"),leyenda:"En color: el aperitivo adaptado",filas:gO.map(function(k){ var gp=grupos[k];
-    return {txt:escNombres(gp.gente),q:String(gp.gente.length),lista:gp.items.map(function(x){ return {t:x.t,ad:!!x.ad}; }),
-      sub:gp.dudas.length?"Revisar: "+gp.dudas.filter(function(v,i,a){ return a.indexOf(v)===i; }).join(", "):"",dudosa:!!gp.dudas.length}; })});
+  /* los adaptados, en el orden en que salen, con cuántos y para quién */
+  var adap={}, adO=[];
+  AP.pers.forEach(function(r){ r.items.forEach(function(x){ if(!x.ad) return;
+    if(!adap[x.t]){ adap[x.t]={ord:x.ord,gente:[]}; adO.push(x.t); } adap[x.t].ord=Math.min(adap[x.t].ord,x.ord);
+    adap[x.t].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
+  adO.sort(function(a,b){ return adap[a].ord-adap[b].ord; });
+  if(adO.length) md.secs.push({t:"Aperitivos adaptados",filas:adO.map(function(t){
+    var f=fila(t,escNombres(adap[t].gente),Q("aa:"+escNorm(t).slice(0,40),adap[t].gente.length)); f.sust=true; return f; })});
   /* ── estaciones (el café, copa y puro va con los cafés) ── */
   var grp={}, eo=[], cafEst=[];
   AP.est.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(/caf[eé]/i.test(k)){ cafEst.push(d); return; } if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
