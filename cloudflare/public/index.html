@@ -279,6 +279,11 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .esc-ord{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px}
 .esc-ord-it{display:flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--c-line); border-radius:6px; padding:4px 6px}
 .esc-ord-n{width:22px; text-align:right; font-weight:700; color:var(--c-mut); font-variant-numeric:tabular-nums}
+.esc-drag{cursor:grab; touch-action:none; user-select:none; color:var(--c-mut); font-size:16px; padding:0 4px; line-height:1}
+.esc-drag-nm{cursor:grab; touch-action:none; user-select:none}
+.esc-ord-it.arr{box-shadow:0 6px 18px rgba(0,0,0,.18); border-color:var(--olive); background:color-mix(in srgb,var(--olive) 8%,var(--panel)); position:relative; z-index:2}
+.esc-ord-it.arr .esc-drag,.esc-ord-it.arr .esc-drag-nm{cursor:grabbing}
+.esc-ord-num{width:48px!important; padding:4px 4px!important; text-align:center; font-weight:700; font-size:13px}
 .esc-ord-nm{flex:1; min-width:0; font-size:13px}
 .esc-ord-nm small{color:var(--c-mut)}
 .esc-ord-it .btn.ico{width:28px; height:28px; padding:0}
@@ -9132,13 +9137,15 @@ function renderEscaleta(){
     '</div>';
   /* 2 · orden de salida + aperitivo/estación */
   function filaOrden(d,i,n,tipo){
-    return '<li class="esc-ord-it"><span class="esc-ord-n">'+(tipo==="aper"?(i+1)+".":"·")+'</span><span class="esc-ord-nm">'+esc(d.name)+(d.station?' <small>'+esc(escEtqStation(d.station))+'</small>':'')+'</span>'+
+    return '<li class="esc-ord-it" data-uid="'+esc(d._uid)+'"><span class="esc-drag" title="Arrastra para cambiar el orden" aria-hidden="true">⠿</span>'+
+      '<input type="number" class="esc-ord-num" data-esc-pos="'+esc(d._uid)+'" min="1" max="'+n+'" value="'+(i+1)+'" aria-label="Posición de '+esc(d.name)+' (1 a '+n+')">'+
+      '<span class="esc-ord-nm esc-drag-nm">'+esc(d.name)+(d.station?' <small>'+esc(escEtqStation(d.station))+'</small>':'')+'</span>'+
       '<button type="button" class="btn ico sm" data-esc-mv="'+esc(d._uid)+'" data-dir="-1" aria-label="Subir '+esc(d.name)+'"'+(i===0?" disabled":"")+'>↑</button>'+
       '<button type="button" class="btn ico sm" data-esc-mv="'+esc(d._uid)+'" data-dir="1" aria-label="Bajar '+esc(d.name)+'"'+(i===n-1?" disabled":"")+'>↓</button>'+
       '<select data-esc-bloque="'+esc(d._uid)+'" aria-label="Tipo de '+esc(d.name)+'"><option value="aper"'+(tipo==="aper"?" selected":"")+'>Aperitivo</option><option value="est"'+(tipo==="est"?" selected":"")+'>Estación</option></select></li>';
   }
   var dOrd=(AP.std.length||AP.est.length)?
-    '<p class="esc-hint">Ordena con ↑ ↓ cómo salen. Es el orden de la escaleta y el de la lista de cada persona. Cambia «Aperitivo / Estación» si algo está en el sitio equivocado (p. ej. molletes o arroz).</p>'+
+    '<p class="esc-hint">Arrastra cada plato con el ratón (o el dedo) desde ⠿, escribe su número de posición, o usa ↑ ↓. Es el orden de la escaleta y el de la lista de cada persona. Cambia «Aperitivo / Estación» si algo está en el sitio equivocado (p. ej. molletes o arroz).</p>'+
     '<div class="esc-ord-cols"><div><div class="esc-ord-h">Aperitivos</div><ol class="esc-ord">'+AP.std.map(function(d,i){ return filaOrden(d,i,AP.std.length,"aper"); }).join("")+'</ol></div>'+
     '<div><div class="esc-ord-h">Estaciones</div><ol class="esc-ord">'+(AP.est.length?AP.est.map(function(d,i){ return filaOrden(d,i,AP.est.length,"est"); }).join(""):'<li class="esc-hint">Ninguna</li>')+'</ol></div></div>'
     :'<p class="esc-hint">Marca los aperitivos en «Elegir platos».</p>';
@@ -9162,6 +9169,7 @@ function renderEscaleta(){
   /* 5 · menú infantil */
   var INF=md.inf, porSt={}, stO=[];
   INF.todos.forEach(function(d){ var k=d.station?escEtqStation(d.station):"Otros"; if(!porSt[k]){ porSt[k]=[]; stO.push(k); } porSt[k].push(d); });
+  var ORDI=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORDI.indexOf(a), ib=ORDI.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
   var dInf=(INF.todos.length?'<div class="esc-inf">'+stO.map(function(k){ return '<div><div class="esc-ord-h">'+esc(k)+'</div>'+porSt[k].map(function(d){
       return '<label class="ag-chk"><input type="checkbox" data-esc-inf="'+esc(d._uid)+'"'+(INF.elegidos.indexOf(d)>-1?" checked":"")+'> '+esc(d.name)+'</label>'; }).join("")+'</div>'; }).join("")+'</div>':'')+
     '<label class="fld"><span class="lbl">Otros platos para los niños <small>(uno por línea)</small></span><textarea data-esc="infantilExtra" rows="2">'+esc(cfg.infantilExtra||"")+'</textarea></label>';
@@ -9218,6 +9226,21 @@ function renderEscaleta(){
   wireEscaleta();
 }
 function escIn(lbl,k,v,type,ph){ return '<label class="fld"><span class="lbl">'+esc(lbl)+'</span><input type="'+type+'" data-esc-f="'+k+'" value="'+esc(v||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></label>'; }
+/* mueve un plato a la posición j (0 = el primero) dentro de su lista
+   (aperitivos o estaciones) y guarda el orden de las dos */
+function escPosDe(u){ var AE=escAperYEst(escCfg()), l=(AE.aper.some(function(d){ return d._uid===u; })?AE.aper:AE.est); return l.map(function(d){ return d._uid; }).indexOf(u); }
+function escMoverA(u,j){
+  var cfg=escCfg(), AE=escAperYEst(cfg), enAper=AE.aper.some(function(d){ return d._uid===u; });
+  var lista=(enAper?AE.aper:AE.est).map(function(d){ return d._uid; }), otra=(enAper?AE.est:AE.aper).map(function(d){ return d._uid; });
+  var i=lista.indexOf(u); if(i<0) return false; j=Math.max(0,Math.min(lista.length-1,j)); if(i===j) return false;
+  lista.splice(i,1); lista.splice(j,0,u);
+  cfg.orden=lista.concat(otra); touchSave(); renderEscaleta(); return true;
+}
+function escGuardarOrdenDOM(ol){
+  var cfg=escCfg(), AE=escAperYEst(cfg), uids=Array.prototype.map.call(ol.querySelectorAll(".esc-ord-it"),function(li){ return li.getAttribute("data-uid"); });
+  var enAper=AE.aper.some(function(d){ return d._uid===uids[0]; });
+  cfg.orden=uids.concat((enAper?AE.est:AE.aper).map(function(d){ return d._uid; })); touchSave(); renderEscaleta();
+}
 /* la lista de una persona pasa a ser «a mano» (se guarda entera) */
 function escFijarPersona(key){
   var cfg=escCfg(), AP=escAperitivos(escCuentas(),cfg), r=AP.pers.filter(function(x){ return x.key===key; })[0];
@@ -9232,6 +9255,9 @@ function wireEscaleta(){
     var t=ev2.target, e=ev(); if(!e) return; var cfg=escCfg();
     if(t.hasAttribute("data-esc-f")){ e.ficha=e.ficha||{}; e.ficha[t.getAttribute("data-esc-f")]=t.value.trim(); }
     else if(t.hasAttribute("data-esc")){ var k=t.getAttribute("data-esc"); if(t.type==="checkbox") cfg[k]=t.checked; else cfg[k]=k==="staffMenu"||k==="infantilExtra"||k==="ressopo"||k==="notas"?t.value:t.value.trim(); if(k==="staffMenu") delete cfg.staff; }
+    else if(t.hasAttribute("data-esc-pos")){ var pu=t.getAttribute("data-esc-pos"), pn=parseInt(t.value,10);
+      if(!(pn>=1)){ renderEscaleta(); return; } if(!escMoverA(pu,pn-1)) renderEscaleta();
+      var ni=$("mnu-body").querySelector('[data-esc-pos="'+pu+'"]'); if(ni) ni.focus(); return; }
     else if(t.hasAttribute("data-esc-bloque")){ cfg.bloque=cfg.bloque||{}; cfg.bloque[t.getAttribute("data-esc-bloque")]=t.value; }
     else if(t.hasAttribute("data-esc-sust")){ cfg.aaSust=cfg.aaSust||{}; cfg.aaSust[t.getAttribute("data-esc-sust")]=t.value; }
     else if(t.hasAttribute("data-esc-inf")){ var INF=escInfantil(cfg), cur=INF.elegidos.map(function(d){ return d._uid; }), u=t.getAttribute("data-esc-inf");
@@ -9260,19 +9286,39 @@ function wireEscaleta(){
     var a=ev2.target.closest("[data-esc-act]");
     if(a&&a.getAttribute("data-esc-act")==="ov-reset"){ if(!window.confirm("¿Volver todas las cantidades corregidas a mano al cálculo automático?")) return; cfg.ov={}; touchSave(); renderEscaleta(); return; }
     if((b=ev2.target.closest("[data-esc-mv]"))){
-      var u=b.getAttribute("data-esc-mv"), dir=+b.getAttribute("data-dir"), AE=escAperYEst(cfg);
-      var lista=(AE.aper.some(function(d){ return d._uid===u; })?AE.aper:AE.est).map(function(d){ return d._uid; });
-      var i=lista.indexOf(u), j=i+dir; if(i<0||j<0||j>=lista.length) return;
-      lista[i]=lista[j]; lista[j]=u;
-      /* el orden guardado: aperitivos y estaciones, cada lista en su orden */
-      var otra=(AE.aper.some(function(d){ return d._uid===u; })?AE.est:AE.aper).map(function(d){ return d._uid; });
-      cfg.orden=lista.concat(otra);
-      touchSave(); renderEscaleta();
+      var u=b.getAttribute("data-esc-mv"), dir=+b.getAttribute("data-dir");
+      if(!escMoverA(u,escPosDe(u)+dir)) return;
       var nb=$("mnu-body").querySelector('[data-esc-mv="'+u+'"][data-dir="'+dir+'"]'); if(nb&&!nb.disabled) nb.focus(); return; }
     if((b=ev2.target.closest("[data-esc-pq]"))){ var key=b.getAttribute("data-esc-pq"), id=b.getAttribute("data-id");
       var l=escFijarPersona(key); cfg.aperPers[key]=l.filter(function(x){ return x!==id; }); touchSave(); renderEscaleta(); return; }
     if((b=ev2.target.closest("[data-esc-pauto]"))){ if(cfg.aperPers) delete cfg.aperPers[b.getAttribute("data-esc-pauto")]; touchSave(); renderEscaleta(); return; }
     var td=ev2.target.closest("td[data-esc-k]"); if(td) editar(td);
+  });
+  /* arrastrar: desde ⠿ o el nombre del plato, con ratón o dedo */
+  body.addEventListener("pointerdown",function(ev2){
+    if(mnuView!=="esc"||ev2.button>0) return;
+    var h=ev2.target.closest&&ev2.target.closest(".esc-drag,.esc-drag-nm"); if(!h) return;
+    var li=h.closest(".esc-ord-it"), ol=li&&li.parentNode; if(!li) return;
+    ev2.preventDefault();
+    var y0=ev2.clientY, movido=false, pid=ev2.pointerId;
+    li.classList.add("arr");
+    function mueve(e){
+      if(e.pointerId!==pid) return;
+      if(!movido&&Math.abs(e.clientY-y0)<4) return; movido=true;
+      var items=Array.prototype.filter.call(ol.querySelectorAll(".esc-ord-it"),function(x){ return x!==li; }), antes=null;
+      for(var k=0;k<items.length;k++){ var r=items[k].getBoundingClientRect(); if(e.clientY<r.top+r.height/2){ antes=items[k]; break; } }
+      if(antes) ol.insertBefore(li,antes); else ol.appendChild(li);
+      var nums=ol.querySelectorAll(".esc-ord-num"); Array.prototype.forEach.call(nums,function(n,ix){ n.value=ix+1; });
+    }
+    function suelta(e){
+      if(e.pointerId!==pid) return;
+      window.removeEventListener("pointermove",mueve); window.removeEventListener("pointerup",suelta); window.removeEventListener("pointercancel",suelta);
+      li.classList.remove("arr");
+      if(movido) escGuardarOrdenDOM(ol);
+    }
+    /* se escucha en toda la ventana: al mover la fila en la lista el elemento
+       cambia de sitio y no debe perder el cursor */
+    window.addEventListener("pointermove",mueve); window.addEventListener("pointerup",suelta); window.addEventListener("pointercancel",suelta);
   });
   body.addEventListener("keydown",function(ev2){
     if(mnuView!=="esc") return;
