@@ -8371,6 +8371,7 @@ function renderAlergias(){
 
   wirePlatos();
   wireAperitivosAdaptados();
+  wireEscaleta();
   var ap=$("aler-paper"); if(ap) ap.addEventListener("change",function(){ mnuPaper=ap.value; });
   var ab=$("aler-print-btn"); if(ab) ab.addEventListener("click",function(){ descargarAlergias(ab); });
 }
@@ -8519,7 +8520,7 @@ function aaPorPersona(){
 }
 function aaGuardar(lista,fn){ var l=aaLista(lista,true); fn(l); touchSave(); renderAlergias(); }
 function renderAperitivosAdaptados(lista){
-  var cards=aaLista(lista,false), porK={}, porPers=aaPorPersona();
+  var cards=aaLista(lista,false), porK={}, porPers=aaPorPersona(), HA=escHtmlAdaptados();
   lista.forEach(function(g){ porK[aaKey(g)]=g; });
   var asignados={}; cards.forEach(function(c){ c.gente.forEach(function(x){ asignados[x.k]=(asignados[x.k]||0)+1; }); });
   var sin=lista.filter(function(g){ return !asignados[aaKey(g)]; });
@@ -8555,10 +8556,8 @@ function renderAperitivosAdaptados(lista){
       (porPers.length?'<button type="button" class="btn sm" id="aa-pdf-p">Descargar tarjetas por persona (PDF)</button>':'')+
       (cards.some(function(c){ return c.plato&&c.gente.length; })?'<button type="button" class="btn sm" id="aa-pdf">Tarjetas por aperitivo (PDF)</button>':'')+'</div>'+
     (sin.length&&cards.length?'<p class="aa-sin"><b>Sin aperitivo adaptado:</b> '+sin.map(function(g){ return esc(g.nombre)+' ('+esc(g.mesaLbl||("Mesa "+g.mesa))+')'; }).join(" · ")+'</p>':'')+
-    (porPers.length?'<div class="aa-prev-h">Tarjetas por persona <span>— arriba el nombre y debajo todos sus aperitivos, en el orden de salida de la escaleta (el adaptado, en color)</span></div>'+
-      '<div class="aa-prev">'+porPers.map(function(pp){
-      return '<div class="aa-tarj pers"><span class="aa-eb">Aperitivos</span><b>'+esc(pp.nombre)+'</b><small>'+esc(pp.mesa)+(pp.motivo?' · '+esc(pp.motivo):'')+'</small><i></i>'+
-        (pp.items.length?pp.items.map(function(x){ return '<span'+(x.ad?' class="ad"':'')+'>'+esc(x.t)+'</span>'; }).join(""):'<span class="aa-full">Marca los aperitivos en «Elegir platos»</span>')+'</div>'; }).join("")+'</div>':'')+
+    (cards.length?'<div class="aa-prev-h">A qué aperitivo sustituye cada uno</div>'+HA.sust:'')+
+    '<div class="aa-prev-h">Aperitivos de cada persona <span>— lo que sale en su tarjeta</span></div>'+HA.pers+
   '</div>';
   return h;
 }
@@ -9203,6 +9202,31 @@ function escDet(id,titulo,resumen,cuerpo,abierto){
   return '<details class="esc-det" data-det="'+id+'"'+(open?" open":"")+'><summary><b>'+esc(titulo)+'</b>'+(resumen?'<span>'+esc(resumen)+'</span>':'')+'</summary><div class="esc-det-b">'+cuerpo+'</div></details>';
 }
 var escUI={abiertos:{}};
+/* bloques de los aperitivos adaptados (en «Alergias y sustituciones»): a qué
+   sustituye cada adaptado y los aperitivos de cada persona, con retoques */
+function escHtmlAdaptados(){
+  var cfg=escCfg(), c=escCuentas(), AP=escAperitivos(c,cfg);
+  /* 3 · adaptados: a qué aperitivo sustituye cada uno */
+  var dAd=AP.cards.length?'<p class="esc-hint">Sale en su lugar del orden de salida, en la escaleta y en la tarjeta de cada persona.</p>'+
+    AP.cards.map(function(cd){ var u=escSustDe(cd,AP.std,cfg);
+      return '<div class="esc-ad-it"><b>'+esc(cd.plato)+'</b> <small>'+cd.gente.length+(cd.gente.length===1?" persona":" personas")+'</small> <span>sustituye a</span> '+
+        '<select data-esc-sust="'+esc(cd.id)+'"><option value="">— se sirve aparte —</option>'+AP.std.map(function(d){ return '<option value="'+esc(d._uid)+'"'+(u===d._uid?" selected":"")+'>'+esc(d.name)+'</option>'; }).join("")+'</select></div>'; }).join("")
+    :'<p class="esc-hint">Todavía no hay aperitivos adaptados: créalos arriba.</p>';
+  /* 4 · por persona (retoques) */
+  var dPer=AP.pers.length?'<p class="esc-hint">La lista sale sola según su alergia o dieta (quitando lo que no puede tomar y poniendo su aperitivo adaptado). Si hace falta, quita (×) o añade aperitivos a una persona: se respeta siempre el orden de salida.</p>'+
+    AP.pers.map(function(r){ var g=r.p.g, dentro={}; r.items.forEach(function(x){ dentro[x.id]=1; });
+      var opts=AP.std.filter(function(d){ return !dentro["d:"+d._uid]; }).map(function(d){ return '<option value="d:'+esc(d._uid)+'">'+esc(d.name)+'</option>'; }).join("")+
+        AP.cards.filter(function(cd){ return !dentro["c:"+cd.id]; }).map(function(cd){ return '<option value="c:'+esc(cd.id)+'">'+esc(cd.plato)+' (adaptado)</option>'; }).join("");
+      return '<div class="esc-per'+(r.dudosa.length?" duda":"")+'"><div class="esc-per-h"><b>'+esc(g.name)+'</b> <small>'+esc(r.p.mesa)+' · '+esc(escGruposDe(g).join(", "))+'</small>'+
+        (r.dudosa.length?' <em>revisar: '+esc(r.dudosa.join(", "))+'</em>':'')+
+        (r.manual?' <button type="button" class="imp-back" data-esc-pauto="'+esc(r.key)+'">↺ volver a automático</button>':'')+'</div>'+
+        '<div class="esc-per-l">'+(r.items.length?r.items.map(function(x){ return '<span class="esc-chip'+(x.ad?" ad":"")+'">'+esc(x.t)+'<button type="button" data-esc-pq="'+esc(r.key)+'" data-id="'+esc(x.id)+'" aria-label="Quitar '+esc(x.t)+' a '+esc(g.name)+'">×</button></span>'; }).join('<i>·</i>'):'<span class="esc-hint">Sin aperitivos</span>')+
+        '<select data-esc-padd="'+esc(r.key)+'" aria-label="Añadir aperitivo a '+esc(g.name)+'"><option value="">+ añadir…</option>'+opts+'<option value="t:">Otro (escribir)…</option></select></div></div>'; }).join("")
+    :'<p class="esc-hint">Nadie con alergia o dieta en el plano: todos toman todos los aperitivos.</p>';
+  return {sust:dAd, pers:dPer, AP:AP};
+}
+function escRefrescar(){ if(mnuView==="aler") renderAlergias(); else renderEscaleta(); }
+
 function renderEscaleta(){
   var md=escModelo(); if(!md){ $("mnu-body").innerHTML=""; return; }
   var e=ev(), cfg=md.cfg, c=md.cuentas, F=e.ficha||{}, AP=md.ap;
@@ -9227,23 +9251,6 @@ function renderEscaleta(){
     '<div class="esc-ord-cols"><div><div class="esc-ord-h">Aperitivos</div><ol class="esc-ord">'+AP.std.map(function(d,i){ return filaOrden(d,i,AP.std.length,"aper"); }).join("")+'</ol></div>'+
     '<div><div class="esc-ord-h">Estaciones</div><ol class="esc-ord">'+(AP.est.length?AP.est.map(function(d,i){ return filaOrden(d,i,AP.est.length,"est"); }).join(""):'<li class="esc-hint">Ninguna</li>')+'</ol></div></div>'
     :'<p class="esc-hint">Marca los aperitivos en «Elegir platos».</p>';
-  /* 3 · adaptados: a qué aperitivo sustituye cada uno */
-  var dAd=AP.cards.length?'<p class="esc-hint">Los aperitivos adaptados y a quién van se eligen en «Alergias y sustituciones». Aquí se dice a qué aperitivo sustituyen, para que salgan en su lugar del orden.</p>'+
-    AP.cards.map(function(cd){ var u=escSustDe(cd,AP.std,cfg);
-      return '<div class="esc-ad-it"><b>'+esc(cd.plato)+'</b> <small>'+cd.gente.length+(cd.gente.length===1?" persona":" personas")+'</small> <span>sustituye a</span> '+
-        '<select data-esc-sust="'+esc(cd.id)+'"><option value="">— se sirve aparte —</option>'+AP.std.map(function(d){ return '<option value="'+esc(d._uid)+'"'+(u===d._uid?" selected":"")+'>'+esc(d.name)+'</option>'; }).join("")+'</select></div>'; }).join("")
-    :'<p class="esc-hint">No hay aperitivos adaptados. Se crean en «Alergias y sustituciones › Aperitivos adaptados».</p>';
-  /* 4 · por persona (retoques) */
-  var dPer=AP.pers.length?'<p class="esc-hint">La lista sale sola según su alergia o dieta (quitando lo que no puede tomar y poniendo su aperitivo adaptado). Si hace falta, quita (×) o añade aperitivos a una persona: se respeta siempre el orden de salida.</p>'+
-    AP.pers.map(function(r){ var g=r.p.g, dentro={}; r.items.forEach(function(x){ dentro[x.id]=1; });
-      var opts=AP.std.filter(function(d){ return !dentro["d:"+d._uid]; }).map(function(d){ return '<option value="d:'+esc(d._uid)+'">'+esc(d.name)+'</option>'; }).join("")+
-        AP.cards.filter(function(cd){ return !dentro["c:"+cd.id]; }).map(function(cd){ return '<option value="c:'+esc(cd.id)+'">'+esc(cd.plato)+' (adaptado)</option>'; }).join("");
-      return '<div class="esc-per'+(r.dudosa.length?" duda":"")+'"><div class="esc-per-h"><b>'+esc(g.name)+'</b> <small>'+esc(r.p.mesa)+' · '+esc(escGruposDe(g).join(", "))+'</small>'+
-        (r.dudosa.length?' <em>revisar: '+esc(r.dudosa.join(", "))+'</em>':'')+
-        (r.manual?' <button type="button" class="imp-back" data-esc-pauto="'+esc(r.key)+'">↺ volver a automático</button>':'')+'</div>'+
-        '<div class="esc-per-l">'+(r.items.length?r.items.map(function(x){ return '<span class="esc-chip'+(x.ad?" ad":"")+'">'+esc(x.t)+'<button type="button" data-esc-pq="'+esc(r.key)+'" data-id="'+esc(x.id)+'" aria-label="Quitar '+esc(x.t)+' a '+esc(g.name)+'">×</button></span>'; }).join('<i>·</i>'):'<span class="esc-hint">Sin aperitivos</span>')+
-        '<select data-esc-padd="'+esc(r.key)+'" aria-label="Añadir aperitivo a '+esc(g.name)+'"><option value="">+ añadir…</option>'+opts+'<option value="t:">Otro (escribir)…</option></select></div></div>'; }).join("")
-    :'<p class="esc-hint">Nadie con alergia o dieta en el plano: todos toman todos los aperitivos.</p>';
   /* 5 · menú infantil */
   var INF=md.inf, porSt={}, stO=[];
   INF.todos.forEach(function(d){ var k=d.station?escEtqStation(d.station):"Otros"; if(!porSt[k]){ porSt[k]=[]; stO.push(k); } porSt[k].push(d); });
@@ -9263,13 +9270,10 @@ function renderEscaleta(){
       '<label class="fld"><span class="lbl">Ressopó <small>(si no está marcado en el menú; uno por línea)</small></span><textarea data-esc="ressopo" rows="2">'+esc(cfg.ressopo||"")+'</textarea></label>'+
       '<label class="fld esc-notas"><span class="lbl">Notas para cocina y sala</span><textarea data-esc="notas" rows="2" placeholder="Opcional">'+esc(cfg.notas||"")+'</textarea></label>'+
     '</div>';
-  var dudas=AP.pers.filter(function(r){ return r.dudosa.length; }).length;
   var ed='<div class="esc-edit">'+
     '<div class="esc-ed-h"><b>Datos de la escaleta</b><span>Todo lo demás sale solo del plano, del menú marcado y de las bebidas. Pulsa una cantidad de la hoja para corregirla.</span></div>'+
     escDet("hor","Horario",F.llegadaRest?"Llegada "+F.llegadaRest:"falta la hora de llegada",dHor,!F.llegadaRest)+
     escDet("ord","Orden de salida · aperitivos y estaciones",AP.std.length+" aperitivos · "+AP.est.length+" estaciones",dOrd,true)+
-    escDet("ad","Aperitivos adaptados",AP.cards.length?AP.cards.length+" adaptados":"ninguno",dAd,false)+
-    escDet("per","Aperitivos por persona",AP.pers.length+(AP.pers.length===1?" persona":" personas")+" con alergia o dieta"+(dudas?" · "+dudas+" por revisar":""),dPer,!!dudas)+
     escDet("inf","Menú infantil",c.ninos+(c.ninos===1?" niño":" niños")+" · "+(INF.elegidos.length+INF.extra.length)+" platos",dInf,c.ninos>0&&!(INF.elegidos.length+INF.extra.length))+
     escDet("stf","Menú staff",c.staff+(c.staff===1?" persona":" personas")+" · "+(md.staffMenu.length?md.staffMenu.length+" platos":"sin configurar"),dSt,c.staff>0&&!md.staffMenu.length)+
     escDet("mas","Alergias, tarta, cafés, ressopó y notas","",dMas,false)+
@@ -9329,8 +9333,9 @@ function wireEscaleta(){
   var body=$("mnu-body"); if(body.__escBound) return; body.__escBound=true;
   body.addEventListener("toggle",function(ev2){ var d=ev2.target; if(d&&d.classList&&d.classList.contains("esc-det")) escUI.abiertos[d.getAttribute("data-det")]=d.open; },true);
   body.addEventListener("change",function(ev2){
-    if(mnuView!=="esc") return;
+    if(mnuView!=="esc"&&mnuView!=="aler") return;
     var t=ev2.target, e=ev(); if(!e) return; var cfg=escCfg();
+    if(mnuView==="aler"&&!t.hasAttribute("data-esc-sust")&&!t.hasAttribute("data-esc-padd")) return;
     if(t.hasAttribute("data-esc-f")){ e.ficha=e.ficha||{}; e.ficha[t.getAttribute("data-esc-f")]=t.value.trim(); }
     else if(t.hasAttribute("data-esc")){ var k=t.getAttribute("data-esc"); if(t.type==="checkbox") cfg[k]=t.checked; else cfg[k]=k==="staffMenu"||k==="infantilExtra"||k==="ressopo"||k==="notas"?t.value:t.value.trim(); if(k==="staffMenu") delete cfg.staff; }
     else if(t.hasAttribute("data-esc-pos")){ var pu=t.getAttribute("data-esc-pos"), pn=parseInt(t.value,10);
@@ -9344,7 +9349,7 @@ function wireEscaleta(){
       if(v==="t:"){ var txt=window.prompt("Aperitivo para esta persona:",""); if(!txt||!txt.trim()){ t.value=""; return; } v="t:"+txt.trim(); }
       var l=escFijarPersona(key); if(l.indexOf(v)<0) l.push(v); }
     else return;
-    touchSave(); renderEscaleta();
+    touchSave(); escRefrescar();
   });
   function editar(td){
     if(!td||td.querySelector("input")) return;
@@ -9359,8 +9364,9 @@ function wireEscaleta(){
     inp.addEventListener("blur",function(){ fin(true); });
   }
   body.addEventListener("click",function(ev2){
-    if(mnuView!=="esc") return;
+    if(mnuView!=="esc"&&mnuView!=="aler") return;
     var cfg=escCfg(), b;
+    if(mnuView==="aler"&&!(ev2.target.closest&&ev2.target.closest("[data-esc-pq],[data-esc-pauto]"))) return;
     var a=ev2.target.closest("[data-esc-act]");
     if(a&&a.getAttribute("data-esc-act")==="ov-reset"){ if(!window.confirm("¿Volver todas las cantidades corregidas a mano al cálculo automático?")) return; cfg.ov={}; touchSave(); renderEscaleta(); return; }
     if((b=ev2.target.closest("[data-esc-mv]"))){
@@ -9368,8 +9374,8 @@ function wireEscaleta(){
       if(!escMoverA(u,escPosDe(u)+dir)) return;
       var nb=$("mnu-body").querySelector('[data-esc-mv="'+u+'"][data-dir="'+dir+'"]'); if(nb&&!nb.disabled) nb.focus(); return; }
     if((b=ev2.target.closest("[data-esc-pq]"))){ var key=b.getAttribute("data-esc-pq"), id=b.getAttribute("data-id");
-      var l=escFijarPersona(key); cfg.aperPers[key]=l.filter(function(x){ return x!==id; }); touchSave(); renderEscaleta(); return; }
-    if((b=ev2.target.closest("[data-esc-pauto]"))){ if(cfg.aperPers) delete cfg.aperPers[b.getAttribute("data-esc-pauto")]; touchSave(); renderEscaleta(); return; }
+      var l=escFijarPersona(key); cfg.aperPers[key]=l.filter(function(x){ return x!==id; }); touchSave(); escRefrescar(); return; }
+    if((b=ev2.target.closest("[data-esc-pauto]"))){ if(cfg.aperPers) delete cfg.aperPers[b.getAttribute("data-esc-pauto")]; touchSave(); escRefrescar(); return; }
     var td=ev2.target.closest("td[data-esc-k]"); if(td) editar(td);
   });
   /* arrastrar: desde ⠿ o el nombre del plato, con ratón o dedo */
