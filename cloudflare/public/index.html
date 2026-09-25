@@ -9579,7 +9579,7 @@ function rentParams(){
   Object.keys(d).forEach(function(k){ if(k==="botella") Object.keys(d.botella||{}).forEach(function(b){ o.botella[b]=d.botella[b]; }); else if(d[k]!=null&&d[k]!=="") o[k]=d[k]; });
   return o;
 }
-function rentPrecios(){ var d=BR.param("precios")||{}; return {arts:d.arts||[], imp:d.imp||null, ing:d.ing||{}, extra:d.extra||{}}; }
+function rentPrecios(){ var d=BR.param("precios")||{}; return {arts:d.arts||[], imp:d.imp||null, ing:d.ing||{}, extra:d.extra||{}, beb:d.beb||{}}; }
 function rentClave(s){ return escNorm(s).replace(/[“”"'«»()]/g,"").replace(/\s+/g," ").trim(); }
 /* unidades del Maître → la magnitud y el factor a la unidad base (g, ml, ud) */
 var RENT_UD={kg:["m",1000], g:["m",1], l:["v",1000], cl:["v",10], ml:["v",1], ud:["u",1]};
@@ -9596,7 +9596,68 @@ function rentUdArt(s){
 function rentNum(v){ if(typeof v==="number") return v; var s=String(v==null?"":v).replace(/[€\s]/g,""); if(!s) return null;
   if(s.indexOf(",")>-1&&s.indexOf(".")>-1) s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");
   else s=s.replace(",","."); var n=parseFloat(s); return isFinite(n)?n:null; }
-function rentArtMap(P){ var m={}; P.arts.forEach(function(a){ var k=rentClave(a.n); if(k&&!m[k]) m[k]=a; }); return m; }
+function rentArtMap(P){ var m={}; P.arts.forEach(function(a){ [a.n,a.o].forEach(function(x){ var k=rentClave(x); if(k&&!m[k]) m[k]=a; }); }); return m; }
+function rentArtKey(a){ return rentClave(a.o||a.n); }
+/* el Maître pone la unidad al final del nombre («Patata Kg», «Lechuga Unid.»,
+   «Pan Baguette 275gr», «Miel 1/2 Kg»): se saca la unidad, el tamaño del
+   envase y el nombre limpio. Si no pone nada, cantidades con decimales = kg. */
+function rentUdNombre(nombre,q){
+  var t=String(nombre||"").replace(/\s+/g," ").trim(), u="", f=1, m, i;
+  var UD=/^(ud|uds|u|un|und|unid|unidad|unidades|uni|pieza|piezas|pz|dotzena|docena|manojo|botella|bot|lata|ut)$/, ART=/^(art|arti|artic|articulo|articulos)$/;
+  var dec=q!=null&&Math.abs(q-Math.round(q))>1e-6;
+  function quita(){ var w=t.split(" "); w.pop(); t=w.join(" "); }
+  /* «Sal fina bossa 5 Kg», «Magnum 1.5 l»: el precio es del envase */
+  function envase(){ var w=t.split(" "), n=w.length>1?parseFloat(String(w[w.length-1]).replace(",",".")):NaN;
+    if(/^\d+([.,]\d+)?$/.test(w[w.length-1]||"")&&n>=0.1&&n<=25&&f===1){ f=n; quita(); } }
+  for(i=0;i<3;i++){
+    var w=t.split(" "); if(w.length<2) break;
+    var l=escNorm(w[w.length-1]).replace(/[()]/g,"").replace(/\.$/,"");
+    if(i===0&&(m=/^(\d+(?:[.,]\d+)?)(kg|k|gr|g|l|lt|ml|cl)$/.exec(l))){ var n=parseFloat(m[1].replace(",",".")), un=m[2];
+      if(n>0){ if(un==="kg"||un==="k"){ u="kg"; f=n; } else if(un==="gr"||un==="g"){ u="kg"; f=n/1000; } else if(un==="ml"){ u="l"; f=n/1000; } else if(un==="cl"){ u="l"; f=n/100; } else { u="l"; f=n; } }
+      quita(); break; }
+    if(/^(kg|k|kgs|kilo|kilos|articulo-kg|gr\/kg|g\/kg)$/.test(l)){ u=u||"kg"; quita(); if(/^(kg|k)$/.test(l)) envase(); continue; }
+    if(/^(l|lt|lts|litro|litros)$/.test(l)){ u=u||"l"; quita(); envase(); continue; }
+    if(UD.test(l)){ u=u||"ud"; quita(); continue; }
+    if(ART.test(l)){ u=u||(dec?"kg":"ud"); quita(); continue; }
+    /* «Miel 1/2 Kg», «Gaseosa 1/2 l.»: medio kilo / medio litro por envase */
+    if(u&&u!=="ud"&&(m=/^([13])\/([234])$/.exec(l))){ f=(+m[1])/(+m[2]); quita(); }
+    break;
+  }
+  if(!u) u=dec?"kg":"ud";
+  return {n:t||String(nombre||"").trim(), u:u, f:f};
+}
+/* palabras de un nombre para comparar («Puré de patata» ~ «Patata Kg») */
+var RENT_TOK=new WeakMap();
+var RENT_STOP={de:1,la:1,el:1,con:1,y:1,en:1,al:1,a:1,del:1,los:1,las:1,para:1,sin:1};
+function rentTokens(s){ var o={}; escNorm(String(s||"").replace(/ç/gi,"z")).replace(/[^a-z0-9ñ ]/g," ").split(" ").forEach(function(w){ if(w.length<3||RENT_STOP[w]) return; o[w.replace(/(es|s)$/,"")]=1; }); return o; }
+/* el artículo que más se parece (al menos la mitad de las palabras en común) */
+function rentSugerir(nombre,arts,filtro){
+  var t=rentTokens(nombre), kt=Object.keys(t); if(!kt.length) return null;
+  var best=null, bs=0;
+  arts.forEach(function(a){ if(a.p==null||(filtro&&!filtro(a))) return; var at=RENT_TOK.get(a); if(!at){ at=rentTokens(a.n); RENT_TOK.set(a,at); } var ka=Object.keys(at); if(!ka.length) return;
+    var comun=kt.filter(function(w){ return at[w]; }).length; if(!comun) return;
+    var sc=comun/(kt.length+ka.length-comun);
+    /* a igualdad, el que más se compra (el de siempre) */
+    if(sc>bs+1e-9||(Math.abs(sc-bs)<1e-9&&best&&(+a.q||0)>(+best.q||0))){ bs=sc; best=a; } });
+  return bs>=0.5?{a:best,sc:bs}:null;
+}
+/* el precio de una botella: la marca enlazada a mano, la de mismo nombre o la
+   que más se parece; sin marca, el artículo de la categoría o su precio fijo */
+function rentPrecioBeb(cat,marca,P,AM,RP){
+  var k=marca?rentClave(marca):"cat:"+cat.key, x=(P.beb||{})[k]||{}, a=null, fuente="";
+  var FB={agua:/agua/,blanco:/blanc/,tinto:/tint/,cava:/^cavas?$|cava(?!.*ros)/,cavaRosado:/rosad|rosat/}[cat.key];
+  function deFam(y){ return !y.fam||!FB||FB.test(rentClave(y.fam)); }
+  if(x.p!=null&&x.p!=="") return {pu:+x.p,fuente:"a mano"};
+  if(x.a&&AM[x.a]){ a=AM[x.a]; fuente="enlazado"; }
+  else if(marca&&AM[k]){ a=AM[k]; fuente="nombre igual"; }
+  else if(marca){ var sg=rentSugerir(marca,P.arts,deFam); if(sg){ a=sg.a; fuente="parecido"; } }
+  /* sin marca: lo que más se compra de esa familia del Maître (el agua de siempre) */
+  else if(FB){ P.arts.forEach(function(y){ if(y.fam&&FB.test(rentClave(y.fam))&&y.p!=null&&(!a||(+y.q||0)>(+a.q||0))) a=y; }); if(a) fuente="el más comprado"; }
+  if(a) return {pu:a.pu!=null?+a.pu:+a.p, art:a.o||a.n, fuente:fuente};
+  if(marca){ var xc=(P.beb||{})["cat:"+cat.key]||{}; if(xc.a&&AM[xc.a]){ var ac=AM[xc.a]; return {pu:ac.pu!=null?+ac.pu:+ac.p,art:ac.o||ac.n,fuente:"el de la categoría"}; } }
+  if(+RP.botella[cat.key]>0) return {pu:+RP.botella[cat.key],fuente:"precio fijo de la categoría"};
+  return null;
+}
 /* el precio de un ingrediente: lo escrito a mano, o su artículo del Maître
    (el enlazado o el de mismo nombre). Devuelve {p,u,g,art,fuente} o null */
 function rentPrecioIng(nombre,P,AM){
@@ -9681,9 +9742,8 @@ function rentCalc(){
      elegida (su artículo del Maître) o, si no, el de la categoría */
   var beb=[];
   BEBIDA_CATS.forEach(function(cat){ if(cat.key==="jamon"||!cat.auto) return;
-    var r=calcBebida(cat), marca=bebidaMarca(cat.key), a=marca?AM[rentClave(marca)]:null, pu=null, fuente="";
-    if(a&&a.p!=null){ pu=+a.p; fuente="Maître"; } else if(+RP.botella[cat.key]>0){ pu=+RP.botella[cat.key]; fuente="precio de la categoría"; }
-    beb.push({txt:cat.label, marca:marca, q:r.botellas, cu:pu||0, total:(pu||0)*r.botellas, fuente:fuente, completo:pu!=null||!r.botellas}); });
+    var r=calcBebida(cat), marca=bebidaMarca(cat.key), pb=rentPrecioBeb(cat,marca,P,AM,RP), pu=pb?pb.pu:null;
+    beb.push({txt:cat.label, marca:marca, q:r.botellas, cu:pu||0, total:(pu||0)*r.botellas, fuente:pb?(pb.art?"Maître · "+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!r.botellas}); });
   var bebTotal=beb.reduce(function(s,x){ return s+x.total; },0);
   /* 3 · personal: los camareros que vienen (o los previstos) × horas × €/hora */
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
@@ -9719,6 +9779,13 @@ BR.rent={
   calcDe:function(e){ return BR.conEvento(e,rentCalc); },
   params:rentParams, def:RENT_DEF, precios:rentPrecios, clave:rentClave, udArt:rentUdArt, num:rentNum,
   ingredientes:rentIngredientes, precioIng:function(n){ var P=rentPrecios(); return rentPrecioIng(n,P,rentArtMap(P)); },
+  udNombre:rentUdNombre, artKey:rentArtKey,
+  /* sugerencia para un ingrediente: solo si va en gramos o ml y el artículo va
+     por kg o litro (una «ud» del Maître —un manojo, una caja— no es la «ud»
+     del escandallo) */
+  sugerir:function(n,uds){ var ok=Object.keys(uds||{}).every(function(u){ return /^(gr|g|kg|ml|cl|l)$/.test(escNorm(u)); }); if(!ok) return null;
+    return rentSugerir(n,rentPrecios().arts,function(a){ return /^(kg|g|l|ml|cl)$/.test(a.u||""); }); },
+  precioBeb:function(catKey,marca){ var P=rentPrecios(), cat=BEBIDA_CATS.filter(function(c){ return c.key===catKey; })[0]; return cat?rentPrecioBeb(cat,marca,P,rentArtMap(P),rentParams()):null; },
   costePlato:function(d){ var P=rentPrecios(); return rentCostePlato(d,P,rentArtMap(P)); },
   familias:function(){ return MENU_DATA; }, bebidaCats:function(){ return BEBIDA_CATS.filter(function(c){ return c.auto; }); }
 };
@@ -12001,20 +12068,50 @@ function adivinaCols(cab){
   if(mejor) c.p=mejor.i;
   return c;
 }
-function impCargar(rows,archivo,hojas){
-  ui.imp={rows:rows,archivo:archivo,hojas:hojas||null,hoja:0,cols:adivinaCols(rows[0]||[]),udDef:"kg"};
+/* el informe «Análisis de compras» del Maître no trae fila de títulos: cada
+   fila repite las etiquetas («Código», «Descripcion», «Cantidad», «Importe»)
+   y después la familia y los datos. Se convierte en una tabla normal con el
+   precio medio de compra (importe ÷ cantidad). */
+function impMaitre(rows){
+  var r0=rows[0]||[], cl=r0.map(function(x){ return BR.rent.clave(x); });
+  var iD=cl.indexOf("descripcion"), iQ=cl.indexOf("cantidad"), iI=cl.indexOf("importe"), iC=cl.indexOf("codigo");
+  if(iD<0||iQ<0||iI<0) return null;
+  var ini=iC>-1?iC:iD, off=iI-ini+2, iF=iI+1;
+  if(r0.length<=iI+off) return null;
+  var per=""; r0.forEach(function(x){ var m=/desde\s+(\S+)\s+hasta\s+(\S+)/i.exec(x||""); if(m) per=m[1]+" a "+m[2]; });
+  var out=[["Familia","Código","Artículo","Cantidad","Importe","Precio medio"]], tot=0;
+  rows.forEach(function(r){ var q=BR.rent.num(r[iQ+off]), im=BR.rent.num(r[iI+off]), n=String(r[iD+off]||"").trim(); if(!n||!(q>0)||im==null) return;
+    tot+=im; out.push([r[iF]||"", iC>-1?r[iC+off]||"":"", n, String(q).replace(".",","), String(im).replace(".",","), String(Math.round(im/q*10000)/10000).replace(".",",")]); });
+  return {rows:out, periodo:per, total:tot, empresa:r0[1]||""};
 }
+function impCargar(rows,archivo,hojas){
+  var mt=impMaitre(rows);
+  if(mt) rows=mt.rows;
+  var cols=adivinaCols(rows[0]||[]), cab=(rows[0]||[]).map(function(h){ return BR.rent.clave(h); });
+  cols.q=cab.findIndex(function(h){ return /^(cantidad|unidades compradas|uds compradas)$/.test(h); });
+  cols.fam=cab.findIndex(function(h){ return /^(familia|categoria|grupo|seccion)$/.test(h); });
+  if(mt) cols.p=5;
+  ui.imp={rows:rows,archivo:archivo,hojas:hojas||null,hoja:0,cols:cols,maitre:mt?{periodo:mt.periodo,total:mt.total,empresa:mt.empresa}:null};
+}
+/* cada artículo: nombre limpio (sin la unidad), precio por kg / l / ud y el
+   precio por envase tal como se compra (para las botellas) */
 function impArts(){
-  var I=ui.imp, c=I.cols, out=[];
+  var I=ui.imp, c=I&&I.cols, out=[];
   if(!I||c.n<0||c.p<0) return out;
-  I.rows.slice(1).forEach(function(r){ var n=String(r[c.n]||"").trim(), p=BR.rent.num(r[c.p]); if(!n||p==null) return;
-    out.push({n:n,p:p,u:(c.u>-1&&BR.rent.udArt(r[c.u]))||I.udDef,ref:c.ref>-1?String(r[c.ref]||""):""}); });
+  I.rows.slice(1).forEach(function(r){ var o=String(r[c.n]||"").trim(), pu=BR.rent.num(r[c.p]); if(!o||pu==null||pu<0) return;
+    var q=c.q>-1?BR.rent.num(r[c.q]):null, un=c.u>-1?BR.rent.udArt(r[c.u]):"", nm=BR.rent.udNombre(o,q);
+    var u=un||nm.u, f=un?1:nm.f;
+    var a={n:nm.n,o:o,p:Math.round(pu/f*10000)/10000,pu:pu,u:u,ref:c.ref>-1?String(r[c.ref]||""):""};
+    if(c.fam>-1&&r[c.fam]) a.fam=r[c.fam]; if(q!=null) a.q=q;
+    out.push(a); });
   return out;
 }
 function vImport(){
   var P=BR.rent.precios(), I=ui.imp;
-  var h='<div class="pcard rt-imp"><div class="pcard-h"><h3>Importar del Maître</h3><span class="pp-ej">'+(P.imp?esc(P.imp.n)+' artículos · '+esc(new Date(P.imp.fecha).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}))+(P.imp.archivo?' · '+esc(P.imp.archivo):''):'Todavía no se ha importado nada')+'</span></div>'+
-    '<p class="pp-note" style="margin-top:0">En el Maître, exporta el listado de artículos (o de escandallos) a Excel o CSV con al menos el <b>nombre</b> y el <b>precio de compra</b>; mejor si también lleva la <b>unidad</b> (kg, l, ud). Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
+  var dias=P.imp?Math.floor((Date.now()-P.imp.fecha)/86400000):null;
+  var h='<div class="pcard rt-imp"><div class="pcard-h"><h3>Importar del Maître</h3><span class="pp-ej">'+(P.imp?esc(P.imp.n)+' artículos'+(P.imp.periodo?' · compras del '+esc(P.imp.periodo):'')+' · importado el '+esc(new Date(P.imp.fecha).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"})):'Todavía no se ha importado nada')+'</span></div>'+
+    (dias!=null&&dias>30?'<p class="rt-falta" style="margin:0 0 8px">Los precios tienen '+dias+' días: conviene volver a importar el informe del Maître.</p>':'')+
+    '<p class="pp-note" style="margin-top:0">En el Maître, saca el informe <b>«Análisis de compras» por artículos</b> del periodo que quieras (por ejemplo, desde el 1 de enero) y expórtalo a CSV o Excel. También vale un listado con el <b>nombre</b> y el <b>precio de compra</b>. Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
     '<div class="row rt-imp-src"><label class="btn gold sm" for="rt-file">Subir Excel o CSV</label><input type="file" id="rt-file" accept=".xlsx,.csv,.tsv,.txt,text/csv" class="sr-only">'+
     '<details class="rt-paste"><summary>o pegar las celdas</summary><textarea id="rt-paste" rows="4" placeholder="Artículo&#9;Unidad&#9;Precio&#10;Harina de trigo&#9;kg&#9;0,85"></textarea><button type="button" class="btn sm" data-ra="paste">Leer</button></details></div>';
   if(I){
@@ -12023,8 +12120,8 @@ function vImport(){
     h+='<div class="rt-map">'+(I.hojas&&I.hojas.length>1?'<label class="fld"><span class="lbl">Hoja</span><select data-rp="imp-hoja">'+I.hojas.map(function(x,i){ return '<option value="'+i+'"'+(i===I.hoja?" selected":"")+'>'+esc(x.nombre)+'</option>'; }).join("")+'</select></label>':'')+
       '<label class="fld"><span class="lbl">Nombre del artículo</span><select data-rp="imp-col" data-k="n">'+opts(I.cols.n,true)+'</select></label>'+
       '<label class="fld"><span class="lbl">Precio de compra</span><select data-rp="imp-col" data-k="p">'+opts(I.cols.p,true)+'</select></label>'+
-      '<label class="fld"><span class="lbl">Unidad</span><select data-rp="imp-col" data-k="u">'+opts(I.cols.u,true)+'</select></label>'+
-      '<label class="fld"><span class="lbl">Si no pone unidad, el precio es por</span><select data-rp="imp-ud">'+["kg","l","ud","g","ml"].map(function(u){ return '<option'+(u===I.udDef?" selected":"")+'>'+u+'</option>'; }).join("")+'</select></label></div>'+
+      '<label class="fld"><span class="lbl">Unidad <small>(si no hay, se saca del nombre)</small></span><select data-rp="imp-col" data-k="u">'+opts(I.cols.u,true)+'</select></label></div>'+
+      (I.maitre?'<p class="pp-note">Informe «Análisis de compras» del Maître'+(I.maitre.periodo?' · compras del '+esc(I.maitre.periodo):'')+' · '+esc(eur(I.maitre.total))+'. El precio es el <b>precio medio de compra</b> (importe ÷ cantidad) y la unidad sale del nombre («Kg», «L», «Unid.»…).</p>':'')+
       '<div class="rt-prev">'+(arts.length?'<b>'+arts.length+' artículos con precio</b> · '+arts.slice(0,6).map(function(a){ return esc(a.n)+' <span>'+esc(eur2(a.p))+'/'+esc(a.u)+'</span>'; }).join(" · ")+(arts.length>6?" …":""):'<span class="rt-falta">Elige la columna del nombre y la del precio.</span>')+'</div>'+
       '<div class="pp-dish-foot"><button type="button" class="btn sm" data-ra="imp-cancel">Cancelar</button><button type="button" class="btn gold sm" data-ra="imp-ok"'+(arts.length?"":" disabled")+'>Importar '+arts.length+' precios</button></div>';
   }
@@ -12042,25 +12139,46 @@ function vCostes(){
 }
 function vIngredientes(){
   var P=BR.rent.precios(), ings=BR.rent.ingredientes(), q=BR.rent.clave(ui.q);
-  var n={con:0,auto:0,sin:0};
-  ings.forEach(function(x){ x.pr=BR.rent.precioIng(x.nombre); if(!x.pr) n.sin++; else { n.con++; if(x.pr.fuente==="auto") n.auto++; } });
+  var n={con:0,auto:0,sin:0,sug:0};
+  ings.forEach(function(x){ x.pr=BR.rent.precioIng(x.nombre); if(!x.pr){ n.sin++; x.sg=P.arts.length?BR.rent.sugerir(x.nombre,x.uds):null; if(x.sg) n.sug++; } else { n.con++; if(x.pr.fuente==="auto") n.auto++; } });
+  ui.sugs=ings.filter(function(x){ return x.sg; }).map(function(x){ return {k:x.k,a:BR.rent.artKey(x.sg.a)}; });
   var lista=ings.filter(function(x){ return (!q||x.k.indexOf(q)>-1)&&(ui.filtro==="todos"||(ui.filtro==="sin"?!x.pr:!!x.pr)); });
   var MAX=150, vis=lista.slice(0,MAX);
   var h='<div class="pv-sec">Ingredientes de los escandallos <span class="pv-sec-note">— '+n.con+' de '+ings.length+' con precio'+(n.auto?' ('+n.auto+' por nombre igual)':'')+'</span></div>'+
-    '<datalist id="rt-arts">'+P.arts.map(function(a){ return '<option value="'+esc(a.n)+'">'+esc(eur2(a.p)+"/"+a.u)+'</option>'; }).join("")+'</datalist>'+
+    '<datalist id="rt-arts">'+P.arts.map(function(a){ return '<option value="'+esc(a.o||a.n)+'">'+esc(eur2(a.p)+"/"+a.u)+'</option>'; }).join("")+'</datalist>'+
+    (n.sug?'<div class="rt-sugbar"><span>'+n.sug+(n.sug===1?" ingrediente sin precio tiene":" ingredientes sin precio tienen")+' un artículo del Maître con nombre parecido (p. ej. «Puré de patata» → «Patata»). Es una aproximación: revísalas una a una o úsalas todas.</span><button type="button" class="btn sm" data-ra="sug-all">Usar las '+n.sug+' sugerencias</button></div>':'')+
     '<div class="pp-bar"><input type="search" class="pp-search" data-rp="q" value="'+esc(ui.q)+'" placeholder="Buscar ingrediente…" aria-label="Buscar ingrediente">'+
     '<div class="pp-chips" role="group" aria-label="Filtrar" style="margin:0">'+[["todos","Todos",ings.length],["sin","Sin precio",n.sin],["con","Con precio",n.con]].map(function(f){ return '<button type="button" class="pp-chip'+(ui.filtro===f[0]?" on":"")+'" data-ra="filtro" data-k="'+f[0]+'" aria-pressed="'+(ui.filtro===f[0])+'">'+f[1]+' <b>'+f[2]+'</b></button>'; }).join("")+'</div></div>';
   h+='<div class="dtable-wrap"><table class="dtable rt-t rt-ing"><thead><tr><th>Ingrediente</th><th>Artículo del Maître</th><th class="rnum">Precio a mano</th><th>Unidad</th><th class="rnum">g por ud</th><th>Precio que se usa</th></tr></thead><tbody>'+
     (vis.map(function(x){ var e=P.ing[x.k]||{}, pr=x.pr, uds=Object.keys(x.uds).join(", ");
-      var usa=pr?('<b>'+esc(eur2(pr.p))+'/'+esc(pr.u)+'</b> <span class="rt-sub-i">'+(pr.fuente==="manual"?"a mano":pr.fuente==="auto"?"nombre igual":"enlazado")+'</span>'):'<span class="rt-falta">sin precio</span>';
+      var usa=pr?('<b>'+esc(eur2(pr.p))+'/'+esc(pr.u)+'</b> <span class="rt-sub-i">'+(pr.fuente==="manual"?"a mano":pr.fuente==="auto"?"nombre igual":"enlazado")+'</span>'):
+        x.sg?'<button type="button" class="rt-sug" data-ra="sug" data-k="'+esc(x.k)+'" data-a="'+esc(BR.rent.artKey(x.sg.a))+'" title="'+esc(x.sg.a.o||x.sg.a.n)+'">¿'+esc(x.sg.a.n)+'? '+esc(eur2(x.sg.a.p))+'/'+esc(x.sg.a.u)+' · <b>usar</b></button>':'<span class="rt-falta">sin precio</span>';
       return '<tr><td><span class="rt-pl">'+esc(x.nombre)+'</span><span class="rt-sub" title="'+esc(x.platos.join(" · "))+'">'+esc(uds)+' · '+x.platos.length+(x.platos.length===1?" plato":" platos")+'</span></td>'+
-        '<td><input type="text" list="rt-arts" data-rp="ing-a" data-k="'+esc(x.k)+'" value="'+esc(e.a?(((P.arts.filter(function(a){ return BR.rent.clave(a.n)===e.a; })[0])||{}).n||e.a):"")+'" placeholder="'+esc(pr&&pr.fuente==="auto"?pr.art:"Buscar artículo…")+'" aria-label="Artículo del Maître para '+esc(x.nombre)+'"></td>'+
+        '<td><input type="text" list="rt-arts" data-rp="ing-a" data-k="'+esc(x.k)+'" value="'+esc(e.a?artNombre(P,e.a):"")+'" placeholder="'+esc(pr&&pr.fuente==="auto"?pr.art:"Buscar artículo…")+'" aria-label="Artículo del Maître para '+esc(x.nombre)+'"></td>'+
         '<td><input class="rnum" type="text" inputmode="decimal" data-rp="ing-p" data-k="'+esc(x.k)+'" value="'+esc(numTx(e.p))+'" style="width:84px" aria-label="Precio a mano de '+esc(x.nombre)+'"></td>'+
         '<td><select data-rp="ing-u" data-k="'+esc(x.k)+'" aria-label="Unidad del precio">'+["","kg","l","ud","g","ml"].map(function(u){ return '<option value="'+u+'"'+((e.u||"")===u?" selected":"")+'>'+(u?"€/"+u:"—")+'</option>'; }).join("")+'</select></td>'+
         '<td><input class="rnum" type="text" inputmode="decimal" data-rp="ing-g" data-k="'+esc(x.k)+'" value="'+esc(numTx(e.g))+'" style="width:70px" title="Solo si el escandallo va en unidades y el precio en kg (o al revés)" aria-label="Gramos por unidad de '+esc(x.nombre)+'"></td>'+
         '<td class="rt-st">'+usa+'</td></tr>'; }).join("")||'<tr><td colspan="6" class="pp-empty">Ningún ingrediente coincide.</td></tr>')+
     '</tbody></table>'+(lista.length>MAX?'<div class="dtable-foot pp-note">Se ven '+MAX+' de '+lista.length+': busca para acotar.</div>':'')+'</div>';
   return h;
+}
+function artNombre(P,key){ var a=P.arts.filter(function(x){ return BR.rent.artKey(x)===key||BR.rent.clave(x.n)===key; })[0]; return a?(a.o||a.n):key; }
+function artPorTexto(P,v){ var ck=BR.rent.clave(v); return P.arts.filter(function(a){ return BR.rent.clave(a.o||"")===ck||BR.rent.clave(a.n)===ck; })[0]||null; }
+/* bebidas: cada marca que se puede elegir en un evento, con su artículo */
+function vBebidasPrecio(){
+  var P=BR.rent.precios(), filas="";
+  BR.rent.bebidaCats().forEach(function(c){
+    filas+='<tr class="rt-grp"><td colspan="4">'+esc(c.label)+'</td></tr>';
+    [""].concat(c.opciones||[]).forEach(function(m){
+      var k=m?BR.rent.clave(m):"cat:"+c.key, x=P.beb[k]||{}, pb=BR.rent.precioBeb(c.key,m);
+      var usa=pb?('<b>'+esc(eur2(pb.pu))+'</b> <span class="rt-sub-i">'+esc(pb.art?pb.art+" · "+pb.fuente:pb.fuente)+'</span>'):'<span class="rt-falta">sin precio</span>';
+      filas+='<tr><td><span class="rt-pl">'+(m?esc(m):'<i>Sin marca elegida</i>')+'</span></td>'+
+        '<td><input type="text" list="rt-arts" data-rp="beb-a" data-k="'+esc(k)+'" value="'+esc(x.a?artNombre(P,x.a):"")+'" placeholder="'+esc(pb&&pb.art&&pb.fuente!=="enlazado"?pb.art:"Buscar artículo…")+'" aria-label="Artículo del Maître para '+esc(m||c.label)+'"></td>'+
+        '<td><input class="rnum" type="text" inputmode="decimal" data-rp="beb-p" data-k="'+esc(k)+'" value="'+esc(numTx(x.p))+'" style="width:84px" aria-label="Precio a mano de '+esc(m||c.label)+'"></td>'+
+        '<td class="rt-st">'+usa+'</td></tr>'; });
+  });
+  return '<div class="pv-sec">Bebidas <span class="pv-sec-note">— € por botella; si el nombre no coincide, se usa el artículo más parecido (revísalo)</span></div>'+
+    '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Marca</th><th>Artículo del Maître</th><th class="rnum">€ a mano</th><th>Precio que se usa</th></tr></thead><tbody>'+filas+'</tbody></table></div>';
 }
 function vPlatosCoste(){
   var fams=BR.rent.familias();
@@ -12069,7 +12187,7 @@ function vPlatosCoste(){
       return '<tr><td><span class="rt-pl">'+esc(d.name)+'</span></td><td class="rnum"><b>'+esc(eur2(c.c))+'</b></td><td class="rt-st">'+(c.faltan.length?'<span class="rt-falta" title="'+esc(c.faltan.join(", "))+'">faltan '+c.faltan.length+' de '+c.n+'</span>':'<span class="rt-okc">✓</span>')+'</td></tr>'; }).join("")+'</tbody></table></div>'; }).join("")+'</details>';
 }
 function vPrecios(){
-  return cabecera("r-precios")+vImport()+'<div class="pv-sec">Costes fijos</div>'+vCostes()+vIngredientes()+'<div class="pv-sec">Platos</div>'+vPlatosCoste();
+  return cabecera("r-precios")+vImport()+'<div class="pv-sec">Costes fijos</div>'+vCostes()+vBebidasPrecio()+vIngredientes()+'<div class="pv-sec">Platos</div>'+vPlatosCoste();
 }
 
 /* ══ pintar y eventos ════════════════════════════════════════════════ */
@@ -12135,10 +12253,12 @@ function onChange(ev){
   if(rp==="extra"){ var n2=num(v); if(v.trim()&&(n2==null||n2<0)){ toast("Número no válido."); render(); return; } guardarPrecios(function(d){ if(v.trim()) d.extra[k]=n2; else delete d.extra[k]; }); return; }
   if(rp==="rp"){ var n3=num(v); if(v.trim()&&(n3==null||n3<0)){ toast("Número no válido."); render(); return; } guardarRP(function(d){ if(v.trim()) d[k]=n3; else delete d[k]; }); return; }
   if(rp==="bot"){ var n4=num(v); if(v.trim()&&(n4==null||n4<0)){ toast("Número no válido."); render(); return; } guardarRP(function(d){ d.botella=d.botella||{}; if(v.trim()) d.botella[k]=n4; else delete d.botella[k]; }); return; }
-  if(rp==="ing-a"){
-    var P=BR.rent.precios(), ck=BR.rent.clave(v), hit=P.arts.filter(function(a){ return BR.rent.clave(a.n)===ck; })[0];
+  if(rp==="ing-a"||rp==="beb-a"){
+    var P=BR.rent.precios(), hit=v.trim()?artPorTexto(P,v):null;
     if(v.trim()&&!hit){ toast("No hay ningún artículo del Maître con ese nombre."); render(); return; }
-    guardarPrecios(function(d){ var x=d.ing[k]||{}; if(hit) x.a=ck; else delete x.a; d.ing[k]=x; }); return; }
+    guardarPrecios(function(d){ var bag=rp==="ing-a"?d.ing:(d.beb=d.beb||{}); var x=bag[k]||{}; if(hit) x.a=BR.rent.artKey(hit); else delete x.a; bag[k]=x; }); return; }
+  if(rp==="beb-p"){ var nb=num(v); if(v.trim()&&(nb==null||nb<0)){ toast("Número no válido."); render(); return; }
+    guardarPrecios(function(d){ d.beb=d.beb||{}; var x=d.beb[k]||{}; if(v.trim()) x.p=nb; else delete x.p; d.beb[k]=x; }); return; }
   if(rp==="ing-p"||rp==="ing-u"||rp==="ing-g"){
     var n5=num(v); if(rp!=="ing-u"&&v.trim()&&(n5==null||n5<0)){ toast("Número no válido."); render(); return; }
     guardarPrecios(function(d){ var x=d.ing[k]||{};
@@ -12166,13 +12286,17 @@ function onClick(ev){
   if(a==="ver"){ var id=b.getAttribute("data-id"); if(BR.switchActiveEvent) BR.switchActiveEvent(id); if(window.irASeccion) window.irASeccion("r-evento"); return; }
   if(a==="csv"){ descargarCSV(); return; }
   if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); render(); return; }
+  if(a==="sug"){ var sk=b.getAttribute("data-k"), sa=b.getAttribute("data-a"); guardarPrecios(function(d){ var x=d.ing[sk]||{}; x.a=sa; d.ing[sk]=x; }); return; }
+  if(a==="sug-all"){ var ss=(ui.sugs||[]).slice(); if(!ss.length) return;
+    if(!window.confirm("Se enlazarán "+ss.length+" ingredientes con el artículo del Maître de nombre más parecido. Es una aproximación (por ejemplo, «Puré de patata» cogerá el precio de la patata). Después puedes cambiar cualquiera. ¿Seguir?")) return;
+    guardarPrecios(function(d){ ss.forEach(function(x){ var e=d.ing[x.k]||{}; e.a=x.a; d.ing[x.k]=e; }); }, ss.length+" ingredientes enlazados."); return; }
   if(a==="otro-add"){ guardarEv(function(R){ R.otros=R.otros||[]; R.otros.push({id:"o"+Date.now().toString(36),concepto:"",importe:0}); });
     var ins=hostRef.querySelectorAll('[data-rp="otro"][data-k="concepto"]'); if(ins.length) ins[ins.length-1].focus(); return; }
   if(a==="otro-del"){ var i=+b.getAttribute("data-i"); guardarEv(function(R){ (R.otros||[]).splice(i,1); }); return; }
   if(a==="paste"){ var ta=$("rt-paste"), rows=BR.impTabla(ta?ta.value:""); if(rows.length<2){ toast("Pega la fila de títulos y al menos una fila."); return; } impCargar(rows,"pegado"); render(); return; }
   if(a==="imp-cancel"){ ui.imp=null; render(); return; }
-  if(a==="imp-ok"){ var arts=impArts(); if(!arts.length) return; var arch=ui.imp.archivo;
-    guardarPrecios(function(d){ d.arts=arts; d.imp={fecha:Date.now(),archivo:arch,n:arts.length}; }, arts.length+" precios importados del Maître."); ui.imp=null; render(); return; }
+  if(a==="imp-ok"){ var arts=impArts(); if(!arts.length) return; var arch=ui.imp.archivo, mt=ui.imp.maitre;
+    guardarPrecios(function(d){ d.arts=arts; d.imp={fecha:Date.now(),archivo:arch,n:arts.length}; if(mt){ d.imp.periodo=mt.periodo; d.imp.total=Math.round(mt.total*100)/100; } }, arts.length+" precios importados del Maître."); ui.imp=null; render(); return; }
 }
 
 var st=document.createElement("style");
@@ -12230,6 +12354,10 @@ st.textContent=
 ".rt-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--c-line)}"+
 ".rt-prev{margin-top:12px;font-size:12.5px;color:var(--c-ink);line-height:1.6}.rt-prev span{color:var(--c-mut)}"+
 ".rt-ing td{vertical-align:top}.rt-ing input[list]{min-width:190px}"+
+".rt-sug{background:color-mix(in srgb,var(--olive) 10%,transparent);border:1px dashed color-mix(in srgb,var(--olive) 55%,var(--c-line));border-radius:99px;padding:3px 10px;font:inherit;font-size:11.5px;color:var(--c-ink);cursor:pointer;white-space:normal;text-align:left}"+
+".rt-sug b{color:var(--olive-deep)}"+
+".rt-sugbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--olive) 8%,var(--panel));border:1px solid color-mix(in srgb,var(--olive) 30%,var(--c-line));font-size:12.5px;color:var(--c-ink)}"+
+".rt-sugbar span{flex:1;min-width:240px}"+
 ".rt-det{margin-top:4px}.rt-det summary{cursor:pointer;font-size:13.5px;color:var(--c-ink);padding:8px 0;font-weight:600}"+
 "@media (max-width:760px){.rt-root .rt-num{font-size:28px}}";
 document.head.appendChild(st);
