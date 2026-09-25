@@ -8772,7 +8772,9 @@ function escNorm(s){ return String(s||"").toLowerCase().normalize("NFD").replace
 function escUnidad(d){
   if(d.escUd) return d.escUd;
   var n=escNorm(d.name);
-  if(d._famKey==="APERITIVOS"&&/^(chips|crujiente|pan |coca |encurtid)/.test(n)) return "mesa";
+  /* se sirven por mesa de aperitivo: chips, crujiente de langostinos, pan de
+     cristal / «pa amb tomaca» (pan de vidrio), coca y encurtidos */
+  if(d._famKey==="APERITIVOS"&&(/^\W*(chips|crujiente|pan |coca |encurtid|pa amb tomaca)/.test(n)||/pan de (cristal|vidrio)/.test(n))) return "mesa";
   if(d._famKey==="NIÑOS"&&/^(jamon|pan )/.test(n)) return "mesa";
   return "persona";
 }
