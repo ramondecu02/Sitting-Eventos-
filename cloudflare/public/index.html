@@ -274,6 +274,8 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .esc-chks input[type=checkbox]{width:auto!important; flex:none; margin:0}
 .esc-notas{grid-column:1/-1}
 .esc-ovs{font-size:12.5px; color:var(--c-mut)}
+.esc-check{font-size:13px; color:#3E7A4A}
+.esc-check.mal{color:#A3471F}
 .mnu-esc .esc-t td.esc-q{text-align:right; white-space:nowrap; font-weight:700; font-variant-numeric:tabular-nums; width:64px}
 .mnu-esc .esc-t td[data-esc-k]{cursor:pointer; border-radius:4px}
 .mnu-esc .esc-t td[data-esc-k]:hover{background:color-mix(in srgb,var(--gold) 12%,transparent)}
@@ -383,7 +385,7 @@ p.imp-warn{padding-left:12px}
    servirle a esa persona, así que se ve de lejos */
 .g.aler .tag.m{background:var(--gold-p); color:#fff; border-color:var(--gold-p)}
 .tag.o{border:1px solid var(--rule); color:var(--ink-soft)}
-/* leyenda de los tiempos del listado (primero/segundo/postre) */
+/* leyenda de los tiempos del listado (primero/segundo/tercero/postre) */
 .curso-leg{display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin:2px 0 16px;
   font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft)}
 .curso-leg-it{display:inline-flex; align-items:center; gap:6px}
@@ -1155,7 +1157,7 @@ body.mode-plan .planv{display:flex}
 .aler-plato-items{flex:1; min-width:0; display:flex; flex-direction:column; gap:6px}
 .aler-plato-row{display:flex; align-items:center; gap:6px}
 .aler-plato-row input{flex:1 1 0%; min-width:0; width:auto}
-.aler-plato-curso{flex:0 0 118px; width:118px; padding:6px 7px; font-size:12px; font-weight:600; letter-spacing:0;
+.aler-plato-curso{flex:0 0 132px; width:132px; padding:6px 7px; font-size:12px; font-weight:600; letter-spacing:0;
   text-transform:none; border:1px solid var(--c-line-2); border-radius:6px; background:var(--field)}
 .aler-row.hecho .aler-plato{color:var(--gold-p)}
 .aler-aperis{max-width:820px; margin:8px auto 24px; padding-top:18px; border-top:1px dashed var(--c-line)}
@@ -2099,14 +2101,15 @@ function alerFamsIn(text){
 }
 function alerColor(key){ var f=ALER_BY_KEY[key]; return f?f.c:RUBY; }
 var GAP=16;
-/* platos por tiempo (primero/segundo/postre): cada tiempo tiene su color, para
+/* platos por tiempo (primero/segundo/tercero/postre): cada tiempo tiene su color, para
    verlo de un vistazo en el listado por mesas. El plato sin tiempo marcado sale
    en gris neutro. La etiqueta ("Primero"…) es también como se guarda en el
    texto del comensal, para que la elección viaje con el evento. */
-var CURSOS={primero:{lab:"Primero",tag:"Primero",c:"#2C6E8F"},
-            segundo:{lab:"Segundo",tag:"Segundo",c:"#B0632A"},
+var CURSOS={primero:{lab:"Primer plato",tag:"Primero",c:"#2C6E8F"},
+            segundo:{lab:"Segundo plato",tag:"Segundo",c:"#B0632A"},
+            tercero:{lab:"Tercer plato",tag:"Tercero",c:"#3E7A4A"},
             postre:{lab:"Postre",tag:"Postre",c:"#7A4E8E"}};
-var CURSO_ORDER=["primero","segundo","postre"];
+var CURSO_ORDER=["primero","segundo","tercero","postre"];
 function cursoColor(k){ return (k&&CURSOS[k])?CURSOS[k].c:"#6B6257"; }
 function cursoTag(k){ return (k&&CURSOS[k])?CURSOS[k].tag:"Menú"; }
 /* qué tiempos aparecen en el evento (en orden), para dibujar la leyenda solo
@@ -2523,6 +2526,7 @@ function classify(raw){
      «Menú:/Plato:» se queda sin tiempo (color neutro). */
   if(/^(primero?|primer|1r|1er|1o|1º|entrant\w*|entrada)\s*[:=]/.test(n)) return {type:"menu",curso:"primero",text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/^(postres?|dessert\w*)\s*[:=]/.test(n)) return {type:"menu",curso:"postre",text:t.replace(/^[^:=]*[:=]\s*/,"")};
+  if(/^(tercero?|tercer|3r|3er|3o|3º|tercer plato)\s*[:=]/.test(n)) return {type:"menu",curso:"tercero",text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/^(segundo|segon|2n|2on|2o|2º|principal)\s*[:=]/.test(n)) return {type:"menu",curso:"segundo",text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/^(menu|men|plat|plato)\s*[:=]/.test(n)) return {type:"menu",curso:null,text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/(nen|nena|nin[oa]|infantil|kid|child)/.test(n)) return {type:"child",text:t};
@@ -2554,6 +2558,19 @@ function splitPeople(line){
     cur+=ch;}
   out.push(cur); return out.map(function(x){return x.trim();}).filter(Boolean);
 }
+/* las marcas de un paréntesis se separan por comas, punto y coma o «/» (pero
+   no el «/» de «1/2 Cerdo»). Un plato sustitutivo («Segundo: Crema de calabaza,
+   sin jamón») llega hasta el siguiente plato: sus comas son del nombre del plato. */
+var MARCA_PLATO=/^\s*(primero?|primer|1r|1er|1o|1º|segundo|segon|2n|2on|2o|2º|tercero?|tercer|3r|3er|3o|3º|postres?|dessert\w*|principal|men[uú]|plato|plat)\s*[:=]/i;
+function partirMarcas(buf){
+  var trozos=buf.split(/[,;]|(?<!\d)\/|\/(?!\d)/), out=[], enPlato=false;
+  trozos.forEach(function(t){
+    if(MARCA_PLATO.test(t)){ out.push(t); enPlato=true; }
+    else if(enPlato&&out.length){ out[out.length-1]+=","+t; }
+    else out.push(t);
+  });
+  return out;
+}
 function parseGuest(raw){
   var s=raw.replace(/^\s*[-–•]\s+/,"").trim(),star=false;
   if(/[*★]\s*$/.test(s)){star=true;s=s.replace(/[*★]+\s*$/,"").trim();}
@@ -2561,10 +2578,10 @@ function parseGuest(raw){
   for(i=0;i<s.length;i++){
     ch=s[i];
     if(ch==="("||ch==="["){ if(d===0){ buf=""; } else buf+=ch; d++; continue; }
-    if((ch===")"||ch==="]")&&d>0){ d--; if(d===0){ tags=tags.concat(buf.split(/[,;\/]/)); } else buf+=ch; continue; }
+    if((ch===")"||ch==="]")&&d>0){ d--; if(d===0){ tags=tags.concat(partirMarcas(buf)); } else buf+=ch; continue; }
     if(d>0) buf+=ch; else out+=ch;
   }
-  if(d>0&&buf) tags=tags.concat(buf.split(/[,;\/]/));   /* paréntesis sin cerrar */
+  if(d>0&&buf) tags=tags.concat(partirMarcas(buf));   /* paréntesis sin cerrar */
   s=out;
   var g={name:s.replace(/\s+/g," ").trim(),star:star,aler:[],alerFams:[],menus:[],menusC:[],notes:[],kind:"adult",preg:false,raw:[]};
   tags.forEach(function(t){
@@ -2678,7 +2695,12 @@ function serialize(d){
          en vez de forzar siempre el castellano */
       out.push((mesaNumVisible(t)?"M"+t.num:(L.taula||"Mesa"))+" | "+(t.shapeWord||L.shapes[t.shape])+(t.cap?" "+t.cap:"")+(nm?" | "+nm:""));
     }
-    t.guests.forEach(function(g){ out.push(g.name+(g.raw.length?" ("+g.raw.join(", ")+")":"")+(g.star?" *":"")); });
+    /* los platos sustitutivos van cada uno en su propio paréntesis: así pueden
+       llevar comas («Crema de calabaza, sin jamón») sin partirse */
+    t.guests.forEach(function(g){
+      var marcas=[], platos=[];
+      g.raw.forEach(function(tag){ var c=classify(tag); if(c&&c.type==="menu") platos.push(tag); else marcas.push(tag); });
+      out.push(g.name+(marcas.length?" ("+marcas.join(", ")+")":"")+platos.map(function(p){ return " ("+p+")"; }).join("")+(g.star?" *":"")); });
   });
   return out.join("\n").replace(/^\n+/,"")+"\n";
 }
@@ -2726,7 +2748,7 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
     return halfGap?clipW(txt.toUpperCase(),anchor==="middle"?2*halfGap:halfGap,"sansb",7.6,.2):clip(txt,charLim).toUpperCase();
   }
   if(g.aler.length) it.push(TX(lx,alerBelow?ly+9:ly-9,recorta(g.aler.join(" · "),anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:alc,ls:.2}));
-  /* los platos (primero/segundo/postre) ya NO salen en el sitting: recargaban
+  /* los platos (primero/segundo/tercero/postre) ya NO salen en el sitting: recargaban
      el plano y lo que de verdad se consulta aquí es la alergia. Los platos, con
      su color por tiempo, salen en el LISTADO por mesas (petición de Ramon). */
   return GR(it,{seat:{t:tnum,i:idx}});
@@ -7429,7 +7451,7 @@ window.SITTING_BRIDGE={
     g.raw=g.raw.filter(function(tag){
       var c=classify(tag); return !(c&&c.type==="menu");
     });
-    /* cada plato puede llevar su tiempo (primero/segundo/postre); se guarda en el
+    /* cada plato puede llevar su tiempo (primero/segundo/tercero/postre); se guarda en el
        texto como «Segundo: Lubina» para que el color y el tiempo viajen con el
        evento. Admite también strings sueltos (sin tiempo), por compatibilidad. */
     var limpios=(platos||[]).map(function(p){
@@ -8202,10 +8224,10 @@ function descargarAlergias(btn){
   Promise.resolve(BR.descargarHoja("#mnu-body .aler-print .frame",base,mnuPaper)).then(function(){
     btn.disabled=false; if(sh.parentNode) sh.parentNode.removeChild(sh); });
 }
-/* selector del tiempo del plato (primero/segundo/postre), con el color del
+/* selector del tiempo del plato (primero/segundo/tercero/postre), con el color del
    tiempo elegido — igual que se verá luego en el listado por mesas */
-function cursoInfo(){ return (BR.cursosInfo&&BR.cursosInfo())||{primero:{lab:"Primero"},segundo:{lab:"Segundo"},postre:{lab:"Postre"}}; }
-function cursoOrder(){ return (BR.cursoOrder&&BR.cursoOrder())||["primero","segundo","postre"]; }
+function cursoInfo(){ return (BR.cursosInfo&&BR.cursosInfo())||{primero:{lab:"Primer plato"},segundo:{lab:"Segundo plato"},tercero:{lab:"Tercer plato"},postre:{lab:"Postre"}}; }
+function cursoOrder(){ return (BR.cursoOrder&&BR.cursoOrder())||["primero","segundo","tercero","postre"]; }
 function colorDeCurso(k){ return (BR.cursoColor&&BR.cursoColor(k))||"#6B6257"; }
 function cursoSelectHTML(sel){
   var info=cursoInfo();
@@ -8574,22 +8596,40 @@ function primerNombre(n){ var p=String(n||"").split(" "); return p.length>1&&p[1
 function escBanquete(c,cfg){
   var sel=selectedDishes(), out=[];
   ["primero","segundo","postre"].forEach(function(k){
-    var ds=sel.filter(function(d){ return ESC_TIEMPOS[k].indexOf(d._famKey)>-1; }).map(function(d){ return {d:d,uid:d._uid,name:d.name,subs:{},fuera:0,sorbete:d._famKey==="SORBETES"}; });
-    if(k==="postre"&&cfg.tarta) ds.push({uid:"tarta",name:cfg.tarta,subs:{},fuera:0,tarta:true});
+    var ds=sel.filter(function(d){ return ESC_TIEMPOS[k].indexOf(d._famKey)>-1; }).map(function(d){ return {d:d,uid:d._uid,name:d.name,subs:{},fuera:0,fueraStaff:0,sorbete:d._famKey==="SORBETES",carne:d._famKey==="CARNES"}; });
+    if(k==="postre"&&cfg.tarta) ds.push({uid:"tarta",name:cfg.tarta,subs:{},fuera:0,fueraStaff:0,tarta:true});
     out.push({k:k,platos:ds});
   });
+  /* los platos numerados (1º, 2º, 3º…) tal como salen en la escaleta: el
+     sustituto marcado como «Primer/Segundo/Tercer plato» va debajo del plato
+     con ese número. Si alguien lleva dos sustitutos del mismo tiempo (listas
+     antiguas, sin «tercero»), el segundo pasa al plato siguiente. Un
+     pescetariano sí come pescado: su sustituto va siempre a la carne. */
+  var NUM=out[0].platos.concat(out[1].platos).filter(function(x){ return !x.sorbete; }), IDX={primero:0,segundo:1,tercero:2};
+  var carnes=NUM.filter(function(x){ return x.carne; });
+  out.total=0; out.colocados=0; out.ninos=[]; out.sinSitio=[];
   c.gente.forEach(function(p){
-    var g=p.g; if(g.kind==="child"||g.kind==="baby"||g.kind==="staff") return;
-    var porC={}; (g.menus||[]).forEach(function(txt,i){ var ck=(g.menusC||[])[i]||"segundo"; (porC[ck]=porC[ck]||[]).push(txt); });
-    out.forEach(function(ti){
-      var subs=porC[ti.k]; if(!subs||!ti.platos.length) return;
-      var pool=ti.platos.filter(function(x){ return !x.sorbete&&!x.tarta; }), tarta=ti.platos.filter(function(x){ return x.tarta; })[0];
-      var resto=[];
-      subs.forEach(function(s){ if(tarta&&/tarta|pastel|pastis/.test(escNorm(s))) asigna(tarta,s); else resto.push(s); });
-      if(!pool.length&&tarta){ resto.forEach(function(s){ asigna(tarta,s); }); return; }
-      resto.forEach(function(s,i){ var ix=Math.max(0,pool.length-resto.length+i); asigna(pool[Math.min(ix,pool.length-1)],s); });
-      function asigna(pl,s){ var kk=escNorm(s); pl.subs[kk]=pl.subs[kk]||{txt:s,gente:[]}; pl.subs[kk].gente.push({nombre:primerNombre(g.name),mesa:p.mesa}); pl.fuera++; }
-    });
+    var g=p.g, subsG=g.menus||[]; if(!subsG.length||g.kind==="baby") return;
+    out.total+=subsG.length;
+    /* los niños comen el menú infantil: sus sustitutos van en ese bloque */
+    if(g.kind==="child"){ subsG.forEach(function(txt){ out.ninos.push({txt:txt,nombre:primerNombre(g.name),mesa:p.mesa}); out.colocados++; }); return; }
+    var esStaff=g.kind==="staff", pesc=(g.alerFams||[]).indexOf("pescetariano")>-1, usados=[];
+    var porC={}; subsG.forEach(function(txt,i){ var ck=(g.menusC||[])[i]||"segundo"; (porC[ck]=porC[ck]||[]).push(txt); });
+    function asigna(pl,s){ var kk=escNorm(s); pl.subs[kk]=pl.subs[kk]||{txt:s,gente:[]};
+      pl.subs[kk].gente.push({nombre:primerNombre(g.name),mesa:p.mesa}); if(esStaff) pl.fueraStaff++; else pl.fuera++; usados.push(pl); out.colocados++; }
+    ["primero","segundo","tercero"].forEach(function(ck){
+      (porC[ck]||[]).forEach(function(s,i){
+        if(!NUM.length){ out.sinSitio.push(s); return; }
+        var pl=NUM[Math.min(IDX[ck]+i,NUM.length-1)];
+        if(pesc&&!pl.carne){ var libre=carnes.filter(function(x){ return usados.indexOf(x)<0; })[0]; if(libre) pl=libre; }
+        asigna(pl,s); }); });
+    var subs=porC.postre; if(!subs) return;
+    var ti=out[2], pool=ti.platos.filter(function(x){ return !x.tarta; }), tarta=ti.platos.filter(function(x){ return x.tarta; })[0];
+    if(!ti.platos.length){ subs.forEach(function(s){ out.sinSitio.push(s); }); return; }
+    var resto=[];
+    subs.forEach(function(s){ if(tarta&&/tarta|pastel|pastis/.test(escNorm(s))) asigna(tarta,s); else resto.push(s); });
+    if(!pool.length&&tarta){ resto.forEach(function(s){ asigna(tarta,s); }); return; }
+    resto.forEach(function(s,i){ var ix=Math.max(0,pool.length-resto.length+i); asigna(pool[Math.min(ix,pool.length-1)],s); });
   });
   return out;
 }
@@ -8655,7 +8695,7 @@ function escModelo(){
   }); });
   /* alergias o dietas de adultos a los que todavía no se ha puesto plato
      sustitutivo: la cocina tiene que verlo antes de nada */
-  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="child"&&g.kind!=="baby"&&g.kind!=="staff"&&!(g.menus&&g.menus.length); });
+  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&!(g.menus&&g.menus.length); });
   if(fb.length&&sinSust.length){
     var fp=fila("Con alergia o dieta y sin plato sustitutivo decidido",escNombres(sinSust.map(function(p){ return {nombre:primerNombre(p.g.name),mesa:p.mesa}; })),null);
     fp.q=String(sinSust.length); fp.sust=true; fp.pend=true; fb.unshift(fp);
@@ -8665,12 +8705,14 @@ function escModelo(){
   /* menú staff */
   var todos=[]; ban.forEach(function(ti){ ti.platos.forEach(function(x){ todos.push(x); }); }); md.todos=todos;
   var stP=todos.filter(function(x){ return staffSel.indexOf(x.uid)>-1; });
-  if(c.staff>0&&stP.length) md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:stP.map(function(x){ return fila(x.name,null,Q("st:"+x.uid,c.staff)); })});
+  if(c.staff>0&&stP.length) md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:stP.map(function(x){ return fila(x.name,x.fueraStaff?"el resto del staff lleva su plato sustitutivo (en «Menú»)":null,Q("st:"+x.uid,Math.max(0,c.staff-x.fueraStaff))); })});
   /* menú infantil */
   var inf=sel.filter(function(d){ return d._famKey==="NIÑOS"; });
-  if(c.ninos>0&&(inf.length||cfg.tarta)){
+  if(c.ninos>0&&(inf.length||cfg.tarta||ban.ninos.length)){
     var fi=inf.map(function(d){ var m=escUnidad(d)==="mesa"; return fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d))); });
     if(cfg.tarta) fi.push(fila("Tarta",null,Q("in:tarta",c.ninos)));
+    var gk={}, ko=[]; ban.ninos.forEach(function(x){ var kk=escNorm(x.txt); if(!gk[kk]){ gk[kk]={txt:x.txt,gente:[]}; ko.push(kk); } gk[kk].gente.push(x); });
+    ko.forEach(function(kk){ var f=fila(gk[kk].txt,escNombres(gk[kk].gente),Q("isb:"+kk.slice(0,40),gk[kk].gente.length)); f.sust=true; fi.push(f); });
     md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
   /* bebidas */
@@ -8683,6 +8725,8 @@ function escModelo(){
   if(cfg.notas) md.secs.push({t:"Notas",filas:[{txt:cfg.notas,nota:true}]});
   var DER={"Menú":1,"Menú staff":1,"Menú infantil":1,"Bebidas":1,"Al final":1,"Notas":1};
   md.secs.forEach(function(sc){ sc.col=DER[sc.t]?1:0; });
+  if(ban.sinSitio.length) md.avisos.push(ban.sinSitio.length+(ban.sinSitio.length===1?" plato sustitutivo no sale":" platos sustitutivos no salen")+" porque ese tiempo no tiene ningún plato marcado en «Elegir platos»: "+ban.sinSitio.join(", ")+".");
+  md.sustTotal=ban.total; md.sustColocados=ban.colocados;
   if(!c.delPlano) md.avisos.push("El plano todavía no tiene invitados: las cantidades salen de los comensales escritos a mano en «Elegir platos».");
   if(!sel.length) md.avisos.push("Todavía no hay platos marcados en «Elegir platos».");
   return md;
@@ -8707,6 +8751,7 @@ function renderEscaleta(){
     '</div>'+
     (md.todos.length?'<div class="fld"><span class="lbl">Menú staff <small>('+c.staff+' '+(c.staff===1?"persona":"personas")+') — qué platos lleva</small></span><div class="esc-chks">'+
       md.todos.map(function(x){ return '<label class="ag-chk"><input type="checkbox" data-esc-staff="'+esc(x.uid)+'"'+(md.staffSel.indexOf(x.uid)>-1?" checked":"")+'> '+esc(x.name)+'</label>'; }).join("")+'</div></div>':'')+
+    (md.sustTotal?'<div class="esc-check'+(md.sustColocados<md.sustTotal?" mal":"")+'">'+(md.sustColocados<md.sustTotal?"⚠ ":"✓ ")+'Platos sustitutivos en la escaleta: <b>'+md.sustColocados+' de '+md.sustTotal+'</b> de los apuntados en «Alergias y sustituciones»'+(md.sustColocados<md.sustTotal?" — mira el aviso al final de la hoja":"")+'</div>':'')+
     (nov?'<div class="esc-ovs">'+nov+(nov===1?" cantidad corregida":" cantidades corregidas")+' a mano (marcadas con ✎) · <button type="button" class="imp-back" data-esc-act="ov-reset">volver todas al cálculo</button></div>':'')+
   '</div>';
   /* ── la hoja ── */
