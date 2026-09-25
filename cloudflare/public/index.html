@@ -8831,18 +8831,30 @@ function escBanquete(c,cfg){
      pescetariano sí come pescado: su sustituto va siempre a la carne. */
   var NUM=out[0].platos.concat(out[1].platos).filter(function(x){ return !x.sorbete; }), IDX={primero:0,segundo:1,tercero:2};
   var carnes=NUM.filter(function(x){ return x.carne; });
-  out.total=0; out.colocados=0; out.ninos=[]; out.staff=[]; out.sinSitio=[];
+  out.total=0; out.colocados=0; out.ninos=[]; out.staff=[]; out.staffTarta=[]; out.sinSitio=[];
   c.gente.forEach(function(p){
     var g=p.g, subsG=g.menus||[]; if(!subsG.length||g.kind==="baby") return;
     /* la tarta solo cuenta en el menú adulto: niños y staff no llevan tarta,
        así que sus sustitutos de tarta no se cuentan */
-    if(g.kind==="child"||g.kind==="staff") subsG=subsG.filter(function(t){ return !/tarta|pastel|pastis/.test(escNorm(t)); });
+    var esTarta=function(t){ return /tarta|pastel|pastis/.test(escNorm(t)); };
+    /* los niños no llevan tarta: sus sustitutos de tarta no se cuentan */
+    if(g.kind==="child") subsG=subsG.filter(function(t){ return !esTarta(t); });
     if(!subsG.length) return;
     out.total+=subsG.length;
     /* los niños comen el menú infantil: sus sustitutos van en ese bloque */
     if(g.kind==="child"){ subsG.forEach(function(txt){ out.ninos.push({txt:txt,nombre:primerNombre(g.name),mesa:p.mesa}); out.colocados++; }); return; }
-    /* el staff tiene su propio menú: sus sustitutos van en ese bloque */
-    if(g.kind==="staff"){ subsG.forEach(function(txt){ out.staff.push({txt:txt,nombre:primerNombre(g.name),mesa:p.mesa}); out.colocados++; }); return; }
+    /* el staff tiene su propio menú: sus sustitutos van en ese bloque. Si a
+       alguien del staff se le ha puesto una tarta adaptada, esa tarta se
+       cuenta con las tartas (sale de las normales) y se le quita su postre
+       del menú staff */
+    if(g.kind==="staff"){
+      var tartaD=out[2].platos.filter(function(x){ return x.tarta; })[0];
+      subsG.forEach(function(txt){
+        if(esTarta(txt)&&tartaD){ var kk=escNorm(txt); tartaD.subs[kk]=tartaD.subs[kk]||{txt:txt,gente:[]}; tartaD.subs[kk].gente.push({nombre:primerNombre(g.name),mesa:p.mesa}); tartaD.fuera++; out.staffTarta.push({nombre:primerNombre(g.name),mesa:p.mesa}); }
+        else if(esTarta(txt)){ out.total--; return; }
+        else out.staff.push({txt:txt,nombre:primerNombre(g.name),mesa:p.mesa});
+        out.colocados++; });
+      return; }
     var esStaff=false, pesc=(g.alerFams||[]).indexOf("pescetariano")>-1, usados=[];
     var porC={}; subsG.forEach(function(txt,i){ var ck=(g.menusC||[])[i]||"segundo"; (porC[ck]=porC[ck]||[]).push(txt); });
     function asigna(pl,s){ var kk=escNorm(s); pl.subs[kk]=pl.subs[kk]||{txt:s,gente:[]};
@@ -9033,28 +9045,32 @@ function escModelo(){
     return {txt:m, sub:escNorm(m)===escNorm(cat.label)?"":cat.label, q:r.botellas?r.botellas+" bot.":""}; })});
   /* ── aperitivos: los normales en el orden de salida y, debajo, los
      adaptados con para quién (el reparto por persona se ve y se retoca en
-     «Datos de la escaleta › Aperitivos por persona») ── */
+     «Datos de la escaleta · Aperitivos por persona») ── */
   var AP=escAperitivos(c,cfg); md.ap=AP;
   var marcaJamon=bebidaMarca("jamon");
   if(AP.std.length){
     var fa2=AP.std.map(function(d,i){
       var sinEl=AP.pers.filter(function(r){ return !r.items.some(function(x){ return x.id==="d:"+d._uid; }); });
       var comen=Math.max(0,adTot-sinEl.length), calc, sub="";
-      if(esDishJamon(d)){ var gr2=0; d.ingredients.forEach(function(ig){ if(/jam[oó]n/i.test(ig.name)&&ig.qty!=null) gr2+=ig.qty*comen; }); calc=gr2>0?jamonAmount(gr2):comen; sub=(marcaJamon?marcaJamon+" · ":"")+"a cortar"; }
+      /* el jamón se calcula para TODOS los adultos, también los adaptados */
+      if(esDishJamon(d)){ var gr2=0; d.ingredients.forEach(function(ig){ if(/jam[oó]n/i.test(ig.name)&&ig.qty!=null) gr2+=ig.qty*adTot; }); calc=gr2>0?jamonAmount(gr2):comen; sub=(marcaJamon?marcaJamon+" · ":"")+"a cortar"; }
       else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa"; }
       else calc=comen*escPor(d);
       return fila((i+1)+". "+d.name,sub,Q("ap:"+d._uid,calc)); });
     if(marcaJamon&&!AP.std.some(esDishJamon)) fa2.push(fila("Jamón · "+marcaJamon,"a cortar",null));
     md.secs.push({t:"Aperitivos",sub:c.mesasAper+" mesas · "+adTot+" adultos",filas:fa2});
   }
-  /* los adaptados, en el orden en que salen, con cuántos y para quién */
-  var adap={}, adO=[];
-  AP.pers.forEach(function(r){ r.items.forEach(function(x){ if(!x.ad) return;
-    if(!adap[x.t]){ adap[x.t]={ord:x.ord,gente:[]}; adO.push(x.t); } adap[x.t].ord=Math.min(adap[x.t].ord,x.ord);
-    adap[x.t].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
-  adO.sort(function(a,b){ return adap[a].ord-adap[b].ord; });
-  if(adO.length) md.secs.push({t:"Aperitivos adaptados",filas:adO.map(function(t){
-    var f=fila(t,escNombres(adap[t].gente),Q("aa:"+escNorm(t).slice(0,40),adap[t].gente.length)); f.sust=true; return f; })});
+  /* aperitivos adaptados: por persona — arriba el nombre y debajo TODOS los
+     aperitivos que le tocan, en el orden de salida (los adaptados en color).
+     Las personas con la misma lista van juntas. */
+  var grupos={}, gO=[];
+  AP.pers.forEach(function(r){
+    var k=r.items.map(function(x){ return x.id; }).join("|");
+    if(!grupos[k]){ grupos[k]={items:r.items,gente:[],dudas:[],manual:false}; gO.push(k); }
+    grupos[k].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); if(r.dudosa.length) grupos[k].dudas=grupos[k].dudas.concat(r.dudosa); if(r.manual) grupos[k].manual=true; });
+  if(gO.length) md.secs.push({t:"Aperitivos adaptados",sub:AP.pers.length+(AP.pers.length===1?" persona":" personas"),leyenda:"En color: el aperitivo adaptado",filas:gO.map(function(k){ var gp=grupos[k];
+    return {txt:escNombres(gp.gente),q:String(gp.gente.length),lista:gp.items.map(function(x){ return {t:x.t,ad:!!x.ad}; }),
+      sub:gp.dudas.length?"Revisar: "+gp.dudas.filter(function(v,i,a){ return a.indexOf(v)===i; }).join(", "):"",dudosa:!!gp.dudas.length}; })});
   /* ── estaciones (el café, copa y puro va con los cafés) ── */
   var grp={}, eo=[], cafEst=[];
   AP.est.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(/caf[eé]/i.test(k)){ cafEst.push(d); return; } if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
@@ -9085,16 +9101,21 @@ function escModelo(){
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),c.ninos))); }); }
     var gk={}, ko=[]; ban.ninos.forEach(function(x){ var kk=escNorm(x.txt); if(!gk[kk]){ gk[kk]={txt:x.txt,gente:[]}; ko.push(kk); } gk[kk].gente.push(x); });
     ko.forEach(function(kk){ var f=fila(gk[kk].txt,escNombres(gk[kk].gente),Q("isb:"+kk.slice(0,40),gk[kk].gente.length)); f.sust=true; fi.push(f); });
-    if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta › Menú infantil»",null); fx.q=String(c.ninos); fx.sust=true; fx.pend=true; fi.unshift(fx); }
+    if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(c.ninos); fx.sust=true; fx.pend=true; fi.unshift(fx); }
     md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
   /* ── menú staff: el suyo, no una copia del de los invitados ── */
   var STM=escStaffMenu(cfg,ban); md.staffMenu=STM;
   if(c.staff>0){
-    var fs=STM.map(function(t){ return fila(t,null,Q("st:"+escNorm(t).slice(0,30),c.staff)); });
+    /* el postre del staff: la línea de postre (o la última) */
+    var iPost=-1; STM.forEach(function(t,i){ if(/postre|fruta|helado|flan|yogur|natilla|macedonia|sorbete|pastel|tarta|mousse|coulant|brownie/.test(escNorm(t))) iPost=i; });
+    if(iPost<0) iPost=STM.length-1;
+    var nT=ban.staffTarta.length;
+    var fs=STM.map(function(t,i){ var quita=(i===iPost)?nT:0;
+      return fila(t,quita?(quita===1?"1 lleva tarta adaptada (en Postres): ":quita+" llevan tarta adaptada (en Postres): ")+escNombres(ban.staffTarta):null,Q("st:"+escNorm(t).slice(0,30),Math.max(0,c.staff-quita))); });
     var gs={}, so=[]; ban.staff.forEach(function(x){ var kk=escNorm(x.txt); if(!gs[kk]){ gs[kk]={txt:x.txt,gente:[]}; so.push(kk); } gs[kk].gente.push(x); });
     so.forEach(function(kk){ var f=fila(gs[kk].txt,escNombres(gs[kk].gente),Q("ssb:"+kk.slice(0,40),gs[kk].gente.length)); f.sust=true; fs.push(f); });
-    if(!STM.length){ var fz=fila("Menú staff sin configurar","escríbelo en «Datos de la escaleta › Menú staff»",null); fz.q=String(c.staff); fz.sust=true; fz.pend=true; fs.unshift(fz); }
+    if(!STM.length){ var fz=fila("Menú staff sin configurar","escríbelo en «Datos de la escaleta», apartado Menú staff",null); fz.q=String(c.staff); fz.sust=true; fz.pend=true; fs.unshift(fz); }
     md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:fs});
   }
   /* ── postres (y tarta) con sus sustitutos ── */
@@ -9114,9 +9135,9 @@ function escModelo(){
   /* ── ressopó: siempre lo último ── */
   var rec=escOrdenar(sel.filter(function(d){ return d._famKey==="RECENA"; }),cfg), rg={}, ro=[];
   rec.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(!rg[k]){ rg[k]=[]; ro.push(k); } rg[k].push(d); });
-  var fr=ro.map(function(k){ var ds=rg[k]; return fila(ds.map(function(d){ return d.name; }).join(" · "),ro.length>1?k:null,Q("rs:"+escNorm(k),adTot+c.staff)); });
-  String(cfg.ressopo||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(t){ fr.push(fila(t,null,Q("rsx:"+escNorm(t).slice(0,30),adTot+c.staff))); });
-  if(fr.length) md.secs.push({t:"Ressopó",filas:fr});
+  var fr=ro.map(function(k){ var ds=rg[k]; return fila(ds.map(function(d){ return d.name; }).join(" · "),ro.length>1?k:null,Q("rs:"+escNorm(k),adTot)); });
+  String(cfg.ressopo||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(t){ fr.push(fila(t,null,Q("rsx:"+escNorm(t).slice(0,30),adTot))); });
+  if(fr.length) md.secs.push({t:"Ressopó",sub:adTot+" menús adultos (el staff va aparte)",filas:fr});
   if(ban.sinSitio.length) md.avisos.push(ban.sinSitio.length+(ban.sinSitio.length===1?" plato sustitutivo no sale":" platos sustitutivos no salen")+" porque ese tiempo no tiene ningún plato marcado en «Elegir platos»: "+ban.sinSitio.join(", ")+".");
   md.sustTotal=ban.total; md.sustColocados=ban.colocados;
   if(!c.delPlano) md.avisos.push("El plano todavía no tiene invitados: las cantidades salen de los comensales escritos a mano en «Elegir platos».");
