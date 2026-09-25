@@ -8834,6 +8834,10 @@ function escBanquete(c,cfg){
   out.total=0; out.colocados=0; out.ninos=[]; out.staff=[]; out.sinSitio=[];
   c.gente.forEach(function(p){
     var g=p.g, subsG=g.menus||[]; if(!subsG.length||g.kind==="baby") return;
+    /* la tarta solo cuenta en el menú adulto: niños y staff no llevan tarta,
+       así que sus sustitutos de tarta no se cuentan */
+    if(g.kind==="child"||g.kind==="staff") subsG=subsG.filter(function(t){ return !/tarta|pastel|pastis/.test(escNorm(t)); });
+    if(!subsG.length) return;
     out.total+=subsG.length;
     /* los niños comen el menú infantil: sus sustitutos van en ese bloque */
     if(g.kind==="child"){ subsG.forEach(function(txt){ out.ninos.push({txt:txt,nombre:primerNombre(g.name),mesa:p.mesa}); out.colocados++; }); return; }
@@ -9076,10 +9080,8 @@ function escModelo(){
     var fi=[], porSt={}, stO=[];
     INF.elegidos.forEach(function(d){ var k=d.station?escEtqStation(d.station):"Otros"; if(!porSt[k]){ porSt[k]=[]; stO.push(k); } porSt[k].push(d); });
     var ORD=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
-    if(cfg.tarta&&stO.indexOf("Postres")<0) stO.push("Postres");
     stO.forEach(function(k){ fi.push({head:k});
-      (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d)))); });
-      if(k==="Postres"&&cfg.tarta) fi.push(fila("Tarta · "+cfg.tarta,null,Q("in:tarta",c.ninos))); });
+      (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d)))); }); });
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),c.ninos))); }); }
     var gk={}, ko=[]; ban.ninos.forEach(function(x){ var kk=escNorm(x.txt); if(!gk[kk]){ gk[kk]={txt:x.txt,gente:[]}; ko.push(kk); } gk[kk].gente.push(x); });
     ko.forEach(function(kk){ var f=fila(gk[kk].txt,escNombres(gk[kk].gente),Q("isb:"+kk.slice(0,40),gk[kk].gente.length)); f.sust=true; fi.push(f); });
