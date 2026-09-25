@@ -9020,48 +9020,30 @@ function escModelo(){
   var bl=BEBIDA_CATS.filter(function(cat){ return cat.key!=="jamon"&&(bebidaMarca(cat.key)||cat.auto); });
   if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(cat){ var r=calcBebida(cat), m=bebidaMarca(cat.key)||cat.label;
     return {txt:m, sub:escNorm(m)===escNorm(cat.label)?"":cat.label, q:r.botellas?r.botellas+" bot.":""}; })});
-  /* ── aperitivos por persona (en el orden de salida) ── */
+  /* ── aperitivos: los normales en el orden de salida y, debajo, los
+     adaptados con para quién (el reparto por persona se ve y se retoca en
+     «Datos de la escaleta › Aperitivos por persona») ── */
   var AP=escAperitivos(c,cfg); md.ap=AP;
   var marcaJamon=bebidaMarca("jamon");
-  if(AP.std.length||AP.pers.length){
-    var fp=[];
-    fp.push({head:"Orden de salida",hq:""});
-    fp.push({txt:AP.std.map(function(d,i){ return (i+1)+". "+d.name; }).join("   "),orden:true});
-    if(AP.resto>0) fp.push({txt:"Resto de invitados",q:String(AP.resto),lista:AP.std.map(function(d){ return {t:d.name}; }),sub:"todos los aperitivos"});
-    /* las personas con la misma lista van juntas */
-    var grupos={}, orden=[];
-    AP.pers.forEach(function(r){ var k=r.items.map(function(x){ return x.id; }).join("|");
-      if(!grupos[k]){ grupos[k]={items:r.items,gente:[],dudas:[],manual:false}; orden.push(k); }
-      grupos[k].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa,full:r.p.g.name}); if(r.dudosa.length) grupos[k].dudas=grupos[k].dudas.concat(r.dudosa); if(r.manual) grupos[k].manual=true; });
-    orden.forEach(function(k){ var gp=grupos[k];
-      fp.push({txt:escNombres(gp.gente),q:String(gp.gente.length),lista:gp.items.map(function(x){ return {t:x.t,ad:!!x.ad}; }),
-        sub:(gp.dudas.length?"Revisar: "+gp.dudas.filter(function(v,i,a){ return a.indexOf(v)===i; }).join(", ")+" (no se reconoce sola)":"")+(gp.manual?(gp.dudas.length?" · ":"")+"retocado a mano":""),
-        dudosa:!!gp.dudas.length}); });
-    md.secs.push({t:"Aperitivos",sub:"por persona · "+adTot+" adultos",filas:fp,leyenda:AP.pers.length?"En color: aperitivo adaptado":""});
-    /* ── producción para cocina: cuántos de cada uno y para quién ── */
-    var fpr=[], idx={};
-    AP.std.forEach(function(d,i){ idx[d._uid]=i; });
-    AP.std.forEach(function(d,i){
+  if(AP.std.length){
+    var fa2=AP.std.map(function(d,i){
       var sinEl=AP.pers.filter(function(r){ return !r.items.some(function(x){ return x.id==="d:"+d._uid; }); });
       var comen=Math.max(0,adTot-sinEl.length), calc, sub="";
       if(esDishJamon(d)){ var gr2=0; d.ingredients.forEach(function(ig){ if(/jam[oó]n/i.test(ig.name)&&ig.qty!=null) gr2+=ig.qty*comen; }); calc=gr2>0?jamonAmount(gr2):comen; sub=(marcaJamon?marcaJamon+" · ":"")+"a cortar"; }
-      else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa de aperitivo"; }
+      else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa"; }
       else calc=comen*escPor(d);
-      if(sinEl.length&&escUnidad(d)!=="mesa") sub+=(sub?" · ":"")+"no lo toman: "+escNombres(sinEl.map(function(r){ return {nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}; }));
-      fpr.push(fila((i+1)+". "+d.name,sub,Q("ap:"+d._uid,calc)));
-      /* los adaptados que salen en su lugar */
-      var adapt={};
-      AP.pers.forEach(function(r){ r.items.forEach(function(x){ if(!x.ad) return; var o=Math.floor(x.ord); if(o!==i||x.ord===o) return;
-        (adapt[x.t]=adapt[x.t]||[]).push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
-      Object.keys(adapt).forEach(function(t){ var f=fila(t,escNombres(adapt[t]),Q("aa:"+escNorm(t).slice(0,40),adapt[t].length)); f.sust=true; fpr.push(f); });
-    });
-    /* adaptados sin sitio en el orden (se sirven aparte, al final) */
-    var sueltos={};
-    AP.pers.forEach(function(r){ r.items.forEach(function(x){ if(x.ad&&x.ord>=AP.std.length) (sueltos[x.t]=sueltos[x.t]||[]).push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
-    Object.keys(sueltos).forEach(function(t){ var f=fila(t,escNombres(sueltos[t]),Q("aa:"+escNorm(t).slice(0,40),sueltos[t].length)); f.sust=true; fpr.push(f); });
-    if(marcaJamon&&!AP.std.some(esDishJamon)) fpr.push(fila("Jamón · "+marcaJamon,"a cortar (no está marcado en el menú)",null));
-    md.secs.push({t:"Aperitivos · producción",sub:c.mesasAper+" mesas de aperitivo",filas:fpr});
+      return fila((i+1)+". "+d.name,sub,Q("ap:"+d._uid,calc)); });
+    if(marcaJamon&&!AP.std.some(esDishJamon)) fa2.push(fila("Jamón · "+marcaJamon,"a cortar",null));
+    md.secs.push({t:"Aperitivos",sub:c.mesasAper+" mesas · "+adTot+" adultos",filas:fa2});
   }
+  /* los adaptados, en el orden en que salen, con cuántos y para quién */
+  var adap={}, adO=[];
+  AP.pers.forEach(function(r){ r.items.forEach(function(x){ if(!x.ad) return;
+    if(!adap[x.t]){ adap[x.t]={ord:x.ord,gente:[]}; adO.push(x.t); } adap[x.t].ord=Math.min(adap[x.t].ord,x.ord);
+    adap[x.t].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
+  adO.sort(function(a,b){ return adap[a].ord-adap[b].ord; });
+  if(adO.length) md.secs.push({t:"Aperitivos adaptados",filas:adO.map(function(t){
+    var f=fila(t,escNombres(adap[t].gente),Q("aa:"+escNorm(t).slice(0,40),adap[t].gente.length)); f.sust=true; return f; })});
   /* ── estaciones (el café, copa y puro va con los cafés) ── */
   var grp={}, eo=[], cafEst=[];
   AP.est.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(/caf[eé]/i.test(k)){ cafEst.push(d); return; } if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
