@@ -3436,7 +3436,11 @@ function undo(){
   $("src").value=e.text; prevText=e.text; sel=null; fillSelect(); render(); save(); refreshUndo();
   toast("Deshecho.");
 }
-function current(){for(var i=0;i<store.events.length;i++)if(store.events[i].id===store.active)return store.events[i];return store.events[0]||null;}
+/* __evForzado: para calcular la rentabilidad de TODA la temporada se hacen las
+   cuentas de cada evento como si fuera el activo, sin cambiar de evento ni
+   guardar nada (BR.conEvento) */
+var __evForzado=null;
+function current(){if(__evForzado)return __evForzado;for(var i=0;i<store.events.length;i++)if(store.events[i].id===store.active)return store.events[i];return store.events[0]||null;}
 function loc(){ return current().loc||"interior"; }
 function plan(){ return current().plans[loc()]; }
 function eventName(t){var m=(t||"").match(/^#\s*(.+)$/m);return m?m[1].replace(/_/g,"").trim():"Evento sin título";}
@@ -6143,7 +6147,11 @@ var SECCIONES=[
   {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
   {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
-  {k:"p-agenda",   g:"Parámetros", t:"Agenda con los novios"}
+  {k:"p-agenda",   g:"Parámetros", t:"Agenda con los novios"},
+  /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
+  {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
+  {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
+  {k:"r-precios",  g:"Rentabilidad", t:"Precios del Maître"}
 ];
 function seccionActual(){
   if(document.body.classList.contains("mode-resumen")) return "resumen";
@@ -6238,6 +6246,7 @@ window.syncAppbar=syncAppbar;
 var lastSec="plan";
 function escH(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];});}
 var ICONS={
+  "Rentabilidad":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   "Parámetros":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>',
   "Plano de mesas":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2.6"/><circle cx="8.5" cy="8.5" r="1.9"/><circle cx="15.5" cy="8.5" r="1.9"/><circle cx="8.5" cy="15.5" r="1.9"/><circle cx="15.5" cy="15.5" r="1.9"/></svg>',
@@ -6267,7 +6276,7 @@ function seccionesDe(g){ return SECCIONES.filter(function(s){ return s.g===g && 
 function grupoDeSeccion(k){ for(var i=0;i<SECCIONES.length;i++) if(SECCIONES[i].k===k) return SECCIONES[i].g; return null; }
 function grupoCorto(g){ return g.split(" ")[0]; }
 
-var GRUPO_NEGOCIO={"Inventario":1,"Parámetros":1};
+var GRUPO_NEGOCIO={"Inventario":1,"Parámetros":1,"Rentabilidad":1};
 function renderSidenav(){
   var nav=$("side-nav"); if(!nav) return;
   nav.innerHTML="";
@@ -6991,7 +7000,8 @@ function renderResumen(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-tareas":1,"p-agenda":1};
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-tareas":1,"p-agenda":1,
+  "r-evento":1,"r-temp":1,"r-precios":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
   {k:"reserva",t:"Reserva"},{k:"planificacion",t:"Planificación"},{k:"confirmada",t:"Confirmada"},
@@ -7201,6 +7211,10 @@ function renderPlanV(k){
     if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
     if(window.LM_renderParam) window.LM_renderParam(k,host); return;
   }
+  if(String(k).indexOf("r-")===0){
+    if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
+    if(window.LM_renderRent) window.LM_renderRent(k,host); return;
+  }
   var e=current();
   if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
   var top=host.scrollTop;
@@ -7236,7 +7250,7 @@ function etiquetarCampos(root){
   });
 }
 function onPlanEdit(ev){
-  if(String(planView).indexOf("p-")===0) return;   /* Parámetros tiene sus propios manejadores */
+  if(/^[pr]-/.test(String(planView))) return;   /* Parámetros y Rentabilidad tienen sus propios manejadores */
   var el=ev.target, e=current(); if(!e) return;
   var num=el.getAttribute&&el.type==="number";
   function val(){ return num?(el.value===""?0:(parseFloat(el.value)||0)):el.value; }
@@ -7253,7 +7267,7 @@ function onPlanEdit(ev){
   } else if(el.hasAttribute&&el.hasAttribute("data-hito")){ e.hitos[el.getAttribute("data-hito")]=el.value; planSave(); if(ev.type==="change") renderPlanV(planView); }
 }
 function onPlanClick(ev){
-  if(String(planView).indexOf("p-")===0) return;
+  if(/^[pr]-/.test(String(planView))) return;
   var b=ev.target.closest?ev.target.closest("[data-act]"):null; if(!b) return;
   var e=current(); if(!e) return;
   var act=b.getAttribute("data-act"), i=+b.getAttribute("data-i");
@@ -7615,6 +7629,9 @@ window.SITTING_BRIDGE={
   ratioCamarero:ratioCamarero, pctSenal:pctSenal, agendaDef:AGENDA_DEF,
   current:current,
   save:save,
+  conEvento:function(e,fn){ var prev=__evForzado; __evForzado=e; try{ return fn(); } finally{ __evForzado=prev; } },
+  presupTotals:presupTotals, planCounts:planCounts, cicloT:function(){ return CICLO_T; },
+  impTabla:impTabla, impXlsx:impXlsx,
   eventName:eventName,
   switchActiveEvent:switchActiveEvent,
   eventLabel:eventLabel,
@@ -7637,8 +7654,8 @@ window.SITTING_BRIDGE={
   mesaLbl:function(t){ return mesaTxt(t,I18N.es); },
   alergias:function(){
     if(!doc) doc=parse(current()?current().text:"");
-    var out=[];
-    doc.tables.forEach(function(m){
+    var out=[], dd=__evForzado?parse(__evForzado.text||""):doc;
+    dd.tables.forEach(function(m){
       m.guests.forEach(function(g,i){
         /* no es solo alergias: vegetarianos, veganos y embarazadas también
            necesitan que se decida qué se les sirve, así que también entran
@@ -9570,6 +9587,169 @@ function aplicarParamsMenu(){
   var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
 }
 BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.contains("mode-menu")) refreshAll(); }catch(_){} });
+/* ══ RENTABILIDAD (solo administración) ════════════════════════════════
+   Los precios de producto salen del Maître: se exporta la lista de
+   artículos a Excel/CSV y se importa en «Rentabilidad · Precios». Cada
+   ingrediente de los escandallos se enlaza con su artículo (solo si el
+   nombre coincide; si no, se elige a mano o se pone el precio a mano).
+   El coste de cada evento usa las MISMAS raciones que Producción y la
+   escaleta: menús adultos, niños, sustitutivos y aperitivos adaptados.
+   Parámetro «precios»: {arts:[{n,p,u,ref}], imp:{fecha,archivo,n},
+     ing:{clave:{a:clave artículo | p:precio manual, u, g:gramos por ud}},
+     extra:{clave:€ por ración de un sustitutivo/adaptado escrito a mano}}
+   Parámetro «rent»: costes fijos (IVA, camareros, staff, tarta, botellas).
+   En cada evento, e.rent: {horas, camareros, costeTarta, prov:{id:true},
+     otros:[{id,concepto,importe}]} ══ */
+var RENT_DEF={iva:10, horaCamarero:0, horasCamarero:10, costeStaff:0, costeTarta:0, merma:0,
+  botella:{agua:0, blanco:0, tinto:0, cava:0, cavaRosado:0}};
+function rentParams(){
+  var d=BR.param("rent")||{}, o=clon(RENT_DEF);
+  Object.keys(d).forEach(function(k){ if(k==="botella") Object.keys(d.botella||{}).forEach(function(b){ o.botella[b]=d.botella[b]; }); else if(d[k]!=null&&d[k]!=="") o[k]=d[k]; });
+  return o;
+}
+function rentPrecios(){ var d=BR.param("precios")||{}; return {arts:d.arts||[], imp:d.imp||null, ing:d.ing||{}, extra:d.extra||{}}; }
+function rentClave(s){ return escNorm(s).replace(/[“”"'«»()]/g,"").replace(/\s+/g," ").trim(); }
+/* unidades del Maître → la magnitud y el factor a la unidad base (g, ml, ud) */
+var RENT_UD={kg:["m",1000], g:["m",1], l:["v",1000], cl:["v",10], ml:["v",1], ud:["u",1]};
+function rentUdArt(s){
+  var n=escNorm(s).replace(/[^a-z]/g,"");
+  if(/^(kg|kgs|kilo|kilos|kilogramo|kilogramos)$/.test(n)) return "kg";
+  if(/^(g|gr|grs|gramo|gramos)$/.test(n)) return "g";
+  if(/^(l|lt|lts|litro|litros)$/.test(n)) return "l";
+  if(/^(cl|centilitro|centilitros)$/.test(n)) return "cl";
+  if(/^(ml|mililitro|mililitros)$/.test(n)) return "ml";
+  if(/^(ud|uds|u|un|und|unid|unidad|unidades|pieza|piezas|pz|botella|botellas|bot)$/.test(n)) return "ud";
+  return "";
+}
+function rentNum(v){ if(typeof v==="number") return v; var s=String(v==null?"":v).replace(/[€\s]/g,""); if(!s) return null;
+  if(s.indexOf(",")>-1&&s.indexOf(".")>-1) s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");
+  else s=s.replace(",","."); var n=parseFloat(s); return isFinite(n)?n:null; }
+function rentArtMap(P){ var m={}; P.arts.forEach(function(a){ var k=rentClave(a.n); if(k&&!m[k]) m[k]=a; }); return m; }
+/* el precio de un ingrediente: lo escrito a mano, o su artículo del Maître
+   (el enlazado o el de mismo nombre). Devuelve {p,u,g,art,fuente} o null */
+function rentPrecioIng(nombre,P,AM){
+  var k=rentClave(nombre), x=P.ing[k]||{};
+  if(x.p!=null&&x.p!==""&&x.u) return {p:+x.p,u:x.u,g:x.g,fuente:"manual"};
+  var a=x.a?AM[x.a]:AM[k];
+  if(a&&a.p!=null) return {p:+a.p,u:a.u||"ud",g:x.g,art:a.n,fuente:x.a?"enlace":"auto"};
+  return null;
+}
+/* € de UNA línea del escandallo (cantidad por comensal) */
+function rentCosteLinea(ing,pr){
+  if(!pr||ing.qty==null) return null;
+  var U=RENT_UD[pr.u]||RENT_UD.ud, porBase=pr.p/U[1], uIng=escNorm(ing.unit||"");
+  var mIng=/^(gr|g|kg)$/.test(uIng)?"m":/^(ml|cl|l)$/.test(uIng)?"v":"u";
+  var qBase=ing.qty*(uIng==="kg"||uIng==="l"?1000:uIng==="cl"?10:1);
+  if(mIng===U[0]) return qBase*porBase;
+  /* gramos ↔ mililitros: se toma 1 g = 1 ml (salsas, caldos, aceite…) */
+  if((mIng==="m"&&U[0]==="v")||(mIng==="v"&&U[0]==="m")) return qBase*porBase;
+  /* unidades ↔ peso: hace falta cuántos gramos pesa una unidad */
+  if(pr.g>0){ if(mIng==="u"&&U[0]!=="u") return qBase*pr.g*porBase; if(mIng!=="u"&&U[0]==="u") return qBase/pr.g*porBase; }
+  return null;
+}
+/* coste por ración de un plato del catálogo: {c, faltan:[ingredientes], n} */
+function rentCostePlato(d,P,AM){
+  var c=0, faltan=[];
+  (d.ingredients||[]).forEach(function(ing){
+    var v=rentCosteLinea(ing,rentPrecioIng(ing.name,P,AM));
+    if(v==null) faltan.push(ing.name); else c+=v; });
+  return {c:c, faltan:faltan, n:(d.ingredients||[]).length};
+}
+/* todos los ingredientes del catálogo, con su unidad y en qué platos salen */
+function rentIngredientes(){
+  var por={}, orden=[];
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ (d.ingredients||[]).forEach(function(ing){
+    var k=rentClave(ing.name); if(!k) return;
+    if(!por[k]){ por[k]={k:k,nombre:ing.name,uds:{},platos:[],sinCant:0}; orden.push(k); }
+    por[k].uds[ing.unit||"—"]=1; if(por[k].platos.indexOf(d.name)<0) por[k].platos.push(d.name); if(ing.qty==null) por[k].sinCant++; }); }); });
+  return orden.map(function(k){ return por[k]; }).sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+}
+/* un plato del catálogo por su nombre (para los sustitutivos y los adaptados) */
+function rentPlatoPorNombre(txt){
+  var k=rentClave(txt), hit=null;
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ if(!hit&&rentClave(d.name)===k) hit=d; }); });
+  return hit;
+}
+/* ── el cálculo de un evento (el activo, o el que fuerce BR.conEvento) ── */
+function rentCalc(){
+  var e=ev(); if(!e) return null;
+  var RP=rentParams(), P=rentPrecios(), AM=rentArtMap(P), R=e.rent||{};
+  var cfg=escCfg(), c=escCuentas(), ban=escBanquete(c,cfg), ctx=prodCtx(), t=evTotals(); t.esc=ctx;
+  var sel=selectedDishes(), mp=[], faltanIng={}, avisos=[];
+  /* 1 · materia prima: cada plato marcado × sus raciones reales */
+  sel.forEach(function(d){
+    var rac=racionesDe(d,t); if(!rac) return;
+    var cp=rentCostePlato(d,P,AM);
+    cp.faltan.forEach(function(n){ faltanIng[n]=(faltanIng[n]||0)+1; });
+    mp.push({grupo:d._famKey==="NIÑOS"?"Menú infantil":(d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES")?"Aperitivo y estaciones":d._famKey==="RECENA"?"Ressopó":"Banquete",
+      txt:d.name, rac:rac, cu:cp.c, total:cp.c*rac, faltan:cp.faltan, completo:!cp.faltan.length});
+  });
+  /* sustitutivos y aperitivos adaptados: si su nombre es un plato del
+     catálogo, con su escandallo; si no, el precio escrito a mano; si tampoco,
+     el del plato al que sustituyen (estimado) */
+  ctx.subs.forEach(function(x){
+    var d=rentPlatoPorNombre(x.txt), k=rentClave(x.txt), cu=null, est="", falt=[];
+    if(/tarta|pastel|pastis/.test(escNorm(x.txt))){ return; }
+    if(P.extra[k]!=null&&P.extra[k]!==""){ cu=+P.extra[k]; est="precio a mano"; }
+    else if(d){ var cp=rentCostePlato(d,P,AM); cu=cp.c; falt=cp.faltan; est=cp.faltan.length?"escandallo incompleto":"escandallo"; }
+    else { var orig=x.aper?null:rentPlatoPorNombre(x.de); if(orig){ var co=rentCostePlato(orig,P,AM); cu=co.c; est="estimado: como "+x.de; } }
+    mp.push({grupo:x.aper?"Aperitivos adaptados":"Platos sustitutivos", txt:x.txt, rac:x.n, cu:cu||0, total:(cu||0)*x.n, sub:(x.aper?"Para: ":"En lugar de "+x.de+" · Para: ")+x.para,
+      extraK:k, est:est, faltan:falt, completo:cu!=null&&!falt.length});
+  });
+  /* tarta (todas: las normales y las adaptadas, también la del staff) */
+  var tartaD=null; ban[2].platos.forEach(function(x){ if(x.tarta) tartaD=x; });
+  if(tartaD){ var nT=Math.max(0,c.adultos-tartaD.fuera); Object.keys(tartaD.subs).forEach(function(kk){ nT+=tartaD.subs[kk].gente.length; });
+    var ct=(R.costeTarta!=null&&R.costeTarta!=="")?+R.costeTarta:+RP.costeTarta;
+    mp.push({grupo:"Postres", txt:"Tarta: "+tartaD.name, rac:nT, cu:ct, total:ct*nT, tarta:true, completo:ct>0}); }
+  /* menú staff: su coste por persona (es un menú propio, no un escandallo) */
+  if(c.staff>0) mp.push({grupo:"Menú staff", txt:"Menú staff", rac:c.staff, cu:+RP.costeStaff, total:c.staff*RP.costeStaff, staff:true, completo:RP.costeStaff>0});
+  var mpTotal=mp.reduce(function(s,x){ return s+(x.total||0); },0);
+  var merma=mpTotal*(+RP.merma||0)/100;
+  /* 2 · bebida: las botellas de la hoja de Bebida × el precio de la marca
+     elegida (su artículo del Maître) o, si no, el de la categoría */
+  var beb=[];
+  BEBIDA_CATS.forEach(function(cat){ if(cat.key==="jamon"||!cat.auto) return;
+    var r=calcBebida(cat), marca=bebidaMarca(cat.key), a=marca?AM[rentClave(marca)]:null, pu=null, fuente="";
+    if(a&&a.p!=null){ pu=+a.p; fuente="Maître"; } else if(+RP.botella[cat.key]>0){ pu=+RP.botella[cat.key]; fuente="precio de la categoría"; }
+    beb.push({txt:cat.label, marca:marca, q:r.botellas, cu:pu||0, total:(pu||0)*r.botellas, fuente:fuente, completo:pu!=null||!r.botellas}); });
+  var bebTotal=beb.reduce(function(s,x){ return s+x.total; },0);
+  /* 3 · personal: los camareros que vienen (o los previstos) × horas × €/hora */
+  var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
+  var nCam=(R.camareros!=null&&R.camareros!=="")?+R.camareros:(camSi||t.camareros), camEst=!(R.camareros!=null&&R.camareros!=="")&&!camSi;
+  var horas=(R.horas!=null&&R.horas!=="")?+R.horas:+RP.horasCamarero;
+  var perTotal=nCam*horas*(+RP.horaCamarero||0);
+  /* 4 · extras y proveedores: los que paga Les Moles y los gastos apuntados */
+  var ext=[];
+  (e.proveedores||[]).forEach(function(p){ if(R.prov&&R.prov[p.id]) ext.push({txt:(p.servicio||"Proveedor")+(p.empresa?" · "+p.empresa:""), total:+p.precio||0, prov:true}); });
+  (R.otros||[]).forEach(function(o){ ext.push({txt:o.concepto||"Otro gasto", total:+o.importe||0}); });
+  var extTotal=ext.reduce(function(s,x){ return s+x.total; },0);
+  /* ingresos: lo del presupuesto (menús + extras), sin el IVA */
+  var PT=BR.presupTotals(e), iva=+RP.iva||0, ingresos=PT.total/(1+iva/100);
+  var costes=mpTotal+merma+bebTotal+perTotal+extTotal, margen=ingresos-costes;
+  var comensales=c.adultos+c.ninos+c.staff;
+  var nFaltan=Object.keys(faltanIng).length;
+  if(nFaltan) avisos.push(nFaltan+(nFaltan===1?" ingrediente sin precio":" ingredientes sin precio")+": el coste de la materia prima sale por debajo del real.");
+  if(mp.some(function(x){ return x.tarta&&!x.completo; })) avisos.push("Falta el coste por ración de la tarta.");
+  if(mp.some(function(x){ return x.staff&&!x.completo; })) avisos.push("Falta el coste del menú staff por persona.");
+  if(beb.some(function(x){ return !x.completo; })) avisos.push("Hay bebidas sin precio.");
+  if(!(+RP.horaCamarero>0)&&nCam) avisos.push("Falta el coste por hora de los camareros.");
+  if(!PT.total) avisos.push("El presupuesto del evento está a 0 €: no hay ingresos.");
+  return {id:e.id, nombre:e.name||"Evento", fecha:(e.ficha&&e.ficha.fecha)||"", estado:(e.ficha&&e.ficha.estado)||"planificacion",
+    adultos:c.adultos, ninos:c.ninos, staff:c.staff, comensales:comensales,
+    ingresos:ingresos, ingresosIVA:PT.total, iva:iva, menus:PT.menus, extrasVenta:PT.extras,
+    mp:mp, mpTotal:mpTotal, merma:merma, mermaPct:+RP.merma||0, beb:beb, bebTotal:bebTotal,
+    per:{n:nCam, estimado:camEst, asignados:camSi, horas:horas, hora:+RP.horaCamarero||0, total:perTotal}, perTotal:perTotal,
+    ext:ext, extTotal:extTotal, costes:costes, margen:margen, pct:ingresos>0?margen/ingresos*100:null,
+    faltanIng:faltanIng, avisos:avisos, completo:!avisos.length};
+}
+BR.rent={
+  calc:rentCalc,
+  calcDe:function(e){ return BR.conEvento(e,rentCalc); },
+  params:rentParams, def:RENT_DEF, precios:rentPrecios, clave:rentClave, udArt:rentUdArt, num:rentNum,
+  ingredientes:rentIngredientes, precioIng:function(n){ var P=rentPrecios(); return rentPrecioIng(n,P,rentArtMap(P)); },
+  costePlato:function(d){ var P=rentPrecios(); return rentCostePlato(d,P,rentArtMap(P)); },
+  familias:function(){ return MENU_DATA; }, bebidaCats:function(){ return BEBIDA_CATS.filter(function(c){ return c.auto; }); }
+};
 /* lo que la pantalla de Parámetros necesita leer: los valores de fábrica y
    los que están en uso ahora mismo, con la forma en que se guardan */
 BR.menuParams={
@@ -11646,6 +11826,440 @@ st.textContent=
 ".pp-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,10px);opacity:0;background:var(--c-ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;z-index:300;transition:.2s}"+
 ".pp-toast.on{opacity:1;transform:translate(-50%,0)}"+
 "@media (max-width:760px){.pp-grid2{grid-template-columns:1fr}.pp-dish-h{grid-template-columns:1fr auto}.pp-dish-meta{grid-column:1/-1;grid-row:2}}";
+document.head.appendChild(st);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENTABILIDAD — solo administración. Tres pantallas:
+   · r-evento: ingresos, costes y margen del evento activo
+   · r-temp:   la temporada entera (totales, margen por mes y ranking)
+   · r-precios: los precios de producto del Maître (Excel/CSV) enlazados a
+     los ingredientes de los escandallos, y los costes fijos
+   Las cuentas las hace el Menú (BR.rent): mismas raciones que Producción.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+var BR=window.SITTING_BRIDGE; if(!BR) return;
+var $=function(id){ return document.getElementById(id); };
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function esAdmin(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); return !!u&&u.role==="admin"; }catch(_){ return false; } }
+/* useGrouping "always": 7.965 € y no 7965 € (igual que el resto de la app) */
+var fmtE=new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0,useGrouping:"always"});
+var fmtE2=new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:"always"});
+var fmtN=new Intl.NumberFormat("es-ES",{maximumFractionDigits:2});
+function eur(n){ return fmtE.format(Math.round(n||0)); }
+function eur2(n){ return fmtE2.format(n||0); }
+function pctTx(n){ return n==null?"—":fmtN.format(Math.round(n*10)/10)+" %"; }
+function numTx(n){ return n==null||n===""?"":String(n).replace(".",","); }
+function toast(msg){ var t=document.createElement("div"); t.className="pp-toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.classList.add("on"); },10); setTimeout(function(){ t.classList.remove("on"); setTimeout(function(){ t.remove(); },300); },2400); }
+var MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var CATS=[{k:"mp",t:"Materia prima"},{k:"beb",t:"Bebida"},{k:"per",t:"Personal"},{k:"ext",t:"Extras y proveedores"}];
+/* los eventos que cuentan en la temporada: los reservados en adelante */
+var CONFIRMADOS={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
+var ui={q:"", filtro:"todos", anio:null, todos:false, orden:"margen", dir:-1, imp:null};
+
+var VISTAS={
+  "r-evento":{t:"Rentabilidad del evento", guia:"Lo que se cobra (presupuesto, sin IVA) frente a lo que cuesta: la materia prima de los platos con las mismas raciones que Producción, la bebida de la hoja de Bebida, los camareros y los extras. Los precios de producto salen del Maître (en «Precios del Maître»)."},
+  "r-temp":{t:"Temporada", guia:"Todos los eventos del año juntos: ingresos, costes, margen y qué boda ha sido más rentable. Cuenta los eventos reservados en adelante; los que aún están en contacto o propuesta se pueden añadir."},
+  "r-precios":{t:"Precios del Maître", guia:"Exporta desde el Maître la lista de artículos con su precio (Excel o CSV) y súbela aquí. Cada ingrediente de los escandallos se enlaza con su artículo por el nombre; los que no coincidan se enlazan a mano o se les pone el precio a mano. También aquí los costes fijos: IVA, camareros, menú staff, tarta y bebida."}
+};
+function cabecera(k,extra){
+  var v=VISTAS[k];
+  return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Rentabilidad · solo administración</div>'+
+    '<h1 class="pv-title">'+esc(v.t)+'</h1>'+(extra?'<div class="pv-sub">'+extra+'</div>':'')+
+    '<p class="pv-guide">'+esc(v.guia)+'</p></div></header>';
+}
+function kpi(lbl,num,sub,cls){ return '<div class="kpi'+(cls?" "+cls:"")+'"><div class="k-lbl">'+esc(lbl)+'</div><div class="k-num rt-num">'+num+'</div>'+(sub?'<div class="k-sub">'+sub+'</div>':'')+'</div>'; }
+function avisosHTML(av){
+  if(!av.length) return '<div class="rt-ok">✓ Todos los costes tienen precio.</div>';
+  return '<div class="rt-avisos" role="note"><b>Cifras incompletas</b><ul>'+av.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>'+
+    '<button type="button" class="btn sm" data-goto="r-precios">Completar precios</button></div>';
+}
+/* reparto de los costes: una barra al 100 % con las cuatro partidas */
+function barraCostes(r){
+  var v={mp:r.mpTotal+r.merma, beb:r.bebTotal, per:r.perTotal, ext:r.extTotal}, tot=r.costes;
+  if(!(tot>0)) return '<p class="pp-empty">Todavía no hay costes con precio.</p>';
+  var segs=CATS.filter(function(c){ return v[c.k]>0; }).map(function(c,i){ var p=v[c.k]/tot*100;
+    return '<span class="rt-seg rt-c-'+c.k+'" style="flex:'+p.toFixed(3)+' 1 0" title="'+esc(c.t)+': '+esc(eur(v[c.k]))+' · '+esc(pctTx(p))+'"></span>'; }).join("");
+  return '<div class="rt-bar" role="img" aria-label="Reparto de los costes">'+segs+'</div>'+
+    '<div class="rt-leg">'+CATS.map(function(c){ var p=tot>0?v[c.k]/tot*100:0;
+      return '<div class="rt-leg-i"><span class="rt-sw rt-c-'+c.k+'" aria-hidden="true"></span><span class="rt-leg-t">'+esc(c.t)+'</span><b>'+esc(eur(v[c.k]))+'</b><span class="rt-leg-p">'+esc(pctTx(p))+'</span></div>'; }).join("")+'</div>';
+}
+
+/* ══ EVENTO ══════════════════════════════════════════════════════════ */
+function vEvento(){
+  var e=BR.current();
+  if(!e) return cabecera("r-evento")+'<div class="pcard"><p>Elige un evento arriba.</p></div>';
+  var r=BR.rent.calc(), RP=BR.rent.params(), R=e.rent||{};
+  var extra=esc(r.nombre)+' · '+r.comensales+' menús ('+r.adultos+' adultos · '+r.ninos+' niños · '+r.staff+' staff)';
+  var h=cabecera("r-evento",extra);
+  var mc=r.comensales||0;
+  h+='<div class="rsm-kpis">'+
+    kpi("Ingresos sin IVA",esc(eur(r.ingresos)),"Presupuesto "+esc(eur(r.ingresosIVA))+" con IVA ("+esc(numTx(r.iva))+" %)")+
+    kpi("Costes",esc(eur(r.costes)),r.ingresos>0?esc(pctTx(r.costes/r.ingresos*100))+" de los ingresos":"")+
+    kpi("Margen",esc(eur(r.margen)),"Margen "+esc(pctTx(r.pct)),"accent"+(r.margen<0?" rt-neg":""))+
+    kpi("Por menú",mc?esc(eur(r.margen/mc)):"—",mc?"Ingreso "+esc(eur(r.ingresos/mc))+" · coste "+esc(eur(r.costes/mc)):"")+
+    '</div>'+avisosHTML(r.avisos);
+  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes(r)+'</div>';
+  /* materia prima */
+  var grupos={}, go=[]; r.mp.forEach(function(x){ if(!grupos[x.grupo]){ grupos[x.grupo]=[]; go.push(x.grupo); } grupos[x.grupo].push(x); });
+  var filas=go.map(function(g){
+    var sub=grupos[g].reduce(function(s,x){ return s+x.total; },0);
+    return '<tr class="rt-grp"><td colspan="3">'+esc(g)+'</td><td class="rnum">'+esc(eur(sub))+'</td><td></td></tr>'+grupos[g].map(function(x){
+      var cu;
+      if(x.tarta) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="ev" data-k="costeTarta" value="'+esc(numTx(R.costeTarta))+'" placeholder="'+esc(numTx(RP.costeTarta)||"€/ración")+'" aria-label="Coste por ración de la tarta">';
+      else if(x.extraK&&!/^escandallo/.test(x.est||"")) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="extra" data-k="'+esc(x.extraK)+'" value="'+esc(numTx(BR.rent.precios().extra[x.extraK]))+'" placeholder="'+esc(x.cu?numTx(Math.round(x.cu*100)/100):"€/ración")+'" aria-label="Coste por ración de '+esc(x.txt)+'">';
+      else cu=esc(eur2(x.cu));
+      var est=x.completo?(x.est&&x.est.indexOf("estimado")===0?'<span class="rt-est" title="'+esc(x.est)+'">estimado</span>':'<span class="rt-okc" aria-label="Completo">✓</span>')
+        :x.faltan&&x.faltan.length?'<span class="rt-falta" title="Sin precio: '+esc(x.faltan.join(", "))+'">faltan '+x.faltan.length+'</span>'
+        :x.staff?'<button type="button" class="rt-link" data-goto="r-precios">poner coste</button>':'<span class="rt-falta">sin precio</span>';
+      return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span>'+(x.sub?'<span class="rt-sub">'+esc(x.sub)+'</span>':'')+'</td><td class="rnum">'+x.rac+'</td><td class="rnum rt-cu">'+cu+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+est+'</td></tr>'; }).join("");
+  }).join("");
+  if(r.merma) filas+='<tr class="rt-grp"><td colspan="3">Merma ('+esc(numTx(r.mermaPct))+' %)</td><td class="rnum">'+esc(eur(r.merma))+'</td><td></td></tr>';
+  h+='<div class="pv-sec">Materia prima <span class="pv-sec-note">— '+esc(eur(r.mpTotal+r.merma))+'</span></div>'+
+    (r.mp.length?'<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Plato</th><th class="rnum">Raciones</th><th class="rnum">€ / ración</th><th class="rnum">Total</th><th>Estado</th></tr></thead><tbody>'+filas+'</tbody></table></div>'
+      :'<div class="pcard"><p class="pp-empty">No hay platos marcados en el menú del evento.</p></div>');
+  /* bebida */
+  h+='<div class="pv-sec">Bebida <span class="pv-sec-note">— '+esc(eur(r.bebTotal))+'</span></div><div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Bebida</th><th class="rnum">Botellas</th><th class="rnum">€ / botella</th><th class="rnum">Total</th><th>Precio</th></tr></thead><tbody>'+
+    r.beb.map(function(x){ return '<tr><td><span class="rt-pl">'+esc(x.marca||x.txt)+'</span>'+(x.marca?'<span class="rt-sub">'+esc(x.txt)+'</span>':'')+'</td><td class="rnum">'+x.q+'</td><td class="rnum">'+(x.cu?esc(eur2(x.cu)):"—")+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+(x.fuente?esc(x.fuente):'<span class="rt-falta">sin precio</span>')+'</td></tr>'; }).join("")+
+    '</tbody></table></div>';
+  /* personal */
+  var p=r.per;
+  h+='<div class="pv-sec">Personal <span class="pv-sec-note">— '+esc(eur(r.perTotal))+'</span></div><div class="pcard"><div class="fldset">'+
+    '<label class="fld"><span class="lbl">Camareros <small>'+(p.asignados?p.asignados+" asignados":"previstos: "+p.n)+'</small></span><input type="text" inputmode="numeric" data-rp="ev" data-k="camareros" value="'+esc(numTx(R.camareros))+'" placeholder="'+esc(p.asignados||p.n)+'"></label>'+
+    '<label class="fld"><span class="lbl">Horas por camarero</span><input type="text" inputmode="decimal" data-rp="ev" data-k="horas" value="'+esc(numTx(R.horas))+'" placeholder="'+esc(numTx(RP.horasCamarero))+'"></label>'+
+    '<div class="fld"><span class="lbl">Coste</span><div class="fld-val">'+p.n+' × '+esc(numTx(p.horas))+' h × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perTotal))+'</b>'+(p.estimado?' <span class="rt-est">estimado</span>':'')+'</div></div>'+
+    '</div></div>';
+  /* extras y proveedores */
+  var provs=(e.proveedores||[]).filter(function(x){ return x.empresa||+x.precio; });
+  h+='<div class="pv-sec">Extras y proveedores <span class="pv-sec-note">— '+esc(eur(r.extTotal))+'</span></div><div class="pcard">'+
+    (provs.length?'<div class="pp-subh">Proveedores del evento <span>— marca los que paga Les Moles</span></div>'+provs.map(function(x){
+      return '<label class="rt-prov"><input type="checkbox" data-rp="prov" data-id="'+esc(x.id)+'"'+(R.prov&&R.prov[x.id]?" checked":"")+'> <span>'+esc(x.servicio||"Proveedor")+(x.empresa?" · "+esc(x.empresa):"")+'</span><b>'+esc(eur(+x.precio||0))+'</b></label>'; }).join(""):'<p class="pp-note" style="margin-top:0">No hay proveedores apuntados en el evento.</p>')+
+    '<div class="pp-subh">Otros gastos <span>— flores, autobuses, personal extra…</span></div>'+
+    (R.otros||[]).map(function(o,i){ return '<div class="pp-tramo"><input type="text" data-rp="otro" data-i="'+i+'" data-k="concepto" value="'+esc(o.concepto||"")+'" placeholder="Concepto" aria-label="Concepto"><input type="text" inputmode="decimal" data-rp="otro" data-i="'+i+'" data-k="importe" value="'+esc(numTx(o.importe))+'" placeholder="0" style="width:110px;text-align:right" aria-label="Importe"><span>€</span><button type="button" class="row-del" data-ra="otro-del" data-i="'+i+'" aria-label="Quitar gasto">×</button></div>'; }).join("")+
+    '<button type="button" class="btn sm" data-ra="otro-add">+ Gasto</button></div>';
+  /* ingresos */
+  h+='<div class="pv-sec">Ingresos</div><div class="pcard"><div class="rt-lines">'+
+    '<div><span>Menús</span><b>'+esc(eur(r.menus))+'</b></div><div><span>Extras cobrados</span><b>'+esc(eur(r.extrasVenta))+'</b></div>'+
+    '<div><span>Total con IVA</span><b>'+esc(eur(r.ingresosIVA))+'</b></div><div><span>IVA ('+esc(numTx(r.iva))+' %)</span><b>−'+esc(eur(r.ingresosIVA-r.ingresos))+'</b></div>'+
+    '<div class="rt-tot"><span>Ingresos sin IVA</span><b>'+esc(eur(r.ingresos))+'</b></div></div>'+
+    '<p class="pp-note">Los precios de venta y los extras se cambian en <button type="button" class="rt-link" data-goto="presup">Presupuesto</button>.</p></div>';
+  return h;
+}
+
+/* ══ TEMPORADA ═══════════════════════════════════════════════════════ */
+function anioDe(e){ var f=e.ficha&&e.ficha.fecha; return f?+String(f).slice(0,4):null; }
+function datosTemporada(){
+  var evs=BR.allEvents(), anios={};
+  evs.forEach(function(e){ var a=anioDe(e); if(a) anios[a]=1; });
+  var lista=Object.keys(anios).map(Number).sort(function(a,b){ return b-a; });
+  var hoy=new Date().getFullYear();
+  if(ui.anio==null||lista.indexOf(ui.anio)<0) ui.anio=lista.indexOf(hoy)>-1?hoy:(lista[0]||hoy);
+  var sel=evs.filter(function(e){ return anioDe(e)===ui.anio&&(ui.todos||CONFIRMADOS[(e.ficha&&e.ficha.estado)||"planificacion"]); });
+  var fuera=evs.filter(function(e){ return anioDe(e)===ui.anio; }).length-sel.length;
+  var rows=[]; sel.forEach(function(e){ try{ var r=BR.rent.calcDe(e); if(r) rows.push(r); }catch(err){ try{ console.warn("rentabilidad",e.name,err); }catch(_){} } });
+  return {anios:lista, rows:rows, fuera:fuera};
+}
+function grafMeses(rows){
+  var m=[]; for(var i=0;i<12;i++) m.push({i:i,ing:0,cos:0,mar:0,n:0});
+  rows.forEach(function(r){ var d=r.fecha?new Date(r.fecha+"T00:00:00"):null; if(!d||isNaN(d)) return; var x=m[d.getMonth()]; x.ing+=r.ingresos; x.cos+=r.costes; x.mar+=r.margen; x.n++; });
+  var max=Math.max.apply(null,m.map(function(x){ return x.mar; }).concat([0])), min=Math.min.apply(null,m.map(function(x){ return x.mar; }).concat([0]));
+  if(max===min) max=min+1;
+  var W=720, H=230, pl=58, pr=10, pt=12, pb=28, cw=(W-pl-pr)/12, bw=Math.min(34,cw*0.56);
+  function y(v){ return pt+(max-v)/(max-min)*(H-pt-pb); }
+  var step=Math.pow(10,Math.floor(Math.log10((max-min)/3||1))), nice=[1,2,2.5,5,10].map(function(k){ return k*step; }).filter(function(s){ return (max-min)/s<=5; })[0]||step*10;
+  var ticks=[]; for(var tv=Math.ceil(min/nice)*nice;tv<=max+1e-9;tv+=nice) ticks.push(tv);
+  var g=ticks.map(function(tv){ return '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(tv).toFixed(1)+'" y2="'+y(tv).toFixed(1)+'" class="rt-grid'+(Math.abs(tv)<1e-9?" rt-zero":"")+'"/><text x="'+(pl-8)+'" y="'+(y(tv)+4).toFixed(1)+'" class="rt-ax" text-anchor="end">'+esc(fmtN.format(Math.round(tv/100)/10))+'k</text>'; }).join("");
+  var bars=m.map(function(x){ var cx=pl+cw*x.i+cw/2, y0=y(0), y1=y(x.mar), top=Math.min(y0,y1), hh=Math.abs(y1-y0), rr=Math.min(4,hh/2), bx=cx-bw/2;
+    var path=!x.n||hh<0.5?"":(x.mar>=0
+      ?'M'+bx+','+y0+'V'+(top+rr)+'Q'+bx+','+top+' '+(bx+rr)+','+top+'H'+(bx+bw-rr)+'Q'+(bx+bw)+','+top+' '+(bx+bw)+','+(top+rr)+'V'+y0+'Z'
+      :'M'+bx+','+y0+'V'+(top+hh-rr)+'Q'+bx+','+(top+hh)+' '+(bx+rr)+','+(top+hh)+'H'+(bx+bw-rr)+'Q'+(bx+bw)+','+(top+hh)+' '+(bx+bw)+','+(top+hh-rr)+'V'+y0+'Z');
+    return (path?'<path d="'+path+'" class="rt-mbar'+(x.mar<0?" neg":"")+'"/>':'')+
+      '<text x="'+cx+'" y="'+(H-9)+'" class="rt-ax" text-anchor="middle">'+MESES[x.i]+'</text>'+
+      '<rect x="'+(pl+cw*x.i)+'" y="'+pt+'" width="'+cw+'" height="'+(H-pt-pb)+'" class="rt-hit" data-mes="'+x.i+'" data-tip="'+esc(x.n?(MESES[x.i].charAt(0).toUpperCase()+MESES[x.i].slice(1)+" · "+x.n+(x.n===1?" evento":" eventos")+"|Ingresos "+eur(x.ing)+"|Costes "+eur(x.cos)+"|Margen "+eur(x.mar)+(x.ing>0?" ("+pctTx(x.mar/x.ing*100)+")":"")):(MESES[x.i]+" · sin eventos"))+'"/>'; }).join("");
+  return '<div class="rt-chart"><div class="rt-chart-h">Margen por mes <span>(miles de €)</span></div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Margen por mes de la temporada">'+g+bars+'</svg><div class="rt-tip" hidden></div></div>';
+}
+var ORDENES={nombre:"Evento",fecha:"Fecha",comensales:"Menús",ingresos:"Ingresos",costes:"Costes",margen:"Margen",pct:"% margen",porMenu:"Margen / menú"};
+function vTemporada(){
+  var D=datosTemporada(), rows=D.rows;
+  var T={ing:0,cos:0,mar:0,men:0,mp:0,merma:0,beb:0,per:0,ext:0,inc:0};
+  rows.forEach(function(r){ T.ing+=r.ingresos; T.cos+=r.costes; T.mar+=r.margen; T.men+=r.comensales; T.mp+=r.mpTotal; T.merma+=r.merma; T.beb+=r.bebTotal; T.per+=r.perTotal; T.ext+=r.extTotal; if(!r.completo) T.inc++; r.porMenu=r.comensales?r.margen/r.comensales:0; });
+  var h=cabecera("r-temp");
+  h+='<div class="pp-bar rt-filt"><label class="fld rt-anio"><span class="lbl">Temporada</span><select data-rp="anio">'+(D.anios.length?D.anios:[ui.anio]).map(function(a){ return '<option'+(a===ui.anio?" selected":"")+'>'+a+'</option>'; }).join("")+'</select></label>'+
+    '<label class="ag-chk"><input type="checkbox" data-rp="todos"'+(ui.todos?" checked":"")+'> Incluir los que aún no están reservados'+(D.fuera&&!ui.todos?" ("+D.fuera+")":"")+'</label>'+
+    (rows.length?'<button type="button" class="btn sm" data-ra="csv">Descargar CSV</button>':'')+'</div>';
+  if(!rows.length) return h+'<div class="pcard"><p class="pp-empty">No hay eventos '+(ui.todos?"":"reservados ")+'con fecha en '+ui.anio+'.</p></div>';
+  h+='<div class="rsm-kpis">'+
+    kpi("Eventos",String(rows.length),T.men+" menús")+
+    kpi("Ingresos sin IVA",esc(eur(T.ing)),T.men?esc(eur(T.ing/T.men))+" por menú":"")+
+    kpi("Costes",esc(eur(T.cos)),T.men?esc(eur(T.cos/T.men))+" por menú":"")+
+    kpi("Margen",esc(eur(T.mar)),"Margen "+esc(pctTx(T.ing>0?T.mar/T.ing*100:null))+(T.men?" · "+esc(eur(T.mar/T.men))+" por menú":""),"accent"+(T.mar<0?" rt-neg":""))+
+    '</div>'+(T.inc?'<div class="rt-avisos" role="note"><b>'+T.inc+(T.inc===1?" evento tiene":" eventos tienen")+' cifras incompletas</b> (faltan precios): su coste sale por debajo del real. Van marcados en la tabla. <button type="button" class="btn sm" data-goto="r-precios">Completar precios</button></div>':'');
+  h+='<div class="pv-sec">Margen por mes</div><div class="pcard">'+grafMeses(rows)+'</div>';
+  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes({mpTotal:T.mp,merma:T.merma,bebTotal:T.beb,perTotal:T.per,extTotal:T.ext,costes:T.cos})+'</div>';
+  var k=ui.orden, dir=ui.dir;
+  rows.sort(function(a,b){ var va=a[k], vb=b[k]; if(k==="nombre"||k==="fecha") return String(va||"").localeCompare(String(vb||""),"es")*dir; return ((va==null?-1e12:va)-(vb==null?-1e12:vb))*dir; });
+  function th(key,num){ var on=ui.orden===key; return '<th class="'+(num?"rnum":"")+'" aria-sort="'+(on?(dir>0?"ascending":"descending"):"none")+'"><button type="button" class="rt-sort'+(on?" on":"")+'" data-ra="ord" data-k="'+key+'">'+esc(ORDENES[key])+(on?(dir>0?" ↑":" ↓"):"")+'</button></th>'; }
+  h+='<div class="pv-sec">Eventos de la temporada <span class="pv-sec-note">— toca un evento para ver su detalle</span></div><div class="dtable-wrap"><table class="dtable rt-t rt-rank"><thead><tr>'+
+    th("nombre")+th("fecha")+th("comensales",1)+th("ingresos",1)+th("costes",1)+th("margen",1)+th("pct",1)+th("porMenu",1)+'</tr></thead><tbody>'+
+    rows.map(function(r){ var f=r.fecha?new Date(r.fecha+"T00:00:00").toLocaleDateString("es-ES",{day:"numeric",month:"short"}):"—";
+      return '<tr class="rt-row" data-ra="ver" data-id="'+esc(r.id)+'" tabindex="0"><td><span class="rt-pl">'+esc(String(r.nombre).replace(/\s*[—\-–]\s*\d.*$/,""))+'</span>'+(r.completo?'':'<span class="rt-falta" title="'+esc(r.avisos.join(" "))+'">incompleto</span>')+'</td><td>'+esc(f)+'</td><td class="rnum">'+r.comensales+'</td><td class="rnum">'+esc(eur(r.ingresos))+'</td><td class="rnum">'+esc(eur(r.costes))+'</td><td class="rnum'+(r.margen<0?" rt-negtx":"")+'"><b>'+esc(eur(r.margen))+'</b></td><td class="rnum">'+esc(pctTx(r.pct))+'</td><td class="rnum">'+esc(eur(r.porMenu))+'</td></tr>'; }).join("")+
+    '</tbody><tfoot><tr><td>Total</td><td></td><td class="rnum">'+T.men+'</td><td class="rnum">'+esc(eur(T.ing))+'</td><td class="rnum">'+esc(eur(T.cos))+'</td><td class="rnum"><b>'+esc(eur(T.mar))+'</b></td><td class="rnum">'+esc(pctTx(T.ing>0?T.mar/T.ing*100:null))+'</td><td class="rnum">'+esc(eur(T.men?T.mar/T.men:0))+'</td></tr></tfoot></table></div>';
+  ui.ultimas=rows;
+  return h;
+}
+function descargarCSV(){
+  var rows=ui.ultimas||[], sep=";", n2=function(v){ return (Math.round((v||0)*100)/100).toString().replace(".",","); };
+  var out=[["Evento","Fecha","Estado","Menús","Ingresos sin IVA","Materia prima","Merma","Bebida","Personal","Extras","Costes","Margen","% margen","Completo"].join(sep)];
+  rows.forEach(function(r){ out.push([String(r.nombre).replace(/;/g,","),r.fecha,r.estado,r.comensales,n2(r.ingresos),n2(r.mpTotal),n2(r.merma),n2(r.bebTotal),n2(r.perTotal),n2(r.extTotal),n2(r.costes),n2(r.margen),r.pct==null?"":n2(r.pct),r.completo?"sí":"no"].join(sep)); });
+  var blob=new Blob(["﻿"+out.join("\r\n")],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="rentabilidad_temporada_"+ui.anio+".csv"; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
+
+/* ══ PRECIOS DEL MAÎTRE ══════════════════════════════════════════════ */
+function adivinaCols(cab){
+  var c={n:-1,p:-1,u:-1,ref:-1};
+  cab.forEach(function(h,i){ var s=BR.rent.clave(h);
+    if(c.n<0&&/articul|producto|descrip|nombre|name|concepto/.test(s)) c.n=i;
+    else if(c.ref<0&&/^(ref|cod|codigo|sku|id)\b|referencia|codigo/.test(s)) c.ref=i;
+    else if(c.u<0&&/unidad|^ud|medida|formato|unit/.test(s)) c.u=i; });
+  var pr=cab.map(function(h,i){ var s=BR.rent.clave(h); return {i:i,s:s}; }).filter(function(x){ return /precio|coste|cost|pmp|importe|tarifa|€|eur/.test(x.s); });
+  var mejor=pr.filter(function(x){ return /coste|compra|pmp|medio|ultimo|neto/.test(x.s); })[0]||pr.filter(function(x){ return !/venta|pvp/.test(x.s); })[0]||pr[0];
+  if(mejor) c.p=mejor.i;
+  return c;
+}
+function impCargar(rows,archivo,hojas){
+  ui.imp={rows:rows,archivo:archivo,hojas:hojas||null,hoja:0,cols:adivinaCols(rows[0]||[]),udDef:"kg"};
+}
+function impArts(){
+  var I=ui.imp, c=I.cols, out=[];
+  if(!I||c.n<0||c.p<0) return out;
+  I.rows.slice(1).forEach(function(r){ var n=String(r[c.n]||"").trim(), p=BR.rent.num(r[c.p]); if(!n||p==null) return;
+    out.push({n:n,p:p,u:(c.u>-1&&BR.rent.udArt(r[c.u]))||I.udDef,ref:c.ref>-1?String(r[c.ref]||""):""}); });
+  return out;
+}
+function vImport(){
+  var P=BR.rent.precios(), I=ui.imp;
+  var h='<div class="pcard rt-imp"><div class="pcard-h"><h3>Importar del Maître</h3><span class="pp-ej">'+(P.imp?esc(P.imp.n)+' artículos · '+esc(new Date(P.imp.fecha).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}))+(P.imp.archivo?' · '+esc(P.imp.archivo):''):'Todavía no se ha importado nada')+'</span></div>'+
+    '<p class="pp-note" style="margin-top:0">En el Maître, exporta el listado de artículos (o de escandallos) a Excel o CSV con al menos el <b>nombre</b> y el <b>precio de compra</b>; mejor si también lleva la <b>unidad</b> (kg, l, ud). Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
+    '<div class="row rt-imp-src"><label class="btn gold sm" for="rt-file">Subir Excel o CSV</label><input type="file" id="rt-file" accept=".xlsx,.csv,.tsv,.txt,text/csv" class="sr-only">'+
+    '<details class="rt-paste"><summary>o pegar las celdas</summary><textarea id="rt-paste" rows="4" placeholder="Artículo&#9;Unidad&#9;Precio&#10;Harina de trigo&#9;kg&#9;0,85"></textarea><button type="button" class="btn sm" data-ra="paste">Leer</button></details></div>';
+  if(I){
+    var cab=I.rows[0]||[], opts=function(sel,sinUso){ return (sinUso?'<option value="-1">— no hay —</option>':'')+cab.map(function(x,i){ return '<option value="'+i+'"'+(i===sel?" selected":"")+'>'+esc(x||("Columna "+(i+1)))+'</option>'; }).join(""); };
+    var arts=impArts();
+    h+='<div class="rt-map">'+(I.hojas&&I.hojas.length>1?'<label class="fld"><span class="lbl">Hoja</span><select data-rp="imp-hoja">'+I.hojas.map(function(x,i){ return '<option value="'+i+'"'+(i===I.hoja?" selected":"")+'>'+esc(x.nombre)+'</option>'; }).join("")+'</select></label>':'')+
+      '<label class="fld"><span class="lbl">Nombre del artículo</span><select data-rp="imp-col" data-k="n">'+opts(I.cols.n,true)+'</select></label>'+
+      '<label class="fld"><span class="lbl">Precio de compra</span><select data-rp="imp-col" data-k="p">'+opts(I.cols.p,true)+'</select></label>'+
+      '<label class="fld"><span class="lbl">Unidad</span><select data-rp="imp-col" data-k="u">'+opts(I.cols.u,true)+'</select></label>'+
+      '<label class="fld"><span class="lbl">Si no pone unidad, el precio es por</span><select data-rp="imp-ud">'+["kg","l","ud","g","ml"].map(function(u){ return '<option'+(u===I.udDef?" selected":"")+'>'+u+'</option>'; }).join("")+'</select></label></div>'+
+      '<div class="rt-prev">'+(arts.length?'<b>'+arts.length+' artículos con precio</b> · '+arts.slice(0,6).map(function(a){ return esc(a.n)+' <span>'+esc(eur2(a.p))+'/'+esc(a.u)+'</span>'; }).join(" · ")+(arts.length>6?" …":""):'<span class="rt-falta">Elige la columna del nombre y la del precio.</span>')+'</div>'+
+      '<div class="pp-dish-foot"><button type="button" class="btn sm" data-ra="imp-cancel">Cancelar</button><button type="button" class="btn gold sm" data-ra="imp-ok"'+(arts.length?"":" disabled")+'>Importar '+arts.length+' precios</button></div>';
+  }
+  return h+'</div>';
+}
+function vCostes(){
+  var RP=BR.rent.params();
+  function f(lbl,k){ return '<label class="fld"><span class="lbl">'+lbl+'</span><input type="text" inputmode="decimal" data-rp="rp" data-k="'+k+'" value="'+esc(numTx(RP[k]))+'"></label>'; }
+  return '<div class="pcard"><div class="fldset">'+
+    f("IVA de venta (%)","iva")+f("Camarero (€ / hora)","horaCamarero")+f("Horas por camarero","horasCamarero")+
+    f("Menú staff (€ / persona)","costeStaff")+f("Tarta (€ / ración)","costeTarta")+f("Merma (%)","merma")+
+    '</div><p class="pp-note">El IVA se descuenta de lo que se cobra. El camarero, a coste empresa. Las horas, el nº de camareros y la tarta se pueden cambiar en cada evento. El menú staff es su materia prima por persona. La merma se suma a la materia prima.</p><div class="pp-subh">Botellas <span>— si la marca elegida en el evento no está en el Maître, se usa este precio</span></div><div class="fldset">'+
+    BR.rent.bebidaCats().map(function(c){ return '<label class="fld"><span class="lbl">'+esc(c.label)+' (€ / botella)</span><input type="text" inputmode="decimal" data-rp="bot" data-k="'+esc(c.key)+'" value="'+esc(numTx(RP.botella[c.key]))+'"></label>'; }).join("")+
+    '</div></div>';
+}
+function vIngredientes(){
+  var P=BR.rent.precios(), ings=BR.rent.ingredientes(), q=BR.rent.clave(ui.q);
+  var n={con:0,auto:0,sin:0};
+  ings.forEach(function(x){ x.pr=BR.rent.precioIng(x.nombre); if(!x.pr) n.sin++; else { n.con++; if(x.pr.fuente==="auto") n.auto++; } });
+  var lista=ings.filter(function(x){ return (!q||x.k.indexOf(q)>-1)&&(ui.filtro==="todos"||(ui.filtro==="sin"?!x.pr:!!x.pr)); });
+  var MAX=150, vis=lista.slice(0,MAX);
+  var h='<div class="pv-sec">Ingredientes de los escandallos <span class="pv-sec-note">— '+n.con+' de '+ings.length+' con precio'+(n.auto?' ('+n.auto+' por nombre igual)':'')+'</span></div>'+
+    '<datalist id="rt-arts">'+P.arts.map(function(a){ return '<option value="'+esc(a.n)+'">'+esc(eur2(a.p)+"/"+a.u)+'</option>'; }).join("")+'</datalist>'+
+    '<div class="pp-bar"><input type="search" class="pp-search" data-rp="q" value="'+esc(ui.q)+'" placeholder="Buscar ingrediente…" aria-label="Buscar ingrediente">'+
+    '<div class="pp-chips" role="group" aria-label="Filtrar" style="margin:0">'+[["todos","Todos",ings.length],["sin","Sin precio",n.sin],["con","Con precio",n.con]].map(function(f){ return '<button type="button" class="pp-chip'+(ui.filtro===f[0]?" on":"")+'" data-ra="filtro" data-k="'+f[0]+'" aria-pressed="'+(ui.filtro===f[0])+'">'+f[1]+' <b>'+f[2]+'</b></button>'; }).join("")+'</div></div>';
+  h+='<div class="dtable-wrap"><table class="dtable rt-t rt-ing"><thead><tr><th>Ingrediente</th><th>Artículo del Maître</th><th class="rnum">Precio a mano</th><th>Unidad</th><th class="rnum">g por ud</th><th>Precio que se usa</th></tr></thead><tbody>'+
+    (vis.map(function(x){ var e=P.ing[x.k]||{}, pr=x.pr, uds=Object.keys(x.uds).join(", ");
+      var usa=pr?('<b>'+esc(eur2(pr.p))+'/'+esc(pr.u)+'</b> <span class="rt-sub-i">'+(pr.fuente==="manual"?"a mano":pr.fuente==="auto"?"nombre igual":"enlazado")+'</span>'):'<span class="rt-falta">sin precio</span>';
+      return '<tr><td><span class="rt-pl">'+esc(x.nombre)+'</span><span class="rt-sub" title="'+esc(x.platos.join(" · "))+'">'+esc(uds)+' · '+x.platos.length+(x.platos.length===1?" plato":" platos")+'</span></td>'+
+        '<td><input type="text" list="rt-arts" data-rp="ing-a" data-k="'+esc(x.k)+'" value="'+esc(e.a?(((P.arts.filter(function(a){ return BR.rent.clave(a.n)===e.a; })[0])||{}).n||e.a):"")+'" placeholder="'+esc(pr&&pr.fuente==="auto"?pr.art:"Buscar artículo…")+'" aria-label="Artículo del Maître para '+esc(x.nombre)+'"></td>'+
+        '<td><input class="rnum" type="text" inputmode="decimal" data-rp="ing-p" data-k="'+esc(x.k)+'" value="'+esc(numTx(e.p))+'" style="width:84px" aria-label="Precio a mano de '+esc(x.nombre)+'"></td>'+
+        '<td><select data-rp="ing-u" data-k="'+esc(x.k)+'" aria-label="Unidad del precio">'+["","kg","l","ud","g","ml"].map(function(u){ return '<option value="'+u+'"'+((e.u||"")===u?" selected":"")+'>'+(u?"€/"+u:"—")+'</option>'; }).join("")+'</select></td>'+
+        '<td><input class="rnum" type="text" inputmode="decimal" data-rp="ing-g" data-k="'+esc(x.k)+'" value="'+esc(numTx(e.g))+'" style="width:70px" title="Solo si el escandallo va en unidades y el precio en kg (o al revés)" aria-label="Gramos por unidad de '+esc(x.nombre)+'"></td>'+
+        '<td class="rt-st">'+usa+'</td></tr>'; }).join("")||'<tr><td colspan="6" class="pp-empty">Ningún ingrediente coincide.</td></tr>')+
+    '</tbody></table>'+(lista.length>MAX?'<div class="dtable-foot pp-note">Se ven '+MAX+' de '+lista.length+': busca para acotar.</div>':'')+'</div>';
+  return h;
+}
+function vPlatosCoste(){
+  var fams=BR.rent.familias();
+  return '<details class="rt-det"><summary>Coste por ración de cada plato del catálogo</summary>'+fams.map(function(f){
+    return '<div class="pp-subh">'+esc(f.label)+'</div><div class="dtable-wrap"><table class="dtable rt-t"><tbody>'+f.dishes.map(function(d){ var c=BR.rent.costePlato(d);
+      return '<tr><td><span class="rt-pl">'+esc(d.name)+'</span></td><td class="rnum"><b>'+esc(eur2(c.c))+'</b></td><td class="rt-st">'+(c.faltan.length?'<span class="rt-falta" title="'+esc(c.faltan.join(", "))+'">faltan '+c.faltan.length+' de '+c.n+'</span>':'<span class="rt-okc">✓</span>')+'</td></tr>'; }).join("")+'</tbody></table></div>'; }).join("")+'</details>';
+}
+function vPrecios(){
+  return cabecera("r-precios")+vImport()+'<div class="pv-sec">Costes fijos</div>'+vCostes()+vIngredientes()+'<div class="pv-sec">Platos</div>'+vPlatosCoste();
+}
+
+/* ══ pintar y eventos ════════════════════════════════════════════════ */
+var hostRef=null, vista=null, pintando=false;
+function render(k,host){
+  hostRef=host||hostRef; vista=k||vista; if(!hostRef||!vista||pintando) return;
+  pintando=true; try{ pintar(); } finally{ pintando=false; }
+}
+function pintar(){
+  var top=hostRef.scrollTop, body;
+  try{
+    if(!esAdmin()) body='<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div>';
+    else if(!BR.rent) body='<div class="pcard"><p>No se han podido cargar los datos del menú.</p></div>';
+    else if(vista==="r-temp") body=vTemporada();
+    else if(vista==="r-precios") body=vPrecios();
+    else body=vEvento();
+  }catch(err){ body='<div class="pcard"><p>No se ha podido calcular la rentabilidad.</p></div>'; try{ console.error(err); }catch(_){} }
+  hostRef.innerHTML='<div class="pv-inner rt-root" data-vista="'+esc(vista)+'">'+body+'</div>';
+  hostRef.scrollTop=top;
+  if(!hostRef.__rtBound){ hostRef.__rtBound=true; hostRef.addEventListener("change",onChange); hostRef.addEventListener("input",onInput); hostRef.addEventListener("click",onClick);
+    hostRef.addEventListener("keydown",function(ev){ if(ev.key==="Enter"&&ev.target.classList&&ev.target.classList.contains("rt-row")) ev.target.click(); });
+    hostRef.addEventListener("pointermove",onTip); hostRef.addEventListener("pointerleave",function(){ var t=hostRef.querySelector(".rt-tip"); if(t) t.hidden=true; }); }
+}
+window.LM_renderRent=render;
+function enRent(){ return hostRef&&hostRef.querySelector(".rt-root"); }
+function onTip(ev){
+  if(!enRent()) return;
+  var tip=hostRef.querySelector(".rt-tip"); if(!tip) return;
+  var hit=ev.target.closest&&ev.target.closest(".rt-hit");
+  hostRef.querySelectorAll(".rt-hit.on").forEach(function(x){ if(x!==hit) x.classList.remove("on"); });
+  if(!hit){ tip.hidden=true; return; }
+  hit.classList.add("on");
+  var p=hit.getAttribute("data-tip").split("|");
+  tip.innerHTML='<b>'+esc(p[0])+'</b>'+p.slice(1).map(function(l){ return '<div>'+esc(l)+'</div>'; }).join("");
+  tip.hidden=false;
+  var box=tip.parentNode.getBoundingClientRect(), r=hit.getBoundingClientRect();
+  var x=r.left-box.left+r.width/2, w=tip.offsetWidth;
+  tip.style.left=Math.max(0,Math.min(box.width-w,x-w/2))+"px"; tip.style.top="0px";
+}
+function num(v){ var n=BR.rent.num(v); return n; }
+function guardarPrecios(fn,msg){ var d=BR.param("precios")||{}; d=JSON.parse(JSON.stringify(d)); d.arts=d.arts||[]; d.ing=d.ing||{}; d.extra=d.extra||{}; fn(d); BR.setParam("precios",d); if(msg) toast(msg); render(); }
+function guardarRP(fn){ var d=JSON.parse(JSON.stringify(BR.param("rent")||{})); fn(d); BR.setParam("rent",d); render(); }
+function guardarEv(fn){ var e=BR.current(); if(!e) return; e.rent=e.rent||{}; fn(e.rent); e.updated=Date.now(); BR.save(); render(); }
+var qTm=null;
+function onInput(ev){
+  if(!enRent()) return;
+  var el=ev.target; if(el.getAttribute("data-rp")!=="q") return;
+  clearTimeout(qTm); qTm=setTimeout(function(){ ui.q=el.value; var pos=el.selectionStart; render();
+    var n=hostRef.querySelector('[data-rp="q"]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} } },220);
+}
+function onChange(ev){
+  /* al repintar se quita el campo que tenía el foco y el navegador lanza otro
+     «change»: ese se ignora */
+  if(!enRent()||pintando) return;
+  var el=ev.target, rp=el.getAttribute&&el.getAttribute("data-rp"), k=el.getAttribute&&el.getAttribute("data-k"), v=el.value;
+  if(el.id==="rt-file"){ leerArchivo(el.files&&el.files[0]); return; }
+  if(!rp||rp==="q") return;
+  if(rp==="anio"){ ui.anio=+v; render(); return; }
+  if(rp==="todos"){ ui.todos=el.checked; render(); return; }
+  if(rp==="ev"){ var n=num(v); if(v.trim()&&(n==null||n<0)){ toast("Número no válido."); render(); return; } guardarEv(function(R){ if(v.trim()) R[k]=n; else delete R[k]; }); return; }
+  if(rp==="prov"){ var id=el.getAttribute("data-id"); guardarEv(function(R){ R.prov=R.prov||{}; if(el.checked) R.prov[id]=true; else delete R.prov[id]; }); return; }
+  if(rp==="otro"){ var i=+el.getAttribute("data-i"); guardarEv(function(R){ var o=(R.otros||[])[i]; if(!o) return; if(k==="importe") o.importe=num(v)||0; else o.concepto=v.trim(); }); return; }
+  if(rp==="extra"){ var n2=num(v); if(v.trim()&&(n2==null||n2<0)){ toast("Número no válido."); render(); return; } guardarPrecios(function(d){ if(v.trim()) d.extra[k]=n2; else delete d.extra[k]; }); return; }
+  if(rp==="rp"){ var n3=num(v); if(v.trim()&&(n3==null||n3<0)){ toast("Número no válido."); render(); return; } guardarRP(function(d){ if(v.trim()) d[k]=n3; else delete d[k]; }); return; }
+  if(rp==="bot"){ var n4=num(v); if(v.trim()&&(n4==null||n4<0)){ toast("Número no válido."); render(); return; } guardarRP(function(d){ d.botella=d.botella||{}; if(v.trim()) d.botella[k]=n4; else delete d.botella[k]; }); return; }
+  if(rp==="ing-a"){
+    var P=BR.rent.precios(), ck=BR.rent.clave(v), hit=P.arts.filter(function(a){ return BR.rent.clave(a.n)===ck; })[0];
+    if(v.trim()&&!hit){ toast("No hay ningún artículo del Maître con ese nombre."); render(); return; }
+    guardarPrecios(function(d){ var x=d.ing[k]||{}; if(hit) x.a=ck; else delete x.a; d.ing[k]=x; }); return; }
+  if(rp==="ing-p"||rp==="ing-u"||rp==="ing-g"){
+    var n5=num(v); if(rp!=="ing-u"&&v.trim()&&(n5==null||n5<0)){ toast("Número no válido."); render(); return; }
+    guardarPrecios(function(d){ var x=d.ing[k]||{};
+      if(rp==="ing-u"){ if(v) x.u=v; else delete x.u; }
+      else { var key=rp==="ing-p"?"p":"g"; if(v.trim()) x[key]=n5; else delete x[key]; if(rp==="ing-p"&&v.trim()&&!x.u) x.u="kg"; }
+      d.ing[k]=x; }); return; }
+  if(rp==="imp-col"){ ui.imp.cols[k]=+v; render(); return; }
+  if(rp==="imp-ud"){ ui.imp.udDef=v; render(); return; }
+  if(rp==="imp-hoja"){ var hj=ui.imp.hojas[+v]; impCargar(hj.rows,ui.imp.archivo,ui.imp.hojas); ui.imp.hoja=+v; render(); return; }
+}
+function leerArchivo(f){
+  if(!f) return;
+  var r=new FileReader();
+  if(/\.xlsx$/i.test(f.name)){
+    r.onload=function(){ BR.impXlsx(r.result).then(function(hs){ if(!hs.length){ toast("El Excel está vacío."); return; } impCargar(hs[0].rows,f.name,hs); render(); })
+      .catch(function(){ toast("No se ha podido leer el Excel. Guárdalo como CSV y vuelve a probar."); }); };
+    r.readAsArrayBuffer(f);
+  } else { r.onload=function(){ var rows=BR.impTabla(String(r.result||"")); if(rows.length<2){ toast("El archivo no tiene filas."); return; } impCargar(rows,f.name); render(); }; r.readAsText(f); }
+}
+function onClick(ev){
+  if(!enRent()) return;
+  var b=ev.target.closest?ev.target.closest("[data-ra]"):null; if(!b) return;
+  var a=b.getAttribute("data-ra");
+  if(a==="ord"){ var k=b.getAttribute("data-k"); if(ui.orden===k) ui.dir=-ui.dir; else { ui.orden=k; ui.dir=(k==="nombre"||k==="fecha")?1:-1; } render(); return; }
+  if(a==="ver"){ var id=b.getAttribute("data-id"); if(BR.switchActiveEvent) BR.switchActiveEvent(id); if(window.irASeccion) window.irASeccion("r-evento"); return; }
+  if(a==="csv"){ descargarCSV(); return; }
+  if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); render(); return; }
+  if(a==="otro-add"){ guardarEv(function(R){ R.otros=R.otros||[]; R.otros.push({id:"o"+Date.now().toString(36),concepto:"",importe:0}); });
+    var ins=hostRef.querySelectorAll('[data-rp="otro"][data-k="concepto"]'); if(ins.length) ins[ins.length-1].focus(); return; }
+  if(a==="otro-del"){ var i=+b.getAttribute("data-i"); guardarEv(function(R){ (R.otros||[]).splice(i,1); }); return; }
+  if(a==="paste"){ var ta=$("rt-paste"), rows=BR.impTabla(ta?ta.value:""); if(rows.length<2){ toast("Pega la fila de títulos y al menos una fila."); return; } impCargar(rows,"pegado"); render(); return; }
+  if(a==="imp-cancel"){ ui.imp=null; render(); return; }
+  if(a==="imp-ok"){ var arts=impArts(); if(!arts.length) return; var arch=ui.imp.archivo;
+    guardarPrecios(function(d){ d.arts=arts; d.imp={fecha:Date.now(),archivo:arch,n:arts.length}; }, arts.length+" precios importados del Maître."); ui.imp=null; render(); return; }
+}
+
+var st=document.createElement("style");
+st.textContent=
+".rt-root{--viz-mp:#2a78d6;--viz-beb:#eb6834;--viz-per:#1baf7a;--viz-ext:#eda100}"+
+"@media (prefers-color-scheme: dark){:root:not([data-theme=\"light\"]) .rt-root{--viz-mp:#3987e5;--viz-beb:#d95926;--viz-per:#199e70;--viz-ext:#c98500}}"+
+":root[data-theme=\"dark\"] .rt-root{--viz-mp:#3987e5;--viz-beb:#d95926;--viz-per:#199e70;--viz-ext:#c98500}"+
+".rt-root .rt-num{font-size:34px;font-variant-numeric:tabular-nums}"+
+".rt-root .kpi.rt-neg .k-num{color:var(--ruby-tx)}"+
+".rt-negtx{color:var(--ruby-tx)}"+
+".rt-avisos{margin:14px 0 0;padding:12px 14px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--gold) 10%,var(--panel));border:1px solid color-mix(in srgb,var(--gold) 35%,var(--c-line));font-size:13px;color:var(--c-ink)}"+
+".rt-avisos ul{margin:6px 0 10px;padding-left:20px}"+
+".rt-ok{margin:14px 0 0;font-size:13px;color:var(--olive-deep)}"+
+".rt-bar{display:flex;gap:2px;height:18px;border-radius:4px;overflow:hidden;background:var(--bg-2)}"+
+".rt-seg{display:block;min-width:3px}"+
+".rt-c-mp{background:var(--viz-mp)}.rt-c-beb{background:var(--viz-beb)}.rt-c-per{background:var(--viz-per)}.rt-c-ext{background:var(--viz-ext)}"+
+".rt-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px 18px;margin-top:14px}"+
+".rt-leg-i{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--c-mut)}"+
+".rt-leg-i b{color:var(--c-ink);font-variant-numeric:tabular-nums;margin-left:auto}"+
+".rt-leg-p{font-size:11.5px;color:var(--c-faint);min-width:46px;text-align:right;font-variant-numeric:tabular-nums}"+
+".rt-sw{width:10px;height:10px;border-radius:3px;flex:none;align-self:center}"+
+".rt-t{min-width:620px}"+
+".rt-t .rt-pl{display:block;color:var(--c-ink)}"+
+".rt-t .rt-sub{display:block;font-size:11.5px;color:var(--c-mut);margin-top:2px;max-width:520px}"+
+".rt-sub-i{font-size:11px;color:var(--c-faint)}"+
+".rt-grp td{background:var(--bg-2);font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--c-mut);padding-top:8px!important;padding-bottom:8px!important}"+
+".rt-grp td.rnum{letter-spacing:0;font-size:12.5px;color:var(--c-ink)}"+
+".rt-cu input.rt-in{width:96px}"+
+".rt-st{white-space:nowrap;font-size:12px}"+
+".rt-okc{color:var(--olive-deep);font-weight:700}"+
+".rt-falta{display:inline-block;font-size:11px;font-weight:700;color:var(--ruby-tx);background:color-mix(in srgb,var(--ruby) 9%,transparent);padding:2px 8px;border-radius:99px;margin-left:6px}"+
+".rt-est{display:inline-block;font-size:11px;font-weight:700;color:var(--c-mut);background:var(--bg-2);padding:2px 8px;border-radius:99px}"+
+".rt-link{background:none;border:0;padding:0;color:var(--olive-deep);text-decoration:underline;font:inherit;cursor:pointer}"+
+".rt-prov{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--c-line);font-size:13.5px;cursor:pointer}"+
+".rt-prov b{margin-left:auto;font-variant-numeric:tabular-nums}"+
+".rt-lines div{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--c-line);font-size:13.5px;color:var(--c-mut)}"+
+".rt-lines b{color:var(--c-ink);font-variant-numeric:tabular-nums}"+
+".rt-lines .rt-tot{border-bottom:0;border-top:1px solid var(--c-ink);font-weight:700;color:var(--c-ink)}"+
+".rt-filt{align-items:flex-end;gap:18px}.rt-anio{min-width:130px}"+
+".rt-chart{position:relative}"+
+".rt-chart-h{font-size:13px;font-weight:700;color:var(--c-ink);margin-bottom:6px}.rt-chart-h span{font-weight:400;color:var(--c-mut)}"+
+".rt-chart svg{width:100%;height:auto;display:block}"+
+".rt-grid{stroke:var(--c-line);stroke-width:1}.rt-zero{stroke:var(--c-line-2)}"+
+".rt-ax{fill:var(--c-mut);font-size:11px;font-family:Karla,system-ui,sans-serif}"+
+".rt-mbar{fill:var(--viz-mp)}.rt-mbar.neg{fill:var(--viz-mp);opacity:.55}"+
+".rt-hit{fill:transparent;cursor:default}.rt-hit.on{fill:color-mix(in srgb,var(--c-ink) 5%,transparent)}"+
+".rt-tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--c-line-2);box-shadow:var(--shadow-sm);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--c-mut);white-space:nowrap;z-index:5}"+
+".rt-tip b{display:block;color:var(--c-ink);margin-bottom:3px}"+
+".rt-sort{background:none;border:0;padding:0;font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer}.rt-sort.on{color:var(--c-ink)}"+
+".rt-rank .rt-row{cursor:pointer}.rt-rank .rt-row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}"+
+".rt-rank tfoot td{padding:11px 14px;border-top:1px solid var(--c-line-2);font-weight:700;font-variant-numeric:tabular-nums}"+
+".rt-imp-src{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-top:10px}"+
+".rt-paste{flex:1;min-width:240px}.rt-paste summary{cursor:pointer;font-size:13px;color:var(--c-mut);padding:6px 0}"+
+".rt-paste textarea{width:100%;margin:6px 0;background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:8px;color:var(--c-ink);font:inherit;font-size:12.5px}"+
+".rt-map{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--c-line)}"+
+".rt-prev{margin-top:12px;font-size:12.5px;color:var(--c-ink);line-height:1.6}.rt-prev span{color:var(--c-mut)}"+
+".rt-ing td{vertical-align:top}.rt-ing input[list]{min-width:190px}"+
+".rt-det{margin-top:4px}.rt-det summary{cursor:pointer;font-size:13.5px;color:var(--c-ink);padding:8px 0;font-weight:600}"+
+"@media (max-width:760px){.rt-root .rt-num{font-size:28px}}";
 document.head.appendChild(st);
 })();
 </script>
