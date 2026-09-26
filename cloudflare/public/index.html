@@ -1,5 +1,3 @@
-<!doctype html>
-<html lang="es">
 <meta charset="utf-8">
 <title>Les Moles Events</title>
 <script>
@@ -1053,8 +1051,12 @@ body.mode-plan .planv{display:flex}
     display:flex; position:fixed; left:0; right:0; bottom:0; z-index:180; height:58px;
     background:var(--nav-bg); border-top:1px solid #000;
     padding:5px 4px calc(5px + env(safe-area-inset-bottom,0px));
+    /* con tantas secciones no caben todas en el ancho del móvil: la barra se
+       desliza de lado y cada botón conserva un ancho en el que se lee su nombre */
+    overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;
   }
-  .tabbar button{flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  .tabbar::-webkit-scrollbar{display:none}
+  .tabbar button{flex:1 0 64px; min-width:64px; display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:3px; border:0; background:transparent; cursor:pointer; color:var(--nav-mut); font:inherit; font-size:9px;
     letter-spacing:.02em; padding:3px 2px; border-radius:10px}
   .tabbar button .tb-ic{display:flex}
@@ -1067,6 +1069,9 @@ body.mode-plan .planv{display:flex}
     padding:0 12px; overflow-x:auto; -webkit-overflow-scrolling:touch;
   }
   body:not(.has-subnav) .msubnav{display:none}
+  .msubnav{scrollbar-width:none}
+  .msubnav::-webkit-scrollbar{display:none}
+  .pcard-h{flex-wrap:wrap; row-gap:4px}
   .msubnav button{flex:0 0 auto; border:1px solid var(--nav-line); background:var(--nav-raise); color:var(--nav-mut);
     font:inherit; font-size:12px; padding:6px 13px; border-radius:100px; cursor:pointer; white-space:nowrap}
   .msubnav button.active{background:color-mix(in srgb,var(--olive) 20%,transparent); border-color:var(--olive); color:var(--olive); font-weight:700}
@@ -6371,6 +6376,7 @@ function renderTabbar(){
   items.forEach(function(it){
     var b=document.createElement("button"); b.type="button"; b.dataset.g=it.g;
     b.innerHTML='<span class="tb-ic" aria-hidden="true">'+it.icon+'</span><span class="tb-lb">'+escH(it.label)+'</span>';
+    b.setAttribute("aria-label",it.label);
     b.addEventListener("click",function(){
       if(it.res){ irASeccion("resumen"); }
       else if(!it.g){ showHome(); }
@@ -6405,6 +6411,7 @@ function syncSidenav(){
     grp.classList.toggle("open",grp.dataset.g===gAct);
     Array.prototype.forEach.call(grp.querySelectorAll(".nav-sub"),function(b){
       b.classList.toggle("active",!enHome&&b.dataset.k===actual);
+      if(!enHome&&b.dataset.k===actual) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
     });
   });
   var c=current(); var nm=$("side-ctx-nm"); if(nm) nm.textContent=c?(nombreLimpio(c.name)||"Sin título"):"—";
@@ -6414,7 +6421,17 @@ function syncSidenav(){
   if(tb) Array.prototype.forEach.call(tb.children,function(b){
     var on = enHome ? b.dataset.g==="" : (b.dataset.g==="resumen" ? actual==="resumen" : b.dataset.g===gAct);
     b.classList.toggle("active", on);
+    if(on) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
   });
+  /* que la sección en la que estás se vea: en la barra de abajo (que se
+     desliza de lado) y en el menú lateral (que se desplaza si no cabe) */
+  try{
+    var tbOn=tb&&tb.querySelector("button.active");
+    if(tbOn&&tb.scrollWidth>tb.clientWidth){ var l=tbOn.offsetLeft-tb.clientWidth/2+tbOn.offsetWidth/2; tb.scrollLeft=Math.max(0,l); }
+    var nav=$("side-nav"), snOn=nav&&nav.querySelector(".nav-sub.active,.nav-flat.active");
+    if(snOn&&nav.scrollHeight>nav.clientHeight){ var r1=snOn.getBoundingClientRect(), r0=nav.getBoundingClientRect();
+      if(r1.bottom>r0.bottom-8||r1.top<r0.top+8) nav.scrollTop+=r1.top-r0.top-nav.clientHeight/2; }
+  }catch(_){}
   var secs=(!enHome&&gAct)?seccionesDe(gAct):[];
   var showSub=secs.length>1;
   document.body.classList.toggle("has-subnav",!!showSub);
@@ -6422,6 +6439,8 @@ function syncSidenav(){
     var ms=$("msubnav");
     if(ms&&ms.dataset.g!==gAct) renderMsub(gAct);
     if(ms) Array.prototype.forEach.call(ms.children,function(b){ b.classList.toggle("active",b.dataset.k===actual); });
+    try{ var msOn=ms&&ms.querySelector("button.active");
+      if(msOn&&ms.scrollWidth>ms.clientWidth) ms.scrollLeft=Math.max(0,msOn.offsetLeft-ms.clientWidth/2+msOn.offsetWidth/2); }catch(_){}
   }
 }
 
@@ -12282,7 +12301,7 @@ function vImport(){
     (dias!=null&&dias>30?'<p class="rt-falta" style="margin:0 0 8px">Los precios tienen '+dias+' días: conviene volver a importar el informe del Maître.</p>':'')+
     '<p class="pp-note" style="margin-top:0">En el Maître, saca el informe <b>«Análisis de compras» por artículos</b> del periodo que quieras (por ejemplo, desde el 1 de enero) y expórtalo a CSV o Excel. También vale un listado con el <b>nombre</b> y el <b>precio de compra</b>. Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
     '<div class="row rt-imp-src"><label class="btn gold sm" for="rt-file">Subir Excel o CSV</label><input type="file" id="rt-file" accept=".xlsx,.xls,.csv,.tsv,.txt,text/csv" class="sr-only">'+
-    '<details class="rt-paste"><summary>o pegar las celdas</summary><textarea id="rt-paste" rows="4" placeholder="Artículo&#9;Unidad&#9;Precio&#10;Harina de trigo&#9;kg&#9;0,85"></textarea><button type="button" class="btn sm" data-ra="paste">Leer</button></details></div>';
+    '<details class="rt-paste"><summary>o pegar las celdas</summary><textarea id="rt-paste" rows="4" aria-label="Celdas copiadas del Excel del Maître" placeholder="Artículo&#9;Unidad&#9;Precio&#10;Harina de trigo&#9;kg&#9;0,85"></textarea><button type="button" class="btn sm" data-ra="paste">Leer</button></details></div>';
   if(I){
     var cab=I.rows[0]||[], opts=function(sel,sinUso){ return (sinUso?'<option value="-1">— no hay —</option>':'')+cab.map(function(x,i){ return '<option value="'+i+'"'+(i===sel?" selected":"")+'>'+esc(x||("Columna "+(i+1)))+'</option>'; }).join(""); };
     var arts=impArts();
@@ -13028,5 +13047,3 @@ st.textContent=
 document.head.appendChild(st);
 })();
 </script>
-
-</html>
