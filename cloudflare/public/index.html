@@ -9673,7 +9673,7 @@ function rentTipoAuto(a){ var f=rentClave(a.fam||"");
   if(/plato|elaborad|precocin|pasteler/.test(f)) return "elab";
   if(/varios|tienda|banquet|decorac|menaje|limpieza/.test(f)) return "ext";
   return "mp"; }
-function rentTipo(a,P){ return (P.tipo||{})[rentArtKey(a)]||rentTipoAuto(a); }
+function rentTipo(a,P){ return (P.tipo||{})[rentArtKey(a)]||a.tipo||rentTipoAuto(a); }
 /* el catálogo de extras: los artículos del Maître de tipo «Extras» y los que se
    añaden a mano (autobús, monitores…), con lo que cuestan y lo que se cobra */
 function rentExtrasCat(P){
@@ -9699,8 +9699,9 @@ function rentUdArt(s){
 function rentNum(v){ if(typeof v==="number") return v; var s=String(v==null?"":v).replace(/[€\s]/g,""); if(!s) return null;
   if(s.indexOf(",")>-1&&s.indexOf(".")>-1) s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");
   else s=s.replace(",","."); var n=parseFloat(s); return isFinite(n)?n:null; }
-function rentArtMap(P){ var m={}; P.arts.forEach(function(a){ [a.n,a.o].forEach(function(x){ var k=rentClave(x); if(k&&!m[k]) m[k]=a; }); }); return m; }
-function rentArtKey(a){ return rentClave(a.o||a.n); }
+function rentArtMap(P){ var m={}; P.arts.forEach(function(a){ if(a.manual) m["m:"+a.id]=a; [a.n,a.o].forEach(function(x){ var k=rentClave(x); if(k&&!m[k]) m[k]=a; }); }); return m; }
+/* los artículos añadidos a mano llevan su id (así cambiarles el nombre no rompe los enlaces) */
+function rentArtKey(a){ return a.manual?"m:"+a.id:rentClave(a.o||a.n); }
 /* el Maître pone la unidad al final del nombre («Patata Kg», «Lechuga Unid.»,
    «Pan Baguette 275gr», «Miel 1/2 Kg»): se saca la unidad, el tamaño del
    envase y el nombre limpio. Si no pone nada, cantidades con decimales = kg. */
@@ -9756,7 +9757,7 @@ function rentPrecioBeb(cat,marca,P,AM,RP){
   else if(marca){ var sg=rentSugerir(marca,P.arts,deFam); if(sg){ a=sg.a; fuente="parecido"; } }
   /* sin marca: lo que más se compra de esa familia del Maître (el agua de siempre) */
   else if(FB){ P.arts.forEach(function(y){ if(y.fam&&FB.test(rentClave(y.fam))&&y.p!=null&&(!a||(+y.q||0)>(+a.q||0))) a=y; }); if(a) fuente="el más comprado"; }
-  if(a) return {pu:a.pu!=null?+a.pu:+a.p, art:a.o||a.n, fuente:fuente};
+  if(a) return {pu:a.pu!=null?+a.pu:+a.p, art:a.o||a.n, fuente:fuente, manual:!!a.manual};
   if(marca){ var xc=(P.beb||{})["cat:"+cat.key]||{}; if(xc.a&&AM[xc.a]){ var ac=AM[xc.a]; return {pu:ac.pu!=null?+ac.pu:+ac.p,art:ac.o||ac.n,fuente:"el de la categoría"}; } }
   if(+RP.botella[cat.key]>0) return {pu:+RP.botella[cat.key],fuente:"precio fijo de la categoría"};
   return null;
@@ -9853,7 +9854,7 @@ function rentCalc(){
   var beb=[];
   BEBIDA_CATS.forEach(function(cat){ if(cat.key==="jamon"||!cat.auto) return;
     var r=calcBebida(cat), marca=bebidaMarca(cat.key), pb=rentPrecioBeb(cat,marca,P,AM,RP), pu=pb?pb.pu:null;
-    beb.push({txt:cat.label, marca:marca, q:r.botellas, cu:pu||0, total:(pu||0)*r.botellas, fuente:pb?(pb.art?"Maître · "+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!r.botellas}); });
+    beb.push({txt:cat.label, marca:marca, q:r.botellas, cu:pu||0, total:(pu||0)*r.botellas, fuente:pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!r.botellas}); });
   var bebTotal=beb.reduce(function(s,x){ return s+x.total; },0);
   /* 3 · personal: los camareros que vienen (o los previstos) × horas × €/hora */
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
@@ -9905,7 +9906,12 @@ BR.rent={
     return rentSugerir(n,rentPrecios().arts,function(a){ return /^(kg|g|l|ml|cl)$/.test(a.u||""); }); },
   precioBeb:function(catKey,marca){ var P=rentPrecios(), cat=BEBIDA_CATS.filter(function(c){ return c.key===catKey; })[0]; return cat?rentPrecioBeb(cat,marca,P,rentArtMap(P),rentParams()):null; },
   costePlato:function(d){ var P=rentPrecios(); return rentCostePlato(d,P,rentArtMap(P)); },
-  tipos:RENT_TIPOS, tipo:function(a){ return rentTipo(a,rentPrecios()); }, extrasCat:function(){ return rentExtrasCat(rentPrecios()); },
+  tipos:RENT_TIPOS, tipo:function(a){ return rentTipo(a,rentPrecios()); },
+  /* añadir una marca a una bebida (sale para elegir en «Bebida del evento») */
+  addMarca:function(catKey,nombre){ nombre=String(nombre||"").trim(); if(!nombre) return false;
+    var cats=BR.menuParams.actual().bebidas.cats, c=cats[catKey]; if(!c) return false; c.opciones=c.opciones||[];
+    if(c.opciones.some(function(o){ return rentClave(o)===rentClave(nombre); })) return false;
+    c.opciones.push(nombre); BR.setParam("bebidas",{cats:cats}); return true; }, extrasCat:function(){ return rentExtrasCat(rentPrecios()); },
   familias:function(){ return MENU_DATA; }, bebidaCats:function(){ return BEBIDA_CATS.filter(function(c){ return c.auto; }); }
 };
 /* lo que la pantalla de Parámetros necesita leer: los valores de fábrica y
@@ -12317,15 +12323,31 @@ function vBebidasPrecio(){
         '<td><input type="text" list="rt-arts" data-rp="beb-a" data-k="'+esc(k)+'" value="'+esc(x.a?artNombre(P,x.a):"")+'" placeholder="'+esc(pb&&pb.art&&pb.fuente!=="enlazado"?pb.art:"Buscar artículo…")+'" aria-label="Artículo del Maître para '+esc(m||c.label)+'"></td>'+
         '<td><input class="rnum" type="text" inputmode="decimal" data-rp="beb-p" data-k="'+esc(k)+'" value="'+esc(numTx(x.p))+'" style="width:84px" aria-label="Precio a mano de '+esc(m||c.label)+'"></td>'+
         '<td class="rt-st">'+usa+'</td></tr>'; });
+    filas+='<tr class="rt-addm"><td colspan="4"><input type="text" data-rp="beb-marca" data-k="'+esc(c.key)+'" placeholder="+ Añadir otra '+esc(c.label.toLowerCase().indexOf("agua")===0?"agua":"marca de "+c.label.toLowerCase())+' (se podrá elegir en cada evento)" aria-label="Añadir marca de '+esc(c.label)+'"></td></tr>';
   });
   return '<div class="pv-sec">Bebidas <span class="pv-sec-note">— € por botella; si el nombre no coincide, se usa el artículo más parecido (revísalo)</span></div>'+
     '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Marca</th><th>Artículo del Maître</th><th class="rnum">€ a mano</th><th>Precio que se usa</th></tr></thead><tbody>'+filas+'</tbody></table></div>';
 }
+/* artículos añadidos a mano (lo que no está en el Maître): nombre, precio y
+   unidad; sirven igual que los del Maître para enlazar ingredientes, platos,
+   bebidas o extras */
+var TIPO_TXT={mp:"materia prima",elab:"plato elaborado",beb:"bebida",ext:"extra"};
+function vManuales(tipo){
+  var P=BR.rent.precios(), ms=P.arts.filter(function(a){ return a.manual&&BR.rent.tipo(a)===tipo; });
+  return '<div class="pcard rt-man"><div class="pcard-h"><h3>Añadidos a mano</h3><button type="button" class="btn sm gold" data-ra="man-add" data-k="'+tipo+'">+ '+(tipo==="beb"?"Bebida":tipo==="elab"?"Plato elaborado":tipo==="ext"?"Extra":"Artículo")+' a mano</button></div>'+
+    (ms.length?'<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Nombre</th><th class="rnum">Precio</th><th>Por</th><th>Tipo</th><th></th></tr></thead><tbody>'+ms.map(function(a){
+      return '<tr><td><input type="text" data-rp="man-n" data-k="'+esc(a.id)+'" value="'+esc(a.n)+'" aria-label="Nombre"></td>'+
+        '<td class="rnum"><input class="rnum" inputmode="decimal" data-rp="man-p" data-k="'+esc(a.id)+'" value="'+esc(numTx(a.p))+'" style="width:90px" aria-label="Precio de '+esc(a.n)+'"></td>'+
+        '<td><select data-rp="man-u" data-k="'+esc(a.id)+'" aria-label="Unidad del precio">'+[["ud",tipo==="beb"?"botella / ud":"unidad"],["kg","kg"],["l","litro"]].map(function(u){ return '<option value="'+u[0]+'"'+(a.u===u[0]?" selected":"")+'>'+u[1]+'</option>'; }).join("")+'</select></td>'+
+        '<td><select data-rp="man-t" data-k="'+esc(a.id)+'" aria-label="Tipo">'+BR.rent.tipos.map(function(t){ return '<option value="'+t.k+'"'+(t.k===tipo?" selected":"")+'>'+esc(t.t)+'</option>'; }).join("")+'</select></td>'+
+        '<td><button type="button" class="row-del" data-ra="man-del" data-k="'+esc(a.id)+'" aria-label="Quitar '+esc(a.n)+'">×</button></td></tr>'; }).join("")+'</tbody></table></div>'
+      :'<p class="pp-note" style="margin-top:0">¿Falta algo que no está en el Maître? Añádelo aquí con su precio y ya se puede enlazar como '+TIPO_TXT[tipo]+'.</p>')+'</div>';
+}
 /* los artículos del Maître de un tipo, con su tipo para cambiarlo */
 function vArticulos(tipo,abierto){
   var P=BR.rent.precios(), q=BR.rent.clave(ui.qa||"");
-  var arts=P.arts.filter(function(a){ return BR.rent.tipo(a)===tipo; });
-  if(!P.arts.length) return '';
+  var arts=P.arts.filter(function(a){ return !a.manual&&BR.rent.tipo(a)===tipo; });
+  if(!arts.length) return '';
   var vis=arts.filter(function(a){ return !q||BR.rent.clave((a.o||a.n)+" "+(a.fam||"")).indexOf(q)>-1; });
   var MAX=200;
   return '<details class="rt-det"'+(abierto?" open":"")+'><summary>Artículos del Maître de este tipo ('+arts.length+') <span>— si alguno no es de aquí, cámbiale el tipo</span></summary>'+
@@ -12382,7 +12404,7 @@ function vPrecios(){
   P.arts.forEach(function(a){ n[BR.rent.tipo(a)]++; });
   var T=[["elab","Platos elaborados"],["beb","Bebida"],["ext","Extras"],["mp","Materia prima"]];
   if(!ui.tab) ui.tab="elab";
-  var body=ui.tab==="beb"?vBebidasPrecio()+vArticulos("beb"):ui.tab==="ext"?vExtrasCat():ui.tab==="mp"?vIngredientes()+vArticulos("mp"):vPlatosElab()+vArticulos("elab");
+  var body=ui.tab==="beb"?vManuales("beb")+vBebidasPrecio()+vArticulos("beb"):ui.tab==="ext"?vManuales("ext")+vExtrasCat():ui.tab==="mp"?vManuales("mp")+vIngredientes()+vArticulos("mp"):vManuales("elab")+vPlatosElab()+vArticulos("elab");
   return cabecera("r-precios")+vImport()+'<div class="pv-sec">Costes fijos</div>'+vCostes()+
     '<div class="rt-tabs" role="tablist" aria-label="Tipo de artículo">'+T.map(function(t){ return '<button type="button" role="tab" class="rt-tab'+(ui.tab===t[0]?" on":"")+'" aria-selected="'+(ui.tab===t[0])+'" data-ra="tab" data-k="'+t[0]+'">'+t[1]+(P.arts.length?' <b>'+n[t[0]]+'</b>':'')+'</button>'; }).join("")+'</div>'+
     '<div class="rt-tabbody">'+body+'</div>';
@@ -12464,13 +12486,20 @@ function onChange(ev){
     guardarPrecios(function(d){ d.platos=d.platos||{}; var o=d.platos[k]||{}, kk=rp==="pl-r"?"r":"p"; if(v.trim()) o[kk]=np; else delete o[kk]; d.platos[k]=o; }); return; }
   if(rp==="exc-coste"||rp==="exc-venta"){ var ne=num(v); if(v.trim()&&(ne==null||ne<0)){ toast("Número no válido."); render(); return; }
     var kk2=rp==="exc-coste"?"coste":"venta";
-    guardarPrecios(function(d){ if(k.indexOf("m:")===0){ var it=(d.exMan||[]).filter(function(x){ return x.id===k.slice(2); })[0]; if(it){ if(v.trim()) it[kk2]=ne; else delete it[kk2]; } }
+    guardarPrecios(function(d){ var it=k.indexOf("m:")===0?(d.exMan||[]).filter(function(x){ return x.id===k.slice(2); })[0]:null;
+      if(it){ if(v.trim()) it[kk2]=ne; else delete it[kk2]; }
       else { d.exCat=d.exCat||{}; var o=d.exCat[k]||{}; if(v.trim()) o[kk2]=ne; else delete o[kk2]; d.exCat[k]=o; } }); return; }
   if(rp==="exm-n"){ guardarPrecios(function(d){ var it=(d.exMan||[]).filter(function(x){ return x.id===k; })[0]; if(it) it.n=v.trim(); }); return; }
   if(rp==="ex-k"||rp==="ex-q"||rp==="ex-c"){ var id=el.getAttribute("data-id"), nx=num(v);
     if(rp!=="ex-k"&&v.trim()&&(nx==null||nx<0)){ toast("Número no válido."); render(); return; }
     guardarEv(function(R){ R.ex=R.ex||{}; var o=R.ex[id]||{}; var kk3=rp==="ex-k"?"k":rp==="ex-q"?"q":"c";
       if(rp==="ex-k"){ if(v) o.k=v; else { delete o.k; delete o.q; } } else if(v.trim()) o[kk3]=nx; else delete o[kk3]; R.ex[id]=o; }); return; }
+  if(rp==="beb-marca"){ var nm=v.trim(); if(!nm) return; if(BR.rent.addMarca(k,nm)){ toast("«"+nm+"» añadida: ya se puede elegir en «Bebida del evento» y ponerle precio aquí."); render(); var ni=hostRef.querySelector('[data-rp="beb-marca"][data-k="'+k+'"]'); if(ni) ni.focus(); } else { toast("Esa marca ya está."); render(); } return; }
+  if(rp==="man-n"||rp==="man-p"||rp==="man-u"||rp==="man-t"){ var nv=rp==="man-p"?num(v):null;
+    if(rp==="man-p"&&v.trim()&&(nv==null||nv<0)){ toast("Número no válido."); render(); return; }
+    if(rp==="man-n"&&!v.trim()){ toast("Ponle un nombre."); render(); return; }
+    guardarPrecios(function(d){ var a=(d.arts||[]).filter(function(x){ return x.manual&&x.id===k; })[0]; if(!a) return;
+      if(rp==="man-n"){ a.n=v.trim(); a.o=a.n; } else if(rp==="man-p"){ a.p=nv||0; a.pu=a.p; } else if(rp==="man-u") a.u=v; else { a.tipo=v; if(d.tipo) delete d.tipo["m:"+a.id]; } }); return; }
   if(rp==="beb-p"){ var nb=num(v); if(v.trim()&&(nb==null||nb<0)){ toast("Número no válido."); render(); return; }
     guardarPrecios(function(d){ d.beb=d.beb||{}; var x=d.beb[k]||{}; if(v.trim()) x.p=nb; else delete x.p; d.beb[k]=x; }); return; }
   if(rp==="ing-p"||rp==="ing-u"||rp==="ing-g"){
@@ -12501,6 +12530,10 @@ function onClick(ev){
   if(a==="csv"){ descargarCSV(); return; }
   if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); render(); return; }
   if(a==="tab"){ ui.tab=b.getAttribute("data-k"); ui.qa=""; render(); var tb=hostRef.querySelector('.rt-tab.on'); if(tb) tb.focus(); return; }
+  if(a==="man-add"){ var tp=b.getAttribute("data-k"), mid="a"+Date.now().toString(36);
+    guardarPrecios(function(d){ d.arts=d.arts||[]; d.arts.push({id:mid,manual:true,n:tp==="beb"?"Bebida nueva":"Artículo nuevo",o:"",p:0,pu:0,u:tp==="mp"?"kg":"ud",fam:"A mano",tipo:tp}); d.arts[d.arts.length-1].o=d.arts[d.arts.length-1].n; });
+    var mi=hostRef.querySelector('[data-rp="man-n"][data-k="'+mid+'"]'); if(mi){ mi.focus(); mi.select(); } return; }
+  if(a==="man-del"){ var dk=b.getAttribute("data-k"); guardarPrecios(function(d){ d.arts=(d.arts||[]).filter(function(x){ return !(x.manual&&x.id===dk); }); }); return; }
   if(a==="exm-add"){ var nid="e"+Date.now().toString(36); guardarPrecios(function(d){ d.exMan=d.exMan||[]; d.exMan.push({id:nid,n:"Extra nuevo",coste:0}); });
     var ni=hostRef.querySelector('[data-rp="exm-n"][data-k="'+nid+'"]'); if(ni){ ni.focus(); ni.select(); } return; }
   if(a==="exm-del"){ var did=b.getAttribute("data-k"); guardarPrecios(function(d){ d.exMan=(d.exMan||[]).filter(function(x){ return x.id!==did; }); }); return; }
@@ -12522,7 +12555,7 @@ function onClick(ev){
   if(a==="paste"){ var ta=$("rt-paste"), rows=BR.impTabla(ta?ta.value:""); if(rows.length<2){ toast("Pega la fila de títulos y al menos una fila."); return; } impCargar(rows,"pegado"); render(); return; }
   if(a==="imp-cancel"){ ui.imp=null; render(); return; }
   if(a==="imp-ok"){ var arts=impArts(); if(!arts.length) return; var arch=ui.imp.archivo, mt=ui.imp.maitre;
-    guardarPrecios(function(d){ d.arts=arts; d.imp={fecha:Date.now(),archivo:arch,n:arts.length}; if(mt){ d.imp.periodo=mt.periodo; d.imp.total=Math.round(mt.total*100)/100; } }, arts.length+" precios importados del Maître."); ui.imp=null; render(); return; }
+    guardarPrecios(function(d){ d.arts=arts.concat((d.arts||[]).filter(function(a){ return a.manual; })); d.imp={fecha:Date.now(),archivo:arch,n:arts.length}; if(mt){ d.imp.periodo=mt.periodo; d.imp.total=Math.round(mt.total*100)/100; } }, arts.length+" precios importados del Maître."); ui.imp=null; render(); return; }
 }
 
 var st=document.createElement("style");
@@ -12592,6 +12625,8 @@ st.textContent=
 ".rt-excost{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rt-excost select{max-width:230px}"+
 ".rt-exadd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rt-exadd select{max-width:320px;background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:6px 8px;color:var(--c-ink);font:inherit;font-size:12.5px}"+
 ".rt-exadd input{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:6px 8px;color:var(--c-ink);font:inherit;font-size:12.5px}"+
+".rt-man{margin-bottom:14px}.rt-man .pcard-h{align-items:center}"+
+".rt-addm td{padding:6px 14px!important;background:var(--panel)}.rt-addm input{width:100%;max-width:420px;border-style:dashed!important}"+
 ".rt-det{margin-top:4px}.rt-det summary{cursor:pointer;font-size:13.5px;color:var(--c-ink);padding:8px 0;font-weight:600}"+
 "@media (max-width:760px){.rt-root .rt-num{font-size:28px}}";
 document.head.appendChild(st);
