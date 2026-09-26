@@ -2282,6 +2282,12 @@ body .pvb-st.pendiente{background:var(--warning-soft); color:var(--warning)}
 body .pvb-leg i.pvb-varios,body .pvb-d.varios{background:#D7B26A; color:#2B2210}
 body .pvb-leg i.pvb-pend{border-color:var(--warning)}
 body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px var(--warning)}
+/* calendario de inicio: celebraciones de la Previsión que aún no son evento */
+.cal-ev.cal-prev{background:transparent!important; border:1px dashed color-mix(in srgb,var(--olive) 60%,transparent); border-left:2px solid var(--olive)}
+.cal-ev.cal-prev.pend{border-color:color-mix(in srgb,var(--warning) 55%,transparent); border-left-color:var(--warning)}
+.cal-ev .agi{width:12px; height:12px; vertical-align:-2px}
+.cal-lg i.lg-pend{background:transparent; border:1px dashed var(--warning)}
+.cal-lg i.lg-prev{background:transparent; border:1px dashed var(--olive)}
 /*V3-END*/
 </style>
 
@@ -4057,6 +4063,7 @@ function hydrateFromServer(){
         store.events=mergeRemote(remote);
         if(!current()) store.active=store.events.length?store.events[0].id:null;
       }
+      try{ sincronizarPrevision(); }catch(_){}
       var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
       var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
       var camCambia=JSON.stringify(store.camareros||{})!==camBefore;
@@ -6440,6 +6447,7 @@ if(!store.events.length){ var e0=migrate({id:"e"+Date.now()+Math.floor(Math.rand
 if(!current()) store.active=store.events[0].id;
 $("src").value=current().text; prevText=current().text;
 fillSelect(); syncPrefs();
+try{ if(sincronizarPrevision()) fillSelect(); }catch(err){ if(window.console) console.warn(err); }
 /* la sincronización con el servidor se dispara al iniciar sesión (ver enterApp),
    no en el arranque, para no pedir datos protegidos antes de autenticarse */
 window.hydrateFromServer=hydrateFromServer;
@@ -7090,7 +7098,7 @@ function renderHomeAgenda(){
   var host=$("home-agenda"); if(!host) return;
   var items=[];
   store.events.forEach(function(e){ var dr=diasRestantes(e); if(dr==null||dr<0) return;
-    hitosAuto(e).forEach(function(h){ if(!h.done&&h.falta<=21) items.push({e:e,h:h}); }); });
+    hitosAuto(e).forEach(function(h){ if(!h.done&&h.falta<=21&&!(e.alta&&h.fecha<e.alta)) items.push({e:e,h:h}); }); });
   items.sort(function(a,b){ return a.h.fecha<b.h.fecha?-1:1; });
   if(!items.length){ host.innerHTML=""; return; }
   var late=items.filter(function(x){ return x.h.falta<0; }).length;
@@ -7146,7 +7154,7 @@ function renderHomeStats(){
         '<div class="hd-next-tx"><h2 class="hd-next-nm">'+escH(nombreLimpio(next.name)||"Sin título")+'</h2>'+
         '<p class="hd-next-sub"><span class="hd-est">'+escH(CICLO_T[est0]||"Planificación")+'</span>'+escH(eventoTipo(next))+(lugar?" · "+escH(lugar):"")+'</p></div></div>'+
       '<div class="hd-next-foot">'+
-        '<span class="hd-fig"><b>'+(t0?t0.pax:0)+'</b>invitados</span>'+
+        (function(){ var pv=paxVisible(next,t0); return '<span class="hd-fig"><b>'+(pv.prev?"~":"")+pv.n+'</b>'+(pv.prev?"previstos":"invitados")+'</span>'; })()+
         '<span class="hd-fig"><b>'+(d0?d0.tables.length:0)+'</b>mesas</span>'+
         '<span class="hd-prog" title="Preparación del evento"><i style="width:'+pct0+'%"></i></span><span class="hd-pct">'+pct0+'% preparado</span>'+
         '<span class="hd-go">Abrir evento '+ICONS.caret+'</span></div>'+
@@ -7196,7 +7204,7 @@ function evCardEl(e){
     '<div class="ev-nm">'+escH(nombreLimpio(e.name)||"Sin título")+'</div>'+
     '<div class="ev-sub">'+escH(sub||"Sin fecha ni lugar")+'</div>'+
     '<div class="ev-stats">'+
-      '<span class="evpill"><b>'+pax+'</b><span>invitados</span></span>'+
+      (function(){ var pv=paxVisible(e,t); return '<span class="evpill"><b>'+(pv.prev?"~":"")+pv.n+'</b><span>'+(pv.prev?"previstos":"invitados")+'</span></span>'; })()+
       '<span class="evpill"><b>'+mesas+'</b><span>'+(mesas===1?"mesa":"mesas")+'</span></span>'+
     '</div>'+
     '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>';
@@ -7218,6 +7226,7 @@ function duplicarEvento(id,quedarse){
   var src=null; store.events.forEach(function(x){ if(x.id===id) src=x; }); if(!src) return;
   var c=JSON.parse(JSON.stringify(src)), DRX=/\s*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\s*\d{4}-\d{1,2}-\d{1,2}/g;
   c.id="e"+Date.now()+Math.floor(Math.random()*999);
+  delete c.prevId; delete c.prevNo; delete c.alta;   /* la copia no es la celebración de la Previsión */
   /* la fecha también se quita del título y de la línea «@» (si no, volvería sola a la ficha) */
   var titulado=false;
   c.text=String(c.text||"").split("\n").map(function(l){
@@ -7249,7 +7258,133 @@ function duplicarEvento(id,quedarse){
   return c;
 }
 window.LM_duplicarEvento=duplicarEvento;
+/* ══ PREVISIÓN ⇄ EVENTOS ═══════════════════════════════════════════════
+   La Previsión de banquetes y los Eventos son la misma realidad vista desde
+   dos sitios, así que van enlazados (fila.evento ⇄ evento.prevId):
+   · una celebración CONFIRMADA de la Previsión con fecha de hoy en adelante
+     es algo que hay que preparar: se crea sola como evento (fecha, tipo,
+     espacio, teléfono, comensales previstos) y sale en el panel y el calendario;
+   · un evento con fecha que no esté en la Previsión se apunta allí;
+   · enlazados, la fecha y el estado van y vienen (gana el cambio más
+     reciente) y los comensales del plano pasan a la Previsión;
+   · si se borra uno de los dos, el otro se queda pero no se vuelve a crear
+     solo (se puede crear otra vez a mano desde la Previsión). */
+function prevStore(){
+  if((!store.prevision||!(store.prevision.filas||[]).length)&&window.LM_PREV_SEED&&!hayServidor())
+    store.prevision={filas:window.LM_PREV_SEED.map(function(f){ var o=Object.assign({},f); o.updated=1; return o; })};
+  store.prevision=store.prevision||{filas:[]}; store.prevision.filas=store.prevision.filas||[];
+  return store.prevision;
+}
+var PV_STOP={boda:1,bodas:1,casament:1,del:1,les:1,los:1,las:1,and:1,comida:1,cena:1,dinar:1,sopar:1,evento:1,celebracion:1,celebracio:1,comunion:1,comunio:1,bautizo:1,aniversario:1,familiar:1,empresa:1,catering:1};
+function pvNorm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9ñ]+/g," ").trim(); }
+function pvTokens(s){ return pvNorm(s).split(" ").filter(function(w){ return w.length>=3&&!PV_STOP[w]&&!/^\d+$/.test(w); }); }
+function pvParecidos(a,b){ var tb={}; pvTokens(b).forEach(function(w){ tb[w]=1; }); return pvTokens(a).some(function(w){ return tb[w]; }); }
+function pvTipoEvento(f){ var t=pvNorm((f.tipo||"")+" "+(f.nombre||"")+" "+(f.espacio||""));
+  if(/catering|foodtruck|fodtruck/.test(t)) return "Catering"; if(/comuni/.test(t)) return "Comunión"; if(/bautiz|bateig/.test(t)) return "Bautizo";
+  if(/boda|casament|wedding/.test(t)) return "Boda"; if(/aniversar/.test(t)) return "Aniversario";
+  if(/empresa|corporat|gala|congres|jornada|cena de empresa/.test(t)) return "Evento corporativo"; return "Celebración"; }
+function pvEspacio(e){ var n=pvNorm(e); if(/vinyes/.test(n)) return "Les Vinyes del Convent"; if(/foodtruck|fodtruck/.test(n)) return "Foodtruck"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return String(e||"").trim(); }
+var PV_EV_CONF={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
+function pvHoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+function pvISO(s){ return /^\d{4}-\d\d-\d\d$/.test(s||""); }
+function pvComensales(f){ var n=parseFloat(String((f.estado==="confirmado"?(f.pax||f.paxPrev):(f.paxPrev||f.pax))||"").replace(",",".")); return isFinite(n)?Math.round(n):0; }
+function pvPaxPlano(e){ try{ return totals(parse(e.text||"")).pax||0; }catch(_){ return 0; } }
+/* pone la fecha a un evento (ficha y título del sitting, que deben coincidir) */
+function pvFechaEvento(e,iso){
+  e.ficha=e.ficha||{}; e.ficha.fecha=iso;
+  var t=setTitleDate(e.text||"",iso); if(t!==e.text){ e.text=t; e.name=eventName(t);
+    if(current()&&current().id===e.id&&$("src")){ $("src").value=t; prevText=t; } }
+}
+function pvCrearEvento(f){
+  var nom=String(f.nombre||"Celebración").trim()||"Celebración", esp=pvEspacio(f.espacio);
+  var text="# "+nom+" — "+dmyFromISO(f.fecha)+"\n@ "+(esp||"Les Moles")+" · Les Moles Events\n";
+  var pl=blankPlan("l","rect"); pl.rw=1400; pl.rh=960; pl.puerta="abj"; pl.giro=270;
+  var e=migrate({id:"pv-"+f.id,text:text,name:eventName(text),updated:Date.now(),plans:{interior:pl},prevId:f.id});
+  var F=e.ficha=e.ficha||{};
+  /* día en que entra en la app: los pasos de la agenda anteriores a este día
+     no se avisan como vencidos en el panel (se hicieron fuera de la app) */
+  e.alta=pvHoy();
+  F.fecha=f.fecha; F.tipo=pvTipoEvento(f); F.estado="confirmada"; F.ubicacion=esp||"Les Moles";
+  if(f.telefono) F.telefono=f.telefono; if(f.localidad) F.origen=f.localidad; if(f.origen) F.comoNos=f.origen;
+  var pax=pvComensales(f); if(pax) F.paxPrev=pax;
+  return e;
+}
+function sincronizarPrevision(){
+  var P=prevStore(), ahora=Date.now(), hoy=pvHoy(), n=0;
+  var evs={}; store.events.forEach(function(e){ evs[e.id]=e; });
+  var filas=P.filas.filter(function(f){ return f&&f.id&&!f.borrado; });
+  var enlazados={}; filas.forEach(function(f){ if(f.evento) enlazados[f.evento]=f; });
+  /* quién cambió antes se decide con la hora de ANTES de esta pasada */
+  var tF={}, tE={}; filas.forEach(function(f){ tF[f.id]=f.updated||0; }); store.events.forEach(function(e){ tE[e.id]=e.updated||0; });
+  function tocaF(f){ f.updated=ahora; n++; } function tocaE(e){ e.updated=ahora; n++; }
+  /* 1 · enlaces rotos: el evento se ha borrado → la fila se queda, sin volver a crearlo */
+  filas.forEach(function(f){ if(f.evento&&!evs[f.evento]){ f.evento=null; f.sinEvento=true; tocaF(f); } });
+  store.events.forEach(function(e){ if(!e.prevId) return; var f=filas.filter(function(x){ return x.id===e.prevId; })[0];
+    if(!f){ delete e.prevId; e.prevNo=true; tocaE(e); return; }
+    if(!f.evento){ f.evento=e.id; f.sinEvento=false; enlazados[e.id]=f; tocaF(f); } });
+  /* 2 · emparejar lo que ya existe en los dos sitios (misma fecha y nombre parecido) */
+  filas.forEach(function(f){
+    if(f.evento||f.sinEvento||!pvISO(f.fecha)) return;
+    var m=store.events.filter(function(e){ return !e.prevId&&!e.prevNo&&e.ficha&&e.ficha.fecha===f.fecha&&pvParecidos(f.nombre,nombreLimpio(e.name)); })[0];
+    if(m){ f.evento=m.id; m.prevId=f.id; enlazados[m.id]=f; tocaF(f); tocaE(m); }
+  });
+  /* 3 · confirmadas de hoy en adelante → evento */
+  filas.forEach(function(f){
+    if(f.evento||f.sinEvento||f.estado!=="confirmado"||!pvISO(f.fecha)||f.fecha<hoy) return;
+    var e=evs["pv-"+f.id]||pvCrearEvento(f);
+    if(!evs[e.id]){ store.events.push(e); evs[e.id]=e; tE[e.id]=0; }
+    e.prevId=f.id; f.evento=e.id; enlazados[e.id]=f; tocaF(f); n++;
+  });
+  /* 4 · eventos con fecha que no están en la Previsión → fila nueva */
+  store.events.forEach(function(e){
+    var F=e.ficha||{}; if(e.prevId||e.prevNo||!pvISO(F.fecha)||e.text===EX_BODA) return;
+    var pax=pvPaxPlano(e), f={id:"pv-ev-"+e.id, anio:+F.fecha.slice(0,4), mes:+F.fecha.slice(5,7), nombre:nombreLimpio(e.name)||"Evento",
+      tipo:F.tipo||eventoTipo(e), estado:PV_EV_CONF[F.estado||"planificacion"]?"confirmado":"pendiente", fecha:F.fecha, fechaTxt:"",
+      espacio:F.ubicacion||"", telefono:F.telefono||"", localidad:F.origen||"", origen:F.comoNos||"", pax:pax?String(pax):"", paxPrev:"",
+      evento:e.id, updated:ahora};
+    var ya=P.filas.filter(function(x){ return x.id===f.id; })[0];
+    if(ya){ ya.borrado=false; ya.evento=e.id; ya.sinEvento=false; ya.updated=ahora; f=ya; } else P.filas.push(f);
+    tF[f.id]=0;
+    e.prevId=f.id; enlazados[e.id]=f; tocaE(e);
+  });
+  /* 5 · coherencia de lo enlazado: fecha y estado (gana lo más reciente), comensales del plano */
+  Object.keys(enlazados).forEach(function(id){
+    var e=evs[id], f=enlazados[id]; if(!e||!f) return;
+    var F=e.ficha=e.ficha||{}, filaManda=(tF[f.id]||0)>(tE[e.id]||0);
+    if(pvISO(f.fecha)&&pvISO(F.fecha)&&f.fecha!==F.fecha){
+      if(filaManda){ pvFechaEvento(e,f.fecha); tocaE(e); }
+      else { f.fecha=F.fecha; f.anio=+F.fecha.slice(0,4); f.mes=+F.fecha.slice(5,7); f.fechaTxt=""; tocaF(f); }
+    } else if(!pvISO(F.fecha)&&pvISO(f.fecha)){ pvFechaEvento(e,f.fecha); tocaE(e); }
+    else if(pvISO(F.fecha)&&!pvISO(f.fecha)){ f.fecha=F.fecha; f.anio=+F.fecha.slice(0,4); f.mes=+F.fecha.slice(5,7); f.fechaTxt=""; tocaF(f); }
+    if(f.estado!=="descartado"){
+      var evConf=!!PV_EV_CONF[F.estado||"planificacion"], fConf=f.estado==="confirmado";
+      if(evConf!==fConf){
+        if(filaManda){ F.estado=fConf?"confirmada":"propuesta"; tocaE(e); }
+        else { f.estado=evConf?"confirmado":"pendiente"; tocaF(f); }
+      }
+    }
+    var pax=pvPaxPlano(e);
+    if(pax>0&&String(pax)!==String(f.pax||"")){ f.pax=String(pax); tocaF(f); }
+    if(!pax){ var pp=pvComensales(f); if(pp&&F.paxPrev!==pp){ F.paxPrev=pp; tocaE(e); } }
+  });
+  if(n){ try{ save(); }catch(_){} }
+  return n;
+}
+window.LM_syncPrev=function(){ var k=sincronizarPrevision(); if(k){ try{ fillSelect(); }catch(_){} } return k; };
+/* crear el evento de una fila a mano (también pendientes o fechas pasadas) */
+window.LM_prevCrearEvento=function(fid){
+  var P=prevStore(), f=P.filas.filter(function(x){ return x.id===fid; })[0]; if(!f) return null;
+  if(!pvISO(f.fecha)){ toast("Ponle una fecha exacta a la celebración para poder crear su evento.",true); return null; }
+  var e=null; store.events.forEach(function(x){ if(x.id===f.evento) e=x; });
+  if(!e){ e=pvCrearEvento(f); if(f.estado!=="confirmado") e.ficha.estado="propuesta"; store.events.push(e); }
+  e.prevId=f.id; delete e.prevNo; f.evento=e.id; f.sinEvento=false; f.updated=e.updated=Date.now();
+  fillSelect(); save(); return e.id;
+};
+window.LM_abrirEvento=function(id,sec){ abrirEvento(id,sec); };
+/* comensales para enseñar en tarjetas: los del plano o, si aún no hay plano, los previstos */
+function paxVisible(e,t){ var p=t?t.pax:0; if(p) return {n:p,prev:false}; var pp=e.ficha&&+e.ficha.paxPrev; return pp?{n:pp,prev:true}:{n:0,prev:false}; }
 function renderHome(){
+  try{ if(sincronizarPrevision()) fillSelect(); }catch(err){ if(window.console) console.warn(err); }
   /* saludo personalizado según la sesión y la hora del día */
   var u=(window.LM_SESSION&&window.LM_SESSION.user)?window.LM_SESSION.user():null;
   var gEl=$("home-greet");
@@ -7341,6 +7476,11 @@ function calItemsByDay(y,mo){
       if(pm&&+pm[1]===y&&(+pm[2]-1)===mo) push(+pm[3],{kind:"pay", id:e.id, concepto:(p.concepto||"Pago"), importe:(+p.importe||0), ev:(e.name||"Evento")});
     });
   });
+  try{ prevStore().filas.forEach(function(f){
+    if(!f||f.borrado||f.evento||f.estado==="descartado"||!/^\d{4}-\d\d-\d\d$/.test(f.fecha||"")) return;
+    if(+f.fecha.slice(0,4)!==y||(+f.fecha.slice(5,7)-1)!==mo) return;
+    push(+f.fecha.slice(8,10),{kind:"prev", fid:f.id, name:f.nombre||"Celebración", pend:f.estado!=="confirmado", pax:pvComensales(f), tipo:pvTipoEvento(f)});
+  }); }catch(_){}
   return map;
 }
 function renderHomeCalendar(){
@@ -7372,8 +7512,10 @@ function renderHomeCalendar(){
           var hh=it.h, colH=tipoColor(it.tipo);
           html+='<button class="cal-ev cal-hito'+(hh.done?" done":"")+(!hh.done&&hh.falta<0?" late":"")+'" type="button" data-id="'+escH(it.id)+'" data-sec="'+(hh.tipo==="pago"?"presup":"timeline")+'" title="'+escH(hitoTxt(hh)+" · "+it.ev)+'" style="border-left-color:'+colH+'">'+
             (hh.done?"✓ ":(AG_IC[hh.tipo]||"•")+" ")+'<b>'+escH(hh.t)+'</b> <small>'+escH(it.ev)+(hh.importe?" · "+fmtEur(hh.importe):"")+'</small></button>';
+        } else if(it.kind==="prev"){
+          html+='<button class="cal-ev cal-prev'+(it.pend?" pend":"")+'" type="button" data-fid="'+escH(it.fid)+'" title="'+escH(it.name+(it.pend?" · pendiente de confirmar":" · en la Previsión, sin evento"))+'"><b>'+escH(it.name)+'</b> <small>'+(it.pend?"pendiente":"previsión")+(it.pax?" · "+(it.pend?"~":"")+it.pax+" pax":"")+'</small></button>';
         } else if(it.kind==="pay"){
-          html+='<button class="cal-ev cal-pay" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">💶 <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
+          html+='<button class="cal-ev cal-pay" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">'+AG_IC.pago+' <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
         } else {
           var col=tipoColor(it.tipo);
           html+='<button class="cal-ev" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo)+'" style="border-left-color:'+col+';background:'+col+'22"><b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
@@ -7385,13 +7527,18 @@ function renderHomeCalendar(){
   html+='</div>';
   var tset={}; store.events.forEach(function(e){ tset[eventoTipo(e)]=1; });
   var tkeys=Object.keys(tset).sort();
-  if(tkeys.length) html+='<div class="cal-legend">'+tkeys.map(function(t){ return '<span class="cal-lg"><i style="background:'+tipoColor(t)+'"></i>'+esc(t)+'</span>'; }).join("")+'</div>';
+  var hayPrev=false, hayPend=false; Object.keys(byDay).forEach(function(d){ byDay[d].forEach(function(it){ if(it.kind==="prev"){ if(it.pend) hayPend=true; else hayPrev=true; } }); });
+  if(tkeys.length||hayPrev||hayPend) html+='<div class="cal-legend">'+tkeys.map(function(t){ return '<span class="cal-lg"><i style="background:'+tipoColor(t)+'"></i>'+esc(t)+'</span>'; }).join("")+
+    (hayPend?'<span class="cal-lg"><i class="lg-pend"></i>Pendiente de confirmar (Previsión)</span>':'')+
+    (hayPrev?'<span class="cal-lg"><i class="lg-prev"></i>En la Previsión, sin evento</span>':'')+'</div>';
   cal.innerHTML=html;
   var pv=$("cal-prev"); if(pv) pv.addEventListener("click",function(){ calMonth=new Date(y,mo-1,1); renderHomeCalendar(); });
   var nx=$("cal-next"); if(nx) nx.addEventListener("click",function(){ calMonth=new Date(y,mo+1,1); renderHomeCalendar(); });
   var td=$("cal-today"); if(td) td.addEventListener("click",function(){ var n=new Date(); calMonth=new Date(n.getFullYear(),n.getMonth(),1); renderHomeCalendar(); });
   var pr=$("cal-print"); if(pr) pr.addEventListener("click",function(){ imprimirCalendario(y,mo); });
-  Array.prototype.forEach.call(cal.querySelectorAll(".cal-ev"),function(b){ b.addEventListener("click",function(){ abrirEvento(b.dataset.id, b.dataset.sec); }); });
+  Array.prototype.forEach.call(cal.querySelectorAll(".cal-ev"),function(b){ b.addEventListener("click",function(){
+    if(b.dataset.fid){ irASeccion("prev"); if(window.LM_prevIr) window.LM_prevIr(b.dataset.fid); return; }
+    abrirEvento(b.dataset.id, b.dataset.sec); }); });
 }
 /* impresión: se genera el calendario del mes en un IFRAME oculto y se manda a
    imprimir (el diálogo permite «Guardar como PDF»). Se usa iframe en vez de una
@@ -7408,7 +7555,8 @@ function imprimirCalendario(y,mo){
     if(inMonth){ cellHtml+='<div class="d">'+dnum+'</div>';
       (byDay[dnum]||[]).forEach(function(it){
         if(it.kind==="hito"){ cellHtml+='<div class="ev hito'+(it.h.done?' done':'')+'">'+(it.h.done?"✓ ":(AG_IC[it.h.tipo]||"•")+" ")+escH(it.h.t)+' · '+escH(it.ev)+(it.h.importe?' · '+fmtEur(it.h.importe):'')+'</div>'; }
-        else if(it.kind==="pay"){ cellHtml+='<div class="ev pay">💶 '+escH(it.concepto)+(it.importe?' · '+fmtEur(it.importe):'')+'</div>'; }
+        else if(it.kind==="pay"){ cellHtml+='<div class="ev pay">Pago · '+escH(it.concepto)+(it.importe?' · '+fmtEur(it.importe):'')+'</div>'; }
+        else if(it.kind==="prev"){ cellHtml+='<div class="ev prev">'+escH(it.name)+(it.pend?' (pendiente)':'')+(it.pax?' · '+it.pax+' pax':'')+'</div>'; }
         else { var col=tipoColor(it.tipo); cellHtml+='<div class="ev" style="border-left-color:'+col+';background:'+col+'22">'+escH(it.name)+(it.pax?' · '+it.pax+' pax':'')+'</div>'; }
       });
     }
@@ -7425,7 +7573,7 @@ function imprimirCalendario(y,mo){
     'td{border:1px solid #ccc;height:92px;vertical-align:top;padding:4px 5px}td.other{background:#faf9f5}.d{font-size:14px;text-align:right;color:#666;margin-bottom:3px}'+
     '.ev{font:600 10px/1.25 Arial,sans-serif;background:#eef0e6;border-left:3px solid #6E7D50;border-radius:3px;padding:2px 4px;margin-bottom:2px;overflow:hidden}'+
     '.ev.pay{background:#f4ecdc;border-left-color:#9C7F44}'+
-    '.ev.hito{background:#fff;border-left:3px dashed #8A9A6B}.ev.hito.done{opacity:.55}'+
+    '.ev.hito{background:#fff;border-left:3px dashed #8A9A6B}.ev.hito.done{opacity:.55}.ev.prev{background:#fff;border:1px dashed #9A722A;border-left-width:3px}'+
     '.foot{margin-top:12px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
     '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos y pagos</div>'+
     (legend?'<div class="leg">'+legend+'</div>':'')+
@@ -13394,10 +13542,11 @@ function prev(){ var st=BR.store;
   if((!st.prevision||!(st.prevision.filas||[]).length)&&window.LM_PREV_SEED&&!(window.LM_backend&&window.LM_backend())){ st.prevision={filas:window.LM_PREV_SEED.map(function(f){ var o=Object.assign({},f); o.updated=1; return o; })}; }
   st.prevision=st.prevision||{filas:[]}; st.prevision.filas=st.prevision.filas||[]; return st.prevision; }
 function filas(){ return prev().filas.filter(function(f){ return !f.borrado; }); }
-function guardar(){ BR.save(); }
+function guardar(){ if(window.LM_syncPrev) window.LM_syncPrev(); BR.save(); }
 function uid(){ return "pv"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function toast(msg){ var t=document.createElement("div"); t.className="pp-toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.classList.add("on"); },10); setTimeout(function(){ t.classList.remove("on"); setTimeout(function(){ t.remove(); },300); },2400); }
 function num(v){ var n=parseFloat(String(v||"").replace(",",".")); return isFinite(n)?n:0; }
+function hoyISO(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 /* categoría del calendario: por el tipo de celebración, el nombre y el espacio */
 function categoria(f){
   var t=norm((f.tipo||"")+" "+(f.nombre||"")+" "+(f.espacio||""));
@@ -13472,7 +13621,7 @@ function vLista(vis,todas){
       var vc=(f.visita1?fechaTxt(f.visita1)||f.visita1:"—")+(f.fechaConf?" → "+(fechaTxt(f.fechaConf)||f.fechaConf):"")+(d!=null&&d>=0?' <small>('+(d===0?"el mismo día":d+" días")+')</small>':(f.decision?' <small>('+esc(f.decision)+')</small>':''));
       h+='<tr class="pvb-row'+(f.estado==="descartado"?" desc":"")+(ui.abierta===f.id?" open":"")+'" data-pv="abrir" data-id="'+esc(f.id)+'" tabindex="0">'+
         '<td class="pvb-fecha"><span class="pvb-dot" style="background:'+ct.c+'" title="'+esc(ct.t)+'"></span>'+(f.fecha?esc(fechaTxt(f.fecha)):'<i>'+esc(f.fechaTxt||"sin fecha")+'</i>')+(av?' <span class="rt-falta" title="'+esc(av)+'">¿año?</span>':'')+'</td>'+
-        '<td><span class="rt-pl">'+esc(f.nombre)+'</span><span class="rt-sub">'+esc(f.tipo||ct.t)+(du?' · <b class="pvb-dup">posible duplicado</b>':'')+'</span></td>'+
+        '<td><span class="rt-pl">'+esc(f.nombre)+(f.evento?' <span class="pvb-ev" title="Está en Eventos: se prepara desde allí">Evento</span>':'')+'</span><span class="rt-sub">'+esc(f.tipo||ct.t)+(du?' · <b class="pvb-dup">posible duplicado</b>':'')+'</span></td>'+
         '<td>'+pillEstado(f)+'</td><td class="rnum">'+esc(com)+'</td><td>'+esc(espacioCorto(f.espacio)||"—")+'</td>'+
         '<td class="pvb-vc">'+vc+'</td><td class="pvb-or">'+esc(f.origen||"—")+'</td><td>'+esc(f.localidad||"—")+'</td></tr>';
       if(ui.abierta===f.id) h+='<tr class="pvb-edit"><td colspan="8">'+vEditar(f)+'</td></tr>';
@@ -13491,6 +13640,11 @@ function vEditar(f){
     inp("1ª visita","visita1","date")+inp("2ª visita","visita2","date")+inp("Fecha confirmación","fechaConf","date")+inp("Tiempo en decidir","decision")+
     inp("Nos conocen por","origen")+inp("Teléfono","telefono","tel")+inp("Localidad","localidad")+
     '</div><datalist id="pvb-esp">'+ESPACIOS.map(function(e){ return '<option value="'+esc(e)+'">'; }).join("")+'</datalist>'+
+    '<div class="pvb-link">'+(f.evento
+      ? '<span><b>En Eventos.</b> Se prepara desde allí (plano, menú, presupuesto…). La fecha y el estado se mantienen iguales en los dos sitios.</span><button type="button" class="btn sm gold" data-pv="ev-abrir" data-id="'+esc(f.id)+'">Abrir el evento</button>'
+      : (f.estado==="confirmado"&&f.fecha&&f.fecha>=hoyISO()&&!f.sinEvento
+        ? '<span>Se añadirá sola a Eventos al guardar.</span>'
+        : '<span>'+(f.sinEvento?"Su evento se borró. ":"")+(f.estado==="confirmado"?(f.fecha?"":"Ponle la fecha exacta para poder prepararla en Eventos."):"Cuando esté confirmada y con fecha, pasa sola a Eventos.")+'</span>'+(f.fecha?'<button type="button" class="btn sm" data-pv="ev-crear" data-id="'+esc(f.id)+'">Crear su evento ahora</button>':'')))+'</div>'+
     '<div class="pp-dish-foot"><button type="button" class="btn sm danger" data-pv="borrar" data-id="'+esc(f.id)+'">Eliminar</button><button type="button" class="btn sm" data-pv="cerrar">Cerrar</button></div></div>';
 }
 function vCalendario(vis){
@@ -13540,7 +13694,7 @@ function htmlPop(iso){
           (f.fechaConf?'<span><em>Confirmada</em>'+esc(fechaTxt(f.fechaConf))+(d!=null&&d>=0?" ("+(d===0?"el mismo día":d+" días")+")":"")+'</span>':(f.visita1?'<span><em>1ª visita</em>'+esc(fechaTxt(f.visita1))+'</span>':''))+
           (f.telefono?'<span><em>Teléfono</em>'+esc(f.telefono)+'</span>':'')+
         '</div>'+(f.origen?'<div class="pvb-pop-o">'+esc(f.origen)+'</div>':'')+
-        '<button type="button" class="rt-link" data-pv="ir" data-id="'+esc(f.id)+'">Ver o cambiar</button></div>'; }).join("");
+        '<button type="button" class="rt-link" data-pv="ir" data-id="'+esc(f.id)+'">Ver o cambiar</button>'+(f.evento?' <button type="button" class="rt-link" data-pv="ev-abrir" data-id="'+esc(f.id)+'">Abrir el evento</button>':'')+'</div>'; }).join("");
 }
 function pop(){ var p=host&&host.querySelector(".pvb-pop"); if(!p&&host){ p=document.createElement("div"); p.className="pvb-pop"; p.setAttribute("role","dialog"); p.hidden=true; host.querySelector(".pvb-root").appendChild(p); } return p; }
 function mostrar(cel){
@@ -13603,7 +13757,9 @@ function importar(file){
 /* ── pintar y eventos ── */
 var host=null, pintando=false;
 function render(h2){
-  host=h2||host; if(!host||pintando) return; pintando=true;
+  host=h2||host; if(!host||pintando) return;
+  try{ if(window.LM_syncPrev) window.LM_syncPrev(); }catch(_){}
+  pintando=true;
   try{
     var top=host.scrollTop;
     host.innerHTML='<div class="pv-inner pvb-root">'+vista()+'</div>';
@@ -13620,6 +13776,8 @@ function render(h2){
   } finally { pintando=false; }
 }
 window.LM_renderPrev=render;
+window.LM_prevIr=function(id){ var f=fila(id); if(!f) return; ui.anio=+f.anio||ui.anio; ui.vista="lista"; ui.abierta=id; ui.estado="todos"; ui.cat="todos"; ui.esp="todos"; ui.q=""; render();
+  var tr=host&&host.querySelector('.pvb-row[data-id="'+id+'"]'); if(tr) tr.scrollIntoView({block:"center"}); };
 function enPrev(){ return host&&host.querySelector(".pvb-root"); }
 function fila(id){ return prev().filas.filter(function(f){ return f.id===id; })[0]; }
 function onClick(ev){
@@ -13638,7 +13796,9 @@ function onClick(ev){
     var tr=host.querySelector('.pvb-row[data-id="'+fi+'"]'); if(tr) tr.scrollIntoView({block:"center"}); return; }
   if(a==="nueva"){ var f={id:uid(), anio:ui.anio, mes:0, nombre:"Celebración nueva", tipo:"", estado:"pendiente", updated:Date.now()}; prev().filas.push(f); ui.abierta=f.id; ui.vista="lista"; ui.estado="todos"; ui.q=""; guardar(); render();
     var ni=host.querySelector('.pvb-edit [data-pvf="nombre"]'); if(ni){ ni.focus(); ni.select(); } return; }
-  if(a==="borrar"){ var fb=fila(b.getAttribute("data-id")); if(!fb) return; if(!window.confirm("¿Eliminar «"+fb.nombre+"» de la previsión?")) return; fb.borrado=true; fb.updated=Date.now(); ui.abierta=null; guardar(); render(); return; }
+  if(a==="ev-abrir"){ var fe=fila(b.getAttribute("data-id")); if(fe&&fe.evento&&window.LM_abrirEvento) window.LM_abrirEvento(fe.evento); return; }
+  if(a==="ev-crear"){ var fc=fila(b.getAttribute("data-id")); if(!fc||!window.LM_prevCrearEvento) return; var nid=window.LM_prevCrearEvento(fc.id); if(nid){ render(); toast("«"+fc.nombre+"» ya está en Eventos."); } return; }
+  if(a==="borrar"){ var fb=fila(b.getAttribute("data-id")); if(!fb) return; if(!window.confirm("¿Eliminar «"+fb.nombre+"» de la previsión?"+(fb.evento?" Su evento se queda en Eventos.":""))) return; fb.borrado=true; fb.updated=Date.now(); ui.abierta=null; guardar(); render(); return; }
 }
 function onChange(ev){
   if(!enPrev()||pintando) return;
@@ -13654,7 +13814,9 @@ function onChange(ev){
   if(k==="fecha"&&f.fecha){ f.mes=+f.fecha.slice(5,7); f.fechaTxt=""; }
   if(k==="fechaTxt"&&!f.fecha){ var mk=MES_N[norm(f.fechaTxt).split(/[\s\-\/]/)[0]]; if(mk) f.mes=mk; }
   if(k==="fechaConf"&&f.fechaConf&&f.estado==="pendiente") f.estado="confirmado";
+  var teniaEv=f.evento;
   f.updated=Date.now(); guardar(); render();
+  if(!teniaEv&&f.evento) toast("«"+f.nombre+"» confirmada: ya está en Eventos para prepararla.");
   var n=host.querySelector('.pvb-edit [data-pvf="'+k+'"]'); if(n) n.focus();
 }
 var qTm=null;
@@ -13711,6 +13873,8 @@ st.textContent=
 ".pvb-pop-o{margin:6px 0 0 17px;font-size:12px;color:var(--c-mut);font-style:italic}"+
 ".pvb-pop-e .rt-link{margin:6px 0 0 17px;font-size:12px}"+
 ".pvb-d.sel{outline:2px solid var(--olive-deep);outline-offset:1px}"+
+".pvb-ev{display:inline-block;vertical-align:1px;margin-left:6px;font-size:9.5px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;padding:1px 7px;border-radius:99px;background:var(--c-ink);color:var(--panel)}"+
+".pvb-link{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px;padding:11px 14px;border:1px solid var(--c-line);border-radius:var(--r);background:var(--panel);font-size:12.5px;color:var(--c-mut)}.pvb-link span{flex:1 1 260px}.pvb-link b{color:var(--c-ink)}"+
 ".pvb-diasel,.pvb-sindia{margin-top:14px}.pvb-dl{padding:6px 0;border-bottom:1px solid var(--c-line);font-size:13.5px}.pvb-dl span{color:var(--c-mut);font-size:12.5px}";
 document.head.appendChild(st);
 })();
