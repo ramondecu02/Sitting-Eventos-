@@ -2294,6 +2294,45 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .home>*{flex-shrink:0}
 .home-grid,.home-cal{flex:none; min-height:0; overflow:visible}
 @media screen and (max-width:820px){ .home{padding-bottom:calc(var(--ab-h,58px) + 16px)} }
+/* ── Lista de eventos: un mes cada vez ─────────────────────────────── */
+.hm-nav{grid-column:1/-1; display:flex; align-items:center; gap:16px; margin:22px 0 0}
+.hm-title{flex:1; min-width:0; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+.hm-title h3{margin:0; font-family:var(--font-display); font-weight:500; font-size:30px; letter-spacing:-.005em; color:var(--c-ink); font-variation-settings:"opsz" 30}
+.hm-title span{font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; font-weight:600; color:var(--c-mut)}
+.hm-arrow{flex:none; width:42px; height:42px; border-radius:50%; border:1px solid var(--c-line-2); background:var(--panel); color:var(--c-ink);
+  display:grid; place-items:center; cursor:pointer; transition:background var(--t) var(--ease), border-color var(--t), transform var(--t-fast)}
+.hm-arrow svg{width:16px; height:16px}
+.hm-arrow[data-hm="prev"] svg{transform:rotate(180deg)}
+.hm-arrow:hover:not([disabled]){border-color:var(--c-ink); background:var(--c-ink); color:var(--panel)}
+.hm-arrow:active:not([disabled]){transform:scale(.94)}
+.hm-arrow[disabled]{opacity:.3; cursor:default}
+.hm-nav .hm-arrow[data-hm="next"]{order:3}
+.hm-strip{grid-column:1/-1; display:flex; align-items:center; gap:6px; overflow-x:auto; padding:4px 2px 10px; margin-top:-4px;
+  border-bottom:1px solid var(--c-line); scrollbar-width:thin; scroll-behavior:smooth}
+.hm-strip em{flex:none; font-style:normal; font-size:10px; letter-spacing:.14em; font-weight:650; color:var(--c-faint); padding:0 4px 0 8px}
+.hm-strip em:first-child{padding-left:0}
+.hm-chip{flex:none; display:inline-flex; align-items:center; gap:7px; min-height:32px; padding:0 8px 0 12px; border-radius:var(--r-pill);
+  border:1px solid var(--c-line); background:var(--panel); color:var(--c-mut); font:inherit; font-size:12.5px; cursor:pointer;
+  transition:background var(--t) var(--ease), color var(--t), border-color var(--t)}
+.hm-chip b{font-weight:600; text-transform:capitalize}
+.hm-chip i{font-style:normal; font-size:10.5px; font-weight:650; min-width:20px; height:20px; padding:0 6px; border-radius:99px; display:grid; place-items:center; background:var(--bg-2); color:var(--c-ink); font-variant-numeric:tabular-nums}
+.hm-chip:hover{border-color:var(--c-line-2); color:var(--c-ink)}
+.hm-chip.on{background:var(--c-ink); border-color:var(--c-ink); color:var(--panel)}
+.hm-chip.on i{background:var(--olive-2); color:var(--p-carbon)}
+.hm-cards{grid-column:1/-1; display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:16px; margin-top:6px}
+.hm-cards.desde-der>*{animation:hmDer var(--t-slow) var(--ease) both}
+.hm-cards.desde-izq>*{animation:hmIzq var(--t-slow) var(--ease) both}
+.hm-cards>*:nth-child(2){animation-delay:.03s}.hm-cards>*:nth-child(3){animation-delay:.06s}.hm-cards>*:nth-child(n+4){animation-delay:.09s}
+@keyframes hmDer{from{opacity:0; transform:translateX(18px)}to{opacity:1; transform:none}}
+@keyframes hmIzq{from{opacity:0; transform:translateX(-18px)}to{opacity:1; transform:none}}
+@media (prefers-reduced-motion:reduce){ .hm-cards>*{animation:none!important} }
+@media screen and (max-width:820px){
+  .hm-nav{gap:10px; margin-top:16px}
+  .hm-title{flex-direction:column; align-items:center; gap:2px; text-align:center}
+  .hm-title h3{font-size:23px}
+  .hm-arrow{width:38px; height:38px}
+  .hm-cards{grid-template-columns:1fr; gap:12px}
+}
 /*V3-END*/
 </style>
 
@@ -7432,25 +7471,63 @@ function renderHomeList(){
     grid.appendChild(mm); return;
   }
   if(!evs.length){ var em=document.createElement("div"); em.className="home-empty"; em.style.gridColumn="1/-1"; em.textContent=q?("Ningún evento coincide con «"+q+"»."):"Todavía no hay eventos. Crea el primero con «+ Nuevo evento»."; grid.appendChild(em); return; }
-  var curKey="__init__";
-  evs.forEach(function(e){
-    var key=eventMonthKey(e);
-    if(key!==curKey){
-      curKey=key;
-      var head=document.createElement("div"); head.className="home-month";
-      var n=evs.filter(function(x){ return eventMonthKey(x)===key; }).length;
-      var titulo, m2=key&&/^(\d{4})-(\d{2})$/.exec(key);
-      titulo = m2 ? mesLargo(+m2[1],(+m2[2])-1) : "Sin fecha";
-      head.innerHTML='<h3>'+escH(titulo)+'</h3><span>'+n+' '+(n===1?"evento":"eventos")+'</span>';
-      grid.appendChild(head);
-    }
-    grid.appendChild(evCardEl(e));
-  });
   var fuera=base.length-evs.length;
-  if(fuera>0&&homeWhen!=="todos"){ var mo=document.createElement("div"); mo.className="home-more";
+  function masAviso(){ if(fuera>0&&homeWhen!=="todos"){ var mo=document.createElement("div"); mo.className="home-more";
     mo.innerHTML=fuera+(fuera===1?(homeWhen==="prox"?" evento pasado no se muestra":" evento próximo no se muestra"):(homeWhen==="prox"?" eventos pasados no se muestran":" eventos próximos no se muestran"))+'. <button type="button" data-when-go="'+(homeWhen==="prox"?"pas":"prox")+'">Ver '+(homeWhen==="prox"?"pasados":"próximos")+'</button>';
-    grid.appendChild(mo); }
+    grid.appendChild(mo); } }
+  function tituloMes(key){ var m2=key&&/^(\d{4})-(\d{2})$/.exec(key); return m2?mesLargo(+m2[1],(+m2[2])-1):"Sin fecha"; }
+  /* con búsqueda: todos los resultados seguidos, agrupados por mes */
+  if(q){
+    var curKey="__init__";
+    evs.forEach(function(e){
+      var key=eventMonthKey(e);
+      if(key!==curKey){ curKey=key; var head=document.createElement("div"); head.className="home-month";
+        var n=evs.filter(function(x){ return eventMonthKey(x)===key; }).length;
+        head.innerHTML='<h3>'+escH(tituloMes(key))+'</h3><span>'+n+' '+(n===1?"evento":"eventos")+'</span>'; grid.appendChild(head); }
+      grid.appendChild(evCardEl(e));
+    });
+    masAviso(); return;
+  }
+  /* sin búsqueda: un mes cada vez, con flechas, tira de meses y deslizar */
+  var porMes={}; evs.forEach(function(e){ var k=eventMonthKey(e)||"__sin"; (porMes[k]=porMes[k]||[]).push(e); });
+  var keys=Object.keys(porMes).filter(function(k){ return k!=="__sin"; }).sort();
+  if(porMes.__sin) keys.push("__sin");
+  if(keys.indexOf(homeMonth)<0){
+    var hoyK=(function(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2); })();
+    var fechadas=keys.filter(function(k){ return k!=="__sin"; });
+    homeMonth = homeWhen==="pas" ? (fechadas[fechadas.length-1]||keys[0])
+      : (fechadas.filter(function(k){ return k>=hoyK; })[0]||fechadas[fechadas.length-1]||keys[0]);
+  }
+  var idx=keys.indexOf(homeMonth), lista=porMes[homeMonth].slice().sort(function(a,b){ var ma=evFechaMs(a),mb=evFechaMs(b); return (ma==null?1e15:ma)-(mb==null?1e15:mb); });
+  var pax=0; lista.forEach(function(e){ try{ var t=totals(parse(e.text||"")); pax+=paxVisible(e,t).n; }catch(_){} });
+  var nav=document.createElement("div"); nav.className="hm-nav";
+  nav.innerHTML='<button type="button" class="hm-arrow" data-hm="prev" aria-label="Mes anterior"'+(idx<=0?" disabled":"")+'>'+ICONS.caret+'</button>'+
+    '<div class="hm-title" aria-live="polite"><h3>'+escH(homeMonth==="__sin"?"Sin fecha":tituloMes(homeMonth))+'</h3><span>'+lista.length+(lista.length===1?" evento":" eventos")+(pax?" · "+pax+" comensales":"")+'</span></div>'+
+    '<button type="button" class="hm-arrow" data-hm="next" aria-label="Mes siguiente"'+(idx>=keys.length-1?" disabled":"")+'>'+ICONS.caret+'</button>';
+  grid.appendChild(nav);
+  var strip=document.createElement("div"); strip.className="hm-strip"; strip.setAttribute("role","tablist"); strip.setAttribute("aria-label","Meses con eventos");
+  var anioPrev=null;
+  strip.innerHTML=keys.map(function(k){
+    var on=k===homeMonth, lbl, an="";
+    if(k==="__sin") lbl="Sin fecha"; else { var y=+k.slice(0,4), mo=+k.slice(5,7); lbl=MES_CORTO[mo-1]; if(y!==anioPrev){ an='<em>'+y+'</em>'; anioPrev=y; } }
+    return an+'<button type="button" role="tab" class="hm-chip'+(on?" on":"")+'" aria-selected="'+on+'" data-hm-k="'+k+'"><b>'+escH(lbl)+'</b><i>'+porMes[k].length+'</i></button>';
+  }).join("");
+  grid.appendChild(strip);
+  var wrap=document.createElement("div"); wrap.className="hm-cards"+(homeAnim?" "+homeAnim:""); homeAnim="";
+  lista.forEach(function(e){ wrap.appendChild(evCardEl(e)); });
+  grid.appendChild(wrap);
+  masAviso();
+  setTimeout(function(){ var on=strip.querySelector(".hm-chip.on"); if(on&&strip.scrollWidth>strip.clientWidth) strip.scrollLeft=Math.max(0,on.offsetLeft-strip.clientWidth/2+on.offsetWidth/2); },0);
+  function ir(d){ var j=idx+d; if(j<0||j>=keys.length) return; homeMonth=keys[j]; homeAnim=d>0?"desde-der":"desde-izq"; renderHomeList(); var f=document.querySelector('#home-grid .hm-arrow[data-hm="'+(d>0?"next":"prev")+'"]'); if(f&&!f.disabled) f.focus(); }
+  nav.addEventListener("click",function(ev){ var b2=ev.target.closest("[data-hm]"); if(b2) ir(b2.getAttribute("data-hm")==="next"?1:-1); });
+  strip.addEventListener("click",function(ev){ var c=ev.target.closest("[data-hm-k]"); if(!c) return; var j=keys.indexOf(c.getAttribute("data-hm-k")); if(j===idx) return; homeAnim=j>idx?"desde-der":"desde-izq"; homeMonth=keys[j]; renderHomeList(); });
+  strip.addEventListener("keydown",function(ev){ if(ev.key==="ArrowRight"||ev.key==="ArrowLeft"){ ev.preventDefault(); ir(ev.key==="ArrowRight"?1:-1); var c=document.querySelector("#home-grid .hm-chip.on"); if(c) c.focus(); } });
+  /* en el móvil: deslizar el dedo a los lados cambia de mes */
+  var x0=null,y0=null;
+  wrap.addEventListener("touchstart",function(ev){ var t=ev.touches[0]; x0=t.clientX; y0=t.clientY; },{passive:true});
+  wrap.addEventListener("touchend",function(ev){ if(x0==null) return; var t=ev.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0; x0=null; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) ir(dx<0?1:-1); },{passive:true});
 }
+var homeMonth=null, homeAnim="";
 var homeWhen="prox"; try{ homeWhen=localStorage.getItem("lm_home_when")||"prox"; }catch(_){}
 function setHomeWhen(v){ homeWhen=v; try{ localStorage.setItem("lm_home_when",v); }catch(_){} renderHomeList(); }
 (function(){
