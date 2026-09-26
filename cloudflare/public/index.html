@@ -9579,7 +9579,26 @@ function rentParams(){
   Object.keys(d).forEach(function(k){ if(k==="botella") Object.keys(d.botella||{}).forEach(function(b){ o.botella[b]=d.botella[b]; }); else if(d[k]!=null&&d[k]!=="") o[k]=d[k]; });
   return o;
 }
-function rentPrecios(){ var d=BR.param("precios")||{}; return {arts:d.arts||[], imp:d.imp||null, ing:d.ing||{}, extra:d.extra||{}, beb:d.beb||{}}; }
+function rentPrecios(){ var d=BR.param("precios")||{}; return {arts:d.arts||[], imp:d.imp||null, ing:d.ing||{}, extra:d.extra||{}, beb:d.beb||{},
+  tipo:d.tipo||{}, platos:d.platos||{}, exCat:d.exCat||{}, exMan:d.exMan||[]}; }
+/* los artículos del Maître, separados en cuatro tipos (se deduce de la familia
+   del Maître y se puede cambiar artículo a artículo) */
+var RENT_TIPOS=[{k:"mp",t:"Materia prima"},{k:"elab",t:"Platos elaborados"},{k:"beb",t:"Bebida"},{k:"ext",t:"Extras"}];
+function rentTipoAuto(a){ var f=rentClave(a.fam||"");
+  if(/cava|blanc|tint|rosad|rosat|agua|cervez|bebida|refresc|infusion|cafe|vino|licor|destilad|whisk|ginebra|avan[cz]ada/.test(f)) return "beb";
+  if(/plato|elaborad|precocin|pasteler/.test(f)) return "elab";
+  if(/varios|tienda|banquet|decorac|menaje|limpieza/.test(f)) return "ext";
+  return "mp"; }
+function rentTipo(a,P){ return (P.tipo||{})[rentArtKey(a)]||rentTipoAuto(a); }
+/* el catálogo de extras: los artículos del Maître de tipo «Extras» y los que se
+   añaden a mano (autobús, monitores…), con lo que cuestan y lo que se cobra */
+function rentExtrasCat(P){
+  var out=[];
+  P.arts.forEach(function(a){ if(rentTipo(a,P)!=="ext") return; var k=rentArtKey(a), x=P.exCat[k]||{};
+    out.push({k:k, n:a.o||a.n, coste:(x.coste!=null&&x.coste!=="")?+x.coste:(a.pu!=null?+a.pu:+a.p), costeMaitre:a.pu!=null?+a.pu:+a.p, venta:x.venta!=null&&x.venta!==""?+x.venta:null, maitre:true, fam:a.fam}); });
+  P.exMan.forEach(function(m){ out.push({k:"m:"+m.id, id:m.id, n:m.n||"Extra", coste:+m.coste||0, venta:m.venta!=null&&m.venta!==""?+m.venta:null, maitre:false}); });
+  return out;
+}
 function rentClave(s){ return escNorm(s).replace(/[“”"'«»()]/g,"").replace(/\s+/g," ").trim(); }
 /* unidades del Maître → la magnitud y el factor a la unidad base (g, ml, ud) */
 var RENT_UD={kg:["m",1000], g:["m",1], l:["v",1000], cl:["v",10], ml:["v",1], ud:["u",1]};
@@ -9682,11 +9701,16 @@ function rentCosteLinea(ing,pr){
 }
 /* coste por ración de un plato del catálogo: {c, faltan:[ingredientes], n} */
 function rentCostePlato(d,P,AM){
+  /* plato elaborado: se compra hecho o se sabe su coste por ración (artículo
+     del Maître entre las raciones que salen de cada unidad, o a mano) */
+  var o=(P.platos||{})[d._uid];
+  if(o){ if(o.p!=null&&o.p!=="") return {c:+o.p,faltan:[],n:0,elab:true,fuente:"a mano"};
+    if(o.a&&AM[o.a]){ var a=AM[o.a], r=+o.r>0?+o.r:1; return {c:(a.pu!=null?+a.pu:+a.p)/r,faltan:[],n:0,elab:true,fuente:(a.o||a.n)+(r!==1?" ÷ "+String(r).replace(".",","):"")}; } }
   var c=0, faltan=[];
   (d.ingredients||[]).forEach(function(ing){
     var v=rentCosteLinea(ing,rentPrecioIng(ing.name,P,AM));
     if(v==null) faltan.push(ing.name); else c+=v; });
-  return {c:c, faltan:faltan, n:(d.ingredients||[]).length};
+  return {c:c, faltan:faltan, n:(d.ingredients||[]).length, elab:false};
 }
 /* todos los ingredientes del catálogo, con su unidad y en qué platos salen */
 function rentIngredientes(){
@@ -9715,28 +9739,30 @@ function rentCalc(){
     var cp=rentCostePlato(d,P,AM);
     cp.faltan.forEach(function(n){ faltanIng[n]=(faltanIng[n]||0)+1; });
     mp.push({grupo:d._famKey==="NIÑOS"?"Menú infantil":(d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES")?"Aperitivo y estaciones":d._famKey==="RECENA"?"Ressopó":"Banquete",
-      txt:d.name, rac:rac, cu:cp.c, total:cp.c*rac, faltan:cp.faltan, completo:!cp.faltan.length});
+      txt:d.name, rac:rac, cu:cp.c, total:cp.c*rac, faltan:cp.faltan, completo:!cp.faltan.length, tipo:cp.elab?"elab":"mp", fuente:cp.fuente||""});
   });
   /* sustitutivos y aperitivos adaptados: si su nombre es un plato del
      catálogo, con su escandallo; si no, el precio escrito a mano; si tampoco,
      el del plato al que sustituyen (estimado) */
   ctx.subs.forEach(function(x){
-    var d=rentPlatoPorNombre(x.txt), k=rentClave(x.txt), cu=null, est="", falt=[];
+    var d=rentPlatoPorNombre(x.txt), k=rentClave(x.txt), cu=null, est="", falt=[], tipo="elab";
     if(/tarta|pastel|pastis/.test(escNorm(x.txt))){ return; }
     if(P.extra[k]!=null&&P.extra[k]!==""){ cu=+P.extra[k]; est="precio a mano"; }
-    else if(d){ var cp=rentCostePlato(d,P,AM); cu=cp.c; falt=cp.faltan; est=cp.faltan.length?"escandallo incompleto":"escandallo"; }
-    else { var orig=x.aper?null:rentPlatoPorNombre(x.de); if(orig){ var co=rentCostePlato(orig,P,AM); cu=co.c; est="estimado: como "+x.de; } }
+    else if(d){ var cp=rentCostePlato(d,P,AM); cu=cp.c; falt=cp.faltan; tipo=cp.elab?"elab":"mp"; est=cp.elab?"elaborado":cp.faltan.length?"escandallo incompleto":"escandallo"; }
+    else { var orig=x.aper?null:rentPlatoPorNombre(x.de); if(orig){ var co=rentCostePlato(orig,P,AM); cu=co.c; tipo=co.elab?"elab":"mp"; est="estimado: como "+x.de; } }
     mp.push({grupo:x.aper?"Aperitivos adaptados":"Platos sustitutivos", txt:x.txt, rac:x.n, cu:cu||0, total:(cu||0)*x.n, sub:(x.aper?"Para: ":"En lugar de "+x.de+" · Para: ")+x.para,
-      extraK:k, est:est, faltan:falt, completo:cu!=null&&!falt.length});
+      extraK:k, est:est, faltan:falt, completo:cu!=null&&!falt.length, tipo:tipo});
   });
   /* tarta (todas: las normales y las adaptadas, también la del staff) */
   var tartaD=null; ban[2].platos.forEach(function(x){ if(x.tarta) tartaD=x; });
   if(tartaD){ var nT=Math.max(0,c.adultos-tartaD.fuera); Object.keys(tartaD.subs).forEach(function(kk){ nT+=tartaD.subs[kk].gente.length; });
     var ct=(R.costeTarta!=null&&R.costeTarta!=="")?+R.costeTarta:+RP.costeTarta;
-    mp.push({grupo:"Postres", txt:"Tarta: "+tartaD.name, rac:nT, cu:ct, total:ct*nT, tarta:true, completo:ct>0}); }
+    mp.push({grupo:"Postres", txt:"Tarta: "+tartaD.name, rac:nT, cu:ct, total:ct*nT, tarta:true, completo:ct>0, tipo:"elab"}); }
   /* menú staff: su coste por persona (es un menú propio, no un escandallo) */
-  if(c.staff>0) mp.push({grupo:"Menú staff", txt:"Menú staff", rac:c.staff, cu:+RP.costeStaff, total:c.staff*RP.costeStaff, staff:true, completo:RP.costeStaff>0});
-  var mpTotal=mp.reduce(function(s,x){ return s+(x.total||0); },0);
+  if(c.staff>0) mp.push({grupo:"Menú staff", txt:"Menú staff", rac:c.staff, cu:+RP.costeStaff, total:c.staff*RP.costeStaff, staff:true, completo:RP.costeStaff>0, tipo:"elab"});
+  /* platos elaborados (coste por ración) y materia prima (escandallo); la merma,
+     solo sobre la materia prima */
+  var elabTotal=0, mpTotal=0; mp.forEach(function(x){ if(x.tipo==="elab") elabTotal+=x.total||0; else mpTotal+=x.total||0; });
   var merma=mpTotal*(+RP.merma||0)/100;
   /* 2 · bebida: las botellas de la hoja de Bebida × el precio de la marca
      elegida (su artículo del Maître) o, si no, el de la categoría */
@@ -9750,14 +9776,21 @@ function rentCalc(){
   var nCam=(R.camareros!=null&&R.camareros!=="")?+R.camareros:(camSi||t.camareros), camEst=!(R.camareros!=null&&R.camareros!=="")&&!camSi;
   var horas=(R.horas!=null&&R.horas!=="")?+R.horas:+RP.horasCamarero;
   var perTotal=nCam*horas*(+RP.horaCamarero||0);
-  /* 4 · extras y proveedores: los que paga Les Moles y los gastos apuntados */
-  var ext=[];
-  (e.proveedores||[]).forEach(function(p){ if(R.prov&&R.prov[p.id]) ext.push({txt:(p.servicio||"Proveedor")+(p.empresa?" · "+p.empresa:""), total:+p.precio||0, prov:true}); });
-  (R.otros||[]).forEach(function(o){ ext.push({txt:o.concepto||"Otro gasto", total:+o.importe||0}); });
-  var extTotal=ext.reduce(function(s,x){ return s+x.total; },0);
-  /* ingresos: lo del presupuesto (menús + extras), sin el IVA */
+  /* 4 · extras: lo que se cobra (los extras del presupuesto) frente a lo que
+     cuestan (su artículo del catálogo × cantidad, o a mano); los proveedores
+     que paga Les Moles y los otros gastos cuestan y no se cobran */
   var PT=BR.presupTotals(e), iva=+RP.iva||0, ingresos=PT.total/(1+iva/100);
-  var costes=mpTotal+merma+bebTotal+perTotal+extTotal, margen=ingresos-costes;
+  var CAT={}; rentExtrasCat(P).forEach(function(x){ CAT[x.k]=x; });
+  var ext=[], exR=R.ex||{}, sinCoste=0;
+  ((e.presupuesto&&e.presupuesto.extras)||[]).forEach(function(x){ if(!x.concepto&&!+x.importe) return;
+    var o=exR[x.id]||{}, cat=o.k?CAT[o.k]:null, q=+o.q>0?+o.q:1, cuesta=null, fuente="";
+    if(o.c!=null&&o.c!==""){ cuesta=+o.c; fuente="a mano"; } else if(cat){ cuesta=cat.coste*q; fuente=cat.n+(q!==1?" × "+String(q).replace(".",","):""); }
+    if(cuesta==null) sinCoste++;
+    ext.push({id:x.id, txt:x.concepto||"Extra", cobraIVA:+x.importe||0, cobra:(+x.importe||0)/(1+iva/100), cuesta:cuesta||0, conCoste:cuesta!=null, fuente:fuente, k:o.k||"", q:o.q||"", c:o.c, presup:true}); });
+  (e.proveedores||[]).forEach(function(p){ if(R.prov&&R.prov[p.id]) ext.push({txt:(p.servicio||"Proveedor")+(p.empresa?" · "+p.empresa:""), cobra:0, cuesta:+p.precio||0, conCoste:true, prov:true}); });
+  (R.otros||[]).forEach(function(o){ ext.push({txt:o.concepto||"Otro gasto", cobra:0, cuesta:+o.importe||0, conCoste:true, otro:true}); });
+  var extTotal=ext.reduce(function(s,x){ return s+x.cuesta; },0), extCobro=ext.reduce(function(s,x){ return s+(x.cobra||0); },0);
+  var costes=elabTotal+mpTotal+merma+bebTotal+perTotal+extTotal, margen=ingresos-costes;
   var comensales=c.adultos+c.ninos+c.staff;
   var nFaltan=Object.keys(faltanIng).length;
   if(nFaltan) avisos.push(nFaltan+(nFaltan===1?" ingrediente sin precio":" ingredientes sin precio")+": el coste de la materia prima sale por debajo del real.");
@@ -9765,13 +9798,14 @@ function rentCalc(){
   if(mp.some(function(x){ return x.staff&&!x.completo; })) avisos.push("Falta el coste del menú staff por persona.");
   if(beb.some(function(x){ return !x.completo; })) avisos.push("Hay bebidas sin precio.");
   if(!(+RP.horaCamarero>0)&&nCam) avisos.push("Falta el coste por hora de los camareros.");
+  if(sinCoste) avisos.push(sinCoste+(sinCoste===1?" extra del presupuesto no tiene":" extras del presupuesto no tienen")+" coste: se cobra pero no se sabe cuánto cuesta.");
   if(!PT.total) avisos.push("El presupuesto del evento está a 0 €: no hay ingresos.");
   return {id:e.id, nombre:e.name||"Evento", fecha:(e.ficha&&e.ficha.fecha)||"", estado:(e.ficha&&e.ficha.estado)||"planificacion",
     adultos:c.adultos, ninos:c.ninos, staff:c.staff, comensales:comensales,
     ingresos:ingresos, ingresosIVA:PT.total, iva:iva, menus:PT.menus, extrasVenta:PT.extras,
-    mp:mp, mpTotal:mpTotal, merma:merma, mermaPct:+RP.merma||0, beb:beb, bebTotal:bebTotal,
+    mp:mp, elabTotal:elabTotal, mpTotal:mpTotal, merma:merma, mermaPct:+RP.merma||0, beb:beb, bebTotal:bebTotal,
     per:{n:nCam, estimado:camEst, asignados:camSi, horas:horas, hora:+RP.horaCamarero||0, total:perTotal}, perTotal:perTotal,
-    ext:ext, extTotal:extTotal, costes:costes, margen:margen, pct:ingresos>0?margen/ingresos*100:null,
+    ext:ext, extTotal:extTotal, extCobro:extCobro, costes:costes, margen:margen, pct:ingresos>0?margen/ingresos*100:null,
     faltanIng:faltanIng, avisos:avisos, completo:!avisos.length};
 }
 BR.rent={
@@ -9787,6 +9821,7 @@ BR.rent={
     return rentSugerir(n,rentPrecios().arts,function(a){ return /^(kg|g|l|ml|cl)$/.test(a.u||""); }); },
   precioBeb:function(catKey,marca){ var P=rentPrecios(), cat=BEBIDA_CATS.filter(function(c){ return c.key===catKey; })[0]; return cat?rentPrecioBeb(cat,marca,P,rentArtMap(P),rentParams()):null; },
   costePlato:function(d){ var P=rentPrecios(); return rentCostePlato(d,P,rentArtMap(P)); },
+  tipos:RENT_TIPOS, tipo:function(a){ return rentTipo(a,rentPrecios()); }, extrasCat:function(){ return rentExtrasCat(rentPrecios()); },
   familias:function(){ return MENU_DATA; }, bebidaCats:function(){ return BEBIDA_CATS.filter(function(c){ return c.auto; }); }
 };
 /* lo que la pantalla de Parámetros necesita leer: los valores de fábrica y
@@ -11891,7 +11926,7 @@ function pctTx(n){ return n==null?"—":fmtN.format(Math.round(n*10)/10)+" %"; }
 function numTx(n){ return n==null||n===""?"":String(n).replace(".",","); }
 function toast(msg){ var t=document.createElement("div"); t.className="pp-toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.classList.add("on"); },10); setTimeout(function(){ t.classList.remove("on"); setTimeout(function(){ t.remove(); },300); },2400); }
 var MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-var CATS=[{k:"mp",t:"Materia prima"},{k:"beb",t:"Bebida"},{k:"per",t:"Personal"},{k:"ext",t:"Extras y proveedores"}];
+var CATS=[{k:"elab",t:"Platos elaborados"},{k:"beb",t:"Bebida"},{k:"ext",t:"Extras"},{k:"mp",t:"Materia prima"},{k:"per",t:"Personal"}];
 /* los eventos que cuentan en la temporada: los reservados en adelante */
 var CONFIRMADOS={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
 var ui={q:"", filtro:"todos", anio:null, todos:false, orden:"margen", dir:-1, imp:null};
@@ -11915,7 +11950,7 @@ function avisosHTML(av){
 }
 /* reparto de los costes: una barra al 100 % con las cuatro partidas */
 function barraCostes(r){
-  var v={mp:r.mpTotal+r.merma, beb:r.bebTotal, per:r.perTotal, ext:r.extTotal}, tot=r.costes;
+  var v={elab:r.elabTotal||0, mp:r.mpTotal+r.merma, beb:r.bebTotal, per:r.perTotal, ext:r.extTotal}, tot=r.costes;
   if(!(tot>0)) return '<p class="pp-empty">Todavía no hay costes con precio.</p>';
   var segs=CATS.filter(function(c){ return v[c.k]>0; }).map(function(c,i){ var p=v[c.k]/tot*100;
     return '<span class="rt-seg rt-c-'+c.k+'" style="flex:'+p.toFixed(3)+' 1 0" title="'+esc(c.t)+': '+esc(eur(v[c.k]))+' · '+esc(pctTx(p))+'"></span>'; }).join("");
@@ -11925,6 +11960,23 @@ function barraCostes(r){
 }
 
 /* ══ EVENTO ══════════════════════════════════════════════════════════ */
+function tablaPlatos(filas,R,RP,vacio){
+  if(!filas.length) return '<div class="pcard"><p class="pp-empty">'+vacio+'</p></div>';
+  var grupos={}, go=[]; filas.forEach(function(x){ if(!grupos[x.grupo]){ grupos[x.grupo]=[]; go.push(x.grupo); } grupos[x.grupo].push(x); });
+  var t=go.map(function(g){
+    var sub=grupos[g].reduce(function(s,x){ return s+x.total; },0);
+    return '<tr class="rt-grp"><td colspan="3">'+esc(g)+'</td><td class="rnum">'+esc(eur(sub))+'</td><td></td></tr>'+grupos[g].map(function(x){
+      var cu;
+      if(x.tarta) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="ev" data-k="costeTarta" value="'+esc(numTx(R.costeTarta))+'" placeholder="'+esc(numTx(RP.costeTarta)||"€/ración")+'" aria-label="Coste por ración de la tarta">';
+      else if(x.extraK&&!/^(escandallo|elaborado)/.test(x.est||"")) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="extra" data-k="'+esc(x.extraK)+'" value="'+esc(numTx(BR.rent.precios().extra[x.extraK]))+'" placeholder="'+esc(x.cu?numTx(Math.round(x.cu*100)/100):"€/ración")+'" aria-label="Coste por ración de '+esc(x.txt)+'">';
+      else cu=esc(eur2(x.cu));
+      var est=x.completo?(x.est&&x.est.indexOf("estimado")===0?'<span class="rt-est" title="'+esc(x.est)+'">estimado</span>':'<span class="rt-okc" aria-label="Completo" title="'+esc(x.fuente||"")+'">✓</span>')
+        :x.faltan&&x.faltan.length?'<span class="rt-falta" title="Sin precio: '+esc(x.faltan.join(", "))+'">faltan '+x.faltan.length+'</span>'
+        :x.staff?'<button type="button" class="rt-link" data-goto="r-precios">poner coste</button>':'<span class="rt-falta">sin precio</span>';
+      return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span>'+(x.sub?'<span class="rt-sub">'+esc(x.sub)+'</span>':x.fuente?'<span class="rt-sub">'+esc(x.fuente)+'</span>':'')+'</td><td class="rnum">'+x.rac+'</td><td class="rnum rt-cu">'+cu+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+est+'</td></tr>'; }).join("");
+  }).join("");
+  return '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Plato</th><th class="rnum">Raciones</th><th class="rnum">€ / ración</th><th class="rnum">Total</th><th>Estado</th></tr></thead><tbody>'+t+'</tbody></table></div>';
+}
 function vEvento(){
   var e=BR.current();
   if(!e) return cabecera("r-evento")+'<div class="pcard"><p>Elige un evento arriba.</p></div>';
@@ -11939,28 +11991,40 @@ function vEvento(){
     kpi("Por menú",mc?esc(eur(r.margen/mc)):"—",mc?"Ingreso "+esc(eur(r.ingresos/mc))+" · coste "+esc(eur(r.costes/mc)):"")+
     '</div>'+avisosHTML(r.avisos);
   h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes(r)+'</div>';
-  /* materia prima */
-  var grupos={}, go=[]; r.mp.forEach(function(x){ if(!grupos[x.grupo]){ grupos[x.grupo]=[]; go.push(x.grupo); } grupos[x.grupo].push(x); });
-  var filas=go.map(function(g){
-    var sub=grupos[g].reduce(function(s,x){ return s+x.total; },0);
-    return '<tr class="rt-grp"><td colspan="3">'+esc(g)+'</td><td class="rnum">'+esc(eur(sub))+'</td><td></td></tr>'+grupos[g].map(function(x){
-      var cu;
-      if(x.tarta) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="ev" data-k="costeTarta" value="'+esc(numTx(R.costeTarta))+'" placeholder="'+esc(numTx(RP.costeTarta)||"€/ración")+'" aria-label="Coste por ración de la tarta">';
-      else if(x.extraK&&!/^escandallo/.test(x.est||"")) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="extra" data-k="'+esc(x.extraK)+'" value="'+esc(numTx(BR.rent.precios().extra[x.extraK]))+'" placeholder="'+esc(x.cu?numTx(Math.round(x.cu*100)/100):"€/ración")+'" aria-label="Coste por ración de '+esc(x.txt)+'">';
-      else cu=esc(eur2(x.cu));
-      var est=x.completo?(x.est&&x.est.indexOf("estimado")===0?'<span class="rt-est" title="'+esc(x.est)+'">estimado</span>':'<span class="rt-okc" aria-label="Completo">✓</span>')
-        :x.faltan&&x.faltan.length?'<span class="rt-falta" title="Sin precio: '+esc(x.faltan.join(", "))+'">faltan '+x.faltan.length+'</span>'
-        :x.staff?'<button type="button" class="rt-link" data-goto="r-precios">poner coste</button>':'<span class="rt-falta">sin precio</span>';
-      return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span>'+(x.sub?'<span class="rt-sub">'+esc(x.sub)+'</span>':'')+'</td><td class="rnum">'+x.rac+'</td><td class="rnum rt-cu">'+cu+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+est+'</td></tr>'; }).join("");
-  }).join("");
-  if(r.merma) filas+='<tr class="rt-grp"><td colspan="3">Merma ('+esc(numTx(r.mermaPct))+' %)</td><td class="rnum">'+esc(eur(r.merma))+'</td><td></td></tr>';
-  h+='<div class="pv-sec">Materia prima <span class="pv-sec-note">— '+esc(eur(r.mpTotal+r.merma))+'</span></div>'+
-    (r.mp.length?'<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Plato</th><th class="rnum">Raciones</th><th class="rnum">€ / ración</th><th class="rnum">Total</th><th>Estado</th></tr></thead><tbody>'+filas+'</tbody></table></div>'
-      :'<div class="pcard"><p class="pp-empty">No hay platos marcados en el menú del evento.</p></div>');
-  /* bebida */
+  /* 1 · platos elaborados (coste por ración) */
+  h+='<div class="pv-sec">Platos elaborados <span class="pv-sec-note">— '+esc(eur(r.elabTotal))+' · se compran hechos o tienen su coste por ración</span></div>'+
+    tablaPlatos(r.mp.filter(function(x){ return x.tipo==="elab"; }),R,RP,"Ningún plato con coste por ración. Se marcan en «Precios del Maître › Platos elaborados».");
+  /* 2 · bebida */
   h+='<div class="pv-sec">Bebida <span class="pv-sec-note">— '+esc(eur(r.bebTotal))+'</span></div><div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Bebida</th><th class="rnum">Botellas</th><th class="rnum">€ / botella</th><th class="rnum">Total</th><th>Precio</th></tr></thead><tbody>'+
     r.beb.map(function(x){ return '<tr><td><span class="rt-pl">'+esc(x.marca||x.txt)+'</span>'+(x.marca?'<span class="rt-sub">'+esc(x.txt)+'</span>':'')+'</td><td class="rnum">'+x.q+'</td><td class="rnum">'+(x.cu?esc(eur2(x.cu)):"—")+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+(x.fuente?esc(x.fuente):'<span class="rt-falta">sin precio</span>')+'</td></tr>'; }).join("")+
     '</tbody></table></div>';
+  /* 3 · extras: cuánto cuesta y cuánto se cobra */
+  var CAT=BR.rent.extrasCat(), provs=(e.proveedores||[]).filter(function(x){ return x.empresa||+x.precio; });
+  var optsCat=function(sel){ return '<option value="">— sin artículo —</option>'+CAT.map(function(c){ return '<option value="'+esc(c.k)+'"'+(c.k===sel?" selected":"")+'>'+esc(c.n)+' · '+esc(eur2(c.coste))+'</option>'; }).join(""); };
+  var exMargen=r.extCobro-r.extTotal;
+  var filasEx=r.ext.map(function(x){
+    var cuesta;
+    if(x.presup) cuesta='<div class="rt-excost"><select data-rp="ex-k" data-id="'+esc(x.id)+'" aria-label="Artículo del catálogo para '+esc(x.txt)+'">'+optsCat(x.k)+'</select>'+
+      (x.k?'<input class="rnum" inputmode="decimal" data-rp="ex-q" data-id="'+esc(x.id)+'" value="'+esc(numTx(x.q))+'" placeholder="1" title="Cantidad" aria-label="Cantidad de '+esc(x.txt)+'" style="width:58px">':'')+
+      '<input class="rnum" inputmode="decimal" data-rp="ex-c" data-id="'+esc(x.id)+'" value="'+esc(numTx(x.c))+'" placeholder="'+esc(x.conCoste&&x.c==null?numTx(Math.round(x.cuesta*100)/100):"€ a mano")+'" aria-label="Coste a mano de '+esc(x.txt)+'" style="width:92px"></div>';
+    else cuesta=esc(eur(x.cuesta));
+    var m=(x.cobra||0)-x.cuesta;
+    return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span><span class="rt-sub">'+(x.presup?"Presupuesto"+(x.fuente?" · "+esc(x.fuente):""):x.prov?"Proveedor que paga Les Moles":"Gasto (no se cobra)")+'</span></td>'+
+      '<td class="rnum">'+(x.presup?esc(eur(x.cobra)):"—")+'</td><td class="rt-cu">'+cuesta+'</td>'+
+      '<td class="rnum'+(m<0?" rt-negtx":"")+'">'+(x.presup&&!x.conCoste?'<span class="rt-falta">sin coste</span>':esc(eur(m)))+'</td></tr>'; }).join("");
+  h+='<div class="pv-sec">Extras <span class="pv-sec-note">— cobramos '+esc(eur(r.extCobro))+' · cuestan '+esc(eur(r.extTotal))+' · margen '+esc(eur(exMargen))+'</span></div>'+
+    '<div class="dtable-wrap"><table class="dtable rt-t rt-ex"><thead><tr><th>Extra</th><th class="rnum">Cobramos (sin IVA)</th><th>Nos cuesta</th><th class="rnum">Margen</th></tr></thead><tbody>'+
+    (filasEx||'<tr><td colspan="4" class="pp-empty">No hay extras en el presupuesto ni gastos apuntados.</td></tr>')+'</tbody></table>'+
+    '<div class="dtable-foot rt-exadd"><select id="rt-exadd-k" aria-label="Extra del catálogo">'+optsCat("").replace("— sin artículo —","Añadir un extra del catálogo…")+'</select>'+
+      '<input id="rt-exadd-q" class="rnum" inputmode="decimal" placeholder="Cantidad" aria-label="Cantidad" style="width:90px">'+
+      '<button type="button" class="btn sm gold" data-ra="ex-add">+ Añadir al presupuesto</button><button type="button" class="btn sm" data-ra="otro-add">+ Gasto que no se cobra</button></div></div>'+
+    ((R.otros||[]).length?'<div class="pcard" style="margin-top:10px"><div class="pp-subh" style="margin-top:0">Gastos que no se cobran</div>'+(R.otros||[]).map(function(o,i){ return '<div class="pp-tramo"><input type="text" data-rp="otro" data-i="'+i+'" data-k="concepto" value="'+esc(o.concepto||"")+'" placeholder="Concepto" aria-label="Concepto"><input type="text" inputmode="decimal" data-rp="otro" data-i="'+i+'" data-k="importe" value="'+esc(numTx(o.importe))+'" placeholder="0" style="width:110px;text-align:right" aria-label="Importe"><span>€</span><button type="button" class="row-del" data-ra="otro-del" data-i="'+i+'" aria-label="Quitar gasto">×</button></div>'; }).join("")+'</div>':'')+
+    (provs.length?'<div class="pcard" style="margin-top:10px"><div class="pp-subh" style="margin-top:0">Proveedores del evento <span>— marca los que paga Les Moles</span></div>'+provs.map(function(x){
+      return '<label class="rt-prov"><input type="checkbox" data-rp="prov" data-id="'+esc(x.id)+'"'+(R.prov&&R.prov[x.id]?" checked":"")+'> <span>'+esc(x.servicio||"Proveedor")+(x.empresa?" · "+esc(x.empresa):"")+'</span><b>'+esc(eur(+x.precio||0))+'</b></label>'; }).join("")+'</div>':'');
+  /* 4 · materia prima (platos por escandallo) */
+  var mpF=r.mp.filter(function(x){ return x.tipo!=="elab"; });
+  h+='<div class="pv-sec">Materia prima <span class="pv-sec-note">— '+esc(eur(r.mpTotal+r.merma))+' · platos por su escandallo'+(r.merma?' (con '+esc(numTx(r.mermaPct))+' % de merma: '+esc(eur(r.merma))+')':'')+'</span></div>'+
+    tablaPlatos(mpF,R,RP,"No hay platos por escandallo.");
   /* personal */
   var p=r.per;
   h+='<div class="pv-sec">Personal <span class="pv-sec-note">— '+esc(eur(r.perTotal))+'</span></div><div class="pcard"><div class="fldset">'+
@@ -11968,14 +12032,6 @@ function vEvento(){
     '<label class="fld"><span class="lbl">Horas por camarero</span><input type="text" inputmode="decimal" data-rp="ev" data-k="horas" value="'+esc(numTx(R.horas))+'" placeholder="'+esc(numTx(RP.horasCamarero))+'"></label>'+
     '<div class="fld"><span class="lbl">Coste</span><div class="fld-val">'+p.n+' × '+esc(numTx(p.horas))+' h × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perTotal))+'</b>'+(p.estimado?' <span class="rt-est">estimado</span>':'')+'</div></div>'+
     '</div></div>';
-  /* extras y proveedores */
-  var provs=(e.proveedores||[]).filter(function(x){ return x.empresa||+x.precio; });
-  h+='<div class="pv-sec">Extras y proveedores <span class="pv-sec-note">— '+esc(eur(r.extTotal))+'</span></div><div class="pcard">'+
-    (provs.length?'<div class="pp-subh">Proveedores del evento <span>— marca los que paga Les Moles</span></div>'+provs.map(function(x){
-      return '<label class="rt-prov"><input type="checkbox" data-rp="prov" data-id="'+esc(x.id)+'"'+(R.prov&&R.prov[x.id]?" checked":"")+'> <span>'+esc(x.servicio||"Proveedor")+(x.empresa?" · "+esc(x.empresa):"")+'</span><b>'+esc(eur(+x.precio||0))+'</b></label>'; }).join(""):'<p class="pp-note" style="margin-top:0">No hay proveedores apuntados en el evento.</p>')+
-    '<div class="pp-subh">Otros gastos <span>— flores, autobuses, personal extra…</span></div>'+
-    (R.otros||[]).map(function(o,i){ return '<div class="pp-tramo"><input type="text" data-rp="otro" data-i="'+i+'" data-k="concepto" value="'+esc(o.concepto||"")+'" placeholder="Concepto" aria-label="Concepto"><input type="text" inputmode="decimal" data-rp="otro" data-i="'+i+'" data-k="importe" value="'+esc(numTx(o.importe))+'" placeholder="0" style="width:110px;text-align:right" aria-label="Importe"><span>€</span><button type="button" class="row-del" data-ra="otro-del" data-i="'+i+'" aria-label="Quitar gasto">×</button></div>'; }).join("")+
-    '<button type="button" class="btn sm" data-ra="otro-add">+ Gasto</button></div>';
   /* ingresos */
   h+='<div class="pv-sec">Ingresos</div><div class="pcard"><div class="rt-lines">'+
     '<div><span>Menús</span><b>'+esc(eur(r.menus))+'</b></div><div><span>Extras cobrados</span><b>'+esc(eur(r.extrasVenta))+'</b></div>'+
@@ -12021,8 +12077,8 @@ function grafMeses(rows){
 var ORDENES={nombre:"Evento",fecha:"Fecha",comensales:"Menús",ingresos:"Ingresos",costes:"Costes",margen:"Margen",pct:"% margen",porMenu:"Margen / menú"};
 function vTemporada(){
   var D=datosTemporada(), rows=D.rows;
-  var T={ing:0,cos:0,mar:0,men:0,mp:0,merma:0,beb:0,per:0,ext:0,inc:0};
-  rows.forEach(function(r){ T.ing+=r.ingresos; T.cos+=r.costes; T.mar+=r.margen; T.men+=r.comensales; T.mp+=r.mpTotal; T.merma+=r.merma; T.beb+=r.bebTotal; T.per+=r.perTotal; T.ext+=r.extTotal; if(!r.completo) T.inc++; r.porMenu=r.comensales?r.margen/r.comensales:0; });
+  var T={ing:0,cos:0,mar:0,men:0,elab:0,mp:0,merma:0,beb:0,per:0,ext:0,exCob:0,inc:0};
+  rows.forEach(function(r){ T.ing+=r.ingresos; T.cos+=r.costes; T.mar+=r.margen; T.men+=r.comensales; T.mp+=r.mpTotal; T.elab+=r.elabTotal; T.exCob+=r.extCobro; T.merma+=r.merma; T.beb+=r.bebTotal; T.per+=r.perTotal; T.ext+=r.extTotal; if(!r.completo) T.inc++; r.porMenu=r.comensales?r.margen/r.comensales:0; });
   var h=cabecera("r-temp");
   h+='<div class="pp-bar rt-filt"><label class="fld rt-anio"><span class="lbl">Temporada</span><select data-rp="anio">'+(D.anios.length?D.anios:[ui.anio]).map(function(a){ return '<option'+(a===ui.anio?" selected":"")+'>'+a+'</option>'; }).join("")+'</select></label>'+
     '<label class="ag-chk"><input type="checkbox" data-rp="todos"'+(ui.todos?" checked":"")+'> Incluir los que aún no están reservados'+(D.fuera&&!ui.todos?" ("+D.fuera+")":"")+'</label>'+
@@ -12035,7 +12091,8 @@ function vTemporada(){
     kpi("Margen",esc(eur(T.mar)),"Margen "+esc(pctTx(T.ing>0?T.mar/T.ing*100:null))+(T.men?" · "+esc(eur(T.mar/T.men))+" por menú":""),"accent"+(T.mar<0?" rt-neg":""))+
     '</div>'+(T.inc?'<div class="rt-avisos" role="note"><b>'+T.inc+(T.inc===1?" evento tiene":" eventos tienen")+' cifras incompletas</b> (faltan precios): su coste sale por debajo del real. Van marcados en la tabla. <button type="button" class="btn sm" data-goto="r-precios">Completar precios</button></div>':'');
   h+='<div class="pv-sec">Margen por mes</div><div class="pcard">'+grafMeses(rows)+'</div>';
-  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes({mpTotal:T.mp,merma:T.merma,bebTotal:T.beb,perTotal:T.per,extTotal:T.ext,costes:T.cos})+'</div>';
+  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes({elabTotal:T.elab,mpTotal:T.mp,merma:T.merma,bebTotal:T.beb,perTotal:T.per,extTotal:T.ext,costes:T.cos})+
+    '<p class="pp-note">Extras de la temporada: se han cobrado '+esc(eur(T.exCob))+' (sin IVA) y han costado '+esc(eur(T.ext))+' · margen '+esc(eur(T.exCob-T.ext))+'.</p></div>';
   var k=ui.orden, dir=ui.dir;
   rows.sort(function(a,b){ var va=a[k], vb=b[k]; if(k==="nombre"||k==="fecha") return String(va||"").localeCompare(String(vb||""),"es")*dir; return ((va==null?-1e12:va)-(vb==null?-1e12:vb))*dir; });
   function th(key,num){ var on=ui.orden===key; return '<th class="'+(num?"rnum":"")+'" aria-sort="'+(on?(dir>0?"ascending":"descending"):"none")+'"><button type="button" class="rt-sort'+(on?" on":"")+'" data-ra="ord" data-k="'+key+'">'+esc(ORDENES[key])+(on?(dir>0?" ↑":" ↓"):"")+'</button></th>'; }
@@ -12049,8 +12106,8 @@ function vTemporada(){
 }
 function descargarCSV(){
   var rows=ui.ultimas||[], sep=";", n2=function(v){ return (Math.round((v||0)*100)/100).toString().replace(".",","); };
-  var out=[["Evento","Fecha","Estado","Menús","Ingresos sin IVA","Materia prima","Merma","Bebida","Personal","Extras","Costes","Margen","% margen","Completo"].join(sep)];
-  rows.forEach(function(r){ out.push([String(r.nombre).replace(/;/g,","),r.fecha,r.estado,r.comensales,n2(r.ingresos),n2(r.mpTotal),n2(r.merma),n2(r.bebTotal),n2(r.perTotal),n2(r.extTotal),n2(r.costes),n2(r.margen),r.pct==null?"":n2(r.pct),r.completo?"sí":"no"].join(sep)); });
+  var out=[["Evento","Fecha","Estado","Menús","Ingresos sin IVA","Platos elaborados","Bebida","Extras (coste)","Extras (cobrado sin IVA)","Materia prima","Merma","Personal","Costes","Margen","% margen","Completo"].join(sep)];
+  rows.forEach(function(r){ out.push([String(r.nombre).replace(/;/g,","),r.fecha,r.estado,r.comensales,n2(r.ingresos),n2(r.elabTotal),n2(r.bebTotal),n2(r.extTotal),n2(r.extCobro),n2(r.mpTotal),n2(r.merma),n2(r.perTotal),n2(r.costes),n2(r.margen),r.pct==null?"":n2(r.pct),r.completo?"sí":"no"].join(sep)); });
   var blob=new Blob(["﻿"+out.join("\r\n")],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
   a.href=URL.createObjectURL(blob); a.download="rentabilidad_temporada_"+ui.anio+".csv"; document.body.appendChild(a); a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
@@ -12180,14 +12237,71 @@ function vBebidasPrecio(){
   return '<div class="pv-sec">Bebidas <span class="pv-sec-note">— € por botella; si el nombre no coincide, se usa el artículo más parecido (revísalo)</span></div>'+
     '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Marca</th><th>Artículo del Maître</th><th class="rnum">€ a mano</th><th>Precio que se usa</th></tr></thead><tbody>'+filas+'</tbody></table></div>';
 }
-function vPlatosCoste(){
-  var fams=BR.rent.familias();
-  return '<details class="rt-det"><summary>Coste por ración de cada plato del catálogo</summary>'+fams.map(function(f){
-    return '<div class="pp-subh">'+esc(f.label)+'</div><div class="dtable-wrap"><table class="dtable rt-t"><tbody>'+f.dishes.map(function(d){ var c=BR.rent.costePlato(d);
-      return '<tr><td><span class="rt-pl">'+esc(d.name)+'</span></td><td class="rnum"><b>'+esc(eur2(c.c))+'</b></td><td class="rt-st">'+(c.faltan.length?'<span class="rt-falta" title="'+esc(c.faltan.join(", "))+'">faltan '+c.faltan.length+' de '+c.n+'</span>':'<span class="rt-okc">✓</span>')+'</td></tr>'; }).join("")+'</tbody></table></div>'; }).join("")+'</details>';
+/* los artículos del Maître de un tipo, con su tipo para cambiarlo */
+function vArticulos(tipo,abierto){
+  var P=BR.rent.precios(), q=BR.rent.clave(ui.qa||"");
+  var arts=P.arts.filter(function(a){ return BR.rent.tipo(a)===tipo; });
+  if(!P.arts.length) return '';
+  var vis=arts.filter(function(a){ return !q||BR.rent.clave((a.o||a.n)+" "+(a.fam||"")).indexOf(q)>-1; });
+  var MAX=200;
+  return '<details class="rt-det"'+(abierto?" open":"")+'><summary>Artículos del Maître de este tipo ('+arts.length+') <span>— si alguno no es de aquí, cámbiale el tipo</span></summary>'+
+    '<div class="pp-bar" style="margin-top:8px"><input type="search" class="pp-search" data-rp="qa" value="'+esc(ui.qa||"")+'" placeholder="Buscar artículo o familia…" aria-label="Buscar artículo"></div>'+
+    '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Artículo</th><th>Familia</th><th class="rnum">Precio</th><th class="rnum">Comprado</th><th>Tipo</th></tr></thead><tbody>'+
+    (vis.slice(0,MAX).map(function(a){ var k=BR.rent.artKey(a);
+      return '<tr><td><span class="rt-pl">'+esc(a.o||a.n)+'</span></td><td>'+esc(a.fam||"—")+'</td><td class="rnum">'+esc(eur2(a.p))+'/'+esc(a.u)+'</td><td class="rnum">'+(a.q!=null?esc(fmtN.format(a.q)):"—")+'</td>'+
+        '<td><select data-rp="art-tipo" data-k="'+esc(k)+'" aria-label="Tipo de '+esc(a.o||a.n)+'">'+BR.rent.tipos.map(function(t){ return '<option value="'+t.k+'"'+(t.k===tipo?" selected":"")+'>'+esc(t.t)+'</option>'; }).join("")+'</select></td></tr>'; }).join("")||'<tr><td colspan="5" class="pp-empty">Ningún artículo coincide.</td></tr>')+
+    '</tbody></table>'+(vis.length>MAX?'<div class="dtable-foot pp-note">Se ven '+MAX+' de '+vis.length+': busca para acotar.</div>':'')+'</div></details>';
+}
+/* platos elaborados: los platos del catálogo que se compran hechos o cuyo coste
+   por ración se sabe (del Maître o a mano); el resto va por su escandallo */
+function vPlatosElab(){
+  var P=BR.rent.precios(), elabArts=P.arts.filter(function(a){ return BR.rent.tipo(a)==="elab"; });
+  var q=BR.rent.clave(ui.qp||"");
+  var h='<p class="pp-note" style="margin-top:0">Para cada plato del catálogo: si se compra hecho (o el Maître da su coste), elige su <b>artículo</b> y cuántas raciones salen de cada unidad; o pon el <b>€ por ración</b> a mano. Si no, se calcula por su escandallo (materia prima).</p>'+
+    '<datalist id="rt-arts-elab">'+elabArts.concat(P.arts.filter(function(a){ return BR.rent.tipo(a)!=="elab"; })).map(function(a){ return '<option value="'+esc(a.o||a.n)+'">'+esc(eur2(a.pu!=null?a.pu:a.p))+' / unidad</option>'; }).join("")+'</datalist>'+
+    '<div class="pp-bar"><input type="search" class="pp-search" data-rp="qp" value="'+esc(ui.qp||"")+'" placeholder="Buscar plato…" aria-label="Buscar plato"></div>';
+  BR.rent.familias().forEach(function(f){
+    var ds=f.dishes.filter(function(d){ return !q||BR.rent.clave(d.name).indexOf(q)>-1; }); if(!ds.length) return;
+    h+='<div class="pp-subh">'+esc(f.label)+'</div><div class="dtable-wrap"><table class="dtable rt-t rt-pe"><thead><tr><th>Plato</th><th class="rnum">Por escandallo</th><th>Artículo del Maître</th><th class="rnum">Raciones / ud</th><th class="rnum">€ / ración a mano</th><th>Se usa</th></tr></thead><tbody>'+
+      ds.map(function(d){ var o=P.platos[d._uid]||{}, c=BR.rent.costePlato(d), esc0=o.a||(o.p!=null&&o.p!=="")?null:c;
+        var escTxt; if(esc0) escTxt=esc(eur2(esc0.c))+(esc0.faltan.length?' <span class="rt-falta" title="'+esc(esc0.faltan.join(", "))+'">faltan '+esc0.faltan.length+'</span>':'');
+        else escTxt='—';
+        var usa=c.elab?'<b>'+esc(eur2(c.c))+'</b> <span class="rt-sub-i">elaborado</span>':(c.faltan.length?'<span class="rt-sub-i">escandallo incompleto</span>':'<span class="rt-sub-i">escandallo</span>');
+        return '<tr><td><span class="rt-pl">'+esc(d.name)+'</span></td><td class="rnum">'+escTxt+'</td>'+
+          '<td><input type="text" list="rt-arts-elab" data-rp="pl-a" data-k="'+esc(d._uid)+'" value="'+esc(o.a?artNombre(P,o.a):"")+'" placeholder="Buscar artículo…" aria-label="Artículo del Maître para '+esc(d.name)+'"></td>'+
+          '<td class="rnum"><input class="rnum" inputmode="decimal" data-rp="pl-r" data-k="'+esc(d._uid)+'" value="'+esc(numTx(o.r))+'" placeholder="1" style="width:64px" aria-label="Raciones por unidad de '+esc(d.name)+'"></td>'+
+          '<td class="rnum"><input class="rnum" inputmode="decimal" data-rp="pl-p" data-k="'+esc(d._uid)+'" value="'+esc(numTx(o.p))+'" style="width:84px" aria-label="Coste por ración a mano de '+esc(d.name)+'"></td>'+
+          '<td class="rt-st">'+usa+'</td></tr>'; }).join("")+'</tbody></table></div>';
+  });
+  return h;
+}
+/* extras: lo que cuesta cada uno y lo que se cobra */
+function vExtrasCat(){
+  var RP=BR.rent.params(), iva=+RP.iva||0, cat=BR.rent.extrasCat(), q=BR.rent.clave(ui.qe||"");
+  var vis=cat.filter(function(x){ return !q||BR.rent.clave(x.n+" "+(x.fam||"")).indexOf(q)>-1; });
+  return '<p class="pp-note" style="margin-top:0">El catálogo de extras: los artículos del Maître de tipo «Extras» y los que añadas a mano (autobús, monitores, fotomatón…). Pon lo que cuesta y el <b>precio de venta</b> (con IVA, como en el presupuesto). En cada evento, «Añadir al presupuesto» lo cobra y cuenta su coste.</p>'+
+    '<div class="pp-bar"><input type="search" class="pp-search" data-rp="qe" value="'+esc(ui.qe||"")+'" placeholder="Buscar extra…" aria-label="Buscar extra"><button type="button" class="btn sm gold" data-ra="exm-add">+ Extra a mano</button></div>'+
+    '<div class="dtable-wrap"><table class="dtable rt-t rt-exc"><thead><tr><th>Extra</th><th class="rnum">Nos cuesta</th><th class="rnum">Cobramos (con IVA)</th><th class="rnum">Margen (sin IVA)</th><th></th></tr></thead><tbody>'+
+    (vis.map(function(x){
+      var m=x.venta!=null?x.venta/(1+iva/100)-x.coste:null;
+      var nom=x.maitre?'<span class="rt-pl">'+esc(x.n)+'</span><span class="rt-sub">Maître · '+esc(x.fam||"")+' · '+esc(eur2(x.costeMaitre))+'</span>'
+        :'<input type="text" data-rp="exm-n" data-k="'+esc(x.id)+'" value="'+esc(x.n)+'" aria-label="Nombre del extra">';
+      return '<tr><td>'+nom+'</td>'+
+        '<td class="rnum"><input class="rnum" inputmode="decimal" data-rp="exc-coste" data-k="'+esc(x.k)+'" value="'+esc(x.maitre?numTx((BR.rent.precios().exCat[x.k]||{}).coste):numTx(x.coste))+'" placeholder="'+esc(numTx(Math.round(x.coste*100)/100))+'" style="width:92px" aria-label="Coste de '+esc(x.n)+'"></td>'+
+        '<td class="rnum"><input class="rnum" inputmode="decimal" data-rp="exc-venta" data-k="'+esc(x.k)+'" value="'+esc(numTx(x.venta))+'" placeholder="—" style="width:92px" aria-label="Precio de venta de '+esc(x.n)+'"></td>'+
+        '<td class="rnum'+(m!=null&&m<0?" rt-negtx":"")+'">'+(m!=null?esc(eur2(m)):'—')+'</td>'+
+        '<td>'+(x.maitre?'':'<button type="button" class="row-del" data-ra="exm-del" data-k="'+esc(x.id)+'" aria-label="Quitar '+esc(x.n)+'">×</button>')+'</td></tr>'; }).join("")||'<tr><td colspan="5" class="pp-empty">Todavía no hay extras: importa el Maître o añade uno a mano.</td></tr>')+
+    '</tbody></table></div>'+vArticulos("ext");
 }
 function vPrecios(){
-  return cabecera("r-precios")+vImport()+'<div class="pv-sec">Costes fijos</div>'+vCostes()+vBebidasPrecio()+vIngredientes()+'<div class="pv-sec">Platos</div>'+vPlatosCoste();
+  var P=BR.rent.precios(), n={mp:0,elab:0,beb:0,ext:0};
+  P.arts.forEach(function(a){ n[BR.rent.tipo(a)]++; });
+  var T=[["elab","Platos elaborados"],["beb","Bebida"],["ext","Extras"],["mp","Materia prima"]];
+  if(!ui.tab) ui.tab="elab";
+  var body=ui.tab==="beb"?vBebidasPrecio()+vArticulos("beb"):ui.tab==="ext"?vExtrasCat():ui.tab==="mp"?vIngredientes()+vArticulos("mp"):vPlatosElab()+vArticulos("elab");
+  return cabecera("r-precios")+vImport()+'<div class="pv-sec">Costes fijos</div>'+vCostes()+
+    '<div class="rt-tabs" role="tablist" aria-label="Tipo de artículo">'+T.map(function(t){ return '<button type="button" role="tab" class="rt-tab'+(ui.tab===t[0]?" on":"")+'" aria-selected="'+(ui.tab===t[0])+'" data-ra="tab" data-k="'+t[0]+'">'+t[1]+(P.arts.length?' <b>'+n[t[0]]+'</b>':'')+'</button>'; }).join("")+'</div>'+
+    '<div class="rt-tabbody">'+body+'</div>';
 }
 
 /* ══ pintar y eventos ════════════════════════════════════════════════ */
@@ -12234,9 +12348,9 @@ function guardarEv(fn){ var e=BR.current(); if(!e) return; e.rent=e.rent||{}; fn
 var qTm=null;
 function onInput(ev){
   if(!enRent()) return;
-  var el=ev.target; if(el.getAttribute("data-rp")!=="q") return;
-  clearTimeout(qTm); qTm=setTimeout(function(){ ui.q=el.value; var pos=el.selectionStart; render();
-    var n=hostRef.querySelector('[data-rp="q"]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} } },220);
+  var el=ev.target, rq=el.getAttribute("data-rp"); if(!/^(q|qa|qp|qe)$/.test(rq||"")) return;
+  clearTimeout(qTm); qTm=setTimeout(function(){ ui[rq]=el.value; var pos=el.selectionStart; render();
+    var n=hostRef.querySelector('[data-rp="'+rq+'"]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} } },220);
 }
 function onChange(ev){
   /* al repintar se quita el campo que tenía el foco y el navegador lanza otro
@@ -12244,7 +12358,7 @@ function onChange(ev){
   if(!enRent()||pintando) return;
   var el=ev.target, rp=el.getAttribute&&el.getAttribute("data-rp"), k=el.getAttribute&&el.getAttribute("data-k"), v=el.value;
   if(el.id==="rt-file"){ leerArchivo(el.files&&el.files[0]); return; }
-  if(!rp||rp==="q") return;
+  if(!rp||/^(q|qa|qp|qe)$/.test(rp)) return;
   if(rp==="anio"){ ui.anio=+v; render(); return; }
   if(rp==="todos"){ ui.todos=el.checked; render(); return; }
   if(rp==="ev"){ var n=num(v); if(v.trim()&&(n==null||n<0)){ toast("Número no válido."); render(); return; } guardarEv(function(R){ if(v.trim()) R[k]=n; else delete R[k]; }); return; }
@@ -12257,6 +12371,22 @@ function onChange(ev){
     var P=BR.rent.precios(), hit=v.trim()?artPorTexto(P,v):null;
     if(v.trim()&&!hit){ toast("No hay ningún artículo del Maître con ese nombre."); render(); return; }
     guardarPrecios(function(d){ var bag=rp==="ing-a"?d.ing:(d.beb=d.beb||{}); var x=bag[k]||{}; if(hit) x.a=BR.rent.artKey(hit); else delete x.a; bag[k]=x; }); return; }
+  if(rp==="art-tipo"){ var PA=BR.rent.precios(), art=PA.arts.filter(function(a){ return BR.rent.artKey(a)===k; })[0];
+    guardarPrecios(function(d){ d.tipo=d.tipo||{}; d.tipo[k]=v; }, art?"«"+(art.o||art.n)+"» pasa a "+(BR.rent.tipos.filter(function(t){ return t.k===v; })[0]||{}).t+".":""); return; }
+  if(rp==="pl-a"){ var PP=BR.rent.precios(), hp=v.trim()?artPorTexto(PP,v):null;
+    if(v.trim()&&!hp){ toast("No hay ningún artículo del Maître con ese nombre."); render(); return; }
+    guardarPrecios(function(d){ d.platos=d.platos||{}; var o=d.platos[k]||{}; if(hp) o.a=BR.rent.artKey(hp); else delete o.a; d.platos[k]=o; }); return; }
+  if(rp==="pl-r"||rp==="pl-p"){ var np=num(v); if(v.trim()&&(np==null||np<=0&&rp==="pl-r"||np<0)){ toast("Número no válido."); render(); return; }
+    guardarPrecios(function(d){ d.platos=d.platos||{}; var o=d.platos[k]||{}, kk=rp==="pl-r"?"r":"p"; if(v.trim()) o[kk]=np; else delete o[kk]; d.platos[k]=o; }); return; }
+  if(rp==="exc-coste"||rp==="exc-venta"){ var ne=num(v); if(v.trim()&&(ne==null||ne<0)){ toast("Número no válido."); render(); return; }
+    var kk2=rp==="exc-coste"?"coste":"venta";
+    guardarPrecios(function(d){ if(k.indexOf("m:")===0){ var it=(d.exMan||[]).filter(function(x){ return x.id===k.slice(2); })[0]; if(it){ if(v.trim()) it[kk2]=ne; else delete it[kk2]; } }
+      else { d.exCat=d.exCat||{}; var o=d.exCat[k]||{}; if(v.trim()) o[kk2]=ne; else delete o[kk2]; d.exCat[k]=o; } }); return; }
+  if(rp==="exm-n"){ guardarPrecios(function(d){ var it=(d.exMan||[]).filter(function(x){ return x.id===k; })[0]; if(it) it.n=v.trim(); }); return; }
+  if(rp==="ex-k"||rp==="ex-q"||rp==="ex-c"){ var id=el.getAttribute("data-id"), nx=num(v);
+    if(rp!=="ex-k"&&v.trim()&&(nx==null||nx<0)){ toast("Número no válido."); render(); return; }
+    guardarEv(function(R){ R.ex=R.ex||{}; var o=R.ex[id]||{}; var kk3=rp==="ex-k"?"k":rp==="ex-q"?"q":"c";
+      if(rp==="ex-k"){ if(v) o.k=v; else { delete o.k; delete o.q; } } else if(v.trim()) o[kk3]=nx; else delete o[kk3]; R.ex[id]=o; }); return; }
   if(rp==="beb-p"){ var nb=num(v); if(v.trim()&&(nb==null||nb<0)){ toast("Número no válido."); render(); return; }
     guardarPrecios(function(d){ d.beb=d.beb||{}; var x=d.beb[k]||{}; if(v.trim()) x.p=nb; else delete x.p; d.beb[k]=x; }); return; }
   if(rp==="ing-p"||rp==="ing-u"||rp==="ing-g"){
@@ -12286,6 +12416,18 @@ function onClick(ev){
   if(a==="ver"){ var id=b.getAttribute("data-id"); if(BR.switchActiveEvent) BR.switchActiveEvent(id); if(window.irASeccion) window.irASeccion("r-evento"); return; }
   if(a==="csv"){ descargarCSV(); return; }
   if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); render(); return; }
+  if(a==="tab"){ ui.tab=b.getAttribute("data-k"); ui.qa=""; render(); var tb=hostRef.querySelector('.rt-tab.on'); if(tb) tb.focus(); return; }
+  if(a==="exm-add"){ var nid="e"+Date.now().toString(36); guardarPrecios(function(d){ d.exMan=d.exMan||[]; d.exMan.push({id:nid,n:"Extra nuevo",coste:0}); });
+    var ni=hostRef.querySelector('[data-rp="exm-n"][data-k="'+nid+'"]'); if(ni){ ni.focus(); ni.select(); } return; }
+  if(a==="exm-del"){ var did=b.getAttribute("data-k"); guardarPrecios(function(d){ d.exMan=(d.exMan||[]).filter(function(x){ return x.id!==did; }); }); return; }
+  if(a==="ex-add"){ var sk=$("rt-exadd-k"), sq=$("rt-exadd-q"), ck=sk&&sk.value; if(!ck){ toast("Elige un extra del catálogo."); return; }
+    var it=BR.rent.extrasCat().filter(function(x){ return x.k===ck; })[0]; if(!it) return;
+    var qn=num(sq&&sq.value)||1, e=BR.current(); if(!e) return;
+    e.presupuesto=e.presupuesto||{}; e.presupuesto.extras=e.presupuesto.extras||[];
+    var xid="x"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    e.presupuesto.extras.push({id:xid, concepto:it.n+(qn!==1?" ("+String(qn).replace(".",",")+")":""), importe:Math.round((it.venta||0)*qn*100)/100});
+    guardarEv(function(R){ R.ex=R.ex||{}; R.ex[xid]={k:ck,q:qn}; });
+    toast(it.venta!=null?"Añadido al presupuesto: "+it.n+".":"Añadido al presupuesto sin precio de venta: ponlo en Presupuesto o en el catálogo de extras."); return; }
   if(a==="sug"){ var sk=b.getAttribute("data-k"), sa=b.getAttribute("data-a"); guardarPrecios(function(d){ var x=d.ing[sk]||{}; x.a=sa; d.ing[sk]=x; }); return; }
   if(a==="sug-all"){ var ss=(ui.sugs||[]).slice(); if(!ss.length) return;
     if(!window.confirm("Se enlazarán "+ss.length+" ingredientes con el artículo del Maître de nombre más parecido. Es una aproximación (por ejemplo, «Puré de patata» cogerá el precio de la patata). Después puedes cambiar cualquiera. ¿Seguir?")) return;
@@ -12301,9 +12443,9 @@ function onClick(ev){
 
 var st=document.createElement("style");
 st.textContent=
-".rt-root{--viz-mp:#2a78d6;--viz-beb:#eb6834;--viz-per:#1baf7a;--viz-ext:#eda100}"+
-"@media (prefers-color-scheme: dark){:root:not([data-theme=\"light\"]) .rt-root{--viz-mp:#3987e5;--viz-beb:#d95926;--viz-per:#199e70;--viz-ext:#c98500}}"+
-":root[data-theme=\"dark\"] .rt-root{--viz-mp:#3987e5;--viz-beb:#d95926;--viz-per:#199e70;--viz-ext:#c98500}"+
+".rt-root{--viz-elab:#2a78d6;--viz-beb:#eb6834;--viz-ext:#1baf7a;--viz-mp:#eda100;--viz-per:#e87ba4}"+
+"@media (prefers-color-scheme: dark){:root:not([data-theme=\"light\"]) .rt-root{--viz-elab:#3987e5;--viz-beb:#d95926;--viz-ext:#199e70;--viz-mp:#c98500;--viz-per:#d55181}}"+
+":root[data-theme=\"dark\"] .rt-root{--viz-elab:#3987e5;--viz-beb:#d95926;--viz-ext:#199e70;--viz-mp:#c98500;--viz-per:#d55181}"+
 ".rt-root .rt-num{font-size:34px;font-variant-numeric:tabular-nums}"+
 ".rt-root .kpi.rt-neg .k-num{color:var(--ruby-tx)}"+
 ".rt-negtx{color:var(--ruby-tx)}"+
@@ -12312,7 +12454,7 @@ st.textContent=
 ".rt-ok{margin:14px 0 0;font-size:13px;color:var(--olive-deep)}"+
 ".rt-bar{display:flex;gap:2px;height:18px;border-radius:4px;overflow:hidden;background:var(--bg-2)}"+
 ".rt-seg{display:block;min-width:3px}"+
-".rt-c-mp{background:var(--viz-mp)}.rt-c-beb{background:var(--viz-beb)}.rt-c-per{background:var(--viz-per)}.rt-c-ext{background:var(--viz-ext)}"+
+".rt-c-elab{background:var(--viz-elab)}.rt-c-mp{background:var(--viz-mp)}.rt-c-beb{background:var(--viz-beb)}.rt-c-per{background:var(--viz-per)}.rt-c-ext{background:var(--viz-ext)}"+
 ".rt-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px 18px;margin-top:14px}"+
 ".rt-leg-i{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--c-mut)}"+
 ".rt-leg-i b{color:var(--c-ink);font-variant-numeric:tabular-nums;margin-left:auto}"+
@@ -12341,7 +12483,7 @@ st.textContent=
 ".rt-chart svg{width:100%;height:auto;display:block}"+
 ".rt-grid{stroke:var(--c-line);stroke-width:1}.rt-zero{stroke:var(--c-line-2)}"+
 ".rt-ax{fill:var(--c-mut);font-size:11px;font-family:Karla,system-ui,sans-serif}"+
-".rt-mbar{fill:var(--viz-mp)}.rt-mbar.neg{fill:var(--viz-mp);opacity:.55}"+
+".rt-mbar{fill:var(--viz-elab)}.rt-mbar.neg{fill:var(--viz-elab);opacity:.55}"+
 ".rt-hit{fill:transparent;cursor:default}.rt-hit.on{fill:color-mix(in srgb,var(--c-ink) 5%,transparent)}"+
 ".rt-tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--c-line-2);box-shadow:var(--shadow-sm);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--c-mut);white-space:nowrap;z-index:5}"+
 ".rt-tip b{display:block;color:var(--c-ink);margin-bottom:3px}"+
@@ -12358,6 +12500,14 @@ st.textContent=
 ".rt-sug b{color:var(--olive-deep)}"+
 ".rt-sugbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--olive) 8%,var(--panel));border:1px solid color-mix(in srgb,var(--olive) 30%,var(--c-line));font-size:12.5px;color:var(--c-ink)}"+
 ".rt-sugbar span{flex:1;min-width:240px}"+
+".rt-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:30px 0 16px;border-bottom:1px solid var(--c-line-2)}"+
+".rt-tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;font:inherit;font-size:14px;color:var(--c-mut);cursor:pointer;margin-bottom:-1px}"+
+".rt-tab b{font-weight:600;color:var(--c-faint);margin-left:4px;font-size:12px}"+
+".rt-tab.on{color:var(--c-ink);font-weight:700;border-bottom-color:var(--olive-deep)}"+
+".rt-det summary span{font-weight:400;color:var(--c-mut)}"+
+".rt-excost{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rt-excost select{max-width:230px}"+
+".rt-exadd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rt-exadd select{max-width:320px;background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:6px 8px;color:var(--c-ink);font:inherit;font-size:12.5px}"+
+".rt-exadd input{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:6px 8px;color:var(--c-ink);font:inherit;font-size:12.5px}"+
 ".rt-det{margin-top:4px}.rt-det summary{cursor:pointer;font-size:13.5px;color:var(--c-ink);padding:8px 0;font-weight:600}"+
 "@media (max-width:760px){.rt-root .rt-num{font-size:28px}}";
 document.head.appendChild(st);
