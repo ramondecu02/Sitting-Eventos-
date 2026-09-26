@@ -12231,14 +12231,36 @@ function impMaitre(rows){
     tot+=im; out.push([r[iF]||"", iC>-1?r[iC+off]||"":"", n, String(q).replace(".",","), String(im).replace(".",","), String(Math.round(im/q*10000)/10000).replace(".",",")]); });
   return {rows:out, periodo:per, total:tot, empresa:r0[1]||""};
 }
+/* informes con títulos arriba y la familia en una fila suelta antes de sus
+   artículos («Cavas», «Compras»…) y «Subtotal» al final: se busca la fila de
+   títulos y la familia pasa a ser una columna más */
+function impAgrupado(rows){
+  var cab=-1, per="";
+  rows.slice(0,40).forEach(function(r,i){ var cl=r.map(function(x){ return BR.rent.clave(x); });
+    var m=/desde\s+(\S+)\s+hasta\s+(\S+)/i.exec(r.join(" ")); if(m) per=m[1]+" a "+m[2];
+    if(cab<0&&cl.some(function(x){ return /^(descripcion|articulo|producto|nombre)$/.test(x); })&&cl.some(function(x){ return /precio|coste|€|importe|pmp/.test(x); })) cab=i; });
+  if(cab<0) return null;
+  var head=rows[cab].slice(), hc=head.map(function(x){ return BR.rent.clave(x); });
+  var iDesc=hc.findIndex(function(x){ return /^(descripcion|articulo|producto|nombre)$/.test(x); }), iImp=hc.indexOf("importe");
+  var out=[["Familia"].concat(head)], fam="", tot=0;
+  rows.slice(cab+1).forEach(function(r){
+    var llenas=r.filter(function(c){ return c!==""; });
+    if(!llenas.length) return;
+    if(/^(sub)?total/i.test(BR.rent.clave(r[iDesc]||llenas[0]))) return;
+    if(llenas.length===1&&isNaN(+llenas[0])){ fam=llenas[0]; return; }
+    if(iImp>-1){ var im=BR.rent.num(r[iImp]); if(im) tot+=im; }
+    out.push([fam].concat(r)); });
+  return {rows:out, periodo:per, total:tot};
+}
 function impCargar(rows,archivo,hojas){
-  var mt=impMaitre(rows);
+  var mt=impMaitre(rows), ag=null;
   if(mt) rows=mt.rows;
+  else { ag=impAgrupado(rows); if(ag&&ag.rows.length>1) rows=ag.rows; else ag=null; }
   var cols=adivinaCols(rows[0]||[]), cab=(rows[0]||[]).map(function(h){ return BR.rent.clave(h); });
   cols.q=cab.findIndex(function(h){ return /^(cantidad|unidades compradas|uds compradas)$/.test(h); });
   cols.fam=cab.findIndex(function(h){ return /^(familia|categoria|grupo|seccion)$/.test(h); });
   if(mt) cols.p=5;
-  ui.imp={rows:rows,archivo:archivo,hojas:hojas||null,hoja:0,cols:cols,maitre:mt?{periodo:mt.periodo,total:mt.total,empresa:mt.empresa}:null};
+  ui.imp={rows:rows,archivo:archivo,hojas:hojas||null,hoja:0,cols:cols,maitre:mt?{periodo:mt.periodo,total:mt.total,empresa:mt.empresa}:(ag&&ag.periodo?{periodo:ag.periodo,total:ag.total}:null)};
 }
 /* cada artículo: nombre limpio (sin la unidad), precio por kg / l / ud y el
    precio por envase tal como se compra (para las botellas) */
@@ -12248,7 +12270,7 @@ function impArts(){
   I.rows.slice(1).forEach(function(r){ var o=String(r[c.n]||"").trim(), pu=BR.rent.num(r[c.p]); if(!o||pu==null||pu<0) return;
     var q=c.q>-1?BR.rent.num(r[c.q]):null, un=c.u>-1?BR.rent.udArt(r[c.u]):"", nm=BR.rent.udNombre(o,q);
     var u=un||nm.u, f=un?1:nm.f;
-    var a={n:nm.n,o:o,p:Math.round(pu/f*10000)/10000,pu:pu,u:u,ref:c.ref>-1?String(r[c.ref]||""):""};
+    var a={n:nm.n,o:o,p:Math.round(pu/f*10000)/10000,pu:Math.round(pu*10000)/10000,u:u,ref:c.ref>-1?String(r[c.ref]||""):""};
     if(c.fam>-1&&r[c.fam]) a.fam=r[c.fam]; if(q!=null) a.q=q;
     out.push(a); });
   return out;
@@ -12259,7 +12281,7 @@ function vImport(){
   var h='<div class="pcard rt-imp"><div class="pcard-h"><h3>Importar del Maître</h3><span class="pp-ej">'+(P.imp?esc(P.imp.n)+' artículos'+(P.imp.periodo?' · compras del '+esc(P.imp.periodo):'')+' · importado el '+esc(new Date(P.imp.fecha).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"})):'Todavía no se ha importado nada')+'</span></div>'+
     (dias!=null&&dias>30?'<p class="rt-falta" style="margin:0 0 8px">Los precios tienen '+dias+' días: conviene volver a importar el informe del Maître.</p>':'')+
     '<p class="pp-note" style="margin-top:0">En el Maître, saca el informe <b>«Análisis de compras» por artículos</b> del periodo que quieras (por ejemplo, desde el 1 de enero) y expórtalo a CSV o Excel. También vale un listado con el <b>nombre</b> y el <b>precio de compra</b>. Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
-    '<div class="row rt-imp-src"><label class="btn gold sm" for="rt-file">Subir Excel o CSV</label><input type="file" id="rt-file" accept=".xlsx,.csv,.tsv,.txt,text/csv" class="sr-only">'+
+    '<div class="row rt-imp-src"><label class="btn gold sm" for="rt-file">Subir Excel o CSV</label><input type="file" id="rt-file" accept=".xlsx,.xls,.csv,.tsv,.txt,text/csv" class="sr-only">'+
     '<details class="rt-paste"><summary>o pegar las celdas</summary><textarea id="rt-paste" rows="4" placeholder="Artículo&#9;Unidad&#9;Precio&#10;Harina de trigo&#9;kg&#9;0,85"></textarea><button type="button" class="btn sm" data-ra="paste">Leer</button></details></div>';
   if(I){
     var cab=I.rows[0]||[], opts=function(sel,sinUso){ return (sinUso?'<option value="-1">— no hay —</option>':'')+cab.map(function(x,i){ return '<option value="'+i+'"'+(i===sel?" selected":"")+'>'+esc(x||("Columna "+(i+1)))+'</option>'; }).join(""); };
@@ -12268,7 +12290,7 @@ function vImport(){
       '<label class="fld"><span class="lbl">Nombre del artículo</span><select data-rp="imp-col" data-k="n">'+opts(I.cols.n,true)+'</select></label>'+
       '<label class="fld"><span class="lbl">Precio de compra</span><select data-rp="imp-col" data-k="p">'+opts(I.cols.p,true)+'</select></label>'+
       '<label class="fld"><span class="lbl">Unidad <small>(si no hay, se saca del nombre)</small></span><select data-rp="imp-col" data-k="u">'+opts(I.cols.u,true)+'</select></label></div>'+
-      (I.maitre?'<p class="pp-note">Informe «Análisis de compras» del Maître'+(I.maitre.periodo?' · compras del '+esc(I.maitre.periodo):'')+' · '+esc(eur(I.maitre.total))+'. El precio es el <b>precio medio de compra</b> (importe ÷ cantidad) y la unidad sale del nombre («Kg», «L», «Unid.»…).</p>':'')+
+      (I.maitre?'<p class="pp-note">Informe «Análisis de compras» del Maître'+(I.maitre.periodo?' · compras del '+esc(I.maitre.periodo):'')+' · '+esc(eur(I.maitre.total))+'. El precio es '+(/importe/.test(BR.rent.clave(cab[I.cols.p]||""))||BR.rent.clave(cab[I.cols.p]||"")==="precio medio"?'el <b>precio medio de compra</b> (importe ÷ cantidad)':'el de la columna <b>«'+esc(cab[I.cols.p]||"")+'»</b>')+', la familia sale de las filas de grupo y la unidad del nombre («Kg», «L», «Unid.»…).</p>':'')+
       '<div class="rt-prev">'+(arts.length?'<b>'+arts.length+' artículos con precio</b> · '+arts.slice(0,6).map(function(a){ return esc(a.n)+' <span>'+esc(eur2(a.p))+'/'+esc(a.u)+'</span>'; }).join(" · ")+(arts.length>6?" …":""):'<span class="rt-falta">Elige la columna del nombre y la del precio.</span>')+'</div>'+
       '<div class="pp-dish-foot"><button type="button" class="btn sm" data-ra="imp-cancel">Cancelar</button><button type="button" class="btn gold sm" data-ra="imp-ok"'+(arts.length?"":" disabled")+'>Importar '+arts.length+' precios</button></div>';
   }
@@ -12512,10 +12534,28 @@ function onChange(ev){
   if(rp==="imp-ud"){ ui.imp.udDef=v; render(); return; }
   if(rp==="imp-hoja"){ var hj=ui.imp.hojas[+v]; impCargar(hj.rows,ui.imp.archivo,ui.imp.hojas); ui.imp.hoja=+v; render(); return; }
 }
+var sheetJS=null;
+function cargarSheetJS(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  if(!sheetJS) sheetJS=new Promise(function(ok,ko){ var sc=document.createElement("script"); sc.src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+    sc.onload=function(){ window.XLSX?ok(window.XLSX):ko(new Error("xlsx")); }; sc.onerror=function(){ sheetJS=null; ko(new Error("red")); }; document.head.appendChild(sc); });
+  return sheetJS;
+}
 function leerArchivo(f){
   if(!f) return;
   var r=new FileReader();
-  if(/\.xlsx$/i.test(f.name)){
+  /* .xls antiguo (el que saca el Maître): se lee con SheetJS, que se carga
+     solo en ese momento */
+  if(/\.xls$/i.test(f.name)){
+    r.onload=function(){ cargarSheetJS().then(function(X){
+        var wb=X.read(new Uint8Array(r.result),{type:"array"}), hs=wb.SheetNames.map(function(n){
+          var rows=X.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:""}).map(function(row){ return row.map(function(c){ return c==null?"":String(c).replace(/\s+/g," ").trim(); }); })
+            .filter(function(row){ return row.some(function(c){ return c; }); });
+          return {nombre:n,rows:rows}; }).filter(function(h){ return h.rows.length; });
+        if(!hs.length){ toast("El Excel está vacío."); return; } impCargar(hs[0].rows,f.name,hs); render(); })
+      .catch(function(){ toast("No se ha podido leer el .xls. Ábrelo en Excel, guárdalo como .xlsx o CSV y vuelve a probar."); }); };
+    r.readAsArrayBuffer(f);
+  } else if(/\.xlsx$/i.test(f.name)){
     r.onload=function(){ BR.impXlsx(r.result).then(function(hs){ if(!hs.length){ toast("El Excel está vacío."); return; } impCargar(hs[0].rows,f.name,hs); render(); })
       .catch(function(){ toast("No se ha podido leer el Excel. Guárdalo como CSV y vuelve a probar."); }); };
     r.readAsArrayBuffer(f);
