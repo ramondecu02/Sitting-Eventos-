@@ -304,6 +304,12 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 .esc-per-l select{width:auto; font-size:12px; padding:3px 6px}
 .esc-ptxt{flex:1 1 220px; min-width:180px; font-size:12.5px; padding:4px 8px}
 .esc-per-no{font-size:12px; color:var(--c-mut); margin-top:3px}
+.esc-gente{display:flex; flex-wrap:wrap; gap:4px; margin-top:4px}
+.esc-pn{display:inline-flex; align-items:baseline; gap:5px; background:#fff; border:1px solid #EBC9AE; border-radius:5px; padding:1px 6px; font-size:12.5px; color:#5A2A12; line-height:1.45}
+.esc-pn b{font-weight:700}
+.esc-pn i{font-style:normal; font-size:10.5px; font-weight:700; color:#A3471F}
+.esc-pn.neutro{background:#FBF8F2; border-color:#E4D9C0; color:var(--c-ink)}
+.esc-pn.neutro i{color:#6E7D50}
 .aa-sec .esc-per{margin-bottom:8px; padding:10px 12px}
 .aa-sec .esc-per.vacio{border-style:dashed}
 .esc-per-add{margin:4px 0 8px}
@@ -4786,11 +4792,32 @@ function escaletaPages(md,pw,ph,s){
     });
     return lines;
   }
+  /* etiquetas de nombre: cada persona en su recuadro, el nombre en negrita y
+     su mesa al lado («Miguel  M3»), que fluyen a lo ancho de la columna */
+  var CS=F.sub*1.12, CM=CS*0.8, CP=3*s, CG=3*s, CH=CS+4.2*s, CL=CH+2.4*s;
+  function mesaCorta(m){ var x=/^mesa\s+(.+)$/i.exec(String(m||"").trim()); if(x) return "M"+x[1]; var t=String(m||"").trim(); return t.length>7?t.slice(0,6)+".":t; }
+  function chips(gente,ancho){
+    var lines=[[]], x=0;
+    gente.forEach(function(p){ var n=p.nombre||p.n||"", mc=mesaCorta(p.mesa||p.m||""), wn=textW({s:n,fo:"sansb",size:CS,ls:0})*1.08+1, wm=mc?textW({s:mc,fo:"sansb",size:CM,ls:0})*1.08:0;
+      var w=CP+wn+(mc?3.5*s+wm:0)+CP;
+      if(x>0&&x+w>ancho){ lines.push([]); x=0; }
+      lines[lines.length-1].push({x:x,w:w,n:n,mc:mc,wn:wn}); x+=w+CG; });
+    return lines;
+  }
+  function pintaChips(lines,x0,y0,sust){
+    lines.forEach(function(line,li){ var yt=y0+li*CL;
+      line.forEach(function(c){
+        cur.push(R(x0+c.x,yt,c.w,CH,2*s,sust?"#FFFFFF":"#FBF8F2",sust?"#EBC9AE":"#E4D9C0",0.6));
+        var yb=yt+CH-3.1*s;
+        cur.push(TX(x0+c.x+CP,yb,c.n,{size:CS,fo:"sansb",a:"start",c:sust?"#5A2A12":INK}));
+        if(c.mc) cur.push(TX(x0+c.x+CP+c.wn+3.5*s,yb,c.mc,{size:CM,fo:"sansb",a:"start",c:sust?ESC_SUST:GP}));
+      }); });
+  }
   function mide(f,QW){
     if(f.head) return {h:15*s};
     if(f.orden){ var lo=partir(f.txt,CW,"sans",F.sub,0); return {h:lo.length*F.lsub+5*s,ln:lo}; }
     if(f.persona) return {h:F.lh+4*s};
-    if(f.nombres){ var tn=fluye(f.lista,CW-8*s,F.sub*1.06); return {h:tn.length*F.lsub*1.1+5*s, tl:tn}; }
+    if(f.nombres){ var cn=chips(f.lista,CW-8*s); return {h:cn.length*CL+4*s, cl:cn}; }
     if(f.lista){
       var ln2=partir(f.txt,CW-QW-2,"sansb",F.t,0), tl=fluye(f.lista,CW-QW-2,F.sub*1.06), ls2=f.sub?partir(f.sub,CW-QW-2,"sans",F.sub*0.95,0):[];
       return {h:5*s+ln2.length*F.lh+tl.length*F.lsub*1.08+ls2.length*F.lsub+3*s, lt:ln2, tl:tl, ls:ls2, tx:QW};
@@ -4802,6 +4829,7 @@ function escaletaPages(md,pw,ph,s){
       return {h:F.lh+F.lsub+6*s,lt:[f.txt],ls:partir(f.sub,CW,"sansb",F.sub,0)};
     }
     var pad=f.sust?6*s:0, tx=QW+pad, lt=partir(f.txt,CW-tx-2,f.tot?"sansb":"sans",F.t,0);
+    if(f.gente&&f.gente.length){ var cg=chips(f.gente,CW-tx-4*s); return {h:5*s+lt.length*F.lh+2*s+cg.length*CL+4*s, lt:lt, ls:[], cl:cg, tx:tx}; }
     var subTxt=f.sust&&f.sub&&!f.pend?"Para: "+f.sub:f.sub;
     var ls=subTxt?partir(subTxt,CW-tx-2,"sans",F.sub,0):[];
     return {h:5*s+lt.length*F.lh+ls.length*F.lsub+(f.sust?5*s:3*s), lt:lt, ls:ls, tx:tx};
@@ -4810,7 +4838,7 @@ function escaletaPages(md,pw,ph,s){
   md.secs.forEach(function(sc0){
     /* en papel, los nombres de cada tipo de alergia van seguidos (ocupan menos) */
     var filas=[]; sc0.filas.forEach(function(f){
-      if(f.persona){ var u=filas[filas.length-1]; if(u&&u.nombres) u.lista.push({t:f.txt}); else filas.push({nombres:true,lista:[{t:f.txt}]}); }
+      if(f.persona){ var pe={n:f.n||f.txt,m:f.m||""}, u=filas[filas.length-1]; if(u&&u.nombres) u.lista.push(pe); else filas.push({nombres:true,lista:[pe]}); }
       else filas.push(f); });
     var sc={t:sc0.t,sub:sc0.sub,leyenda:sc0.leyenda,filas:filas};
     /* el banquete y lo que se sirve en mesa van SIEMPRE en la columna derecha,
@@ -4840,10 +4868,7 @@ function escaletaPages(md,pw,ph,s){
       if(f.nota){ m.ln.forEach(function(l,j){ cur.push(TX(x,y+9*s+j*F.lh,l,{size:F.t,fo:"sans",a:"start",c:INK})); }); y+=m.h; return; }
       if(f.orden){ m.ln.forEach(function(l,j){ cur.push(TX(x,y+8*s+j*F.lsub,l,{size:F.sub,fo:"sans",a:"start",c:SUBC})); }); y+=m.h; cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5)); return; }
       if(f.persona){ cur.push(TX(x+8*s,y+3*s+F.lh*0.8,f.txt,{size:F.t,fo:"sans",a:"start",c:INK})); y+=m.h; return; }
-      if(f.nombres){ var yn=y+2*s; m.tl.forEach(function(line){ yn+=F.lsub*1.1; line.forEach(function(tk){
-          if(tk.sep) cur.push(TX(x+8*s+tk.x,yn,tk.sep,{size:F.sub*1.06,fo:"sans",a:"start",c:SOFT}));
-          cur.push(TX(x+8*s+tk.x+tk.sw,yn,tk.t,{size:F.sub*1.06,fo:"sans",a:"start",c:INK})); }); });
-        y+=m.h; cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5)); return; }
+      if(f.nombres){ pintaChips(m.cl,x+8*s,y+2*s,false); y+=m.h; cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5)); return; }
       if(f.lista){
         var yl=y+4*s+F.lh*0.8;
         if(f.q) cur.push(TX(x+QW-7*s,yl,f.q,{size:F.q,fo:"sansb",a:"end",c:INK}));
@@ -4872,6 +4897,7 @@ function escaletaPages(md,pw,ph,s){
       m.lt.forEach(function(l,j){ cur.push(TX(x+m.tx,yy+j*F.lh,l,{size:F.t,fo:(f.tot||f.sust)?"sansb":"sans",a:"start",c:f.sust?ESC_SUST:INK})); });
       var ys=yy+(m.lt.length-1)*F.lh;
       m.ls.forEach(function(l){ ys+=F.lsub; cur.push(TX(x+m.tx,ys,l,{size:F.sub,fo:"sans",a:"start",c:f.sust?"#5A2A12":SUBC})); });
+      if(m.cl) pintaChips(m.cl,x+m.tx,ys+3.4*s,!!f.sust);
       y+=m.h; if(!f.sust) cur.push(LN(x,y-1,x+CW,y-1,RULE,0.5));
     });
     y+=8*s;
@@ -4884,7 +4910,8 @@ function descargarEscaleta(md,nombreArchivo,paperSize){
   if(!md){ toast("No hay ningún evento abierto.",true); return Promise.resolve(); }
   var P=PAPERS[paperSize||"A4"]||PAPERS.A4, pr=null;
   /* se busca la letra más grande con la que todo cabe en UNA hoja */
-  for(var s=1;s>=0.66;s-=0.04){ pr=escaletaPages(md,P.w,P.h,s); if(pr.length===1) break; }
+  /* (si sobra sitio, la letra crece un poco: se lee mejor en cocina) */
+  for(var s=1.2;s>=0.66;s-=0.04){ pr=escaletaPages(md,P.w,P.h,s); if(pr.length===1) break; }
   /* si no cabe con cada bloque entero en su columna, se deja que un bloque
      siga en la columna de al lado (con «sigue») antes de pasar a dos hojas */
   if(pr.length>1){ md.__partir=true; for(var s2=1;s2>=0.66;s2-=0.04){ pr=escaletaPages(md,P.w,P.h,s2); if(pr.length===1) break; } delete md.__partir; }
@@ -8924,12 +8951,13 @@ function escCuentas(){
   return c;
 }
 /* «Berta, Blanca y Marcel (Mesa 3) · Irene (Mesa 1)» */
+/* «Miguel (Mesa 3) · Alba (Mesa 3) · María (Mesa 3)»: cada persona con su
+   mesa, aunque compartan mesa (así se cuentan y se encuentran de un vistazo) */
 function escNombres(lista){
-  var por={}, orden=[];
-  lista.forEach(function(p){ var k=p.mesa; if(!por[k]){ por[k]=[]; orden.push(k); } por[k].push(p.nombre); });
-  function y(a){ return a.length<2?a.join(""):a.slice(0,-1).join(", ")+" y "+a[a.length-1]; }
-  return orden.map(function(k){ return y(por[k])+" ("+k+")"; }).join(" · ");
+  return lista.map(function(p){ return p.nombre+" ("+p.mesa+")"; }).join(" · ");
 }
+/* la mesa en corto para las etiquetas de nombre: «Mesa 3» → «M3» */
+function escMesaCorta(m){ var x=/^mesa\s+(.+)$/i.exec(String(m||"").trim()); if(x) return "M"+x[1]; var t=String(m||"").trim(); return t.length>7?t.slice(0,6)+".":t; }
 function primerNombre(n){ var p=String(n||"").split(" "); return p.length>1&&p[1].length<=2?p.slice(0,2).join(" "):p[0]; }
 /* los platos del banquete por tiempo, y a quién se le cambia cada uno.
    El sustituto de un tiempo («Segundo: crema de calabaza») sustituye a los
@@ -9152,7 +9180,7 @@ function escModelo(){
       var gr={}, go=[]; al.forEach(function(p){ escGruposDe(p.g).forEach(function(k){ if(!gr[k]){ gr[k]=[]; go.push(k); } gr[k].push(p); }); });
       go.sort(function(a,b){ return gr[b].length-gr[a].length||(a<b?-1:1); });
       var fa=[]; go.forEach(function(k){ fa.push({head:k,hq:String(gr[k].length),hqTxt:gr[k].length===1?" persona":" personas"});
-        gr[k].forEach(function(p){ fa.push({txt:p.g.name+" ("+p.mesa+")",persona:true}); }); });
+        gr[k].forEach(function(p){ fa.push({txt:p.g.name+" ("+p.mesa+")",persona:true,n:p.g.name,m:p.mesa}); }); });
       md.secs.push({t:"Alergias",sub:"por tipo",filas:fa});
     }
   }
@@ -9185,7 +9213,7 @@ function escModelo(){
     adap[x.t].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
   adO.sort(function(a,b){ return adap[a].ord-adap[b].ord; });
   if(adO.length) md.secs.push({t:"Aperitivos adaptados",filas:adO.map(function(t){
-    var f=fila(t,escNombres(adap[t].gente),Q("aa:"+escNorm(t).slice(0,40),adap[t].gente.length)); f.sust=true; return f; })});
+    var f=fila(t,escNombres(adap[t].gente),Q("aa:"+escNorm(t).slice(0,40),adap[t].gente.length)); f.sust=true; f.gente=adap[t].gente; return f; })});
   /* ── estaciones (el café, copa y puro va con los cafés) ── */
   var grp={}, eo=[], cafEst=[];
   AP.est.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(/caf[eé]/i.test(k)){ cafEst.push(d); return; } if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
@@ -9197,13 +9225,14 @@ function escModelo(){
   [ban[0],ban[1]].forEach(function(ti){ ti.platos.forEach(function(x){
     fb.push({head:x.sorbete?"Sorbete":(++nPlato)+"º plato", hq:String(adTot), hqTxt:" en total"});
     fb.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
-    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; fb.push(f); });
+    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; fb.push(f); });
   }); });
   var okM=(menu()&&menu().alerOk)||{};
   var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&!(g.menus&&g.menus.length)&&!okM[escKey(p)]; });
   if(fb.length&&sinSust.length){
-    var fpend=fila("Con alergia o dieta y sin plato sustitutivo decidido",escNombres(sinSust.map(function(p){ return {nombre:primerNombre(p.g.name),mesa:p.mesa}; })),null);
-    fpend.q=String(sinSust.length); fpend.sust=true; fpend.pend=true; fb.unshift(fpend);
+    var gpend=sinSust.map(function(p){ return {nombre:primerNombre(p.g.name),mesa:p.mesa}; });
+    var fpend=fila("Con alergia o dieta y sin plato sustitutivo decidido",escNombres(gpend),null);
+    fpend.q=String(sinSust.length); fpend.sust=true; fpend.pend=true; fpend.gente=gpend; fb.unshift(fpend);
   }
   if(fb.length) md.secs.push({t:"Menú",sub:adTot+" adultos",filas:fb,leyenda:fb.some(function(f){ return f.sust; })?"En color: plato sustitutivo, para quién y en qué mesa":""});
   /* ── menú infantil: aperitivo, primeros, segundos, postre y lo que se añada ── */
@@ -9216,7 +9245,7 @@ function escModelo(){
       (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d)))); }); });
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),c.ninos))); }); }
     var gk={}, ko=[]; ban.ninos.forEach(function(x){ var kk=escNorm(x.txt); if(!gk[kk]){ gk[kk]={txt:x.txt,gente:[]}; ko.push(kk); } gk[kk].gente.push(x); });
-    ko.forEach(function(kk){ var f=fila(gk[kk].txt,escNombres(gk[kk].gente),Q("isb:"+kk.slice(0,40),gk[kk].gente.length)); f.sust=true; fi.push(f); });
+    ko.forEach(function(kk){ var f=fila(gk[kk].txt,escNombres(gk[kk].gente),Q("isb:"+kk.slice(0,40),gk[kk].gente.length)); f.sust=true; f.gente=gk[kk].gente; fi.push(f); });
     if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(c.ninos); fx.sust=true; fx.pend=true; fi.unshift(fx); }
     md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
@@ -9230,7 +9259,7 @@ function escModelo(){
     var fs=STM.map(function(t,i){ var quita=(i===iPost)?nT:0;
       return fila(t,quita?(quita===1?"1 lleva tarta adaptada (en Postres): ":quita+" llevan tarta adaptada (en Postres): ")+escNombres(ban.staffTarta):null,Q("st:"+escNorm(t).slice(0,30),Math.max(0,c.staff-quita))); });
     var gs={}, so=[]; ban.staff.forEach(function(x){ var kk=escNorm(x.txt); if(!gs[kk]){ gs[kk]={txt:x.txt,gente:[]}; so.push(kk); } gs[kk].gente.push(x); });
-    so.forEach(function(kk){ var f=fila(gs[kk].txt,escNombres(gs[kk].gente),Q("ssb:"+kk.slice(0,40),gs[kk].gente.length)); f.sust=true; fs.push(f); });
+    so.forEach(function(kk){ var f=fila(gs[kk].txt,escNombres(gs[kk].gente),Q("ssb:"+kk.slice(0,40),gs[kk].gente.length)); f.sust=true; f.gente=gs[kk].gente; fs.push(f); });
     if(!STM.length){ var fz=fila("Menú staff sin configurar","escríbelo en «Datos de la escaleta», apartado Menú staff",null); fz.q=String(c.staff); fz.sust=true; fz.pend=true; fs.unshift(fz); }
     md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:fs});
   }
@@ -9239,7 +9268,7 @@ function escModelo(){
   ban[2].platos.forEach(function(x){
     fpo.push({head:x.tarta?"Tarta":"Postre", hq:String(adTot), hqTxt:" en total"});
     fpo.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
-    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; fpo.push(f); });
+    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; fpo.push(f); });
   });
   if(fpo.length) md.secs.push({t:"Postres",sub:adTot+" adultos",filas:fpo});
   /* ── cafés ── */
@@ -9365,12 +9394,14 @@ function renderEscaleta(){
     sc.filas.forEach(function(f){
       if(f.head){ h+='<tr class="esc-head">'+(conQ?'<td class="esc-q"></td>':'')+'<td>'+esc(f.head)+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</td></tr>'; return; }
       if(f.nota||f.orden){ h+='<tr><td colspan="2" class="'+(f.orden?"esc-orden":"esc-nota")+'">'+esc(f.txt)+'</td></tr>'; return; }
-      if(f.persona){ h+='<tr class="esc-pers">'+(conQ?'<td></td>':'')+'<td>'+esc(f.txt)+'</td></tr>'; return; }
+      if(f.persona){ h+='<tr class="esc-pers">'+(conQ?'<td></td>':'')+'<td><span class="esc-pn neutro"><b>'+esc(f.n||f.txt)+'</b>'+(f.m?'<i>'+esc(escMesaCorta(f.m))+'</i>':'')+'</span></td></tr>'; return; }
       if(f.alerg){ h+='<tr class="esc-al">'+(conQ?'<td></td>':'')+'<td><span class="esc-alt">'+esc(f.txt)+'</span><b class="esc-alm">'+esc(f.sub)+'</b></td></tr>'; return; }
       var qtd=f.k?'<td class="esc-q'+(f.ov?" ov":"")+'" data-esc-k="'+esc(f.k)+'" data-esc-calc="'+esc(f.calc)+'" tabindex="0" role="button" aria-label="'+esc(f.txt)+': '+esc(f.q)+'. Pulsa para corregir" title="'+(f.ov?"Corregido a mano (calculado: "+esc(f.calc)+")":"Pulsa para corregir la cantidad")+'">'+esc(f.q)+'</td>'
                  :'<td class="esc-q">'+esc(f.q||"")+'</td>';
       var lista=f.lista?'<span class="esc-plista">'+f.lista.map(function(x){ return '<span'+(x.ad?' class="ad"':'')+'>'+esc(x.t)+'</span>'; }).join('<i> · </i>')+'</span>':'';
-      h+='<tr class="'+(f.tot?"tot":"")+(f.sust?" esc-sust":"")+(f.lista?" esc-lrow":"")+(f.dudosa?" duda":"")+'">'+(conQ?qtd:'')+'<td>'+(f.lista?'<b>'+esc(f.txt)+'</b>':esc(f.txt))+lista+(f.sub?'<span class="mnu-base">'+(f.pend?"":f.sust?"Para: ":"")+esc(f.sub)+'</span>':'')+'</td></tr>';
+      var subH=f.gente&&f.gente.length?'<span class="esc-gente">'+f.gente.map(function(p){ return '<span class="esc-pn"><b>'+esc(p.nombre)+'</b><i>'+esc(escMesaCorta(p.mesa))+'</i></span>'; }).join("")+'</span>'
+        :(f.sub?'<span class="mnu-base">'+(f.pend?"":f.sust?"Para: ":"")+esc(f.sub)+'</span>':'');
+      h+='<tr class="'+(f.tot?"tot":"")+(f.sust?" esc-sust":"")+(f.lista?" esc-lrow":"")+(f.dudosa?" duda":"")+'">'+(conQ?qtd:'')+'<td>'+(f.lista?'<b>'+esc(f.txt)+'</b>':esc(f.txt))+lista+subH+'</td></tr>';
     });
     h+='</table></section>';
   });
