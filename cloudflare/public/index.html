@@ -2480,6 +2480,9 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .beb-x input,.beb-x select{height:38px; min-width:0}
 .beb-extra #beb-x-add{margin-top:6px}
 @media (max-width:640px){ .beb-x{grid-template-columns:1fr 1fr; padding:10px; border:1px solid var(--c-line); border-radius:var(--r)} .beb-x .bx-p{grid-column:1/-1} }
+/* imprimir el Inicio con Ctrl+P: el calendario, igual que su botón «Imprimir»,
+   sin eventos sin confirmar ni sus avisos */
+@media print{ #home-cal .nc{display:none!important} #home-cal .cal-filtro,#home-cal #cal-print,#home-cal #cal-today{display:none!important} }
 /*V3-END*/
 </style>
 
@@ -2491,7 +2494,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · bebidas</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · confirmados</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -7992,12 +7995,12 @@ function renderHomeCalendar(){
       calOrdenar(byDay[dnum]||[]).forEach(function(it){
         if(it.kind==="hito"){
           var hh=it.h, colH=tipoColor(it.tipo);
-          html+='<button class="cal-ev cal-hito'+(hh.done?" done":"")+(!hh.done&&hh.falta<0?" late":"")+'" type="button" data-id="'+escH(it.id)+'" data-sec="'+(hh.tipo==="pago"?"presup":"timeline")+'" title="'+escH(hitoTxt(hh)+" · "+it.ev)+'" style="border-left-color:'+colH+'">'+
+          html+='<button class="cal-ev cal-hito'+(hh.done?" done":"")+(!hh.done&&hh.falta<0?" late":"")+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" data-sec="'+(hh.tipo==="pago"?"presup":"timeline")+'" title="'+escH(hitoTxt(hh)+" · "+it.ev)+'" style="border-left-color:'+colH+'">'+
             (hh.done?"✓ ":(AG_IC[hh.tipo]||"•")+" ")+'<b>'+escH(hh.t)+'</b> <small>'+escH(it.ev)+(hh.importe?" · "+fmtEur(hh.importe):"")+'</small></button>';
         } else if(it.kind==="prev"){
-          html+='<button class="cal-ev cal-prev'+(it.pend?" pend":"")+'" type="button" data-fid="'+escH(it.fid)+'" title="'+escH(it.name+(it.pend?" · pendiente de confirmar":" · en la Previsión, sin evento"))+'"><b>'+escH(it.name)+'</b> <small>'+(it.pend?"pendiente":"previsión")+(it.pax?" · "+(it.pend?"~":"")+it.pax+" pax":"")+'</small></button>';
+          html+='<button class="cal-ev cal-prev'+(it.pend?" pend nc":"")+'" type="button" data-fid="'+escH(it.fid)+'" title="'+escH(it.name+(it.pend?" · pendiente de confirmar":" · en la Previsión, sin evento"))+'"><b>'+escH(it.name)+'</b> <small>'+(it.pend?"pendiente":"previsión")+(it.pax?" · "+(it.pend?"~":"")+it.pax+" pax":"")+'</small></button>';
         } else if(it.kind==="pay"){
-          html+='<button class="cal-ev cal-pay" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">'+AG_IC.pago+' <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
+          html+='<button class="cal-ev cal-pay'+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">'+AG_IC.pago+' <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
         } else {
           var col=tipoColor(it.tipo);
           html+='<button class="cal-ev cal-evt'+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo+(it.conf?"":" · pendiente de confirmar"))+'" style="--ec:'+col+'"><b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
