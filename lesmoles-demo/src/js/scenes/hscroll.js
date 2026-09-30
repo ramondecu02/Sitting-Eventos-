@@ -23,7 +23,7 @@ export function initHScroll(mm) {
           start: 'top top',
           end: () => '+=' + dist(),
           pin: true,
-          scrub: 0.8,
+          scrub: 0.5,
           invalidateOnRefresh: true,
           anticipatePin: 1,
           onUpdate: (self) => bar && gsap.set(bar, { scaleX: self.progress }),
@@ -31,13 +31,19 @@ export function initHScroll(mm) {
       });
 
       // Cada foto: se revela al entrar y se desplaza dentro de su marco.
+      // El borde avanza de derecha a izquierda: la capa de fuera entra desde
+      // la derecha y la de dentro compensa, sin clip-path.
       $$('.media', track).forEach((m) => {
         const inner = $('.media__inner', m);
-        gsap.fromTo(m, { clipPath: 'inset(0% 0% 0% 100%)' }, {
-          clipPath: 'inset(0% 0% 0% 0%)',
-          ease: 'power2.out',
-          scrollTrigger: { trigger: m, containerAnimation: move, start: 'left 96%', end: 'left 52%', scrub: true },
-        });
+        gsap.timeline({
+          defaults: { ease: 'power2.out' },
+          scrollTrigger: {
+            trigger: m, containerAnimation: move, start: 'left 96%', end: 'left 52%', scrub: true,
+            onUpdate: (self) => m.classList.toggle('is-in', self.progress > 0.5),
+          },
+        })
+          .fromTo($('.media__wipe', m), { xPercent: 100 }, { xPercent: 0 }, 0)
+          .fromTo($('.media__wipe-in', m), { xPercent: -100 }, { xPercent: 0 }, 0);
         gsap.fromTo(inner, { xPercent: -8, scale: 1.18 }, {
           xPercent: 8,
           scale: 1.18,

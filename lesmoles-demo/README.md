@@ -76,7 +76,11 @@ resto. Antes de subirlas conviene comprimirlas, por ejemplo con
 npm run build
 npm run shots              # recorre la Home con scroll real → capturas/
 node tools/interact.mjs    # menú, Esc y foco, cortina, acordeón y movimiento reducido
+node tools/perf.mjs antes  # fluidez: fotogramas lentos y pintado por capítulo → capturas/perf-antes.json
 ```
+
+Para comparar la fluidez antes y después de un cambio, se ejecuta `perf.mjs` con una
+etiqueta distinta en cada versión (con `W=390 H=844` mide el tamaño de móvil).
 
 Si el Chromium de Playwright no está instalado: `npx playwright install chromium`, o
 indicar uno ya instalado con `CHROMIUM_PATH=…`.

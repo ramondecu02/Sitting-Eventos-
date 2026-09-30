@@ -53,12 +53,18 @@ export function initReveals(mm) {
       onEnter: (els) => gsap.to(els, { autoAlpha: 1, y: 0, duration: 1.2, stagger: 0.09, ease: 'expo.out', overwrite: true }),
     });
 
-    // Fotos que se revelan
+    // Fotos que se revelan: la capa de fuera sube desde abajo y la de dentro
+    // baja lo mismo, así que la foto no se mueve y solo avanza su borde.
     $$('[data-reveal-media]').forEach((m) => {
-      const inner = $('.media__inner', m);
-      const st = { trigger: m, start: 'top 86%', once: true };
-      gsap.fromTo(m, { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'expo.inOut', scrollTrigger: st });
-      gsap.fromTo(inner, { scale: 1.3 }, { scale: 1, duration: 2, ease: 'expo.out', scrollTrigger: st });
+      const s = parseFloat(m.dataset.speed) || 0;
+      const base = 1 + Math.abs(s) * 2.2; // margen para el parallax, si lo hay
+      gsap.timeline({
+        scrollTrigger: { trigger: m, start: 'top 86%', once: true },
+        onStart: () => m.classList.add('is-in'),
+      })
+        .fromTo($('.media__wipe', m), { yPercent: 100 }, { yPercent: 0, duration: 1.5, ease: 'expo.inOut' }, 0)
+        .fromTo($('.media__wipe-in', m), { yPercent: -100 }, { yPercent: 0, duration: 1.5, ease: 'expo.inOut' }, 0)
+        .fromTo($('.media__inner', m), { scale: base * 1.3 }, { scale: base, duration: 2, ease: 'expo.out' }, 0);
     });
 
     // Parallax dentro del marco (el marco no se mueve: la foto sí)
@@ -70,7 +76,7 @@ export function initReveals(mm) {
         ease: 'none',
         scrollTrigger: { trigger: m, start: 'top bottom', end: 'bottom top', scrub: true },
       });
-      gsap.set(inner, { scale: 1 + Math.abs(s) * 2.2 });
+      if (!m.hasAttribute('data-reveal-media')) gsap.set(inner, { scale: 1 + Math.abs(s) * 2.2 });
     });
 
     // Líneas que se dibujan

@@ -194,24 +194,24 @@ no la tiene, no está.
 | Animación | Técnica | Por qué |
 |---|---|---|
 | Muela que se dibuja (preloader) | Trazo SVG | Presenta el símbolo antes que nada. Completa solo en la primera visita de la sesión. |
-| Entrada por la muela | `clip-path: circle()` que se abre y escala 1,25 → 1 | La sensación de entrar en Les Moles. |
+| Entrada por la muela | Disco que se abre (transform, ver «Rendimiento») y foto de 1,32 → 1 | La sensación de entrar en Les Moles. |
 | Letras del título | SplitText por caracteres con máscara | Da peso a la marca. |
 | Foto → muela giratoria | ScrollTrigger con pin y scrub: círculo que se contrae y gira | Traduce el nombre en imagen. |
 | Manifiesto palabra a palabra | Scrub de opacidad por palabra | Obliga a leer despacio lo más importante. |
 | Territorio horizontal | Pin y desplazamiento del carril con `containerAnimation` | Un viaje de la costa a la montaña. |
-| Revelado de fotos | `clip-path: inset()` y la foto de dentro de 1,25 → 1 | Cada foto se «revela», como en el cuarto oscuro. |
+| Revelado de fotos | Dos capas que se desplazan en sentidos contrarios y la foto de dentro de 1,3 → 1 | Cada foto se «revela», como en el cuarto oscuro. |
 | Parallax | Velocidades distintas por capa (`data-speed`) | Profundidad, sin marear: máximo ±12 %. |
 | Foto dentro de la frase | Anchura de 0 → 2,4 em con scrub | La foto entra literalmente en la cita. |
 | Año gigante fijo | Sticky y cambio de texto | Hace sentir el paso del tiempo. |
 | Foto que sigue al cursor (menús) | `quickTo` con inercia | Vista previa sin ocupar espacio. |
 | Texto circular (bodega) | Rotación ligada al scroll | La muela otra vez, ahora de vino. |
 | Galería horizontal | Pin y desplazamiento | Recorrer los espacios como un paseo. |
-| Cierre: la muela se abre | `clip-path: circle()` de 6 % → 150 % | Cierra el círculo del relato. |
+| Cierre: la muela se abre | Disco de 6 % → pantalla completa | Cierra el círculo del relato. |
 | Líneas | `scaleX` de 0 → 1 | Estratos que se dibujan. |
 | Microinteracciones | Texto que rueda en los botones, subrayados que se dibujan y cursor con etiqueta | La calidad está en los detalles. |
 
-**Tiempos.** Entradas de 0,9–1,4 s con `expo.out` o `power3.out`. Scrubs con 0,6–1 s de
-suavizado. Escalonado de 0,04–0,08 s. Nada rebota.
+**Tiempos.** Entradas de 0,9–1,4 s con `expo.out` o `power3.out`. Scrubs con 0,5–0,6 s de
+suavizado (Lenis ya suaviza la rueda: más retraso se nota como lentitud). Escalonado de 0,04–0,08 s. Nada rebota.
 
 **Cursor personalizado** (solo con ratón): un punto y un anillo que aparece con una
 etiqueta cuando hay una acción real: *Explorar* en enlaces, *Descubrir* en menús y
@@ -256,9 +256,28 @@ lesmoles-demo/
 ### Rendimiento: objetivos y medidas
 
 - **Objetivos**: LCP < 2,0 s (4G), CLS < 0,05, JS < 90 KB gzip y 60 fps en el scroll.
-- **Técnicas**:
-  - Solo se animan `transform`, `opacity` y `clip-path`.
-  - `will-change` únicamente durante la animación.
+- **Regla de oro: en cada fotograma solo cambian `transform` y `opacity`**, sobre capas
+  propias. Así la tarjeta gráfica compone y no se vuelve a pintar nada.
+  - **Muela sin `clip-path`** (`src/js/disc.js`): la entrada, la reserva y el menú usan un
+    disco redondo con `overflow: hidden` que se escala y se desplaza, y una vista interior
+    con la transformación contraria. El círculo se mueve; la foto no se repinta.
+  - **Revelados sin `clip-path`**: cada foto lleva dos capas (`media__wipe` y
+    `media__wipe-in`) que se desplazan lo mismo en sentidos opuestos.
+  - **Hojas de papel**: la curva es una cúpula (`.sheet-cap`) que se aplana con `scaleY`,
+    no un `border-radius` animado.
+  - **Sin `mix-blend-mode` ni `backdrop-filter`**: el indicador de capítulo cambia de tinta
+    según el capítulo (como la barra) y el formulario de reserva usa un fondo oscuro
+    translúcido, sin desenfoque.
+  - **SVG que giran o escalan con `overflow: hidden`** y sin `non-scaling-stroke`: si no,
+    Chrome los vuelve a pintar en cada fotograma.
+  - `will-change` en lo que el scroll mueve durante mucho rato (fotos con parallax o
+    revelado, carriles, retratos, anillos, sombras que se desvanecen). El título de la
+    reserva solo mientras crece, para que al acabar se repinte nítido.
+- **Medición**: `node tools/perf.mjs <etiqueta>` recorre la Home con la rueda y guarda
+  fotogramas, trabajo del hilo principal y pintado por capítulo. Con estos cambios, en
+  escritorio (1440×900) el pintado pasó de 15,9 s a 1,2 s en el recorrido completo y los
+  fotogramas de más de 20 ms, del 4,8 % al 0,8 %.
+- **Otras técnicas**:
   - Fotos diferidas con `loading="lazy"` y `decoding="async"`, reservando su espacio con
     `aspect-ratio`.
   - Fuentes precargadas con `font-display: swap`.

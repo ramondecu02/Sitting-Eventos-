@@ -23,6 +23,17 @@ export function initNav() {
     });
   });
 
+  // Tinta del indicador de capítulo, según lo que tiene debajo (abajo a la izquierda)
+  const ind = $('[data-chapter-ind]');
+  $$('main > [data-theme], footer[data-theme]').forEach((sec) => {
+    ScrollTrigger.create({
+      trigger: sec,
+      start: 'top bottom-=32',
+      end: 'bottom bottom-=32',
+      onToggle: (self) => self.isActive && ind.setAttribute('data-theme', sec.dataset.theme),
+    });
+  });
+
   // Capítulo actual
   let current = '';
   const setChapter = (n, label) => {

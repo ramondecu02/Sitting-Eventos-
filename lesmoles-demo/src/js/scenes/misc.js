@@ -18,15 +18,22 @@ export function initScenes(mm) {
   footer(mm);
 }
 
-// Los capítulos de papel entran como una hoja: el borde curvado se aplana.
+// Los capítulos de papel entran como una hoja: una cúpula de su color asoma
+// sobre el capítulo anterior y se aplana al subir. Solo se escala en vertical.
 function sheets(mm) {
-  mm.add(MQ.motion, (ctx) => {
-    $$('[data-sheet]').forEach((sec) => {
-      gsap.fromTo(sec, { '--sheet-r': '46vw', '--sheet-ry': '11vw' }, {
-        '--sheet-r': '0vw', '--sheet-ry': '0vw', ease: 'none',
+  mm.add(MQ.motion, () => {
+    const caps = $$('[data-sheet]').map((sec) => {
+      const cap = document.createElement('span');
+      cap.className = 'sheet-cap';
+      cap.setAttribute('aria-hidden', 'true');
+      sec.prepend(cap);
+      gsap.fromTo(cap, { scaleY: 1 }, {
+        scaleY: 0, ease: 'none',
         scrollTrigger: { trigger: sec, start: 'top bottom', end: 'top 30%', scrub: true },
       });
+      return cap;
     });
+    return () => caps.forEach((c) => c.remove());
   });
 }
 

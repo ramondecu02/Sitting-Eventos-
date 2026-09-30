@@ -35,24 +35,22 @@ export function runLoader({ first, entry, onOpen, onDone }) {
   }
 
   // La muela se abre: la foto de la cantera crece desde el anillo.
+  const o = { r: 0 };
+  const open = () => entry.disc.set(o.r);
   tl.add(() => {
-    entry.circ.r = ringRadius();
-    entry.circ.x = 50;
-    entry.circ.y = 50;
-    entry.apply();
+    entry.lock(true);
+    o.r = ringRadius();
+    open();
     onOpen();
   }, '+=0.12')
-    .to(entry.circ, {
-      r: () => entry.full(),
-      duration: 1.7,
-      ease: 'expo.inOut',
-      onUpdate: entry.apply,
-    }, '>')
+    .to(o, { r: () => entry.disc.g.full, duration: 1.7, ease: 'expo.inOut', onUpdate: open }, '>')
     .to(el, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.01 }, '<')
     .to([count, word], { autoAlpha: 0, duration: 0.4 }, '<')
     .to(svg, { scale: 3.2, autoAlpha: 0, duration: 1.3, ease: 'expo.inOut' }, '<')
     .add(() => {
-      entry.media.style.clipPath = '';
+      entry.disc.reset();
+      entry.lock(false);
+      entry.draw();
       onDone();
     });
 }

@@ -17,6 +17,10 @@ const EXTS = ['avif', 'webp', 'jpg', 'jpeg', 'png'];
  */
 function photos() {
   const attrsOf = (s) => Object.fromEntries([...s.matchAll(/([\w-]+)(?:="([^"]*)")?/g)].map((m) => [m[1], m[2] ?? '']));
+  // Dos capas para revelar la foto sin clip-path: la de fuera se desliza y la
+  // de dentro hace el movimiento contrario, así la imagen no se mueve y la
+  // tarjeta gráfica solo compone (no vuelve a pintarla en cada fotograma).
+  const wipe = (html) => `<span class="media__wipe"><span class="media__wipe-in">${html}</span></span>`;
   const render = (a) => {
     const fill = a.ratio === 'fill';
     const style = fill ? '' : ` style="--ratio:${a.ratio}"`;
@@ -25,10 +29,10 @@ function photos() {
     const file = EXTS.map((e) => `${a.slot}.${e}`).find((f) => fs.existsSync(path.join(PHOTOS, f)));
     if (file) {
       const load = a.eager !== undefined ? 'fetchpriority="high"' : 'loading="lazy"';
-      return `<span class="${cls} media--photo"${style} ${data}><span class="media__inner"><img src="/src/photos/${file}" alt="${a.alt}" ${load} decoding="async"${a.pos ? ` style="object-position:${a.pos}"` : ''}></span></span>`;
+      return `<span class="${cls} media--photo"${style} ${data}>${wipe(`<span class="media__inner"><img src="/src/photos/${file}" alt="${a.alt}" ${load} decoding="async"${a.pos ? ` style="object-position:${a.pos}"` : ''}></span>`)}</span>`;
     }
     const spec = fill ? 'Pantalla completa · ≥ 2400 px' : `${a.ratio.replace('/', ':')} · ≥ ${a.min || 1600} px`;
-    return `<span class="${cls} ph ph--${a.tone || 'stone'}"${style} ${data} role="img" aria-label="Fotografía pendiente: ${a.alt}"><span class="media__inner"><span class="ph__art"></span></span><span class="ph__brief" aria-hidden="true"><span class="ph__tag">Fotografía pendiente${a.n ? ` · ${a.n}` : ''}</span><span class="ph__desc">${a.alt}</span><span class="ph__spec">${spec}</span></span></span>`;
+    return `<span class="${cls} ph ph--${a.tone || 'stone'}"${style} ${data} role="img" aria-label="Fotografía pendiente: ${a.alt}">${wipe(`<span class="media__inner"><span class="ph__art"></span></span><span class="ph__brief" aria-hidden="true"><span class="ph__tag">Fotografía pendiente${a.n ? ` · ${a.n}` : ''}</span><span class="ph__desc">${a.alt}</span><span class="ph__spec">${spec}</span></span>`)}</span>`;
   };
   return {
     name: 'lesmoles-photos',

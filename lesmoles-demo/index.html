@@ -59,50 +59,60 @@
 
   <!-- ─────────── Menú a pantalla completa ─────────── -->
   <div class="menu" id="menu" data-menu role="dialog" aria-modal="true" aria-label="Menú" hidden>
-    <div class="menu__bg" data-menu-bg></div>
-    <svg class="menu__mola" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="98"></circle><circle cx="100" cy="100" r="62"></circle></svg>
-    <div class="menu__head">
-      <span class="menu__logo label">Les&nbsp;<b>Moles</b></span>
-      <button class="menu__close label" type="button" data-menu-close data-cursor="Cerrar">
-        <span class="roll"><span class="roll__a">Cerrar</span><span class="roll__b" aria-hidden="true">Cerrar</span></span>
-        <span class="burger is-x" aria-hidden="true"><i></i><i></i></span>
-      </button>
-    </div>
-    <div class="menu__body">
-      <nav class="menu__nav" aria-label="Capítulos">
-        <ol>
-          <li><a href="#territorio" data-jump data-preview="0" data-cursor="Explorar"><span class="menu__idx label">I</span><span class="menu__t">El territorio</span></a></li>
-          <li><a href="#producto" data-jump data-preview="1" data-cursor="Explorar"><span class="menu__idx label">II</span><span class="menu__t">El producto</span></a></li>
-          <li><a href="#cocina" data-jump data-preview="2" data-cursor="Explorar"><span class="menu__idx label">III</span><span class="menu__t">La cocina</span></a></li>
-          <li><a href="#familia" data-jump data-preview="3" data-cursor="Explorar"><span class="menu__idx label">IV</span><span class="menu__t">La familia</span></a></li>
-          <li><a href="#menus" data-jump data-preview="4" data-cursor="Explorar"><span class="menu__idx label">V</span><span class="menu__t">Los caminos</span></a></li>
-          <li><a href="#bodega" data-jump data-preview="5" data-cursor="Explorar"><span class="menu__idx label">VI</span><span class="menu__t">La bodega</span></a></li>
-          <li><a href="#experiencia" data-jump data-preview="6" data-cursor="Explorar"><span class="menu__idx label">VII</span><span class="menu__t">La experiencia</span></a></li>
-        </ol>
-      </nav>
-      <aside class="menu__aside">
-        <div class="menu__previews" aria-hidden="true">
-          <x-photo slot="territorio-olivo" tone="olive" ratio="4/5" alt="Tronco de un olivo milenario del Montsià"></x-photo>
-          <x-photo slot="producto-aceite" tone="earth" ratio="4/5" alt="Aceite de oliva de farga"></x-photo>
-          <x-photo slot="cocina-jeroni" tone="portrait" ratio="4/5" alt="Jeroni Castell en la cocina"></x-photo>
-          <x-photo slot="familia" tone="earth" ratio="4/5" alt="La familia Castell Sauch"></x-photo>
-          <x-photo slot="menu-camino" tone="stone" ratio="4/5" alt="Un plato de El camino recorrido"></x-photo>
-          <x-photo slot="bodega-botella" tone="wine" ratio="4/5" alt="Botella de Les Moles Crianza"></x-photo>
-          <x-photo slot="experiencia-boda" tone="night" ratio="4/5" alt="Invitados de una boda en los jardines de Les Moles, de noche"></x-photo>
+    <div class="disc" data-menu-disc>
+      <div class="disc__view">
+        <div class="menu__bg" data-menu-bg></div>
+        <svg class="menu__mola" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="98"></circle><circle cx="100" cy="100" r="62"></circle></svg>
+        <div class="menu__scroll">
+          <div class="menu__head">
+            <span class="menu__logo label">Les&nbsp;<b>Moles</b></span>
+            <button class="menu__close label" type="button" data-menu-close data-cursor="Cerrar">
+              <span class="roll"><span class="roll__a">Cerrar</span><span class="roll__b" aria-hidden="true">Cerrar</span></span>
+              <span class="burger is-x" aria-hidden="true"><i></i><i></i></span>
+            </button>
+          </div>
+          <div class="menu__body">
+            <nav class="menu__nav" aria-label="Capítulos">
+              <ol>
+                <li><a href="#territorio" data-jump data-preview="0" data-cursor="Explorar"><span class="menu__idx label">I</span><span class="menu__t">El territorio</span></a></li>
+                <li><a href="#producto" data-jump data-preview="1" data-cursor="Explorar"><span class="menu__idx label">II</span><span class="menu__t">El producto</span></a></li>
+                <li><a href="#cocina" data-jump data-preview="2" data-cursor="Explorar"><span class="menu__idx label">III</span><span class="menu__t">La cocina</span></a></li>
+                <li><a href="#familia" data-jump data-preview="3" data-cursor="Explorar"><span class="menu__idx label">IV</span><span class="menu__t">La familia</span></a></li>
+                <li><a href="#menus" data-jump data-preview="4" data-cursor="Explorar"><span class="menu__idx label">V</span><span class="menu__t">Los caminos</span></a></li>
+                <li><a href="#bodega" data-jump data-preview="5" data-cursor="Explorar"><span class="menu__idx label">VI</span><span class="menu__t">La bodega</span></a></li>
+                <li><a href="#experiencia" data-jump data-preview="6" data-cursor="Explorar"><span class="menu__idx label">VII</span><span class="menu__t">La experiencia</span></a></li>
+              </ol>
+            </nav>
+            <aside class="menu__aside">
+              <div class="menu__previews" aria-hidden="true">
+                <x-photo slot="territorio-olivo" tone="olive" ratio="4/5" alt="Tronco de un olivo milenario del Montsià"></x-photo>
+                <x-photo slot="producto-aceite" tone="earth" ratio="4/5" alt="Aceite de oliva de farga"></x-photo>
+                <x-photo slot="cocina-jeroni" tone="portrait" ratio="4/5" alt="Jeroni Castell en la cocina"></x-photo>
+                <x-photo slot="familia" tone="earth" ratio="4/5" alt="La familia Castell Sauch"></x-photo>
+                <x-photo slot="menu-camino" tone="stone" ratio="4/5" alt="Un plato de El camino recorrido"></x-photo>
+                <x-photo slot="bodega-botella" tone="wine" ratio="4/5" alt="Botella de Les Moles Crianza"></x-photo>
+                <x-photo slot="experiencia-boda" tone="night" ratio="4/5" alt="Invitados de una boda en los jardines de Les Moles, de noche"></x-photo>
+              </div>
+              <dl class="menu__info">
+                <div><dt class="label">Visítanos</dt><dd>Ctra. de La Sénia, km 2<br>43550 Ulldecona, Tarragona</dd></div>
+                <div><dt class="label">Reservas</dt><dd><a href="tel:+34977573224" data-cursor="Llamar">977 57 32 24</a><br><a href="mailto:lesmoles@lesmoles.com" data-cursor="Escribir">lesmoles@lesmoles.com</a></dd></div>
+                <div><dt class="label">Idioma</dt><dd class="menu__langs"><span aria-current="true">ES</span><span aria-disabled="true" title="Próximamente">CA</span><span aria-disabled="true" title="Próximamente">EN</span></dd></div>
+              </dl>
+              <a class="btn btn--light" href="#reserva" data-jump data-cursor="Reservar"><span class="roll"><span class="roll__a">Reservar mesa</span><span class="roll__b" aria-hidden="true">Reservar mesa</span></span></a>
+            </aside>
+          </div>
         </div>
-        <dl class="menu__info">
-          <div><dt class="label">Visítanos</dt><dd>Ctra. de La Sénia, km 2<br>43550 Ulldecona, Tarragona</dd></div>
-          <div><dt class="label">Reservas</dt><dd><a href="tel:+34977573224" data-cursor="Llamar">977 57 32 24</a><br><a href="mailto:lesmoles@lesmoles.com" data-cursor="Escribir">lesmoles@lesmoles.com</a></dd></div>
-          <div><dt class="label">Idioma</dt><dd class="menu__langs"><span aria-current="true">ES</span><span aria-disabled="true" title="Próximamente">CA</span><span aria-disabled="true" title="Próximamente">EN</span></dd></div>
-        </dl>
-        <a class="btn btn--light" href="#reserva" data-jump data-cursor="Reservar"><span class="roll"><span class="roll__a">Reservar mesa</span><span class="roll__b" aria-hidden="true">Reservar mesa</span></span></a>
-      </aside>
+      </div>
     </div>
   </div>
 
-  <!-- Cortina para los saltos largos -->
+  <!-- Cortina para los saltos largos: un panel que sube y un interior que baja -->
   <div class="curtain" data-curtain aria-hidden="true">
-    <svg class="curtain__mola" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98"></circle><circle cx="100" cy="100" r="7"></circle></svg>
+    <div class="curtain__panel" data-curtain-panel>
+      <div class="curtain__in" data-curtain-in>
+        <svg class="curtain__mola" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98"></circle><circle cx="100" cy="100" r="7"></circle></svg>
+      </div>
+    </div>
   </div>
 
   <!-- Cursor -->
@@ -120,14 +130,20 @@
     <!-- ═══════════ 00 · Les Moles + manifiesto ═══════════ -->
     <section class="entry theme-dark" id="top" data-theme="dark" data-chapter="00" data-chapter-name="Les Moles">
       <div class="entry__stage" data-entry-stage>
-        <div class="entry__media" data-entry-media>
-          <x-photo slot="hero-cantera" tone="night" ratio="fill" eager alt="La pared de la antigua cantera de Les Moles, iluminada de noche" n="01" min="2400"></x-photo>
+        <div class="disc" data-entry-disc>
+          <div class="disc__view">
+            <div class="entry__media" data-entry-media>
+              <x-photo slot="hero-cantera" tone="night" ratio="fill" eager alt="La pared de la antigua cantera de Les Moles, iluminada de noche" n="01" min="2400"></x-photo>
+            </div>
+          </div>
         </div>
-        <svg class="entry__ring" data-entry-ring viewBox="0 0 200 200" aria-hidden="true">
-          <circle cx="100" cy="100" r="99"></circle>
-          <circle cx="100" cy="100" r="66" class="entry__ring-in"></circle>
-          <circle cx="100" cy="100" r="3.2" class="entry__ring-eye"></circle>
-        </svg>
+        <div class="entry__ring" data-entry-ring aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="99"></circle>
+            <circle cx="100" cy="100" r="66" class="entry__ring-in"></circle>
+            <circle cx="100" cy="100" r="3.2" class="entry__ring-eye"></circle>
+          </svg>
+        </div>
         <div class="entry__shade" data-entry-shade></div>
 
         <div class="entry__hero" data-hero>
@@ -415,10 +431,12 @@
         </div>
 
         <div class="bodega__bottle">
-          <svg class="bodega__ring" viewBox="0 0 400 400" aria-hidden="true" data-bodega-ring>
-            <defs><path id="ring-path" d="M200,200 m-176,0 a176,176 0 1,1 352,0 a176,176 0 1,1 -352,0"></path></defs>
-            <text><textPath href="#ring-path" textLength="1100">Les Moles · Terra Alta · Vino propio desde 2012 · Les Moles · Terra Alta · Vino propio ·</textPath></text>
-          </svg>
+          <div class="bodega__ring" aria-hidden="true" data-bodega-ring>
+            <svg viewBox="0 0 400 400">
+              <defs><path id="ring-path" d="M200,200 m-176,0 a176,176 0 1,1 352,0 a176,176 0 1,1 -352,0"></path></defs>
+              <text><textPath href="#ring-path" textLength="1100">Les Moles · Terra Alta · Vino propio desde 2012 · Les Moles · Terra Alta · Vino propio ·</textPath></text>
+            </svg>
+          </div>
           <x-photo slot="bodega-botella" tone="wine" ratio="2/5" alt="Una botella de Les Moles Crianza" n="11" speed="-0.1"></x-photo>
         </div>
 
@@ -480,8 +498,12 @@
     <!-- ═══════════ Reserva ═══════════ -->
     <section class="reserva theme-dark" id="reserva" data-theme="dark" data-chapter="—" data-chapter-name="Reserva">
       <div class="reserva__stage" data-reserva-stage>
-        <div class="reserva__media" data-reserva-media>
-          <x-photo slot="reserva-cantera" tone="night" ratio="fill" alt="Los jardines de Les Moles al anochecer, con la cantera iluminada" n="17" min="2400"></x-photo>
+        <div class="disc" data-reserva-disc>
+          <div class="disc__view">
+            <div class="reserva__media" data-reserva-media>
+              <x-photo slot="reserva-cantera" tone="night" ratio="fill" alt="Los jardines de Les Moles al anochecer, con la cantera iluminada" n="17" min="2400"></x-photo>
+            </div>
+          </div>
         </div>
         <div class="reserva__shade" data-reserva-shade></div>
         <div class="reserva__content">

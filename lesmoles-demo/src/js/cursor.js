@@ -1,7 +1,8 @@
 /*
- * Cursor propio, solo con ratón: un punto que invierte el color de lo que
- * pisa y, cuando hay una acción real, una etiqueta al lado que la nombra
- * (Explorar, Descubrir, Reservar…). Nunca tapa el texto sobre el que está.
+ * Cursor propio, solo con ratón: un punto oliva (sin modos de fusión, que
+ * obligan a recomponer la pantalla en cada movimiento) y, cuando hay una
+ * acción real, una etiqueta al lado que la nombra (Explorar, Descubrir,
+ * Reservar…). Nunca tapa el texto sobre el que está.
  */
 import { gsap } from 'gsap';
 import { $, env } from './env.js';

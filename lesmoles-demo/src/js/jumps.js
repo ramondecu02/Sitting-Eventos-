@@ -10,6 +10,11 @@ import { $, env } from './env.js';
 export function initJumps({ lenis, menu }) {
   const curtain = $('[data-curtain]');
   const mola = $('.curtain__mola', curtain);
+  // La cortina es un panel que sube y un interior que baja a la vez: el
+  // borde se mueve y la muela del centro se queda quieta (sin clip-path).
+  const panel = $('[data-curtain-panel]', curtain);
+  const inside = $('[data-curtain-in]', curtain);
+  gsap.set(panel, { y: 0, yPercent: 101 });
 
   const targetY = (hash) => {
     if (hash === '#top') return 0;
@@ -53,8 +58,8 @@ export function initJumps({ lenis, menu }) {
       return focusTarget(hash);
     }
     gsap.timeline()
-      .set(curtain, { clipPath: 'inset(100% 0% 0% 0%)' })
-      .to(curtain, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.75, ease: 'expo.inOut' })
+      .fromTo(panel, { yPercent: 100 }, { yPercent: 0, duration: 0.75, ease: 'expo.inOut' })
+      .fromTo(inside, { yPercent: -100 }, { yPercent: 0, duration: 0.75, ease: 'expo.inOut' }, '<')
       .fromTo(mola, { rotation: -90, scale: 0.6, autoAlpha: 0 }, { rotation: 0, scale: 1, autoAlpha: 1, duration: 0.6, ease: 'expo.out' }, 0.35)
       .add(() => {
         if (fromMenu) menu.close({ instant: true, then: () => {} });
@@ -62,7 +67,8 @@ export function initJumps({ lenis, menu }) {
         ScrollTrigger.update();
       })
       .to(mola, { rotation: 90, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, '+=0.12')
-      .to(curtain, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.85, ease: 'expo.inOut' }, '<0.1')
+      .to(panel, { yPercent: -100, duration: 0.85, ease: 'expo.inOut' }, '<0.1')
+      .to(inside, { yPercent: 100, duration: 0.85, ease: 'expo.inOut' }, '<')
       .add(() => focusTarget(hash));
   }
 
