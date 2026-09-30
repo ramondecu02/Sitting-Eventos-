@@ -16,7 +16,10 @@
  *   POST /api/users             crea usuario {email,name,role,password} (solo admin)
  *   PATCH  /api/users           {id, password?, role?, name?} cambia clave/rol (solo admin)
  *   DELETE /api/users?id=..     elimina usuario (solo admin)
- *   GET  /api/share?t=..        datos públicos del evento compartido con los novios
+ *   GET  /api/share?t=..        portal de los novios: su boda, pagos, presupuesto (lectura) y su lista
+ *   POST /api/share?t=..        los novios guardan/envían SOLO sus nombres y su lista de invitados
+ *   GET  /api/propuestas        listas enviadas por los novios (equipo con sesión)
+ *   PATCH /api/propuestas       {token, estado:"aplicada"|"descartada"} (equipo con sesión)
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -57,6 +60,9 @@ async function api(request, env, url) {
   if (p === "/api/login" && m === "POST") return loginRoute(request, env);
   if (p === "/api/logout" && m === "POST") return logoutRoute();
   if (p === "/api/share" && m === "GET") return shareRoute(request, env, url);
+  if (p === "/api/share" && m === "POST") return sharePost(request, env, url);
+  if (p === "/api/propuestas" && m === "GET") return propuestasList(request, env);
+  if (p === "/api/propuestas" && m === "PATCH") return propuestasPatch(request, env);
   if (p === "/api/store" && m === "GET") return storeGet(request, env);
   if (p === "/api/store" && m === "PUT") return storePut(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
@@ -119,18 +125,38 @@ function logoutRoute() {
   return r;
 }
 
-/* ── enlace público para los novios (solo lectura, sin sesión) ──────────
-   Devuelve únicamente lo celebrativo del evento marcado como compartido:
-   nombres, fecha, lugar, ceremonia, nº de invitados/mesas (calculado aquí
-   para no exponer la lista de invitados ni sus alergias), platos elegidos y
-   fotos. NUNCA presupuesto, proveedores, comunicaciones ni datos de contacto. */
-async function shareRoute(request, env, url) {
-  const token = (url.searchParams.get("t") || "").trim();
-  if (!token) return json({ error: "not-found" }, 404);
+/* ── PORTAL DE LOS NOVIOS (sin sesión, con el enlace privado de su boda) ──
+   LECTURA: lo celebrativo de siempre + la «foto» que la app del equipo deja en
+   ev.share.portal (pasos, pagos, presupuesto, horarios, menú y la lista del
+   plano). Esa foto la calcula la app con las mismas reglas que usa el equipo.
+   ESCRITURA: los novios SOLO pueden guardar sus nombres y su lista de
+   invitados, y eso va a una tabla aparte (novios_listas). Este endpoint no
+   escribe NUNCA en el documento de la app: el presupuesto, los precios, los
+   pagos y el resto del evento no se pueden tocar desde el enlace, ni siquiera
+   manipulando la página. Lo que envían lo revisa el equipo y decide si lo
+   pasa al plano. */
+let NOVIOS_OK = false;
+async function ensureNovios(env) {
+  if (NOVIOS_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS novios_listas (token TEXT PRIMARY KEY, event_id TEXT NOT NULL, data TEXT NOT NULL, estado TEXT NOT NULL DEFAULT 'borrador', enviada INTEGER, updated INTEGER NOT NULL, revisada INTEGER)").run();
+  NOVIOS_OK = true;
+}
+async function eventoCompartido(env, token) {
+  if (!token || token.length > 80) return null;
   const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
   let doc; try { doc = JSON.parse((row && row.data) || "{}"); } catch (_) { doc = {}; }
   const events = (doc && doc.events) || [];
-  const ev = events.find((e) => e && e.share && e.share.on && e.share.id === token);
+  return events.find((e) => e && e.share && e.share.on && e.share.id === token) || null;
+}
+/* los enlaces antiguos (cortos) se pueden ver, pero para editar hace falta uno
+   nuevo y largo, imposible de adivinar */
+function tokenFuerte(t) { return typeof t === "string" && t.length >= 24; }
+function hoyISO() { return new Date(Date.now() + 2 * 3600e3).toISOString().slice(0, 10); }  /* hora de España (aprox.) */
+
+async function shareRoute(request, env, url) {
+  const token = (url.searchParams.get("t") || "").trim();
+  if (!token) return json({ error: "not-found" }, 404);
+  const ev = await eventoCompartido(env, token);
   if (!ev) return json({ error: "not-found" }, 404);
   const F = ev.ficha || {};
   const counts = countPlano(ev.text || "");
@@ -151,7 +177,71 @@ async function shareRoute(request, env, url) {
     dishes: (ev.menu && ev.menu.dishes) || {},
     fotos: Array.isArray(ev.fotos) ? ev.fotos.slice(0, 30) : []
   };
-  return json({ event: pub });
+  let lista = null;
+  try {
+    await ensureNovios(env);
+    const r = await env.DB.prepare("SELECT data, estado, enviada, updated, revisada FROM novios_listas WHERE token=?").bind(token).first();
+    if (r) { let d = null; try { d = JSON.parse(r.data); } catch (_) {} lista = { data: d, estado: r.estado, enviada: r.enviada, updated: r.updated, revisada: r.revisada }; }
+  } catch (_) {}
+  return json({ event: pub, portal: (ev.share && ev.share.portal) || null, lista, editable: tokenFuerte(token), hoy: hoyISO() });
+}
+
+/* limpieza de lo que escriben: sin saltos de línea ni los signos que usa el
+   plano para mesas, marcas y separar personas */
+function limpio(v, n) { return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f<>]/g, " ").replace(/[()\[\]|#@*+&]/g, " ").replace(/\s+/g, " ").trim().slice(0, n); }
+const TIPOS_G = ["adulto", "nino", "bebe", "staff"];
+async function sharePost(request, env, url) {
+  const token = (url.searchParams.get("t") || "").trim();
+  if (!tokenFuerte(token)) return json({ error: "old-link", message: "Este enlace es antiguo. Pedid a Les Moles uno nuevo para poder editar." }, 403);
+  const ev = await eventoCompartido(env, token);
+  if (!ev) return json({ error: "not-found", message: "Este enlace ya no está activo." }, 404);
+  const portal = (ev.share && ev.share.portal) || {};
+  if (portal.cierre && hoyISO() >= portal.cierre) return json({ error: "cerrado", message: "Los cambios ya están cerrados. Para cualquier cambio, llamad a Les Moles." }, 423);
+  const txt = await request.text();
+  if (!txt || txt.length > 200000) return json({ error: "too-big", message: "La lista es demasiado grande." }, 413);
+  let b; try { b = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
+  /* SOLO se leen estos campos; cualquier otro (presupuesto, pagos, precios…) se ignora */
+  const mesasIn = Array.isArray(b && b.mesas) ? b.mesas.slice(0, 80) : [];
+  let total = 0;
+  const mesas = mesasIn.map((m) => {
+    const g = (Array.isArray(m && m.g) ? m.g : []).slice(0, 40).map((x) => ({
+      n: limpio(x && x.n, 70),
+      t: TIPOS_G.indexOf(x && x.t) > -1 ? x.t : "adulto",
+      a: limpio(x && x.a, 90)
+    })).filter((x) => x.n || x.a);
+    total += g.length;
+    return { k: Number.isFinite(+m.k) && +m.k > 0 ? Math.floor(+m.k) : null, nombre: limpio(m && m.nombre, 50), staff: !!(m && m.staff), g };
+  });
+  if (total > 1200) return json({ error: "too-big", message: "Demasiadas personas en la lista." }, 413);
+  const data = { parejaA: limpio(b && b.parejaA, 60), parejaB: limpio(b && b.parejaB, 60), mesas };
+  const enviar = !!(b && b.enviar), now = Date.now();
+  await ensureNovios(env);
+  const prev = await env.DB.prepare("SELECT estado, enviada FROM novios_listas WHERE token=?").bind(token).first();
+  const estado = enviar ? "enviada" : (prev && prev.estado === "enviada" ? "enviada" : "borrador");
+  const enviada = enviar ? now : (prev ? prev.enviada : null);
+  await env.DB.prepare("INSERT INTO novios_listas (token, event_id, data, estado, enviada, updated, revisada) VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL) ON CONFLICT(token) DO UPDATE SET event_id=?2, data=?3, estado=?4, enviada=?5, updated=?6")
+    .bind(token, String(ev.id), JSON.stringify(data), estado, enviada, now).run();
+  return json({ ok: true, estado, enviada, updated: now });
+}
+
+/* ── lo que ve el equipo: listas de los novios pendientes de revisar ── */
+async function propuestasList(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  await ensureNovios(env);
+  const { results } = await env.DB.prepare("SELECT token, event_id, data, estado, enviada, updated, revisada FROM novios_listas ORDER BY updated DESC LIMIT 300").all();
+  return json({ listas: (results || []).map((r) => { let d = null; try { d = JSON.parse(r.data); } catch (_) {} return { token: r.token, event_id: r.event_id, data: d, estado: r.estado, enviada: r.enviada, updated: r.updated, revisada: r.revisada }; }) });
+}
+async function propuestasPatch(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  if (s.role !== "admin" && s.role !== "eventos") return json({ error: "forbidden" }, 403);
+  const b = await body(request);
+  const token = String(b.token || ""), estado = String(b.estado || "");
+  if (!token || ["aplicada", "descartada"].indexOf(estado) < 0) return json({ error: "invalid" }, 400);
+  await ensureNovios(env);
+  await env.DB.prepare("UPDATE novios_listas SET estado=?, revisada=? WHERE token=?").bind(estado, Date.now(), token).run();
+  return json({ ok: true });
 }
 /* Cuenta invitados y mesas del texto del plano SIN exponer los nombres, con
    las mismas reglas que el plano de la app: cabeceras «M1 |», «MESA 1»,

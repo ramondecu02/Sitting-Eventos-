@@ -2333,6 +2333,56 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
   .hm-arrow{width:38px; height:38px}
   .hm-cards{grid-template-columns:1fr; gap:12px}
 }
+/* ── Portal de los novios (lado del equipo) ─────────────────────────── */
+.portal-card{display:flex; flex-direction:column; gap:12px}
+.portal-card .share-p{margin:0}
+.portal-warn{margin:0; padding:10px 12px; border-radius:var(--r); background:var(--warning-soft); color:var(--c-ink); font-size:12.5px}
+.portal-st{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:11px 14px; border:1px solid var(--c-line); border-radius:var(--r); background:var(--raise); font-size:13px; color:var(--c-mut)}
+.portal-st span{flex:1 1 260px}
+.portal-st b{color:var(--c-ink)}
+.portal-st.nueva{border-color:color-mix(in srgb,var(--olive) 55%,var(--c-line)); background:var(--accent-wash)}
+.portal-links{display:flex; gap:18px; flex-wrap:wrap}
+.portal-links .share-off{color:var(--c-mut)}
+.portal-links .share-off:last-child{color:var(--danger)}
+.portal-datos{border-top:1px solid var(--c-hair); padding-top:12px}
+.portal-datos summary{cursor:pointer; font-size:12.5px; font-weight:650; color:var(--c-ink)}
+.portal-datos summary span{font-weight:400; color:var(--c-mut)}
+.portal-datos .fldset{margin:14px 0 12px}
+.portal-hint{font-size:11.5px; color:var(--c-mut)}
+.hn-box{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:14px 18px; border-radius:var(--r-xl); background:var(--accent-wash); border:1px solid color-mix(in srgb,var(--olive) 45%,var(--c-line))}
+.hn-ic{flex:none; width:38px; height:38px; border-radius:50%; display:grid; place-items:center; background:var(--panel); color:var(--accent-tx); border:1px solid color-mix(in srgb,var(--olive) 35%,transparent)}
+.hn-ic .agi{width:17px; height:17px}
+.hn-tx{flex:1 1 260px; display:flex; flex-direction:column; gap:2px}
+.hn-tx b{font-size:14px}
+.hn-tx span{font-size:12.5px; color:var(--c-mut)}
+.hn-acts{display:flex; gap:8px; flex-wrap:wrap}
+.home-novios{max-width:1320px; width:100%; margin:0 auto; padding:14px 48px 0}
+.home-novios:empty{display:none}
+.rsm-nov{margin-bottom:8px}
+.rv-box{max-width:min(860px,94vw)}
+.rv-body{align-items:stretch!important; gap:14px!important}
+.rv-sum{display:flex; flex-wrap:wrap; gap:8px}
+.rv-sum span{padding:6px 12px; border-radius:99px; background:var(--panel); border:1px solid var(--c-line); font-size:12.5px; color:var(--c-mut)}
+.rv-sum b{color:var(--c-ink); font-size:14px}
+.rv-grp{background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg); padding:12px 16px}
+.rv-grp.add{box-shadow:inset 3px 0 0 var(--olive)}
+.rv-grp.del{box-shadow:inset 3px 0 0 var(--danger)}
+.rv-grp.al{box-shadow:inset 3px 0 0 var(--warning)}
+.rv-h{font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; font-weight:650; color:var(--c-mut); margin-bottom:6px}
+.rv-h b{color:var(--c-ink)}
+.rv-grp ul{list-style:none; margin:0; padding:0; columns:2 260px; column-gap:22px}
+.rv-grp li{padding:4px 0; font-size:13px; break-inside:avoid; border-bottom:1px solid var(--c-hair)}
+.rv-grp li span{color:var(--c-mut); font-size:12px}
+.rv-grp li i{color:var(--danger); font-style:normal}
+.rv-grp p{margin:0; font-size:13.5px}
+.rv-igual{margin:0; padding:14px; text-align:center; color:var(--c-mut)}
+.rv-todo summary{cursor:pointer; font-weight:650; font-size:13px}
+.rv-mesas{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin-top:10px}
+.rv-mesa{background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r); padding:10px 12px; font-size:12.5px}
+.rv-mesa ul{list-style:none; margin:6px 0 0; padding:0}
+.rv-mesa li span{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut)}
+.rv-mesa li i{color:var(--danger); font-style:normal}
+@media screen and (max-width:820px){ .home-novios{padding:10px 16px 0} }
 /*V3-END*/
 </style>
 
@@ -2671,6 +2721,7 @@ Lluc (trona)</div>
     </div>
   </div>
   <div class="home-stats" id="home-stats"></div>
+  <div class="home-novios" id="home-novios"></div>
   <div class="home-agenda" id="home-agenda"></div>
   <div class="home-viewbar">
     <div class="home-viewseg" id="home-viewseg" role="tablist" aria-label="Ver eventos como">
@@ -3944,6 +3995,7 @@ function mergePrevision(mio,otro){
 }
 function save(){
   if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
+  try{ portalAlDia(current()); }catch(_){}
   try{ localStorage.setItem(KEY,JSON.stringify(mergeStore())); if(saveFail){saveFail=false;flagSave();} }
   catch(e){
     if(!saveFail){ saveFail=true; flagSave();
@@ -4109,6 +4161,8 @@ function hydrateFromServer(){
         if(!current()) store.active=store.events.length?store.events[0].id:null;
       }
       try{ sincronizarPrevision(); }catch(_){}
+      try{ portalTodos(); }catch(_){}
+      try{ cargarListasNovios(); }catch(_){}
       var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
       var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
       var camCambia=JSON.stringify(store.camareros||{})!==camBefore;
@@ -6493,6 +6547,7 @@ if(!current()) store.active=store.events[0].id;
 $("src").value=current().text; prevText=current().text;
 fillSelect(); syncPrefs();
 try{ if(sincronizarPrevision()) fillSelect(); }catch(err){ if(window.console) console.warn(err); }
+try{ cargarListasNovios(); }catch(_){}
 /* la sincronización con el servidor se dispara al iniciar sesión (ver enterApp),
    no en el arranque, para no pedir datos protegidos antes de autenticarse */
 window.hydrateFromServer=hydrateFromServer;
@@ -7303,6 +7358,95 @@ function duplicarEvento(id,quedarse){
   return c;
 }
 window.LM_duplicarEvento=duplicarEvento;
+/* ══ PORTAL DE LOS NOVIOS · la «foto» del evento ═══════════════════════
+   Lo que ven los novios en su enlace sale de aquí: la app calcula con SUS
+   reglas (presupuesto, agenda de pagos, lista del plano, menú, horarios) y lo
+   deja en e.share.portal, que viaja al servidor con el resto del evento. El
+   servidor solo lo enseña: así los novios ven exactamente las mismas cifras
+   que el equipo y no hay una segunda copia de las cuentas que se desajuste. */
+var PORTAL_TXT={doc:{t:"Enviarnos la lista de invitados",d:"Mesas, adultos, niños, staff y alergias. Podéis rellenarla aquí mismo."},
+  pago1:{t:"Primer pago"}, reu1:{t:"Reunión de dudas"}, reu2:{t:"Última reunión"},
+  pago2:{t:"Último pago",d:"Ese día se cierran los cambios de mesas y menú."}};
+function portalGuest(g,t){
+  var a=(g.aler||[]).slice();
+  if(g.kind==="veg") a.push("Vegetariana"); if(g.kind==="vegan") a.push("Vegana"); if(g.preg) a.push("Embarazada");
+  var tipo=g.kind==="child"?"nino":g.kind==="baby"?"bebe":(t.staff||g.kind==="staff")?"staff":"adulto";
+  return {n:g.name, t:tipo, a:a.join(", ")};
+}
+function portalFoto(e){
+  var F=e.ficha||{}, P=e.presupuesto||{}, d=null;
+  try{ d=parse(e.text||""); }catch(_){ d={tables:[]}; }
+  var c=planCounts(e), staff=staffMenus(e,c), adultos=Math.max(0,c.adultos-(c.staff||0));
+  var lineas=[
+    {c:"Menú adulto",d:"Aperitivo, banquete, bodega y cafés",q:adultos,p:+P.precioAdulto||0},
+    {c:"Menú infantil",q:c.ninos,p:+P.precioInfantil||0},
+    {c:"Menú staff",d:"Fotografía, vídeo, música…",q:staff,p:+P.precioStaff||0}
+  ].filter(function(l){ return l.q>0&&l.p>0; });
+  var extras=(P.extras||[]).filter(function(x){ return (x.concepto||"").trim()&&(+x.importe||0); }).map(function(x){ return {c:String(x.concepto).trim(),imp:+x.importe||0}; });
+  var pt=presupTotals(e), cfg=agendaCfg(), senal=Math.max(0,+cfg.senal||0), pct=pctSenal();
+  var pagos=(P.pagos||[]).filter(function(p){ return +p.importe; }).map(function(p){ return {concepto:p.concepto||"Pago",fecha:p.fecha||"",importe:+p.importe||0}; })
+    .sort(function(a,b){ return String(a.fecha).localeCompare(String(b.fecha)); });
+  var pasos=[];
+  if(senal>0) pasos.push({id:"senal",tipo:"pago",t:"Reserva y señal",d:"Con ella la fecha queda reservada.",fecha:(pagos[0]&&pagos[0].fecha)||"",importe:senal,done:pt.pagado>=senal-0.5});
+  var cierre="";
+  hitosAuto(e).forEach(function(h){
+    var tx=PORTAL_TXT[h.id]||{};
+    pasos.push({id:h.id,tipo:h.tipo,t:(tx.t||h.t)+(h.id==="pago1"?" ("+pct+" %)":""),d:tx.d||h.d||"",fecha:h.fecha,importe:h.importe!=null?Math.round(h.importe*100)/100:null,done:!!h.done});
+    if(h.cierre) cierre=h.fecha;
+  });
+  if(F.fecha) pasos.push({id:"boda",tipo:"boda",t:"¡Vuestra boda!",d:[F.ubicacion||"Les Moles"].join(""),fecha:F.fecha,done:false});
+  var menu=[]; try{ MENU_DATA.forEach(function(f){ var ds=f.dishes.filter(function(x){ return e.menu&&e.menu.dishes&&e.menu.dishes[x._uid]; }).map(function(x){ return x.name; }); if(ds.length) menu.push({fam:f.label,platos:ds}); }); }catch(_){}
+  var horas=[];
+  if(F.llegadaRest) horas.push({l:"Llegada de invitados",v:F.llegadaRest});
+  if(F.ceremoniaHora) horas.push({l:"Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),v:F.ceremoniaHora});
+  if(F.horaAperitivo) horas.push({l:"Aperitivo",v:F.horaAperitivo});
+  if(F.horaBanquete) horas.push({l:"Banquete",v:F.horaBanquete});
+  if(F.horaBarra) horas.push({l:"Barra libre",v:F.horaBarra});
+  var mesas=d.tables.map(function(t){ return {k:t.num, nombre:t.name||(mesaNumVisible(t)?"Mesa "+t.num:"Presidencial"), staff:!!t.staff, g:t.guests.map(function(g){ return portalGuest(g,t); })}; });
+  var ct=paramData("portal")||{};
+  return {v:1, titulo:nombreLimpio(e.name)||"", tipo:F.tipo||eventoTipo(e), fecha:F.fecha||"", ubicacion:F.ubicacion||"",
+    nombres:{a:F.parejaA||"",b:F.parejaB||""}, horas:horas, menu:menu,
+    presupuesto:{lineas:lineas, extras:extras, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100, pend:Math.round(Math.max(0,pt.pend)*100)/100, pct:pct, senal:senal},
+    pagos:pagos, pasos:pasos, cierre:cierre, lista:{mesas:mesas},
+    contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""}};
+}
+/* pone al día la foto de un evento compartido (sin tocar e.updated: es un dato derivado) */
+function portalAlDia(e){
+  if(!e||!e.share||!e.share.on) return false;
+  var f=portalFoto(e), a=JSON.stringify(f);
+  if(PORTAL_J[e.id]===a&&e.share.portal) return false;
+  PORTAL_J[e.id]=a;
+  if(e.share.portal&&JSON.stringify(e.share.portal)===a) return false;
+  e.share.portal=f; return true;
+}
+var PORTAL_J={};
+function portalTodos(){ var n=0; (store.events||[]).forEach(function(e){ try{ if(portalAlDia(e)) n++; }catch(_){ } }); return n; }
+function tokenNuevo(){ try{ var u=new Uint8Array(18); crypto.getRandomValues(u); return "p"+Array.prototype.map.call(u,function(x){ return ("0"+x.toString(16)).slice(-2); }).join(""); }catch(_){ return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2); } }
+
+/* ══ las listas que envían los novios (lado del equipo) ═════════════ */
+var LISTAS_NOVIOS={};   /* event_id → {token,data,estado,enviada,updated,revisada} */
+function listaNoviosDe(e){ var r=e&&LISTAS_NOVIOS[e.id]; return (r&&e.share&&r.token===e.share.id)?r:null; }
+function listaPorRevisar(e){ var r=listaNoviosDe(e); return r&&r.estado==="enviada"?r:null; }
+function cargarListasNovios(){
+  var loc=null; try{ loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"); }catch(_){ loc={}; }
+  function poner(arr){ LISTAS_NOVIOS={}; (arr||[]).forEach(function(r){ var prev=LISTAS_NOVIOS[r.event_id]; if(!prev||(r.updated||0)>(prev.updated||0)) LISTAS_NOVIOS[r.event_id]=r; }); }
+  if(!hayServidor()){ poner(Object.keys(loc||{}).map(function(k){ return loc[k]; })); refrescoListas(); return; }
+  fetch("/api/propuestas",{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){ if(j&&j.listas){ poner(j.listas); refrescoListas(); } }).catch(function(){});
+}
+function refrescoListas(){
+  try{ if(document.body.classList.contains("mode-home")) renderHomeNovios(); }catch(_){}
+  try{ if(document.body.classList.contains("mode-resumen")) renderResumen(); }catch(_){}
+}
+window.LM_cargarListasNovios=cargarListasNovios;
+window.LM_portalFoto=portalFoto;
+window.__lmPortalTest={texto:function(e,d){ return textoDesdeLista(e,d); },parse:function(t){ return parse(t); }};
+/* guardar el estado (aplicada/descartada) de una lista */
+function marcarLista(r,estado){
+  r.estado=estado; r.revisada=Date.now();
+  if(hayServidor()){ fetch("/api/propuestas",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:r.token,estado:estado})}).catch(function(){}); }
+  else { try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"); if(loc[r.token]){ loc[r.token].estado=estado; loc[r.token].revisada=r.revisada; localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); } }catch(_){} }
+}
 /* ══ PREVISIÓN ⇄ EVENTOS ═══════════════════════════════════════════════
    La Previsión de banquetes y los Eventos son la misma realidad vista desde
    dos sitios, así que van enlazados (fila.evento ⇄ evento.prevId):
@@ -7431,6 +7575,7 @@ window.LM_abrirEvento=function(id,sec){ abrirEvento(id,sec); };
 function paxVisible(e,t){ var p=t?t.pax:0; if(p) return {n:p,prev:false}; var pp=e.ficha&&+e.ficha.paxPrev; return pp?{n:pp,prev:true}:{n:0,prev:false}; }
 function renderHome(){
   try{ if(sincronizarPrevision()) fillSelect(); }catch(err){ if(window.console) console.warn(err); }
+  try{ if(portalTodos()) save(); }catch(_){}
   /* saludo personalizado según la sesión y la hora del día */
   var u=(window.LM_SESSION&&window.LM_SESSION.user)?window.LM_SESSION.user():null;
   var gEl=$("home-greet");
@@ -7439,7 +7584,7 @@ function renderHome(){
     else gEl.textContent="Eventos";
   }
   var iEl=$("home-intro"); if(iEl&&u) iEl.textContent="Estos son tus próximos eventos en Les Moles. Elige uno para gestionarlo de principio a fin.";
-  renderHomeStats(); renderHomeAgenda();
+  renderHomeStats(); renderHomeNovios(); renderHomeAgenda();
   var seg=$("home-viewseg");
   if(seg) Array.prototype.forEach.call(seg.children,function(b){ b.setAttribute("aria-pressed", b.dataset.hv===homeView?"true":"false"); });
   var searchWrap=$("home-search"); if(searchWrap) searchWrap.style.display=(homeView==="calendario")?"none":"";
@@ -7909,6 +8054,7 @@ function renderResumen(){
         '</div>'+
         '<div class="rsm-ring">'+ringSvg(prog.pct)+'<div class="ring-cap">Preparación<br>del evento</div></div>'+
       '</header>'+
+      (listaPorRevisar(e)?'<div class="hn-box rsm-nov"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>Los novios han enviado su lista de invitados</b><span>Revísala y pásala al plano con un clic.</span></div><div class="hn-acts"><button class="btn sm gold" type="button" id="rsm-nov-rev2">Revisar su lista</button></div></div>':'')+
       emptyNote+
       (alertas.length?('<div class="rsm-sech">Atención</div><div class="alertbox">'+alertas.map(function(al){return '<button type="button" class="alert-item'+(al.sev==="urgent"?" urgent":"")+'" data-k="'+al.k+'"><span class="alert-ic">!</span><span class="alert-tx">'+escH(al.t)+'</span><span class="rcard-arrow">'+ICONS.caret+'</span></button>';}).join("")+'</div>'):"")+
       '<div class="rsm-sech">Cifras del evento</div>'+
@@ -7925,36 +8071,165 @@ function renderResumen(){
   Array.prototype.forEach.call(host.querySelectorAll(".rcard"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".check-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
   Array.prototype.forEach.call(host.querySelectorAll(".alert-item"),function(b){ b.addEventListener("click",function(){ irASeccion(b.dataset.k); }); });
+  var _rv2=$("rsm-nov-rev2"); if(_rv2) _rv2.addEventListener("click",function(){ revisarListaNovios(e); });
   var _rp=$("rsm-print"); if(_rp) _rp.addEventListener("click",function(){ imprimirResumen(current()); });
   var _rd=$("rsm-dup"); if(_rd) _rd.addEventListener("click",function(){ var c=duplicarEvento(current().id); if(c) irASeccion("resumen"); });
 
-  /* ── Compartir con los novios: enlace público de solo lectura ── */
+  /* ── Portal de los novios: enlace privado, estado de su lista y datos de pago ── */
   if(!e.share) e.share={on:false,id:""};
   var base=location.origin+location.pathname;
   var link=(e.share.id?base+"?novios="+e.share.id:"");
-  var shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card">'+
-    '<div class="share-h">Compartir con los novios</div>'+
+  var fuerte=(e.share.id||"").length>=24, lr=listaNoviosDe(e);
+  function cuandoTs(ts){ try{ var d=new Date(ts); return d.toLocaleDateString("es-ES",{day:"numeric",month:"long"})+" a las "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } }
+  var estLista=!lr?"Todavía no han empezado su lista de invitados.":
+    lr.estado==="enviada"?"<b>Han enviado su lista de invitados</b> el "+escH(cuandoTs(lr.enviada||lr.updated))+". Revísala y pásala al plano.":
+    lr.estado==="borrador"?"Están rellenando su lista (sin enviar todavía). Última modificación: "+escH(cuandoTs(lr.updated))+".":
+    lr.estado==="aplicada"?"Su lista se pasó al plano el "+escH(cuandoTs(lr.revisada))+".":
+    "Su última lista se descartó el "+escH(cuandoTs(lr.revisada))+".";
+  var ses=null; try{ ses=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
+  var esAdmin=!hayServidor()||(ses&&ses.role==="admin"), ct=paramData("portal")||{};
+  var shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card portal-card">'+
+    '<div class="share-h">Portal de los novios</div>'+
     (e.share.on
-      ? '<p class="share-p">Enlace activo. Cualquiera con el enlace ve una página de solo lectura con la fecha, el lugar, el menú y las fotos. No muestra presupuesto, contactos ni la lista de invitados.</p>'+
-        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly aria-label="Enlace para los novios" value="'+escH(link)+'">'+
+      ? '<p class="share-p">Los novios ven su boda, qué toca y cuándo, los pagos y el presupuesto (sin poder cambiarlo), y rellenan su lista de invitados. Es un enlace privado: quien lo tenga puede verlo.</p>'+
+        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly aria-label="Enlace del portal de los novios" value="'+escH(link)+'">'+
         '<button class="btn" id="rsm-share-copy" type="button">Copiar</button>'+
-        '<button class="btn" id="rsm-share-open" type="button">Abrir</button></div>'+
-        '<button class="share-off" id="rsm-share-off" type="button">Desactivar enlace</button>'
-      : '<p class="share-p">Crea una página pública y elegante para enviar a los novios: portada con sus nombres y la fecha, el menú elegido y las fotos. No muestra presupuesto, contactos ni la lista de invitados.</p>'+
-        '<button class="btn gold" id="rsm-share-on" type="button">Generar enlace</button>')+
+        '<button class="btn" id="rsm-share-ver" type="button">Ver como los novios</button></div>'+
+        (!fuerte?'<p class="portal-warn">Este enlace es de antes y solo permite ver. Crea uno nuevo para que puedan rellenar su lista; el anterior dejará de funcionar.</p>':'')+
+        '<div class="portal-st'+(lr&&lr.estado==="enviada"?" nueva":"")+'"><span>'+estLista+'</span>'+(lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
+        '<div class="portal-links"><button class="share-off" id="rsm-share-new" type="button">Crear enlace nuevo</button><button class="share-off" id="rsm-share-off" type="button">Desactivar el portal</button></div>'
+      : '<p class="share-p">Activa su portal y envíales el enlace: verán su boda, qué toca y cuándo, los pagos y el presupuesto (solo lectura), y podrán rellenar la lista de invitados por mesas. Tú la revisas y la pasas al plano con un clic.</p>'+
+        '<button class="btn gold" id="rsm-share-on" type="button">Activar el portal</button>')+
+    (esAdmin?'<details class="portal-datos"'+(!ct.iban&&e.share.on?' open':'')+'><summary>Datos de pago y contacto que ven los novios <span>(los mismos para todas las bodas)</span></summary>'+
+      '<div class="fldset">'+
+        '<label class="fld"><span class="lbl">Cuenta para transferencias (IBAN)</span><input id="pt-iban" value="'+escH(ct.iban||"")+'" placeholder="ES00 0000 0000 0000 0000 0000"></label>'+
+        '<label class="fld"><span class="lbl">Teléfono del equipo de eventos</span><input id="pt-tel" value="'+escH(ct.tel||"")+'" placeholder="977 …"></label>'+
+        '<label class="fld"><span class="lbl">Correo del equipo de eventos</span><input id="pt-mail" value="'+escH(ct.mail||"")+'" placeholder="eventos@…"></label>'+
+        '<label class="fld wide"><span class="lbl">Nota para los novios (opcional)</span><input id="pt-nota" value="'+escH(ct.nota||"")+'" placeholder="Para cualquier duda, escribidnos o llamadnos de 10 a 18 h."></label>'+
+      '</div><button class="btn sm gold" id="pt-save" type="button">Guardar datos</button> <span class="portal-hint">Mientras estén vacíos, el portal no enseña esas líneas.</span></details>':'')+
     '</section></div>';
   host.insertAdjacentHTML("beforeend",shareHTML);
   var _on=$("rsm-share-on"); if(_on) _on.addEventListener("click",function(){
-    if(!e.share.id) e.share.id="n"+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
-    e.share.on=true; e.updated=Date.now(); save(); renderResumen();
+    if(!e.share.id||e.share.id.length<24) e.share.id=tokenNuevo();
+    e.share.on=true; e.updated=Date.now(); portalAlDia(e); save(); renderResumen();
+    toast("Portal activado. Copia el enlace y envíaselo a los novios.");
   });
-  var _off=$("rsm-share-off"); if(_off) _off.addEventListener("click",function(){ e.share.on=false; e.updated=Date.now(); save(); renderResumen(); });
+  var _new=$("rsm-share-new"); if(_new) _new.addEventListener("click",function(){ arm(_new,"Crear enlace nuevo","¿Seguro? El anterior dejará de funcionar",function(){ e.share.id=tokenNuevo(); e.share.on=true; e.updated=Date.now(); portalAlDia(e); save(); renderResumen(); toast("Enlace nuevo creado. Envíaselo a los novios; el anterior ya no funciona."); }); });
+  var _off=$("rsm-share-off"); if(_off) _off.addEventListener("click",function(){ arm(_off,"Desactivar el portal","¿Seguro? El enlace dejará de funcionar",function(){ e.share.on=false; e.updated=Date.now(); save(); renderResumen(); }); });
   var _cp=$("rsm-share-copy"); if(_cp) _cp.addEventListener("click",function(){
     var i=$("rsm-share-url"); if(!i) return; i.select();
-    try{ navigator.clipboard.writeText(i.value); }catch(_){ try{ document.execCommand("copy"); }catch(__){} }
+    try{ navigator.clipboard.writeText(i.value).catch(function(){}); }catch(_){ try{ document.execCommand("copy"); }catch(__){} }
     _cp.textContent="Copiado ✓"; setTimeout(function(){ _cp.textContent="Copiar"; },1500);
   });
-  var _op=$("rsm-share-open"); if(_op) _op.addEventListener("click",function(){ var i=$("rsm-share-url"); if(i) window.open(i.value,"_blank"); });
+  var _ver=$("rsm-share-ver"); if(_ver) _ver.addEventListener("click",function(){ portalAlDia(e); if(window.showNovios) window.showNovios(e.share.id,{vista:true}); });
+  var _rev=$("rsm-nov-rev"); if(_rev) _rev.addEventListener("click",function(){ revisarListaNovios(e); });
+  var _pts=$("pt-save"); if(_pts) _pts.addEventListener("click",function(){
+    setParam("portal",{iban:($("pt-iban").value||"").trim(),tel:($("pt-tel").value||"").trim(),mail:($("pt-mail").value||"").trim(),nota:($("pt-nota").value||"").trim()});
+    if(portalTodos()) save(); toast("Datos guardados. Los novios ya los ven en su portal.");
+  });
+}
+
+/* ══ revisar la lista que han enviado los novios ═════════════════════ */
+function nomKey(s){ return pvNorm(s); }
+function dietaKey(a){ return String(a||"").split(/\s*,\s*/).map(pvNorm).filter(Boolean).sort().join("|"); }
+function diffListaNovios(e,data){
+  var plano=portalFoto(e).lista.mesas, A={}, B={};
+  function mesaDe(m){ return m.nombre||("Mesa "+(m.k||"")); }
+  plano.forEach(function(m){ m.g.forEach(function(g){ A[nomKey(g.n)]={g:g,m:mesaDe(m),k:m.k}; }); });
+  (data.mesas||[]).forEach(function(m){ (m.g||[]).forEach(function(g){ if((g.n||"").trim()) B[nomKey(g.n)]={g:g,m:mesaDe(m),k:m.k}; }); });
+  var out={nuevos:[],quitados:[],movidos:[],cambios:[]};
+  Object.keys(B).forEach(function(k){ var b=B[k], a=A[k];
+    if(!a) out.nuevos.push(b);
+    else { if((a.k&&b.k?a.k!==b.k:a.m!==b.m)) out.movidos.push({g:b.g,de:a.m,a:b.m});
+      if(a.g.t!==b.g.t||dietaKey(a.g.a)!==dietaKey(b.g.a)) out.cambios.push({g:b.g,antes:a.g}); } });
+  Object.keys(A).forEach(function(k){ if(!B[k]) out.quitados.push(A[k]); });
+  return out;
+}
+var TIPO_NOV={adulto:"Adulto",nino:"Niño/a",bebe:"Bebé",staff:"Staff"};
+function revisarListaNovios(e){
+  var r=listaNoviosDe(e); if(!r||!r.data){ toast("No hay ninguna lista de los novios para revisar.",true); return; }
+  if(ovlOpen) return; ovlOpen=true;
+  var D=r.data, df=diffListaNovios(e,D), F=e.ficha||{};
+  var n=0; (D.mesas||[]).forEach(function(m){ n+=(m.g||[]).filter(function(g){ return (g.n||"").trim(); }).length; });
+  function lista(tit,arr,fn,cls){ if(!arr.length) return ""; var max=40;
+    return '<div class="rv-grp '+(cls||"")+'"><div class="rv-h">'+tit+' <b>'+arr.length+'</b></div><ul>'+arr.slice(0,max).map(fn).join("")+(arr.length>max?'<li class="rv-more">y '+(arr.length-max)+' más</li>':'')+'</ul></div>'; }
+  var cambiosNom=((D.parejaA||"")!==(F.parejaA||"")||(D.parejaB||"")!==(F.parejaB||""))&&(D.parejaA||D.parejaB);
+  var html='<div class="ovl-box rv-box" role="dialog" aria-modal="true" aria-label="Lista de invitados de los novios"><div class="ovl-head"><h3>Lista de los novios</h3><div class="spacer"></div><button class="btn" id="rv-x" type="button">Cerrar</button></div>'+
+    '<div class="ovl-note">'+(r.estado==="enviada"?"Enviada el ":"Borrador (sin enviar) · ")+escH(new Date(r.enviada||r.updated).toLocaleDateString("es-ES",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+' · <b>'+n+'</b> personas en '+(D.mesas||[]).length+' mesas. '+
+      'Al pasarla al plano se conservan los platos sustitutivos y las notas que ya teníais apuntados de cada invitado, y la posición de las mesas.</div>'+
+    '<div class="ovl-body rv-body">'+
+      (cambiosNom?'<div class="rv-grp"><div class="rv-h">Nombres de los novios</div><p>'+escH((F.parejaA||"—")+" & "+(F.parejaB||"—"))+' → <b>'+escH((D.parejaA||"")+" & "+(D.parejaB||""))+'</b></p></div>':'')+
+      '<div class="rv-sum"><span><b>'+df.nuevos.length+'</b> nuevos</span><span><b>'+df.quitados.length+'</b> quitados</span><span><b>'+df.movidos.length+'</b> cambian de mesa</span><span><b>'+df.cambios.length+'</b> con alergia, dieta o tipo distinto</span></div>'+
+      lista("Nuevos",df.nuevos,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>'+escH(x.m)+(x.g.t!=="adulto"?" · "+TIPO_NOV[x.g.t]:"")+(x.g.a?' · <i>'+escH(x.g.a)+'</i>':'')+'</span></li>'; },"add")+
+      lista("Quitados",df.quitados,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>estaba en '+escH(x.m)+'</span></li>'; },"del")+
+      lista("Cambian de mesa",df.movidos,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>'+escH(x.de)+' → '+escH(x.a)+'</span></li>'; })+
+      lista("Alergia, dieta o tipo",df.cambios,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>'+escH((TIPO_NOV[x.antes.t]||"")+(x.antes.a?" · "+x.antes.a:""))+' → '+escH((TIPO_NOV[x.g.t]||"")+(x.g.a?" · "+x.g.a:""))+'</span></li>'; },"al")+
+      (!df.nuevos.length&&!df.quitados.length&&!df.movidos.length&&!df.cambios.length?'<p class="rv-igual">Su lista coincide con el plano: no hay nada que cambiar.</p>':'')+
+      '<details class="rv-todo"><summary>Ver su lista completa</summary><div class="rv-mesas">'+(D.mesas||[]).map(function(m,i){ return '<div class="rv-mesa"><b>'+escH(m.nombre||("Mesa "+(i+1)))+'</b><ul>'+(m.g||[]).filter(function(g){ return (g.n||"").trim(); }).map(function(g){ return '<li>'+escH(g.n)+(g.t!=="adulto"?' <span>'+TIPO_NOV[g.t]+'</span>':'')+(g.a?' <i>'+escH(g.a)+'</i>':'')+'</li>'; }).join("")+'</ul></div>'; }).join("")+'</div></details>'+
+    '</div>'+
+    '<div class="imp-foot"><button class="btn gold" id="rv-ok" type="button">Pasar al plano</button><button class="btn danger" id="rv-no" type="button">Descartar</button><span class="portal-hint">Descartar no borra nada del plano; solo marca su lista como revisada.</span></div></div>';
+  var ovl=document.createElement("div"); ovl.className="ovl"; ovl.innerHTML=html; document.body.appendChild(ovl);
+  function close(){ ovl.remove(); ovlOpen=false; }
+  ovl.addEventListener("click",function(ev){ if(ev.target===ovl) close(); });
+  document.addEventListener("keydown",function k(ev){ if(ev.key==="Escape"&&document.body.contains(ovl)){ close(); document.removeEventListener("keydown",k); } });
+  $("rv-x").addEventListener("click",close);
+  $("rv-ok").addEventListener("click",function(){ close(); aplicarListaNovios(e,r); });
+  var _rn=$("rv-no"); _rn.addEventListener("click",function(){ arm(_rn,"Descartar","¿Seguro? Pulsa otra vez",function(){ marcarLista(r,"descartada"); close(); renderResumen(); toast("Lista marcada como descartada. El plano no ha cambiado."); }); });
+  setTimeout(function(){ var b=$("rv-ok"); if(b) b.focus(); },50);
+}
+/* la lista de los novios → texto del plano, con el mismo formato que la app */
+function textoDesdeLista(e,data){
+  var d=parse(e.text||""), porNum={}, viejos={}, maxN=0;
+  d.tables.forEach(function(t){ porNum[t.num]=t; maxN=Math.max(maxN,t.num||0); t.guests.forEach(function(g){ var k=nomKey(g.name); if(!viejos[k]) viejos[k]=g; }); });
+  var cab=[], vistoT=false, vistoA=false;
+  String(e.text||"").split(/\r?\n/).forEach(function(l){ var s=l.trim(); if(!vistoT&&/^#/.test(s)){ cab.push(s); vistoT=true; } else if(!vistoA&&/^@/.test(s)){ cab.push(s); vistoA=true; } });
+  var usados={}, bloques=[];
+  (data.mesas||[]).forEach(function(m){
+    var gs=(m.g||[]).filter(function(g){ return (g.n||"").trim(); }); if(!gs.length&&!(m.nombre||"").trim()) return;
+    var t=(m.k&&porNum[m.k]&&!usados[m.k])?porNum[m.k]:null, head;
+    var nom=String(m.nombre||"").trim(), nomOrig=t?(t.name||(mesaNumVisible(t)?"Mesa "+t.num:"Presidencial")):"";
+    if(t){ usados[t.num]=1; }
+    if(t&&nom===nomOrig) head=t.head||("M"+t.num);
+    else {
+      var num=t?t.num:(++maxN), expl=t?mesaNumVisible(t):true, forma=t?(t.shapeWord||((I18N.es&&I18N.es.shapes&&I18N.es.shapes[t.shape])||"Redonda")):"Redonda";
+      var nm=/^\d+$/.test(nom)?'"'+nom+'"':nom;
+      head=(expl?"M"+num:"Mesa")+" | "+forma+(t&&t.cap?" "+t.cap:"")+(nm?" | "+nm:"");
+    }
+    var lines=[head];
+    gs.forEach(function(g){
+      var v=viejos[nomKey(g.n)], marcas=[], platos=[];
+      if(g.t==="nino") marcas.push("niño"); else if(g.t==="bebe") marcas.push("trona");
+      String(g.a||"").split(/\s*,\s*/).forEach(function(x){ x=x.trim(); if(!x) return; var c=classify(x); marcas.push(c&&c.type==="note"?"alergia: "+x:x); });
+      if(v) (v.raw||[]).forEach(function(tag){ var c=classify(tag); if(!c) return; if(c.type==="menu") platos.push(tag.trim()); else if(c.type==="note") marcas.push(tag.trim()); });
+      lines.push(String(g.n).trim()+(marcas.length?" ("+marcas.join(", ")+")":"")+platos.map(function(p){ return " ("+p+")"; }).join("")+(v&&v.star?" *":""));
+    });
+    bloques.push(lines.join("\n"));
+  });
+  return (cab.length?cab.join("\n")+"\n\n":"")+bloques.join("\n\n")+"\n";
+}
+function aplicarListaNovios(e,r){
+  var antes={text:e.text,parejaA:(e.ficha||{}).parejaA,parejaB:(e.ficha||{}).parejaB}, esActual=current()&&current().id===e.id;
+  if(esActual) pushUndo();
+  e.text=textoDesdeLista(e,r.data); e.name=eventName(e.text);
+  e.ficha=e.ficha||{}; if(r.data.parejaA) e.ficha.parejaA=r.data.parejaA; if(r.data.parejaB) e.ficha.parejaB=r.data.parejaB;
+  e.updated=Date.now();
+  if(esActual){ $("src").value=e.text; prevText=e.text; sel=null; render(); }
+  fillSelect(); portalAlDia(e); save(); marcarLista(r,"aplicada"); renderResumen();
+  var c=planCounts(e);
+  toast("Lista de los novios pasada al plano: "+c.pax+" personas en "+c.mesas+" mesas.",false,"Deshacer",function(){
+    e.text=antes.text; e.name=eventName(e.text); e.ficha.parejaA=antes.parejaA; e.ficha.parejaB=antes.parejaB; e.updated=Date.now();
+    if(current()&&current().id===e.id){ $("src").value=e.text; prevText=e.text; render(); }
+    marcarLista(r,"enviada"); fillSelect(); save(); renderResumen(); toast("Deshecho: el plano vuelve a estar como antes.");
+  });
+}
+/* aviso en el panel de inicio: listas que esperan revisión */
+function renderHomeNovios(){
+  var host=$("home-novios"); if(!host) return;
+  var pend=store.events.filter(function(e){ return listaPorRevisar(e); });
+  if(!pend.length){ host.innerHTML=""; return; }
+  host.innerHTML='<div class="hn-box"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(pend.length===1?"Unos novios han enviado su lista de invitados":pend.length+" parejas han enviado su lista de invitados")+'</b><span>'+pend.map(function(e){ return escH(nombreLimpio(e.name)); }).join(" · ")+'</span></div>'+
+    '<div class="hn-acts">'+pend.slice(0,3).map(function(e){ return '<button class="btn sm gold" type="button" data-rv="'+escH(e.id)+'">Revisar'+(pend.length>1?" "+escH(nombreLimpio(e.name).split(/\s+/).slice(-3).join(" ")):"")+'</button>'; }).join("")+'</div></div>';
+  Array.prototype.forEach.call(host.querySelectorAll("[data-rv]"),function(b){ b.addEventListener("click",function(){ var id=b.getAttribute("data-rv"); abrirEvento(id); setTimeout(function(){ var ev=null; store.events.forEach(function(x){ if(x.id===id) ev=x; }); if(ev) revisarListaNovios(ev); },250); }); });
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -8569,7 +8844,7 @@ function mergeParams(mio,otro){
 }
 function paramMeta(sec){ return (store.params&&store.params.sec&&store.params.sec[sec])||null; }
 function paramData(sec){ var m=paramMeta(sec); return (m&&m.data!=null)?m.data:null; }
-var PARAM_HOOKS=[];
+var PARAM_HOOKS=[function(){ try{ if(typeof portalTodos==="function") portalTodos(); }catch(_){} }];
 function aplicarParams(){ PARAM_HOOKS.forEach(function(fn){ try{ fn(); }catch(err){ try{ console.warn("parámetros:",err); }catch(_){} } }); }
 function setParam(sec,data){
   store.params=store.params&&store.params.sec?store.params:{v:1,sec:{}};
@@ -12054,7 +12329,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════
-   PÁGINA DE LOS NOVIOS — vista pública de solo lectura.
+   PORTAL DE LOS NOVIOS — su página privada (enlace ?novios=<token>).
    Se abre con ?novios=<token> en la URL. Salta el login por completo y pinta
    una página elegante con lo celebrativo del evento: nombres, fecha, lugar,
    ceremonia, nº de invitados/mesas, el menú elegido y las fotos. Los datos
@@ -12063,98 +12338,354 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
    ══════════════════════════════════════════════════════════════════════ */
 (function(){
   "use strict";
-  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];}); }
-  var MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
-  function fmtFecha(f){
-    if(!f) return "";
-    var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(f); if(m){ var dd=+m[3]; return dd+" de "+MESES[(+m[2])-1]+" de "+m[1]; }
-    return f;
+  /* ── datos: del servidor (/api/share) o, sin servidor, del propio navegador ── */
+  var BR=window.SITTING_BRIDGE;
+  var D=null, S=null, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio";
+  var MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  var TIPOS=[["adulto","Adulto"],["nino","Niño/a"],["bebe","Bebé (trona)"]];
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function eur(n){ return (+n||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:"always"})+" €"; }
+  function d0(iso){ return /^\d{4}-\d\d-\d\d$/.test(iso||"")?new Date(iso+"T00:00:00"):null; }
+  function hoy(){ var d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+  function hoyISO(){ var d=hoy(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+  function dias(d){ return d?Math.round((d-hoy())/86400000):null; }
+  function largo(d){ if(!d) return ""; var s=d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); return s.charAt(0).toUpperCase()+s.slice(1); }
+  function corto(d){ return d?d.toLocaleDateString("es-ES",{day:"numeric",month:"long"}):"—"; }
+  function cuando(n){ return n==null?"":n<0?"hace "+(-n)+(n===-1?" día":" días"):n===0?"hoy":n===1?"mañana":"en "+n+" días"; }
+  var IC={
+    documento:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+    pago:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg>',
+    reunion:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
+    lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+    edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+    info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>'
+  };
+  var MOLA='<svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="40"/><rect x="88" y="88" width="24" height="24"/><path d="M100 4v36M100 160v36M4 100h36M160 100h36M32 32l26 26M142 142l26 26M168 32l-26 26M58 142l-26 26"/></svg>';
+
+  function P(){ return (D&&D.portal)||{}; }
+  function cerrado(){ var c=P().cierre; return !!(c&&(D.hoy||hoyISO())>=c); }
+  function puedeEditar(){ return !!(D&&D.editable)&&!cerrado(); }
+  function nombres(){ var a=(S&&S.parejaA)||"", b=(S&&S.parejaB)||""; if(!a&&!b){ var t=(P().titulo||(D&&D.event&&D.event.title)||"Vuestra boda"); return {a:t,b:"",solo:true}; } return {a:a||"—",b:b||"—"}; }
+  function cuenta(){ var c={total:0,adulto:0,nino:0,bebe:0,staff:0,al:0};
+    ((S&&S.mesas)||[]).forEach(function(m){ var st=!!m.staff||/(^|\s)(staff|personal)(\s|$)/i.test(m.nombre||""); (m.g||[]).forEach(function(g){ if(!(g.n||"").trim()) return; c.total++; var t=st?"staff":(g.t||"adulto"); c[t]=(c[t]||0)+1; if((g.a||"").trim()) c.al++; }); }); return c; }
+
+  /* ── estilos (propios de esta página, dentro de #novios) ── */
+  var CSS=[
+  "#novios.pn{--pb:#EFEFEA;--pb2:#E7E7E0;--pp:#FCFCFA;--pf:#fff;--pi:#1A1A1A;--pm:#65645C;--pfa:#86857B;--pl:#DDDDD4;--pl2:#C8C8BD;--ph:rgba(221,221,212,.75);--ol:#8A9A6B;--ol2:#A2AD7C;--olt:#56613F;--ols:#E6EADA;--olw:#F2F4EC;--oc:#9A722A;--ocs:#F7F0E1;--wi:#8E2C48;--wis:#F8EEF1;--carbon:#1A1A1A;--ivory:#F4F3EC;",
+  "--dsp:'Bodoni Moda','Cormorant Garamond',Georgia,serif;--txt:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--pb);color:var(--pi);font-family:var(--txt);font-size:14.5px;line-height:1.55}",
+  "#novios.pn *{box-sizing:border-box}#novios.pn [hidden]{display:none!important}",
+  "#novios .pn-wrap{max-width:820px;margin:0 auto;padding-inline:18px}",
+  "#novios .pn-n{font-variant-numeric:tabular-nums lining-nums}",
+  "#novios .pn-vista{position:sticky;top:0;z-index:30;height:46px;display:flex;align-items:center;gap:12px;justify-content:center;background:var(--ols);color:var(--olt);font-size:12.5px;padding:0 16px;white-space:nowrap}",
+  "#novios .pn-hero{position:relative;overflow:hidden;isolation:isolate;background:var(--carbon);color:var(--ivory);padding-block:34px 28px}",
+  "#novios .pn-hero>svg{position:absolute;right:-90px;top:-80px;width:360px;height:360px;z-index:-1;fill:none;stroke:var(--ol);stroke-width:.8;opacity:.28}",
+  "#novios .pn-brand{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--ol2);font-weight:600}",
+  "#novios .pn-brand span:last-child{color:#9C9B92;letter-spacing:.16em}",
+  "#novios .pn-names{margin:30px 0 0;font-family:var(--dsp);font-weight:500;font-size:clamp(40px,9vw,68px);line-height:1.02;letter-spacing:.005em;text-wrap:balance;font-variation-settings:'opsz' 40}",
+  "#novios .pn-names i{font-style:italic;font-weight:400;color:var(--ol2);font-size:.62em;padding:0 .12em}",
+  "#novios .pn-when{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px 18px;color:#C9C8BF;font-size:14px}",
+  "#novios .pn-count{margin-top:26px;display:flex;border-top:1px solid rgba(244,243,236,.14);padding-top:18px}",
+  "#novios .pn-count div{flex:1;padding-right:14px;min-width:0}#novios .pn-count div+div{padding-left:16px;border-left:1px solid rgba(244,243,236,.14)}",
+  "#novios .pn-count b{display:block;font-size:28px;font-weight:400;letter-spacing:-.02em;color:#fff;white-space:nowrap}",
+  "#novios .pn-count span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9C9B92;font-weight:600}",
+  "#novios .pn-tabs{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--pb) 92%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--pl)}",
+  "#novios .pn-vista~.pn-tabs{top:46px}",
+  "@media (max-width:620px){#novios .pn-send .st{font-size:11.5px}#novios .pn-send{padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}}",
+  "#novios .pn-tabs .pn-wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-block:8px}",
+  "#novios .pn-tab{flex:none;border:0;background:transparent;padding:8px 14px;border-radius:99px;font:inherit;font-size:13px;font-weight:600;color:var(--pm);cursor:pointer}",
+  "#novios .pn-tab[aria-selected=true]{background:var(--carbon);color:var(--ivory)}",
+  "#novios .pn-main{padding-block:26px 70px}",
+  "#novios .pn-panel{display:flex;flex-direction:column;gap:18px;animation:pnIn .3s cubic-bezier(.2,.7,.2,1)}",
+  "@keyframes pnIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}",
+  "#novios .pn-h2{margin:0;font-family:var(--dsp);font-weight:500;font-size:28px;line-height:1.1;font-variation-settings:'opsz' 30;text-wrap:balance}",
+  "#novios .pn-lead{margin:6px 0 0;color:var(--pm);max-width:62ch}",
+  "#novios .pn-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}",
+  "#novios .pn-card{background:var(--pp);border:1px solid var(--pl);border-radius:12px;padding:20px 22px}",
+  "#novios .pn-eb{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:650;color:var(--pm)}",
+  "#novios .pn-perm{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:650;padding:4px 10px;border-radius:99px;white-space:nowrap}",
+  "#novios .pn-perm svg{width:12px;height:12px}#novios .pn-perm.edit{background:var(--ols);color:var(--olt)}#novios .pn-perm.lock{background:var(--pb2);color:var(--pm)}",
+  "#novios .pn-next{display:flex;gap:16px;align-items:center;border-radius:12px;padding:18px 20px;background:var(--pp);border:1px solid var(--pl)}",
+  "#novios .pn-next .ic{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--ocs);color:var(--oc)}#novios .pn-next .ic svg{width:20px;height:20px}",
+  "#novios .pn-next b{display:block;font-size:15px}#novios .pn-next span{color:var(--pm);font-size:13px}#novios .pn-next .go{margin-left:auto;flex:none}",
+  "#novios .pn-steps{list-style:none;margin:0;padding:0}",
+  "#novios .pn-step{position:relative;display:grid;grid-template-columns:26px 1fr auto;gap:14px;padding:0 0 22px}",
+  "#novios .pn-step:before{content:'';position:absolute;left:12.5px;top:26px;bottom:0;width:1px;background:var(--pl2)}#novios .pn-step:last-child{padding-bottom:0}#novios .pn-step:last-child:before{display:none}",
+  "#novios .pn-dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--pl2);background:var(--pp);display:grid;place-items:center;color:transparent}#novios .pn-dot svg{width:13px;height:13px}",
+  "#novios .pn-step.done .pn-dot{background:var(--carbon);border-color:var(--carbon);color:var(--ivory)}#novios .pn-step.now .pn-dot{border-color:var(--oc);box-shadow:0 0 0 4px var(--ocs)}#novios .pn-step.late .pn-dot{border-color:var(--wi);box-shadow:0 0 0 4px var(--wis)}#novios .pn-step.big .pn-dot{background:var(--ol);border-color:var(--ol)}",
+  "#novios .st-t{font-weight:600}#novios .pn-step.done .st-t{color:var(--pm)}#novios .st-d{font-size:12.5px;color:var(--pm);margin-top:2px}",
+  "#novios .st-w{text-align:right;white-space:nowrap}#novios .st-w b{display:block;font-size:13px;font-weight:600}#novios .st-w small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:650;color:var(--pfa)}",
+  "#novios .pn-step.now .st-w small{color:var(--oc)}#novios .pn-step.late .st-w small{color:var(--wi)}#novios .pn-step.done .st-w small{color:var(--olt)}",
+  "#novios .st-amt{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--pb2)}",
+  "#novios .pn-money{display:grid;grid-template-columns:repeat(3,1fr);background:var(--pp);border:1px solid var(--pl);border-radius:12px;overflow:hidden}",
+  "#novios .pn-money>div{padding:16px 18px}#novios .pn-money>div+div{border-left:1px solid var(--ph)}",
+  "#novios .pn-money span{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:650;color:var(--pm)}#novios .pn-money b{display:block;margin-top:6px;font-size:22px;font-weight:400;letter-spacing:-.02em}",
+  "#novios .pn-money .paid b{color:var(--olt)}#novios .pn-money .due b{color:var(--oc)}",
+  "#novios .pn-money .bar{grid-column:1/-1;border-left:0!important;padding:0 18px 16px!important}#novios .bar i{display:block;height:4px;border-radius:4px;background:var(--pb2);overflow:hidden}#novios .bar i u{display:block;height:100%;background:var(--ol);border-radius:4px}#novios .bar small{display:block;margin-top:8px;font-size:11.5px;color:var(--pm)}",
+  "#novios .pn-pays{list-style:none;margin:0;padding:0;background:var(--pp);border:1px solid var(--pl);border-radius:12px;overflow:hidden}",
+  "#novios .pn-pay{display:grid;grid-template-columns:62px 1fr auto;gap:14px;align-items:center;padding:15px 18px;border-bottom:1px solid var(--ph)}#novios .pn-pay:last-child{border-bottom:0}",
+  "#novios .pay-d{text-align:center;line-height:1}#novios .pay-d b{display:block;font-size:24px;font-weight:400;letter-spacing:-.02em}#novios .pay-d i{font-style:normal;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:650;color:var(--pm)}",
+  "#novios .pay-t b{display:block;font-weight:600}#novios .pay-t span{font-size:12.5px;color:var(--pm)}#novios .pay-a{text-align:right}#novios .pay-a b{display:block;font-size:16px;font-weight:600}",
+  "#novios .pn-st{display:inline-block;margin-top:4px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:650;padding:2px 8px;border-radius:99px}",
+  "#novios .pn-st.ok{background:var(--ols);color:var(--olt)}#novios .pn-st.soon{background:var(--ocs);color:var(--oc)}#novios .pn-st.later{background:var(--pb2);color:var(--pm)}#novios .pn-st.late{background:var(--wis);color:var(--wi)}",
+  "#novios .pn-copy{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px dashed var(--pl2);border-radius:7px;background:var(--pf)}",
+  "#novios .pn-copy code{flex:1 1 200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;word-break:break-all}#novios .pn-copy span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:650;color:var(--pm);flex-basis:100%}",
+  "#novios .pn-doc{background:#FBFAF6;color:#1E1E1B;border:1px solid #E3DED2;border-radius:4px;padding:28px 30px 24px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 18px 40px -22px rgba(0,0,0,.25);position:relative}",
+  "#novios .doc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid #1A1A1A}#novios .doc-h h3{margin:0;font-family:var(--dsp);font-weight:500;font-size:24px}#novios .doc-h small{display:block;margin-top:4px;font-size:12px;color:#65645C}",
+  "#novios .pn-doc table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}#novios .pn-doc th{text-align:left;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:650;color:#65645C;padding:10px 0 8px}",
+  "#novios .pn-doc td{padding:10px 0;border-bottom:1px solid #E6E3D8;vertical-align:top}#novios .pn-doc .r{text-align:right;white-space:nowrap;padding-left:10px}#novios .pn-doc td small{display:block;font-size:12px;color:#65645C}",
+  "#novios .pn-doc tr.sub td{border-bottom:0;padding-top:14px;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:650;color:#56613F}",
+  "#novios .pn-doc tfoot td{border-bottom:0;padding-top:14px;font-size:16px;font-weight:700;border-top:1px solid #1A1A1A}",
+  "#novios .doc-note{margin-top:16px;font-size:12.5px;color:#56554E;display:flex;gap:10px;align-items:flex-start}#novios .doc-note svg{flex:none;width:16px;height:16px;margin-top:2px}",
+  "#novios .pn-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}#novios .pn-fld{display:flex;flex-direction:column;gap:6px}",
+  "#novios .pn-lbl{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:650;color:var(--pm)}",
+  "#novios input[type=text],#novios select{width:100%;min-height:40px;background:var(--pf);border:1px solid var(--pl2);border-radius:7px;padding:8px 11px;font:inherit;color:inherit}",
+  "#novios input[type=text]:focus,#novios select:focus{outline:none;border-color:var(--ol);box-shadow:0 0 0 3px rgba(138,154,107,.22)}#novios input::placeholder{color:var(--pfa)}",
+  "#novios input[disabled],#novios select[disabled]{background:var(--pb);color:var(--pm)}",
+  "#novios .pn-tally{display:flex;flex-wrap:wrap;background:var(--pp);border:1px solid var(--pl);border-radius:12px;overflow:hidden}",
+  "#novios .pn-tally div{flex:1 1 90px;padding:12px 14px;border-right:1px solid var(--ph)}#novios .pn-tally div:last-child{border-right:0}#novios .pn-tally b{display:block;font-size:22px;font-weight:400;letter-spacing:-.02em}#novios .pn-tally span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:650;color:var(--pm)}#novios .pn-tally .al b{color:var(--wi)}",
+  "#novios .pn-mesa{background:var(--pp);border:1px solid var(--pl);border-radius:12px;overflow:hidden}",
+  "#novios .mesa-h{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ph);background:var(--olw)}",
+  "#novios .mesa-n{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--pl2);display:grid;place-items:center;font-family:var(--dsp);font-size:15px;background:var(--pp)}",
+  "#novios .mesa-h input{flex:1;min-height:36px;font-weight:600;background:transparent;border-color:transparent}#novios .mesa-h input:hover{border-color:var(--pl2)}#novios .mesa-h .cnt{flex:none;font-size:12px;color:var(--pm);white-space:nowrap}",
+  "#novios .pn-g{display:grid;grid-template-columns:minmax(0,1fr) 128px minmax(0,1fr) 34px;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--ph)}",
+  "#novios .pn-g input,#novios .pn-g select{min-height:36px;font-size:13.5px}#novios .pn-g .al input{border-style:dashed}#novios .pn-g .al input:not(:placeholder-shown){border-style:solid;border-color:rgba(142,44,72,.45);color:var(--wi)}",
+  "#novios .pn-x{width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--pfa);cursor:pointer;font-size:18px;line-height:1}#novios .pn-x:hover{background:var(--wis);color:var(--wi)}",
+  "#novios .mesa-f{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 12px}",
+  "#novios .pn-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:0 14px;border-radius:7px;border:1px solid var(--pl2);background:var(--pp);font:inherit;font-size:13px;font-weight:600;color:var(--pi);cursor:pointer;transition:border-color .15s,background .15s}",
+  "#novios .pn-btn:hover{border-color:var(--pi)}#novios .pn-btn.pri{background:var(--carbon);border-color:var(--carbon);color:var(--ivory)}#novios .pn-btn.pri:hover{background:#000}#novios .pn-btn.gh{border-color:transparent;background:transparent;color:var(--pm)}#novios .pn-btn.gh:hover{color:var(--pi);background:var(--pb2)}#novios .pn-btn[disabled]{opacity:.45;cursor:not-allowed}",
+  "#novios .pn-send{position:sticky;bottom:0;z-index:15;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--pp);border:1px solid var(--pl);border-radius:12px;box-shadow:0 -10px 30px -18px rgba(0,0,0,.35)}",
+  "#novios .pn-send .st{flex:1 1 220px;font-size:12.5px;color:var(--pm)}#novios .pn-send .st b{color:var(--pi)}",
+  "#novios .pn-aviso{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--ocs);font-size:13px}#novios .pn-aviso svg{flex:none;width:18px;height:18px;color:var(--oc);margin-top:1px}",
+  "#novios .pn-aviso.ok{background:var(--ols)}#novios .pn-aviso.ok svg{color:var(--olt)}",
+  "#novios .pn-menu{text-align:center;padding:30px 22px}#novios .pn-menu h4{display:flex;align-items:center;gap:14px;margin:24px 0 10px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;font-weight:650;color:var(--olt)}",
+  "#novios .pn-menu h4:before,#novios .pn-menu h4:after{content:'';flex:1;height:1px;background:var(--pl)}#novios .pn-menu h4:first-child{margin-top:0}#novios .pn-menu p{margin:4px 0;font-family:var(--dsp);font-size:18px}",
+  "#novios .pn-horas{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));background:var(--pp);border:1px solid var(--pl);border-radius:12px;overflow:hidden}",
+  "#novios .pn-horas div{padding:14px 16px;border-right:1px solid var(--ph);border-bottom:1px solid var(--ph)}#novios .pn-horas b{display:block;font-size:22px;font-weight:400;letter-spacing:-.02em}#novios .pn-horas span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:650;color:var(--pm)}",
+  "#novios .pn-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,12px);opacity:0;z-index:10050;background:var(--carbon);color:var(--ivory);padding:11px 18px;border-radius:10px;font-size:13px;box-shadow:0 18px 40px -12px rgba(0,0,0,.45);transition:opacity .25s,transform .25s;pointer-events:none;max-width:calc(100vw - 32px)}",
+  "#novios .pn-toast.on{opacity:1;transform:translate(-50%,0)}#novios .pn-toast button{margin-left:10px;background:transparent;color:inherit;border:1px solid rgba(244,243,236,.4);border-radius:6px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer;pointer-events:auto}",
+  "#novios .pn-foot{padding-block:26px 40px;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--pfa)}",
+  "#novios .pn-empty{min-height:70vh;display:grid;place-items:center;text-align:center;padding:40px 24px;font-family:var(--dsp);font-size:22px;color:var(--pm)}",
+  "@media (max-width:620px){#novios .pn-hero{padding-block:26px 22px}#novios .pn-count b{font-size:20px}#novios .pn-money{grid-template-columns:1fr}#novios .pn-money>div+div{border-left:0;border-top:1px solid var(--ph)}",
+  "#novios .pn-pay{grid-template-columns:50px 1fr}#novios .pay-a{grid-column:2;text-align:left}#novios .pn-pair{grid-template-columns:1fr}",
+  "#novios .pn-g{grid-template-columns:minmax(0,1fr) 34px;gap:6px 8px;padding:10px 12px}#novios .pn-g .nm{grid-column:1}#novios .pn-g .pn-x{grid-column:2;grid-row:1}#novios .pn-g .tp,#novios .pn-g .al{grid-column:1/-1}",
+  "#novios .pn-doc{padding:22px 18px 20px}#novios .pn-next{flex-wrap:wrap}#novios .pn-next .go{margin-left:0;width:100%}#novios .pn-step{grid-template-columns:26px 1fr}#novios .st-w{grid-column:2;text-align:left}}",
+  "@media (prefers-reduced-motion:reduce){#novios .pn-panel{animation:none}}"
+  ].join("\n");
+  function css(){ if(document.getElementById("pn-css")) return; var st=document.createElement("style"); st.id="pn-css"; st.textContent=CSS; document.head.appendChild(st); }
+
+  /* ── pasos (el de la lista se da por hecho cuando la han enviado) ── */
+  function pasos(){
+    var L=(P().pasos||[]).map(function(p){ var o=Object.assign({},p); o.f=d0(p.fecha); if(p.id==="doc"&&(estado==="enviada"||estado==="aplicada")) o.done=true; return o; });
+    return L;
   }
-  function dishesElegidos(dishMap){
-    dishMap=dishMap||{};
-    var out=[];
-    if(typeof MENU_DATA==="undefined") return out;
-    MENU_DATA.forEach(function(fam){
-      var ds=fam.dishes.filter(function(d){ return dishMap[d._uid]; }).map(function(d){ return d.name; });
-      if(ds.length) out.push({label:fam.label, dishes:ds});
-    });
-    return out;
+  function vHero(){
+    var n=nombres(), f=d0(P().fecha||(D.event&&D.event.fecha)), dd=dias(f), pr=P().presupuesto||{}, c=cuenta();
+    return '<header class="pn-hero">'+MOLA+'<div class="pn-wrap"><div class="pn-brand"><span>Les Moles · Ulldecona</span><span>'+esc(P().tipo||"Vuestra boda")+'</span></div>'+
+      '<h1 class="pn-names">'+(n.solo?esc(n.a):esc(n.a)+' <i>&amp;</i> '+esc(n.b))+'</h1>'+
+      '<div class="pn-when">'+(f?'<span>'+esc(largo(f))+'</span>':'')+(P().ubicacion?'<span>'+esc(P().ubicacion)+'</span>':'')+'</div>'+
+      '<div class="pn-count"><div><b class="pn-n">'+(dd!=null&&dd>=0?dd:"—")+'</b><span>'+(dd===1?"día":"días")+'</span></div><div><b class="pn-n" id="pn-c-inv">'+c.total+'</b><span>invitados en vuestra lista</span></div>'+
+      (pr.total>0?'<div><b class="pn-n">'+esc(eur(pr.pend).replace(",00",""))+'</b><span>pendiente de pagar</span></div>':'')+'</div></div></header>';
   }
-  function render(d){
-    var host=document.getElementById("novios"); if(!host) return;
-    if(!d){ host.innerHTML='<div class="nv-empty">Este enlace no está disponible.<br>Pide a Les Moles que vuelva a compartirlo.</div>'; host.classList.add("on"); return; }
-    var nombres = (d.parejaA||d.parejaB)
-      ? (esc(d.parejaA||"")+(d.parejaB?'<span class="nv-amp">&</span>'+esc(d.parejaB):""))
-      : esc(d.title||"Nuestro evento");
-    var hero='<div class="nv-hero">'+
-      (d.foto?'<div class="nv-hero-bg" style="background-image:url('+JSON.stringify(d.foto)+')"></div>':'')+
-      '<div class="nv-brand"><b>LES MOLES</b> · EVENTS</div>'+
-      '<div class="nv-eyebrow">'+esc(d.tipo||"Evento")+'</div>'+
-      '<h1 class="nv-names">'+nombres+'</h1>'+
-      (d.fecha?'<div class="nv-when">'+esc(fmtFecha(d.fecha))+'</div>':'')+
-      (d.ubicacion?'<div class="nv-where">'+esc(d.ubicacion)+'</div>':'')+
-      '</div>';
-
-    var cifras='';
-    if((d.invitados||0)>0||(d.mesas||0)>0){
-      cifras='<section class="nv-sec"><div class="nv-wrap"><div class="nv-stats">'+
-        ((d.invitados||0)>0?'<div class="nv-stat"><b>'+d.invitados+'</b><span>Invitados</span></div>':'')+
-        ((d.mesas||0)>0?'<div class="nv-stat"><b>'+d.mesas+'</b><span>Mesas</span></div>':'')+
-        '</div></div></section>';
+  function vTabs(){ var T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["dia","El día"]];
+    return '<nav class="pn-tabs" aria-label="Apartados"><div class="pn-wrap" role="tablist">'+T.map(function(t){ return '<button class="pn-tab" role="tab" type="button" aria-selected="'+(tab===t[0])+'" data-pn-tab="'+t[0]+'">'+t[1]+'</button>'; }).join("")+'</div></nav>'; }
+  function vInicio(){
+    var L=pasos(), sig=L.filter(function(p){ return !p.done&&p.id!=="boda"; })[0], h='';
+    var n=nombres();
+    h+='<div><h2 class="pn-h2">Hola'+(n.solo?"":", "+esc(n.a)+" y "+esc(n.b))+'</h2><p class="pn-lead">Aquí tenéis todo lo de vuestra boda en Les Moles: qué toca hacer y cuándo, los pagos, el presupuesto y la lista de invitados, que podéis rellenar vosotros mismos.</p></div>';
+    if(sig){ var k=dias(sig.f);
+      h+='<div class="pn-next"><span class="ic">'+(IC[sig.tipo]||IC.reunion)+'</span><div><span>Lo siguiente'+(k!=null?" · "+esc(cuando(k)):"")+'</span><b>'+esc(sig.t)+(sig.importe?" · "+eur(sig.importe):"")+'</b><span>'+esc(corto(sig.f))+(sig.d?" · "+esc(sig.d):"")+'</span></div>'+
+        (sig.id==="doc"?'<button class="pn-btn pri go" type="button" data-pn-go="inv">Rellenar la lista</button>':sig.tipo==="pago"?'<button class="pn-btn go" type="button" data-pn-go="pagos">Ver cómo pagar</button>':'')+'</div>';
     }
-
-    var det=[];
-    if(d.ceremoniaLugar||d.ceremoniaHora) det.push({k:"Ceremonia", v:[d.ceremoniaLugar,d.ceremoniaHora].filter(Boolean).join(" · ")});
-    if(d.ceremoniaDur) det.push({k:"Duración", v:d.ceremoniaDur});
-    if(d.llegadaRest) det.push({k:"Llegada a Les Moles", v:d.llegadaRest});
-    var dia='';
-    if(det.length){
-      dia='<section class="nv-sec"><div class="nv-wrap"><div class="nv-sec-h">El día</div>'+
-        '<h2 class="nv-sec-t">Cómo será la jornada</h2><div class="nv-detail">'+
-        det.map(function(x){ return '<div><div class="k">'+esc(x.k)+'</div><div class="v">'+esc(x.v)+'</div></div>'; }).join("")+
-        '</div></div></section>';
-    }
-
-    var fams=dishesElegidos(d.dishes), menu='';
-    if(fams.length){
-      menu='<section class="nv-sec"><div class="nv-wrap"><div class="nv-sec-h">Gastronomía</div>'+
-        '<h2 class="nv-sec-t">El menú</h2>'+
-        fams.map(function(f){ return '<div class="nv-menu-fam"><h4>'+esc(f.label)+'</h4><ul>'+
-          f.dishes.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join("")+'</ul></div>'; }).join("")+
-        '</div></section>';
-    }
-
-    var gal='';
-    if(d.fotos&&d.fotos.length){
-      gal='<section class="nv-sec"><div class="nv-wrap"><div class="nv-sec-h">Recuerdos</div>'+
-        '<h2 class="nv-sec-t">Galería</h2><div class="nv-gallery">'+
-        d.fotos.map(function(src){ return '<img loading="lazy" src="'+esc(src)+'" alt="">'; }).join("")+
-        '</div></div></section>';
-    }
-
-    var foot='<div class="nv-foot"><b>Les Moles Events</b>Gastronomía · Naturaleza · Momentos únicos</div>';
-    host.innerHTML=hero+cifras+dia+menu+gal+foot;
-    host.classList.add("on");
-    try{ document.title=(d.parejaA?d.parejaA+(d.parejaB?" & "+d.parejaB:""):(d.title||"Evento"))+" · Les Moles Events"; }catch(_){}
+    if(L.length){ var primero=true;
+      h+='<div class="pn-card"><div class="pn-head" style="margin-bottom:18px"><div class="pn-eb">Qué toca y cuándo</div><span class="pn-perm lock">'+IC.lock+'Lo marca Les Moles</span></div><ol class="pn-steps">'+
+        L.map(function(p){ var k=dias(p.f), cls=p.done?"done":(k!=null&&k<0?"late":(primero?"now":"")); if(!p.done) primero=false; if(p.id==="boda") cls+=" big";
+          var est=p.done?(p.tipo==="pago"?"Pagado":"Hecho"):(k!=null&&k<0?"Pendiente":cuando(k));
+          return '<li class="pn-step '+cls+'"><span class="pn-dot">'+IC.check+'</span><div><div class="st-t">'+esc(p.t)+'</div>'+(p.d?'<div class="st-d">'+esc(p.d)+'</div>':'')+(p.importe?'<span class="st-amt pn-n">'+eur(p.importe)+'</span>':'')+'</div>'+
+            '<div class="st-w"><b>'+esc(corto(p.f))+'</b><small>'+esc(est)+'</small></div></li>'; }).join("")+'</ol></div>';
+    } else h+='<div class="pn-aviso">'+IC.info+'<span>Muy pronto veréis aquí vuestros pasos y pagos, en cuanto tengamos la fecha y el presupuesto.</span></div>';
+    return h;
   }
+  function vPagos(){
+    var pr=P().presupuesto||{}, T=+pr.total||0, Pg=+pr.pagado||0, pct=T?Math.min(100,Math.round(Pg/T*100)):0, h='';
+    h+='<div class="pn-head"><div><h2 class="pn-h2">Pagos</h2><p class="pn-lead">Cuándo y cuánto. Los importes salen del presupuesto; cuando recibimos un pago, lo marcamos aquí.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
+    if(!T){ return h+'<div class="pn-aviso">'+IC.info+'<span>El presupuesto todavía no está listo. En cuanto lo esté, veréis aquí los pagos y sus fechas.</span></div>'; }
+    h+='<div class="pn-money"><div><span>Total</span><b class="pn-n">'+eur(T)+'</b></div><div class="paid"><span>Pagado</span><b class="pn-n">'+eur(Pg)+'</b></div><div class="due"><span>Pendiente</span><b class="pn-n">'+eur(pr.pend)+'</b></div><div class="bar"><i><u style="width:'+pct+'%"></u></i><small>Habéis pagado el '+pct+' %</small></div></div>';
+    var L=pasos().filter(function(p){ return p.tipo==="pago"&&p.importe; }), primero=true;
+    if(L.length) h+='<ul class="pn-pays">'+L.map(function(p){ var k=dias(p.f), st;
+        if(p.done) st='<span class="pn-st ok">Pagado</span>'; else if(k!=null&&k<0) st='<span class="pn-st late">Pendiente</span>'; else if(primero) st='<span class="pn-st soon">Próximo'+(k!=null?" · "+esc(cuando(k)):"")+'</span>'; else st='<span class="pn-st later">'+esc(cuando(k))+'</span>';
+        if(!p.done) primero=false;
+        return '<li class="pn-pay"><div class="pay-d">'+(p.f?'<b class="pn-n">'+p.f.getDate()+'</b><i>'+MES[p.f.getMonth()]+' '+String(p.f.getFullYear()).slice(2)+'</i>':'<b>—</b>')+'</div><div class="pay-t"><b>'+esc(p.t)+'</b><span>'+(p.id==="pago2"?"Lo que falta del total · ese día se cierran los cambios":p.id==="senal"?"Al reservar la fecha":/pago1/.test(p.id)?(pr.pct||65)+" % del presupuesto":"")+'</span></div><div class="pay-a"><b class="pn-n">'+eur(p.importe)+'</b>'+st+'</div></li>'; }).join("")+'</ul>';
+    var rec=P().pagos||[];
+    if(rec.length) h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:10px">Pagos recibidos</div>'+rec.map(function(p){ return '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--ph)"><span>'+esc(p.fecha?corto(d0(p.fecha)):"")+' · '+esc(p.concepto)+'</span><b class="pn-n">'+eur(p.importe)+'</b></div>'; }).join("")+'</div>';
+    var ct=P().contacto||{}, n=nombres(), f=d0(P().fecha);
+    var concepto=("BODA "+(n.solo?n.a:n.a+" Y "+n.b)+(f?" "+("0"+f.getDate()).slice(-2)+"/"+("0"+(f.getMonth()+1)).slice(-2)+"/"+f.getFullYear():"")).toUpperCase();
+    h+='<div class="pn-card" style="display:grid;gap:10px"><div class="pn-eb">Cómo pagar</div><p style="margin:0;color:var(--pm)">Por transferencia'+(ct.iban?' a la cuenta de Les Moles':'; os damos la cuenta en la reunión')+'. Poned este concepto para que sepamos de quién es el pago:</p>'+
+      '<div class="pn-copy"><span>Concepto</span><code id="pn-cpt">'+esc(concepto)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-cpt">Copiar</button></div>'+
+      (ct.iban?'<div class="pn-copy"><span>Cuenta (IBAN)</span><code id="pn-iban">'+esc(ct.iban)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-iban">Copiar</button></div>':'')+'</div>';
+    return h;
+  }
+  function vPresu(){
+    var pr=P().presupuesto||{}, h='';
+    h+='<div><h2 class="pn-h2">Presupuesto</h2><p class="pn-lead">El presupuesto lo prepara y lo cambia solo el equipo de Les Moles. Aquí podéis consultarlo siempre que queráis.</p></div>';
+    if(!(pr.total>0)) return h+'<div class="pn-aviso">'+IC.info+'<span>El presupuesto todavía no está listo. Os avisaremos cuando lo tengáis aquí.</span></div>';
+    var n=nombres(), f=d0(P().fecha);
+    var rows='<tr class="sub"><td colspan="4">Menús</td></tr>'+(pr.lineas||[]).map(function(l){ return '<tr><td>'+esc(l.c)+(l.d?'<small>'+esc(l.d)+'</small>':'')+'</td><td class="r pn-n">'+l.q+'</td><td class="r pn-n">'+eur(l.p)+'</td><td class="r pn-n">'+eur(l.q*l.p)+'</td></tr>'; }).join("")+
+      ((pr.extras||[]).length?'<tr class="sub"><td colspan="4">Extras</td></tr>'+pr.extras.map(function(x){ return '<tr><td>'+esc(x.c)+'</td><td class="r"></td><td class="r"></td><td class="r pn-n">'+eur(x.imp)+'</td></tr>'; }).join(""):'');
+    h+='<article class="pn-doc" aria-label="Presupuesto, solo lectura"><div class="doc-h"><div><h3>Presupuesto</h3><small>'+esc(n.solo?n.a:n.a+" & "+n.b)+(f?" · "+esc(largo(f)):"")+'</small></div><span class="pn-perm lock" style="background:#EFEEE8;color:#56554E">'+IC.lock+'Solo lectura</span></div>'+
+      '<table><thead><tr><th>Concepto</th><th class="r">Cantidad</th><th class="r">Precio</th><th class="r">Importe</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="3">Total (IVA incluido)</td><td class="r pn-n">'+eur(pr.total)+'</td></tr></tfoot></table>'+
+      '<div class="doc-note">'+IC.info+'<span>Los menús se cuentan con la última lista de invitados que ha revisado el equipo. Si queréis cambiar algo (más horas de barra, un extra…), escribidnos y lo actualizamos nosotros; desde aquí no se puede modificar.</span></div></article>';
+    return h;
+  }
+  function vInv(){
+    var ed=puedeEditar(), c=cuenta(), h='';
+    h+='<div class="pn-head"><div><h2 class="pn-h2">Vuestros datos e invitados</h2><p class="pn-lead">Rellenad la lista por mesas. Con ella preparamos el plano, los menús y las alergias. Para el fotógrafo, el DJ y demás, cread una mesa llamada «Staff».</p></div>'+
+      (ed?'<span class="pn-perm edit">'+IC.edit+'Podéis editar</span>':'<span class="pn-perm lock">'+IC.lock+'Solo lectura</span>')+'</div>';
+    if(cerrado()) h+='<div class="pn-aviso">'+IC.lock+'<span><b>Los cambios ya están cerrados.</b> Para cualquier cambio de última hora, llamadnos.</span></div>';
+    else if(D&&!D.editable) h+='<div class="pn-aviso">'+IC.info+'<span>Este enlace solo permite ver. Pedid a Les Moles el enlace nuevo para poder rellenar la lista.</span></div>';
+    if(estado==="aplicada") h+='<div class="pn-aviso ok">'+IC.check+'<span><b>Ya tenemos vuestra lista en el plano.</b> Si cambiáis algo, volved a enviarla y la revisamos.</span></div>';
+    if(estado==="descartada") h+='<div class="pn-aviso">'+IC.info+'<span>No hemos aplicado vuestra última lista tal cual; lo hablamos en la próxima reunión.</span></div>';
+    var dis=ed?"":" disabled";
+    h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:12px">Los novios</div><div class="pn-pair">'+
+      '<label class="pn-fld"><span class="pn-lbl">Nombre</span><input type="text" id="pn-n1" autocomplete="off" value="'+esc(S.parejaA||"")+'"'+dis+'></label>'+
+      '<label class="pn-fld"><span class="pn-lbl">Nombre</span><input type="text" id="pn-n2" autocomplete="off" value="'+esc(S.parejaB||"")+'"'+dis+'></label></div></div>';
+    h+='<div class="pn-tally" id="pn-tally">'+vTally(c)+'</div><div id="pn-mesas" style="display:grid;gap:14px">'+vMesas(ed)+'</div>';
+    if(ed) h+='<div><button class="pn-btn" type="button" data-pn-act="add-mesa">+ Añadir mesa</button></div>'+
+      '<div class="pn-send"><div class="st" id="pn-send-st">'+vSendSt()+'</div><button class="pn-btn pri" type="button" data-pn-act="enviar">Enviar a Les Moles</button></div>';
+    return h;
+  }
+  function vTally(c){ return '<div><b class="pn-n">'+c.total+'</b><span>Personas</span></div><div><b class="pn-n">'+c.adulto+'</b><span>Adultos</span></div><div><b class="pn-n">'+c.nino+'</b><span>Niños</span></div><div><b class="pn-n">'+c.bebe+'</b><span>Bebés</span></div><div><b class="pn-n">'+c.staff+'</b><span>Staff</span></div><div class="al"><b class="pn-n">'+c.al+'</b><span>Alergias o dietas</span></div>'; }
+  function conServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); }catch(_){ return false; } }
+  function soloMirar(){ return VISTA&&conServidor(); }
+  function vSendSt(){ var g=soloMirar()?' <i>(vista del equipo: lo que escribas aquí no se guarda)</i>':(VISTA?' <i>(prueba: se guarda en este navegador como si fueran los novios)</i>':'');
+    if(estado==="enviada") return '<b>Enviada'+(enviadaTs?" el "+esc(new Date(enviadaTs).toLocaleDateString("es-ES",{day:"numeric",month:"long"})):"")+'.</b> Si cambiáis algo, se guarda solo; volved a enviarla cuando esté lista.'+g;
+    return '<b>Borrador.</b> Se guarda solo mientras escribís; cuando esté lista, enviádnosla.'+g; }
+  function vMesas(ed){
+    var dis=ed?"":" disabled";
+    return (S.mesas||[]).map(function(m,mi){
+      var n=(m.g||[]).filter(function(g){ return (g.n||"").trim(); }).length;
+      return '<div class="pn-mesa" data-m="'+mi+'"><div class="mesa-h"><span class="mesa-n">'+(mi+1)+'</span>'+
+        '<input type="text" id="pn-mesa-'+mi+'" data-f="nombre" aria-label="Nombre de la mesa '+(mi+1)+'" value="'+esc(m.nombre||"")+'" placeholder="Nombre de la mesa"'+dis+'>'+
+        '<span class="cnt">'+n+(n===1?" persona":" personas")+'</span>'+(ed?'<button class="pn-x" type="button" data-pn-act="del-mesa" aria-label="Quitar la mesa '+(mi+1)+'">×</button>':'')+'</div>'+
+        (m.g||[]).map(function(g,gi){ var id="pn-g-"+mi+"-"+gi, t=g.t==="staff"?"adulto":(g.t||"adulto");
+          return '<div class="pn-g" data-g="'+gi+'"><input class="nm" type="text" id="'+id+'-n" data-f="n" aria-label="Nombre" placeholder="Nombre y apellido" value="'+esc(g.n||"")+'"'+dis+'>'+
+            '<select class="tp" id="'+id+'-t" data-f="t" aria-label="Tipo"'+dis+'>'+TIPOS.map(function(x){ return '<option value="'+x[0]+'"'+(t===x[0]?" selected":"")+'>'+x[1]+'</option>'; }).join("")+'</select>'+
+            '<span class="al"><input type="text" id="'+id+'-a" data-f="a" list="pn-dietas" aria-label="Alergia o dieta" placeholder="Alergia o dieta (si tiene)" value="'+esc(g.a||"")+'"'+dis+'></span>'+
+            (ed?'<button class="pn-x" type="button" data-pn-act="del-g" aria-label="Quitar a '+esc(g.n||"esta persona")+'">×</button>':'<span></span>')+'</div>'; }).join("")+
+        (ed?'<div class="mesa-f"><button class="pn-btn gh" type="button" data-pn-act="add-g">+ Añadir persona</button></div>':'')+'</div>';
+    }).join("")+'<datalist id="pn-dietas"><option value="Celíaca / sin gluten"><option value="Sin lactosa"><option value="Vegetariana"><option value="Vegana"><option value="Pescetariana"><option value="Embarazada"><option value="Marisco"><option value="Frutos secos"><option value="Huevo"></datalist>';
+  }
+  function vDia(){
+    var h='<div class="pn-head"><div><h2 class="pn-h2">El día de la boda</h2><p class="pn-lead">Horarios y menú tal como los tenemos preparados. Si queréis cambiar algo, habladlo con nosotros en la reunión.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
+    var hs=P().horas||[];
+    if(hs.length) h+='<div class="pn-horas">'+hs.map(function(x){ return '<div><b class="pn-n">'+esc(x.v)+'</b><span>'+esc(x.l)+'</span></div>'; }).join("")+'</div>';
+    var mn=P().menu||[];
+    if(mn.length) h+='<div class="pn-card pn-menu">'+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>';
+    if(!hs.length&&!mn.length) h+='<div class="pn-aviso">'+IC.info+'<span>Todavía estamos preparando los horarios y el menú. Los veréis aquí en cuanto estén.</span></div>';
+    var ct=P().contacto||{};
+    if(ct.mail||ct.tel||ct.nota) h+='<div class="pn-card" style="display:grid;gap:10px"><div class="pn-eb">Vuestro contacto en Les Moles</div>'+(ct.nota?'<p style="margin:0;color:var(--pm)">'+esc(ct.nota)+'</p>':'')+
+      (ct.mail?'<div class="pn-copy"><span>Correo</span><code id="pn-mail">'+esc(ct.mail)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-mail">Copiar</button></div>':'')+
+      (ct.tel?'<div class="pn-copy"><span>Teléfono</span><code id="pn-tel">'+esc(ct.tel)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-tel">Copiar</button></div>':'')+'</div>';
+    return h;
+  }
+  function pintar(){
+    host=document.getElementById("novios"); if(!host) return; css();
+    var y=host.scrollTop;
+    host.className="pn on";
+    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():vInicio();
+    host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ven los novios'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
+      vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona</footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
+    host.scrollTop=y;
+    try{ var n=nombres(); document.title=(n.solo?n.a:n.a+" & "+n.b)+" · Les Moles"; }catch(_){}
+  }
+  function soloContadores(){ var c=cuenta(), t=document.getElementById("pn-tally"); if(t) t.innerHTML=vTally(c); var i=document.getElementById("pn-c-inv"); if(i) i.textContent=c.total; }
 
+  /* ── guardar (el servidor solo acepta nombres y lista) ── */
+  var tm=null;
+  function aviso(msg,deshacer){ var t=document.getElementById("pn-toast"); if(!t) return; t.innerHTML=esc(msg)+(deshacer?'<button type="button">Deshacer</button>':''); t.classList.add("on"); clearTimeout(tm); tm=setTimeout(function(){ t.classList.remove("on"); },4200);
+    var b=t.querySelector("button"); if(b) b.onclick=function(){ deshacer(); t.classList.remove("on"); }; }
+  function payload(enviar){ return {parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; }),enviar:!!enviar}; }
+  function guardar(enviar){
+    if(soloMirar()){ if(enviar) aviso("En la vista del equipo no se envía nada."); return Promise.resolve(); }
+    if(!puedeEditar()) return Promise.resolve();
+    var body=payload(enviar);
+    if(D.local){ try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"), now=Date.now(), prev=loc[TOKEN];
+        var est=enviar?"enviada":(prev&&prev.estado==="enviada"?"enviada":"borrador");
+        loc[TOKEN]={token:TOKEN,event_id:D.local,data:{parejaA:body.parejaA,parejaB:body.parejaB,mesas:body.mesas},estado:est,enviada:enviar?now:(prev?prev.enviada:null),updated:now,revisada:null};
+        localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); estado=est; if(enviar) enviadaTs=now; }catch(_){}
+      return Promise.resolve(); }
+    return fetch("/api/share?t="+encodeURIComponent(TOKEN),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw j; return j; }); })
+      .then(function(j){ estado=j.estado; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
+      .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar. Revisad la conexión e intentadlo otra vez."); });
+  }
+  function programar(){ clearTimeout(saveTm); saveTm=setTimeout(function(){ guardar(false); },900); }
+
+  /* ── interacción ── */
+  function onClick(ev){
+    var t=ev.target;
+    var tb=t.closest&&t.closest("[data-pn-tab]"); if(tb){ tab=tb.getAttribute("data-pn-tab"); pintar(); var tabs=host.querySelector(".pn-tabs"); if(tabs&&host.scrollTop>tabs.offsetTop) host.scrollTop=tabs.offsetTop; return; }
+    var go=t.closest&&t.closest("[data-pn-go]"); if(go){ tab=go.getAttribute("data-pn-go"); pintar(); return; }
+    var cp=t.closest&&t.closest("[data-pn-copy]"); if(cp){ var el=document.getElementById(cp.getAttribute("data-pn-copy")); if(!el) return;
+      var sel=function(){ var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); aviso("Seleccionado: cópialo con Ctrl+C o mantén pulsado."); };
+      try{ navigator.clipboard.writeText(el.textContent).then(function(){ aviso("Copiado."); },sel); }catch(_){ sel(); } return; }
+    var b=t.closest&&t.closest("[data-pn-act]"); if(!b) return; var a=b.getAttribute("data-pn-act");
+    if(a==="salir"){ cerrarVista(); return; }
+    if(a==="add-mesa"){ S.mesas.push({k:null,nombre:"",g:[{n:"",t:"adulto",a:""}]}); pintar(); var i=document.getElementById("pn-mesa-"+(S.mesas.length-1)); if(i) i.focus(); programar(); return; }
+    if(a==="enviar"){ var c=cuenta(); if(!c.total){ aviso("La lista está vacía. Añadid al menos una persona."); return; } guardar(true).then(function(){ if(soloMirar()) return; pintar(); aviso("Lista enviada. El equipo de Les Moles la revisará."); }); return; }
+    var mEl=b.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
+    if(a==="add-g"){ S.mesas[mi].g.push({n:"",t:"adulto",a:""}); pintar(); var ins=host.querySelectorAll('[data-m="'+mi+'"] .pn-g .nm'); if(ins.length) ins[ins.length-1].focus(); programar(); return; }
+    if(a==="del-g"){ var gi=+b.closest("[data-g]").getAttribute("data-g"), q=S.mesas[mi].g.splice(gi,1)[0]; pintar(); programar();
+      aviso(q.n?"«"+q.n+"» quitado de la lista.":"Fila quitada.",function(){ S.mesas[mi].g.splice(gi,0,q); pintar(); programar(); }); return; }
+    if(a==="del-mesa"){ var mq=S.mesas.splice(mi,1)[0]; pintar(); programar(); aviso("Mesa «"+(mq.nombre||(mi+1))+"» quitada.",function(){ S.mesas.splice(mi,0,mq); pintar(); programar(); }); return; }
+  }
+  function onInput(ev){
+    var el=ev.target; if(!el||!host.contains(el)) return;
+    if(el.id==="pn-n1"||el.id==="pn-n2"){ S[el.id==="pn-n1"?"parejaA":"parejaB"]=el.value; var hn=host.querySelector(".pn-names"); if(hn){ var n=nombres(); hn.innerHTML=n.solo?esc(n.a):esc(n.a)+' <i>&amp;</i> '+esc(n.b); } programar(); return; }
+    var f=el.getAttribute("data-f"); if(!f) return; var mEl=el.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
+    if(f==="nombre"){ S.mesas[mi].nombre=el.value; }
+    else { var gi=+el.closest("[data-g]").getAttribute("data-g"); S.mesas[mi].g[gi][f]=el.value;
+      var n2=S.mesas[mi].g.filter(function(g){ return (g.n||"").trim(); }).length, cn=mEl.querySelector(".cnt"); if(cn) cn.textContent=n2+(n2===1?" persona":" personas"); }
+    soloContadores(); programar();
+  }
+  function cerrarVista(){ try{ if(window.LM_cargarListasNovios) window.LM_cargarListasNovios(); }catch(_){}
+    var h=document.getElementById("novios"); if(h){ h.classList.remove("on"); h.className=""; h.innerHTML=""; h.setAttribute("aria-hidden","true"); } document.documentElement.style.background=""; VISTA=false; try{ document.title="Les Moles Events"; }catch(_){} }
+
+  function arrancar(d){
+    D=d; host=document.getElementById("novios"); if(!host) return;
+    if(!d||(!d.event&&!d.portal)){ css(); host.className="pn on"; host.innerHTML='<div class="pn-empty">Este enlace no está disponible.<br>Pedid a Les Moles que vuelva a compartirlo.</div>'; return; }
+    var P0=d.portal||{};
+    var L=d.lista, usarPropia=L&&L.data&&(L.estado==="borrador"||L.estado==="enviada");
+    estado=(L&&L.estado)||"borrador"; enviadaTs=L&&L.enviada;
+    var base=usarPropia?L.data:{parejaA:(P0.nombres&&P0.nombres.a)||(d.event&&d.event.parejaA)||"",parejaB:(P0.nombres&&P0.nombres.b)||(d.event&&d.event.parejaB)||"",mesas:((P0.lista&&P0.lista.mesas)||[])};
+    S=JSON.parse(JSON.stringify(base));
+    S.mesas=(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; });
+    if(!S.mesas.length) S.mesas=[{k:null,nombre:"Presidencial",g:[{n:S.parejaA||"",t:"adulto",a:""},{n:S.parejaB||"",t:"adulto",a:""}]}];
+    if(!D.portal) D.portal={titulo:d.event.title,fecha:d.event.fecha,ubicacion:d.event.ubicacion,tipo:d.event.tipo,pasos:[],presupuesto:{},horas:[],menu:[]};
+    tab="inicio"; var h=(location.hash||"").replace("#","");
+    if(["inicio","pagos","presu","inv","dia"].indexOf(h)>-1) tab=h;
+    pintar();
+    if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("change",function(ev){ if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev); }); }
+    host.removeAttribute("aria-hidden");
+  }
   function fromLocal(token){
     var BR=window.SITTING_BRIDGE; if(!BR||!BR.allEvents) return null;
     var e=BR.allEvents().filter(function(x){ return x&&x.share&&x.share.on&&x.share.id===token; })[0];
     if(!e) return null;
-    var F=e.ficha||{}, c=BR.totalsForText?BR.totalsForText(e.text||""):{invitados:0,mesas:0};
-    return { tipo:F.tipo||"Evento", title:e.name||"", fecha:F.fecha||"", ubicacion:F.ubicacion||"",
-      parejaA:F.parejaA||"", parejaB:F.parejaB||"", ceremoniaLugar:F.ceremoniaLugar||"", ceremoniaHora:F.ceremoniaHora||"",
-      ceremoniaDur:F.ceremoniaDur||"", llegadaRest:F.llegadaRest||"", foto:F.foto||"",
-      invitados:c.invitados||0, mesas:c.mesas||0, dishes:(e.menu&&e.menu.dishes)||{}, fotos:(e.fotos||[]).slice(0,30) };
+    if(window.LM_portalFoto){ try{ e.share.portal=window.LM_portalFoto(e); }catch(_){} }
+    var F=e.ficha||{}, loc=null; try{ loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}")[token]||null; }catch(_){}
+    return {event:{tipo:F.tipo||"Evento",title:e.name||"",fecha:F.fecha||"",ubicacion:F.ubicacion||"",parejaA:F.parejaA||"",parejaB:F.parejaB||""},
+      portal:e.share.portal||null, lista:loc, editable:token.length>=24, hoy:hoyISO(), local:e.id};
   }
-
-  window.showNovios=function(token){
-    document.documentElement.style.background="#151412";
+  /* opts.vista: el equipo la abre desde la app para ver lo que ven los novios */
+  window.showNovios=function(token,opts){
+    TOKEN=token; VISTA=!!(opts&&opts.vista);
+    if(!VISTA) document.documentElement.style.background="#1A1A1A";
+    if(VISTA){ arrancar(fromLocal(token)); return; }
     fetch("/api/share?t="+encodeURIComponent(token),{headers:{"Accept":"application/json"}})
-      .then(function(r){ if(!r.ok) throw 0; return r.json(); })
-      .then(function(j){ render(j&&j.event); })
-      .catch(function(){ render(fromLocal(token)); });
+      .then(function(r){ if(r.status===404) return {notFound:true}; if(!r.ok) throw 0; return r.json(); })
+      .then(function(j){ if(j&&j.notFound){ arrancar(null); return; } arrancar(j); })
+      .catch(function(){ arrancar(fromLocal(token)); });
   };
   /* token de la URL: ?novios=<id> (o #novios=<id>) */
   window.novioToken=function(){
@@ -12165,6 +12696,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }catch(_){ return ""; }
   };
 })();
+
 </script>
 
 <script>
