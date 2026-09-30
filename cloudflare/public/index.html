@@ -2462,6 +2462,24 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .cal-ev.cal-hito,.cal-ev.cal-pay{background:transparent; font-weight:500}
 .cal-ev.cal-hito b,.cal-ev.cal-pay b{font-weight:600}
 @media (max-width:640px){ .cal-filtro{order:5; width:100%} .cal-filtro button{flex:1 1 auto; justify-content:center} }
+/* bebida del evento: quitar, corregir y añadir */
+.beb-h{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; border-bottom:1px solid var(--c-line); padding-bottom:8px; margin-bottom:6px}
+.beb-h h2{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:21px; font-weight:500; margin:0}
+.beb-h .cnt{font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--c-mut)}
+.beb-sirve{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--c-ink); cursor:pointer}
+.beb-sirve input{width:17px; height:17px; accent-color:var(--olive)}
+.beb-cat.off .beb-h h2{color:var(--c-faint); text-decoration:line-through; text-decoration-thickness:1px}
+.beb-off-tx{margin:6px 0 4px; font-size:12.5px; color:var(--c-mut)}
+.beb-q{display:inline-flex; align-items:center; gap:8px}
+.beb-q input{width:92px; height:40px; font-family:var(--font-text); font-size:20px; font-weight:650; text-align:right}
+.beb-q span{font-size:13px; color:var(--c-mut)}
+.beb-man{font-size:12px; color:var(--warning,#9A722A); font-weight:600}
+.beb-auto{border:0; background:none; padding:0 0 0 6px; color:var(--olive-deep,#56613F); text-decoration:underline; cursor:pointer; font:inherit}
+.beb-marca .beb-prod{flex:1 1 260px; min-width:0; max-width:420px; height:38px}
+.beb-x{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr) 72px 104px 70px 34px; gap:8px; margin:8px 0}
+.beb-x input,.beb-x select{height:38px; min-width:0}
+.beb-extra #beb-x-add{margin-top:6px}
+@media (max-width:640px){ .beb-x{grid-template-columns:1fr 1fr; padding:10px; border:1px solid var(--c-line); border-radius:var(--r)} .beb-x .bx-p{grid-column:1/-1} }
 /*V3-END*/
 </style>
 
@@ -2473,7 +2491,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · calendario</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · bebidas</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -8122,7 +8140,7 @@ function eventoProgreso(e){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={tables:[]}; t={pax:0}; }
   var m=e.menu||{};
   var dishes=nPlatosMenu(e);
-  var bebs=m.bebidas||{}; var beb=Object.keys(bebs).some(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty); });
+  var bebs=m.bebidas||{}; var beb=Object.keys(bebs).some(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty||r.q!=null); })||(m.bebidasExtra||[]).some(function(x){ return x&&(x.label||x.prod); });
   var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
   var steps=[
     {k:"plan",     label:"Invitados y mesas", hint:"Monta el plano con los invitados", done:t.pax>0},
@@ -8221,7 +8239,7 @@ function renderResumen(){
   var m=e.menu||{};
   var mesas=d.tables.length, pax=t.pax, mesasAper=mesasAperitivo(e);
   var dishes=nPlatosMenu(e);
-  var bebs=m.bebidas||{}; var bebCount=Object.keys(bebs).filter(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty); }).length;
+  var bebs=m.bebidas||{}; var bebCount=Object.keys(bebs).filter(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty||r.q!=null); }).length+(m.bebidasExtra||[]).filter(function(x){ return x&&(x.label||x.prod); }).length;
   var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
   var camNeed=pax>0?Math.ceil(pax/ratioCamarero()):0;
   var prog=eventoProgreso(e);
@@ -8615,7 +8633,7 @@ function hitoTxt(h){ return h.t+(h.importe!=null&&h.importe>0?" · "+fmtEur(h.im
 function eventoAlertas(e){
   var a=[], c=planCounts(e), m=e.menu||{}, P=e.presupuesto||{};
   var dishes=nPlatosMenu(e);
-  var bebs=m.bebidas||{}, beb=Object.keys(bebs).some(function(k){var r=bebs[k];return r&&(r.prod||r.qty);});
+  var bebs=m.bebidas||{}, beb=Object.keys(bebs).some(function(k){var r=bebs[k];return r&&(r.prod||r.qty||r.q!=null);})||(m.bebidasExtra||[]).some(function(x){ return x&&(x.label||x.prod); });
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){return cam[k]==="si";}).length;
   var dr=diasRestantes(e);
   /* "cerca" = quedan 30 días o menos: lo pendiente pasa a ser urgente (rojo). */
@@ -10378,73 +10396,114 @@ function marcaSelectHtml(cat){
     '<select class="beb-prod" id="beb-m-'+cat.key+'" data-cat="'+cat.key+'" aria-label="'+esc(marcaPregunta(cat))+'">'+
     bebOptions(cat,bebidaMarca(cat.key))+'</select></div>';
 }
+/* ── cada evento es distinto: por categoría se puede decir que NO se sirve
+   (p. ej. sin cava rosado), corregir la cantidad a mano (queda marcada y se
+   puede volver al cálculo) y escribir cualquier producto aunque no esté en la
+   lista. Además se añaden bebidas propias del evento (cerveza, refrescos, un
+   segundo cava…) con su cantidad. Todo sale igual en la hoja, la escaleta y la
+   rentabilidad. e.menu.bebidas[k] = {prod, off, q}; e.menu.bebidasExtra = [{id,label,prod,q,ud,precio}] */
+var BEB_UDS=[{k:"botellas",t:"botellas",c:"bot."},{k:"latas",t:"latas",c:"latas"},{k:"uds",t:"unidades",c:"uds"},{k:"litros",t:"litros",c:"l"},{k:"barriles",t:"barriles",c:"barr."},{k:"cajas",t:"cajas",c:"cajas"}];
+var BEB_SUG=["Cerveza","Cerveza sin alcohol","Refrescos","Zumos","Vermut","Sangría","Cava","Vino blanco","Vino tinto","Vino rosado","Champagne","Licores","Agua con gas","Mojito","Gin tonic"];
+function udCorta(u){ var x=BEB_UDS.filter(function(z){ return z.k===u; })[0]; return x?x.c:"bot."; }
+function udLarga(u){ var x=BEB_UDS.filter(function(z){ return z.k===u; })[0]; return x?x.t:"botellas"; }
+function bebReg(k){ var b=bebidas(); return (b&&b[k])||{}; }
+function bebSet(k,fn){ var b=bebidas(); if(!b) return; var r=Object.assign({},b[k]||{}); fn(r); ["prod","q"].forEach(function(p){ if(r[p]===""||r[p]==null) delete r[p]; }); if(!r.off) delete r.off; if(Object.keys(r).length) b[k]=r; else delete b[k]; touchSave(); }
+function bebOff(k){ return !!bebReg(k).off; }
+function bebExtras(){ var m=menu(); if(!m) return []; m.bebidasExtra=m.bebidasExtra||[]; return m.bebidasExtra; }
+/* lo que se sirve en ESTE evento (sin el jamón, que va aparte) */
+function bebidaLineas(){
+  var out=[];
+  BEBIDA_CATS.forEach(function(cat){ if(cat.delMenu||!cat.auto||bebOff(cat.key)) return;
+    var r=bebReg(cat.key), c=calcBebida(cat), man=r.q!=null&&r.q!==""&&isFinite(+r.q);
+    out.push({key:cat.key,cat:cat,label:cat.label,prod:r.prod||"",q:man?+r.q:c.botellas,calc:c.botellas,manual:man,ud:"botellas",base:c.base}); });
+  bebExtras().forEach(function(x){ if(!x||!String(x.label||x.prod||"").trim()) return;
+    out.push({key:"x:"+x.id,extra:x,label:String(x.label||"").trim()||"Bebida",prod:String(x.prod||"").trim(),q:+x.q||0,calc:null,manual:true,ud:x.ud||"botellas",base:1}); });
+  return out;
+}
+function prodInput(k,val,opciones,ph){
+  var dl="beb-dl-"+String(k).replace(/[^a-z0-9]/gi,"");
+  return '<input class="beb-prod" type="text" data-k="'+esc(k)+'" list="'+dl+'" value="'+esc(val||"")+'" placeholder="'+esc(ph||"Elegir o escribir…")+'" aria-label="Producto">'+
+    '<datalist id="'+dl+'">'+(opciones||[]).map(function(o){ return '<option value="'+esc(o)+'"></option>'; }).join("")+'</datalist>';
+}
 function renderBebida(){
   var html='<div class="beb-edit">';
   html+='<p class="mnu-note beb-intro">La <b>previsión de bebidas del evento</b>, para el equipo de sala. '+
-    'Las cantidades <b>se calculan solas</b> a partir de los comensales del plano de mesas: el <b>agua</b> cuenta a '+
-    'todos (adultos y niños); el <b>vino, el cava y el cava rosado</b> van sobre los <b>adultos</b>. En ambos '+
-    'casos cuenta también el <b>personal</b>: la mesa de staff del plano o, si en la ficha hay más «menús staff», esos (no se suman los dos). Lo único que '+
-    'hay que elegir a mano es qué producto se sirve de cada uno. <b>El jamón</b> sale de lo marcado en «Elegir '+
-    'platos» del menú. Cuando esté, se descarga la hoja en PDF más abajo.</p>';
+    'Las cantidades <b>se calculan solas</b> con los comensales del plano (el agua sobre todos; vino y cava sobre los adultos; el personal también cuenta). '+
+    'Cada evento es distinto: <b>quita</b> lo que no se sirva, <b>corrige</b> una cantidad a mano, <b>escribe</b> cualquier producto aunque no esté en la lista '+
+    'y <b>añade</b> otras bebidas abajo. <b>El jamón</b> sale de lo marcado en «Elegir platos».</p>';
   BEBIDA_CATS.forEach(function(cat){
-    html+='<div class="beb-cat" data-cat="'+cat.key+'">';
-    html+='<div class="mnu-fam-h"><h2>'+esc(cat.label)+'</h2><span class="cnt">'+(cat.delMenu?"del menú del evento":"automático")+'</span></div>';
+    var off=bebOff(cat.key), r=bebReg(cat.key);
+    html+='<div class="beb-cat'+(off?" off":"")+'" data-cat="'+cat.key+'">';
+    html+='<div class="beb-h"><h2>'+esc(cat.label)+'</h2>'+
+      (cat.delMenu?'<span class="cnt">del menú del evento</span>':'<label class="beb-sirve"><input type="checkbox" data-sirve="'+cat.key+'"'+(off?"":" checked")+'> Se sirve en este evento</label>')+'</div>';
+    if(off){ html+='<p class="beb-off-tx">No se sirve en este evento: no sale en la hoja, la escaleta ni la rentabilidad.</p></div>'; return; }
     if(cat.delMenu){
       var jm=jamonDelMenu();
-      if(jm.marcado) html+='<div class="beb-line"><span class="beb-botellas">'+esc(jamonBotellasTexto(jm))+'</span></div>';
-      else html+='<div class="beb-line"><span class="beb-desglose">Márcalo en «Elegir platos» del menú y la cantidad sale sola.</span></div>';
-      html+=marcaSelectHtml(cat);
+      html+='<div class="beb-line">'+(jm.marcado?'<span class="beb-botellas">'+esc(jamonBotellasTexto(jm))+'</span>':'<span class="beb-desglose">Márcalo en «Elegir platos» del menú y la cantidad sale sola.</span>')+'</div>';
+      html+='<div class="beb-marca"><span class="beb-marca-lbl">¿Qué jamón se sirve?</span>'+prodInput(cat.key,r.prod,cat.opciones)+'</div>';
     }else{
-      var c=calcBebida(cat);
-      if(c.base) html+='<div class="beb-line"><span class="beb-botellas">'+c.botellas+' botellas</span></div>';
-      else html+='<div class="beb-line"><span class="beb-desglose">En cuanto el plano de mesas tenga comensales, sale la cantidad.</span></div>';
-      if(cat.opciones) html+=marcaSelectHtml(cat);
+      var c=calcBebida(cat), man=r.q!=null&&r.q!=="";
+      html+='<div class="beb-line"><label class="beb-q"><input type="number" min="0" step="1" inputmode="numeric" data-q="'+cat.key+'" value="'+(man?esc(r.q):(c.base?c.botellas:""))+'" placeholder="0" aria-label="Botellas de '+esc(cat.label)+'"><span>botellas</span></label>'+
+        (man?'<span class="beb-man">a mano · calculado: '+c.botellas+' <button type="button" class="beb-auto" data-auto="'+cat.key+'">volver al cálculo</button></span>':(c.base?'<span class="beb-desglose">calculado solo</span>':'<span class="beb-desglose">Sale sola en cuanto el plano tenga comensales (o escríbela).</span>'))+'</div>';
+      html+='<div class="beb-marca"><span class="beb-marca-lbl">'+esc(marcaPregunta(cat))+'</span>'+prodInput(cat.key,r.prod,cat.opciones)+'</div>';
     }
     html+='</div>';
   });
+  var X=bebExtras();
+  html+='<div class="beb-cat beb-extra"><div class="beb-h"><h2>Otras bebidas del evento</h2><span class="cnt">a mano</span></div>'+
+    (X.length?X.map(function(x){ return '<div class="beb-x" data-x="'+esc(x.id)+'">'+
+      '<input type="text" class="bx-l" data-f="label" list="beb-sug" value="'+esc(x.label||"")+'" placeholder="Bebida (p. ej. Cerveza)" aria-label="Bebida">'+
+      '<input type="text" class="bx-p" data-f="prod" value="'+esc(x.prod||"")+'" placeholder="Producto (opcional)" aria-label="Producto">'+
+      '<input type="number" class="bx-q" data-f="q" min="0" step="1" value="'+esc(x.q==null?"":x.q)+'" placeholder="0" aria-label="Cantidad">'+
+      '<select class="bx-u" data-f="ud" aria-label="Unidad">'+BEB_UDS.map(function(u){ return '<option value="'+u.k+'"'+((x.ud||"botellas")===u.k?" selected":"")+'>'+u.t+'</option>'; }).join("")+'</select>'+
+      '<input type="text" class="bx-e" data-f="precio" inputmode="decimal" value="'+esc(x.precio==null?"":String(x.precio).replace(".",","))+'" placeholder="€/ud" title="Coste por unidad, opcional (para Rentabilidad)" aria-label="Coste por unidad">'+
+      '<button type="button" class="btn sm ghost" data-xdel="'+esc(x.id)+'" aria-label="Quitar">×</button></div>'; }).join(""):'<p class="beb-off-tx">Cerveza, refrescos, vermut, un segundo cava… lo que se sirva en este evento además de lo de arriba.</p>')+
+    '<datalist id="beb-sug">'+BEB_SUG.map(function(s){ return '<option value="'+esc(s)+'"></option>'; }).join("")+'</datalist>'+
+    '<button type="button" class="btn sm" id="beb-x-add">+ Añadir bebida</button></div>';
   html+='</div>';
   $("mnu-body").innerHTML=html+'<div id="beb-sheet-wrap"></div>';
   renderBebidaSheet();
   wireBebida();
 }
-/* la hoja limpia (read-only) que se descarga: se lee del HTML que está en
-   pantalla, igual que el resto de hojas del Menú. Se vuelve a pintar sola cada
-   vez que se cambia la marca de algo, así lo que se baja en PDF es justo lo que
-   se está mirando. Una sola tabla: cada bebida con su producto y su cantidad. */
+/* la hoja limpia (read-only) que se descarga: lo que se sirve en este evento,
+   con su producto y su cantidad */
 function renderBebidaSheet(){
   var wrap=$("beb-sheet-wrap"); if(!wrap) return;
-  var t=evTotals(), jm=jamonDelMenu();
-  var filas="";
-  BEBIDA_CATS.forEach(function(cat){
-    if(cat.delMenu){
-      var marcaJ=bebidaMarca("jamon");
-      if(!jm.marcado && !marcaJ) return;
-      var etqJ = marcaJ ? cat.label+" · "+marcaJ : cat.label;
-      filas+='<tr><td>'+esc(etqJ)+'</td><td class="q">'+esc(jamonCantHoja(jm))+'</td></tr>';
-      return;
-    }
-    var c=calcBebida(cat);
-    if(!c.base) return;
-    var marca=cat.opciones?bebidaMarca(cat.key):"";
-    var etq = marca ? cat.label+" · "+marca : cat.label;
-    filas+='<tr><td>'+esc(etq)+'</td><td class="q">'+c.botellas+' botellas</td></tr>';
-  });
+  var t=evTotals(), jm=jamonDelMenu(), filas="";
+  bebidaLineas().forEach(function(l){ if(!l.q&&!l.prod) return;
+    var etq=l.prod?l.label+" · "+l.prod:l.label;
+    filas+='<tr><td>'+esc(etq)+'</td><td class="q">'+(l.q?l.q+" "+esc(udLarga(l.ud)):"—")+'</td></tr>'; });
+  if(!bebOff("jamon")){ var marcaJ=bebidaMarca("jamon");
+    if(jm.marcado||marcaJ) filas+='<tr><td>'+esc(marcaJ?"Jamón · "+marcaJ:"Jamón")+'</td><td class="q">'+esc(jamonCantHoja(jm))+'</td></tr>'; }
   var cuerpo=filas
     ? '<h3 class="mnu-sheet-fam">Bebidas del evento</h3><table class="mnu-ing-table"><tbody>'+filas+'</tbody></table>'
-    : '<p class="mnu-note">En cuanto el plano de mesas tenga comensales, aquí saldrá la previsión de bebidas para el equipo de sala.</p>';
+    : '<p class="mnu-note">En cuanto el plano de mesas tenga comensales (o escribas alguna cantidad), aquí saldrá la previsión de bebidas para el equipo de sala.</p>';
   wrap.innerHTML=printBar("bebida")+'<div class="sheet"><div class="frame">'+
     docHead("Bebida",t)+cuerpo+'<div class="foot">Les Moles Events</div></div></div>';
   wirePrintBtn();
 }
-/* lo único editable es la marca de cada categoría (un desplegable): al
-   cambiarla se guarda y se repinta la hoja. Las cantidades no se tocan a mano,
-   así que no hay filas que añadir ni quitar. */
 function wireBebida(){
-  Array.prototype.forEach.call($("mnu-body").querySelectorAll(".beb-prod"),function(sel){
-    sel.addEventListener("change",function(){
-      setBebidaMarca(sel.dataset.cat, sel.value);
-      renderBebidaSheet();
-    });
+  var mb=$("mnu-body");
+  Array.prototype.forEach.call(mb.querySelectorAll("[data-sirve]"),function(ch){ ch.addEventListener("change",function(){
+    var k=ch.getAttribute("data-sirve"); bebSet(k,function(r){ if(ch.checked) delete r.off; else r.off=true; }); renderBebida(); }); });
+  Array.prototype.forEach.call(mb.querySelectorAll(".beb-prod"),function(i){ i.addEventListener("change",function(){
+    var k=i.getAttribute("data-k"), v=i.value.trim(); bebSet(k,function(r){ r.prod=v; }); renderBebidaSheet(); }); });
+  Array.prototype.forEach.call(mb.querySelectorAll("[data-q]"),function(i){ i.addEventListener("change",function(){
+    var k=i.getAttribute("data-q"), v=i.value.trim(), cat=catByKey(k), calc=cat?calcBebida(cat).botellas:null;
+    bebSet(k,function(r){ if(v===""||(+v===calc&&calc>0)) delete r.q; else r.q=Math.max(0,Math.round(+v)||0); }); renderBebida(); }); });
+  Array.prototype.forEach.call(mb.querySelectorAll("[data-auto]"),function(b){ b.addEventListener("click",function(){
+    bebSet(b.getAttribute("data-auto"),function(r){ delete r.q; }); renderBebida(); }); });
+  var add=$("beb-x-add"); if(add) add.addEventListener("click",function(){ bebExtras().push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),label:"",prod:"",q:null,ud:"botellas"}); touchSave(); renderBebida();
+    var ls=mb.querySelectorAll(".bx-l"); if(ls.length) ls[ls.length-1].focus(); });
+  Array.prototype.forEach.call(mb.querySelectorAll(".beb-x"),function(row){
+    var id=row.getAttribute("data-x");
+    function x(){ return bebExtras().filter(function(z){ return z.id===id; })[0]; }
+    Array.prototype.forEach.call(row.querySelectorAll("[data-f]"),function(i){ i.addEventListener("change",function(){ var o=x(); if(!o) return; var f=i.getAttribute("data-f"), v=i.value.trim();
+      if(f==="q") o.q=v===""?null:Math.max(0,+v||0); else if(f==="precio"){ v=v.replace(",","."); o.precio=(v!==""&&isFinite(+v))?+v:null; } else o[f]=v;
+      touchSave(); renderBebidaSheet(); }); });
+    var del=row.querySelector("[data-xdel]"); if(del) del.addEventListener("click",function(){ var L=bebExtras(), k=-1; L.forEach(function(z,i){ if(z.id===id) k=i; }); if(k<0) return;
+      var q=L.splice(k,1)[0]; touchSave(); renderBebida();
+      if(BR.toast) BR.toast("«"+(q.label||q.prod||"Bebida")+"» quitada.",false,"Deshacer",function(){ var L2=bebExtras(); L2.splice(Math.min(k,L2.length),0,q); touchSave(); if(mnuView==="bebida") renderBebida(); }); });
   });
 }
 
@@ -10763,9 +10822,9 @@ function escModelo(){
     }
   }
   /* bebidas: solo bebidas (el jamón va con los aperitivos) */
-  var bl=BEBIDA_CATS.filter(function(cat){ return cat.key!=="jamon"&&(bebidaMarca(cat.key)||cat.auto); });
-  if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(cat){ var r=calcBebida(cat), m=bebidaMarca(cat.key)||cat.label;
-    return {txt:m, sub:escNorm(m)===escNorm(cat.label)?"":cat.label, q:r.botellas?r.botellas+" bot.":""}; })});
+  var bl=bebidaLineas().filter(function(l){ return l.q||l.prod; });
+  if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(l){ var m=l.prod||l.label;
+    return {txt:m, sub:escNorm(m)===escNorm(l.label)?"":l.label, q:l.q?l.q+" "+udCorta(l.ud):""}; })});
   /* ── aperitivos: los normales en el orden de salida y, debajo, los
      adaptados con para quién (el reparto por persona se ve y se retoca en
      «Datos de la escaleta · Aperitivos por persona») ── */
@@ -11414,9 +11473,9 @@ function rentCalc(){
   /* 2 · bebida: las botellas de la hoja de Bebida × el precio de la marca
      elegida (su artículo del Maître) o, si no, el de la categoría */
   var beb=[];
-  BEBIDA_CATS.forEach(function(cat){ if(cat.key==="jamon"||!cat.auto) return;
-    var r=calcBebida(cat), marca=bebidaMarca(cat.key), pb=rentPrecioBeb(cat,marca,P,AM,RP), pu=pb?pb.pu:null;
-    beb.push({txt:cat.label, marca:marca, q:r.botellas, cu:pu||0, total:(pu||0)*r.botellas, fuente:pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!r.botellas}); });
+  bebidaLineas().forEach(function(l){
+    var marca=l.prod, pb=(l.extra&&l.extra.precio!=null)?{pu:+l.extra.precio,fuente:"a mano"}:rentPrecioBeb(l.cat||{key:l.key},marca,P,AM,RP), pu=pb?pb.pu:null;
+    beb.push({txt:l.label, marca:marca, q:l.q, cu:pu||0, total:(pu||0)*l.q, fuente:pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!l.q}); });
   var bebTotal=beb.reduce(function(s,x){ return s+x.total; },0);
   /* 3 · personal: los camareros que vienen (o los previstos) × horas × €/hora */
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
