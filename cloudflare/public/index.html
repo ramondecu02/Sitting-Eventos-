@@ -2341,6 +2341,10 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .portal-st span{flex:1 1 260px}
 .portal-st b{color:var(--c-ink)}
 .portal-st.nueva{border-color:color-mix(in srgb,var(--olive) 55%,var(--c-line)); background:var(--accent-wash)}
+.portal-auto{display:flex; gap:11px; align-items:flex-start; padding:11px 14px; border:1px solid var(--c-line); border-radius:var(--r); cursor:pointer}
+.portal-auto input{width:18px; height:18px; margin:1px 0 0; flex:none; accent-color:var(--olive)}
+.portal-auto span{display:flex; flex-direction:column; gap:3px; font-size:13px}
+.portal-auto small{font-size:12.5px; color:var(--c-mut); line-height:1.45}
 .portal-links{display:flex; gap:18px; flex-wrap:wrap}
 .portal-links .share-off{color:var(--c-mut)}
 .portal-links .share-off:last-child{color:var(--danger)}
@@ -2355,6 +2359,8 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .hn-tx{flex:1 1 260px; display:flex; flex-direction:column; gap:2px}
 .hn-tx b{font-size:14px}
 .hn-tx span{font-size:12.5px; color:var(--c-mut)}
+.hn-box.hn-auto{background:var(--raise); border-color:var(--c-line)}
+.hn-box + .hn-box{margin-top:10px}
 .hn-acts{display:flex; gap:8px; flex-wrap:wrap}
 .home-novios{max-width:1320px; width:100%; margin:0 auto; padding:14px 48px 0}
 .home-novios:empty{display:none}
@@ -4162,7 +4168,7 @@ function hydrateFromServer(){
       }
       try{ sincronizarPrevision(); }catch(_){}
       try{ portalTodos(); }catch(_){}
-      try{ cargarListasNovios(); }catch(_){}
+      try{ cargarListasNovios(true); }catch(_){}
       var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
       var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
       var camCambia=JSON.stringify(store.camareros||{})!==camBefore;
@@ -7407,7 +7413,7 @@ function portalFoto(e){
   return {v:1, titulo:nombreLimpio(e.name)||"", tipo:F.tipo||eventoTipo(e), fecha:F.fecha||"", ubicacion:F.ubicacion||"",
     nombres:{a:F.parejaA||"",b:F.parejaB||""}, horas:horas, menu:menu,
     presupuesto:{lineas:lineas, extras:extras, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100, pend:Math.round(Math.max(0,pt.pend)*100)/100, pct:pct, senal:senal},
-    pagos:pagos, pasos:pasos, cierre:cierre, lista:{mesas:mesas},
+    pagos:pagos, pasos:pasos, cierre:cierre, lista:{mesas:mesas}, auto:(e.share&&e.share.auto===false)?false:true,
     contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""}};
 }
 /* pone al día la foto de un evento compartido (sin tocar e.updated: es un dato derivado) */
@@ -7426,13 +7432,19 @@ function tokenNuevo(){ try{ var u=new Uint8Array(18); crypto.getRandomValues(u);
 /* ══ las listas que envían los novios (lado del equipo) ═════════════ */
 var LISTAS_NOVIOS={};   /* event_id → {token,data,estado,enviada,updated,revisada} */
 function listaNoviosDe(e){ var r=e&&LISTAS_NOVIOS[e.id]; return (r&&e.share&&r.token===e.share.id)?r:null; }
-function listaPorRevisar(e){ var r=listaNoviosDe(e); return r&&r.estado==="enviada"?r:null; }
-function cargarListasNovios(){
+function listaPorRevisar(e){ var r=listaNoviosDe(e); return r&&r.estado==="enviada"&&e.share&&e.share.auto===false?r:null; }
+function autoNovios(e){ return !!(e&&e.share&&e.share.on&&e.share.auto!==false); }
+function cargarListasNovios(desdeHydrate){
   var loc=null; try{ loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"); }catch(_){ loc={}; }
   function poner(arr){ LISTAS_NOVIOS={}; (arr||[]).forEach(function(r){ var prev=LISTAS_NOVIOS[r.event_id]; if(!prev||(r.updated||0)>(prev.updated||0)) LISTAS_NOVIOS[r.event_id]=r; }); }
-  if(!hayServidor()){ poner(Object.keys(loc||{}).map(function(k){ return loc[k]; })); refrescoListas(); return; }
+  function pendientes(){ return store.events.filter(function(e){ var r=listaNoviosDe(e); return autoNovios(e)&&r&&r.data&&(r.estado==="borrador"||r.estado==="enviada"); }); }
+  if(!hayServidor()){ poner(Object.keys(loc||{}).map(function(k){ return loc[k]; })); autoAplicarNovios(pendientes()); refrescoListas(); return; }
   fetch("/api/propuestas",{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
-    .then(function(j){ if(j&&j.listas){ poner(j.listas); refrescoListas(); } }).catch(function(){});
+    .then(function(j){ if(!j||!j.listas) return; poner(j.listas);
+      var p=pendientes();
+      /* antes de tocar el plano, se trae lo último del servidor (para no aplicar sobre una copia vieja) */
+      if(p.length&&!desdeHydrate&&window.hydrateFromServer){ window.hydrateFromServer(); return; }
+      autoAplicarNovios(p); refrescoListas(); }).catch(function(){});
 }
 function refrescoListas(){
   try{ if(document.body.classList.contains("mode-home")) renderHomeNovios(); }catch(_){}
@@ -7441,12 +7453,92 @@ function refrescoListas(){
 window.LM_cargarListasNovios=cargarListasNovios;
 window.LM_portalFoto=portalFoto;
 window.__lmPortalTest={texto:function(e,d){ return textoDesdeLista(e,d); },parse:function(t){ return parse(t); }};
-/* guardar el estado (aplicada/descartada) de una lista */
+/* guardar el estado de una lista. «aplicada» lleva la versión leída: si los
+   novios han guardado otra entretanto, el servidor no la marca y se aplicará
+   la nueva en la siguiente vuelta (aplicar dos veces no cambia nada) */
 function marcarLista(r,estado){
-  r.estado=estado; r.revisada=Date.now();
-  if(hayServidor()){ fetch("/api/propuestas",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({token:r.token,estado:estado})}).catch(function(){}); }
-  else { try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"); if(loc[r.token]){ loc[r.token].estado=estado; loc[r.token].revisada=r.revisada; localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); } }catch(_){} }
+  r.estado=estado; r.revisada=Date.now(); if(estado==="aplicada") r.base=r.data;
+  if(hayServidor()){ fetch("/api/propuestas",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(estado==="aplicada"?{token:r.token,estado:estado,updated:r.updated}:{token:r.token,estado:estado})}).catch(function(){}); }
+  else { try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"); if(loc[r.token]){ loc[r.token].estado=estado; loc[r.token].revisada=r.revisada; if(estado==="aplicada") loc[r.token].base=loc[r.token].data; localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); } }catch(_){} }
 }
+
+/* ══ LISTA DE LOS NOVIOS → PLANO, AUTOMÁTICO ═════════════════════════
+   No se pega su lista encima del plano (eso desharía lo que haya cambiado el
+   equipo): se calcula SOLO lo que han cambiado ellos desde la última vez
+   (a quién añaden, quitan, cambian de mesa o de alergia, mesas nuevas o
+   renombradas) y se aplica eso sobre el plano tal como esté ahora. Los platos
+   sustitutivos, notas y posiciones de las mesas se conservan. */
+function mkKey(m){ return m&&m.k?"k"+m.k:"n"+pvNorm((m&&m.nombre)||""); }
+function indiceLista(L){ var I={}; ((L&&L.mesas)||[]).forEach(function(m){ var mk=mkKey(m); (m.g||[]).forEach(function(g){ if((g.n||"").trim()) I[nomKey(g.n)]={g:g,mk:mk,m:m}; }); }); return I; }
+function cambiosNovios(base,nuevo){
+  base=base||{mesas:[]}; nuevo=nuevo||{mesas:[]};
+  var B=indiceLista(base), N=indiceLista(nuevo), c={add:[],del:[],mov:[],mod:[],ren:[],fuera:[],pareja:null};
+  Object.keys(N).forEach(function(k){ var n=N[k], b=B[k];
+    if(!b) c.add.push(n);
+    else { if(b.mk!==n.mk) c.mov.push({de:b,a:n}); if(String(b.g.t||"adulto")!==String(n.g.t||"adulto")||dietaKey(b.g.a)!==dietaKey(n.g.a)) c.mod.push({antes:b,n:n}); } });
+  Object.keys(B).forEach(function(k){ if(!N[k]) c.del.push(B[k]); });
+  var bk={}, nk={}, nn={};
+  (base.mesas||[]).forEach(function(m){ if(m.k) bk[m.k]=m; });
+  (nuevo.mesas||[]).forEach(function(m){ if(m.k){ nk[m.k]=1; var o=bk[m.k]; if(o&&pvNorm(o.nombre)!==pvNorm(m.nombre)&&(m.nombre||"").trim()) c.ren.push({k:m.k,antes:o.nombre,nombre:m.nombre}); } else nn[pvNorm(m.nombre)]=1; });
+  (base.mesas||[]).forEach(function(m){ if(m.k?!nk[m.k]:!nn[pvNorm(m.nombre)]) c.fuera.push(m); });
+  if(((nuevo.parejaA||"")!==(base.parejaA||"")||(nuevo.parejaB||"")!==(base.parejaB||""))&&(nuevo.parejaA||nuevo.parejaB)) c.pareja={a:nuevo.parejaA||"",b:nuevo.parejaB||""};
+  c.total=c.add.length+c.del.length+c.mov.length+c.mod.length+c.ren.length+c.fuera.length+(c.pareja?1:0);
+  return c;
+}
+function fusionarEnPlano(e,c){
+  var cur=JSON.parse(JSON.stringify(portalFoto(e).lista.mesas));
+  function mesaDe(m){ var x=null;
+    if(m&&m.k) x=cur.filter(function(q){ return q.k===m.k; })[0];
+    if(!x&&m&&(m.nombre||"").trim()) x=cur.filter(function(q){ return pvNorm(q.nombre)===pvNorm(m.nombre); })[0];
+    if(!x){ x={k:null,nombre:(m&&m.nombre)||"",staff:!!(m&&m.staff),g:[]}; cur.push(x); }
+    return x; }
+  function donde(key){ for(var i=0;i<cur.length;i++) for(var j=0;j<cur[i].g.length;j++) if(nomKey(cur[i].g[j].n)===key) return {m:cur[i],j:j}; return null; }
+  c.ren.forEach(function(r){ var x=cur.filter(function(q){ return q.k===r.k; })[0]; if(x) x.nombre=r.nombre; });
+  c.del.forEach(function(d){ var w=donde(nomKey(d.g.n)); if(w) w.m.g.splice(w.j,1); });
+  c.mov.forEach(function(mv){ var w=donde(nomKey(mv.a.g.n)), dest=mesaDe(mv.a.m);
+    if(w&&w.m!==dest){ dest.g.push(w.m.g.splice(w.j,1)[0]); } else if(!w) dest.g.push({n:mv.a.g.n,t:mv.a.g.t,a:mv.a.g.a}); });
+  c.mod.forEach(function(md){ var w=donde(nomKey(md.n.g.n)); if(w){ w.m.g[w.j].t=md.n.g.t; w.m.g[w.j].a=md.n.g.a; } });
+  c.add.forEach(function(ad){ var w=donde(nomKey(ad.g.n)); if(w){ w.m.g[w.j].t=ad.g.t; w.m.g[w.j].a=ad.g.a; return; } mesaDe(ad.m).g.push({n:ad.g.n,t:ad.g.t,a:ad.g.a}); });
+  /* las mesas que ellos han quitado solo desaparecen si en el plano han quedado vacías */
+  c.fuera.forEach(function(m){ var x=m.k?cur.filter(function(q){ return q.k===m.k; })[0]:cur.filter(function(q){ return !q.k&&pvNorm(q.nombre)===pvNorm(m.nombre); })[0]; if(x&&!x.g.length) cur.splice(cur.indexOf(x),1); });
+  return cur.filter(function(q){ return q.k||q.g.length; });
+}
+function baseDe(e,r){ return r.base||{parejaA:(e.ficha||{}).parejaA||"",parejaB:(e.ficha||{}).parejaB||"",mesas:portalFoto(e).lista.mesas}; }
+/* sin base (listas guardadas antes de esto) no se sabe si alguien que falta lo
+   quitaron ellos o lo añadió el equipo: entonces no se quita nada */
+function cambiosDe(e,r){ var c=cambiosNovios(baseDe(e,r),r.data);
+  if(!r.base&&(c.del.length||c.fuera.length)){ c.total-=c.del.length+c.fuera.length; c.del=[]; c.fuera=[]; }
+  return c; }
+function aplicarCambiosNovios(e,r){
+  var c=cambiosDe(e,r);
+  if(!c.total) return c;
+  var F=e.ficha=e.ficha||{}, esActual=current()&&current().id===e.id;
+  e.share.antes={text:e.text,parejaA:F.parejaA||"",parejaB:F.parejaB||"",ts:Date.now()};
+  if(esActual) pushUndo();
+  e.text=textoDesdeLista(e,{mesas:fusionarEnPlano(e,c)}); e.name=eventName(e.text);
+  if(c.pareja){ if(c.pareja.a) F.parejaA=c.pareja.a; if(c.pareja.b) F.parejaB=c.pareja.b; }
+  e.share.ultNovios={ts:Date.now(),add:c.add.length,del:c.del.length,mov:c.mov.length,mod:c.mod.length+c.ren.length,visto:false};
+  e.updated=Date.now();
+  if(esActual){ $("src").value=e.text; prevText=e.text; sel=null; render(); }
+  fillSelect(); portalAlDia(e); save();
+  return c;
+}
+function resumenCambios(u){ var b=[]; if(u.add) b.push("+"+u.add+(u.add===1?" persona":" personas")); if(u.del) b.push("−"+u.del+(u.del===1?" persona":" personas")); if(u.mov) b.push(u.mov+(u.mov===1?" cambia":" cambian")+" de mesa"); if(u.mod) b.push(u.mod+(u.mod===1?" cambio":" cambios")+" de alergia, tipo o nombre de mesa"); return b.join(" · ")||"sin cambios"; }
+function autoAplicarNovios(lista){
+  lista.forEach(function(e){ var r=listaNoviosDe(e); if(!r) return;
+    try{ var c=aplicarCambiosNovios(e,r); marcarLista(r,"aplicada");
+      if(c.total) toast("Cambios de los novios de «"+nombreLimpio(e.name)+"» pasados al plano: "+resumenCambios(e.share.ultNovios)+".",false,"Ver",function(){ if(e.share.ultNovios) e.share.ultNovios.visto=true; save(); abrirEvento(e.id,"plan"); });
+    }catch(err){ try{ console.warn("lista de los novios:",err); }catch(_){} } });
+}
+function deshacerNovios(e){
+  var a=e.share&&e.share.antes; if(!a) return;
+  e.text=a.text; e.name=eventName(e.text); e.ficha=e.ficha||{}; e.ficha.parejaA=a.parejaA; e.ficha.parejaB=a.parejaB; delete e.share.antes; e.share.ultNovios=null; e.updated=Date.now();
+  if(current()&&current().id===e.id){ $("src").value=e.text; prevText=e.text; render(); }
+  fillSelect(); portalAlDia(e); save(); renderResumen(); toast("Deshecho: el plano vuelve a estar como antes del último cambio de los novios.");
+}
+/* cada minuto (y al volver a la pestaña) se miran las listas de los novios */
+setInterval(function(){ try{ if(hayServidor()&&document.body.classList.contains("authed")&&document.visibilityState==="visible") cargarListasNovios(); }catch(_){} },60000);
+document.addEventListener("visibilitychange",function(){ try{ if(document.visibilityState==="visible"&&hayServidor()&&document.body.classList.contains("authed")) cargarListasNovios(); }catch(_){} });
 /* ══ PREVISIÓN ⇄ EVENTOS ═══════════════════════════════════════════════
    La Previsión de banquetes y los Eventos son la misma realidad vista desde
    dos sitios, así que van enlazados (fila.evento ⇄ evento.prevId):
@@ -8081,10 +8173,12 @@ function renderResumen(){
   var link=(e.share.id?base+"?novios="+e.share.id:"");
   var fuerte=(e.share.id||"").length>=24, lr=listaNoviosDe(e);
   function cuandoTs(ts){ try{ var d=new Date(ts); return d.toLocaleDateString("es-ES",{day:"numeric",month:"long"})+" a las "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } }
+  var auto=e.share.auto!==false, un=e.share.ultNovios;
   var estLista=!lr?"Todavía no han empezado su lista de invitados.":
+    auto&&(lr.estado==="borrador"||lr.estado==="enviada")?"Han cambiado su lista hace un momento; se pasa al plano sola en unos segundos.":
     lr.estado==="enviada"?"<b>Han enviado su lista de invitados</b> el "+escH(cuandoTs(lr.enviada||lr.updated))+". Revísala y pásala al plano.":
     lr.estado==="borrador"?"Están rellenando su lista (sin enviar todavía). Última modificación: "+escH(cuandoTs(lr.updated))+".":
-    lr.estado==="aplicada"?"Su lista se pasó al plano el "+escH(cuandoTs(lr.revisada))+".":
+    lr.estado==="aplicada"?(un?"<b>Último cambio de los novios</b> pasado al plano el "+escH(cuandoTs(un.ts))+": "+escH(resumenCambios(un))+".":"Su lista está al día en el plano (último cambio el "+escH(cuandoTs(lr.revisada))+")."+(lr.enviada?" La marcaron como completa el "+escH(cuandoTs(lr.enviada))+".":"")):
     "Su última lista se descartó el "+escH(cuandoTs(lr.revisada))+".";
   var ses=null; try{ ses=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
   var esAdmin=!hayServidor()||(ses&&ses.role==="admin"), ct=paramData("portal")||{};
@@ -8096,9 +8190,10 @@ function renderResumen(){
         '<button class="btn" id="rsm-share-copy" type="button">Copiar</button>'+
         '<button class="btn" id="rsm-share-ver" type="button">Ver como los novios</button></div>'+
         (!fuerte?'<p class="portal-warn">Este enlace es de antes y solo permite ver. Crea uno nuevo para que puedan rellenar su lista; el anterior dejará de funcionar.</p>':'')+
-        '<div class="portal-st'+(lr&&lr.estado==="enviada"?" nueva":"")+'"><span>'+estLista+'</span>'+(lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
+        '<div class="portal-st'+(lr&&lr.estado==="enviada"&&!auto?" nueva":"")+'"><span>'+estLista+'</span>'+(e.share.antes&&un?'<button class="btn sm" id="rsm-nov-undo" type="button">Deshacer ese cambio</button>':'')+(!auto&&lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
+        '<label class="portal-auto"><input type="checkbox" id="rsm-nov-auto"'+(auto?' checked':'')+'><span><b>Pasar sus cambios al plano automáticamente</b><small>'+(auto?'Cuando añaden, quitan o cambian a alguien de mesa, el plano se actualiza solo (sin deshacer lo que hayáis tocado vosotros) y os avisa aquí y en el panel de inicio.':'Desactivado: cuando envíen su lista, la revisáis y la pasáis al plano con un clic.')+'</small></span></label>'+
         '<div class="portal-links"><button class="share-off" id="rsm-share-new" type="button">Crear enlace nuevo</button><button class="share-off" id="rsm-share-off" type="button">Desactivar el portal</button></div>'
-      : '<p class="share-p">Activa su portal y envíales el enlace: verán su boda, qué toca y cuándo, los pagos y el presupuesto (solo lectura), y podrán rellenar la lista de invitados por mesas. Tú la revisas y la pasas al plano con un clic.</p>'+
+      : '<p class="share-p">Activa su portal y envíales el enlace: verán su boda, qué toca y cuándo, los pagos y el presupuesto (solo lectura), y podrán rellenar la lista de invitados por mesas. Lo que cambien pasa solo al plano.</p>'+
         '<button class="btn gold" id="rsm-share-on" type="button">Activar el portal</button>')+
     (esAdmin?'<details class="portal-datos"'+(!ct.iban&&e.share.on?' open':'')+'><summary>Datos de pago y contacto que ven los novios <span>(los mismos para todas las bodas)</span></summary>'+
       '<div class="fldset">'+
@@ -8123,6 +8218,8 @@ function renderResumen(){
   });
   var _ver=$("rsm-share-ver"); if(_ver) _ver.addEventListener("click",function(){ portalAlDia(e); if(window.showNovios) window.showNovios(e.share.id,{vista:true}); });
   var _rev=$("rsm-nov-rev"); if(_rev) _rev.addEventListener("click",function(){ revisarListaNovios(e); });
+  var _und=$("rsm-nov-undo"); if(_und) _und.addEventListener("click",function(){ arm(_und,"Deshacer ese cambio","¿Seguro? Pulsa otra vez",function(){ deshacerNovios(e); }); });
+  var _aut=$("rsm-nov-auto"); if(_aut) _aut.addEventListener("change",function(){ e.share.auto=_aut.checked?true:false; e.updated=Date.now(); portalAlDia(e); save(); if(_aut.checked) cargarListasNovios(); renderResumen(); });
   var _pts=$("pt-save"); if(_pts) _pts.addEventListener("click",function(){
     setParam("portal",{iban:($("pt-iban").value||"").trim(),tel:($("pt-tel").value||"").trim(),mail:($("pt-mail").value||"").trim(),nota:($("pt-nota").value||"").trim()});
     if(portalTodos()) save(); toast("Datos guardados. Los novios ya los ven en su portal.");
@@ -8132,31 +8229,21 @@ function renderResumen(){
 /* ══ revisar la lista que han enviado los novios ═════════════════════ */
 function nomKey(s){ return pvNorm(s); }
 function dietaKey(a){ return String(a||"").split(/\s*,\s*/).map(pvNorm).filter(Boolean).sort().join("|"); }
-function diffListaNovios(e,data){
-  var plano=portalFoto(e).lista.mesas, A={}, B={};
-  function mesaDe(m){ return m.nombre||("Mesa "+(m.k||"")); }
-  plano.forEach(function(m){ m.g.forEach(function(g){ A[nomKey(g.n)]={g:g,m:mesaDe(m),k:m.k}; }); });
-  (data.mesas||[]).forEach(function(m){ (m.g||[]).forEach(function(g){ if((g.n||"").trim()) B[nomKey(g.n)]={g:g,m:mesaDe(m),k:m.k}; }); });
-  var out={nuevos:[],quitados:[],movidos:[],cambios:[]};
-  Object.keys(B).forEach(function(k){ var b=B[k], a=A[k];
-    if(!a) out.nuevos.push(b);
-    else { if((a.k&&b.k?a.k!==b.k:a.m!==b.m)) out.movidos.push({g:b.g,de:a.m,a:b.m});
-      if(a.g.t!==b.g.t||dietaKey(a.g.a)!==dietaKey(b.g.a)) out.cambios.push({g:b.g,antes:a.g}); } });
-  Object.keys(A).forEach(function(k){ if(!B[k]) out.quitados.push(A[k]); });
-  return out;
-}
 var TIPO_NOV={adulto:"Adulto",nino:"Niño/a",bebe:"Bebé",staff:"Staff"};
 function revisarListaNovios(e){
   var r=listaNoviosDe(e); if(!r||!r.data){ toast("No hay ninguna lista de los novios para revisar.",true); return; }
   if(ovlOpen) return; ovlOpen=true;
-  var D=r.data, df=diffListaNovios(e,D), F=e.ficha||{};
+  var D=r.data, c=cambiosDe(e,r), F=e.ficha||{};
+  function mn(m){ return (m&&m.nombre)||("Mesa "+((m&&m.k)||"")); }
+  var df={nuevos:c.add.map(function(x){ return {g:x.g,m:mn(x.m)}; }),quitados:c.del.map(function(x){ return {g:x.g,m:mn(x.m)}; }),
+    movidos:c.mov.map(function(x){ return {g:x.a.g,de:mn(x.de.m),a:mn(x.a.m)}; }),cambios:c.mod.map(function(x){ return {g:x.n.g,antes:x.antes.g}; })};
   var n=0; (D.mesas||[]).forEach(function(m){ n+=(m.g||[]).filter(function(g){ return (g.n||"").trim(); }).length; });
   function lista(tit,arr,fn,cls){ if(!arr.length) return ""; var max=40;
     return '<div class="rv-grp '+(cls||"")+'"><div class="rv-h">'+tit+' <b>'+arr.length+'</b></div><ul>'+arr.slice(0,max).map(fn).join("")+(arr.length>max?'<li class="rv-more">y '+(arr.length-max)+' más</li>':'')+'</ul></div>'; }
-  var cambiosNom=((D.parejaA||"")!==(F.parejaA||"")||(D.parejaB||"")!==(F.parejaB||""))&&(D.parejaA||D.parejaB);
+  var cambiosNom=!!c.pareja&&((D.parejaA||"")!==(F.parejaA||"")||(D.parejaB||"")!==(F.parejaB||""));
   var html='<div class="ovl-box rv-box" role="dialog" aria-modal="true" aria-label="Lista de invitados de los novios"><div class="ovl-head"><h3>Lista de los novios</h3><div class="spacer"></div><button class="btn" id="rv-x" type="button">Cerrar</button></div>'+
     '<div class="ovl-note">'+(r.estado==="enviada"?"Enviada el ":"Borrador (sin enviar) · ")+escH(new Date(r.enviada||r.updated).toLocaleDateString("es-ES",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+' · <b>'+n+'</b> personas en '+(D.mesas||[]).length+' mesas. '+
-      'Al pasarla al plano se conservan los platos sustitutivos y las notas que ya teníais apuntados de cada invitado, y la posición de las mesas.</div>'+
+      'Solo se aplica lo que <b>ellos</b> han cambiado desde la última vez; lo que hayáis tocado vosotros en el plano, los platos sustitutivos, las notas y la posición de las mesas se conservan.</div>'+
     '<div class="ovl-body rv-body">'+
       (cambiosNom?'<div class="rv-grp"><div class="rv-h">Nombres de los novios</div><p>'+escH((F.parejaA||"—")+" & "+(F.parejaB||"—"))+' → <b>'+escH((D.parejaA||"")+" & "+(D.parejaB||""))+'</b></p></div>':'')+
       '<div class="rv-sum"><span><b>'+df.nuevos.length+'</b> nuevos</span><span><b>'+df.quitados.length+'</b> quitados</span><span><b>'+df.movidos.length+'</b> cambian de mesa</span><span><b>'+df.cambios.length+'</b> con alergia, dieta o tipo distinto</span></div>'+
@@ -8164,7 +8251,7 @@ function revisarListaNovios(e){
       lista("Quitados",df.quitados,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>estaba en '+escH(x.m)+'</span></li>'; },"del")+
       lista("Cambian de mesa",df.movidos,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>'+escH(x.de)+' → '+escH(x.a)+'</span></li>'; })+
       lista("Alergia, dieta o tipo",df.cambios,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>'+escH((TIPO_NOV[x.antes.t]||"")+(x.antes.a?" · "+x.antes.a:""))+' → '+escH((TIPO_NOV[x.g.t]||"")+(x.g.a?" · "+x.g.a:""))+'</span></li>'; },"al")+
-      (!df.nuevos.length&&!df.quitados.length&&!df.movidos.length&&!df.cambios.length?'<p class="rv-igual">Su lista coincide con el plano: no hay nada que cambiar.</p>':'')+
+      (!df.nuevos.length&&!df.quitados.length&&!df.movidos.length&&!df.cambios.length?'<p class="rv-igual">No han cambiado nada desde la última vez: no hay nada que pasar al plano.</p>':'')+
       '<details class="rv-todo"><summary>Ver su lista completa</summary><div class="rv-mesas">'+(D.mesas||[]).map(function(m,i){ return '<div class="rv-mesa"><b>'+escH(m.nombre||("Mesa "+(i+1)))+'</b><ul>'+(m.g||[]).filter(function(g){ return (g.n||"").trim(); }).map(function(g){ return '<li>'+escH(g.n)+(g.t!=="adulto"?' <span>'+TIPO_NOV[g.t]+'</span>':'')+(g.a?' <i>'+escH(g.a)+'</i>':'')+'</li>'; }).join("")+'</ul></div>'; }).join("")+'</div></details>'+
     '</div>'+
     '<div class="imp-foot"><button class="btn gold" id="rv-ok" type="button">Pasar al plano</button><button class="btn danger" id="rv-no" type="button">Descartar</button><span class="portal-hint">Descartar no borra nada del plano; solo marca su lista como revisada.</span></div></div>';
@@ -8208,28 +8295,29 @@ function textoDesdeLista(e,data){
   return (cab.length?cab.join("\n")+"\n\n":"")+bloques.join("\n\n")+"\n";
 }
 function aplicarListaNovios(e,r){
-  var antes={text:e.text,parejaA:(e.ficha||{}).parejaA,parejaB:(e.ficha||{}).parejaB}, esActual=current()&&current().id===e.id;
-  if(esActual) pushUndo();
-  e.text=textoDesdeLista(e,r.data); e.name=eventName(e.text);
-  e.ficha=e.ficha||{}; if(r.data.parejaA) e.ficha.parejaA=r.data.parejaA; if(r.data.parejaB) e.ficha.parejaB=r.data.parejaB;
-  e.updated=Date.now();
-  if(esActual){ $("src").value=e.text; prevText=e.text; sel=null; render(); }
-  fillSelect(); portalAlDia(e); save(); marcarLista(r,"aplicada"); renderResumen();
-  var c=planCounts(e);
-  toast("Lista de los novios pasada al plano: "+c.pax+" personas en "+c.mesas+" mesas.",false,"Deshacer",function(){
-    e.text=antes.text; e.name=eventName(e.text); e.ficha.parejaA=antes.parejaA; e.ficha.parejaB=antes.parejaB; e.updated=Date.now();
-    if(current()&&current().id===e.id){ $("src").value=e.text; prevText=e.text; render(); }
-    marcarLista(r,"enviada"); fillSelect(); save(); renderResumen(); toast("Deshecho: el plano vuelve a estar como antes.");
-  });
+  var c=aplicarCambiosNovios(e,r); marcarLista(r,"aplicada"); renderResumen();
+  if(!c.total){ toast("No había cambios nuevos que pasar al plano."); return; }
+  toast("Cambios de los novios pasados al plano: "+resumenCambios(e.share.ultNovios)+".",false,"Deshacer",function(){ deshacerNovios(e); });
 }
 /* aviso en el panel de inicio: listas que esperan revisión */
+function novedadNovios(e){ var u=e&&e.share&&e.share.on&&e.share.ultNovios; return u&&!u.visto&&(Date.now()-u.ts)<14*864e5?u:null; }
 function renderHomeNovios(){
   var host=$("home-novios"); if(!host) return;
   var pend=store.events.filter(function(e){ return listaPorRevisar(e); });
-  if(!pend.length){ host.innerHTML=""; return; }
-  host.innerHTML='<div class="hn-box"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(pend.length===1?"Unos novios han enviado su lista de invitados":pend.length+" parejas han enviado su lista de invitados")+'</b><span>'+pend.map(function(e){ return escH(nombreLimpio(e.name)); }).join(" · ")+'</span></div>'+
+  var nov=store.events.filter(function(e){ return novedadNovios(e); }).sort(function(a,b){ return b.share.ultNovios.ts-a.share.ultNovios.ts; });
+  var h="";
+  if(pend.length) h+='<div class="hn-box"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(pend.length===1?"Unos novios han enviado su lista de invitados":pend.length+" parejas han enviado su lista de invitados")+'</b><span>'+pend.map(function(e){ return escH(nombreLimpio(e.name)); }).join(" · ")+'</span></div>'+
     '<div class="hn-acts">'+pend.slice(0,3).map(function(e){ return '<button class="btn sm gold" type="button" data-rv="'+escH(e.id)+'">Revisar'+(pend.length>1?" "+escH(nombreLimpio(e.name).split(/\s+/).slice(-3).join(" ")):"")+'</button>'; }).join("")+'</div></div>';
-  Array.prototype.forEach.call(host.querySelectorAll("[data-rv]"),function(b){ b.addEventListener("click",function(){ var id=b.getAttribute("data-rv"); abrirEvento(id); setTimeout(function(){ var ev=null; store.events.forEach(function(x){ if(x.id===id) ev=x; }); if(ev) revisarListaNovios(ev); },250); }); });
+  if(nov.length) h+='<div class="hn-box hn-auto"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(nov.length===1?"Los novios han cambiado su lista y ya está en el plano":nov.length+" parejas han cambiado su lista y ya está en el plano")+'</b>'+
+    nov.slice(0,4).map(function(e){ return '<span>'+escH(nombreLimpio(e.name))+': '+escH(resumenCambios(e.share.ultNovios))+'</span>'; }).join("")+'</div>'+
+    '<div class="hn-acts">'+nov.slice(0,3).map(function(e){ return '<button class="btn sm" type="button" data-nv="'+escH(e.id)+'">Ver'+(nov.length>1?" "+escH(nombreLimpio(e.name).split(/\s+/).slice(-3).join(" ")):" el plano")+'</button>'; }).join("")+
+    '<button class="btn sm ghost" type="button" id="hn-visto">Visto</button></div></div>';
+  host.innerHTML=h;
+  function evDe(id){ var ev=null; store.events.forEach(function(x){ if(x.id===id) ev=x; }); return ev; }
+  function visto(ev){ if(ev&&ev.share&&ev.share.ultNovios){ ev.share.ultNovios.visto=true; save(); } }
+  Array.prototype.forEach.call(host.querySelectorAll("[data-rv]"),function(b){ b.addEventListener("click",function(){ var id=b.getAttribute("data-rv"); abrirEvento(id); setTimeout(function(){ var ev=evDe(id); if(ev) revisarListaNovios(ev); },250); }); });
+  Array.prototype.forEach.call(host.querySelectorAll("[data-nv]"),function(b){ b.addEventListener("click",function(){ var id=b.getAttribute("data-nv"); visto(evDe(id)); abrirEvento(id,"plan"); }); });
+  var hv=host.querySelector("#hn-visto"); if(hv) hv.addEventListener("click",function(){ nov.forEach(visto); renderHomeNovios(); });
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -12340,7 +12428,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "use strict";
   /* ── datos: del servidor (/api/share) o, sin servidor, del propio navegador ── */
   var BR=window.SITTING_BRIDGE;
-  var D=null, S=null, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio";
+  var D=null, S=null, BASE0=null, NUEVO=true, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio";
   var MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
   var TIPOS=[["adulto","Adulto"],["nino","Niño/a"],["bebe","Bebé (trona)"]];
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -12476,7 +12564,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
   /* ── pasos (el de la lista se da por hecho cuando la han enviado) ── */
   function pasos(){
-    var L=(P().pasos||[]).map(function(p){ var o=Object.assign({},p); o.f=d0(p.fecha); if(p.id==="doc"&&(estado==="enviada"||estado==="aplicada")) o.done=true; return o; });
+    var L=(P().pasos||[]).map(function(p){ var o=Object.assign({},p); o.f=d0(p.fecha); if(p.id==="doc"&&(enviadaTs||estado==="enviada")) o.done=true; return o; });
     return L;
   }
   function vHero(){
@@ -12543,7 +12631,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       (ed?'<span class="pn-perm edit">'+IC.edit+'Podéis editar</span>':'<span class="pn-perm lock">'+IC.lock+'Solo lectura</span>')+'</div>';
     if(cerrado()) h+='<div class="pn-aviso">'+IC.lock+'<span><b>Los cambios ya están cerrados.</b> Para cualquier cambio de última hora, llamadnos.</span></div>';
     else if(D&&!D.editable) h+='<div class="pn-aviso">'+IC.info+'<span>Este enlace solo permite ver. Pedid a Les Moles el enlace nuevo para poder rellenar la lista.</span></div>';
-    if(estado==="aplicada") h+='<div class="pn-aviso ok">'+IC.check+'<span><b>Ya tenemos vuestra lista en el plano.</b> Si cambiáis algo, volved a enviarla y la revisamos.</span></div>';
+    if(estado==="aplicada") h+='<div class="pn-aviso ok">'+IC.check+'<span><b>Ya tenemos vuestra lista en el plano.</b> '+(P().auto!==false?'Si cambiáis algo, se guarda solo y nos llega al momento.':'Si cambiáis algo, volved a enviarla y la revisamos.')+'</span></div>';
     if(estado==="descartada") h+='<div class="pn-aviso">'+IC.info+'<span>No hemos aplicado vuestra última lista tal cual; lo hablamos en la próxima reunión.</span></div>';
     var dis=ed?"":" disabled";
     h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:12px">Los novios</div><div class="pn-pair">'+
@@ -12558,6 +12646,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function conServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); }catch(_){ return false; } }
   function soloMirar(){ return VISTA&&conServidor(); }
   function vSendSt(){ var g=soloMirar()?' <i>(vista del equipo: lo que escribas aquí no se guarda)</i>':(VISTA?' <i>(prueba: se guarda en este navegador como si fueran los novios)</i>':'');
+    if(P().auto!==false) return (enviadaTs?'<b>Enviada el '+esc(new Date(enviadaTs).toLocaleDateString("es-ES",{day:"numeric",month:"long"}))+'.</b> Si cambiáis algo, se guarda solo y nos llega al momento.':'<b>Se guarda sola</b> mientras escribís y nos llega al momento. Cuando esté completa, pulsad «Enviar a Les Moles».')+g;
     if(estado==="enviada") return '<b>Enviada'+(enviadaTs?" el "+esc(new Date(enviadaTs).toLocaleDateString("es-ES",{day:"numeric",month:"long"})):"")+'.</b> Si cambiáis algo, se guarda solo; volved a enviarla cuando esté lista.'+g;
     return '<b>Borrador.</b> Se guarda solo mientras escribís; cuando esté lista, enviádnosla.'+g; }
   function vMesas(ed){
@@ -12604,19 +12693,19 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var tm=null;
   function aviso(msg,deshacer){ var t=document.getElementById("pn-toast"); if(!t) return; t.innerHTML=esc(msg)+(deshacer?'<button type="button">Deshacer</button>':''); t.classList.add("on"); clearTimeout(tm); tm=setTimeout(function(){ t.classList.remove("on"); },4200);
     var b=t.querySelector("button"); if(b) b.onclick=function(){ deshacer(); t.classList.remove("on"); }; }
-  function payload(enviar){ return {parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; }),enviar:!!enviar}; }
+  function payload(enviar){ return {parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; }),enviar:!!enviar,base:BASE0,nuevo:NUEVO}; }
   function guardar(enviar){
     if(soloMirar()){ if(enviar) aviso("En la vista del equipo no se envía nada."); return Promise.resolve(); }
     if(!puedeEditar()) return Promise.resolve();
     var body=payload(enviar);
     if(D.local){ try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"), now=Date.now(), prev=loc[TOKEN];
         var est=enviar?"enviada":(prev&&prev.estado==="enviada"?"enviada":"borrador");
-        loc[TOKEN]={token:TOKEN,event_id:D.local,data:{parejaA:body.parejaA,parejaB:body.parejaB,mesas:body.mesas},estado:est,enviada:enviar?now:(prev?prev.enviada:null),updated:now,revisada:null};
-        localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); estado=est; if(enviar) enviadaTs=now; }catch(_){}
+        loc[TOKEN]={token:TOKEN,event_id:D.local,data:{parejaA:body.parejaA,parejaB:body.parejaB,mesas:body.mesas},base:(prev&&prev.base&&(prev.estado==="borrador"||prev.estado==="enviada"||(prev.estado==="aplicada"&&!NUEVO)))?prev.base:BASE0,estado:est,enviada:enviar?now:(prev?prev.enviada:null),updated:now,revisada:null};
+        localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); estado=est; NUEVO=false; if(enviar) enviadaTs=now; }catch(_){}
       return Promise.resolve(); }
     return fetch("/api/share?t="+encodeURIComponent(TOKEN),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
       .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw j; return j; }); })
-      .then(function(j){ estado=j.estado; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
+      .then(function(j){ estado=j.estado; NUEVO=false; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
       .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar. Revisad la conexión e intentadlo otra vez."); });
   }
   function programar(){ clearTimeout(saveTm); saveTm=setTimeout(function(){ guardar(false); },900); }
@@ -12632,7 +12721,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var b=t.closest&&t.closest("[data-pn-act]"); if(!b) return; var a=b.getAttribute("data-pn-act");
     if(a==="salir"){ cerrarVista(); return; }
     if(a==="add-mesa"){ S.mesas.push({k:null,nombre:"",g:[{n:"",t:"adulto",a:""}]}); pintar(); var i=document.getElementById("pn-mesa-"+(S.mesas.length-1)); if(i) i.focus(); programar(); return; }
-    if(a==="enviar"){ var c=cuenta(); if(!c.total){ aviso("La lista está vacía. Añadid al menos una persona."); return; } guardar(true).then(function(){ if(soloMirar()) return; pintar(); aviso("Lista enviada. El equipo de Les Moles la revisará."); }); return; }
+    if(a==="enviar"){ var c=cuenta(); if(!c.total){ aviso("La lista está vacía. Añadid al menos una persona."); return; } guardar(true).then(function(){ if(soloMirar()) return; pintar(); aviso(P().auto!==false?"Lista enviada. Ya le llega al equipo de Les Moles.":"Lista enviada. El equipo de Les Moles la revisará."); }); return; }
     var mEl=b.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
     if(a==="add-g"){ S.mesas[mi].g.push({n:"",t:"adulto",a:""}); pintar(); var ins=host.querySelectorAll('[data-m="'+mi+'"] .pn-g .nm'); if(ins.length) ins[ins.length-1].focus(); programar(); return; }
     if(a==="del-g"){ var gi=+b.closest("[data-g]").getAttribute("data-g"), q=S.mesas[mi].g.splice(gi,1)[0]; pintar(); programar();
@@ -12660,6 +12749,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var base=usarPropia?L.data:{parejaA:(P0.nombres&&P0.nombres.a)||(d.event&&d.event.parejaA)||"",parejaB:(P0.nombres&&P0.nombres.b)||(d.event&&d.event.parejaB)||"",mesas:((P0.lista&&P0.lista.mesas)||[])};
     S=JSON.parse(JSON.stringify(base));
     S.mesas=(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; });
+    NUEVO=true; BASE0=JSON.parse(JSON.stringify({parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:S.mesas}));
     if(!S.mesas.length) S.mesas=[{k:null,nombre:"Presidencial",g:[{n:S.parejaA||"",t:"adulto",a:""},{n:S.parejaB||"",t:"adulto",a:""}]}];
     if(!D.portal) D.portal={titulo:d.event.title,fecha:d.event.fecha,ubicacion:d.event.ubicacion,tipo:d.event.tipo,pasos:[],presupuesto:{},horas:[],menu:[]};
     tab="inicio"; var h=(location.hash||"").replace("#","");

@@ -138,7 +138,10 @@ function logoutRoute() {
 let NOVIOS_OK = false;
 async function ensureNovios(env) {
   if (NOVIOS_OK) return;
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS novios_listas (token TEXT PRIMARY KEY, event_id TEXT NOT NULL, data TEXT NOT NULL, estado TEXT NOT NULL DEFAULT 'borrador', enviada INTEGER, updated INTEGER NOT NULL, revisada INTEGER)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS novios_listas (token TEXT PRIMARY KEY, event_id TEXT NOT NULL, data TEXT NOT NULL, estado TEXT NOT NULL DEFAULT 'borrador', enviada INTEGER, updated INTEGER NOT NULL, revisada INTEGER, base TEXT)").run();
+  /* «base» = la lista de la que partieron: así el equipo aplica al plano SOLO lo
+     que los novios han cambiado, sin deshacer lo que el equipo haya tocado */
+  try { await env.DB.prepare("ALTER TABLE novios_listas ADD COLUMN base TEXT").run(); } catch (_) {}
   NOVIOS_OK = true;
 }
 async function eventoCompartido(env, token) {
@@ -190,6 +193,22 @@ async function shareRoute(request, env, url) {
    plano para mesas, marcas y separar personas */
 function limpio(v, n) { return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f<>]/g, " ").replace(/[()\[\]|#@*+&]/g, " ").replace(/\s+/g, " ").trim().slice(0, n); }
 const TIPOS_G = ["adulto", "nino", "bebe", "staff"];
+function listaLimpia(b) {
+  if (!b || typeof b !== "object") return null;
+  const mesasIn = Array.isArray(b.mesas) ? b.mesas.slice(0, 80) : [];
+  let total = 0;
+  const mesas = mesasIn.map((m) => {
+    const g = (Array.isArray(m && m.g) ? m.g : []).slice(0, 40).map((x) => ({
+      n: limpio(x && x.n, 70),
+      t: TIPOS_G.indexOf(x && x.t) > -1 ? x.t : "adulto",
+      a: limpio(x && x.a, 90)
+    })).filter((x) => x.n || x.a);
+    total += g.length;
+    return { k: m && Number.isFinite(+m.k) && +m.k > 0 ? Math.floor(+m.k) : null, nombre: limpio(m && m.nombre, 50), staff: !!(m && m.staff), g };
+  });
+  if (total > 1200) return null;
+  return { parejaA: limpio(b.parejaA, 60), parejaB: limpio(b.parejaB, 60), mesas };
+}
 async function sharePost(request, env, url) {
   const token = (url.searchParams.get("t") || "").trim();
   if (!tokenFuerte(token)) return json({ error: "old-link", message: "Este enlace es antiguo. Pedid a Les Moles uno nuevo para poder editar." }, 403);
@@ -200,27 +219,22 @@ async function sharePost(request, env, url) {
   const txt = await request.text();
   if (!txt || txt.length > 200000) return json({ error: "too-big", message: "La lista es demasiado grande." }, 413);
   let b; try { b = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
-  /* SOLO se leen estos campos; cualquier otro (presupuesto, pagos, precios…) se ignora */
-  const mesasIn = Array.isArray(b && b.mesas) ? b.mesas.slice(0, 80) : [];
-  let total = 0;
-  const mesas = mesasIn.map((m) => {
-    const g = (Array.isArray(m && m.g) ? m.g : []).slice(0, 40).map((x) => ({
-      n: limpio(x && x.n, 70),
-      t: TIPOS_G.indexOf(x && x.t) > -1 ? x.t : "adulto",
-      a: limpio(x && x.a, 90)
-    })).filter((x) => x.n || x.a);
-    total += g.length;
-    return { k: Number.isFinite(+m.k) && +m.k > 0 ? Math.floor(+m.k) : null, nombre: limpio(m && m.nombre, 50), staff: !!(m && m.staff), g };
-  });
-  if (total > 1200) return json({ error: "too-big", message: "Demasiadas personas en la lista." }, 413);
-  const data = { parejaA: limpio(b && b.parejaA, 60), parejaB: limpio(b && b.parejaB, 60), mesas };
+  /* SOLO se leen nombres y lista; cualquier otro campo (presupuesto, pagos, precios…) se ignora */
+  const data = listaLimpia(b);
+  if (!data) return json({ error: "too-big", message: "Demasiadas personas en la lista." }, 413);
   const enviar = !!(b && b.enviar), now = Date.now();
   await ensureNovios(env);
-  const prev = await env.DB.prepare("SELECT estado, enviada FROM novios_listas WHERE token=?").bind(token).first();
+  const prev = await env.DB.prepare("SELECT estado, enviada, base FROM novios_listas WHERE token=?").bind(token).first();
+  /* la base es de lo que partieron: mientras editan (borrador/enviada) se
+     conserva; si el equipo ya la pasó al plano, es lo aplicado, salvo que
+     acaben de abrir el portal (nuevo): entonces es lo que vieron al abrirlo */
+  const sigue = prev && prev.base && (prev.estado === "borrador" || prev.estado === "enviada" || (prev.estado === "aplicada" && !(b && b.nuevo)));
+  let base = sigue ? prev.base : null;
+  if (!base) { const bb = listaLimpia(b && b.base); base = JSON.stringify(bb || data); }
   const estado = enviar ? "enviada" : (prev && prev.estado === "enviada" ? "enviada" : "borrador");
   const enviada = enviar ? now : (prev ? prev.enviada : null);
-  await env.DB.prepare("INSERT INTO novios_listas (token, event_id, data, estado, enviada, updated, revisada) VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL) ON CONFLICT(token) DO UPDATE SET event_id=?2, data=?3, estado=?4, enviada=?5, updated=?6")
-    .bind(token, String(ev.id), JSON.stringify(data), estado, enviada, now).run();
+  await env.DB.prepare("INSERT INTO novios_listas (token, event_id, data, estado, enviada, updated, revisada, base) VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL, ?7) ON CONFLICT(token) DO UPDATE SET event_id=?2, data=?3, estado=?4, enviada=?5, updated=?6, base=?7")
+    .bind(token, String(ev.id), JSON.stringify(data), estado, enviada, now, base).run();
   return json({ ok: true, estado, enviada, updated: now });
 }
 
@@ -229,8 +243,9 @@ async function propuestasList(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
   await ensureNovios(env);
-  const { results } = await env.DB.prepare("SELECT token, event_id, data, estado, enviada, updated, revisada FROM novios_listas ORDER BY updated DESC LIMIT 300").all();
-  return json({ listas: (results || []).map((r) => { let d = null; try { d = JSON.parse(r.data); } catch (_) {} return { token: r.token, event_id: r.event_id, data: d, estado: r.estado, enviada: r.enviada, updated: r.updated, revisada: r.revisada }; }) });
+  const { results } = await env.DB.prepare("SELECT token, event_id, data, estado, enviada, updated, revisada, base FROM novios_listas ORDER BY updated DESC LIMIT 300").all();
+  return json({ listas: (results || []).map((r) => { let d = null, bs = null; try { d = JSON.parse(r.data); } catch (_) {} try { bs = r.base ? JSON.parse(r.base) : null; } catch (_) {}
+    return { token: r.token, event_id: r.event_id, data: d, base: bs, estado: r.estado, enviada: r.enviada, updated: r.updated, revisada: r.revisada }; }) });
 }
 async function propuestasPatch(request, env) {
   const s = await session(request, env);
@@ -238,10 +253,20 @@ async function propuestasPatch(request, env) {
   if (s.role !== "admin" && s.role !== "eventos") return json({ error: "forbidden" }, 403);
   const b = await body(request);
   const token = String(b.token || ""), estado = String(b.estado || "");
-  if (!token || ["aplicada", "descartada"].indexOf(estado) < 0) return json({ error: "invalid" }, 400);
+  if (!token || ["aplicada", "descartada", "enviada"].indexOf(estado) < 0) return json({ error: "invalid" }, 400);
   await ensureNovios(env);
-  await env.DB.prepare("UPDATE novios_listas SET estado=?, revisada=? WHERE token=?").bind(estado, Date.now(), token).run();
-  return json({ ok: true });
+  /* «aplicada» con la versión que se ha leído: si los novios han vuelto a
+     guardar entretanto, o otra pestaña del equipo ya la ha aplicado, no se
+     marca (claimed:false) y esa lista se aplicará en la siguiente vuelta.
+     Al aplicarla, su lista pasa a ser la base de los próximos cambios. */
+  const now = Date.now();
+  let r;
+  if (estado === "aplicada") {
+    if (b.updated != null) r = await env.DB.prepare("UPDATE novios_listas SET estado='aplicada', revisada=?, base=data WHERE token=? AND updated=? AND estado IN ('borrador','enviada')").bind(now, token, +b.updated).run();
+    else r = await env.DB.prepare("UPDATE novios_listas SET estado='aplicada', revisada=?, base=data WHERE token=?").bind(now, token).run();
+  } else r = await env.DB.prepare("UPDATE novios_listas SET estado=?, revisada=? WHERE token=?").bind(estado, now, token).run();
+  const changes = (r && r.meta && r.meta.changes != null) ? r.meta.changes : 1;
+  return json({ ok: true, claimed: changes > 0 });
 }
 /* Cuenta invitados y mesas del texto del plano SIN exponer los nombres, con
    las mismas reglas que el plano de la app: cabeceras «M1 |», «MESA 1»,
