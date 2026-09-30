@@ -11,7 +11,8 @@
  *   POST /api/login             {email,password} -> cookie de sesión
  *   POST /api/logout            cierra la sesión
  *   GET  /api/store             documento compartido (requiere sesión)
- *   PUT  /api/store             guarda el documento (requiere sesión)
+ *   PUT  /api/store             guarda el documento JUNTÁNDOLO con lo que ya hay (requiere sesión)
+ *   GET  /api/sync?ev=&tab=     versión del documento y quién más está conectado (y en qué evento)
  *   GET  /api/users             lista de usuarios (solo admin)
  *   POST /api/users             crea usuario {email,name,role,password} (solo admin)
  *   PATCH  /api/users           {id, password?, role?, name?} cambia clave/rol (solo admin)
@@ -65,6 +66,7 @@ async function api(request, env, url) {
   if (p === "/api/propuestas" && m === "PATCH") return propuestasPatch(request, env);
   if (p === "/api/store" && m === "GET") return storeGet(request, env);
   if (p === "/api/store" && m === "PUT") return storePut(request, env);
+  if (p === "/api/sync" && m === "GET") return syncRoute(request, env, url);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -302,34 +304,111 @@ function countPlano(text) {
   return { invitados, mesas };
 }
 
-/* ── almacén compartido ─────────────────────────────────────────────── */
+/* ── almacén compartido ─────────────────────────────────────────────────
+   Varias personas trabajan a la vez: cada navegador sube SU copia entera, pero
+   el servidor no la pega encima de lo que hay, sino que la JUNTA con lo guardado
+   con las mismas reglas que ya usa la app entre pestañas:
+   · eventos: uno a uno, gana el cambio más reciente («updated»);
+   · borrados: se recuerdan (store.borrados = {id: cuándo}) para que una copia
+     vieja no resucite un evento que otra persona ha borrado; si el evento se
+     vuelve a tocar DESPUÉS del borrado (deshacer), vuelve;
+   · inventario, extras, camareros y Previsión: artículo a artículo;
+   · parámetros: sección a sección y solo los cambia un administrador.
+   Se escribe con control de versión (la columna «updated»): si otra persona ha
+   guardado entre la lectura y la escritura, se vuelve a juntar y a intentar. */
 async function storeGet(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
-  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
   const data = row && row.data ? row.data : JSON.stringify({ events: [], active: null, prefs: {} });
-  return new Response(data, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+  return new Response(data, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", "X-Store-Version": String((row && row.updated) || 0) } });
 }
 
 async function storePut(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
-  let txt = await request.text();
+  const txt = await request.text();
   if (!txt) return json({ error: "empty" }, 400);
   let incoming;
   try { incoming = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
-  /* Parámetros del negocio (platos, escandallo, bebidas, camareros…): solo los
-     cambia un administrador. Se combinan sección a sección y gana la más
-     reciente, así un compañero con una copia vieja no deshace un cambio. */
-  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
-  let prev = {}; try { prev = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { prev = {}; }
-  if (incoming && typeof incoming === "object") {
-    incoming.params = mergeParams(prev.params, incoming.params, s.role === "admin");
-    txt = JSON.stringify(incoming);
+  if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) return json({ error: "bad-doc" }, 400);
+  const base = +(request.headers.get("X-Store-Base") || 0);
+  for (let intento = 0; intento < 6; intento++) {
+    const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
+    let prev = {}; try { prev = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { prev = {}; }
+    const antes = row ? (+row.updated || 0) : 0;
+    const merged = mergeDoc(prev, incoming, s.role === "admin");
+    const out = JSON.stringify(merged);
+    let v = Date.now(); if (v <= antes) v = antes + 1;
+    let r;
+    if (row) r = await env.DB.prepare("UPDATE store SET data=?1, updated=?2 WHERE id=1 AND updated=?3").bind(out, v, antes).run();
+    else r = await env.DB.prepare("INSERT OR IGNORE INTO store (id, data, updated) VALUES (1, ?1, ?2)").bind(out, v).run();
+    const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
+    /* otros = alguien había guardado algo que este navegador aún no tenía */
+    if (ch > 0) return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes) });
   }
-  await env.DB.prepare("INSERT INTO store (id, data, updated) VALUES (1, ?1, ?2) ON CONFLICT(id) DO UPDATE SET data=?1, updated=?2")
-    .bind(txt, Date.now()).run();
-  return json({ ok: true });
+  return json({ error: "busy", message: "Muchos guardados a la vez; se reintentará." }, 409);
+}
+
+function porId(a, b, preferA) {
+  const por = {};
+  (b || []).forEach((x) => { if (x && x.id) por[x.id] = x; });
+  (a || []).forEach((x) => { if (!x || !x.id) return; const y = por[x.id]; if (!y || (preferA ? (x.updated || 0) >= (y.updated || 0) : (x.updated || 0) > (y.updated || 0))) por[x.id] = x; });
+  return Object.keys(por).map((k) => por[k]);
+}
+function mergeDoc(prev, inc, isAdmin) {
+  prev = prev || {}; inc = inc || {};
+  const out = Object.assign({}, prev, inc);
+  /* borrados: de los dos lados, el más reciente */
+  const bor = Object.assign({}, prev.borrados || {});
+  Object.keys(inc.borrados || {}).forEach((k) => { const t = +inc.borrados[k] || 0; if (t > (+bor[k] || 0)) bor[k] = t; });
+  /* eventos: uno a uno, gana el más reciente (a igualdad, el que llega) */
+  const pe = {}; (prev.events || []).forEach((e) => { if (e && e.id) pe[e.id] = e; });
+  const orden = [], vis = {}, evs = {};
+  (inc.events || []).forEach((e) => { if (!e || !e.id || vis[e.id]) return; vis[e.id] = 1; orden.push(e.id); const p = pe[e.id]; evs[e.id] = (p && (p.updated || 0) > (e.updated || 0)) ? p : e; });
+  (prev.events || []).forEach((e) => { if (!e || !e.id || vis[e.id]) return; vis[e.id] = 1; orden.push(e.id); evs[e.id] = e; });
+  out.events = orden.map((id) => evs[id]).filter((e) => {
+    const t = +bor[e.id] || 0; if (!t) return true;
+    if ((e.updated || 0) > t) { delete bor[e.id]; return true; }   /* tocado después del borrado: vuelve */
+    return false;
+  });
+  /* los borrados de hace más de un año ya no hacen falta */
+  const lim = Date.now() - 400 * 864e5; Object.keys(bor).forEach((k) => { if ((+bor[k] || 0) < lim) delete bor[k]; });
+  out.borrados = bor;
+  /* inventario (correcciones por artículo) */
+  const inv = Object.assign({}, prev.inventario || {});
+  Object.keys(inc.inventario || {}).forEach((k) => { const a = inc.inventario[k], b = inv[k]; if (!b || ((a && a.updated) || 0) >= ((b && b.updated) || 0)) inv[k] = a; });
+  out.inventario = inv;
+  const ie = prev.invExtra || {}, ii = inc.invExtra || {};
+  out.invExtra = { hojas: porId(ii.hojas, ie.hojas, true), categorias: porId(ii.categorias, ie.categorias, true), items: porId(ii.items, ie.items, true) };
+  out.camareros = { personas: porId((inc.camareros || {}).personas, (prev.camareros || {}).personas, true) };
+  const pp = prev.prevision || {}, ip = inc.prevision || {}, an = {};
+  (pp.anios || []).concat(ip.anios || []).forEach((a) => { an[a] = 1; });
+  out.prevision = Object.assign({}, pp, ip, { filas: porId(ip.filas, pp.filas, true), anios: Object.keys(an).map(Number) });
+  out.params = mergeParams(prev.params, inc.params, isAdmin);
+  return out;
+}
+
+/* ── quién está conectado: cada navegador avisa cada ~15 s de en qué evento
+   está; se devuelven los demás de los últimos 45 s y la versión del documento
+   (si ha cambiado, el navegador se trae lo nuevo) ── */
+let PRES_OK = false;
+async function ensurePresencia(env) {
+  if (PRES_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS presencia (tab TEXT PRIMARY KEY, uid TEXT, name TEXT, ev TEXT, ts INTEGER NOT NULL)").run();
+  PRES_OK = true;
+}
+async function syncRoute(request, env, url) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  await ensurePresencia(env);
+  const tab = String(url.searchParams.get("tab") || "").slice(0, 40), ev = String(url.searchParams.get("ev") || "").slice(0, 80), now = Date.now();
+  if (tab) await env.DB.prepare("INSERT INTO presencia (tab, uid, name, ev, ts) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(tab) DO UPDATE SET uid=?2, name=?3, ev=?4, ts=?5")
+    .bind(tab, s.uid, s.name || s.email, ev, now).run();
+  if (Math.random() < 0.05) await env.DB.prepare("DELETE FROM presencia WHERE ts < ?").bind(now - 3600e3).run();
+  const { results } = await env.DB.prepare("SELECT tab, uid, name, ev, ts FROM presencia WHERE ts > ?1 AND tab <> ?2 ORDER BY ts DESC LIMIT 50").bind(now - 45e3, tab).all();
+  const row = await env.DB.prepare("SELECT updated FROM store WHERE id=1").first();
+  return json({ v: (row && +row.updated) || 0, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
 }
 
 function mergeParams(prev, inc, isAdmin) {

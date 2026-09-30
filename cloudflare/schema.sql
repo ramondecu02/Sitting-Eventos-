@@ -20,3 +20,12 @@ CREATE TABLE IF NOT EXISTS store (
   data    TEXT NOT NULL,
   updated INTEGER NOT NULL
 );
+
+-- Quién está conectado y en qué evento (la crea sola el Worker si no existe).
+CREATE TABLE IF NOT EXISTS presencia (
+  tab  TEXT PRIMARY KEY,   -- pestaña del navegador
+  uid  TEXT,
+  name TEXT,
+  ev   TEXT,               -- evento que tiene abierto
+  ts   INTEGER NOT NULL
+);

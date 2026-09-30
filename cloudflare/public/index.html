@@ -2483,6 +2483,11 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 /* imprimir el Inicio con Ctrl+P: el calendario, igual que su botón «Imprimir»,
    sin eventos sin confirmar ni sus avisos */
 @media print{ #home-cal .nc{display:none!important} #home-cal .cal-filtro,#home-cal #cal-print,#home-cal #cal-today{display:none!important} }
+/* quién más está conectado */
+.side-pres{margin:-4px 14px 10px; padding:9px 12px; border-radius:10px; background:color-mix(in srgb,var(--olive) 16%,transparent); display:flex; flex-direction:column; gap:4px; font-size:11.5px; line-height:1.35; color:var(--nav-mut)}
+.side-pres .pres-mismo{color:#E6E5DD; font-weight:650}
+.side-pres .pres-mismo::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#9FB86B; margin-right:6px; box-shadow:0 0 0 3px rgba(159,184,107,.25)}
+.side-pres[hidden]{display:none!important}
 /*V3-END*/
 </style>
 
@@ -2493,8 +2498,9 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
     <span class="ctx-ic" aria-hidden="true"></span>
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
+  <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · confirmados</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · trabajo en equipo</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -4028,6 +4034,11 @@ var saveFail=false, loadFailed=false;
    disco aún no se ha enterado" — sin esta lista, borrar un evento y guardar volvía a traerlo
    de vuelta (y "Deshacer" podía dejar el evento duplicado). */
 var deletedIds={};
+/* los borrados viajan con el documento (store.borrados = {id: cuándo}): así un
+   evento que borra una persona no lo resucita la copia vieja de otra. Si el
+   evento se vuelve a tocar después (deshacer), gana el evento. */
+function unirBorrados(a,b){ var o=Object.assign({},a||{}); Object.keys(b||{}).forEach(function(k){ if((+b[k]||0)>(+o[k]||0)) o[k]=+b[k]; }); return o; }
+function vivo(e,bor){ var t=bor&&+bor[e.id]; return !t||(e.updated||0)>t; }
 /* Antes de escribir se relee lo que hay: si otra pestaña ha creado o tocado un evento,
    se conserva. Sin esto, la pestaña más vieja machacaba con su copia en memoria el trabajo
    hecho en la otra — incluso solo al cerrarla (beforeunload). */
@@ -4035,7 +4046,7 @@ function mergeStore(){
   var raw,disk;
   try{ raw=localStorage.getItem(KEY); disk=raw?JSON.parse(raw):null; }catch(e){ return store; }
   if(!disk||!disk.events||!disk.events.length) return store;
-  var mine={}, out=[];
+  var mine={}, out=[], bor=store.borrados=unirBorrados(store.borrados,disk.borrados);
   store.events.forEach(function(e){ mine[e.id]=e; });
   disk.events.forEach(function(d){
     var m=mine[d.id];
@@ -4044,7 +4055,7 @@ function mergeStore(){
     delete mine[d.id];
   });
   store.events.forEach(function(e){ if(mine[e.id]) out.unshift(e); });   /* los míos nuevos */
-  store.events=out;
+  store.events=out.filter(function(e){ return vivo(e,bor); });
   store.inventario=mergeInv(store.inventario,disk.inventario);
   store.invExtra=mergeInvExtra(store.invExtra,disk.invExtra);
   store.camareros=mergeCamareros(store.camareros,disk.camareros);
@@ -4190,7 +4201,7 @@ function alCambiarPlanoPropio(){
    una petición por cada tecla), y al terminar de cargar se trae lo último
    que haya en el servidor y se combina con lo de este navegador exactamente
    igual que ya se combinan dos pestañas entre sí (mergeStore). */
-var remoteTimer=null, remoteBusy=false, remoteQueued=false, remoteFail=false, retryTimer=null;
+var remoteTimer=null, remoteBusy=false, remoteQueued=false, remoteFail=false, retryTimer=null, srvV=0;
 function hayServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); }catch(_){ return false; } }
 /* indicador de la barra lateral: «Guardado», «Guardando…», «Guardado en este
    dispositivo» (sin servidor, p. ej. el Artifact) o «Sin conexión» (se guarda
@@ -4220,12 +4231,18 @@ function pushRemote(){
   if(store.events.some(function(e){return e.text===EX_BODA;})){
     toSend=Object.assign({},store,{events:store.events.filter(function(e){return e.text!==EX_BODA;})});
   }
-  fetch("/api/store",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(toSend)})
+  fetch("/api/store",{method:"PUT",headers:{"Content-Type":"application/json","X-Store-Base":String(srvV||0)},body:JSON.stringify(toSend)})
     .then(function(r){
       if(r.status===401){ var e401=new Error("401"); e401.auth=true; throw e401; }
       if(!r.ok) throw new Error("http "+r.status);
       if(remoteFail){ remoteFail=false; flagRemote(null); }
       setSaveState("ok");
+      return r.json().catch(function(){ return null; });
+    })
+    .then(function(j){
+      /* el servidor ha juntado lo mío con lo de los demás: si había algo de otra
+         persona que aquí aún no estaba, se trae ya */
+      if(j&&j.v){ var otros=j.otros; srvV=j.v; if(otros) setTimeout(function(){ hydrateFromServer(); },50); }
     })
     .catch(function(err){
       remoteFail=true; setSaveState("off");
@@ -4243,7 +4260,7 @@ function pushRemote(){
    MISMA regla que mergeStore(): por evento, gana el más reciente según
    "updated"; lo borrado en este navegador (deletedIds) no resucita. */
 function mergeRemote(remote){
-  var mine={}, out=[];
+  var mine={}, out=[], bor=store.borrados=unirBorrados(store.borrados,remote.borrados);
   store.events.forEach(function(e){ mine[e.id]=e; });
   remote.events.forEach(function(d){
     var m=mine[d.id];
@@ -4252,13 +4269,14 @@ function mergeRemote(remote){
     delete mine[d.id];
   });
   store.events.forEach(function(e){ if(mine[e.id]) out.unshift(e); });
-  return out;
+  return out.filter(function(e){ return vivo(e,bor); });
 }
 function hydrateFromServer(){
   fetch("/api/store").then(function(r){
     if(r.status===401){ flagRemote("La sesión ha caducado: recarga la página para volver a entrar."); return null; }
     if(!r.ok) throw new Error("http "+r.status);
     if(!remoteFail) setSaveState("ok");
+    var hv=+(r.headers.get("X-Store-Version")||0); if(hv) srvV=hv;
     return r.json();
   }).then(function(remote){
       if(!remote) return;
@@ -4299,9 +4317,18 @@ function hydrateFromServer(){
         try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){}
       }
       if(after!==before){
-        $("src").value=current()?current().text:""; prevText=$("src").value;
+        /* el texto del plano solo se toca si ha cambiado, y sin perder el cursor */
+        var srcEl=$("src"), nt=current()?current().text:"";
+        if(srcEl&&srcEl.value!==nt){ var foco=document.activeElement===srcEl, s0=srcEl.selectionStart, s1=srcEl.selectionEnd;
+          srcEl.value=nt; if(foco){ try{ srcEl.setSelectionRange(Math.min(s0,nt.length),Math.min(s1,nt.length)); }catch(_){} } }
+        prevText=nt;
         fillSelect(); syncPrefs(); render();
         if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.onExternalChange) window.SITTING_BRIDGE.onExternalChange();
+        /* y la pantalla que se esté mirando, para ver ya lo que han cambiado los demás */
+        try{ var B=document.body.classList;
+          if(B.contains("mode-home")) renderHome();
+          else if(B.contains("mode-resumen")) renderResumen();
+          else if(B.contains("mode-plan")) renderPlanV(planView); }catch(_){}
       }
       /* si un compañero ha corregido una cantidad del inventario, que se vea */
       if(invCambia&&window.invRefrescar) window.invRefrescar();
@@ -4311,6 +4338,44 @@ function hydrateFromServer(){
       if((camCambia||after!==before)&&window.camRefrescar) window.camRefrescar();
     })
     .catch(function(){ /* sin conexión con el servidor: se sigue trabajando en local */ });
+}
+
+/* ══ trabajo a la vez: traer lo de los demás y ver quién está ══════════
+   Cada 15 s (con la pestaña a la vista) se pregunta al servidor la versión del
+   documento y quién más está conectado. Si alguien ha guardado algo, se trae y
+   se junta (evento a evento, gana lo más reciente). Nunca mientras se está
+   escribiendo: se espera a que pasen unos segundos sin teclear. */
+var SYNC_TAB=(function(){ try{ var t=sessionStorage.getItem("lm_tab"); if(!t){ t="t"+Date.now().toString(36)+Math.random().toString(36).slice(2,8); sessionStorage.setItem("lm_tab",t); } return t; }catch(_){ return "t"+Math.random().toString(36).slice(2,10); } })();
+var ultTecla=0, syncBusy=false, PRES=[], presAvisados={};
+document.addEventListener("input",function(){ ultTecla=Date.now(); },true);
+document.addEventListener("keydown",function(){ ultTecla=Date.now(); },true);
+function escribiendo(){ return Date.now()-ultTecla<6000; }
+function syncTick(){
+  if(syncBusy||!hayServidor()||document.visibilityState!=="visible"||!document.body.classList.contains("authed")) return;
+  syncBusy=true;
+  var c=current();
+  fetch("/api/sync?tab="+encodeURIComponent(SYNC_TAB)+"&ev="+encodeURIComponent(c?c.id:""),{headers:{"Accept":"application/json"}})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){ if(!j) return;
+      PRES=j.otros||[]; pintarPresencia();
+      if(j.v&&srvV&&j.v!==srvV&&!remoteBusy&&!escribiendo()) hydrateFromServer();
+    }).catch(function(){}).finally(function(){ syncBusy=false; });
+}
+setInterval(syncTick,15000);
+document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") setTimeout(syncTick,300); });
+window.LM_syncTick=syncTick;
+/* quién más está conectado: en la barra lateral, y un aviso si otra persona
+   abre el MISMO evento (si tocáis lo mismo a la vez, gana el último cambio) */
+function pintarPresencia(){
+  var host=$("side-pres"), c=current(), mismos=[], otros=[], vistos={};
+  PRES.forEach(function(p){ var n=String(p.name||"Alguien"); if(p.yo) n=n+" (otra pestaña)";
+    if(c&&p.ev===c.id){ if(mismos.indexOf(n)<0) mismos.push(n); } else if(!vistos[n]){ vistos[n]=1; otros.push(n); } });
+  if(host){
+    if(!mismos.length&&!otros.length){ host.hidden=true; host.innerHTML=""; }
+    else { host.hidden=false; host.innerHTML=(mismos.length?'<span class="pres-mismo" title="Los cambios se juntan solos. Si los dos tocáis lo mismo del evento a la vez, se queda el último que guarda.">'+escH(mismos.join(", "))+(mismos.length===1?" también tiene":" también tienen")+' abierto este evento</span>':'')+
+      (otros.length?'<span class="pres-otros">Conectados: '+escH(otros.join(", "))+'</span>':''); }
+  }
+  mismos.forEach(function(n){ var k=(c&&c.id)+"|"+n; if(!presAvisados[k]){ presAvisados[k]=1; toast(n+" ha abierto este mismo evento. Los cambios de los dos se juntan solos; si tocáis lo mismo a la vez, se queda el último."); } });
 }
 
 var view="plan", doc=null, boxes=[], sel=null, zoom=1, userSize=1, editing=null;
@@ -6747,11 +6812,11 @@ $("del").addEventListener("click",function(){
       for(i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf(pre)===0) planosMuertos[k]=localStorage.getItem(k); } }catch(e){}
     borrarPlanosDeEvento(dead.id);
     store.events=store.events.filter(function(e){return e.id!==dead.id;});
-    deletedIds[dead.id]=1;
+    deletedIds[dead.id]=1; store.borrados=store.borrados||{}; store.borrados[dead.id]=Date.now();
     store.active=store.events[0].id; sel=null; undoStack=[]; refreshUndo(); $("src").value=current().text; prevText=current().text;
     syncPrefs(); fillSelect(); render(); save();
     toast("Evento «"+(dead.name||"")+"» borrado.",false,"Deshacer",function(){
-      delete deletedIds[dead.id];
+      delete deletedIds[dead.id]; if(store.borrados) delete store.borrados[dead.id]; dead.updated=Date.now();
       try{ Object.keys(planosMuertos).forEach(function(k){ localStorage.setItem(k,planosMuertos[k]); }); }catch(e){}
       store.events.splice(Math.max(0,idx),0,dead); store.active=dead.id;
       $("src").value=dead.text; prevText=dead.text; fillSelect(); syncPrefs(); render(); save();
@@ -7281,6 +7346,7 @@ function syncSidenav(){
     });
   });
   var c=current(); var nm=$("side-ctx-nm"); if(nm) nm.textContent=c?(nombreLimpio(c.name)||"Sin título"):"—";
+  try{ pintarPresencia(); }catch(_){}
   var ctx=$("side-ctx"); if(ctx) ctx.classList.toggle("on",enHome);
   // barra inferior (móvil)
   var tb=$("tabbar");
