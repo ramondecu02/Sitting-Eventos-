@@ -2389,6 +2389,47 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .rv-mesa li span{font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut)}
 .rv-mesa li i{color:var(--danger); font-style:normal}
 @media screen and (max-width:820px){ .home-novios{padding:10px 16px 0} }
+/* menú personalizado (platos escritos a mano) */
+.mp-card{max-width:880px; margin:0 0 26px; border:1px solid var(--c-line); border-radius:var(--r-xl); background:var(--panel); padding:0 20px}
+.mp-card[open]{padding-bottom:18px}
+.mp-card>summary{list-style:none; cursor:pointer; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding:16px 0}
+.mp-card>summary::-webkit-details-marker{display:none}
+.mp-card>summary::before{content:"+"; font-weight:600; color:var(--olive); width:12px}
+.mp-card[open]>summary::before{content:"−"}
+.mp-sum-t{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:21px}
+.mp-sum-n{font-size:12.5px; color:var(--c-mut)}
+.mp-p{margin:0 0 14px; font-size:13px; color:var(--c-mut); line-height:1.55; max-width:680px}
+.mp-p b{color:var(--c-ink); font-weight:600}
+.mp-add{display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; padding:14px; border-radius:var(--r); background:var(--accent-wash); border:1px solid color-mix(in srgb,var(--olive) 30%,var(--c-line))}
+.mp-fld{display:flex; flex-direction:column; gap:5px; min-width:0}
+.mp-fld input,.mp-fld select{height:40px}
+.mp-grow{flex:1 1 280px}
+.mp-add .btn{height:40px}
+.mp-list{display:grid; gap:14px; margin-top:16px}
+.mp-grp-h{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:650; color:var(--c-mut); padding-bottom:6px; border-bottom:1px solid var(--c-hair); margin-bottom:4px}
+.mp-row{display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:var(--r-sm); background:var(--accent-wash); box-shadow:inset 2px 0 0 var(--olive); margin-top:4px}
+.mp-tx{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px}
+.mp-tx b{font-size:13.5px; font-weight:650}
+.mp-tx span{font-size:11.5px; color:var(--c-mut)}
+.mp-empty{margin:14px 0 0; font-size:13px; color:var(--c-mut)}
+.mp-copy{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:16px; font-size:12.5px; color:var(--c-mut)}
+.mp-copy select{height:36px; max-width:100%}
+.mp-cat-h{max-width:880px; margin:0 0 12px; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:650; color:var(--c-mut)}
+.mp-cat-h span{text-transform:none; letter-spacing:0; font-weight:400; margin-left:8px}
+.mp-box{max-width:640px}
+.mp-ed{display:grid; gap:14px; align-items:stretch}
+.mp-two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.mp-hint{text-transform:none; letter-spacing:0; font-weight:400; color:var(--c-faint)}
+.mp-ing{display:grid; grid-template-columns:1fr 96px 74px 34px; gap:8px; margin:6px 0}
+.mp-ing input,.mp-ing select{height:36px; min-width:0}
+@media (max-width:640px){
+  .mp-card{padding:0 14px}
+  .mp-add .btn{width:100%}
+  .mp-two{grid-template-columns:1fr}
+  .mp-ing{grid-template-columns:1fr 70px 64px 30px}
+  .mp-row{flex-wrap:wrap}
+  .mp-tx{flex-basis:100%}
+}
 /*V3-END*/
 </style>
 
@@ -2871,6 +2912,35 @@ Lluc (trona)</div>
 <!-- ══ Página pública para los novios (solo lectura, sin login) ══════════ -->
 <div id="novios" aria-hidden="true"></div>
 
+<script>
+/* ══ MENÚ PERSONALIZADO: platos escritos a mano en un evento ══════════
+   Para bautizos, comidas de empresa y eventos especiales, que no siempre
+   salen del catálogo. Viven dentro del evento (e.menu.propios) y se
+   convierten en platos con la misma forma que los del catálogo, con un tiempo
+   del menú (Entrantes, Carnes, Postres…): así producción, compra, servicio,
+   escaleta, menú para imprimir, resumen y portal los tratan igual. */
+function platosPropios(e){
+  var L=(e&&e.menu&&e.menu.propios)||[], fl={}, primera=null;
+  if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){ fl[f.key]=f.label; if(!primera) primera=f.key; });
+  return L.filter(function(p){ return p&&String(p.name||"").trim(); }).map(function(p){
+    var fk=fl[p.fam]?p.fam:(fl.ENTRANTES?"ENTRANTES":primera);
+    return {name:String(p.name).trim(), servicio:String(p.servicio||"").trim()||"—", cubiertos:String(p.cubiertos||"").trim()||"—", station:null,
+      ingredients:(p.ing||[]).filter(function(i){ return i&&String(i.name||"").trim(); }).map(function(i){ var q=(i.qty===""||i.qty==null||!isFinite(+String(i.qty).replace(",",".")))?null:+String(i.qty).replace(",","."); return {name:String(i.name).trim(),qty:q,unit:i.unit||"uds"}; }),
+      steps:[], _uid:"P#"+p.id, _famKey:fk, _famLabel:fl[fk]||"", _propio:true, coste:(p.coste===""||p.coste==null)?null:+String(p.coste).replace(",",".")};
+  });
+}
+/* el menú de un evento cualquiera, por tiempos: catálogo marcado + a mano */
+function menuPorFamilias(e){
+  var dm=(e&&e.menu&&e.menu.dishes)||{}, pr=platosPropios(e), out=[];
+  if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){
+    var ds=f.dishes.filter(function(x){ return dm[x._uid]; }).map(function(x){ return x.name; })
+      .concat(pr.filter(function(p){ return p._famKey===f.key; }).map(function(p){ return p.name; }));
+    if(ds.length) out.push({fam:f.label,key:f.key,platos:ds});
+  });
+  return out;
+}
+function nPlatosMenu(e){ var m=(e&&e.menu)||{}; return Object.keys(m.dishes||{}).length+platosPropios(e).length; }
+</script>
 <script>
 (function(){
 "use strict";
@@ -7401,7 +7471,7 @@ function portalFoto(e){
     if(h.cierre) cierre=h.fecha;
   });
   if(F.fecha) pasos.push({id:"boda",tipo:"boda",t:"¡Vuestra boda!",d:[F.ubicacion||"Les Moles"].join(""),fecha:F.fecha,done:false});
-  var menu=[]; try{ MENU_DATA.forEach(function(f){ var ds=f.dishes.filter(function(x){ return e.menu&&e.menu.dishes&&e.menu.dishes[x._uid]; }).map(function(x){ return x.name; }); if(ds.length) menu.push({fam:f.label,platos:ds}); }); }catch(_){}
+  var menu=[]; try{ menu=menuPorFamilias(e).map(function(f){ return {fam:f.fam,platos:f.platos}; }); }catch(_){}
   var horas=[];
   if(F.llegadaRest) horas.push({l:"Llegada de invitados",v:F.llegadaRest});
   if(F.ceremoniaHora) horas.push({l:"Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),v:F.ceremoniaHora});
@@ -7955,7 +8025,7 @@ function tipoColor(t){ return TIPO_COL[t]||"#86857B"; }
 function eventoProgreso(e){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={tables:[]}; t={pax:0}; }
   var m=e.menu||{};
-  var dishes=Object.keys(m.dishes||{}).length;
+  var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}; var beb=Object.keys(bebs).some(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty); });
   var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
   var steps=[
@@ -7984,11 +8054,7 @@ function imprimirResumen(e){
   var nombre=nombreLimpio(e.name)||"Evento";
   var fechaTxt=F.fecha?(function(){ try{ return capFirst(new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})); }catch(_){ return dmyFromISO(F.fecha); } })():(d.sub||"");
   /* menú elegido, agrupado por familia (MENU_DATA es global) */
-  var dishMap=(e.menu&&e.menu.dishes)||{}, fams=[];
-  if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){
-    var ds=f.dishes.filter(function(x){return dishMap[x._uid];}).map(function(x){return x.name;});
-    if(ds.length) fams.push({lab:f.label,ds:ds});
-  });
+  var fams=[]; try{ fams=menuPorFamilias(e).map(function(f){ return {lab:f.fam,ds:f.platos}; }); }catch(_){}
   var menuHTML=fams.length?fams.map(function(f){ return '<div class="mgrp"><h4>'+escH(f.lab)+'</h4><ul>'+f.ds.map(function(n){return '<li>'+escH(n)+'</li>';}).join("")+'</ul></div>'; }).join(""):'<p class="muted">Menú por definir.</p>';
   var adultos=t.adults-(t.staff||0);
   var cif=[["Invitados",t.pax],["Adultos",adultos],["Niños",t.child]];
@@ -8058,7 +8124,7 @@ function renderResumen(){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={title:"",sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0}; }
   var m=e.menu||{};
   var mesas=d.tables.length, pax=t.pax, mesasAper=mesasAperitivo(e);
-  var dishes=Object.keys(m.dishes||{}).length;
+  var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}; var bebCount=Object.keys(bebs).filter(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty); }).length;
   var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
   var camNeed=pax>0?Math.ceil(pax/ratioCamarero()):0;
@@ -8452,7 +8518,7 @@ var AG_IC=(function(){
 function hitoTxt(h){ return h.t+(h.importe!=null&&h.importe>0?" · "+fmtEur(h.importe):""); }
 function eventoAlertas(e){
   var a=[], c=planCounts(e), m=e.menu||{}, P=e.presupuesto||{};
-  var dishes=Object.keys(m.dishes||{}).length;
+  var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}, beb=Object.keys(bebs).some(function(k){var r=bebs[k];return r&&(r.prod||r.qty);});
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){return cam[k]==="si";}).length;
   var dr=diasRestantes(e);
@@ -8975,6 +9041,7 @@ window.SITTING_BRIDGE={
   eventName:eventName,
   switchActiveEvent:switchActiveEvent,
   eventLabel:eventLabel,
+  toast:function(){ return toast.apply(null,arguments); }, eventoTipo:function(e){ return eventoTipo(e); },
   /* el plano de mesas real del evento activo, para que el Menú no tenga que
      preguntar otra vez lo que el plano ya sabe: cuántos comensales hay, de qué
      tipo, y en cuántas mesas están repartidos. Se vuelve a leer el texto del
@@ -9157,11 +9224,15 @@ function evTotals(){
   };
 }
 
-function isSelected(d){ var m=menu(); return !!(m&&m.dishes[d._uid]); }
+function isSelected(d){ if(d&&d._propio) return true; var m=menu(); return !!(m&&m.dishes[d._uid]); }
 function toggleDish(uid){ var m=menu(); if(!m) return; if(m.dishes[uid]) delete m.dishes[uid]; else m.dishes[uid]=true; touchSave(); }
 function selectedDishes(){
   var out=[];
-  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ if(isSelected(d)) out.push(d); }); });
+  /* los del catálogo marcados y, detrás de cada tiempo, los escritos a mano */
+  var pr=platosPropios(ev());
+  pr.forEach(function(d){ DISH_BY_UID[d._uid]=d; });
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ if(isSelected(d)) out.push(d); });
+    pr.forEach(function(d){ if(d._famKey===f.key) out.push(d); }); });
   return out;
 }
 function stationDishes(famKey,stName){
@@ -9329,10 +9400,114 @@ function renderSeleccion(){
     }
     html+='</div>';
   });
-  $("mnu-body").innerHTML=any?html:window.LM_empty({ic:"Menú del evento",t:"Ningún plato coincide con «"+esc(q)+"»",d:"Prueba con otra palabra o con un ingrediente (p. ej. «gamba», «bacalao»)."});
-  wireSelRows();
+  $("mnu-body").innerHTML=propioHtml()+(any?html:window.LM_empty({ic:"Menú del evento",t:"Ningún plato coincide con «"+esc(q)+"»",d:"Prueba con otra palabra o con un ingrediente (p. ej. «gamba», «bacalao»)."}));
+  wirePropio(); wireSelRows();
 }
 
+/* ══ Menú personalizado: platos escritos a mano en este evento ═══════
+   Lo mismo que marcar un plato del catálogo, pero escribiéndolo: nombre y
+   tiempo del menú bastan (así sale en el menú para imprimir, la escaleta y
+   la producción); la vajilla, los cubiertos, los ingredientes por ración y el
+   coste son opcionales y sirven para servicio, compra y rentabilidad. */
+var mpFam="ENTRANTES", mpAbierto=null, mpEvId=null;
+function mpLista(){ var m=menu(); if(!m) return null; m.propios=m.propios||[]; return m.propios; }
+function mpId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function mpEsBoda(){ var e=ev(); try{ return /boda/i.test((BR.eventoTipo?BR.eventoTipo(e):((e&&e.ficha&&e.ficha.tipo)||""))||""); }catch(_){ return false; } }
+function mpFamOpts(sel){ return MENU_DATA.map(function(f){ return '<option value="'+esc(f.key)+'"'+(f.key===sel?' selected':'')+'>'+esc(f.label)+'</option>'; }).join(""); }
+function mpValores(campo){ var v={}; MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ if(!isDash(d[campo])) v[d[campo]]=1; }); }); return Object.keys(v).sort(function(a,b){ return a.localeCompare(b,"es"); }); }
+function mpOtros(){ var e=ev(); return (BR.allEvents?BR.allEvents():BR.store.events).filter(function(x){ return x&&e&&x.id!==e.id&&x.menu&&(x.menu.propios||[]).some(function(p){ return p&&String(p.name||"").trim(); }); }); }
+function propioHtml(){
+  var L=mpLista(); if(!L) return "";
+  if(ev().id!==mpEvId){ mpEvId=ev().id; mpAbierto=null; }
+  var pr=platosPropios(ev()), boda=mpEsBoda(), abierto=mpAbierto!=null?mpAbierto:(!boda||pr.length>0);
+  if(!MENU_DATA.some(function(f){ return f.key===mpFam; })) mpFam=(MENU_DATA[0]||{}).key;
+  var grupos=MENU_DATA.map(function(f){ var ds=pr.filter(function(d){ return d._famKey===f.key; }); if(!ds.length) return "";
+    return '<div class="mp-grp"><div class="mp-grp-h">'+esc(f.label)+'</div>'+ds.map(function(d){ var id=d._uid.slice(2), det=[];
+      if(!isDash(d.servicio)) det.push(d.servicio); if(!isDash(d.cubiertos)) det.push(d.cubiertos);
+      det.push(d.ingredients.length?d.ingredients.length+(d.ingredients.length===1?" ingrediente":" ingredientes"):"sin ingredientes");
+      if(d.coste!=null) det.push(String(d.coste).replace(".",",")+" € por ración");
+      return '<div class="mp-row"><div class="mp-tx"><b>'+esc(d.name)+'</b><span>'+esc(det.join(" · "))+'</span></div>'+
+        '<button type="button" class="btn sm" data-mp-ed="'+esc(id)+'">Detalles</button><button type="button" class="btn sm ghost" data-mp-del="'+esc(id)+'" aria-label="Quitar '+esc(d.name)+'">Quitar</button></div>'; }).join("")+'</div>'; }).join("");
+  var otros=mpOtros();
+  return '<details class="mp-card"'+(abierto?' open':'')+' id="mp-card"><summary><span class="mp-sum-t">Menú personalizado</span><span class="mp-sum-n">'+
+      (pr.length?pr.length+(pr.length===1?" plato escrito a mano":" platos escritos a mano"):(boda?"escribe platos que no estén en el catálogo":"para bautizos, comidas de empresa y eventos especiales"))+'</span></summary>'+
+    '<p class="mp-p">Escribe los platos tal como irán en el menú y elige en qué tiempo van. Salen en <b>Producción</b>, <b>Compra</b>, <b>Servicio</b>, <b>Escaleta</b> y el <b>Menú para imprimir</b>, igual que los del catálogo. Puedes combinarlos con platos del catálogo.</p>'+
+    '<div class="mp-add"><label class="mp-fld"><span class="lbl">Tiempo</span><select id="mp-fam">'+mpFamOpts(mpFam)+'</select></label>'+
+      '<label class="mp-fld mp-grow"><span class="lbl">Plato</span><input id="mp-nom" type="text" maxlength="140" autocomplete="off" placeholder="p. ej. Canelones de rustido con bechamel de setas"></label>'+
+      '<button type="button" class="btn gold" id="mp-add">Añadir plato</button></div>'+
+    (grupos?'<div class="mp-list">'+grupos+'</div>':'<p class="mp-empty">Todavía no hay platos escritos a mano en este evento.</p>')+
+    (otros.length?'<div class="mp-copy"><span>¿Se repite un menú?</span><select id="mp-copy-ev" aria-label="Copiar el menú escrito a mano de otro evento"><option value="">Copiar los platos de otro evento…</option>'+otros.map(function(x){ return '<option value="'+esc(x.id)+'">'+esc(BR.eventLabel?BR.eventLabel(x):x.name)+' ('+platosPropios(x).length+')</option>'; }).join("")+'</select></div>':'')+
+  '</details>'+(pr.length||!boda?'<div class="mp-cat-h">Catálogo de Les Moles <span>marca también platos del catálogo si hace falta</span></div>':'');
+}
+function mpAnadir(){
+  var i=$("mp-nom"), n=i?String(i.value||"").trim():""; if(!n){ if(i) i.focus(); return; }
+  var L=mpLista(); if(!L) return; mpFam=$("mp-fam").value||mpFam;
+  L.push({id:mpId(),fam:mpFam,name:n,servicio:"",cubiertos:"",ing:[],coste:null}); mpAbierto=true;
+  touchSave(); renderSeleccion(); renderEvStats();
+  var j=$("mp-nom"); if(j) j.focus();
+}
+function wirePropio(){
+  var card=$("mp-card"); if(!card) return;
+  card.addEventListener("toggle",function(){ mpAbierto=card.open; });
+  $("mp-add").addEventListener("click",mpAnadir);
+  $("mp-nom").addEventListener("keydown",function(ev2){ if(ev2.key==="Enter"){ ev2.preventDefault(); mpAnadir(); } });
+  $("mp-fam").addEventListener("change",function(){ mpFam=this.value; });
+  Array.prototype.forEach.call(card.querySelectorAll("[data-mp-ed]"),function(b){ b.addEventListener("click",function(){ mpEditar(b.getAttribute("data-mp-ed")); }); });
+  Array.prototype.forEach.call(card.querySelectorAll("[data-mp-del]"),function(b){ b.addEventListener("click",function(){
+    var L=mpLista(), id=b.getAttribute("data-mp-del"), k=-1; L.forEach(function(p,ix){ if(p.id===id) k=ix; }); if(k<0) return;
+    var q=L.splice(k,1)[0]; touchSave(); renderSeleccion(); renderEvStats();
+    if(BR.toast) BR.toast("«"+q.name+"» quitado del menú.",false,"Deshacer",function(){ var L2=mpLista(); if(!L2) return; L2.splice(Math.min(k,L2.length),0,q); touchSave(); if(mnuView==="sel") renderSeleccion(); renderEvStats(); });
+  }); });
+  var cp=$("mp-copy-ev"); if(cp) cp.addEventListener("change",function(){
+    var src=null; mpOtros().forEach(function(x){ if(x.id===cp.value) src=x; }); if(!src) return;
+    var L=mpLista(), ya={}, n=0; L.forEach(function(p){ ya[String(p.name||"").trim().toLowerCase()]=1; });
+    (src.menu.propios||[]).forEach(function(p){ if(!p||!String(p.name||"").trim()||ya[String(p.name).trim().toLowerCase()]) return; var c=JSON.parse(JSON.stringify(p)); c.id=mpId(); L.push(c); n++; });
+    touchSave(); renderSeleccion(); renderEvStats();
+    if(BR.toast) BR.toast(n?(n+(n===1?" plato copiado":" platos copiados")+" de «"+(src.name||"")+"».") : "Ya estaban todos los platos de ese evento.");
+  });
+}
+/* ficha de un plato escrito a mano: se edita aquí mismo */
+function mpEditar(id){
+  var L=mpLista(); if(!L) return; var p=null; L.forEach(function(x){ if(x.id===id) p=x; }); if(!p) return;
+  var w=JSON.parse(JSON.stringify(p)); w.ing=(w.ing||[]).slice(); if(!w.ing.length) w.ing.push({name:"",qty:"",unit:"gr"});
+  var sv=mpValores("servicio"), cu=mpValores("cubiertos");
+  var ovl=document.createElement("div"); ovl.className="ovl";
+  function filas(){ return w.ing.map(function(i,ix){ return '<div class="mp-ing" data-ix="'+ix+'"><input data-k="name" type="text" placeholder="Ingrediente" value="'+esc(i.name||"")+'" aria-label="Ingrediente">'+
+    '<input data-k="qty" type="text" inputmode="decimal" placeholder="Cantidad" value="'+esc(i.qty==null?"":String(i.qty).replace(".",","))+'" aria-label="Cantidad por ración">'+
+    '<select data-k="unit" aria-label="Unidad">'+["gr","ml","uds"].map(function(u){ return '<option'+(u===(i.unit||"gr")?' selected':'')+'>'+u+'</option>'; }).join("")+'</select>'+
+    '<button type="button" class="btn sm ghost" data-mp-idel="'+ix+'" aria-label="Quitar ingrediente">×</button></div>'; }).join(""); }
+  ovl.innerHTML='<div class="ovl-box mp-box" role="dialog" aria-modal="true" aria-labelledby="mp-ed-h"><div class="ovl-head"><h3 id="mp-ed-h">Plato escrito a mano</h3><div class="spacer"></div><button class="btn sm" type="button" id="mp-ed-x">Cancelar</button></div>'+
+    '<div class="ovl-body mp-ed">'+
+      '<label class="mp-fld"><span class="lbl">Nombre en el menú</span><input id="mp-ed-n" type="text" maxlength="140" value="'+esc(w.name||"")+'"></label>'+
+      '<div class="mp-two"><label class="mp-fld"><span class="lbl">Tiempo</span><select id="mp-ed-f">'+mpFamOpts(w.fam)+'</select></label>'+
+      '<label class="mp-fld"><span class="lbl">Coste por ración (€, opcional)</span><input id="mp-ed-c" type="text" inputmode="decimal" placeholder="para Rentabilidad" value="'+esc(w.coste==null?"":String(w.coste).replace(".",","))+'"></label></div>'+
+      '<div class="mp-two"><label class="mp-fld"><span class="lbl">Plato de servicio (vajilla)</span><input id="mp-ed-s" type="text" list="mp-dl-s" value="'+esc(w.servicio||"")+'" placeholder="Opcional"></label>'+
+      '<label class="mp-fld"><span class="lbl">Cubiertos</span><input id="mp-ed-u" type="text" list="mp-dl-u" value="'+esc(w.cubiertos||"")+'" placeholder="Opcional"></label></div>'+
+      '<datalist id="mp-dl-s">'+sv.map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist><datalist id="mp-dl-u">'+cu.map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist>'+
+      '<div><div class="lbl">Ingredientes por ración <span class="mp-hint">(opcional: con ellos salen en Producción y en la lista de la compra)</span></div><div id="mp-ings">'+filas()+'</div>'+
+      '<button type="button" class="btn sm" id="mp-ing-add">+ Ingrediente</button></div>'+
+    '</div><div class="imp-foot"><button class="btn gold" type="button" id="mp-ed-ok">Guardar</button></div></div>';
+  document.body.appendChild(ovl);
+  function leer(){ Array.prototype.forEach.call(ovl.querySelectorAll(".mp-ing"),function(r){ var i=w.ing[+r.getAttribute("data-ix")]; if(!i) return;
+    i.name=r.querySelector('[data-k="name"]').value; i.qty=r.querySelector('[data-k="qty"]').value.trim(); i.unit=r.querySelector('[data-k="unit"]').value; }); }
+  function repintar(){ leer(); ovl.querySelector("#mp-ings").innerHTML=filas(); }
+  function close(){ ovl.remove(); document.removeEventListener("keydown",onKey); }
+  function onKey(e2){ if(e2.key==="Escape") close(); }
+  document.addEventListener("keydown",onKey);
+  ovl.addEventListener("pointerdown",function(e2){ if(e2.target===ovl) close(); });
+  ovl.querySelector("#mp-ed-x").addEventListener("click",close);
+  ovl.querySelector("#mp-ing-add").addEventListener("click",function(){ repintar(); w.ing.push({name:"",qty:"",unit:"gr"}); ovl.querySelector("#mp-ings").innerHTML=filas(); var r=ovl.querySelectorAll('.mp-ing [data-k="name"]'); if(r.length) r[r.length-1].focus(); });
+  ovl.querySelector("#mp-ings").addEventListener("click",function(e2){ var b=e2.target.closest&&e2.target.closest("[data-mp-idel]"); if(!b) return; repintar(); w.ing.splice(+b.getAttribute("data-mp-idel"),1); ovl.querySelector("#mp-ings").innerHTML=filas(); });
+  ovl.querySelector("#mp-ed-ok").addEventListener("click",function(){
+    var n=ovl.querySelector("#mp-ed-n").value.trim(); if(!n){ ovl.querySelector("#mp-ed-n").focus(); return; }
+    leer(); var c=ovl.querySelector("#mp-ed-c").value.trim().replace(",",".");
+    p.name=n; p.fam=ovl.querySelector("#mp-ed-f").value; p.servicio=ovl.querySelector("#mp-ed-s").value.trim(); p.cubiertos=ovl.querySelector("#mp-ed-u").value.trim();
+    p.coste=(c!==""&&isFinite(+c))?+c:null;
+    p.ing=w.ing.filter(function(i){ return String(i.name||"").trim(); }).map(function(i){ var q=String(i.qty||"").replace(",","."); return {name:String(i.name).trim(),qty:(q!==""&&isFinite(+q))?+q:null,unit:i.unit||"gr"}; });
+    touchSave(); close(); renderMnuBody(); renderEvStats();
+  });
+  setTimeout(function(){ var i=ovl.querySelector("#mp-ed-n"); if(i) i.focus(); },30);
+}
 /* ══ ficha de plato (detalle, igual en todas las vistas) ══════════════ */
 function openDish(d){
   if(!d) return;
@@ -10448,6 +10623,7 @@ function escStaffMenu(cfg,ban){
 function escInfantil(cfg){
   var fam=MENU_DATA.filter(function(f){ return f.key==="NIÑOS"; })[0], todos=fam?fam.dishes:[];
   var elegidos=Array.isArray(cfg.infantil)?todos.filter(function(d){ return cfg.infantil.indexOf(d._uid)>-1; }):todos.filter(isSelected);
+  elegidos=elegidos.concat(platosPropios(ev()).filter(function(d){ return d._famKey==="NIÑOS"; }));
   return {todos:todos,elegidos:elegidos,extra:String(cfg.infantilExtra||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean)};
 }
 function escEtqStation(st){ var s=String(st||"").toLowerCase(); return s.charAt(0).toUpperCase()+s.slice(1); }
@@ -11070,6 +11246,7 @@ function rentCosteLinea(ing,pr){
 function rentCostePlato(d,P,AM){
   /* plato elaborado: se compra hecho o se sabe su coste por ración (artículo
      del Maître entre las raciones que salen de cada unidad, o a mano) */
+  if(d._propio&&d.coste!=null&&isFinite(d.coste)) return {c:+d.coste,faltan:[],n:0,elab:true,fuente:"a mano"};
   var o=(P.platos||{})[d._uid];
   if(o){ if(o.p!=null&&o.p!=="") return {c:+o.p,faltan:[],n:0,elab:true,fuente:"a mano"};
     if(o.a&&AM[o.a]){ var a=AM[o.a], r=+o.r>0?+o.r:1; return {c:(a.pu!=null?+a.pu:+a.p)/r,faltan:[],n:0,elab:true,fuente:(a.o||a.n)+(r!==1?" ÷ "+String(r).replace(".",","):"")}; } }
