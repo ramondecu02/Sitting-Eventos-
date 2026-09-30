@@ -7940,36 +7940,52 @@ function imprimirCalendario(y,mo){
   var dows=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
   var first=new Date(y,mo,1), startDow=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
   var rows="", cells=Math.ceil((startDow+days)/7)*7, cellHtml="";
+  /* UNA sola hoja A4 apaisada: alto útil 186 mm; cabecera, leyenda y días de
+     la semana ~34 mm; el resto se reparte entre las semanas del mes. Cada
+     aviso ocupa una línea (si no cabe, se corta con «…») y si un día tiene
+     más de los que caben, se indica cuántos más hay. */
+  var nSem=cells/7, altoDia=Math.floor((186-34)/nSem*10)/10, lineas=Math.max(3,Math.floor((altoDia-5.5)/3.35));
+  var ICP={pago:"€",reunion:"◆",documento:"✎",cierre:"■"};
   for(var i=0;i<cells;i++){
     var dnum=i-startDow+1, inMonth=(dnum>=1&&dnum<=days);
-    cellHtml+='<td'+(inMonth?"":' class="other"')+'>';
+    cellHtml+='<td'+(inMonth?"":' class="other"')+'><div class="c">';
     if(inMonth){ cellHtml+='<div class="d">'+dnum+'</div>';
-      (byDay[dnum]||[]).forEach(function(it){
-        if(it.kind==="hito"){ cellHtml+='<div class="ev hito'+(it.h.done?' done':'')+'">'+(it.h.done?"✓ ":(AG_IC[it.h.tipo]||"•")+" ")+escH(it.h.t)+' · '+escH(it.ev)+(it.h.importe?' · '+fmtEur(it.h.importe):'')+'</div>'; }
-        else if(it.kind==="pay"){ cellHtml+='<div class="ev pay">Pago · '+escH(it.concepto)+(it.importe?' · '+fmtEur(it.importe):'')+'</div>'; }
-        else if(it.kind==="prev"){ cellHtml+='<div class="ev prev">'+escH(it.name)+(it.pend?' (pendiente)':'')+(it.pax?' · '+it.pax+' pax':'')+'</div>'; }
-        else { var col=tipoColor(it.tipo); cellHtml+='<div class="ev" style="border-left-color:'+col+';background:'+col+'22">'+escH(it.name)+(it.pax?' · '+it.pax+' pax':'')+'</div>'; }
+      /* primero los eventos, después pagos y avisos; cada uno en 1 o 2 líneas
+         (unos 34 caracteres por línea) mientras quepan en el día */
+      var its=(byDay[dnum]||[]).slice().sort(function(a,b){ var o={ev:0,prev:1,pay:2,hito:3}; return (o[a.kind]==null?0:o[a.kind])-(o[b.kind]==null?0:o[b.kind]); });
+      var piezas=its.map(function(it){
+        if(it.kind==="hito") return {c:"ev hito"+(it.h.done?" done":""),t:(it.h.done?"✓ ":(ICP[it.h.tipo]||"•")+" ")+it.ev+" · "+it.h.t+(it.h.importe?" · "+fmtEur(it.h.importe):"")};
+        if(it.kind==="pay") return {c:"ev pay",t:"Pago · "+it.concepto+(it.importe?" · "+fmtEur(it.importe):"")};
+        if(it.kind==="prev") return {c:"ev prev",t:it.name+(it.pend?" (pendiente)":"")+(it.pax?" · "+it.pax+" pax":"")};
+        var col=tipoColor(it.tipo); return {c:"ev",st:'border-left-color:'+col+';background:'+col+'22',t:it.name+(it.pax?" · "+it.pax+" pax":"")};
       });
+      var usadas=0, puestos=0;
+      for(var k=0;k<piezas.length;k++){ var nl=piezas[k].t.length>34?2:1, resto=piezas.length-k-1;
+        if(usadas+nl>lineas-(resto?1:0)) break;
+        cellHtml+='<div class="'+piezas[k].c+'"'+(piezas[k].st?' style="'+piezas[k].st+'"':'')+'>'+escH(piezas[k].t)+'</div>'; usadas+=nl; puestos++; }
+      if(puestos<piezas.length) cellHtml+='<div class="mas">y '+(piezas.length-puestos)+' más</div>';
     }
-    cellHtml+='</td>';
+    cellHtml+='</div></td>';
     if((i+1)%7===0){ rows+='<tr>'+cellHtml+'</tr>'; cellHtml=""; }
   }
   var tset={}; store.events.forEach(function(e){ tset[eventoTipo(e)]=1; });
   var legend=Object.keys(tset).sort().map(function(t){ return '<span class="lg"><i style="background:'+tipoColor(t)+'"></i>'+escH(t)+'</span>'; }).join("");
   var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Calendario · '+escH(mesLargo(y,mo))+' · Les Moles Events</title>'+
     '<style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0}'+
-    'h1{font-size:22px;margin:0 0 2px;font-weight:600}.sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;margin-bottom:10px}'+
-    '.leg{margin:0 0 12px;font:10px Arial,sans-serif;color:#555}.leg .lg{display:inline-flex;align-items:center;gap:4px;margin-right:12px}.leg i{width:9px;height:9px;border-radius:2px;display:inline-block}'+
-    'table{width:100%;border-collapse:collapse;table-layout:fixed}th{font:600 10px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#555;padding:6px 4px;border:1px solid #ccc;background:#f3f1ea}'+
-    'td{border:1px solid #ccc;height:92px;vertical-align:top;padding:4px 5px}td.other{background:#faf9f5}.d{font-size:14px;text-align:right;color:#666;margin-bottom:3px}'+
-    '.ev{font:600 10px/1.25 Arial,sans-serif;background:#eef0e6;border-left:3px solid #6E7D50;border-radius:3px;padding:2px 4px;margin-bottom:2px;overflow:hidden}'+
+    'h1{font-size:20px;margin:0 0 1px;font-weight:600}.sub{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;margin-bottom:5px}'+
+    '.leg{margin:0 0 6px;font:10px Arial,sans-serif;color:#555}.leg .lg{display:inline-flex;align-items:center;gap:4px;margin-right:12px}.leg i{width:9px;height:9px;border-radius:2px;display:inline-block}'+
+    'table{width:100%;border-collapse:collapse;table-layout:fixed}th{font:600 8.5px/1 Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#555;padding:1.5mm 1mm;border:1px solid #ccc;background:#f3f1ea}'+
+    'html,body{background:#fff}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.pg{height:185mm;overflow:hidden;page-break-after:avoid;break-after:avoid}'+
+    'td{border:1px solid #ccc;height:'+altoDia+'mm;vertical-align:top;padding:0}td.other{background:#faf9f5}.c{height:'+altoDia+'mm;overflow:hidden;padding:1.2mm 1.4mm}.d{font:11px/1 Georgia,serif;text-align:right;color:#666;margin-bottom:1mm}'+
+    '.ev{font:600 7.5px/1.3 Arial,sans-serif;background:#eef0e6;border-left:2.5px solid #6E7D50;border-radius:2px;padding:.3mm 1mm;margin-bottom:.45mm;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}'+
+    '.mas{font:600 7px/1.2 Arial,sans-serif;color:#6E7D50;padding-left:1mm}.ev svg{display:none}'+
     '.ev.pay{background:#f4ecdc;border-left-color:#9C7F44}'+
-    '.ev.hito{background:#fff;border-left:3px dashed #8A9A6B}.ev.hito.done{opacity:.55}.ev.prev{background:#fff;border:1px dashed #9A722A;border-left-width:3px}'+
-    '.foot{margin-top:12px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
+    '.ev.hito{background:#fff;border-left:2.5px solid #C9CFB6}.ev.hito.done{opacity:.55}.ev.prev{background:#fff;border:1px dashed #9A722A;border-left-width:3px}'+
+    '.foot{margin-top:1.5mm;font:8px Arial,sans-serif;color:#999;text-align:center}</style></head><body><div class="pg">'+
     '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos y pagos</div>'+
     (legend?'<div class="leg">'+legend+'</div>':'')+
     '<table><thead><tr>'+dows.map(function(w){return '<th>'+w+'</th>';}).join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="foot">Generado desde Les Moles Events</div></body></html>';
+    '<div class="foot">Generado desde Les Moles Events</div></div></body></html>';
   var ifr=document.createElement("iframe");
   ifr.setAttribute("aria-hidden","true");
   ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
