@@ -63,8 +63,7 @@ export function initBooking() {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    msg.textContent = group
-      ? 'Se ha abierto tu correo. Para grupos te preparamos una propuesta.'
-      : 'Se ha abierto tu correo con la solicitud. Te confirmamos la mesa enseguida.';
+    // No se puede saber si el correo se ha abierto: se ofrece la alternativa.
+    msg.textContent = `${group ? 'Solicitud de grupo preparada' : 'Solicitud preparada'} en tu programa de correo. ¿No se ha abierto? Escríbenos a ${EMAIL} o llama al 977 57 32 24.`;
   });
 }
