@@ -2446,6 +2446,22 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .esc-band b{font-family:var(--font-text); font-size:12px; letter-spacing:.24em; text-transform:uppercase; font-weight:750}
 .esc-band .esc-hq{position:absolute; right:12px; top:50%; transform:translateY(-50%); float:none; font-size:11px; letter-spacing:.02em; text-transform:none; font-weight:600; color:#56613F}
 @media (max-width:640px){ .esc-band{padding:0 74px} .esc-band b{font-size:11px; letter-spacing:.16em} }
+/* calendario: filtros de elección múltiple */
+.cal-filtro{display:inline-flex; flex-wrap:wrap; gap:6px}
+.cal-filtro button{display:inline-flex; align-items:center; gap:7px; min-height:32px; padding:0 12px; border-radius:100px; border:1px solid var(--c-line); background:var(--panel); color:var(--c-mut); font:600 12.5px var(--font-text); cursor:pointer; transition:background var(--t-fast),color var(--t-fast),border-color var(--t-fast)}
+.cal-filtro button i{width:9px; height:9px; border-radius:50%; border:1.5px solid currentColor; flex:none}
+.cal-filtro button[aria-pressed="true"]{background:var(--c-ink); border-color:var(--c-ink); color:var(--panel)}
+.cal-filtro button[aria-pressed="true"] i{background:currentColor}
+.cal-filtro .cf-todo[aria-pressed="true"]{background:var(--olive-deep,#56613F); border-color:var(--olive-deep,#56613F)}
+.cal-filtro button:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+/* los eventos, bien marcados; pagos y avisos, más discretos */
+.cal-ev.cal-evt{background:color-mix(in srgb,var(--ec) 30%,var(--panel))!important; border-left:4px solid var(--ec)!important; color:var(--c-ink); padding-top:5px; padding-bottom:5px}
+.cal-ev.cal-evt b{font-weight:800; letter-spacing:.01em}
+.cal-ev.cal-evt small{color:var(--c-ink); opacity:.7}
+.cal-ev.cal-evt.nc{background:var(--panel)!important; outline:1px dashed color-mix(in srgb,var(--ec) 70%,transparent); outline-offset:-1px}
+.cal-ev.cal-hito,.cal-ev.cal-pay{background:transparent; font-weight:500}
+.cal-ev.cal-hito b,.cal-ev.cal-pay b{font-weight:600}
+@media (max-width:640px){ .cal-filtro{order:5; width:100%} .cal-filtro button{flex:1 1 auto; justify-content:center} }
 /*V3-END*/
 </style>
 
@@ -2457,7 +2473,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · escaleta</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · calendario</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -7880,39 +7896,53 @@ function calItemsByDay(y,mo){
   function push(day,it){ (map[day]=map[day]||[]).push(it); }
   store.events.forEach(function(e){
     var f=e.ficha&&e.ficha.fecha, m=f&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(f);
+    /* confirmado: reserva, planificación, confirmada, celebrada o cerrada (lo
+       mismo que en la Previsión); contacto, propuesta y visita = pendiente */
+    var conf=!!PV_EV_CONF[(e.ficha&&e.ficha.estado)||"planificacion"];
     if(m&&+m[1]===y&&(+m[2]-1)===mo){ var t=null; try{ t=totals(parse(e.text||"")); }catch(_){}
-      push(+m[3],{kind:"event", id:e.id, name:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0}); }
+      push(+m[3],{kind:"event", id:e.id, name:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0, conf:conf}); }
     hitosAuto(e).forEach(function(h){
       var hm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(h.fecha);
-      if(hm&&+hm[1]===y&&(+hm[2]-1)===mo) push(+hm[3],{kind:"hito", id:e.id, h:h, ev:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e)});
+      if(hm&&+hm[1]===y&&(+hm[2]-1)===mo) push(+hm[3],{kind:"hito", id:e.id, h:h, ev:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e), conf:conf});
     });
     ((e.presupuesto&&e.presupuesto.pagos)||[]).forEach(function(p){
       var pm=p.fecha&&/^(\d{4})-(\d{2})-(\d{2})$/.exec(p.fecha);
-      if(pm&&+pm[1]===y&&(+pm[2]-1)===mo) push(+pm[3],{kind:"pay", id:e.id, concepto:(p.concepto||"Pago"), importe:(+p.importe||0), ev:(e.name||"Evento")});
+      if(pm&&+pm[1]===y&&(+pm[2]-1)===mo) push(+pm[3],{kind:"pay", id:e.id, concepto:(p.concepto||"Pago"), importe:(+p.importe||0), ev:nombreLimpio(e.name)||"Evento", conf:conf});
     });
   });
   try{ prevStore().filas.forEach(function(f){
     if(!f||f.borrado||f.evento||f.estado==="descartado"||!/^\d{4}-\d\d-\d\d$/.test(f.fecha||"")) return;
     if(+f.fecha.slice(0,4)!==y||(+f.fecha.slice(5,7)-1)!==mo) return;
-    push(+f.fecha.slice(8,10),{kind:"prev", fid:f.id, name:f.nombre||"Celebración", pend:f.estado!=="confirmado", pax:pvComensales(f), tipo:pvTipoEvento(f)});
+    push(+f.fecha.slice(8,10),{kind:"prev", fid:f.id, name:f.nombre||"Celebración", pend:f.estado!=="confirmado", conf:f.estado==="confirmado", pax:pvComensales(f), tipo:pvTipoEvento(f)});
   }); }catch(_){}
   return map;
 }
-/* filtro del calendario: todo, solo eventos, solo pagos o solo reuniones
-   (se recuerda en este navegador y vale también para imprimir) */
-var CAL_FILTROS=[{k:"todo",t:"Todo"},{k:"eventos",t:"Eventos"},{k:"pagos",t:"Pagos"},{k:"reuniones",t:"Reuniones"}];
-var calFiltro=(function(){ try{ var v=localStorage.getItem("lm_cal_filtro"); return CAL_FILTROS.some(function(f){ return f.k===v; })?v:"todo"; }catch(_){ return "todo"; } })();
-function calPasa(it,f){
-  if(f==="eventos") return it.kind==="event"||it.kind==="prev";
-  if(f==="pagos") return it.kind==="pay"||(it.kind==="hito"&&it.h.tipo==="pago");
-  if(f==="reuniones") return it.kind==="hito"&&it.h.tipo==="reunion";
-  return true;
+/* filtros del calendario, de elección múltiple (p. ej. eventos + sus pagos).
+   Se recuerdan en este navegador y valen también para imprimir. */
+var CAL_TIPOS=[{k:"eventos",t:"Eventos"},{k:"pagos",t:"Pagos"},{k:"reuniones",t:"Reuniones"},{k:"avisos",t:"Otros avisos"}];
+var calSel=(function(){ var ok={}; CAL_TIPOS.forEach(function(f){ ok[f.k]=1; });
+  try{ var a=JSON.parse(localStorage.getItem("lm_cal_filtros")||"null"); if(Array.isArray(a)){ a=a.filter(function(k){ return ok[k]; }); if(a.length) return a; }
+    var v=localStorage.getItem("lm_cal_filtro"); if(v&&ok[v]) return [v]; }catch(_){}
+  return CAL_TIPOS.map(function(f){ return f.k; }); })();
+function calTodo(){ return calSel.length===CAL_TIPOS.length; }
+function calClase(it){
+  if(it.kind==="event"||it.kind==="prev") return "eventos";
+  if(it.kind==="pay"||(it.kind==="hito"&&it.h.tipo==="pago")) return "pagos";
+  if(it.kind==="hito"&&it.h.tipo==="reunion") return "reuniones";
+  return "avisos";
 }
-function calItemsFiltrados(y,mo){
-  var m=calItemsByDay(y,mo); if(calFiltro==="todo") return m;
-  var out={}; Object.keys(m).forEach(function(d){ var l=m[d].filter(function(it){ return calPasa(it,calFiltro); }); if(l.length) out[d]=l; });
+/* soloConf: la hoja impresa lleva solo lo confirmado (sin bodas pendientes
+   ni sus avisos) */
+function calItemsFiltrados(y,mo,soloConf){
+  var m=calItemsByDay(y,mo), out={};
+  Object.keys(m).forEach(function(d){ var l=m[d].filter(function(it){ return calSel.indexOf(calClase(it))>-1&&(!soloConf||it.conf); }); if(l.length) out[d]=l; });
   return out;
 }
+function calSelTxt(){ if(calTodo()) return "eventos, pagos, reuniones y avisos"; var n=calSel.map(function(k){ return CAL_TIPOS.filter(function(f){ return f.k===k; })[0].t.toLowerCase(); });
+  return n.length>1?n.slice(0,-1).join(", ")+" y "+n[n.length-1]:n[0]; }
+/* en cada día, primero los eventos y después pagos, reuniones y avisos */
+var CAL_ORDEN={event:0,prev:1,pay:2,hito:3};
+function calOrdenar(l){ return l.slice().sort(function(a,b){ return (CAL_ORDEN[a.kind]||0)-(CAL_ORDEN[b.kind]||0); }); }
 function renderHomeCalendar(){
   var cal=$("home-cal"); if(!cal) return;
   if(!calMonth) calMonth=defaultCalMonth();
@@ -7927,9 +7957,11 @@ function renderHomeCalendar(){
       '<button class="cal-ico" id="cal-next" type="button" aria-label="Mes siguiente">›</button></div>'+
       '<button class="cal-ico" id="cal-today" type="button" title="Ir a hoy" style="width:auto;padding:0 12px;font-size:13px">Hoy</button>'+
       '<div class="cal-spacer"></div>'+
-      '<div class="seg cal-filtro" role="group" aria-label="Qué ver en el calendario">'+CAL_FILTROS.map(function(f){ return '<button type="button" data-calf="'+f.k+'" aria-pressed="'+(calFiltro===f.k)+'">'+f.t+'</button>'; }).join("")+'</div>'+
-      '<button class="btn sm" id="cal-print" type="button">Imprimir</button></div>'+
-      (calFiltro!=="todo"&&!Object.keys(byDay).length?'<p class="cal-vacio">Este mes no hay '+escH(({eventos:"eventos",pagos:"pagos",reuniones:"reuniones"})[calFiltro])+'.</p>':'');
+      '<div class="cal-filtro" role="group" aria-label="Qué ver en el calendario (se pueden marcar varios)">'+
+        '<button type="button" class="cf-todo" data-calf="todo" aria-pressed="'+calTodo()+'">Todo</button>'+
+        CAL_TIPOS.map(function(f){ return '<button type="button" class="cf-'+f.k+'" data-calf="'+f.k+'" aria-pressed="'+(calSel.indexOf(f.k)>-1)+'"><i aria-hidden="true"></i>'+f.t+'</button>'; }).join("")+'</div>'+
+      '<button class="btn sm" id="cal-print" type="button" title="Se imprimen solo los eventos confirmados y sus avisos">Imprimir</button></div>'+
+      (!calTodo()&&!Object.keys(byDay).length?'<p class="cal-vacio">Este mes no hay '+escH(calSelTxt())+'.</p>':'');
   html+='<div class="cal-grid">';
   dows.forEach(function(w){ html+='<div class="cal-dow">'+w+'</div>'; });
   var cells=Math.ceil((startDow+days)/7)*7;
@@ -7939,7 +7971,7 @@ function renderHomeCalendar(){
     html+='<div class="'+cls+'">';
     if(inMonth){
       html+='<span class="cal-day">'+dnum+'</span>';
-      (byDay[dnum]||[]).forEach(function(it){
+      calOrdenar(byDay[dnum]||[]).forEach(function(it){
         if(it.kind==="hito"){
           var hh=it.h, colH=tipoColor(it.tipo);
           html+='<button class="cal-ev cal-hito'+(hh.done?" done":"")+(!hh.done&&hh.falta<0?" late":"")+'" type="button" data-id="'+escH(it.id)+'" data-sec="'+(hh.tipo==="pago"?"presup":"timeline")+'" title="'+escH(hitoTxt(hh)+" · "+it.ev)+'" style="border-left-color:'+colH+'">'+
@@ -7950,7 +7982,7 @@ function renderHomeCalendar(){
           html+='<button class="cal-ev cal-pay" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">'+AG_IC.pago+' <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
         } else {
           var col=tipoColor(it.tipo);
-          html+='<button class="cal-ev" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo)+'" style="border-left-color:'+col+';background:'+col+'22"><b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
+          html+='<button class="cal-ev cal-evt'+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo+(it.conf?"":" · pendiente de confirmar"))+'" style="--ec:'+col+'"><b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
         }
       });
     }
@@ -7969,7 +8001,12 @@ function renderHomeCalendar(){
   var td=$("cal-today"); if(td) td.addEventListener("click",function(){ var n=new Date(); calMonth=new Date(n.getFullYear(),n.getMonth(),1); renderHomeCalendar(); });
   var pr=$("cal-print"); if(pr) pr.addEventListener("click",function(){ imprimirCalendario(y,mo); });
   Array.prototype.forEach.call(cal.querySelectorAll("[data-calf]"),function(b){ b.addEventListener("click",function(){
-    calFiltro=b.getAttribute("data-calf"); try{ localStorage.setItem("lm_cal_filtro",calFiltro); }catch(_){} renderHomeCalendar(); }); });
+    var k=b.getAttribute("data-calf");
+    if(k==="todo") calSel=CAL_TIPOS.map(function(f){ return f.k; });
+    else if(calTodo()) calSel=[k];                       /* desde «Todo», el primero que se pulsa queda solo */
+    else if(calSel.indexOf(k)>-1){ if(calSel.length>1) calSel=calSel.filter(function(x){ return x!==k; }); }
+    else calSel=CAL_TIPOS.map(function(f){ return f.k; }).filter(function(x){ return x===k||calSel.indexOf(x)>-1; });
+    try{ localStorage.setItem("lm_cal_filtros",JSON.stringify(calSel)); }catch(_){} renderHomeCalendar(); }); });
   Array.prototype.forEach.call(cal.querySelectorAll(".cal-ev"),function(b){ b.addEventListener("click",function(){
     if(b.dataset.fid){ irASeccion("prev"); if(window.LM_prevIr) window.LM_prevIr(b.dataset.fid); return; }
     abrirEvento(b.dataset.id, b.dataset.sec); }); });
@@ -7979,7 +8016,7 @@ function renderHomeCalendar(){
    ventana nueva porque las ventanas emergentes suelen estar bloqueadas dentro
    del visor; así funciona igual en la vista previa y desplegado. */
 function imprimirCalendario(y,mo){
-  var byDay=calItemsFiltrados(y,mo);
+  var byDay=calItemsFiltrados(y,mo,true);
   var dows=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
   var first=new Date(y,mo,1), startDow=(first.getDay()+6)%7, days=new Date(y,mo+1,0).getDate();
   var rows="", cells=Math.ceil((startDow+days)/7)*7, cellHtml="";
@@ -7995,15 +8032,14 @@ function imprimirCalendario(y,mo){
     if(inMonth){ cellHtml+='<div class="d">'+dnum+'</div>';
       /* primero los eventos, después pagos y avisos; cada uno en 1 o 2 líneas
          (unos 34 caracteres por línea) mientras quepan en el día */
-      var its=(byDay[dnum]||[]).slice().sort(function(a,b){ var o={ev:0,prev:1,pay:2,hito:3}; return (o[a.kind]==null?0:o[a.kind])-(o[b.kind]==null?0:o[b.kind]); });
+      var its=calOrdenar(byDay[dnum]||[]);
       var piezas=its.map(function(it){
         if(it.kind==="hito") return {c:"ev hito"+(it.h.done?" done":""),t:(it.h.done?"✓ ":(ICP[it.h.tipo]||"•")+" ")+it.ev+" · "+it.h.t+(it.h.importe?" · "+fmtEur(it.h.importe):"")};
-        if(it.kind==="pay") return {c:"ev pay",t:"Pago · "+it.concepto+(it.importe?" · "+fmtEur(it.importe):"")};
-        if(it.kind==="prev") return {c:"ev prev",t:it.name+(it.pend?" (pendiente)":"")+(it.pax?" · "+it.pax+" pax":"")};
-        var col=tipoColor(it.tipo); return {c:"ev",st:'border-left-color:'+col+';background:'+col+'22',t:it.name+(it.pax?" · "+it.pax+" pax":"")};
+        if(it.kind==="pay") return {c:"ev pay",t:"€ "+it.ev+" · "+it.concepto+(it.importe?" · "+fmtEur(it.importe):"")};
+        var col=tipoColor(it.tipo); return {c:"ev evt",st:'border-color:'+col+';background:'+col+'40',t:it.name+(it.pax?" · "+it.pax+" pax":"")};
       });
       var usadas=0, puestos=0;
-      for(var k=0;k<piezas.length;k++){ var nl=piezas[k].t.length>34?2:1, resto=piezas.length-k-1;
+      for(var k=0;k<piezas.length;k++){ var evt=/evt/.test(piezas[k].c), nl=(piezas[k].t.length>(evt?30:34)?2:1)+(evt?0.45:0), resto=piezas.length-k-1;
         if(usadas+nl>lineas-(resto?1:0)) break;
         cellHtml+='<div class="'+piezas[k].c+'"'+(piezas[k].st?' style="'+piezas[k].st+'"':'')+'>'+escH(piezas[k].t)+'</div>'; usadas+=nl; puestos++; }
       if(puestos<piezas.length) cellHtml+='<div class="mas">y '+(piezas.length-puestos)+' más</div>';
@@ -8023,9 +8059,10 @@ function imprimirCalendario(y,mo){
     '.ev{font:600 7.5px/1.3 Arial,sans-serif;background:#eef0e6;border-left:2.5px solid #6E7D50;border-radius:2px;padding:.3mm 1mm;margin-bottom:.45mm;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}'+
     '.mas{font:600 7px/1.2 Arial,sans-serif;color:#6E7D50;padding-left:1mm}.ev svg{display:none}'+
     '.ev.pay{background:#f4ecdc;border-left-color:#9C7F44}'+
-    '.ev.hito{background:#fff;border-left:2.5px solid #C9CFB6}.ev.hito.done{opacity:.55}.ev.prev{background:#fff;border:1px dashed #9A722A;border-left-width:3px}'+
+    '.ev.hito{background:#fff;border-left:2.5px solid #C9CFB6;font-weight:500;color:#333}.ev.hito.done{opacity:.55}.ev.pay{font-weight:500;color:#333}'+
+    '.ev.evt{font:800 8.2px/1.3 Arial,sans-serif;color:#111;text-transform:uppercase;letter-spacing:.02em;border:1px solid;border-left-width:4px;padding:.5mm 1.2mm;margin-bottom:.7mm}'+
     '.foot{margin-top:1.5mm;font:8px Arial,sans-serif;color:#999;text-align:center}</style></head><body><div class="pg">'+
-    '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · '+({todo:"Calendario de eventos y pagos",eventos:"Calendario · solo eventos",pagos:"Calendario · solo pagos",reuniones:"Calendario · solo reuniones"})[calFiltro]+'</div>'+
+    '<h1>'+escH(mesLargo(y,mo))+'</h1><div class="sub">Les Moles Events · Calendario de eventos confirmados · '+escH(calSelTxt())+'</div>'+
     (legend?'<div class="leg">'+legend+'</div>':'')+
     '<table><thead><tr>'+dows.map(function(w){return '<th>'+w+'</th>';}).join("")+'</tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="foot">Generado desde Les Moles Events</div></div></body></html>';
