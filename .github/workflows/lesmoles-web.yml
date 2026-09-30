@@ -1,0 +1,41 @@
+name: Web de Les Moles
+
+# Construye la web pública (lesmoles-web/) y la revisa entera cada vez que
+# cambia algo dentro: enlaces, anclas, SEO, idiomas, redirecciones, y pruebas
+# en un navegador real (móvil, menú, formulario, 404). No publica nada.
+
+"on":
+  push:
+    paths: ["lesmoles-web/**", ".github/workflows/lesmoles-web.yml"]
+  pull_request:
+    paths: ["lesmoles-web/**", ".github/workflows/lesmoles-web.yml"]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lesmoles-web
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Construir la web
+        run: node build.mjs
+
+      - name: Revisión estática
+        run: node tools/check.mjs
+
+      - name: Instalar Playwright y Chromium
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Pruebas en el navegador
+        run: node tools/test-browser.mjs
