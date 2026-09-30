@@ -2437,6 +2437,8 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 /* las 7 columnas del calendario siempre iguales, aunque un aviso sea largo */
 .cal-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
 .cal-ev{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
+/* versión cargada (para saber si el navegador tiene la última) */
+.side-ver{display:block; margin-top:4px; font-size:10.5px; letter-spacing:.02em; color:var(--nav-mut); opacity:.65}
 /*V3-END*/
 </style>
 
@@ -2448,7 +2450,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · arroces</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
