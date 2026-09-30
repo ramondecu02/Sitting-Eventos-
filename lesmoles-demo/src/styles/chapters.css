@@ -1,0 +1,502 @@
+/* ==========================================================================
+   Capítulos de la Home
+   ========================================================================== */
+
+/* ═══════════ 00 · Entrada ═══════════ */
+.entry__stage { position: relative; height: 100vh; height: 100svh; overflow: hidden; background: var(--black); }
+.entry__media { position: absolute; inset: 0; will-change: clip-path; }
+.entry__media .ph__brief { top: calc(var(--nav-h) + 18px); bottom: auto; left: auto; right: var(--margin); width: 280px; text-align: right; justify-items: end; }
+.entry__ring { position: absolute; left: 0; top: 0; width: 100px; opacity: 0; overflow: visible; pointer-events: none; z-index: 1; }
+.entry__ring circle { fill: none; stroke: var(--paper); stroke-width: 0.45; vector-effect: non-scaling-stroke; }
+.entry__ring-in { opacity: 0.35; stroke-dasharray: 2 5; }
+.entry__ring .entry__ring-eye { fill: var(--olive-2); stroke: none; }
+.reduce-motion .entry__ring, .no-js .entry__ring { display: none; }
+.entry__shade {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 26%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0) 48%);
+}
+.entry__hero { position: absolute; inset: 0; padding: 0 var(--margin); }
+.entry__place { position: absolute; left: var(--margin); top: calc(var(--nav-h) + 26px); color: rgba(241, 236, 227, 0.72); }
+.entry__coords {
+  position: absolute; right: calc(var(--margin) - 4px); top: 50%;
+  writing-mode: vertical-rl; translate: 0 -50%; rotate: 180deg;
+  color: rgba(241, 236, 227, 0.6);
+}
+.entry__title {
+  position: absolute; left: calc(var(--margin) - 0.04em); bottom: clamp(70px, 10vh, 120px);
+  font-size: var(--fs-mega); font-weight: 300; line-height: 0.8; letter-spacing: -0.055em;
+  color: var(--paper);
+}
+.entry__line { display: block; }
+.entry__line--2 { padding-left: 0.62em; }
+.entry__tag {
+  position: absolute; right: calc(var(--margin) + 36px); top: 40%;
+  font-size: clamp(1.4rem, 2.3vw, 2.3rem); font-weight: 300; line-height: 1.12; letter-spacing: -0.01em;
+  text-align: right; color: var(--paper);
+}
+.entry__awards {
+  position: absolute; right: var(--margin); bottom: clamp(70px, 10vh, 120px);
+  display: grid; justify-items: end; gap: 2px; color: rgba(241, 236, 227, 0.7);
+}
+.entry__scroll {
+  position: absolute; left: 50%; bottom: 26px; translate: -50% 0;
+  display: grid; justify-items: center; gap: 12px; color: rgba(241, 236, 227, 0.7);
+}
+.entry__scroll i { position: relative; width: 1px; height: 46px; background: rgba(241, 236, 227, 0.22); overflow: hidden; }
+.entry__scroll i::after {
+  content: ''; position: absolute; left: 0; top: 0; width: 1px; height: 100%;
+  background: var(--paper); animation: scroll-cue 2.4s var(--ease-io) infinite;
+}
+@keyframes scroll-cue { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
+
+.entry__manifesto {
+  position: absolute; left: 52%; right: var(--margin); top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.entry__mlabel { color: var(--olive-2); margin-bottom: 26px; }
+.entry__mtext {
+  font-size: clamp(1.6rem, 2.75vw, 3.05rem); font-weight: 300; line-height: 1.16; letter-spacing: -0.02em;
+  color: var(--paper);
+}
+.entry__mtext .word { display: inline-block; }
+.entry__mcap { position: absolute; left: 0; top: calc(100% + 34px); color: rgba(241, 236, 227, 0.5); }
+.js:not(.reduce-motion) .entry__manifesto { visibility: hidden; }
+
+/* Sin movimiento (o sin JS): entrada estática + manifiesto debajo */
+.reduce-motion .entry__stage, .no-js .entry__stage { height: auto; }
+.reduce-motion .entry__media, .no-js .entry__media { bottom: auto; height: 100svh; }
+.reduce-motion .entry__hero, .no-js .entry__hero { position: relative; height: 100svh; }
+.reduce-motion .entry__manifesto, .no-js .entry__manifesto {
+  position: relative; left: auto; right: auto; top: auto; transform: none;
+  padding: 18vh var(--margin); max-width: 1100px; margin-left: auto;
+}
+.reduce-motion .entry__mcap, .no-js .entry__mcap { position: static; margin-top: 30px; }
+
+/* ═══════════ Carril horizontal (territorio y experiencia) ═══════════ */
+.hs { position: relative; height: 100vh; height: 100svh; overflow: hidden; }
+.hs__track {
+  display: flex; align-items: center; gap: clamp(64px, 7vw, 140px);
+  height: 100%; width: max-content; padding: 0 var(--margin) 0 calc(var(--margin) + 6vw);
+  will-change: transform;
+}
+.hs__progress { position: absolute; left: calc(var(--margin) + 280px); right: var(--margin); bottom: 29px; height: 1px; background: var(--line); }
+.hs__progress i { position: absolute; inset: 0; background: var(--fg); transform: scaleX(0); transform-origin: left; }
+
+/* ═══════════ I · El territorio ═══════════ */
+.terr { padding-top: clamp(150px, 22vh, 260px); }
+.terr .chead { margin-bottom: clamp(40px, 6vh, 80px); }
+.terr .vtext { right: var(--margin); top: 0; }
+.tp { position: relative; flex: none; display: flex; flex-direction: column; }
+.tp .media { width: auto; }
+.tp--sea .media { height: 44vh; }
+.tp--mountain { align-self: flex-start; margin-top: 11vh; }
+.tp--mountain .media { height: 60vh; }
+.tp--olive { align-self: flex-end; margin-bottom: 12vh; }
+.tp--olive .media { height: 50vh; }
+.tp--garden .media { height: 58vh; }
+.tp__num {
+  position: absolute; z-index: 3; top: -0.52em; left: -0.08em;
+  font-family: var(--serif); font-size: clamp(6rem, 11vw, 12rem); font-weight: 300; line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgba(241, 236, 227, 0.55);
+  pointer-events: none;
+}
+.tp__text { display: grid; gap: 10px; max-width: 34ch; margin-top: 28px; }
+.tp__text .label { color: var(--accent); }
+.tp__title { font-family: var(--serif); font-weight: 300; font-size: clamp(1.9rem, 2.6vw, 2.8rem); line-height: 1; letter-spacing: -0.025em; }
+.tp__text p:last-child { color: var(--fg-2); }
+.tp--sea .tp__text { max-width: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); column-gap: 40px; align-items: end; }
+.tp--sea .tp__text .label, .tp--sea .tp__title { grid-column: 1; }
+.tp--sea .tp__text p:last-child { grid-column: 2; grid-row: 1 / 3; max-width: 38ch; }
+.tp--end { width: 38vw; justify-content: center; }
+.tp__end { font-family: var(--serif); font-weight: 300; font-size: clamp(2.6rem, 5vw, 5.4rem); line-height: 0.98; letter-spacing: -0.035em; }
+
+/* Hojas de papel: el borde superior curvado se aplana al entrar (JS) */
+[data-sheet] {
+  position: relative; z-index: 2;
+  border-radius: var(--sheet-r, 0) var(--sheet-r, 0) 0 0 / var(--sheet-ry, 0) var(--sheet-ry, 0) 0 0;
+}
+/* La familia se monta un poco sobre la cocina para que las esquinas dejen ver su fondo */
+.cocina { padding-bottom: calc(clamp(130px, 18vh, 220px) + 12vh); }
+.familia[data-sheet] { margin-top: -12vh; }
+
+/* ═══════════ II · El producto ═══════════ */
+.prod { padding: clamp(150px, 22vh, 260px) var(--margin) clamp(130px, 18vh, 220px); }
+.prod__label { color: var(--accent); margin-bottom: clamp(30px, 4vh, 48px); }
+.prod__quote p {
+  font-family: var(--serif); font-weight: 300;
+  font-size: clamp(2.7rem, 6.6vw, 7.6rem); line-height: 1.02; letter-spacing: -0.04em;
+  max-width: 15.5ch;
+}
+.prod__quote footer { margin-top: clamp(26px, 3vh, 40px); color: var(--fg-2); }
+.inline-photo {
+  --w: 2.3em;
+  position: relative; display: inline-block;
+  width: var(--w); height: 0.74em; margin: 0 0.04em;
+  border-radius: 999px; overflow: hidden; vertical-align: -0.04em;
+}
+.inline-photo .media { border-radius: inherit; }
+.inline-photo .ph__brief, .inline-photo .ph::before, .inline-photo .ph::after { display: none; }
+.inline-photo .ph::before, .inline-photo .ph::after { content: none; }
+.prod__grid {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter);
+  margin-top: clamp(90px, 14vh, 180px);
+}
+.prod__big { grid-column: 1 / 7; grid-row: 1 / 3; }
+.prod__text { grid-column: 8 / 12; grid-row: 1; align-self: end; display: grid; gap: 22px; padding-bottom: 8vh; }
+.prod__lead { font-family: var(--serif); font-weight: 300; font-size: clamp(1.7rem, 2.4vw, 2.5rem); line-height: 1.08; letter-spacing: -0.02em; }
+.prod__text > p:not(.prod__lead) { color: var(--fg-2); max-width: 44ch; }
+.prod__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gutter); }
+.prod__facts dt { color: var(--accent); }
+.prod__facts dd { font-family: var(--serif); font-size: 1.6rem; font-weight: 300; }
+.prod__small { grid-column: 7 / 12; grid-row: 2; margin-left: -7vw; position: relative; z-index: 2; }
+.prod__small .media { box-shadow: 0 0 0 clamp(8px, 1vw, 14px) var(--paper); }
+figcaption.label, .prod figcaption { margin-top: 16px; color: var(--fg-2); }
+
+/* ═══════════ III · La cocina ═══════════ */
+.cocina { padding: clamp(150px, 22vh, 260px) 0 clamp(130px, 18vh, 220px); overflow: hidden; }
+.cocina__stage {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter);
+  padding: 0 var(--margin); margin-top: clamp(60px, 10vh, 130px);
+}
+.chef { position: relative; }
+.chef--jeroni { grid-column: 2 / 7; grid-row: 1; }
+.chef--pau { grid-column: 8 / 12; grid-row: 1 / 3; margin-top: 34vh; }
+.chef figcaption { position: relative; z-index: 2; }
+.chef__name {
+  display: block; font-family: var(--serif); font-weight: 300;
+  font-size: clamp(3.2rem, 7vw, 7.8rem); line-height: 0.86; letter-spacing: -0.045em;
+  margin-top: -0.62em;
+}
+.chef--jeroni .chef__name { margin-left: -0.32em; }
+.chef--pau figcaption { text-align: right; }
+.chef--pau .chef__name { margin-right: -0.28em; }
+.chef__role { display: block; margin-top: 18px; color: var(--accent); }
+.cocina__statement {
+  grid-column: 2 / 7; grid-row: 2; margin-top: 16vh;
+  font-family: var(--serif); font-weight: 300; font-size: clamp(1.9rem, 3.1vw, 3.3rem); line-height: 1.1; letter-spacing: -0.02em;
+}
+.cocina__statement em { color: var(--olive-2); }
+.pillars {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter);
+  padding: 0 var(--margin); margin-top: clamp(100px, 16vh, 200px);
+}
+.pillars li { display: grid; gap: 12px; align-content: start; }
+.pillars .rule { margin-bottom: 18px; }
+.pillars__n { font-family: var(--serif); font-style: italic; color: var(--accent); }
+.pillars h3 { font-family: var(--serif); font-weight: 300; font-size: clamp(1.7rem, 2.2vw, 2.3rem); letter-spacing: -0.02em; line-height: 1; }
+.pillars p { color: var(--fg-2); max-width: 36ch; }
+
+/* ═══════════ IV · La familia ═══════════ */
+.familia { padding: clamp(150px, 22vh, 260px) var(--margin); }
+.familia__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.familia__sticky {
+  grid-column: 1 / 6; align-self: start;
+  position: sticky; top: calc(var(--nav-h) + 12px);
+  height: calc(100svh - var(--nav-h) - 36px);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.familia__sticky > .label { color: var(--accent); }
+.familia__year {
+  font-family: var(--serif); font-weight: 300; font-style: italic;
+  font-size: clamp(4.2rem, 8.6vw, 9.6rem); line-height: 1; letter-spacing: -0.05em;
+  overflow: hidden; padding-bottom: 0.06em;
+  font-variant-numeric: oldstyle-nums;
+}
+.familia__year span { display: block; white-space: nowrap; }
+.familia__sticky .media { width: min(62%, 44vh); }
+.familia__story { grid-column: 7 / 13; }
+.familia__title {
+  font-family: var(--serif); font-weight: 300;
+  font-size: clamp(2.4rem, 4.3vw, 4.8rem); line-height: 1; letter-spacing: -0.035em;
+  margin-bottom: 14vh;
+}
+.timeline li {
+  display: grid; grid-template-columns: 10rem minmax(0, 1fr); column-gap: var(--gutter); row-gap: 10px;
+  padding: 40px 0 0; min-height: 44vh; align-content: start;
+  border-top: 1px solid var(--line);
+}
+.timeline li:last-child { min-height: 30vh; }
+.timeline__y { grid-row: 1 / 3; color: var(--accent); padding-top: 0.5em; }
+.timeline h3 { font-family: var(--serif); font-weight: 300; font-size: clamp(1.8rem, 2.4vw, 2.5rem); line-height: 1.02; letter-spacing: -0.02em; }
+.timeline p { color: var(--fg-2); max-width: 44ch; }
+
+/* ═══════════ V · Los caminos ═══════════ */
+.menus { padding: clamp(150px, 22vh, 260px) 0 clamp(110px, 14vh, 180px); }
+.mlist { margin: clamp(60px, 10vh, 120px) var(--margin) 0; border-top: 1px solid var(--line); }
+.mrow { border-bottom: 1px solid var(--line); }
+.mrow__head {
+  width: 100%; display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) auto 2.6rem; align-items: center;
+  column-gap: var(--gutter); padding: clamp(16px, 2.3vw, 32px) 0; text-align: left;
+}
+.mrow__i { color: var(--accent); }
+.mrow__name {
+  font-family: var(--serif); font-weight: 300;
+  font-size: clamp(2.3rem, 5.8vw, 6.4rem); line-height: 0.96; letter-spacing: -0.04em;
+  transition: transform 0.8s var(--ease), opacity 0.5s var(--ease);
+}
+.mrow__kind { color: var(--fg-2); text-align: right; }
+.mrow__plus { position: relative; width: 22px; height: 22px; justify-self: end; transition: transform 0.6s var(--ease); }
+.mrow__plus::before, .mrow__plus::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: currentColor; }
+.mrow__plus::after { transform: rotate(90deg); }
+.mrow.is-open .mrow__plus { transform: rotate(45deg); }
+@media (hover: hover) {
+  .mlist:hover .mrow__name { opacity: 0.32; }
+  .mlist .mrow:hover .mrow__name, .mrow.is-open .mrow__name { opacity: 1; transform: translateX(0.14em); }
+}
+.mrow__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.8s var(--ease); }
+.mrow.is-open .mrow__body { grid-template-rows: 1fr; }
+.mrow__inner {
+  overflow: hidden; min-height: 0;
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; align-items: end; column-gap: var(--gutter);
+  padding-left: calc(5.2rem + var(--gutter));
+}
+.mrow__inner > * { margin-bottom: 34px; }
+.mrow__inner > p { font-family: var(--serif); font-weight: 300; font-size: clamp(1.25rem, 1.7vw, 1.65rem); line-height: 1.25; max-width: 34ch; }
+.mrow__times { display: grid; gap: 6px; }
+.mrow__times div { display: flex; gap: 18px; }
+.mrow__times dt { color: var(--fg-2); min-width: 7em; }
+.mrow__times dd { font-variant-numeric: tabular-nums; }
+.mpreview {
+  position: fixed; top: 0; left: 0; z-index: 40;
+  width: clamp(220px, 20vw, 330px); aspect-ratio: 4 / 5;
+  pointer-events: none; opacity: 0; visibility: hidden;
+}
+.mpreview .media { position: absolute; inset: 0; opacity: 0; }
+.mpreview .media.is-on { opacity: 1; }
+.mpreview .ph__brief { font-size: 0.55rem; }
+.menus__foot {
+  display: flex; flex-wrap: wrap; gap: 18px 60px;
+  margin: 50px var(--margin) 0; color: var(--fg-2); font-size: 0.95rem;
+}
+.menus__foot .label { color: var(--accent); margin-right: 12px; }
+.menus__foot .link { color: var(--fg); margin-left: 12px; }
+
+/* ═══════════ VI · La bodega ═══════════ */
+.bodega {
+  padding: clamp(150px, 22vh, 260px) var(--margin);
+  overflow: hidden;
+  background:
+    radial-gradient(50% 55% at 62% 50%, rgba(110, 84, 64, 0.42), transparent 72%),
+    var(--char);
+}
+.bodega__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); align-items: center; }
+.bodega__intro { grid-column: 1 / 6; display: grid; gap: 22px; align-content: center; }
+.bodega__intro > .label { color: var(--accent); }
+.bodega__lead { font-family: var(--serif); font-weight: 300; font-size: clamp(1.5rem, 2.1vw, 2.2rem); line-height: 1.18; letter-spacing: -0.015em; max-width: 26ch; margin-top: 12px; }
+.bodega__intro > p:not(.label):not(.bodega__lead) { color: var(--fg-2); max-width: 42ch; }
+.bodega__carmen { width: min(46%, 240px); margin-top: 24px; }
+.bodega__carmen .ph__brief { font-size: 0.5rem; }
+.bodega__bottle .ph__brief { left: 10px; right: 10px; bottom: 10px; font-size: 0.5rem; }
+.bodega__bottle .ph__desc { font-size: 0.62rem; }
+.bodega__bottle { grid-column: 6 / 10; position: relative; display: grid; place-items: center; padding: 10vh 0; }
+.bodega__bottle .media { width: min(36%, 22vh); z-index: 1; }
+.bodega__ring {
+  position: absolute; left: 50%; top: 50%; width: min(118%, 72vh); height: auto;
+  translate: -50% -50%; overflow: visible;
+}
+.bodega__ring text { fill: rgba(241, 236, 227, 0.72); font-family: var(--sans); font-size: 13.5px; font-weight: 600; font-stretch: 125%; letter-spacing: 0.3em; text-transform: uppercase; }
+.wines { grid-column: 10 / 13; display: grid; gap: 34px; align-content: center; }
+.wine { display: grid; gap: 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.wine__n { color: var(--accent); }
+.wine__name { font-family: var(--serif); font-weight: 300; font-size: clamp(1.6rem, 2.1vw, 2.2rem); line-height: 1; letter-spacing: -0.02em; }
+.wine__meta { color: var(--fg-2); }
+
+/* ═══════════ VII · La experiencia ═══════════ */
+.exp { padding-top: clamp(150px, 22vh, 260px); }
+.exp .chead { margin-bottom: clamp(40px, 6vh, 80px); }
+.hs--gallery .hs__track { gap: clamp(40px, 5vw, 96px); }
+.g { position: relative; flex: none; }
+.g .media { width: auto; }
+.g--tall .media { height: 68vh; }
+.g--wide { align-self: flex-start; margin-top: 7vh; }
+.g--wide .media { height: 50vh; }
+.g--mid { align-self: flex-end; margin-bottom: 9vh; }
+.g--mid .media { height: 40vh; }
+.g--portrait { align-self: flex-start; margin-top: 4vh; }
+.g--portrait .media { height: 62vh; }
+.g--square .media { height: 38vh; }
+.g--stat { width: clamp(220px, 20vw, 320px); display: grid; gap: 10px; }
+.g--stat .label { color: var(--fg-2); }
+.g__big { font-family: var(--serif); font-weight: 300; font-size: clamp(4rem, 8.4vw, 9rem); line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: lining-nums; }
+.g__big small { font-size: 0.32em; letter-spacing: 0; margin-left: 0.1em; vertical-align: top; }
+.g--end { width: clamp(280px, 30vw, 460px); display: grid; gap: 22px; }
+.g--end .label { color: var(--accent); }
+.g__endt { font-family: var(--serif); font-weight: 300; font-size: clamp(2.4rem, 4.2vw, 4.6rem); line-height: 1; letter-spacing: -0.035em; }
+.g--end .link { justify-self: start; }
+
+/* ═══════════ Reconocimientos ═══════════ */
+.premios { padding: clamp(140px, 20vh, 240px) var(--margin); }
+.premios > .label { color: var(--accent); }
+.premios__title {
+  font-family: var(--serif); font-weight: 300;
+  font-size: clamp(2.5rem, 5.2vw, 5.6rem); line-height: 1; letter-spacing: -0.04em;
+  max-width: 19ch; margin: 26px 0 clamp(80px, 13vh, 160px);
+}
+.premios__title em { color: var(--olive-deep); }
+.premios__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gutter); }
+.premios__list li { display: grid; gap: 14px; align-content: start; }
+.premios__list svg { width: 26px; height: 26px; fill: var(--olive-deep); color: var(--olive-deep); margin: 22px 0 8px; }
+.premios__list h3 { font-family: var(--serif); font-weight: 300; font-size: clamp(1.5rem, 1.9vw, 2rem); line-height: 1.02; letter-spacing: -0.02em; }
+.premios__list .label { color: var(--fg-2); }
+
+/* ═══════════ Reserva ═══════════ */
+.reserva__stage { position: relative; height: 100vh; height: 100svh; overflow: hidden; background: var(--black); display: grid; place-items: center; }
+.reserva__media { position: absolute; inset: 0; will-change: clip-path; }
+.reserva__media .ph__brief { top: calc(var(--nav-h) + 18px); bottom: auto; }
+.reserva__shade { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 55%, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.78)); }
+.reserva__content { position: relative; z-index: 2; display: grid; justify-items: center; text-align: center; padding: 0 var(--margin); width: 100%; }
+.reserva__label { color: var(--olive-2); margin-bottom: 18px; }
+.reserva__title { font-family: var(--serif); font-weight: 300; font-size: clamp(3.4rem, 10.6vw, 11.6rem); line-height: 0.88; letter-spacing: -0.05em; }
+.reserva__after { display: grid; justify-items: center; width: 100%; }
+.reserva__sub { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(1.3rem, 2vw, 2rem); margin: 18px 0 clamp(30px, 5vh, 54px); color: rgba(241, 236, 227, 0.85); }
+.booking {
+  position: relative;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: center;
+  width: min(100%, 900px); padding: 6px;
+  border: 1px solid rgba(241, 236, 227, 0.26); border-radius: 999px;
+  background: rgba(0, 0, 0, 0.42);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  text-align: left;
+}
+.booking__f { display: grid; gap: 2px; padding: 8px 26px; border-right: 1px solid rgba(241, 236, 227, 0.16); }
+.booking__f:nth-child(3) { border-right: 0; }
+.booking__f .label { font-size: 0.56rem; color: rgba(241, 236, 227, 0.55); }
+.booking__f input, .booking__f select {
+  width: 100%; padding: 2px 0; border: 0; background: transparent; color: var(--paper);
+  font-size: 1rem; color-scheme: dark; -webkit-appearance: none; appearance: none;
+}
+.booking__f select option { background: var(--char); color: var(--paper); }
+.booking__f input:focus, .booking__f select:focus { outline: none; }
+.booking__f:focus-within { background: rgba(241, 236, 227, 0.06); border-radius: 999px; }
+.booking__go { min-height: 58px; }
+.booking__msg { position: absolute; left: 0; right: 0; top: calc(100% + 16px); text-align: center; font-size: 0.92rem; color: var(--olive-2); }
+.reserva__alt { margin-top: clamp(50px, 7vh, 72px); font-size: 0.92rem; color: rgba(241, 236, 227, 0.66); }
+.reserva__alt a { color: var(--paper); border-bottom: 1px solid rgba(241, 236, 227, 0.4); }
+
+/* ═══════════ Pie ═══════════ */
+.footer { padding: clamp(110px, 15vh, 170px) var(--margin) 26px; border-top: 1px solid var(--line); overflow: hidden; }
+.footer__cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gutter); }
+.footer__cols .label { color: var(--accent); margin-bottom: 14px; }
+.footer__cols p:not(.label) { color: var(--fg-2); line-height: 1.7; }
+.footer__cols a:hover { color: var(--olive-2); }
+.footer__cols .link { margin-top: 14px; color: var(--fg); }
+.footer__word {
+  font-family: var(--serif); font-weight: 300;
+  font-size: 23.4vw; line-height: 0.78; letter-spacing: -0.06em; white-space: nowrap;
+  margin: clamp(80px, 12vh, 150px) 0 clamp(26px, 4vh, 50px) -0.045em;
+  color: var(--paper);
+}
+.footer__bottom { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; color: var(--fg-2); padding-top: 22px; border-top: 1px solid var(--line); }
+.footer__bottom a:hover { color: var(--paper); }
+
+/* ═══════════ Tableta ═══════════ */
+@media (max-width: 1023px) {
+  /* La muela arriba y el manifiesto debajo */
+  .entry__manifesto { left: var(--margin); right: calc(var(--margin) + 24px); top: auto; bottom: 7vh; transform: none; }
+  .entry__mtext { font-size: clamp(1.45rem, 3.4vw, 2.3rem); }
+  .entry__mcap { display: none; }
+  .bodega__bottle .ph__spec { display: none; }
+  /* Carriles horizontales: pasan a deslizarse con el dedo */
+  .hs { height: auto; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; padding: 40px 0 30px; }
+  .hs::-webkit-scrollbar { display: none; }
+  .hs__track { height: auto; align-items: flex-start; gap: 18px; padding: 0 var(--margin); }
+  .hs__progress { display: none; }
+  .tp, .g { width: min(72vw, 560px); scroll-snap-align: center; margin: 0 !important; align-self: flex-start !important; }
+  .tp .media, .g .media { width: 100%; height: auto !important; }
+  .tp--end, .g--stat, .g--end { width: min(60vw, 420px); align-self: center !important; }
+  .tp--sea .tp__text { grid-template-columns: 1fr; }
+  .tp--sea .tp__text p:last-child { grid-column: 1; grid-row: auto; }
+  .tp__num { font-size: 5.4rem; }
+
+  .prod__big { grid-column: 1 / 8; }
+  .prod__text { grid-column: 8 / 13; }
+  .prod__small { grid-column: 5 / 13; margin-left: 0; margin-top: -8vh; }
+
+  .chef--jeroni { grid-column: 1 / 7; }
+  .chef--pau { grid-column: 8 / 13; margin-top: 22vh; }
+  .cocina__statement { grid-column: 1 / 9; }
+
+  .familia__sticky { grid-column: 1 / 6; }
+  .familia__story { grid-column: 6 / 13; }
+  .timeline li { grid-template-columns: 1fr; min-height: 36vh; }
+  .timeline__y { grid-row: auto; padding-top: 0; }
+
+  .bodega__intro { grid-column: 1 / 7; }
+  .bodega__bottle { grid-column: 7 / 13; }
+  .wines { grid-column: 1 / 13; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); margin-top: 40px; }
+
+  .premios__list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 50px; }
+  .footer__cols { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 44px; }
+}
+
+/* ═══════════ Móvil ═══════════ */
+@media (max-width: 767px) {
+  .entry__place { top: calc(var(--nav-h) + 14px); }
+  .entry__media .ph__brief { top: calc(var(--nav-h) + 62px); width: 52vw; }
+  .entry__title { font-size: 33vw; bottom: 30vh; line-height: 0.8; }
+  .entry__line--2 { padding-left: 0; }
+  .entry__tag { left: var(--margin); right: auto; top: auto; bottom: 19vh; text-align: left; font-size: 1.45rem; }
+  .entry__awards { left: var(--margin); right: auto; bottom: 11vh; justify-items: start; font-size: 0.56rem; }
+  .entry__coords { top: 44%; }
+  .entry__scroll { display: none; }
+  .entry__manifesto { left: var(--margin); right: var(--margin); top: auto; bottom: 7vh; transform: none; }
+  .entry__mtext { font-size: 1.42rem; line-height: 1.2; }
+  .entry__mlabel { margin-bottom: 14px; }
+  .entry__mcap { display: none; }
+
+  .tp, .g { width: 82vw; }
+  .tp--end, .g--stat, .g--end { width: 70vw; }
+  .tp__num { font-size: 4.4rem; }
+
+  .prod__quote p { font-size: clamp(2.3rem, 11vw, 3.4rem); }
+  .inline-photo { --w: 1.7em; }
+  .prod__grid { grid-template-columns: 1fr; row-gap: 30px; }
+  .prod__big, .prod__text, .prod__small { grid-column: 1; grid-row: auto; margin: 0; padding: 0; }
+  .prod__small { width: 76%; justify-self: end; margin-top: 12px; }
+
+  .cocina__stage { grid-template-columns: 1fr; row-gap: 0; }
+  .chef--jeroni { grid-column: 1; width: 82%; }
+  .chef--pau { grid-column: 1; grid-row: auto; width: 68%; justify-self: end; margin-top: 60px; }
+  .chef__name { font-size: 3.4rem; }
+  .cocina__statement { grid-column: 1; grid-row: auto; margin-top: 80px; }
+  .pillars { grid-template-columns: 1fr; row-gap: 44px; }
+
+  .familia__grid { grid-template-columns: 1fr; }
+  .familia__sticky { position: static; height: auto; grid-column: 1; gap: 34px; margin-bottom: 60px; }
+  .familia__year { display: none; }
+  .familia__sticky .media { width: 78%; }
+  .familia__story { grid-column: 1; }
+  .familia__title { margin-bottom: 60px; }
+  .timeline li { min-height: 0; padding: 30px 0 40px; }
+
+  .mrow__head { grid-template-columns: 2.4rem minmax(0, 1fr) 1.8rem; row-gap: 6px; }
+  .mrow__kind { grid-column: 2; grid-row: 2; text-align: left; }
+  .mrow__plus { grid-column: 3; grid-row: 1; }
+  .mrow__inner { grid-template-columns: 1fr; padding-left: calc(2.4rem + var(--gutter)); }
+  .mrow__inner > * { margin-bottom: 18px; }
+  .mrow__inner > .link { margin-bottom: 30px; justify-self: start; }
+  .menus__foot { flex-direction: column; }
+
+  .bodega__grid { grid-template-columns: 1fr; }
+  .bodega__intro, .bodega__bottle, .wines { grid-column: 1; }
+  .bodega__bottle { padding: 14vh 0; }
+  .bodega__bottle .media { width: 34%; }
+  .bodega__ring { width: 96%; }
+  .wines { grid-template-columns: 1fr; gap: 26px; margin-top: 0; }
+
+  .premios__list { grid-template-columns: 1fr 1fr; }
+
+  .booking { grid-template-columns: 1fr 1fr; border-radius: 26px; padding: 8px; row-gap: 4px; }
+  .booking__f { padding: 10px 16px; border-right: 0; }
+  .booking__f:first-child { grid-column: 1 / -1; border-bottom: 1px solid rgba(241, 236, 227, 0.16); }
+  .booking__f:focus-within { border-radius: 18px; }
+  .booking__go { grid-column: 1 / -1; }
+  .reserva__alt { margin-top: 64px; padding: 0 12px; }
+
+  .footer__cols { grid-template-columns: 1fr; }
+  .footer__word { font-size: 24.4vw; }
+  .footer__bottom { flex-direction: column; }
+}

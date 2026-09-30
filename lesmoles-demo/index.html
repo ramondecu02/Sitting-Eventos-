@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="es" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Les Moles · Gastronomía, territorio y memoria · Ulldecona</title>
+  <meta name="description" content="Restaurante de la familia Castell Sauch en la antigua cantera de Ulldecona, Terres de l’Ebre. Estrella Michelin, Estrella Verde y dos Soles Repsol.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:title" content="Les Moles · Gastronomía, territorio y memoria">
+  <meta property="og:description" content="Demo de la nueva experiencia digital de Les Moles, Ulldecona.">
+  <meta property="og:image" content="./og.jpg">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/src/fonts/newsreader-display.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/src/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    // Antes de pintar: marca JS activo y si hay que saltarse el preloader.
+    (function (d) {
+      var c = d.documentElement.classList;
+      c.remove('no-js'); c.add('js');
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var seen = false; try { seen = sessionStorage.getItem('lm-visited') === '1'; } catch (e) {}
+      if (reduce) c.add('reduce-motion'); else c.add(seen ? 'is-returning' : 'is-first', 'is-loading');
+    })(document);
+  </script>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Saltar al contenido</a>
+
+  <!-- ─────────── Entrada: la muela se dibuja ─────────── -->
+  <div class="loader" data-loader aria-hidden="true">
+    <svg class="loader__mola" viewBox="0 0 200 200">
+      <circle class="loader__ring" cx="100" cy="100" r="98"></circle>
+      <circle class="loader__ring loader__ring--in" cx="100" cy="100" r="62"></circle>
+      <circle class="loader__eye" cx="100" cy="100" r="7"></circle>
+    </svg>
+    <p class="loader__count label"><span data-count>000</span></p>
+    <p class="loader__word label">Les Moles · Ulldecona</p>
+  </div>
+
+  <!-- ─────────── Navegación ─────────── -->
+  <header class="nav" data-nav data-theme="dark">
+    <a class="nav__logo label" href="#top" data-jump data-cursor="Inicio">Les&nbsp;<b>Moles</b></a>
+    <p class="nav__status label" data-status aria-live="polite">
+      <span class="dot" data-open-dot></span><span data-status-text>Ulldecona</span>
+    </p>
+    <div class="nav__actions">
+      <button class="nav__menu label" type="button" data-menu-open aria-expanded="false" aria-controls="menu" data-cursor="Abrir">
+        <span class="roll"><span class="roll__a">Menú</span><span class="roll__b" aria-hidden="true">Menú</span></span>
+        <span class="burger" aria-hidden="true"><i></i><i></i></span>
+      </button>
+      <a class="nav__book label" href="#reserva" data-jump data-cursor="Reservar">
+        <span class="dot dot--olive"></span>
+        <span class="roll"><span class="roll__a">Reservar</span><span class="roll__b" aria-hidden="true">Reservar</span></span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ─────────── Menú a pantalla completa ─────────── -->
+  <div class="menu" id="menu" data-menu role="dialog" aria-modal="true" aria-label="Menú" hidden>
+    <div class="menu__bg" data-menu-bg></div>
+    <svg class="menu__mola" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="98"></circle><circle cx="100" cy="100" r="62"></circle></svg>
+    <div class="menu__head">
+      <span class="menu__logo label">Les&nbsp;<b>Moles</b></span>
+      <button class="menu__close label" type="button" data-menu-close data-cursor="Cerrar">
+        <span class="roll"><span class="roll__a">Cerrar</span><span class="roll__b" aria-hidden="true">Cerrar</span></span>
+        <span class="burger is-x" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+    <div class="menu__body">
+      <nav class="menu__nav" aria-label="Capítulos">
+        <ol>
+          <li><a href="#territorio" data-jump data-preview="0" data-cursor="Explorar"><span class="menu__idx label">I</span><span class="menu__t">El territorio</span></a></li>
+          <li><a href="#producto" data-jump data-preview="1" data-cursor="Explorar"><span class="menu__idx label">II</span><span class="menu__t">El producto</span></a></li>
+          <li><a href="#cocina" data-jump data-preview="2" data-cursor="Explorar"><span class="menu__idx label">III</span><span class="menu__t">La cocina</span></a></li>
+          <li><a href="#familia" data-jump data-preview="3" data-cursor="Explorar"><span class="menu__idx label">IV</span><span class="menu__t">La familia</span></a></li>
+          <li><a href="#menus" data-jump data-preview="4" data-cursor="Explorar"><span class="menu__idx label">V</span><span class="menu__t">Los caminos</span></a></li>
+          <li><a href="#bodega" data-jump data-preview="5" data-cursor="Explorar"><span class="menu__idx label">VI</span><span class="menu__t">La bodega</span></a></li>
+          <li><a href="#experiencia" data-jump data-preview="6" data-cursor="Explorar"><span class="menu__idx label">VII</span><span class="menu__t">La experiencia</span></a></li>
+        </ol>
+      </nav>
+      <aside class="menu__aside">
+        <div class="menu__previews" aria-hidden="true">
+          <x-photo slot="territorio-olivo" tone="olive" ratio="4/5" alt="Tronco de un olivo milenario del Montsià"></x-photo>
+          <x-photo slot="producto-aceite" tone="earth" ratio="4/5" alt="Aceite de oliva de farga"></x-photo>
+          <x-photo slot="cocina-jeroni" tone="portrait" ratio="4/5" alt="Jeroni Castell en la cocina"></x-photo>
+          <x-photo slot="familia" tone="earth" ratio="4/5" alt="La familia Castell Sauch"></x-photo>
+          <x-photo slot="menu-camino" tone="stone" ratio="4/5" alt="Un plato de El camino recorrido"></x-photo>
+          <x-photo slot="bodega-botella" tone="wine" ratio="4/5" alt="Botella de Les Moles Crianza"></x-photo>
+          <x-photo slot="experiencia-boda" tone="night" ratio="4/5" alt="Invitados de una boda en los jardines de Les Moles, de noche"></x-photo>
+        </div>
+        <dl class="menu__info">
+          <div><dt class="label">Visítanos</dt><dd>Ctra. de La Sénia, km 2<br>43550 Ulldecona, Tarragona</dd></div>
+          <div><dt class="label">Reservas</dt><dd><a href="tel:+34977573224" data-cursor="Llamar">977 57 32 24</a><br><a href="mailto:lesmoles@lesmoles.com" data-cursor="Escribir">lesmoles@lesmoles.com</a></dd></div>
+          <div><dt class="label">Idioma</dt><dd class="menu__langs"><span aria-current="true">ES</span><span aria-disabled="true" title="Próximamente">CA</span><span aria-disabled="true" title="Próximamente">EN</span></dd></div>
+        </dl>
+        <a class="btn btn--light" href="#reserva" data-jump data-cursor="Reservar"><span class="roll"><span class="roll__a">Reservar mesa</span><span class="roll__b" aria-hidden="true">Reservar mesa</span></span></a>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Cortina para los saltos largos -->
+  <div class="curtain" data-curtain aria-hidden="true">
+    <svg class="curtain__mola" viewBox="0 0 200 200"><circle cx="100" cy="100" r="98"></circle><circle cx="100" cy="100" r="7"></circle></svg>
+  </div>
+
+  <!-- Cursor -->
+  <div class="cursor" data-cursor-el aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><span class="cursor__label" data-cursor-label></span></span></div>
+
+  <!-- Indicador de capítulo -->
+  <div class="chapter" data-chapter-ind aria-hidden="true">
+    <span class="chapter__num label" data-ci-num>00</span>
+    <span class="chapter__name label" data-ci-name>Les Moles</span>
+    <span class="chapter__bar"><i data-ci-bar></i></span>
+  </div>
+
+  <main id="main">
+
+    <!-- ═══════════ 00 · Les Moles + manifiesto ═══════════ -->
+    <section class="entry theme-dark" id="top" data-theme="dark" data-chapter="00" data-chapter-name="Les Moles">
+      <div class="entry__stage" data-entry-stage>
+        <div class="entry__media" data-entry-media>
+          <x-photo slot="hero-cantera" tone="night" ratio="fill" eager alt="La pared de la antigua cantera de Les Moles, iluminada de noche" n="01" min="2400"></x-photo>
+        </div>
+        <svg class="entry__ring" data-entry-ring viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="99"></circle>
+          <circle cx="100" cy="100" r="66" class="entry__ring-in"></circle>
+          <circle cx="100" cy="100" r="3.2" class="entry__ring-eye"></circle>
+        </svg>
+        <div class="entry__shade" data-entry-shade></div>
+
+        <div class="entry__hero" data-hero>
+          <p class="entry__place label" data-hero-fade>Restaurante<br>Ulldecona · Terres de l’Ebre</p>
+          <p class="entry__coords label" data-hero-fade>40°36′ N &nbsp;—&nbsp; 0°27′ E</p>
+          <h1 class="entry__title" data-hero-title aria-label="Les Moles">
+            <span class="entry__line">Les</span>
+            <span class="entry__line entry__line--2">Moles</span>
+          </h1>
+          <p class="entry__tag" data-hero-fade>Gastronomía, <em>territorio</em><br>y memoria.</p>
+          <ul class="entry__awards label" data-hero-fade aria-label="Distinciones">
+            <li>Estrella Michelin</li><li>Estrella Verde</li><li>2 Soles Repsol</li>
+          </ul>
+          <a class="entry__scroll label" href="#manifiesto" data-hero-fade data-cursor="Entrar"><span>Desliza para entrar</span><i></i></a>
+        </div>
+
+        <div class="entry__manifesto" id="manifiesto" data-manifesto>
+          <p class="label entry__mlabel">Manifiesto</p>
+          <p class="entry__mtext" data-manifesto-text>En la primera cantera de Ulldecona, donde se tallaban las muelas de los molinos, una familia cocina el paisaje que la rodea: el mar, la montaña y los olivos milenarios. Aquí, la piedra se hizo mesa.</p>
+          <p class="entry__mcap label">Fig. 01 — La cantera, hoy corazón de la casa</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ I · El territorio ═══════════ -->
+    <section class="terr theme-dark" id="territorio" data-theme="dark" data-chapter="I" data-chapter-name="El territorio">
+      <header class="chead">
+        <p class="chead__label label" data-reveal="fade">Capítulo I</p>
+        <h2 class="chead__title" data-reveal="lines">El <em>territorio</em></h2>
+        <p class="chead__lead" data-reveal="lines">Entre el Delta del Ebro y las montañas de Els Ports, a un paso de Castellón. Un paisaje entero que cabe en un plato.</p>
+        <span class="vtext label" aria-hidden="true">Terres de l’Ebre</span>
+      </header>
+
+      <div class="hs" data-hs>
+        <div class="hs__track" data-hs-track>
+          <article class="tp tp--sea">
+            <span class="tp__num" aria-hidden="true">01</span>
+            <x-photo slot="territorio-delta" tone="delta" ratio="21/9" alt="Arrozales del Delta del Ebro al amanecer" n="02" min="2400"></x-photo>
+            <div class="tp__text">
+              <p class="label">El mar</p>
+              <h3 class="tp__title">El Delta del <em>Ebro</em></h3>
+              <p>Arroz, ostras y mejillones de las bahías, la galera, la sal. El Mediterráneo más cercano.</p>
+            </div>
+          </article>
+          <article class="tp tp--mountain">
+            <span class="tp__num" aria-hidden="true">02</span>
+            <x-photo slot="territorio-ports" tone="ridge" ratio="3/4" alt="Las crestas de Els Ports entre la niebla" n="03"></x-photo>
+            <div class="tp__text">
+              <p class="label">La montaña</p>
+              <h3 class="tp__title">Els <em>Ports</em></h3>
+              <p>Setas, caza y hierbas aromáticas de un macizo que mira al mar.</p>
+            </div>
+          </article>
+          <article class="tp tp--olive">
+            <span class="tp__num" aria-hidden="true">03</span>
+            <x-photo slot="territorio-olivo" tone="olive" ratio="1/1" alt="Tronco de un olivo milenario del Montsià" n="04"></x-photo>
+            <div class="tp__text">
+              <p class="label">El olivo</p>
+              <h3 class="tp__title">Olivos <em>milenarios</em></h3>
+              <p>La variedad farga y uno de los mayores conjuntos de olivos milenarios del mundo. De aquí sale el aceite que más queremos.</p>
+            </div>
+          </article>
+          <article class="tp tp--garden">
+            <span class="tp__num" aria-hidden="true">04</span>
+            <x-photo slot="territorio-huerto" tone="garden" ratio="4/5" alt="El huerto biodinámico a la entrada del restaurante" n="05"></x-photo>
+            <div class="tp__text">
+              <p class="label">La huerta</p>
+              <h3 class="tp__title">El huerto de <em>casa</em></h3>
+              <p>A la entrada del restaurante. Cultivado en biodinámica desde 2021: despensa, laboratorio y fuente de ideas.</p>
+            </div>
+          </article>
+          <div class="tp tp--end">
+            <p class="tp__end">Todo esto<br>llega al <em>plato.</em></p>
+          </div>
+        </div>
+        <div class="hs__progress" aria-hidden="true"><i data-hs-bar></i></div>
+      </div>
+    </section>
+
+    <!-- ═══════════ II · El producto ═══════════ -->
+    <section class="prod theme-light" data-sheet id="producto" data-theme="light" data-chapter="II" data-chapter-name="El producto">
+      <p class="prod__label label" data-reveal="fade">Capítulo II · El producto</p>
+      <blockquote class="prod__quote">
+        <p data-reveal="lines-soft">«Mi producto fetiche es el <em>aceite</em> <span class="inline-photo" data-inline-photo aria-hidden="true"><x-photo slot="producto-aceite-detalle" tone="earth" ratio="fill" alt="Aceite de oliva sobre piedra"></x-photo></span> de oliva.»</p>
+        <footer class="label" data-reveal="fade">— Jeroni Castell</footer>
+      </blockquote>
+
+      <div class="prod__grid">
+        <figure class="prod__big">
+          <x-photo slot="producto-aceite" tone="earth" ratio="4/5" alt="Aceite de oliva de farga vertiéndose sobre un plato" n="06" reveal></x-photo>
+          <figcaption class="label">Fig. 03 — Aceite de farga, el oro del Montsià</figcaption>
+        </figure>
+        <div class="prod__text">
+          <p class="prod__lead" data-reveal="lines">La cocina de Les Moles empieza lejos de los fogones.</p>
+          <p data-reveal="fade">En el huerto biodinámico de la entrada, en el mar del Delta, en los olivos que llevan siglos mirando el Mediterráneo. El producto manda; la técnica está para hacerlo brillar, nunca para esconderlo.</p>
+          <span class="rule" data-rule></span>
+          <dl class="prod__facts" data-reveal="fade">
+            <div><dt class="label">Huerto biodinámico</dt><dd>desde 2021</dd></div>
+            <div><dt class="label">Vino propio</dt><dd>desde 2012</dd></div>
+          </dl>
+        </div>
+        <figure class="prod__small">
+          <x-photo slot="producto-plato" tone="stone" ratio="3/2" alt="Un plato de temporada visto desde arriba" n="07" reveal speed="0.12"></x-photo>
+          <figcaption class="label">Fig. 04 — Un plato de temporada</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═══════════ III · La cocina ═══════════ -->
+    <section class="cocina theme-char" id="cocina" data-theme="dark" data-chapter="III" data-chapter-name="La cocina">
+      <header class="chead chead--right">
+        <p class="chead__label label" data-reveal="fade">Capítulo III</p>
+        <h2 class="chead__title" data-reveal="lines">La <em>cocina</em></h2>
+      </header>
+
+      <div class="cocina__stage">
+        <figure class="chef chef--jeroni">
+          <x-photo slot="cocina-jeroni" tone="portrait" ratio="3/4" alt="Retrato de Jeroni Castell en la cocina" n="08" reveal speed="-0.08"></x-photo>
+          <figcaption>
+            <span class="chef__name" data-reveal="lines">Jeroni<br>Castell</span>
+            <span class="chef__role label">Chef y fundador</span>
+          </figcaption>
+        </figure>
+        <figure class="chef chef--pau">
+          <x-photo slot="cocina-pau" tone="portrait" ratio="4/5" alt="Retrato de Pau Castell emplatando" n="09" reveal speed="0.1"></x-photo>
+          <figcaption>
+            <span class="chef__name" data-reveal="lines">Pau<br>Castell</span>
+            <span class="chef__role label">Cocina · segunda generación</span>
+          </figcaption>
+        </figure>
+        <p class="cocina__statement" data-reveal="lines">Proximidad y técnica, sí. Pero si no nos lo pasamos bien, <em>no tiene sentido.</em></p>
+      </div>
+
+      <ol class="pillars">
+        <li data-reveal="fade"><span class="rule" data-rule></span><span class="pillars__n">01</span><h3>Proximidad</h3><p>Verduras de nuestro huerto y producto de las Terres de l’Ebre, del Delta a Els Ports.</p></li>
+        <li data-reveal="fade"><span class="rule" data-rule></span><span class="pillars__n">02</span><h3>Técnica</h3><p>Una cocina contemporánea que respeta la tradición tarraconense y la hace avanzar.</p></li>
+        <li data-reveal="fade"><span class="rule" data-rule></span><span class="pillars__n">03</span><h3>Diversión</h3><p>Que en la mesa se disfrute tanto como en la cocina.</p></li>
+      </ol>
+    </section>
+
+    <!-- ═══════════ IV · La familia ═══════════ -->
+    <section class="familia theme-light" data-sheet id="familia" data-theme="light" data-chapter="IV" data-chapter-name="La familia">
+      <div class="familia__grid">
+        <div class="familia__sticky" data-family-sticky>
+          <p class="label">Capítulo IV · La familia</p>
+          <p class="familia__year" aria-hidden="true"><span data-year>Origen</span></p>
+          <x-photo slot="familia" tone="earth" ratio="4/5" alt="Jeroni Castell, Carmen Sauch, Pau y Roger en el jardín" n="10" reveal></x-photo>
+        </div>
+        <div class="familia__story">
+          <h2 class="familia__title" data-reveal="lines">Una casa que ha crecido sin dejar de ser <em>quien es.</em></h2>
+          <ol class="timeline">
+            <li data-year-value="Origen">
+              <span class="timeline__y label">Origen</span>
+              <h3>La cantera</h3>
+              <p>Les Moles se levanta en la primera cantera de Ulldecona, de donde salían las muelas de molino que dan nombre a la casa. Sus paredes de piedra siguen ahí.</p>
+            </li>
+            <li data-year-value="Fundación">
+              <span class="timeline__y label">Los fundadores</span>
+              <h3>Jeroni y Carmen</h3>
+              <p>Jeroni Castell y Carmen Sauch fundan Les Moles. Él, en la cocina. Ella, en la sala y en la bodega.</p>
+            </li>
+            <li data-year-value="2012">
+              <span class="timeline__y label">2012</span>
+              <h3>El primer vino propio</h3>
+              <p>La casa empieza a elaborar sus vinos en la Terra Alta: un blanco, un tinto y un crianza con el nombre de Les Moles.</p>
+            </li>
+            <li data-year-value="2014">
+              <span class="timeline__y label">2014</span>
+              <h3>La estrella Michelin</h3>
+              <p>La Guía Michelin distingue la cocina de Les Moles con una estrella.</p>
+            </li>
+            <li data-year-value="2020">
+              <span class="timeline__y label">2020</span>
+              <h3>Dos Soles Repsol</h3>
+              <p>La Guía Repsol reconoce la casa con dos Soles.</p>
+            </li>
+            <li data-year-value="2021">
+              <span class="timeline__y label">2021</span>
+              <h3>La huerta, en biodinámica</h3>
+              <p>Tras años de cultivo ecológico, el huerto de la entrada da el paso a la agricultura biodinámica.</p>
+            </li>
+            <li data-year-value="Hoy">
+              <span class="timeline__y label">Hoy</span>
+              <h3>Pau y Roger</h3>
+              <p>La segunda generación trabaja codo con codo con Jeroni y Carmen. Y la Guía Michelin suma la Estrella Verde por su manera de entender el territorio.</p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ V · Los caminos ═══════════ -->
+    <section class="menus theme-dark" id="menus" data-theme="dark" data-chapter="V" data-chapter-name="Los caminos">
+      <header class="chead">
+        <p class="chead__label label" data-reveal="fade">Capítulo V</p>
+        <h2 class="chead__title" data-reveal="lines">Los <em>caminos</em></h2>
+        <p class="chead__lead" data-reveal="lines">Cuatro maneras de sentarse a la mesa. Los menús degustación se sirven a toda la mesa y pueden acompañarse con la armonía de nuestros vinos.</p>
+      </header>
+
+      <ul class="mlist" data-mlist>
+        <li class="mrow" data-preview="0">
+          <button class="mrow__head" type="button" aria-expanded="false" aria-controls="m-1" data-cursor="Descubrir">
+            <span class="mrow__i label">01</span>
+            <span class="mrow__name">El camino <em>recorrido</em></span>
+            <span class="mrow__kind label">Menú degustación</span>
+            <span class="mrow__plus" aria-hidden="true"></span>
+          </button>
+          <div class="mrow__body" id="m-1" inert>
+            <div class="mrow__inner">
+              <p>Un recorrido por los platos que han marcado la historia de la casa, contados con la mirada de hoy.</p>
+              <dl class="mrow__times"><div><dt class="label">Mediodía</dt><dd>13:00 · 13:45</dd></div><div><dt class="label">Noche</dt><dd>20:30 · 21:15</dd></div></dl>
+              <a class="link" href="#reserva" data-jump data-cursor="Reservar">Reservar este camino</a>
+            </div>
+          </div>
+        </li>
+        <li class="mrow" data-preview="1">
+          <button class="mrow__head" type="button" aria-expanded="false" aria-controls="m-2" data-cursor="Descubrir">
+            <span class="mrow__i label">02</span>
+            <span class="mrow__name">Terra <em>Incógnita</em></span>
+            <span class="mrow__kind label">Menú degustación</span>
+            <span class="mrow__plus" aria-hidden="true"></span>
+          </button>
+          <div class="mrow__body" id="m-2" inert>
+            <div class="mrow__inner">
+              <p>Un menú para descubrir: productos y recetas de las Terres de l’Ebre que poca gente conoce.</p>
+              <dl class="mrow__times"><div><dt class="label">Mediodía</dt><dd>13:00 · 13:45 · 14:30</dd></div><div><dt class="label">Noche</dt><dd>20:30 · 21:15</dd></div></dl>
+              <a class="link" href="#reserva" data-jump data-cursor="Reservar">Reservar este camino</a>
+            </div>
+          </div>
+        </li>
+        <li class="mrow" data-preview="2">
+          <button class="mrow__head" type="button" aria-expanded="false" aria-controls="m-3" data-cursor="Descubrir">
+            <span class="mrow__i label">03</span>
+            <span class="mrow__name"><em>Tradición</em></span>
+            <span class="mrow__kind label">Menú · desde 49,90 €</span>
+            <span class="mrow__plus" aria-hidden="true"></span>
+          </button>
+          <div class="mrow__body" id="m-3" inert>
+            <div class="mrow__inner">
+              <p>La cocina tarraconense de siempre, a nuestra manera. Más corto, para comer sin prisas.</p>
+              <dl class="mrow__times"><div><dt class="label">Mediodía</dt><dd>de 13:00 a 15:30 · 49,90 €</dd></div><div><dt class="label">Noche</dt><dd>de 20:30 a 22:00 · 56,90 €</dd></div></dl>
+              <a class="link" href="#reserva" data-jump data-cursor="Reservar">Reservar este camino</a>
+            </div>
+          </div>
+        </li>
+        <li class="mrow" data-preview="3">
+          <button class="mrow__head" type="button" aria-expanded="false" aria-controls="m-4" data-cursor="Descubrir">
+            <span class="mrow__i label">04</span>
+            <span class="mrow__name">La <em>carta</em></span>
+            <span class="mrow__kind label">A la carta</span>
+            <span class="mrow__plus" aria-hidden="true"></span>
+          </button>
+          <div class="mrow__body" id="m-4" inert>
+            <div class="mrow__inner">
+              <p>Los platos de temporada, también en medias raciones para poder probar más.</p>
+              <dl class="mrow__times"><div><dt class="label">Mediodía</dt><dd>de 13:00 a 15:30</dd></div><div><dt class="label">Noche</dt><dd>de 20:30 a 22:00</dd></div></dl>
+              <a class="link" href="#reserva" data-jump data-cursor="Reservar">Reservar mesa</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="mpreview" data-mpreview aria-hidden="true">
+        <x-photo slot="menu-camino" tone="stone" ratio="4/5" alt="Un plato de El camino recorrido"></x-photo>
+        <x-photo slot="menu-terra" tone="olive" ratio="4/5" alt="Un plato de Terra Incógnita"></x-photo>
+        <x-photo slot="menu-tradicion" tone="earth" ratio="4/5" alt="Un plato del menú Tradición"></x-photo>
+        <x-photo slot="menu-carta" tone="portrait" ratio="4/5" alt="La sala preparada para el servicio a la carta"></x-photo>
+      </div>
+
+      <div class="menus__foot">
+        <p><span class="label">Alergias</span> Indícalas al reservar y adaptamos el menú.</p>
+        <p><span class="label">Mesa del chef</span> Fechas especiales para pocas plazas. <a class="link" href="https://lesmoles.com/tenda/" target="_blank" rel="noopener" data-cursor="Tienda">Ver fechas</a></p>
+      </div>
+    </section>
+
+    <!-- ═══════════ VI · La bodega ═══════════ -->
+    <section class="bodega theme-char" id="bodega" data-theme="dark" data-chapter="VI" data-chapter-name="La bodega">
+      <div class="bodega__grid">
+        <div class="bodega__intro">
+          <p class="label" data-reveal="fade">Capítulo VI</p>
+          <h2 class="chead__title" data-reveal="lines">La <em>bodega</em></h2>
+          <p class="bodega__lead" data-reveal="lines">Carmen Sauch dirige la sala y la bodega. Desde 2012, la casa elabora sus propios vinos en la Terra Alta.</p>
+          <p data-reveal="fade">La carta recorre las bodegas de las Terres de l’Ebre y va más allá, pensada para acompañar cada camino.</p>
+          <x-photo slot="bodega-carmen" tone="portrait" ratio="1/1" alt="Carmen Sauch en la sala" n="12" reveal class="bodega__carmen"></x-photo>
+        </div>
+
+        <div class="bodega__bottle">
+          <svg class="bodega__ring" viewBox="0 0 400 400" aria-hidden="true" data-bodega-ring>
+            <defs><path id="ring-path" d="M200,200 m-176,0 a176,176 0 1,1 352,0 a176,176 0 1,1 -352,0"></path></defs>
+            <text><textPath href="#ring-path" textLength="1100">Les Moles · Terra Alta · Vino propio desde 2012 · Les Moles · Terra Alta · Vino propio ·</textPath></text>
+          </svg>
+          <x-photo slot="bodega-botella" tone="wine" ratio="2/5" alt="Una botella de Les Moles Crianza" n="11" speed="-0.1"></x-photo>
+        </div>
+
+        <ul class="wines">
+          <li class="wine" data-reveal="fade"><span class="wine__n label">I</span><span class="wine__name">Les Moles <em>Blanco</em></span><span class="wine__meta label">Joven · Terra Alta</span></li>
+          <li class="wine" data-reveal="fade"><span class="wine__n label">II</span><span class="wine__name">Les Moles <em>Tinto</em></span><span class="wine__meta label">Joven · Terra Alta</span></li>
+          <li class="wine" data-reveal="fade"><span class="wine__n label">III</span><span class="wine__name">Les Moles <em>Crianza</em></span><span class="wine__meta label">Terra Alta</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══════════ VII · La experiencia ═══════════ -->
+    <section class="exp theme-dark" id="experiencia" data-theme="dark" data-chapter="VII" data-chapter-name="La experiencia">
+      <header class="chead">
+        <p class="chead__label label" data-reveal="fade">Capítulo VII</p>
+        <h2 class="chead__title" data-reveal="lines">La <em>experiencia</em></h2>
+        <p class="chead__lead" data-reveal="lines">Una sala entre paredes de piedra, jardines que se iluminan de noche y una cantera que hace de telón de fondo.</p>
+      </header>
+
+      <div class="hs hs--gallery" data-hs>
+        <div class="hs__track" data-hs-track>
+          <figure class="g g--tall"><x-photo slot="experiencia-sala" tone="stone" ratio="4/5" alt="La sala, con paredes de piedra" n="13"></x-photo><figcaption class="label">01 — La sala</figcaption></figure>
+          <div class="g g--stat"><p class="g__big">6.000<small>m²</small></p><p class="label">de jardines en cinco zonas</p></div>
+          <figure class="g g--wide"><x-photo slot="experiencia-cantera" tone="night" ratio="16/9" alt="La cantera iluminada de noche desde los jardines" n="14" min="2400"></x-photo><figcaption class="label">02 — La cantera iluminada</figcaption></figure>
+          <figure class="g g--mid"><x-photo slot="experiencia-boda" tone="night" ratio="3/2" alt="Invitados de una boda en los jardines de Les Moles, de noche" pos="center 42%"></x-photo><figcaption class="label">03 — Una boda de noche</figcaption></figure>
+          <div class="g g--stat"><p class="g__big">350</p><p class="label">invitados en banquete<br>200 en la ceremonia</p></div>
+          <figure class="g g--portrait"><x-photo slot="experiencia-ceremonia" tone="ridge" ratio="3/4" alt="Las gradas de piedra de la ceremonia frente a la cantera" n="15"></x-photo><figcaption class="label">04 — La ceremonia</figcaption></figure>
+          <figure class="g g--square"><x-photo slot="experiencia-escenario" tone="earth" ratio="1/1" alt="El escenario de los jardines durante una fiesta" n="16"></x-photo><figcaption class="label">05 — El escenario</figcaption></figure>
+          <div class="g g--end">
+            <p class="label">Les Moles Events</p>
+            <p class="g__endt">Bodas, empresas<br>y <em>celebraciones.</em></p>
+            <a class="link" href="#reserva" data-jump data-cursor="Explorar">Hablemos de tu evento</a>
+          </div>
+        </div>
+        <div class="hs__progress" aria-hidden="true"><i data-hs-bar></i></div>
+      </div>
+    </section>
+
+    <!-- ═══════════ Reconocimientos ═══════════ -->
+    <section class="premios theme-light" data-sheet id="reconocimientos" data-theme="light" data-chapter="—" data-chapter-name="Reconocimientos">
+      <p class="label" data-reveal="fade">Reconocimientos</p>
+      <h2 class="premios__title" data-reveal="lines">Una estrella por la cocina. <em>Otra, verde, por el territorio.</em></h2>
+      <ul class="premios__list">
+        <li data-reveal="fade"><span class="rule" data-rule></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.7 6 6.5.6-4.9 4.3 1.5 6.4L12 16.8l-5.8 3.3 1.5-6.4-4.9-4.3 6.5-.6z"></path></svg>
+          <h3>Estrella Michelin</h3><p class="label">Desde la Guía 2014</p></li>
+        <li data-reveal="fade"><span class="rule" data-rule></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4c-8.5 0-14 4.8-14 11.2 0 1.6.4 3 1 4.3C9 14 13 10.5 17 9c-4 2.4-7.1 6.1-8.8 11 1 .6 2.2 1 3.6 1C18.2 21 20 13 20 4z"></path></svg>
+          <h3>Estrella Verde Michelin</h3><p class="label">Gastronomía sostenible</p></li>
+        <li data-reveal="fade"><span class="rule" data-rule></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4"></circle><path d="M12 1.8v3.4M12 18.8v3.4M1.8 12h3.4M18.8 12h3.4M4.8 4.8l2.4 2.4M16.8 16.8l2.4 2.4M4.8 19.2l2.4-2.4M16.8 7.2l2.4-2.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+          <h3>Dos Soles Repsol</h3><p class="label">Desde 2020</p></li>
+        <li data-reveal="fade"><span class="rule" data-rule></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 13C12 8.6 9 6 4 6c0 4.4 3 7 8 7zM12 11c0-4 2.7-6.5 8-6.5 0 4-2.7 6.5-8 6.5z"></path></svg>
+          <h3>Sol Sostenible Repsol</h3><p class="label">Compromiso sostenible</p></li>
+      </ul>
+    </section>
+
+    <!-- ═══════════ Reserva ═══════════ -->
+    <section class="reserva theme-dark" id="reserva" data-theme="dark" data-chapter="—" data-chapter-name="Reserva">
+      <div class="reserva__stage" data-reserva-stage>
+        <div class="reserva__media" data-reserva-media>
+          <x-photo slot="reserva-cantera" tone="night" ratio="fill" alt="Los jardines de Les Moles al anochecer, con la cantera iluminada" n="17" min="2400"></x-photo>
+        </div>
+        <div class="reserva__shade" data-reserva-shade></div>
+        <div class="reserva__content">
+          <p class="label reserva__label">Reserva</p>
+          <h2 class="reserva__title" data-reserva-title>Ven a <em>Les Moles</em></h2>
+          <div class="reserva__after" data-reserva-after>
+            <p class="reserva__sub">Reserva tu experiencia</p>
+            <form class="booking" data-booking novalidate>
+              <label class="booking__f"><span class="label">Día</span><input type="date" name="date" required data-cursor="Elegir"></label>
+              <label class="booking__f"><span class="label">Personas</span>
+                <select name="people" required data-cursor="Elegir">
+                  <option value="2" selected>2 personas</option><option value="1">1 persona</option><option value="3">3 personas</option><option value="4">4 personas</option><option value="5">5 personas</option><option value="6">6 personas</option><option value="7">7 personas</option><option value="8">8 personas</option><option value="grupo">Más de 8</option>
+                </select></label>
+              <label class="booking__f"><span class="label">Servicio</span>
+                <select name="service" required data-cursor="Elegir"><option value="Mediodía">Mediodía</option><option value="Noche">Noche</option></select></label>
+              <button class="btn btn--olive booking__go" type="submit" data-cursor="Reservar"><span class="roll"><span class="roll__a">Solicitar reserva</span><span class="roll__b" aria-hidden="true">Solicitar reserva</span></span></button>
+              <p class="booking__msg" data-booking-msg role="status" aria-live="polite"></p>
+            </form>
+            <p class="reserva__alt">O llámanos al <a href="tel:+34977573224" data-cursor="Llamar">977 57 32 24</a> · <span data-status-long>Martes a domingo, mediodía · Viernes y sábado, también noche</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════ Pie ═══════════ -->
+  <footer class="footer theme-dark" data-theme="dark">
+    <div class="footer__cols">
+      <div><p class="label">Visítanos</p><p>Ctra. de La Sénia, km 2<br>43550 Ulldecona · Tarragona</p><a class="link" href="https://www.google.com/maps/search/?api=1&amp;query=Restaurant%20Les%20Moles%20Ulldecona" target="_blank" rel="noopener" data-cursor="Mapa">Cómo llegar</a></div>
+      <div><p class="label">Reservas</p><p><a href="tel:+34977573224" data-cursor="Llamar">977 57 32 24</a><br><a href="mailto:lesmoles@lesmoles.com" data-cursor="Escribir">lesmoles@lesmoles.com</a></p></div>
+      <div><p class="label">Horario</p><p>Martes a domingo · 13:00–15:30<br>Viernes y sábado · 20:30–22:30<br>Lunes cerrado</p></div>
+      <div><p class="label">Síguenos</p><p><a href="https://www.instagram.com/lesmoles_restaurant/" target="_blank" rel="noopener" data-cursor="Instagram">Instagram</a><br><a href="https://www.instagram.com/lesmoles_events/" target="_blank" rel="noopener" data-cursor="Instagram">Les Moles Events</a><br><a href="https://www.facebook.com/LesMolesUlldecona/" target="_blank" rel="noopener" data-cursor="Facebook">Facebook</a></p></div>
+    </div>
+    <p class="footer__word" aria-hidden="true" data-footer-word>Les Moles</p>
+    <div class="footer__bottom label">
+      <span>© 2026 Les Moles · Ulldecona</span>
+      <span>Demo · propuesta de diseño</span>
+      <a href="#top" data-jump data-cursor="Subir">Volver arriba ↑</a>
+    </div>
+  </footer>
+</body>
+</html>

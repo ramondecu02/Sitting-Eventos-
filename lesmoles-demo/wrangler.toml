@@ -1,0 +1,5 @@
+# Cloudflare Pages — demo de la Home de Les Moles
+# Despliegue manual:  npx wrangler pages deploy
+name = "lesmoles-demo"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-09-01"
