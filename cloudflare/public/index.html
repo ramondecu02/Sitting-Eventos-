@@ -2439,6 +2439,13 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .cal-ev{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
 /* versión cargada (para saber si el navegador tiene la última) */
 .side-ver{display:block; margin-top:4px; font-size:10.5px; letter-spacing:.02em; color:var(--nav-mut); opacity:.65}
+/* escaleta: cada plato del menú separado con una banda centrada y marcada */
+.mnu-esc tr.esc-plato td{padding:14px 0 6px!important; border-bottom:0!important}
+.esc-band{position:relative; display:flex; align-items:center; justify-content:center; min-height:34px; padding:0 96px; border-radius:6px;
+  background:#EEF0E6; border:1px solid #B9C29E; color:#3F4A2A}
+.esc-band b{font-family:var(--font-text); font-size:12px; letter-spacing:.24em; text-transform:uppercase; font-weight:750}
+.esc-band .esc-hq{position:absolute; right:12px; top:50%; transform:translateY(-50%); float:none; font-size:11px; letter-spacing:.02em; text-transform:none; font-weight:600; color:#56613F}
+@media (max-width:640px){ .esc-band{padding:0 74px} .esc-band b{font-size:11px; letter-spacing:.16em} }
 /*V3-END*/
 </style>
 
@@ -2450,7 +2457,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
     <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
   </button>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · arroces</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · escaleta</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -5646,7 +5653,7 @@ function escaletaPages(md,pw,ph,s){
       }); });
   }
   function mide(f,QW){
-    if(f.head) return {h:15*s};
+    if(f.head) return {h:f.plato?27*s:15*s};
     if(f.orden){ var lo=partir(f.txt,CW,"sans",F.sub,0); return {h:lo.length*F.lsub+5*s,ln:lo}; }
     if(f.persona) return {h:F.lh+4*s};
     if(f.nombres){ var cn=chips(f.lista,CW-8*s); return {h:cn.length*CL+4*s, cl:cn}; }
@@ -5692,6 +5699,14 @@ function escaletaPages(md,pw,ph,s){
       var m=ms[i];
       if(sitio(m.h+(f.head&&ms[i+1]?ms[i+1].h:0))){ x=X(); cur.push(TX(x,y+8,(sc.t+" (sigue)").toUpperCase(),{size:6.4,fo:"sans",a:"start",c:SOFT,ls:1})); y+=12; }
       x=X();
+      /* separación de cada plato del menú: banda centrada y marcada */
+      if(f.head&&f.plato){
+        var bh=18*s, by=y+4*s;
+        cur.push(R(x,by,CW,bh,3*s,"#EEF0E6","#B9C29E",0.7));
+        cur.push(TX(x+CW/2,by+bh/2+3.1*s,f.head.toUpperCase(),{size:8.8*s,fo:"sansb",a:"middle",c:"#3F4A2A",ls:2.4}));
+        if(f.hq) cur.push(TX(x+CW-7*s,by+bh/2+2.6*s,f.hq+(f.hqTxt||""),{size:6.9*s,fo:"sans",a:"end",c:"#56613F",ls:.4}));
+        y+=27*s; return;
+      }
       if(f.head){
         cur.push(TX(x,y+11*s,f.head.toUpperCase(),{size:F.head,fo:"sansb",a:"start",c:GP,ls:1.4}));
         if(f.hq) cur.push(TX(x+CW,y+11*s,f.hq+(f.hqTxt||""),{size:F.head,fo:"sans",a:"end",c:GP,ls:.6}));
@@ -10749,7 +10764,7 @@ function escModelo(){
   /* ── menú (1º, 2º, 3º…) con los sustitutos debajo de cada plato ── */
   var fb=[], nPlato=0;
   [ban[0],ban[1]].forEach(function(ti){ ti.platos.forEach(function(x){
-    fb.push({head:x.sorbete?"Sorbete":(++nPlato)+"º plato", hq:String(adTot), hqTxt:" en total"});
+    fb.push({head:x.sorbete?"Sorbete":(++nPlato)+"º plato", hq:String(adTot), hqTxt:" en total", plato:true});
     fb.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
     Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; fb.push(f); });
   }); });
@@ -10767,7 +10782,7 @@ function escModelo(){
     var fi=[], porSt={}, stO=[];
     INF.elegidos.forEach(function(d){ var k=d.station?escEtqStation(d.station):"Otros"; if(!porSt[k]){ porSt[k]=[]; stO.push(k); } porSt[k].push(d); });
     var ORD=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
-    stO.forEach(function(k){ fi.push({head:k});
+    stO.forEach(function(k){ fi.push({head:k, plato:true});
       (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d)))); }); });
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),c.ninos))); }); }
     var gk={}, ko=[]; ban.ninos.forEach(function(x){ var kk=escNorm(x.txt); if(!gk[kk]){ gk[kk]={txt:x.txt,gente:[]}; ko.push(kk); } gk[kk].gente.push(x); });
@@ -10792,7 +10807,7 @@ function escModelo(){
   /* ── postres (y tarta) con sus sustitutos ── */
   var fpo=[];
   ban[2].platos.forEach(function(x){
-    fpo.push({head:x.tarta?"Tarta":"Postre", hq:String(adTot), hqTxt:" en total"});
+    fpo.push({head:x.tarta?"Tarta":"Postre", hq:String(adTot), hqTxt:" en total", plato:true});
     fpo.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
     Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; fpo.push(f); });
   });
@@ -10918,6 +10933,7 @@ function renderEscaleta(){
       (sc.leyenda?'<div class="esc-ley"><i></i>'+esc(sc.leyenda)+'</div>':'')+
       '<table class="mnu-table esc-t'+(conQ?"":" sinq")+'"><colgroup>'+(conQ?'<col class="esc-qcol">':'')+'<col></colgroup>';
     sc.filas.forEach(function(f){
+      if(f.head&&f.plato){ h+='<tr class="esc-head esc-plato"><td colspan="'+(conQ?2:1)+'"><div class="esc-band"><b>'+esc(f.head)+'</b>'+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</div></td></tr>'; return; }
       if(f.head){ h+='<tr class="esc-head">'+(conQ?'<td class="esc-q"></td>':'')+'<td>'+esc(f.head)+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</td></tr>'; return; }
       if(f.nota||f.orden){ h+='<tr><td colspan="2" class="'+(f.orden?"esc-orden":"esc-nota")+'">'+esc(f.txt)+'</td></tr>'; return; }
       if(f.persona){ h+='<tr class="esc-pers">'+(conQ?'<td></td>':'')+'<td><span class="esc-pn neutro"><b>'+esc(f.n||f.txt)+'</b>'+(f.m?'<i>'+esc(escMesaCorta(f.m))+'</i>':'')+'</span></td></tr>'; return; }
