@@ -2548,6 +2548,10 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .pvp-h{display:flex; align-items:center; gap:8px; font-size:12.5px}
 .pvp-h input{width:70px; height:34px}
 .pvp-tot{margin-top:16px; max-width:520px; margin-left:auto}
+.pvp-t tr.base td{color:var(--c-ink-2,var(--c-ink))}
+.pvp-side>.ag-chk{display:flex; margin:0 0 10px; font-size:12.5px}
+.pvp-truck{margin:10px 0 0}
+.pvp-prueba{text-align:right; margin:8px 0 0}
 .pvp-tot tr.sub td{border-top:1px solid var(--c-line); font-weight:600}
 .pvp-tot tr.tot td{font-weight:800; font-size:16px; border-top:2px solid var(--c-ink)}
 .pvp-acts{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px}
@@ -2618,7 +2622,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.10 · alérgenos</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.11 · precios del catálogo</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -9157,12 +9161,17 @@ function pvpCard(e){
   if(!r) return "";
   var pb=(e.presupuesto&&e.presupuesto.pvpBarra)||{}, iv=r.ivaPct;
   function fila(t,sub,p,cls){ return '<tr'+(cls?' class="'+cls+'"':'')+'><td class="t-nm">'+escH(t)+(sub?' <span class="pvp-sub">'+escH(sub)+'</span>':'')+'</td><td class="rnum">'+(p==null?'<span class="pvp-pend">pendiente</span>':fmtEur(p))+'</td></tr>'; }
-  var filas=r.unit.map(function(x){ return fila(x.t,x.fam+(x.propio?" · a mano":""),x.p); }).join("")+
+  var filas=(r.base?fila("Precio base","servicio, bodega de la casa, cafés, pastel…",r.base,"base"):"")+
+    r.unit.map(function(x){ return fila(x.t,x.fam+(x.propio?" · a mano":""),x.p); }).join("")+
     r.pend.map(function(x){ return fila(x.t,x.fam+(x.propio?" · a mano":""),null,"pend"); }).join("")+
-    r.packs.map(function(x){ return fila(x.t,"pack · "+x.platos.length+(x.platos.length===1?" producto":" productos"),x.p,"pack"); }).join("")+
+    r.packs.map(function(x){ return fila(x.t,"pack · "+x.platos.length+(x.platos.length===1?" producto":" productos")+(x.faltan.length?" · también incluye "+x.faltan.join(", "):""),x.p,"pack"); }).join("")+
     r.sup.map(function(x){ return fila("Suplemento "+x.t,"",x.p,"sup"); }).join("");
   var nada=!r.unit.length&&!r.pend.length&&!r.packs.length;
   var dow=r.dia==null?"":["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][r.dia];
+  var adIva=r.conIva(r.porAdulto);
+  var prueba=r.personas<60?'Prueba de menú: gratis para 2 personas; el resto paga el menú entero ('+fmtEur(adIva)+' con IVA), por ser menos de 60 personas.'
+    :'Prueba de menú: gratis para 2 personas; hasta 4 más pagan el 50 % ('+fmtEur(Math.round(adIva*50)/100)+' con IVA) y el resto el menú entero ('+fmtEur(adIva)+').';
+  function chk(k,t,sub){ return '<label class="ag-chk"><input type="checkbox" data-f="presupuesto.pvpBarra.'+k+'" data-live'+(pb[k]?" checked":"")+'> '+t+(sub?' <small>('+sub+')</small>':'')+'</label>'; }
   return '<div class="pv-sec">Precio calculado del menú <span class="pv-sec-note">— con los platos elegidos en «Menú del evento» y la tabla de Parámetros → Precios de venta</span></div>'+
   '<div class="pcard pvp-card">'+
     (nada?'<p class="pp-empty">Todavía no hay platos elegidos en «Menú del evento».</p>':
@@ -9170,29 +9179,37 @@ function pvpCard(e){
       '</tbody><tfoot><tr><td>Menú adulto'+(r.pend.length?' <span class="pvp-pend">incompleto</span>':'')+'</td><td class="rnum">'+fmtEur(r.porAdulto)+'</td></tr></tfoot></table></div>'+
     '<div class="pvp-side">'+
       (r.pend.length?'<div class="pvp-aviso"><b>'+r.pend.length+(r.pend.length===1?" plato sin precio":" platos sin precio")+'</b> de venta. No se suma como 0 €: ponlo en Parámetros → Precios de venta'+(r.pend.some(function(x){ return x.propio; })?' (o en «Detalles» del plato a mano)':'')+'.</div>':'')+
-      '<p class="pvp-incl">Incluido en el precio: '+escH(["camareros","aguas, vinos y cavas de la casa","cafés","pastel","decoración y minutas","sitting, proyección y megafonía"].concat(r.incl.length?["pan"]:[]).join(", "))+'.</p>'+
-      '<div class="pvp-barra"><label class="ag-chk"><input type="checkbox" data-f="presupuesto.pvpBarra.on" data-live'+(pb.on?" checked":"")+'> Barra libre <small>('+fmtEur(r.P.barra.p)+' por adulto)</small></label>'+
+      '<p class="pvp-incl">'+(r.base?'El precio base ('+fmtEur(r.base)+') incluye: ':'Incluido: ')+escH(["servicio de camareros","aguas, vinos y cavas de la casa","cafés y carrito de licores","pastel y figuras","decoración floral","minutas y sitting","proyectores y megafonía","chef y gestora de eventos"].concat(r.incl.length?["pan"]:[]).join(", "))+'.</p>'+
+      chk("sinBase","Sin precio base en este evento","")+
+      '<div class="pvp-barra">'+chk("on","Barra libre",fmtEur(r.P.barra.p)+' por adulto')+
         (pb.on?'<label class="pvp-h">Horas de más <input type="number" min="0" step="1" data-f="presupuesto.pvpBarra.horas" data-live value="'+escH(pb.horas||0)+'"> <small>× '+fmtEur(r.P.barra.hora)+'</small></label>'+
-          (r.dia===5?'<label class="ag-chk"><input type="checkbox" data-f="presupuesto.pvpBarra.festivo" data-live'+(pb.festivo?" checked":"")+'> Ese viernes es festivo</label>':'')+
-          '<p class="pvp-sub">'+(r.dtoDia?'−'+r.P.barra.dto+' % por ser '+dow+(r.dia===5?' no festivo':''):(dow?'Sin descuento ('+dow+')':'Pon la fecha del evento para saber si tiene descuento'))+'</p>':'')+'</div>'+
+          (r.dia===5?chk("festivo","Ese viernes es festivo",""):'')+
+          '<p class="pvp-sub">Hasta la 01:30 si es a mediodía y las 06:00 si es de noche. '+(r.dtoDia?'−'+r.P.barra.dto+' % por ser '+dow+(r.dia===5?' no festivo':''):(dow?'Sin descuento ('+dow+')':'Pon la fecha del evento para saber si tiene descuento'))+'</p>':'')+
+        BR_EXT().map(function(x){ return chk(x.k,x.t,fmtEur(r.P.ext[x.k])+' por adulto'+(x.sub?' · '+x.sub:'')); }).join("")+'</div>'+
+      (r.truck?'<p class="pvp-sub pvp-truck">Food truck: alquiler '+(r.truck.p?fmtEur(r.truck.p):'sin coste')+' ('+r.truck.tramo+').</p>':'')+
     '</div></div>'+
     '<table class="dtable pvp-tot"><tbody>'+
       '<tr><td>Menú adulto × '+r.adultos+'</td><td class="rnum">'+fmtEur(r.menAd)+'</td></tr>'+
       (r.ninos?'<tr><td>Menú infantil × '+r.ninos+' <span class="pvp-sub">'+fmtEur(r.P.infantil)+'</span></td><td class="rnum">'+fmtEur(r.menNi)+'</td></tr>':'')+
       (r.staff?'<tr><td>Menú staff × '+r.staff+' <span class="pvp-sub">'+fmtEur(r.P.staff)+'</span></td><td class="rnum">'+fmtEur(r.menSt)+'</td></tr>':'')+
       (r.barra?'<tr><td>Barra libre × '+r.barra.adultos+(r.barra.dto?' <span class="pvp-sub">−'+fmtEur(r.barra.dto)+'</span>':'')+(r.barra.horas?' <span class="pvp-sub">+'+r.barra.horas+' h</span>':'')+'</td><td class="rnum">'+fmtEur(r.barra.total)+'</td></tr>':'')+
+      r.extras.map(function(x){ return '<tr><td>'+escH(x.t)+' × '+x.adultos+' <span class="pvp-sub">'+fmtEur(x.p)+'</span></td><td class="rnum">'+fmtEur(x.total)+'</td></tr>'; }).join("")+
+      (r.truck?'<tr><td>Alquiler food truck <span class="pvp-sub">'+r.truck.personas+' personas</span></td><td class="rnum">'+fmtEur(r.truck.p)+'</td></tr>':'')+
       '<tr class="sub"><td>Subtotal sin IVA</td><td class="rnum">'+fmtEur(r.subtotal)+'</td></tr>'+
       '<tr><td>IVA '+iv+' %</td><td class="rnum">'+fmtEur(r.iva)+'</td></tr>'+
       '<tr class="tot"><td>Total'+(r.pend.length?' <span class="pvp-pend">faltan precios</span>':'')+'</td><td class="rnum">'+fmtEur(r.total)+'</td></tr>'+
-      '<tr><td>Menú adulto con IVA</td><td class="rnum">'+fmtEur(r.conIva(r.porAdulto))+'</td></tr>'+
+      '<tr><td>Menú adulto con IVA</td><td class="rnum">'+fmtEur(adIva)+'</td></tr>'+
     '</tbody></table>'+
+    '<p class="pvp-sub pvp-prueba">'+escH(prueba)+'</p>'+
     '<div class="pvp-acts"><button type="button" class="btn gold sm" data-act="pvp-aplicar"'+(r.pend.length?' disabled title="Faltan precios de platos"':'')+'>Pasar estos precios al presupuesto</button>'+
       '<button type="button" class="btn sm" data-act="pvp-copiar">Copiar como texto</button>'+
-      '<span class="pvp-sub">Pone el menú adulto, infantil y staff con IVA y la barra libre como extra. Se puede retocar después.</span></div>')+
+      '<span class="pvp-sub">Pone el menú adulto, infantil y staff con IVA, y la barra libre y los demás extras como extras. Se puede retocar después.</span></div>')+
   '</div>';
 }
+function BR_EXT(){ var B=window.SITTING_BRIDGE; return (B&&B.pvpExt)||[]; }
 function pvpTexto(e,r){
   var L=["Presupuesto del menú · "+(nombreLimpio(e.name)||"Evento"),""];
+  if(r.base) L.push("Precio base — "+fmtEur(r.base));
   r.unit.forEach(function(x){ L.push(x.t+" — "+fmtEur(x.p)); });
   r.packs.forEach(function(x){ L.push(x.t+" (pack) — "+fmtEur(x.p)); });
   r.sup.forEach(function(x){ L.push("Suplemento "+x.t+" — "+fmtEur(x.p)); });
@@ -9201,6 +9218,8 @@ function pvpTexto(e,r){
   if(r.ninos) L.push("Menú infantil: "+fmtEur(r.P.infantil)+" × "+r.ninos+" = "+fmtEur(r.menNi));
   if(r.staff) L.push("Menú staff: "+fmtEur(r.P.staff)+" × "+r.staff+" = "+fmtEur(r.menSt));
   if(r.barra) L.push("Barra libre: "+fmtEur(r.barra.total)+(r.barra.dto?" (con −"+r.P.barra.dto+" %)":""));
+  r.extras.forEach(function(x){ L.push(x.t+": "+fmtEur(x.p)+" × "+x.adultos+" = "+fmtEur(x.total)); });
+  if(r.truck) L.push("Alquiler food truck ("+r.truck.personas+" personas): "+fmtEur(r.truck.p));
   L.push("Subtotal sin IVA: "+fmtEur(r.subtotal),"IVA "+r.ivaPct+" %: "+fmtEur(r.iva),"TOTAL: "+fmtEur(r.total));
   return L.join("\n");
 }
@@ -9208,9 +9227,13 @@ function pvpAplicar(e){
   var r=window.SITTING_BRIDGE.precioMenu(e); if(!r||r.pend.length) return;
   var P=e.presupuesto;
   P.precioAdulto=r.conIva(r.porAdulto); if(r.ninos) P.precioInfantil=r.conIva(r.P.infantil); if(r.staff) P.precioStaff=r.conIva(r.P.staff);
-  P.extras=(P.extras||[]).filter(function(x){ return x.id!=="pvp-barra"; });
+  /* los extras que puso esta tarjeta se rehacen; los escritos a mano no se tocan */
+  P.extras=(P.extras||[]).filter(function(x){ return !/^pvp-/.test(String(x.id||"")); });
   if(r.barra) P.extras.push({id:"pvp-barra",concepto:"Barra libre ("+r.barra.adultos+" adultos"+(r.barra.dto?", −"+r.P.barra.dto+" %":"")+(r.barra.horas?", +"+r.barra.horas+" h":"")+")",importe:r.conIva(r.barra.total)});
-  toast("Precios pasados al presupuesto: menú adulto "+fmtEur(P.precioAdulto)+" con IVA"+(r.barra?" y la barra libre como extra":"")+".");
+  r.extras.forEach(function(x){ P.extras.push({id:"pvp-"+x.k,concepto:x.t+" ("+x.adultos+" adultos × "+fmtEur(x.p)+")",importe:r.conIva(x.total)}); });
+  if(r.truck&&r.truck.p) P.extras.push({id:"pvp-truck",concepto:"Alquiler food truck ("+r.truck.personas+" personas)",importe:r.conIva(r.truck.p)});
+  var n=(r.barra?1:0)+r.extras.length+(r.truck&&r.truck.p?1:0);
+  toast("Precios pasados al presupuesto: menú adulto "+fmtEur(P.precioAdulto)+" con IVA"+(n?" y "+n+(n===1?" extra":" extras"):"")+".");
 }
 function viewPresup(e){
   var P=e.presupuesto, c=planCounts(e);
@@ -11721,82 +11744,171 @@ function algResumen(lista,sel){
 
 /* ══ PRECIO DEL MENÚ (venta) ══════════════════════════════════════════
    El menú se sigue eligiendo a mano; esto CALCULA lo que vale a partir de lo
-   elegido, con la tabla de precios de venta de Parámetros → Precios de venta:
+   elegido, con la tabla de precios de venta de Parámetros → Precios de venta
+   (de fábrica: el catálogo de bodas de Les Moles):
+   · precio base por adulto (25 €: servicio, aguas, vinos y cavas de la casa,
+     cafés y licores, pastel, flores, minutas y sitting, proyección…);
    · packs: se cobran UNA vez por comensal aunque entren varios productos
-     (carrito de helados, café copa y puro, cada opción de recena…);
-   · unitarios: cada plato suma su precio por comensal;
+     (El clásico, carrito de helados, café copa y puro, cada opción de recena…);
+   · unitarios: cada plato suma su precio por comensal (los aperitivos de 2 €
+     y 2,50 € son 2 € / 2,50 € por cada aperitivo elegido);
    · suplementos: según la marca de vino, cava o jamón elegida;
    · extras: barra libre (−50 % viernes no festivo o domingo, ampliación por
-     hora), menú infantil y menú staff.
+     hora), cubalibres especiales, mojitos, cervezas especiales, alquiler del
+     food truck según las personas, menú infantil y menú staff.
    Todo SIN IVA y se le suma el IVA al final. Nunca se inventa un precio: un
    plato sin precio sale como «pendiente» y se avisa. No se guarda ningún
    total: se recalcula siempre con lo elegido y los comensales del plano. */
-function pvpUid(fk,re){ var f=MENU_DATA.filter(function(x){ return x.key===fk; })[0], d=f&&f.dishes.filter(function(x){ return re.test(x.name); })[0]; return d?d._uid:""; }
+function pvpN(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+function pvpUid(fk,re){ var f=MENU_DATA.filter(function(x){ return x.key===fk; })[0], d=f&&f.dishes.filter(function(x){ return re.test(pvpN(x.name)); })[0]; return d?d._uid:""; }
+/* precios del catálogo de bodas, € por comensal sin IVA. Se casan por el
+   nombre del plato (sin acentos ni signos); gana la primera línea que encaja.
+   Lo que no sale en el catálogo (croquetas de angulas y de setas, falso sushi,
+   gazpacho de aperitivo…) se queda sin precio: «pendiente». */
+var PVP_CATALOGO=[
+  ["APERITIVOS",2,  /^unas aceitunas de oove|falsas anchoas|ensaladilla rusa|^cuchara de foie|^cucurucho de pim|^cucurucho de pina|^calamares con mayonesa|deconstruccion de (la )?escalivada|^arroz de galeras|^arroz de pato/],
+  ["APERITIVOS",2.5,/^brocheta de langostino|^coca de sardinas|^foie gras con higos|oreo de aceitunas|^huevo con patatas|^pulpo con espuma|^tartar de atun|^gilda de color rojo|^esfera xxl|^snack de pollo|^bombon de anguila|^pizza de tomate|^ajoblanco/],
+  ["APERITIVOS",3.5,/^royal de foie|^lata de atun/],
+  ["APERITIVOS",3,  /^lata de coquinas/],
+  ["APERITIVOS",4.5,/^mc ?moles$/],
+  ["APERITIVOS",4,  /^croquetas? de trufa/],
+  ["APERITIVOS",2,  /^croquetas? (de )?(jamon|langostinos?|pollo|sobrasada)|^bunuelos de bacalao/],
+  ["APERITIVOS",2.25,/^mollete de (sobrasada|costilla|setas|butifarra|pato)/],
+  ["ESTACIONES",3.5,/^piruletas de aceite|^mini burguer|^pulpo$|^papada/],
+  ["ESTACIONES",7,  /^chuleton$/],
+  ["ESTACIONES",8,  /^brasa de langostinos|^buffet de langostino/],
+  ["ESTACIONES",12, /^brasa de gambas|^buffet de gamba roja/],
+  ["ESTACIONES",6,  /^ventresca/],
+  ["ESTACIONES",5,  /^foie con chutney/],
+  ["ESTACIONES",3,  /^huevos de codorniz/],
+  ["ESTACIONES",4.5,/^navajas/],
+  ["ESTACIONES",7.5,/^buffet de ostras/],
+  ["ENTRANTES",25,  /^bogavante en milhojas/],
+  ["ENTRANTES",15,  /^ensalada de ventresca/],
+  ["ENTRANTES",24,  /^ensalada de gamba roja/],
+  ["ENTRANTES",21,  /^gazpacho de frutas con gamba/],
+  ["ENTRANTES",17,  /^ensalada de texturas de tomate|^ensalada de color rojo/],
+  ["ENTRANTES",19,  /^sopa fria de tomate/],
+  ["MARISCO",15,    /^langostinos .*140 ?gr/],
+  ["MARISCO",19,    /^langostinos .*170 ?gr|^gambas rojas .*120 ?gr/],
+  ["MARISCO",22,    /^langostinos .*200 ?gr/],
+  ["MARISCO",27,    /^gambas rojas .*170 ?gr/],
+  ["CREMAS",15,     /^sopa de calabaza/],
+  ["CREMAS",14,     /^crema de gambas/],
+  ["PESCADOS",18,   /^rodaballo|^suquet de raya|^merluza con pil pil/],
+  ["PESCADOS",24,   /^lubina/],
+  ["PESCADOS",20,   /^bacalao con crema de allioli|^langostinos con pil pil/],
+  ["PESCADOS",22,   /^bacalao con pil pil|^rape a la brasa|^armonica de atun|^carrillera de atun/],
+  ["PESCADOS",17,   /^merluza con suquet/],
+  ["PESCADOS",28,   /^bogavante a la brasa/],
+  ["SORBETES",3.5,  /^de (fresa y vinagre|fruta de la pasion|limon y menta|limon y pina|limon y tomillo|manzana verde)/],
+  ["CARNES",12,     /^1 2 (cabrito con setas|canelon crujiente|cerdo ral|meloso de ternera)/],
+  ["CARNES",14,     /^1 2 cochinillo/],
+  ["CARNES",18,     /^(cabrito con setas|canelon crujiente|cerdo ral|meloso de ternera)/],
+  ["CARNES",23,     /^cochinillo/],
+  ["CARNES",17,     /^confit de pato/],
+  ["CARNES",19,     /^jarrete de cordero/],
+  ["CARNES",25,     /^paletilla de cabrito/],
+  ["POSTRES",7,     /^almendrado de chocolate creo personalizado/],
+  ["POSTRES",6,     /^almendrado de chocolate creo/],
+  ["POSTRES",7,     /^(huevo de maracuya|los aromas del vino|huevo kinder|algarroba|el jardin|macarrones a la bolonesa|almendra$|texturas de chocolate|nuestra version del tarta tatin)/]];
+function pvpCatalogo(d){
+  var raw=String(d.name||"").trim(), n=(/^½/.test(raw)?"1 2 ":"")+pvpN(raw);
+  for(var i=0;i<PVP_CATALOGO.length;i++){ var c=PVP_CATALOGO[i]; if(c[0]===d._famKey&&c[2].test(n)) return c[1]; }
+  return null; }
 function pvpDef(){
   var platos={};
-  /* lo que el catálogo de bodas da con precio exacto: croquetas 2 € (las de
-     trufa 4 €) y molletes 2,25 €. El resto de platos tienen rango de precio y
-     los pone Les Moles uno a uno. */
-  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){
-    if(d.station==="CROQUETAS") platos[d._uid]=/trufa/i.test(d.name)?4:2;
-    else if(d.station==="MOLLETES") platos[d._uid]=2.25; }); });
-  return {iva:10, infantil:33, staff:55, barra:{p:17, dto:50, hora:700},
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ var p=pvpCatalogo(d); if(p!=null) platos[d._uid]=p; }); });
+  /* El clásico: chips, crujiente de langostinos, jamón Cebo de Campo y pan de
+     cristal con tomate (con el cava rosado y todo tipo de bebidas): 13 € por
+     todo, aunque se elijan los cuatro */
+  var clasico=[/^chips de patata/,/^crujiente de langostinos/,/^jamon iberico (de )?cebo de campo/,/pa amb tomaca|^pan de cristal con tomate/]
+    .map(function(re){ var u=pvpUid("APERITIVOS",re); return u?"d:"+u:""; }).filter(Boolean).join(",");
+  return {iva:10, base:25, infantil:33, staff:55, barra:{p:17, dto:50, hora:700},
+    ext:{cubalibres:6, mojitos:4, cervezas:5},
+    truck:{mas100:0, de60:200, menos60:300},
     packs:[
-      {id:"clasico",t:"El clásico",p:13,ref:""},
+      {id:"clasico",t:"El clásico",p:13,ref:clasico},
       {id:"helados",t:"Carrito de helados",p:6.5,ref:"st:ESTACIONES|CARRITO DE HELADOS"},
-      {id:"encurtidos",t:"Encurtidos",p:7,ref:"d:"+pvpUid("ESTACIONES",/^ENCURTIDOS/i)},
-      {id:"quesos",t:"Mesa de quesos",p:7,ref:"d:"+pvpUid("ESTACIONES",/QUESOS/i)},
+      {id:"encurtidos",t:"Encurtidos",p:7,ref:"d:"+pvpUid("ESTACIONES",/^encurtidos/)},
+      {id:"quesos",t:"Mesa de quesos",p:7,ref:"d:"+pvpUid("ESTACIONES",/quesos/)},
       {id:"cafe",t:"Café, copa y puro",p:4.5,ref:"st:APERITIVOS|CAFÉ, COPA Y PURO"},
       {id:"rec1",t:"Recena · opción 1",p:6,ref:"st:RECENA|OPCIÓN 1"},
       {id:"rec2",t:"Recena · opción 2",p:9,ref:"st:RECENA|OPCIÓN 2"},
       {id:"rec3",t:"Recena · opción 3",p:12,ref:"st:RECENA|OPCIÓN 3"},
       {id:"rec4",t:"Recena · opción 4",p:14,ref:"st:RECENA|OPCIÓN 4"}],
     platos:platos,
-    sup:{"Raventós de Nit":1,"Jamón de bellota Blázquez":3,"Jamón Joselito 5J":6}};
+    /* suplementos por adulto (la bodega de la casa va incluida en el precio
+       base: Les Moles Blanc, Les Moles Criança y Oriol Rossell Brut Reserva) */
+    sup:{"El perro verde":2.5,"Blanc de Marges":2.5,"Carmen's 2022":3.5,"Lusco Albariño":3.5,"El Fanio Albet i Noya":3.5,
+      "Finca Resalso Emilio Moro":2.5,"Sierra Cantabria Crianza":2.5,"Tinto Figuero 12":3,"Viña Izadi - Orben":3,
+      "Oriol Rossell Brut Nature Gran Reserva":3,"Gramona La Cuvée Brut Reserva":3,"Celler Kripta Brut Reserva":3,
+      "Gramona Imperial":5,"Agustí Torelló Magnum":5,"Lleopardi":5,"Llopart":5,
+      "Raventós de Nit":1,"Jamón de bellota Blázquez":3,"Jamón Joselito 5J":6}};
 }
 /* la tabla en uso: lo guardado en Parámetros y, lo que falte, de fábrica */
 function pvp(){ var d=pvpDef(), g=BR.param("pvp")||{}, o=clon(d);
-  ["iva","infantil","staff"].forEach(function(k){ if(g[k]!=null&&g[k]!=="") o[k]=+g[k]; });
-  if(g.barra) Object.keys(g.barra).forEach(function(k){ if(g.barra[k]!=null&&g.barra[k]!=="") o.barra[k]=+g.barra[k]; });
+  ["iva","base","infantil","staff"].forEach(function(k){ if(g[k]!=null&&g[k]!=="") o[k]=+g[k]; });
+  ["barra","ext","truck"].forEach(function(s){ if(g[s]) Object.keys(g[s]).forEach(function(k){ if(g[s][k]!=null&&g[s][k]!=="") o[s][k]=+g[s][k]; }); });
   if(Array.isArray(g.packs)) o.packs=clon(g.packs);
   if(g.platos) o.platos=Object.assign({},o.platos,g.platos);
   if(g.sup) o.sup=Object.assign({},o.sup,g.sup);
   Object.keys(o.platos).forEach(function(k){ if(o.platos[k]===null||o.platos[k]==="") delete o.platos[k]; });
   Object.keys(o.sup).forEach(function(k){ if(o.sup[k]===null||o.sup[k]==="") delete o.sup[k]; });
   return o; }
+/* un pack puede enlazar una estación («st:FAM|ESTACIÓN») o uno o varios
+   platos («d:uid», separados por comas) */
+function pvpRefs(pk){ return String((pk&&pk.ref)||"").split(/,(?=\s*(?:d|st):)/).map(function(s){ return s.trim(); }).filter(Boolean); }
 function packDe(d,packs){
-  for(var i=0;i<packs.length;i++){ var r=packs[i].ref||""; if(!r) continue;
-    if(r==="d:"+d._uid) return packs[i];
-    if(r.indexOf("st:")===0&&d.station&&r==="st:"+d._famKey+"|"+d.station) return packs[i]; }
+  for(var i=0;i<packs.length;i++){ var rs=pvpRefs(packs[i]);
+    for(var j=0;j<rs.length;j++){ var r=rs[j];
+      if(r==="d:"+d._uid) return packs[i];
+      if(r.indexOf("st:")===0&&d.station&&r==="st:"+d._famKey+"|"+d.station) return packs[i]; } }
   return null; }
+/* el suplemento de una marca: por su nombre exacto o sin acentos/mayúsculas */
+function supDe(P,prod){ if(P.sup[prod]!=null) return +P.sup[prod]; var n=pvpN(prod), k=Object.keys(P.sup).filter(function(x){ return pvpN(x)===n; })[0]; return k?+P.sup[k]:0; }
+/* alquiler del food truck según las personas del evento */
+function truckDe(P,personas){ var t=P.truck; return personas>100?{tramo:"más de 100 personas",p:+t.mas100||0}:personas>=60?{tramo:"de 60 a 100 personas",p:+t.de60||0}:{tramo:"menos de 60 personas",p:+t.menos60||0}; }
+var PVP_EXT=[{k:"cubalibres",t:"Cubalibres especiales",sub:"2,5 h"},{k:"mojitos",t:"Mojitos",sub:"2,5 h"},{k:"cervezas",t:"Cervezas especiales",sub:""}];
 function precioMenu(e){
   return BR.conEvento(e,function(){
     var P=pvp(), sel=selectedDishes(), c=BR.planCounts(e), staff=BR.staffMenus(e,c), adultos=Math.max(0,c.adultos-(c.staff||0)), ninos=c.ninos||0;
-    var unit=[], packs=[], pend=[], incl=[], sup=[], visto={};
+    var pb=(e.presupuesto&&e.presupuesto.pvpBarra)||{};
+    var unit=[], packs=[], pend=[], incl=[], sup=[], visto={}, recena=false;
     sel.forEach(function(d){
       if(d._famKey==="NIÑOS") return;                                 /* van en el menú infantil */
       if(d._famKey==="PAN"){ incl.push(d.name); return; }              /* el pan va incluido */
+      if(d._famKey==="RECENA") recena=true;
       var pk=packDe(d,P.packs);
-      if(pk){ if(!visto[pk.id]){ visto[pk.id]=1; packs.push({t:pk.t,p:+pk.p||0,platos:[d.name]}); } else packs.filter(function(x){ return x.t===pk.t; })[0].platos.push(d.name); return; }
+      if(pk){ if(visto[pk.id]==null){ visto[pk.id]=packs.length; packs.push({id:pk.id,t:pk.t,p:+pk.p||0,platos:[],faltan:[]}); } packs[visto[pk.id]].platos.push(d.name); return; }
       var pr=d._propio?(d.pvp!=null&&isFinite(d.pvp)?+d.pvp:null):(P.platos[d._uid]!=null?+P.platos[d._uid]:null);
       if(pr==null) pend.push({t:d.name,fam:d._famLabel,propio:!!d._propio}); else unit.push({t:d.name,fam:d._famLabel,p:pr,propio:!!d._propio});
     });
+    /* de un pack de varios platos (El clásico), lo que entra y no se ha elegido */
+    packs.forEach(function(x){ var pk=P.packs.filter(function(q){ return q.id===x.id; })[0];
+      pvpRefs(pk).forEach(function(r){ if(r.indexOf("d:")!==0) return; var dd=(typeof DISH_BY_UID!=="undefined"&&DISH_BY_UID[r.slice(2)]);
+        if(dd&&x.platos.indexOf(dd.name)<0) x.faltan.push(dd.name); }); });
     /* suplementos por la marca elegida (vino, cava, jamón) */
     var m=(e.menu&&e.menu.bebidas)||{};
-    Object.keys(m).forEach(function(k){ var r=m[k]; if(!r||r.off||!r.prod) return; var s=P.sup[r.prod]; if(s>0) sup.push({t:r.prod,p:+s}); });
-    var porAdulto=0; unit.forEach(function(x){ porAdulto+=x.p; }); packs.forEach(function(x){ porAdulto+=x.p; }); sup.forEach(function(x){ porAdulto+=x.p; });
-    var pb=(e.presupuesto&&e.presupuesto.pvpBarra)||{}, F=e.ficha||{}, dia=F.fecha?new Date(F.fecha+"T00:00:00").getDay():null;
+    Object.keys(m).forEach(function(k){ var r=m[k]; if(!r||r.off||!r.prod) return; var s=supDe(P,r.prod); if(s>0) sup.push({t:r.prod,p:s}); });
+    var base=pb.sinBase?0:(+P.base||0);
+    var porAdulto=base; unit.forEach(function(x){ porAdulto+=x.p; }); packs.forEach(function(x){ porAdulto+=x.p; }); sup.forEach(function(x){ porAdulto+=x.p; });
+    var F=e.ficha||{}, dia=F.fecha?new Date(F.fecha+"T00:00:00").getDay():null;
     var dtoDia=dia===0||(dia===5&&!pb.festivo), barra=null;
-    if(pb.on){ var h=Math.max(0,+pb.horas||0), base=adultos*P.barra.p, dto=dtoDia?base*P.barra.dto/100:0;
-      barra={adultos:adultos,p:P.barra.p,base:base,dto:dto,dtoDia:dtoDia,horas:h,ampl:h*P.barra.hora,total:base-dto+h*P.barra.hora}; }
+    if(pb.on){ var h=Math.max(0,+pb.horas||0), bb=adultos*P.barra.p, dto=dtoDia?bb*P.barra.dto/100:0;
+      barra={adultos:adultos,p:P.barra.p,base:bb,dto:dto,dtoDia:dtoDia,horas:h,ampl:h*P.barra.hora,total:bb-dto+h*P.barra.hora}; }
+    /* extras de barra por adulto (sin el descuento de la barra libre) */
+    var extras=PVP_EXT.filter(function(x){ return pb[x.k]; }).map(function(x){ var p=+P.ext[x.k]||0; return {k:x.k,t:x.t,sub:x.sub,p:p,adultos:adultos,total:p*adultos}; });
+    var personas=adultos+ninos, truck=recena?truckDe(P,personas):null; if(truck) truck.personas=personas;
     var menAd=porAdulto*adultos, menNi=ninos*P.infantil, menSt=staff*P.staff;
-    var subtotal=menAd+menNi+menSt+(barra?barra.total:0), iva=subtotal*P.iva/100;
-    return {P:P, unit:unit, packs:packs, sup:sup, pend:pend, incl:incl, porAdulto:porAdulto, adultos:adultos, ninos:ninos, staff:staff,
-      menAd:menAd, menNi:menNi, menSt:menSt, barra:barra, dia:dia, dtoDia:dtoDia, subtotal:subtotal, iva:iva, total:subtotal+iva,
+    var subtotal=menAd+menNi+menSt+(barra?barra.total:0)+(truck?truck.p:0); extras.forEach(function(x){ subtotal+=x.total; });
+    var iva=subtotal*P.iva/100;
+    return {P:P, base:base, unit:unit, packs:packs, sup:sup, pend:pend, incl:incl, porAdulto:porAdulto, adultos:adultos, ninos:ninos, staff:staff, personas:personas,
+      menAd:menAd, menNi:menNi, menSt:menSt, barra:barra, extras:extras, truck:truck, dia:dia, dtoDia:dtoDia, subtotal:subtotal, iva:iva, total:subtotal+iva,
       ivaPct:P.iva, conIva:function(x){ return Math.round(x*(1+P.iva/100)*100)/100; }};
   });
 }
-BR.precioMenu=precioMenu; BR.pvp=pvp; BR.pvpDef=pvpDef;
+BR.precioMenu=precioMenu; BR.pvp=pvp; BR.pvpDef=pvpDef; BR.pvpPackDe=packDe; BR.pvpRefs=pvpRefs; BR.pvpExt=PVP_EXT;
 
 /* ══ RENTABILIDAD (solo administración) ════════════════════════════════
    Los precios de producto salen del Maître: se exporta la lista de
@@ -14173,13 +14285,16 @@ function vPvp(){
   var refs=[{v:"",t:"— sin enlazar (elegir) —"}];
   MENU_DATA.forEach(function(f){ var st={}; f.dishes.forEach(function(d){ if(d.station&&!st[d.station]){ st[d.station]=1; refs.push({v:"st:"+f.key+"|"+d.station,t:f.label+" · "+d.station}); } });
     if(f.key==="ESTACIONES") f.dishes.forEach(function(d){ if(!d.station) refs.push({v:"d:"+d._uid,t:f.label+" · "+d.name}); }); });
+  /* un pack de varios platos (El clásico) se muestra con sus platos */
+  P.packs.forEach(function(pk){ var rs=BR.pvpRefs(pk); if(rs.length<2||refs.some(function(r){ return r.v===pk.ref; })) return;
+    refs.push({v:pk.ref,t:rs.map(function(r){ var d=null; if(r.indexOf("d:")===0) MENU_DATA.forEach(function(f){ f.dishes.forEach(function(x){ if(x._uid===r.slice(2)) d=x; }); }); return d?d.name:r.replace(/^st:[^|]*\|/,""); }).join(" + ")}); });
   var packs=P.packs.map(function(pk,i){ return '<tr><td><input type="text" data-pp="pvp" data-k="pk-t" data-i="'+i+'" value="'+esc(pk.t)+'" aria-label="Nombre del pack"></td><td class="rnum">'+inp("pk-p",pk.p,null).replace('data-k="pk-p"','data-k="pk-p" data-i="'+i+'" aria-label="Precio de '+esc(pk.t)+' por comensal"')+'</td>'+
     '<td><select data-pp="pvp" data-k="pk-ref" data-i="'+i+'" aria-label="A qué corresponde '+esc(pk.t)+'">'+refs.map(function(r){ return '<option value="'+esc(r.v)+'"'+(r.v===(pk.ref||"")?" selected":"")+'>'+esc(r.t)+'</option>'; }).join("")+'</select></td>'+
     '<td><button type="button" class="row-del" data-pa="pvp-pk-del" data-i="'+i+'" aria-label="Quitar pack">×</button></td></tr>'; }).join("");
   var q=norm(pvpQ), total=0, sinP=0, fams="";
   MENU_DATA.forEach(function(f){
     if(f.key==="NIÑOS"||f.key==="PAN") return;
-    var ds=f.dishes.filter(function(d){ total++; var enPack=P.packs.some(function(pk){ return pk.ref==="d:"+d._uid||(d.station&&pk.ref==="st:"+f.key+"|"+d.station); }); d.__pk=enPack; if(!enPack&&P.platos[d._uid]==null) sinP++; return !q||norm(d.name).indexOf(q)>-1; });
+    var ds=f.dishes.filter(function(d){ total++; var enPack=!!BR.pvpPackDe(d,P.packs); d.__pk=enPack; if(!enPack&&P.platos[d._uid]==null) sinP++; return !q||norm(d.name).indexOf(q)>-1; });
     if(!ds.length) return;
     fams+='<div class="pvp-fam"><div class="pvp-fh"><b>'+esc(f.label)+'</b><span>'+ds.filter(function(d){ return !d.__pk&&P.platos[d._uid]==null; }).length+' sin precio</span></div>'+
       ds.map(function(d){ return '<label class="pvp-row'+(d.__pk?' enpack':'')+'"><span>'+esc(d.name)+(d.station?' <small>'+esc(d.station)+'</small>':'')+'</span>'+
@@ -14188,11 +14303,18 @@ function vPvp(){
   var marcas=[], bc=(datos("bebidas")||{}).cats||{}; Object.keys(bc).forEach(function(k){ var c=bc[k]; if(!c||k==="agua") return; (c.opciones||[]).forEach(function(o){ marcas.push({c:c.label||k,o:o}); }); });
   return '<div class="pv-sec">General <span class="pv-sec-note">— precios sin IVA; el IVA se suma al final</span></div><div class="pcard"><div class="fldset">'+
       '<label class="fld"><span class="lbl">IVA (%)</span>'+inp("iva",P.iva)+'</label>'+
+      '<label class="fld"><span class="lbl">Precio base del menú (€ por adulto)</span>'+inp("base",P.base)+'</label>'+
       '<label class="fld"><span class="lbl">Menú infantil (€ por niño)</span>'+inp("infantil",P.infantil)+'</label>'+
       '<label class="fld"><span class="lbl">Menú staff (€ por persona)</span>'+inp("staff",P.staff)+'</label>'+
       '<label class="fld"><span class="lbl">Barra libre (€ por adulto)</span>'+inp("barra-p",P.barra.p)+'</label>'+
       '<label class="fld"><span class="lbl">Descuento barra viernes no festivo / domingo (%)</span>'+inp("barra-dto",P.barra.dto)+'</label>'+
       '<label class="fld"><span class="lbl">Ampliación de barra (€ por hora)</span>'+inp("barra-hora",P.barra.hora)+'</label>'+
+      '<label class="fld"><span class="lbl">Cubalibres especiales (€ por adulto)</span>'+inp("ext-cubalibres",P.ext.cubalibres)+'</label>'+
+      '<label class="fld"><span class="lbl">Mojitos (€ por adulto)</span>'+inp("ext-mojitos",P.ext.mojitos)+'</label>'+
+      '<label class="fld"><span class="lbl">Cervezas especiales (€ por adulto)</span>'+inp("ext-cervezas",P.ext.cervezas)+'</label>'+
+      '<label class="fld"><span class="lbl">Food truck: alquiler con más de 100 personas (€)</span>'+inp("truck-mas100",P.truck.mas100)+'</label>'+
+      '<label class="fld"><span class="lbl">Food truck: de 60 a 100 personas (€)</span>'+inp("truck-de60",P.truck.de60)+'</label>'+
+      '<label class="fld"><span class="lbl">Food truck: menos de 60 personas (€)</span>'+inp("truck-menos60",P.truck.menos60)+'</label>'+
     '</div></div>'+
     '<div class="pv-sec">Packs <span class="pv-sec-note">— se cobran una vez por comensal aunque entren varios productos; enlaza cada pack con su estación o plato</span></div>'+
     '<div class="pcard"><div class="dtable-wrap"><table class="dtable pvp-pk"><thead><tr><th>Pack</th><th class="rnum">€ / comensal</th><th>Corresponde a</th><th></th></tr></thead><tbody>'+packs+'</tbody></table></div>'+
@@ -14282,8 +14404,9 @@ function onChange(ev){
   if(pp==="pvp"){
     var T=BR.pvp(), x=el.getAttribute("data-x"), vt=String(v).trim().replace(",","."), nv=vt===""?null:+vt;
     if(k!=="pk-t"&&k!=="pk-ref"&&vt!==""&&!(isFinite(nv)&&nv>=0)){ toastP("Pon un número (o déjalo vacío)."); render(); return; }
-    if(k==="iva"||k==="infantil"||k==="staff") T[k]=nv==null?BR.pvpDef()[k]:nv;
+    if(k==="iva"||k==="base"||k==="infantil"||k==="staff") T[k]=nv==null?BR.pvpDef()[k]:nv;
     else if(k==="barra-p"||k==="barra-dto"||k==="barra-hora"){ var bk=k.slice(6); T.barra[bk]=nv==null?BR.pvpDef().barra[bk]:nv; }
+    else if(/^(ext|truck)-/.test(k)){ var sk=k.split("-"); T[sk[0]][sk[1]]=nv==null?BR.pvpDef()[sk[0]][sk[1]]:nv; }
     else if(k==="pl") T.platos[x]=nv;
     else if(k==="sup") T.sup[x]=nv;
     else if(k==="pk-t"&&T.packs[i]){ if(!vt){ render(); return; } T.packs[i].t=String(v).trim(); }
