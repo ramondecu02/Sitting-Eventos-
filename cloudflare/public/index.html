@@ -2534,6 +2534,78 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .fld-local{display:inline-flex; align-items:center; gap:6px; margin-top:5px; font-size:11.5px; color:var(--c-mut)}
 .fld-local::before{content:""; width:9px; height:9px; border-radius:2px; background:#8E8C84}
 .fld-local[data-l="moles"]::before{background:#C9952B}.fld-local[data-l="vinyes"]::before{background:#8C2F43}.fld-local[data-l="fuera"]::before{background:#2F6DB0}
+/* precio calculado del menú y tabla de precios de venta */
+.pvp-cols{display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:18px; align-items:start}
+.pvp-t td,.pvp-tot td{padding:7px 10px}
+.pvp-t tfoot td{font-weight:700; border-top:1px solid var(--c-line)}
+.pvp-t tr.pend td{color:var(--c-mut)}
+.pvp-t tr.pack td:first-child{font-weight:600}
+.pvp-sub{font-size:11.5px; color:var(--c-mut); font-weight:500}
+.pvp-pend{display:inline-block; font-size:10px; letter-spacing:.06em; text-transform:uppercase; font-weight:700; color:var(--warning,#9A722A); background:color-mix(in srgb,var(--warning,#9A722A) 14%,transparent); border-radius:99px; padding:2px 7px}
+.pvp-aviso{padding:10px 12px; border-radius:var(--r); background:color-mix(in srgb,var(--warning,#9A722A) 12%,transparent); color:var(--c-ink); font-size:12.5px; line-height:1.45; margin-bottom:10px}
+.pvp-incl{font-size:12px; color:var(--c-mut); line-height:1.5; margin:0 0 12px}
+.pvp-barra{display:flex; flex-direction:column; gap:8px; padding:12px; border:1px solid var(--c-line); border-radius:var(--r)}
+.pvp-h{display:flex; align-items:center; gap:8px; font-size:12.5px}
+.pvp-h input{width:70px; height:34px}
+.pvp-tot{margin-top:16px; max-width:520px; margin-left:auto}
+.pvp-tot tr.sub td{border-top:1px solid var(--c-line); font-weight:600}
+.pvp-tot tr.tot td{font-weight:800; font-size:16px; border-top:2px solid var(--c-ink)}
+.pvp-acts{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px}
+.pvp-acts .btn[disabled]{opacity:.45; cursor:not-allowed}
+.pvp-fam{margin-bottom:14px}
+.pvp-fh{display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--c-line); padding:6px 0; margin-bottom:4px}
+.pvp-fh b{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:18px; font-weight:500}
+.pvp-fh span{font-size:11.5px; color:var(--c-mut)}
+.pvp-row{display:grid; grid-template-columns:minmax(0,1fr) 92px 14px; align-items:center; gap:8px; padding:4px 0; border-bottom:1px solid var(--c-hair); font-size:13px}
+.pvp-row small{color:var(--c-mut); font-size:11px}
+.pvp-row input{height:32px; text-align:right}
+.pvp-row i{font-style:normal; color:var(--c-mut)}
+.pvp-row.enpack em{grid-column:2/4; font-size:11.5px; color:var(--c-mut)}
+.pvp-sup{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:0 24px}
+.pvp-pk input,.pvp-pk select{height:34px; min-width:0; width:100%}
+@media (max-width:760px){ .pvp-cols{grid-template-columns:1fr} }
+/* alérgenos: análisis por invitado */
+.alg-an{flex-basis:100%; margin-top:10px; padding:10px 12px; border-radius:var(--r); background:var(--raise,var(--panel)); border:1px solid var(--c-line); display:flex; flex-direction:column; gap:7px}
+.alg-src{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.alg-lbl{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--c-mut); margin-right:4px}
+.alg-lbl i{text-transform:none; letter-spacing:0; font-weight:500}
+.alg-chip{font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; background:color-mix(in srgb,var(--danger,#A3333D) 14%,transparent); color:var(--danger,#A3333D)}
+.alg-chip.desc{background:color-mix(in srgb,var(--warning,#9A722A) 16%,transparent); color:var(--warning,#9A722A)}
+.alg-it{display:flex; gap:10px; align-items:flex-start; padding:7px 9px; border-radius:8px; border-left:3px solid var(--cc)}
+.alg-it.no{background:color-mix(in srgb,var(--danger,#A3333D) 8%,transparent)}
+.alg-it.rev{background:color-mix(in srgb,var(--warning,#9A722A) 9%,transparent)}
+.alg-cur{flex:none; min-width:74px; font-size:10.5px; font-weight:750; letter-spacing:.06em; text-transform:uppercase; color:var(--cc); padding-top:2px}
+.alg-tx{display:flex; flex-direction:column; gap:3px; min-width:0}
+.alg-tx b{font-size:13px}
+.alg-tx>span{font-size:12px; color:var(--c-mut)}
+.alg-it.no .alg-tx>span{color:var(--danger,#A3333D); font-weight:600}
+.alg-sug{display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:11.5px; color:var(--c-mut); margin-top:2px}
+.alg-usar{border:1px solid var(--c-line); background:var(--panel); border-radius:99px; padding:3px 10px; font:600 11.5px var(--font-text); color:var(--c-ink); cursor:pointer}
+.alg-usar:hover{border-color:var(--olive); background:var(--accent-wash)}
+.alg-nota{font-size:11.5px; color:var(--c-mut); font-style:italic}
+.alg-pie{margin:0; font-size:12px; color:var(--c-mut)}
+.alg-res{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px 16px; margin:0 0 18px; border-radius:var(--r-lg,12px); border:1px solid var(--c-line); background:var(--panel)}
+.alg-res>div{display:flex; flex-direction:column; min-width:84px}
+.alg-res>div b{font:700 22px var(--font-text)}
+.alg-res>div span{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--c-mut); font-weight:650}
+.alg-res>div.mal b{color:var(--danger,#A3333D)} .alg-res>div.av b{color:var(--warning,#9A722A)}
+.alg-res p{flex:1 1 320px; margin:0; font-size:12.5px; color:var(--c-mut); line-height:1.45}
+/* Parámetros → Alérgenos */
+.alg-intro p{margin:0 0 10px; font-size:13px; line-height:1.55}
+.alg-prog{height:8px; border-radius:99px; background:var(--c-line); overflow:hidden}
+.alg-prog span{display:block; height:100%; background:var(--olive)}
+.alg-ing{padding:12px 0; border-bottom:1px solid var(--c-hair); display:grid; gap:8px}
+.alg-ing-h{display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline}
+.alg-ing-h b{font-size:14px}
+.alg-ing-h span{font-size:11.5px; color:var(--c-mut)}
+.alg-chips{display:flex; flex-wrap:wrap; gap:5px}
+.alg-t{border:1px solid var(--c-line); background:var(--panel); color:var(--c-mut); border-radius:99px; padding:3px 9px; font:600 11px var(--font-text); cursor:pointer}
+.alg-t.on{background:var(--danger,#A3333D); border-color:var(--danger,#A3333D); color:#fff}
+.alg-t.on.prop{background:color-mix(in srgb,var(--danger,#A3333D) 16%,transparent); color:var(--danger,#A3333D); border-style:dashed}
+.alg-st{display:flex; gap:12px; align-items:center; flex-wrap:wrap; font-size:12px}
+.alg-okk{color:var(--success,#4F7A3A); font-weight:700}
+.alg-propu{color:var(--warning,#9A722A); font-weight:600}
+.alg-ing.ok{opacity:.92}
 /*V3-END*/
 </style>
 
@@ -2546,7 +2618,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.10 · locales</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.10 · alérgenos</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -3031,7 +3103,7 @@ function platosPropios(e){
     var fk=fl[p.fam]?p.fam:(fl.ENTRANTES?"ENTRANTES":primera);
     return {name:String(p.name).trim(), servicio:String(p.servicio||"").trim()||"—", cubiertos:String(p.cubiertos||"").trim()||"—", station:String(p.station||"").trim()||null,
       ingredients:(p.ing||[]).filter(function(i){ return i&&String(i.name||"").trim(); }).map(function(i){ var q=(i.qty===""||i.qty==null||!isFinite(+String(i.qty).replace(",",".")))?null:+String(i.qty).replace(",","."); return {name:String(i.name).trim(),qty:q,unit:i.unit||"uds"}; }),
-      steps:[], _uid:"P#"+p.id, _famKey:fk, _famLabel:fl[fk]||"", _propio:true, coste:(p.coste===""||p.coste==null)?null:+String(p.coste).replace(",",".")};
+      steps:[], _uid:"P#"+p.id, _famKey:fk, _famLabel:fl[fk]||"", _propio:true, coste:(p.coste===""||p.coste==null)?null:+String(p.coste).replace(",","."), pvp:(p.pvp===""||p.pvp==null)?null:+String(p.pvp).replace(",",".")};
   });
 }
 /* el menú de un evento cualquiera, por tiempos: catálogo marcado + a mano */
@@ -7179,6 +7251,8 @@ var SECCIONES=[
   {k:"p-bebidas",  g:"Parámetros", t:"Bebidas"},
   {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
   {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
+  {k:"p-pvp",      g:"Parámetros", t:"Precios de venta"},
+  {k:"p-alg",      g:"Parámetros", t:"Alérgenos"},
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
   {k:"p-agenda",   g:"Parámetros", t:"Agenda con los novios"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
@@ -8631,7 +8705,7 @@ function renderHomeNovios(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-tareas":1,"p-agenda":1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -8896,7 +8970,7 @@ function onPlanEdit(ev){
   if(/^([pr]-|prev$)/.test(String(planView))) return;   /* Parámetros, Rentabilidad y Previsión tienen sus propios manejadores */
   var el=ev.target, e=current(); if(!e) return;
   var num=el.getAttribute&&el.type==="number";
-  function val(){ return num?(el.value===""?0:(parseFloat(el.value)||0)):el.value; }
+  function val(){ if(el.type==="checkbox") return !!el.checked; return num?(el.value===""?0:(parseFloat(el.value)||0)):el.value; }
   if(el.hasAttribute&&el.hasAttribute("data-f")){
     var _f=el.getAttribute("data-f"); setPath(e,_f,val());
     /* cambiar la fecha en la ficha reescribe también la del título del sitting,
@@ -8950,6 +9024,9 @@ function onPlanClick(ev){
   else if(act==="ag-pago"){ var _h=hitosAuto(e).filter(function(x){ return x.id===b.getAttribute("data-k"); })[0];
     if(_h){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:_h.t,importe:Math.round((_h.importe||0)*100)/100}); toast("Pago registrado: "+_h.t+" · "+fmtEur(_h.importe||0)+". Revisa la fecha y el importe en Presupuesto."); } }
   else if(act==="presu-pdf"){ descargarPresupuesto(e,($("paper")&&$("paper").value)||"A4"); return; }
+  else if(act==="pvp-aplicar"){ pvpAplicar(e); }
+  else if(act==="pvp-copiar"){ var _r=window.SITTING_BRIDGE.precioMenu(e), _tx=pvpTexto(e,_r);
+    try{ navigator.clipboard.writeText(_tx).then(function(){ toast("Copiado: pégalo donde quieras."); },function(){ window.prompt("Copia el texto:",_tx); }); }catch(_){ window.prompt("Copia el texto:",_tx); } return; }
   else return;
   planSave(); renderPlanV(planView);
 }
@@ -9074,6 +9151,67 @@ function viewProv(e){
     '<th>Servicio</th><th>Empresa</th><th>Contacto</th><th>Teléfono</th><th class="rnum">Precio</th><th>Estado</th><th></th></tr></thead>'+
     '<tbody>'+rows+'</tbody></table><div class="dtable-foot"><button type="button" class="btn sm" data-act="prov-add">+ Añadir proveedor</button></div></div>';
 }
+/* ══ precio calculado del menú (tarjeta de Presupuesto) ══════════════ */
+function pvpCard(e){
+  var B=window.SITTING_BRIDGE, r=null; try{ r=B&&B.precioMenu?B.precioMenu(e):null; }catch(err){ r=null; }
+  if(!r) return "";
+  var pb=(e.presupuesto&&e.presupuesto.pvpBarra)||{}, iv=r.ivaPct;
+  function fila(t,sub,p,cls){ return '<tr'+(cls?' class="'+cls+'"':'')+'><td class="t-nm">'+escH(t)+(sub?' <span class="pvp-sub">'+escH(sub)+'</span>':'')+'</td><td class="rnum">'+(p==null?'<span class="pvp-pend">pendiente</span>':fmtEur(p))+'</td></tr>'; }
+  var filas=r.unit.map(function(x){ return fila(x.t,x.fam+(x.propio?" · a mano":""),x.p); }).join("")+
+    r.pend.map(function(x){ return fila(x.t,x.fam+(x.propio?" · a mano":""),null,"pend"); }).join("")+
+    r.packs.map(function(x){ return fila(x.t,"pack · "+x.platos.length+(x.platos.length===1?" producto":" productos"),x.p,"pack"); }).join("")+
+    r.sup.map(function(x){ return fila("Suplemento "+x.t,"",x.p,"sup"); }).join("");
+  var nada=!r.unit.length&&!r.pend.length&&!r.packs.length;
+  var dow=r.dia==null?"":["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][r.dia];
+  return '<div class="pv-sec">Precio calculado del menú <span class="pv-sec-note">— con los platos elegidos en «Menú del evento» y la tabla de Parámetros → Precios de venta</span></div>'+
+  '<div class="pcard pvp-card">'+
+    (nada?'<p class="pp-empty">Todavía no hay platos elegidos en «Menú del evento».</p>':
+    '<div class="pvp-cols"><div class="dtable-wrap"><table class="dtable pvp-t"><thead><tr><th>Por adulto (sin IVA)</th><th class="rnum">€</th></tr></thead><tbody>'+filas+
+      '</tbody><tfoot><tr><td>Menú adulto'+(r.pend.length?' <span class="pvp-pend">incompleto</span>':'')+'</td><td class="rnum">'+fmtEur(r.porAdulto)+'</td></tr></tfoot></table></div>'+
+    '<div class="pvp-side">'+
+      (r.pend.length?'<div class="pvp-aviso"><b>'+r.pend.length+(r.pend.length===1?" plato sin precio":" platos sin precio")+'</b> de venta. No se suma como 0 €: ponlo en Parámetros → Precios de venta'+(r.pend.some(function(x){ return x.propio; })?' (o en «Detalles» del plato a mano)':'')+'.</div>':'')+
+      '<p class="pvp-incl">Incluido en el precio: '+escH(["camareros","aguas, vinos y cavas de la casa","cafés","pastel","decoración y minutas","sitting, proyección y megafonía"].concat(r.incl.length?["pan"]:[]).join(", "))+'.</p>'+
+      '<div class="pvp-barra"><label class="ag-chk"><input type="checkbox" data-f="presupuesto.pvpBarra.on" data-live'+(pb.on?" checked":"")+'> Barra libre <small>('+fmtEur(r.P.barra.p)+' por adulto)</small></label>'+
+        (pb.on?'<label class="pvp-h">Horas de más <input type="number" min="0" step="1" data-f="presupuesto.pvpBarra.horas" data-live value="'+escH(pb.horas||0)+'"> <small>× '+fmtEur(r.P.barra.hora)+'</small></label>'+
+          (r.dia===5?'<label class="ag-chk"><input type="checkbox" data-f="presupuesto.pvpBarra.festivo" data-live'+(pb.festivo?" checked":"")+'> Ese viernes es festivo</label>':'')+
+          '<p class="pvp-sub">'+(r.dtoDia?'−'+r.P.barra.dto+' % por ser '+dow+(r.dia===5?' no festivo':''):(dow?'Sin descuento ('+dow+')':'Pon la fecha del evento para saber si tiene descuento'))+'</p>':'')+'</div>'+
+    '</div></div>'+
+    '<table class="dtable pvp-tot"><tbody>'+
+      '<tr><td>Menú adulto × '+r.adultos+'</td><td class="rnum">'+fmtEur(r.menAd)+'</td></tr>'+
+      (r.ninos?'<tr><td>Menú infantil × '+r.ninos+' <span class="pvp-sub">'+fmtEur(r.P.infantil)+'</span></td><td class="rnum">'+fmtEur(r.menNi)+'</td></tr>':'')+
+      (r.staff?'<tr><td>Menú staff × '+r.staff+' <span class="pvp-sub">'+fmtEur(r.P.staff)+'</span></td><td class="rnum">'+fmtEur(r.menSt)+'</td></tr>':'')+
+      (r.barra?'<tr><td>Barra libre × '+r.barra.adultos+(r.barra.dto?' <span class="pvp-sub">−'+fmtEur(r.barra.dto)+'</span>':'')+(r.barra.horas?' <span class="pvp-sub">+'+r.barra.horas+' h</span>':'')+'</td><td class="rnum">'+fmtEur(r.barra.total)+'</td></tr>':'')+
+      '<tr class="sub"><td>Subtotal sin IVA</td><td class="rnum">'+fmtEur(r.subtotal)+'</td></tr>'+
+      '<tr><td>IVA '+iv+' %</td><td class="rnum">'+fmtEur(r.iva)+'</td></tr>'+
+      '<tr class="tot"><td>Total'+(r.pend.length?' <span class="pvp-pend">faltan precios</span>':'')+'</td><td class="rnum">'+fmtEur(r.total)+'</td></tr>'+
+      '<tr><td>Menú adulto con IVA</td><td class="rnum">'+fmtEur(r.conIva(r.porAdulto))+'</td></tr>'+
+    '</tbody></table>'+
+    '<div class="pvp-acts"><button type="button" class="btn gold sm" data-act="pvp-aplicar"'+(r.pend.length?' disabled title="Faltan precios de platos"':'')+'>Pasar estos precios al presupuesto</button>'+
+      '<button type="button" class="btn sm" data-act="pvp-copiar">Copiar como texto</button>'+
+      '<span class="pvp-sub">Pone el menú adulto, infantil y staff con IVA y la barra libre como extra. Se puede retocar después.</span></div>')+
+  '</div>';
+}
+function pvpTexto(e,r){
+  var L=["Presupuesto del menú · "+(nombreLimpio(e.name)||"Evento"),""];
+  r.unit.forEach(function(x){ L.push(x.t+" — "+fmtEur(x.p)); });
+  r.packs.forEach(function(x){ L.push(x.t+" (pack) — "+fmtEur(x.p)); });
+  r.sup.forEach(function(x){ L.push("Suplemento "+x.t+" — "+fmtEur(x.p)); });
+  r.pend.forEach(function(x){ L.push(x.t+" — precio pendiente"); });
+  L.push("","Menú adulto (sin IVA): "+fmtEur(r.porAdulto)+" × "+r.adultos+" = "+fmtEur(r.menAd));
+  if(r.ninos) L.push("Menú infantil: "+fmtEur(r.P.infantil)+" × "+r.ninos+" = "+fmtEur(r.menNi));
+  if(r.staff) L.push("Menú staff: "+fmtEur(r.P.staff)+" × "+r.staff+" = "+fmtEur(r.menSt));
+  if(r.barra) L.push("Barra libre: "+fmtEur(r.barra.total)+(r.barra.dto?" (con −"+r.P.barra.dto+" %)":""));
+  L.push("Subtotal sin IVA: "+fmtEur(r.subtotal),"IVA "+r.ivaPct+" %: "+fmtEur(r.iva),"TOTAL: "+fmtEur(r.total));
+  return L.join("\n");
+}
+function pvpAplicar(e){
+  var r=window.SITTING_BRIDGE.precioMenu(e); if(!r||r.pend.length) return;
+  var P=e.presupuesto;
+  P.precioAdulto=r.conIva(r.porAdulto); if(r.ninos) P.precioInfantil=r.conIva(r.P.infantil); if(r.staff) P.precioStaff=r.conIva(r.P.staff);
+  P.extras=(P.extras||[]).filter(function(x){ return x.id!=="pvp-barra"; });
+  if(r.barra) P.extras.push({id:"pvp-barra",concepto:"Barra libre ("+r.barra.adultos+" adultos"+(r.barra.dto?", −"+r.P.barra.dto+" %":"")+(r.barra.horas?", +"+r.barra.horas+" h":"")+")",importe:r.conIva(r.barra.total)});
+  toast("Precios pasados al presupuesto: menú adulto "+fmtEur(P.precioAdulto)+" con IVA"+(r.barra?" y la barra libre como extra":"")+".");
+}
 function viewPresup(e){
   var P=e.presupuesto, c=planCounts(e);
   var staff=staffMenus(e,c), adultosPago=Math.max(0,c.adultos-(c.staff||0));
@@ -9101,6 +9239,7 @@ function viewPresup(e){
   if(!e.presupuesto.pagos.length) pagosHTML='<tr><td colspan="4" style="color:var(--c-mut);font-style:italic;padding:14px">Sin pagos registrados. Sugerencia: 65% de señal y 35% restante.</td></tr>';
   return ''+
   '<div class="pp-presu-bar"><button type="button" class="btn gold sm" data-act="presu-pdf">Descargar presupuesto en PDF</button><span class="pv-sec-note">menús, extras, pagos realizados e importe pendiente — listo para imprimir o enviar</span></div>'+
+  pvpCard(e)+
   '<div class="pv-sec">Precios por menú <span class="pv-sec-note">— las cantidades salen del plano de mesas</span></div>'+
   '<div class="pcard"><div class="fldset">'+
     fld("Precio menú adulto (€)","presupuesto.precioAdulto",P.precioAdulto,"number",{live:true})+
@@ -9274,7 +9413,7 @@ window.SITTING_BRIDGE={
   current:current,
   save:save,
   conEvento:function(e,fn){ var prev=__evForzado; __evForzado=e; try{ return fn(); } finally{ __evForzado=prev; } },
-  presupTotals:presupTotals, planCounts:planCounts, cicloT:function(){ return CICLO_T; },
+  presupTotals:presupTotals, planCounts:planCounts, staffMenus:staffMenus, cicloT:function(){ return CICLO_T; },
   impTabla:impTabla, impXlsx:impXlsx,
   eventName:eventName,
   switchActiveEvent:switchActiveEvent,
@@ -9733,6 +9872,7 @@ function mpEditar(id){
       '<label class="mp-fld"><span class="lbl">Nombre en el menú</span><input id="mp-ed-n" type="text" maxlength="140" value="'+esc(w.name||"")+'"></label>'+
       '<div class="mp-two"><label class="mp-fld"><span class="lbl">Tiempo</span><select id="mp-ed-f">'+mpFamOpts(w.fam)+'</select></label>'+
       '<label class="mp-fld"><span class="lbl">Coste por ración (€, opcional)</span><input id="mp-ed-c" type="text" inputmode="decimal" placeholder="para Rentabilidad" value="'+esc(w.coste==null?"":String(w.coste).replace(".",","))+'"></label></div>'+
+      '<label class="mp-fld"><span class="lbl">Precio de venta por comensal (€, sin IVA)</span><input id="mp-ed-pv" type="text" inputmode="decimal" placeholder="para el precio del menú" value="'+esc(w.pvp==null?"":String(w.pvp).replace(".",","))+'"></label>'+
       '<label class="mp-fld"><span class="lbl">Estación <span class="mp-hint">(opcional: p. ej. «Croquetas», «Buffet»; agrupa en producción y escaleta)</span></span><input id="mp-ed-st" type="text" list="mp-dl-st" value="'+esc(w.station||"")+'" placeholder="Sin estación"></label>'+
       '<datalist id="mp-dl-st">'+mpEstaciones().map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist>'+
       '<div class="mp-two"><label class="mp-fld"><span class="lbl">Plato de servicio (vajilla)</span><input id="mp-ed-s" type="text" list="mp-dl-s" value="'+esc(w.servicio||"")+'" placeholder="Opcional"></label>'+
@@ -9757,6 +9897,7 @@ function mpEditar(id){
     leer(); var c=ovl.querySelector("#mp-ed-c").value.trim().replace(",",".");
     p.name=n; p.fam=ovl.querySelector("#mp-ed-f").value; p.station=ovl.querySelector("#mp-ed-st").value.trim(); p.servicio=ovl.querySelector("#mp-ed-s").value.trim(); p.cubiertos=ovl.querySelector("#mp-ed-u").value.trim();
     p.coste=(c!==""&&isFinite(+c))?+c:null;
+    var pv=ovl.querySelector("#mp-ed-pv").value.trim().replace(",","."); p.pvp=(pv!==""&&isFinite(+pv))?+pv:null;
     p.ing=w.ing.filter(function(i){ return String(i.name||"").trim(); }).map(function(i){ var q=String(i.qty||"").replace(",","."); return {name:String(i.name).trim(),qty:(q!==""&&isFinite(+q))?+q:null,unit:i.unit||"gr"}; });
     touchSave(); close(); renderMnuBody(); renderEvStats();
   });
@@ -10146,6 +10287,7 @@ function renderAlergias(){
     marcados.concat(otros).map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+
     '</datalist>';
 
+  var selAlg=selectedDishes(), curAlg=algCursos(selAlg);
   var porMesa={};
   lista.forEach(function(g){ (porMesa[g.mesa]=porMesa[g.mesa]||[]).push(g); });
   var mesas=Object.keys(porMesa).map(Number).sort(function(a,b){ return a-b; });
@@ -10187,6 +10329,7 @@ function renderAlergias(){
           '</div>'+
           '<button type="button" class="btn ico aler-plato-add" aria-label="Añadir otro plato para '+esc(g.nombre)+'" title="Añadir otro plato">+</button>'+
           '</div>'+
+          (selAlg.length?algBloque(g,algAnalisis(g,selAlg,curAlg),selAlg):'')+
           '</div>';
       }).join("")+'</div>';
   }).join("");
@@ -10200,7 +10343,7 @@ function renderAlergias(){
       conPlato+' decididos (con plato o sin cambios) · '+(lista.length-conPlato)+' por decidir. '+
       'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
       'para que el equipo sepa qué llevarle a cada uno. Si hace falta más de un plato '+
-      'para la misma persona, «+» añade otro.</p>'+cuerpo+'</div>'+
+      'para la misma persona, «+» añade otro.</p>'+(selAlg.length?algResumen(lista,selAlg):'')+cuerpo+'</div>'+
     renderAperitivosAdaptados(lista);
 
   wirePlatos();
@@ -10209,6 +10352,10 @@ function renderAlergias(){
   var mb=$("mnu-body");
   if(!mb.__alerOk){ mb.__alerOk=true; mb.addEventListener("change",function(ev2){ var t=ev2.target; if(mnuView!=="aler"||!t.hasAttribute||!t.hasAttribute("data-aler-ok")) return;
     var m=menu(); if(!m) return; m.alerOk=m.alerOk||{}; if(t.checked) m.alerOk[t.getAttribute("data-aler-ok")]=true; else delete m.alerOk[t.getAttribute("data-aler-ok")]; touchSave(); renderAlergias(); }); }
+  if(!mb.__algUsar){ mb.__algUsar=true; mb.addEventListener("click",function(ev3){ var b=ev3.target.closest&&ev3.target.closest("[data-alg-usar]"); if(!b||mnuView!=="aler") return;
+    var mesa=+b.getAttribute("data-mesa"), i=+b.getAttribute("data-i"), g=(BR.alergias?BR.alergias():[]).filter(function(x){ return x.mesa===mesa&&x.i===i; })[0]; if(!g) return;
+    var pl=(g.sustitutos||[]).map(function(n,k){ return {n:n,c:(g.sustitutosC||[])[k]||""}; }); pl.push({n:b.getAttribute("data-n"),c:b.getAttribute("data-c")||""});
+    if(BR.setSustitutos) BR.setSustitutos(mesa,i,pl); renderAlergias(); }); }
   var ap=$("aler-paper"); if(ap) ap.addEventListener("change",function(){ mnuPaper=ap.value; });
   var ab=$("aler-print-btn"); if(ab) ab.addEventListener("click",function(){ descargarAlergias(ab); });
 }
@@ -11436,6 +11583,221 @@ function aplicarParamsMenu(){
   var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
 }
 BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.contains("mode-menu")) refreshAll(); }catch(_){} });
+/* ══ ALÉRGENOS DESDE EL ESCANDALLO (seguridad: la app PROPONE, una persona DECIDE) ══
+   Cada ingrediente de los escandallos se relaciona con los 14 alérgenos de la
+   UE en un mapa que una persona de cocina REVISA y confirma (Parámetros →
+   Alérgenos). Mientras un ingrediente no esté revisado, la app solo propone
+   (por palabras del nombre) y el plato sale «a revisar», nunca «apto».
+   · Un plato CONTIENE un alérgeno si alguno de sus ingredientes lo lleva
+     (aunque sea solo propuesto: ante la duda, no apto).
+   · Es APTO para alguien solo si todos sus ingredientes están revisados y
+     ninguno lleva sus alérgenos.
+   · Un plato sin escandallo (p. ej. escrito a mano sin ingredientes) o una
+     alergia que no se reconoce: «a revisar».
+   Mapa guardado en el parámetro «alergenos»: {ing:{clave:{a:[...],ok:true,ts,por}}}.
+   El borrador automático NUNCA sobrescribe lo que una persona ha guardado. */
+var ALG=[
+  {k:"gluten",t:"Gluten",re:/\b(harina|pan|panes|panko|rebozad\w*|empanad\w*|pasta|fideo\w*|fideu\w*|cuscus|couscous|trigo|cebada|centeno|avena|espelta|galleta\w*|bizcoch\w*|brioche|focaccia|coca|hojaldre|masa|tempura|crep\w*|donut\w*|sandwich\w*|cerveza|bechamel|croquet\w*|mollete\w*|bollo\w*|tarta\w*|cucurucho\w*|oreo|crouton\w*|picatoste\w*|seitan|canelon\w*|lasa(?:n|ñ)a|macarron\w*|chapata|tostada\w*|biscote\w*|pizza|wafer|barquillo\w*|farina|xapata)\b/},
+  {k:"crustaceos",t:"Crustáceos",re:/\b(gamba\w*|langostin\w*|bogavante\w*|cigala\w*|carabiner\w*|cangrej\w*|galera\w*|necora\w*|centollo\w*|camaron\w*|crustace\w*|llagost\w*|gambes)\b/},
+  {k:"huevo",t:"Huevo",re:/\b(huevo\w*|yema\w*|clara\w*|mayonesa|allioli|alioli|all i oli|merengue|tortilla|ou|ous|rovell)\b/},
+  {k:"pescado",t:"Pescado",re:/\b(anchoa\w*|atun|bacalao|merluza|lubina|dorada|rape|salmon|sardina\w*|boqueron\w*|anguila\w*|rodaballo|corvina|caballa|pescad\w*|bonito|ventresca|caviar|surimi|salazon\w*|mojama|raya|lenguado|fumet|bacalla|tonyina|peix|balfego|arenque|trucha|mero|sepionet)\b/},
+  {k:"cacahuetes",t:"Cacahuetes",re:/\b(cacahuete\w*|mani|cacauet\w*)\b/},
+  {k:"soja",t:"Soja",re:/\b(soja|soya|tofu|edamame|miso|tamari)\b/},
+  {k:"lacteos",t:"Lácteos",re:/\b(leche|nata|mantequilla|queso\w*|yogur\w*|crema|bechamel|mozzarella|parmesano|burrata|helado\w*|mascarpone|requeson|kefir|lacteo\w*|llet|formatge|mato|cuajada|ricotta|gratinad\w*|capuchino)\b/},
+  {k:"frutos_cascara",t:"Frutos de cáscara",re:/\b(almendra\w*|avellana\w*|nuez|nueces|pistacho\w*|anacardo\w*|pecana\w*|macadamia\w*|pinon\w*|pralin\w*|ajoblanco|romesco|frutos secos|marcona|turron\w*|mazapan|ametll\w*|nou|nous|praline)\b/},
+  {k:"apio",t:"Apio",re:/\b(apio|api)\b/},
+  {k:"mostaza",t:"Mostaza",re:/\b(mostaza|mostassa|dijon)\b/},
+  {k:"sesamo",t:"Sésamo",re:/\b(sesamo|tahini|tahin|sesam)\b/},
+  {k:"sulfitos",t:"Sulfitos",re:/\b(vino\w*|vinagre\w*|cava|jerez|brandy|cognac|conac|pedro ximenez|vermut|uva\w* pasa\w*|pasas|orejon\w*|encurtid\w*|vi|vinagreta)\b/},
+  {k:"altramuces",t:"Altramuces",re:/\b(altramu\w*|tramus\w*)\b/},
+  {k:"moluscos",t:"Moluscos",re:/\b(mejill\w*|almeja\w*|berberecho\w*|navaja\w*|ostra\w*|calamar\w*|sepia\w*|pulpo\w*|chipiron\w*|vieira\w*|caracol\w*|tellina\w*|zamburi\w*|musclo\w*|calamars|pop|ostres)\b/}];
+var ALG_T={}; ALG.forEach(function(a){ ALG_T[a.k]=a.t; });
+function algNorm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9ñ]+/g," ").trim(); }
+function algMapa(){ var d=BR.param("alergenos")||{}; return d.ing||{}; }
+/* borrador: por palabras del nombre (solo una propuesta) */
+function algBorrador(nombre){ var n=" "+algNorm(nombre)+" "; return ALG.filter(function(a){ return a.re.test(n); }).map(function(a){ return a.k; }); }
+/* lo que se sabe de un ingrediente: revisado por una persona o solo propuesto */
+function algIng(nombre){ var k=algNorm(nombre), m=algMapa()[k];
+  if(m&&m.ok) return {k:k,a:(m.a||[]).slice(),ok:true,por:m.por||"",ts:m.ts||0};
+  if(m) return {k:k,a:(m.a||[]).slice(),ok:false,editado:true};
+  return {k:k,a:algBorrador(nombre),ok:false}; }
+/* los alérgenos de un plato, ingrediente a ingrediente */
+function algPlato(d){
+  var cont={}, sinRev=[], ings=(d&&d.ingredients)||[];
+  ings.forEach(function(ing){ var x=algIng(ing.name);
+    x.a.forEach(function(a){ (cont[a]=cont[a]||[]).push({ing:ing.name,ok:x.ok}); });
+    if(!x.ok) sinRev.push(ing.name); });
+  return {contiene:cont, sinRevisar:sinRev, sinEscandallo:!ings.length};
+}
+/* qué alérgenos son los de un invitado, a partir de lo que pone el plano */
+var ALG_INV=[
+  {re:/marisc|crustace/,a:["crustaceos","moluscos"]}, {re:/molusc/,a:["moluscos"]},
+  {re:/frutos? secos?|fruits? secs?|frutos de cascara|cascara/,a:["frutos_cascara","cacahuetes"]},
+  {re:/lactos|lacte|leche|llet|aplv|queso|formatge|caseina/,a:["lacteos"]},
+  {re:/celiac|gluten|trigo|blat/,a:["gluten"]},
+  {re:/anisakis/,a:["pescado","moluscos"]}, {re:/pescado|peix|\bpez\b/,a:["pescado"]},
+  {re:/huevo|\bou\b|\bous\b/,a:["huevo"]}, {re:/sulfit/,a:["sulfitos"]},
+  {re:/legumbre|llegum/,a:["soja","cacahuetes","altramuces"]}];
+function algInvitado(textos){
+  var keys={}, desconocidas=[];
+  (textos||[]).forEach(function(t){ var n=" "+algNorm(t)+" ", hit=false;
+    ALG_INV.forEach(function(r){ if(r.re.test(n)){ hit=true; r.a.forEach(function(a){ keys[a]=1; }); } });
+    ALG.forEach(function(a){ if(a.re.test(n)&&!/^(vi|pan|ou|pop|nou|api)$/.test(n.trim())){ hit=true; keys[a.k]=1; } });
+    if(!hit) desconocidas.push(t); });
+  return {a:Object.keys(keys), desconocidas:desconocidas};
+}
+/* el veredicto para una persona: no (contiene), revisar o apto */
+function algPara(d,keys,desconocida){
+  var p=algPlato(d), no=keys.filter(function(a){ return p.contiene[a]; });
+  if(no.length) return {e:"no", a:no, det:no.map(function(a){ return ALG_T[a]+" ("+p.contiene[a].map(function(x){ return x.ing+(x.ok?"":" · propuesto"); }).join(", ")+")"; })};
+  if(desconocida) return {e:"revisar", por:"alergia no reconocida"};
+  if(p.sinEscandallo) return {e:"revisar", por:"sin escandallo"};
+  if(p.sinRevisar.length) return {e:"revisar", por:"ingredientes sin revisar: "+p.sinRevisar.slice(0,4).join(", ")+(p.sinRevisar.length>4?"…":"")};
+  return {e:"apto"};
+}
+/* todos los ingredientes del catálogo (y de los platos a mano de los eventos), con sus platos */
+function algIngredientes(){
+  var por={}, add=function(ing,plato){ var k=algNorm(ing.name); if(!k) return; if(!por[k]) por[k]={k:k,nombre:ing.name,platos:[]}; if(por[k].platos.indexOf(plato)<0) por[k].platos.push(plato); };
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ (d.ingredients||[]).forEach(function(ing){ add(ing,d.name); }); }); });
+  (BR.allEvents?BR.allEvents():[]).forEach(function(e){ platosPropios(e).forEach(function(d){ d.ingredients.forEach(function(ing){ add(ing,d.name+" (a mano)"); }); }); });
+  return Object.keys(por).map(function(k){ return por[k]; }).sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+}
+function algGuardar(k,a,ok){ var d=clon(BR.param("alergenos")||{}); d.ing=d.ing||{};
+  var u=null; try{ u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
+  d.ing[k]={a:a, ok:!!ok, ts:Date.now(), por:ok?((u&&(u.name||u.email))||"equipo"):""}; BR.setParam("alergenos",d); }
+BR.alg={lista:ALG, t:ALG_T, ing:algIng, plato:algPlato, invitado:algInvitado, para:algPara, ingredientes:algIngredientes, guardar:algGuardar, borrador:algBorrador, norm:algNorm};
+
+/* ── alérgenos: el análisis que acompaña a cada invitado en «Alergias y
+   sustituciones». Propuesta automática; lo que se sirve lo decide una persona
+   (con «Usar …», escribiendo el plato o marcando «Sin cambios»). ── */
+var ALG_SEG=["ENTRANTES","MARISCO","CREMAS","PESCADOS","ARROCES","CARNES"];
+function algCursos(sel){
+  /* el tiempo de cada plato del menú, igual que la escaleta: los platos del
+     banquete se numeran (1º, 2º, 3º…) sin contar el sorbete */
+  var num=sel.filter(function(d){ return ALG_SEG.indexOf(d._famKey)>-1; }), out={};
+  num.forEach(function(d,i){ out[d._uid]={k:["primero","segundo","tercero"][Math.min(i,2)],t:(i+1)+"º plato"}; });
+  sel.forEach(function(d){ if(out[d._uid]) return;
+    var f=d._famKey; out[d._uid]=f==="POSTRES"?{k:"postre",t:"Postre"}:f==="SORBETES"?{k:"",t:"Sorbete"}:f==="NIÑOS"?{k:"",t:"Menú infantil"}:f==="RECENA"?{k:"",t:"Ressopó"}:{k:"",t:"Aperitivo",ap:true}; });
+  return out;
+}
+function algAnalisis(g,sel,cur){
+  var inv=algInvitado(g.aler), desc=inv.desconocidas.length>0;
+  var mios=sel.filter(function(d){ return g.kind==="child"?(d._famKey==="NIÑOS"||!sel.some(function(x){ return x._famKey==="NIÑOS"; })):d._famKey!=="NIÑOS"; });
+  var items=mios.map(function(d){ return {d:d,c:cur[d._uid],v:algPara(d,inv.a,desc)}; });
+  return {inv:inv, items:items, no:items.filter(function(x){ return x.v.e==="no"; }), rev:items.filter(function(x){ return x.v.e==="revisar"; }), apto:items.filter(function(x){ return x.v.e==="apto"; })};
+}
+function algSugerencias(d,keys,sel){
+  var fam=MENU_DATA.filter(function(f){ return f.key===d._famKey; })[0]; if(!fam) return [];
+  var ya={}; sel.forEach(function(x){ ya[x._uid]=1; });
+  return fam.dishes.filter(function(x){ return !ya[x._uid]&&algPara(x,keys,false).e==="apto"; }).slice(0,3);
+}
+function algBloque(g,A,sel){
+  if(!g.aler.length) return "";
+  var chips=A.inv.a.map(function(a){ return '<span class="alg-chip">'+esc(ALG_T[a])+'</span>'; }).join("")+
+    A.inv.desconocidas.map(function(t){ return '<span class="alg-chip desc" title="No es uno de los 14 alérgenos o no lo reconozco: decidir a mano">«'+esc(t)+'» · revisar a mano</span>'; }).join("");
+  var filas=A.no.concat(A.rev).map(function(x){
+    var c=x.c||{t:""}, col=c.k?colorDeCurso(c.k):"#6B6257", sug="";
+    if(x.v.e==="no"){
+      if(c.ap) sug='<span class="alg-nota">Para el aperitivo, créale uno en «Aperitivos adaptados», más abajo.</span>';
+      else { var al=algSugerencias(x.d,A.inv.a,sel);
+        sug=al.length?'<span class="alg-sug">Propuesta: '+al.map(function(s){ return '<button type="button" class="alg-usar" data-alg-usar="1" data-mesa="'+g.mesa+'" data-i="'+g.i+'" data-n="'+esc(s.name)+'" data-c="'+esc(c.k||"")+'">Usar «'+esc(s.name)+'»</button>'; }).join("")+'</span>'
+          :'<span class="alg-nota">Sin alternativas verificadas en «'+esc(x.d._famLabel)+'»: escribe el plato a mano o revisa los alérgenos en Parámetros.</span>'; }
+    }
+    return '<div class="alg-it '+(x.v.e==="no"?"no":"rev")+'" style="--cc:'+col+'"><span class="alg-cur">'+esc(c.t)+'</span>'+
+      '<div class="alg-tx"><b>'+esc(x.d.name)+'</b><span>'+(x.v.e==="no"?'NO apto · contiene '+esc(x.v.det.join(" · ")):'A revisar · '+esc(x.v.por))+'</span>'+sug+'</div></div>';
+  }).join("");
+  var pie=A.apto.length?'<p class="alg-pie">'+A.apto.length+(A.apto.length===1?" plato del menú no lleva":" platos del menú no llevan")+' sus alérgenos según el escandallo revisado.'+(!A.no.length&&!A.rev.length?' Si lo confirmas, marca «Sin cambios con este menú».':'')+'</p>':'';
+  return '<div class="alg-an"><div class="alg-src"><span class="alg-lbl">Según el escandallo <i>(propuesta: confírmala tú)</i></span>'+chips+'</div>'+filas+pie+'</div>';
+}
+function algResumen(lista,sel){
+  var conAler=lista.filter(function(g){ return g.aler.length; }), cur=algCursos(sel), no=0, rev=0, ingSin={};
+  conAler.forEach(function(g){ var A=algAnalisis(g,sel,cur); no+=A.no.length; rev+=A.rev.length; });
+  sel.forEach(function(d){ algPlato(d).sinRevisar.forEach(function(n){ ingSin[algNorm(n)]=1; }); });
+  var nIng=Object.keys(ingSin).length, sinEsc=sel.filter(function(d){ return !(d.ingredients||[]).length; }).length;
+  return '<div class="alg-res"><div><b>'+conAler.length+'</b><span>con alergias</span></div><div class="'+(no?"mal":"")+'"><b>'+no+'</b><span>platos a sustituir</span></div><div class="'+(rev?"av":"")+'"><b>'+rev+'</b><span>a revisar</span></div>'+
+    '<p>'+(nIng||sinEsc?'<b>Falta verificar:</b> '+(nIng?nIng+(nIng===1?" ingrediente":" ingredientes")+' del menú sin revisar en Parámetros → Alérgenos':'')+(nIng&&sinEsc?' · ':'')+(sinEsc?sinEsc+(sinEsc===1?" plato":" platos")+' sin escandallo':'')+'. Hasta entonces esos platos salen «a revisar», nunca como aptos.'
+      :'Todos los ingredientes del menú están revisados por cocina.')+' La app solo propone: lo que se sirve a cada persona lo decides tú.</p></div>';
+}
+
+/* ══ PRECIO DEL MENÚ (venta) ══════════════════════════════════════════
+   El menú se sigue eligiendo a mano; esto CALCULA lo que vale a partir de lo
+   elegido, con la tabla de precios de venta de Parámetros → Precios de venta:
+   · packs: se cobran UNA vez por comensal aunque entren varios productos
+     (carrito de helados, café copa y puro, cada opción de recena…);
+   · unitarios: cada plato suma su precio por comensal;
+   · suplementos: según la marca de vino, cava o jamón elegida;
+   · extras: barra libre (−50 % viernes no festivo o domingo, ampliación por
+     hora), menú infantil y menú staff.
+   Todo SIN IVA y se le suma el IVA al final. Nunca se inventa un precio: un
+   plato sin precio sale como «pendiente» y se avisa. No se guarda ningún
+   total: se recalcula siempre con lo elegido y los comensales del plano. */
+function pvpUid(fk,re){ var f=MENU_DATA.filter(function(x){ return x.key===fk; })[0], d=f&&f.dishes.filter(function(x){ return re.test(x.name); })[0]; return d?d._uid:""; }
+function pvpDef(){
+  var platos={};
+  /* lo que el catálogo de bodas da con precio exacto: croquetas 2 € (las de
+     trufa 4 €) y molletes 2,25 €. El resto de platos tienen rango de precio y
+     los pone Les Moles uno a uno. */
+  MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){
+    if(d.station==="CROQUETAS") platos[d._uid]=/trufa/i.test(d.name)?4:2;
+    else if(d.station==="MOLLETES") platos[d._uid]=2.25; }); });
+  return {iva:10, infantil:33, staff:55, barra:{p:17, dto:50, hora:700},
+    packs:[
+      {id:"clasico",t:"El clásico",p:13,ref:""},
+      {id:"helados",t:"Carrito de helados",p:6.5,ref:"st:ESTACIONES|CARRITO DE HELADOS"},
+      {id:"encurtidos",t:"Encurtidos",p:7,ref:"d:"+pvpUid("ESTACIONES",/^ENCURTIDOS/i)},
+      {id:"quesos",t:"Mesa de quesos",p:7,ref:"d:"+pvpUid("ESTACIONES",/QUESOS/i)},
+      {id:"cafe",t:"Café, copa y puro",p:4.5,ref:"st:APERITIVOS|CAFÉ, COPA Y PURO"},
+      {id:"rec1",t:"Recena · opción 1",p:6,ref:"st:RECENA|OPCIÓN 1"},
+      {id:"rec2",t:"Recena · opción 2",p:9,ref:"st:RECENA|OPCIÓN 2"},
+      {id:"rec3",t:"Recena · opción 3",p:12,ref:"st:RECENA|OPCIÓN 3"},
+      {id:"rec4",t:"Recena · opción 4",p:14,ref:"st:RECENA|OPCIÓN 4"}],
+    platos:platos,
+    sup:{"Raventós de Nit":1,"Jamón de bellota Blázquez":3,"Jamón Joselito 5J":6}};
+}
+/* la tabla en uso: lo guardado en Parámetros y, lo que falte, de fábrica */
+function pvp(){ var d=pvpDef(), g=BR.param("pvp")||{}, o=clon(d);
+  ["iva","infantil","staff"].forEach(function(k){ if(g[k]!=null&&g[k]!=="") o[k]=+g[k]; });
+  if(g.barra) Object.keys(g.barra).forEach(function(k){ if(g.barra[k]!=null&&g.barra[k]!=="") o.barra[k]=+g.barra[k]; });
+  if(Array.isArray(g.packs)) o.packs=clon(g.packs);
+  if(g.platos) o.platos=Object.assign({},o.platos,g.platos);
+  if(g.sup) o.sup=Object.assign({},o.sup,g.sup);
+  Object.keys(o.platos).forEach(function(k){ if(o.platos[k]===null||o.platos[k]==="") delete o.platos[k]; });
+  Object.keys(o.sup).forEach(function(k){ if(o.sup[k]===null||o.sup[k]==="") delete o.sup[k]; });
+  return o; }
+function packDe(d,packs){
+  for(var i=0;i<packs.length;i++){ var r=packs[i].ref||""; if(!r) continue;
+    if(r==="d:"+d._uid) return packs[i];
+    if(r.indexOf("st:")===0&&d.station&&r==="st:"+d._famKey+"|"+d.station) return packs[i]; }
+  return null; }
+function precioMenu(e){
+  return BR.conEvento(e,function(){
+    var P=pvp(), sel=selectedDishes(), c=BR.planCounts(e), staff=BR.staffMenus(e,c), adultos=Math.max(0,c.adultos-(c.staff||0)), ninos=c.ninos||0;
+    var unit=[], packs=[], pend=[], incl=[], sup=[], visto={};
+    sel.forEach(function(d){
+      if(d._famKey==="NIÑOS") return;                                 /* van en el menú infantil */
+      if(d._famKey==="PAN"){ incl.push(d.name); return; }              /* el pan va incluido */
+      var pk=packDe(d,P.packs);
+      if(pk){ if(!visto[pk.id]){ visto[pk.id]=1; packs.push({t:pk.t,p:+pk.p||0,platos:[d.name]}); } else packs.filter(function(x){ return x.t===pk.t; })[0].platos.push(d.name); return; }
+      var pr=d._propio?(d.pvp!=null&&isFinite(d.pvp)?+d.pvp:null):(P.platos[d._uid]!=null?+P.platos[d._uid]:null);
+      if(pr==null) pend.push({t:d.name,fam:d._famLabel,propio:!!d._propio}); else unit.push({t:d.name,fam:d._famLabel,p:pr,propio:!!d._propio});
+    });
+    /* suplementos por la marca elegida (vino, cava, jamón) */
+    var m=(e.menu&&e.menu.bebidas)||{};
+    Object.keys(m).forEach(function(k){ var r=m[k]; if(!r||r.off||!r.prod) return; var s=P.sup[r.prod]; if(s>0) sup.push({t:r.prod,p:+s}); });
+    var porAdulto=0; unit.forEach(function(x){ porAdulto+=x.p; }); packs.forEach(function(x){ porAdulto+=x.p; }); sup.forEach(function(x){ porAdulto+=x.p; });
+    var pb=(e.presupuesto&&e.presupuesto.pvpBarra)||{}, F=e.ficha||{}, dia=F.fecha?new Date(F.fecha+"T00:00:00").getDay():null;
+    var dtoDia=dia===0||(dia===5&&!pb.festivo), barra=null;
+    if(pb.on){ var h=Math.max(0,+pb.horas||0), base=adultos*P.barra.p, dto=dtoDia?base*P.barra.dto/100:0;
+      barra={adultos:adultos,p:P.barra.p,base:base,dto:dto,dtoDia:dtoDia,horas:h,ampl:h*P.barra.hora,total:base-dto+h*P.barra.hora}; }
+    var menAd=porAdulto*adultos, menNi=ninos*P.infantil, menSt=staff*P.staff;
+    var subtotal=menAd+menNi+menSt+(barra?barra.total:0), iva=subtotal*P.iva/100;
+    return {P:P, unit:unit, packs:packs, sup:sup, pend:pend, incl:incl, porAdulto:porAdulto, adultos:adultos, ninos:ninos, staff:staff,
+      menAd:menAd, menNi:menNi, menSt:menSt, barra:barra, dia:dia, dtoDia:dtoDia, subtotal:subtotal, iva:iva, total:subtotal+iva,
+      ivaPct:P.iva, conIva:function(x){ return Math.round(x*(1+P.iva/100)*100)/100; }};
+  });
+}
+BR.precioMenu=precioMenu; BR.pvp=pvp; BR.pvpDef=pvpDef;
+
 /* ══ RENTABILIDAD (solo administración) ════════════════════════════════
    Los precios de producto salen del Maître: se exporta la lista de
    artículos a Excel/CSV y se importa en «Rentabilidad · Precios». Cada
@@ -13560,6 +13922,8 @@ var VISTAS={
   "p-bebidas": {t:"Bebidas", secs:["bebidas"], guia:"Cuántas botellas se prevén por persona en cada momento (aperitivo y banquete) y qué marcas se pueden elegir en cada evento."},
   "p-servicio":{t:"Servicio y camareros", secs:["servicio","catalogo","montaje"], guia:"Cuántos comensales atiende cada camarero, las personas por mesa de partida, el catálogo de vajilla y cubiertos, y el material de montaje y de cada estación."},
   "p-comercial":{t:"Presupuesto y pagos", secs:["comercial"], guia:"Porcentaje del primer pago (sobre el total), precios de partida de los eventos nuevos, tipos de evento y servicios de proveedores."},
+  "p-alg":     {t:"Alérgenos de los ingredientes", secs:["alergenos"], guia:"Qué alérgenos (de los 14 de la UE) lleva cada ingrediente de los escandallos. La app propone por el nombre; cocina lo revisa y lo confirma. Con esto, en «Alergias y sustituciones» de cada evento se ve qué platos no puede comer cada invitado y se proponen alternativas."},
+  "p-pvp":     {t:"Precios de venta", secs:["pvp"], guia:"Lo que se cobra por comensal (sin IVA) por cada plato, los packs, los suplementos de vino, cava y jamón, la barra libre y los menús infantil y staff. Con esto cada evento calcula solo el precio de su menú en «Presupuesto». Lo que esté vacío sale como «pendiente», nunca como 0 €."},
   "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."},
   "p-agenda":  {t:"Agenda con los novios", secs:["agenda"], guia:"La señal que se cobra al reservar y los pasos que se programan solos a partir de la fecha de cada evento (documento, pagos, reuniones y cierre de cambios). Salen en el calendario, en los avisos y en la cronología de TODOS los eventos, también los que ya existen."}
 };
@@ -13592,7 +13956,7 @@ function cabecera(k){
   return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div>'+
     '<h1 class="pv-title">'+esc(v.t)+'</h1><div class="pv-sub pp-meta">'+estado+'</div>'+
     '<p class="pv-guide">'+esc(v.guia)+' Los cambios se guardan solos y se aplican a todos los eventos.</p></div>'+
-    (tocado.length?'<div class="pv-actions"><button type="button" class="btn sm danger" data-pa="reset" data-secs="'+esc(v.secs.join(","))+'">Restaurar valores de fábrica</button></div>':'')+
+    (tocado.length&&k!=="p-alg"?'<div class="pv-actions"><button type="button" class="btn sm danger" data-pa="reset" data-secs="'+esc(v.secs.join(","))+'">Restaurar valores de fábrica</button></div>':'')+
     '</header>';
 }
 
@@ -13775,6 +14139,70 @@ function vComercial(){
     '</div></div>';
 }
 
+/* ══ ALÉRGENOS DE LOS INGREDIENTES (revisión por cocina) ══════════════
+   La app propone los alérgenos de cada ingrediente por las palabras de su
+   nombre; una persona los corrige y CONFIRMA. Solo lo confirmado permite que
+   un plato salga «apto»; lo demás sale «a revisar». */
+var algUi={f:"sin", q:""};
+function vAlg(){
+  var A=BR.alg; if(!A) return '<div class="pcard"><p>No se ha podido cargar.</p></div>';
+  var L=A.ingredientes().map(function(x){ var i=A.ing(x.nombre); x.i=i; return x; });
+  var n={sin:0,con:0,rev:0,todos:L.length}; L.forEach(function(x){ if(!x.i.ok) n.sin++; else n.rev++; if(x.i.a.length) n.con++; });
+  var q=norm(algUi.q), vis=L.filter(function(x){ return (algUi.f==="todos"||(algUi.f==="sin"&&!x.i.ok)||(algUi.f==="rev"&&x.i.ok)||(algUi.f==="con"&&x.i.a.length))&&(!q||norm(x.nombre+" "+x.platos.join(" ")).indexOf(q)>-1); });
+  var tabs=[["sin","Sin revisar"],["con","Con alérgenos"],["rev","Revisados"],["todos","Todos"]].map(function(t){ return '<button type="button" class="'+(algUi.f===t[0]?"on":"")+'" aria-pressed="'+(algUi.f===t[0])+'" data-pa="alg-f" data-k="'+t[0]+'">'+t[1]+' <small>'+n[t[0]]+'</small></button>'; }).join("");
+  var filas=vis.slice(0,150).map(function(x){ var i=x.i;
+    return '<div class="alg-ing'+(i.ok?" ok":"")+'" data-algk="'+esc(x.k)+'"><div class="alg-ing-h"><b>'+esc(x.nombre)+'</b><span>'+esc(x.platos.slice(0,3).join(" · "))+(x.platos.length>3?" y "+(x.platos.length-3)+" más":"")+'</span></div>'+
+      '<div class="alg-chips">'+A.lista.map(function(a){ var on=i.a.indexOf(a.k)>-1; return '<button type="button" class="alg-t'+(on?" on":"")+(on&&!i.ok?" prop":"")+'" aria-pressed="'+on+'" data-pa="alg-t" data-k="'+a.k+'">'+esc(a.t)+'</button>'; }).join("")+'</div>'+
+      '<div class="alg-st">'+(i.ok?'<span class="alg-okk">✓ Revisado'+(i.por?' por '+esc(i.por):'')+(i.ts?' · '+esc(new Date(i.ts).toLocaleDateString("es-ES")):'')+'</span><button type="button" class="rt-link" data-pa="alg-no">Volver a revisar</button>'
+        :'<span class="alg-propu">'+(i.editado?"Cambiado, sin confirmar":i.a.length?"Propuesto por el nombre":"Sin alérgenos propuestos (¿lleva alguno escondido?)")+'</span><button type="button" class="btn sm gold" data-pa="alg-ok">Confirmar</button>')+'</div></div>'; }).join("");
+  return '<div class="pcard alg-intro"><p><b>Seguridad:</b> la app propone los alérgenos de cada ingrediente por su nombre, pero muchos van escondidos en elaboraciones (una salsa, una mousse, un caldo…). Revísalos con cocina y pulsa <b>Confirmar</b>. Mientras un ingrediente no esté confirmado, los platos que lo llevan salen «a revisar» y nunca como aptos. Lo que confirmes no lo vuelve a cambiar el borrador automático.</p>'+
+    '<div class="alg-prog"><span style="width:'+(L.length?Math.round(n.rev*100/L.length):0)+'%"></span></div><p class="pp-note">'+n.rev+' de '+L.length+' ingredientes revisados.</p></div>'+
+    '<div class="pp-bar"><div class="seg">'+tabs+'</div><input type="search" class="pp-search" data-pp="algq" value="'+esc(algUi.q)+'" placeholder="Buscar ingrediente o plato…" aria-label="Buscar ingrediente"></div>'+
+    '<div class="pcard alg-lista">'+(filas||'<p class="pp-empty">Nada en esta lista.</p>')+(vis.length>150?'<p class="pp-note">Se ven los 150 primeros: usa el buscador para el resto.</p>':'')+'</div>';
+}
+
+/* ══ PRECIOS DE VENTA (para calcular el precio del menú de cada evento) ══
+   Se rellena una vez: lo que se cobra por comensal (sin IVA) por cada plato,
+   los packs, los suplementos de vino/cava/jamón y los extras. Lo que esté
+   vacío sale como «pendiente» en los eventos (nunca como 0 €). */
+var pvpQ="";
+function vPvp(){
+  var P=BR.pvp?BR.pvp():null; if(!P) return '<div class="pcard"><p>No se ha podido cargar la tabla de precios.</p></div>';
+  function n(v){ return v==null||v===""?"":String(v).replace(".",","); }
+  function inp(k,v,x,ph){ return '<input type="text" inputmode="decimal" data-pp="pvp" data-k="'+k+'"'+(x!=null?' data-x="'+esc(x)+'"':'')+' value="'+esc(n(v))+'" placeholder="'+(ph||"")+'"'+(k==="pk-p"?'':' aria-label="Precio (€)"')+'>'; }
+  var refs=[{v:"",t:"— sin enlazar (elegir) —"}];
+  MENU_DATA.forEach(function(f){ var st={}; f.dishes.forEach(function(d){ if(d.station&&!st[d.station]){ st[d.station]=1; refs.push({v:"st:"+f.key+"|"+d.station,t:f.label+" · "+d.station}); } });
+    if(f.key==="ESTACIONES") f.dishes.forEach(function(d){ if(!d.station) refs.push({v:"d:"+d._uid,t:f.label+" · "+d.name}); }); });
+  var packs=P.packs.map(function(pk,i){ return '<tr><td><input type="text" data-pp="pvp" data-k="pk-t" data-i="'+i+'" value="'+esc(pk.t)+'" aria-label="Nombre del pack"></td><td class="rnum">'+inp("pk-p",pk.p,null).replace('data-k="pk-p"','data-k="pk-p" data-i="'+i+'" aria-label="Precio de '+esc(pk.t)+' por comensal"')+'</td>'+
+    '<td><select data-pp="pvp" data-k="pk-ref" data-i="'+i+'" aria-label="A qué corresponde '+esc(pk.t)+'">'+refs.map(function(r){ return '<option value="'+esc(r.v)+'"'+(r.v===(pk.ref||"")?" selected":"")+'>'+esc(r.t)+'</option>'; }).join("")+'</select></td>'+
+    '<td><button type="button" class="row-del" data-pa="pvp-pk-del" data-i="'+i+'" aria-label="Quitar pack">×</button></td></tr>'; }).join("");
+  var q=norm(pvpQ), total=0, sinP=0, fams="";
+  MENU_DATA.forEach(function(f){
+    if(f.key==="NIÑOS"||f.key==="PAN") return;
+    var ds=f.dishes.filter(function(d){ total++; var enPack=P.packs.some(function(pk){ return pk.ref==="d:"+d._uid||(d.station&&pk.ref==="st:"+f.key+"|"+d.station); }); d.__pk=enPack; if(!enPack&&P.platos[d._uid]==null) sinP++; return !q||norm(d.name).indexOf(q)>-1; });
+    if(!ds.length) return;
+    fams+='<div class="pvp-fam"><div class="pvp-fh"><b>'+esc(f.label)+'</b><span>'+ds.filter(function(d){ return !d.__pk&&P.platos[d._uid]==null; }).length+' sin precio</span></div>'+
+      ds.map(function(d){ return '<label class="pvp-row'+(d.__pk?' enpack':'')+'"><span>'+esc(d.name)+(d.station?' <small>'+esc(d.station)+'</small>':'')+'</span>'+
+        (d.__pk?'<em>va en un pack</em>':inp("pl",P.platos[d._uid],d._uid,"pendiente")+'<i>€</i>')+'</label>'; }).join("")+'</div>';
+  });
+  var marcas=[], bc=(datos("bebidas")||{}).cats||{}; Object.keys(bc).forEach(function(k){ var c=bc[k]; if(!c||k==="agua") return; (c.opciones||[]).forEach(function(o){ marcas.push({c:c.label||k,o:o}); }); });
+  return '<div class="pv-sec">General <span class="pv-sec-note">— precios sin IVA; el IVA se suma al final</span></div><div class="pcard"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">IVA (%)</span>'+inp("iva",P.iva)+'</label>'+
+      '<label class="fld"><span class="lbl">Menú infantil (€ por niño)</span>'+inp("infantil",P.infantil)+'</label>'+
+      '<label class="fld"><span class="lbl">Menú staff (€ por persona)</span>'+inp("staff",P.staff)+'</label>'+
+      '<label class="fld"><span class="lbl">Barra libre (€ por adulto)</span>'+inp("barra-p",P.barra.p)+'</label>'+
+      '<label class="fld"><span class="lbl">Descuento barra viernes no festivo / domingo (%)</span>'+inp("barra-dto",P.barra.dto)+'</label>'+
+      '<label class="fld"><span class="lbl">Ampliación de barra (€ por hora)</span>'+inp("barra-hora",P.barra.hora)+'</label>'+
+    '</div></div>'+
+    '<div class="pv-sec">Packs <span class="pv-sec-note">— se cobran una vez por comensal aunque entren varios productos; enlaza cada pack con su estación o plato</span></div>'+
+    '<div class="pcard"><div class="dtable-wrap"><table class="dtable pvp-pk"><thead><tr><th>Pack</th><th class="rnum">€ / comensal</th><th>Corresponde a</th><th></th></tr></thead><tbody>'+packs+'</tbody></table></div>'+
+      '<div class="dtable-foot"><button type="button" class="btn sm" data-pa="pvp-pk-add">+ Añadir pack</button></div></div>'+
+    '<div class="pv-sec">Platos <span class="pv-sec-note">— € por comensal; '+sinP+' de '+total+' sin precio (salen como «pendiente» en los eventos)</span></div>'+
+    '<div class="pcard"><input type="search" class="pp-search" data-pp="pvpq" value="'+esc(pvpQ)+'" placeholder="Buscar plato…" aria-label="Buscar plato" style="margin-bottom:12px">'+fams+'</div>'+
+    '<div class="pv-sec">Suplementos <span class="pv-sec-note">— € por adulto según la marca elegida en «Bebida del evento»; vacío = incluido</span></div>'+
+    '<div class="pcard pvp-sup">'+marcas.map(function(m){ return '<label class="pvp-row"><span>'+esc(m.o)+' <small>'+esc(m.c)+'</small></span>'+inp("sup",P.sup[m.o],m.o,"incluido")+'<i>€</i></label>'; }).join("")+'</div>';
+}
+
 /* ══ TAREAS POR FASE ══════════════════════════════════════════════════ */
 function vTareas(){
   var t=datos("tareas");
@@ -13825,6 +14253,8 @@ function render(k,host){
   else if(vistaActual==="p-servicio") body=vServicio();
   else if(vistaActual==="p-comercial") body=vComercial();
   else if(vistaActual==="p-agenda") body=vAgenda();
+  else if(vistaActual==="p-pvp") body=vPvp();
+  else if(vistaActual==="p-alg") body=vAlg();
   else body=vTareas();
   hostRef.innerHTML='<div class="pv-inner pp-root" data-vista="'+esc(vistaActual)+'">'+cabecera(vistaActual)+body+'</div>';
   hostRef.scrollTop=top;
@@ -13837,9 +14267,9 @@ function enParam(){ return hostRef&&hostRef.querySelector(".pp-root"); }
 var qTm=null;
 function onInput(ev){
   if(!enParam()) return;
-  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(pp!=="q"&&pp!=="catq") return;
+  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(pp!=="q"&&pp!=="catq"&&pp!=="pvpq"&&pp!=="algq") return;
   clearTimeout(qTm); qTm=setTimeout(function(){
-    if(pp==="q") ui.q=el.value; else ui.catQ=el.value;
+    if(pp==="q") ui.q=el.value; else if(pp==="pvpq") pvpQ=el.value; else if(pp==="algq") algUi.q=el.value; else ui.catQ=el.value;
     var pos=el.selectionStart; render();
     var n=hostRef.querySelector('[data-pp="'+pp+'"]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} }
   },220);
@@ -13847,8 +14277,20 @@ function onInput(ev){
 
 function onChange(ev){
   if(!enParam()) return;
-  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(!pp||pp==="q"||pp==="catq") return;
+  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(!pp||pp==="q"||pp==="catq"||pp==="pvpq"||pp==="algq") return;
   var k=el.getAttribute("data-k"), i=+el.getAttribute("data-i"), v=el.value;
+  if(pp==="pvp"){
+    var T=BR.pvp(), x=el.getAttribute("data-x"), vt=String(v).trim().replace(",","."), nv=vt===""?null:+vt;
+    if(k!=="pk-t"&&k!=="pk-ref"&&vt!==""&&!(isFinite(nv)&&nv>=0)){ toastP("Pon un número (o déjalo vacío)."); render(); return; }
+    if(k==="iva"||k==="infantil"||k==="staff") T[k]=nv==null?BR.pvpDef()[k]:nv;
+    else if(k==="barra-p"||k==="barra-dto"||k==="barra-hora"){ var bk=k.slice(6); T.barra[bk]=nv==null?BR.pvpDef().barra[bk]:nv; }
+    else if(k==="pl") T.platos[x]=nv;
+    else if(k==="sup") T.sup[x]=nv;
+    else if(k==="pk-t"&&T.packs[i]){ if(!vt){ render(); return; } T.packs[i].t=String(v).trim(); }
+    else if(k==="pk-p"&&T.packs[i]) T.packs[i].p=nv==null?0:nv;
+    else if(k==="pk-ref"&&T.packs[i]) T.packs[i].ref=v;
+    guardar("pvp",T); render(); return;
+  }
   if(pp==="dish"||pp==="ing"){
     var d=datos("platos"), hit=buscaPlato(d,ui.open); if(!hit) return;
     var x=hit.x;
@@ -13979,6 +14421,14 @@ function onClick(ev){
   if(a==="art-del"){ var cd2=datos("catalogo"), art=cd2.items[i]; if(!art) return;
     if(!window.confirm("¿Quitar «"+art.articulo+"» del catálogo? Los platos que lo usen dejarán de sumarlo en el check list.")) return;
     cd2.items.splice(i,1); guardar("catalogo",cd2); render(); return; }
+  if(a==="alg-f"){ algUi.f=b.getAttribute("data-k"); render(); return; }
+  if(a==="alg-t"||a==="alg-ok"||a==="alg-no"){ var row=b.closest("[data-algk]"), k2=row&&row.getAttribute("data-algk"); if(!k2) return;
+    var nm=row.querySelector(".alg-ing-h b").textContent, cur=BR.alg.ing(nm), lista=cur.a.slice();
+    if(a==="alg-t"){ var ak=b.getAttribute("data-k"), ix=lista.indexOf(ak); if(ix>-1) lista.splice(ix,1); else lista.push(ak); BR.alg.guardar(k2,lista,cur.ok); }
+    else BR.alg.guardar(k2,lista,a==="alg-ok");
+    render(); return; }
+  if(a==="pvp-pk-add"){ var T1=BR.pvp(); T1.packs.push({id:"pk"+Date.now().toString(36),t:"Pack nuevo",p:0,ref:""}); guardar("pvp",T1,"Pack añadido: ponle nombre, precio y a qué corresponde."); render(); return; }
+  if(a==="pvp-pk-del"){ var T2=BR.pvp(); T2.packs.splice(i,1); guardar("pvp",T2,"Pack quitado."); render(); return; }
   if(a==="ag-add"){ var ag=datos("agenda"); ag.hitos.push({id:"h"+Date.now().toString(36),tipo:"reunion",dias:7,t:"Paso nuevo"}); guardar("agenda",ag,"Paso añadido: pon los días y el texto."); render();
     var ts=hostRef.querySelectorAll('input[data-pp="ag"][data-k="t"]'); for(var q=0;q<ts.length;q++) if(ts[q].value==="Paso nuevo"){ ts[q].focus(); ts[q].select(); break; } return; }
   if(a==="ag-del"){ var ag2=datos("agenda"), hh=ag2.hitos[i]; if(!hh) return;
