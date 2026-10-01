@@ -2488,6 +2488,52 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .side-pres .pres-mismo{color:#E6E5DD; font-weight:650}
 .side-pres .pres-mismo::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#9FB86B; margin-right:6px; box-shadow:0 0 0 3px rgba(159,184,107,.25)}
 .side-pres[hidden]{display:none!important}
+/* bebida: desplegable del catálogo + «otro» a mano */
+.beb-sel{display:flex; gap:8px; flex:1 1 300px; flex-wrap:wrap; min-width:0; max-width:560px}
+.beb-sel .beb-dd{flex:1 1 220px; min-width:0; height:38px}
+.beb-sel .beb-otro{flex:1 1 200px; min-width:0}
+.beb-sel .beb-otro[hidden]{display:none}
+/* platos a mano: marca, botón por familia y aviso de alérgenos */
+.mp-badge{display:inline-block; font-style:normal; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--olive-deep,#56613F); background:color-mix(in srgb,var(--olive) 18%,transparent); border-radius:100px; padding:2px 7px; margin-left:6px; vertical-align:2px}
+.mp-aler{font-style:normal; color:var(--warning,#9A722A); font-weight:600}
+.mnu-fam-h{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.mp-famadd{margin-left:auto; border:0; background:none; padding:2px 0; color:var(--olive-deep,#56613F); font:600 12px var(--font-text); cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+.mnu-row.propio{display:flex; align-items:center; gap:10px; background:var(--accent-wash); box-shadow:inset 2px 0 0 var(--olive)}
+.mnu-row.propio .mp-ok{width:16px; text-align:center; color:var(--olive-deep,#56613F); font-weight:800}
+.mnu-row.propio .nm{flex:1 1 auto; font-weight:650}
+/* Previsión · calendario por local */
+.pvl-top{display:flex; align-items:center; gap:12px; margin:6px 0 14px; flex-wrap:wrap}
+.pvl-top b{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:26px; font-weight:500; min-width:220px; text-align:center}
+.pvl-n{margin-left:auto; font-size:12.5px; color:var(--c-mut)}
+.pvl-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px}
+.pvl-dw{font-size:10px; letter-spacing:.16em; text-transform:uppercase; font-weight:650; color:var(--c-mut); text-align:center; padding:4px 0}
+.pvl-d{position:relative; min-height:94px; padding:22px 6px 6px; border-radius:8px; background:var(--panel); border:1px solid var(--c-line); display:flex; flex-direction:column; gap:3px; overflow:hidden}
+.pvl-d.vacio{background:transparent; border-color:transparent}
+.pvl-d.con{cursor:pointer; border-color:transparent}
+.pvl-d.con::before{content:""; position:absolute; left:0; right:0; top:0; height:6px; background:var(--bar)}
+.pvl-d.pend{outline:1.5px dashed var(--warning,#9A722A); outline-offset:-2px}
+.pvl-d.sel{box-shadow:0 0 0 2px var(--c-ink)}
+.pvl-d.hoy .pvl-num{background:var(--c-ink); color:var(--panel); border-radius:99px; padding:0 6px}
+.pvl-num{position:absolute; top:8px; left:8px; font:650 12px var(--font-text); color:var(--c-ink)}
+.pvl-cnt{position:absolute; top:8px; right:7px; font:800 11px var(--font-text); background:var(--c-ink); color:var(--panel); border-radius:99px; min-width:18px; text-align:center; padding:1px 5px}
+.pvl-ev{display:flex; align-items:center; gap:5px; font:650 11px/1.25 var(--font-text); color:var(--c-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pvl-ev i{width:7px; height:7px; border-radius:2px; flex:none}
+.pvl-ev.pend{font-weight:500; opacity:.8}
+.pvl-mas{font-size:10.5px; color:var(--c-mut)}
+.pvl-leg{display:flex; flex-wrap:wrap; gap:8px 18px; margin:14px 0; font-size:12px; color:var(--c-mut)}
+.pvl-leg span{display:inline-flex; align-items:center; gap:7px}
+.pvl-leg i{width:14px; height:14px; border-radius:3px; display:inline-block}
+.pvl-leg i.pvl-i-part{background:linear-gradient(135deg,#C9952B 0 50%,#8C2F43 50% 100%)}
+.pvl-leg i.pvl-i-pend{border:1.5px dashed var(--warning,#9A722A)}
+.pvl-dia{margin-top:8px}
+.pvl-fila{display:flex; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--c-hair); flex-wrap:wrap}
+.pvl-fila>i{width:12px; height:36px; border-radius:3px; flex:none}
+.pvl-tx{flex:1 1 220px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.pvl-tx span{font-size:12.5px; color:var(--c-mut)}
+@media (max-width:640px){ .pvl-d{min-height:58px; padding:20px 3px 4px} .pvl-ev{font-size:0; gap:0} .pvl-ev i{width:100%; height:5px} .pvl-num{top:5px; left:5px} .pvl-cnt{top:4px; right:3px; font-size:10px} .pvl-top b{font-size:21px; min-width:0} }
+.fld-local{display:inline-flex; align-items:center; gap:6px; margin-top:5px; font-size:11.5px; color:var(--c-mut)}
+.fld-local::before{content:""; width:9px; height:9px; border-radius:2px; background:#8E8C84}
+.fld-local[data-l="moles"]::before{background:#C9952B}.fld-local[data-l="vinyes"]::before{background:#8C2F43}.fld-local[data-l="fuera"]::before{background:#2F6DB0}
 /*V3-END*/
 </style>
 
@@ -2500,7 +2546,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 30.09 · trabajo en equipo</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.10 · locales</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -2983,7 +3029,7 @@ function platosPropios(e){
   if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){ fl[f.key]=f.label; if(!primera) primera=f.key; });
   return L.filter(function(p){ return p&&String(p.name||"").trim(); }).map(function(p){
     var fk=fl[p.fam]?p.fam:(fl.ENTRANTES?"ENTRANTES":primera);
-    return {name:String(p.name).trim(), servicio:String(p.servicio||"").trim()||"—", cubiertos:String(p.cubiertos||"").trim()||"—", station:null,
+    return {name:String(p.name).trim(), servicio:String(p.servicio||"").trim()||"—", cubiertos:String(p.cubiertos||"").trim()||"—", station:String(p.station||"").trim()||null,
       ingredients:(p.ing||[]).filter(function(i){ return i&&String(i.name||"").trim(); }).map(function(i){ var q=(i.qty===""||i.qty==null||!isFinite(+String(i.qty).replace(",",".")))?null:+String(i.qty).replace(",","."); return {name:String(i.name).trim(),qty:q,unit:i.unit||"uds"}; }),
       steps:[], _uid:"P#"+p.id, _famKey:fk, _famLabel:fl[fk]||"", _propio:true, coste:(p.coste===""||p.coste==null)?null:+String(p.coste).replace(",",".")};
   });
@@ -7762,6 +7808,7 @@ function pvTipoEvento(f){ var t=pvNorm((f.tipo||"")+" "+(f.nombre||"")+" "+(f.es
   if(/boda|casament|wedding/.test(t)) return "Boda"; if(/aniversar/.test(t)) return "Aniversario";
   if(/empresa|corporat|gala|congres|jornada|cena de empresa/.test(t)) return "Evento corporativo"; return "Celebración"; }
 function pvEspacio(e){ var n=pvNorm(e); if(/vinyes/.test(n)) return "Les Vinyes del Convent"; if(/foodtruck|fodtruck/.test(n)) return "Foodtruck"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return String(e||"").trim(); }
+function localClave(t){ var n=pvNorm(t); if(!n) return "sin"; if(/vinyes/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
 var PV_EV_CONF={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
 function pvHoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function pvISO(s){ return /^\d{4}-\d\d-\d\d$/.test(s||""); }
@@ -7841,6 +7888,13 @@ function sincronizarPrevision(){
         if(filaManda){ F.estado=fConf?"confirmada":"propuesta"; tocaE(e); }
         else { f.estado=evConf?"confirmado":"pendiente"; tocaF(f); }
       }
+    }
+    /* el local (Les Moles / Les Vinyes / fuera): si en un sitio se cambia, el otro
+       lo sigue (gana el cambio más reciente); solo cuenta si cambia el LOCAL,
+       no si se escribe distinto («Les Moles» o «Les Moles · Ulldecona») */
+    if(localClave(F.ubicacion)!==localClave(f.espacio)&&(F.ubicacion||f.espacio)){
+      if(filaManda&&f.espacio){ F.ubicacion=f.espacio; tocaE(e); }
+      else if(F.ubicacion){ f.espacio=F.ubicacion; tocaF(f); }
     }
     var pax=pvPaxPlano(e);
     if(pax>0&&String(pax)!==String(f.pax||"")){ f.pax=String(pax); tocaF(f); }
@@ -8912,7 +8966,8 @@ function viewFicha(e){
   '<div class="pcard"><div class="fldset">'+
     fld("Tipo de evento","ficha.tipo",F.tipo,"select",{options:TIPO_EVENTO})+
     fld("Fecha","ficha.fecha",F.fecha,"date",{live:true})+
-    fld("Ubicación","ficha.ubicacion",F.ubicacion)+
+    '<label class="fld"><span class="lbl">Local</span><input type="text" data-f="ficha.ubicacion" list="dl-locales" value="'+escH(F.ubicacion||"")+'" placeholder="Les Moles, Les Vinyes o el lugar del catering"><span class="fld-local" data-l="'+localClave(F.ubicacion)+'">'+({moles:"Cuenta como Les Moles",vinyes:"Cuenta como Les Vinyes del Convent",fuera:"Cuenta como catering / fuera",sin:"Sin local asignado"})[localClave(F.ubicacion)]+'</span></label>'+
+    '<datalist id="dl-locales"><option value="Les Moles · Ulldecona"></option><option value="Les Vinyes del Convent"></option><option value="Catering · "></option><option value="Foodtruck"></option></datalist>'+
     '<div class="fld"><span class="lbl">Invitados (del plano)</span><div class="fld-val">'+c.pax+' · '+c.mesas+' mesa'+(c.mesas===1?"":"s")+'</div></div>'+
     fld("Menús staff","ficha.staff",F.staff,"number",{live:true})+
     (c.staff?'<p class="pay-hint" style="grid-column:1/-1;margin:0">La mesa de staff del plano tiene <b>'+c.staff+'</b> persona'+(c.staff===1?"":"s")+'. El presupuesto y la bebida usan el mayor de los dos números (no se suman).</p>':"")+
@@ -9561,14 +9616,20 @@ function renderSeleccion(){
   var needle=q.trim().toLowerCase();
   var fams=MENU_DATA.filter(function(f){ return !fam||f.key===fam; });
   var html="", any=false;
+  var PR=platosPropios(ev());
   fams.forEach(function(f){
     var shown=f.dishes.filter(function(d){ return matches(d,needle); });
-    if(!shown.length) return;
+    var prs=PR.filter(function(d){ return d._famKey===f.key&&matches(d,needle); });
+    if(!shown.length&&!prs.length) return;
     any=true;
     var selCount=f.dishes.filter(isSelected).length;
     html+='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>'+esc(f.label)+'</h2><span class="cnt">'+
       shown.length+(shown.length===f.dishes.length?" platos":" de "+f.dishes.length+" platos")+
-      (selCount?' · <b>'+selCount+' marcados</b>':'')+'</span></div>';
+      (selCount?' · <b>'+selCount+' marcados</b>':'')+(prs.length?' · <b>'+prs.length+' a mano</b>':'')+'</span>'+
+      '<button type="button" class="mp-famadd" data-mpfam="'+esc(f.key)+'">+ Añadir '+(f.key==="APERITIVOS"?"aperitivo":"plato")+' a mano</button></div>';
+    if(prs.length) html+='<div class="mnu-list">'+prs.map(function(d){ return '<div class="mnu-row propio on"><span class="mp-ok" aria-hidden="true">✓</span><span class="nm">'+esc(d.name)+' <i class="mp-badge">a mano</i></span>'+
+      (!isDash(d.servicio)?'<span class="sv">'+esc(d.servicio)+'</span>':'')+(d.station?'<span class="cu">'+esc(d.station)+'</span>':'')+
+      '<button type="button" class="btn sm" data-mp-ed2="'+esc(d._uid.slice(2))+'">Detalles</button></div>'; }).join("")+'</div>';
     var i=0;
     while(i<shown.length){
       var d=shown[i];
@@ -9587,6 +9648,10 @@ function renderSeleccion(){
   var famVacia=!needle&&fams.length===1&&!fams[0].dishes.length?fams[0]:null;
   $("mnu-body").innerHTML=propioHtml()+(any?html:famVacia?window.LM_empty({ic:"Menú del evento",t:"Todavía no hay platos en «"+esc(famVacia.label)+"»",d:"Añádelos al catálogo en Parámetros → Platos y escandallo (con su escandallo, para producción y compra), o escríbelos arriba en «Menú personalizado» eligiendo el tiempo «"+esc(famVacia.label)+"»."}):window.LM_empty({ic:"Menú del evento",t:"Ningún plato coincide con «"+esc(q)+"»",d:"Prueba con otra palabra o con un ingrediente (p. ej. «gamba», «bacalao»)."}));
   wirePropio(); wireSelRows();
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll("[data-mp-ed2]"),function(b){ b.addEventListener("click",function(){ mpEditar(b.getAttribute("data-mp-ed2")); }); });
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll("[data-mpfam]"),function(b){ b.addEventListener("click",function(){
+    mpFam=b.getAttribute("data-mpfam"); mpAbierto=true; renderSeleccion();
+    var c=$("mp-card"); if(c&&c.scrollIntoView) c.scrollIntoView({block:"start",behavior:"smooth"}); var i=$("mp-nom"); if(i) setTimeout(function(){ i.focus(); },250); }); });
 }
 
 /* ══ Menú personalizado: platos escritos a mano en este evento ═══════
@@ -9599,6 +9664,7 @@ function mpLista(){ var m=menu(); if(!m) return null; m.propios=m.propios||[]; r
 function mpId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function mpEsBoda(){ var e=ev(); try{ return /boda/i.test((BR.eventoTipo?BR.eventoTipo(e):((e&&e.ficha&&e.ficha.tipo)||""))||""); }catch(_){ return false; } }
 function mpFamOpts(sel){ return MENU_DATA.map(function(f){ return '<option value="'+esc(f.key)+'"'+(f.key===sel?' selected':'')+'>'+esc(f.label)+'</option>'; }).join(""); }
+function mpEstaciones(){ var v={}; MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ if(d.station) v[d.station]=1; }); }); return Object.keys(v).sort(function(a,b){ return a.localeCompare(b,"es"); }); }
 function mpValores(campo){ var v={}; MENU_DATA.forEach(function(f){ f.dishes.forEach(function(d){ if(!isDash(d[campo])) v[d[campo]]=1; }); }); return Object.keys(v).sort(function(a,b){ return a.localeCompare(b,"es"); }); }
 function mpOtros(){ var e=ev(); return (BR.allEvents?BR.allEvents():BR.store.events).filter(function(x){ return x&&e&&x.id!==e.id&&x.menu&&(x.menu.propios||[]).some(function(p){ return p&&String(p.name||"").trim(); }); }); }
 function propioHtml(){
@@ -9609,9 +9675,10 @@ function propioHtml(){
   var grupos=MENU_DATA.map(function(f){ var ds=pr.filter(function(d){ return d._famKey===f.key; }); if(!ds.length) return "";
     return '<div class="mp-grp"><div class="mp-grp-h">'+esc(f.label)+'</div>'+ds.map(function(d){ var id=d._uid.slice(2), det=[];
       if(!isDash(d.servicio)) det.push(d.servicio); if(!isDash(d.cubiertos)) det.push(d.cubiertos);
-      det.push(d.ingredients.length?d.ingredients.length+(d.ingredients.length===1?" ingrediente":" ingredientes"):"sin ingredientes");
+      if(d.station) det.push(d.station);
+      det.push(d.ingredients.length?d.ingredients.length+(d.ingredients.length===1?" ingrediente":" ingredientes"):"sin escandallo");
       if(d.coste!=null) det.push(String(d.coste).replace(".",",")+" € por ración");
-      return '<div class="mp-row"><div class="mp-tx"><b>'+esc(d.name)+'</b><span>'+esc(det.join(" · "))+'</span></div>'+
+      return '<div class="mp-row"><div class="mp-tx"><b>'+esc(d.name)+' <i class="mp-badge">a mano</i></b><span>'+esc(det.join(" · "))+(d.ingredients.length?'':' · <em class="mp-aler">alérgenos sin saber: revisarlos a mano</em>')+'</span></div>'+
         '<button type="button" class="btn sm" data-mp-ed="'+esc(id)+'">Detalles</button><button type="button" class="btn sm ghost" data-mp-del="'+esc(id)+'" aria-label="Quitar '+esc(d.name)+'">Quitar</button></div>'; }).join("")+'</div>'; }).join("");
   var otros=mpOtros();
   return '<details class="mp-card"'+(abierto?' open':'')+' id="mp-card"><summary><span class="mp-sum-t">Menú personalizado</span><span class="mp-sum-n">'+
@@ -9666,6 +9733,8 @@ function mpEditar(id){
       '<label class="mp-fld"><span class="lbl">Nombre en el menú</span><input id="mp-ed-n" type="text" maxlength="140" value="'+esc(w.name||"")+'"></label>'+
       '<div class="mp-two"><label class="mp-fld"><span class="lbl">Tiempo</span><select id="mp-ed-f">'+mpFamOpts(w.fam)+'</select></label>'+
       '<label class="mp-fld"><span class="lbl">Coste por ración (€, opcional)</span><input id="mp-ed-c" type="text" inputmode="decimal" placeholder="para Rentabilidad" value="'+esc(w.coste==null?"":String(w.coste).replace(".",","))+'"></label></div>'+
+      '<label class="mp-fld"><span class="lbl">Estación <span class="mp-hint">(opcional: p. ej. «Croquetas», «Buffet»; agrupa en producción y escaleta)</span></span><input id="mp-ed-st" type="text" list="mp-dl-st" value="'+esc(w.station||"")+'" placeholder="Sin estación"></label>'+
+      '<datalist id="mp-dl-st">'+mpEstaciones().map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist>'+
       '<div class="mp-two"><label class="mp-fld"><span class="lbl">Plato de servicio (vajilla)</span><input id="mp-ed-s" type="text" list="mp-dl-s" value="'+esc(w.servicio||"")+'" placeholder="Opcional"></label>'+
       '<label class="mp-fld"><span class="lbl">Cubiertos</span><input id="mp-ed-u" type="text" list="mp-dl-u" value="'+esc(w.cubiertos||"")+'" placeholder="Opcional"></label></div>'+
       '<datalist id="mp-dl-s">'+sv.map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist><datalist id="mp-dl-u">'+cu.map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist>'+
@@ -9686,7 +9755,7 @@ function mpEditar(id){
   ovl.querySelector("#mp-ed-ok").addEventListener("click",function(){
     var n=ovl.querySelector("#mp-ed-n").value.trim(); if(!n){ ovl.querySelector("#mp-ed-n").focus(); return; }
     leer(); var c=ovl.querySelector("#mp-ed-c").value.trim().replace(",",".");
-    p.name=n; p.fam=ovl.querySelector("#mp-ed-f").value; p.servicio=ovl.querySelector("#mp-ed-s").value.trim(); p.cubiertos=ovl.querySelector("#mp-ed-u").value.trim();
+    p.name=n; p.fam=ovl.querySelector("#mp-ed-f").value; p.station=ovl.querySelector("#mp-ed-st").value.trim(); p.servicio=ovl.querySelector("#mp-ed-s").value.trim(); p.cubiertos=ovl.querySelector("#mp-ed-u").value.trim();
     p.coste=(c!==""&&isFinite(+c))?+c:null;
     p.ing=w.ing.filter(function(i){ return String(i.name||"").trim(); }).map(function(i){ var q=String(i.qty||"").replace(",","."); return {name:String(i.name).trim(),qty:(q!==""&&isFinite(+q))?+q:null,unit:i.unit||"gr"}; });
     touchSave(); close(); renderMnuBody(); renderEvStats();
@@ -9974,10 +10043,13 @@ function renderServicio(){
      tampoco depende del menú) ya se puede saber solo con el plano hecho, así
      que ya no se espera a que el menú esté cerrado para decirlo */
   var t=evTotals();
-  var counts={};
+  var counts={}, aMano=[];
   sel.forEach(function(d){
     splitArticles(d.servicio).concat(splitArticles(d.cubiertos)).forEach(function(a){
       var cat=CATALOGO_BY_ART[a];
+      /* vajilla escrita a mano en un plato a mano que no está en el catálogo:
+         no se puede contar sola, pero que no desaparezca de la lista */
+      if(!cat&&d._propio){ aMano.push({a:a,p:d.name}); return; }
       if(!cat||(cat.categoria!=="PLATO"&&cat.categoria!=="CUBIERTO")) return;
       var qty=0;
       if(cat.base==="COMENSAL") qty=t.conCubierto*cat.unidades;
@@ -10017,6 +10089,7 @@ function renderServicio(){
     'La disponibilidad de cada uno se marca en «Camareros del evento», en la barra lateral.</p>'+
     (sel.length
       ? ((platos.length||cubiertos.length?(block("Platos",platos)+block("Cubiertos",cubiertos)):'<p class="mnu-note">Los platos marcados no tienen vajilla o cubiertos asociados en el Excel.</p>')+
+         (aMano.length?'<h3 class="mnu-sheet-fam">Vajilla de platos a mano <span class="mnu-base">no está en el catálogo: cantidad a ojo</span></h3><table class="mnu-ing-table"><tbody>'+aMano.map(function(x){ return '<tr><td><span class="chk">☐</span>'+esc(x.a)+' <span class="mnu-base">'+esc(x.p)+'</span></td><td class="q"><span class="q-libre">a ojo</span></td></tr>'; }).join("")+'</tbody></table>':'')+
          (mob?('<h2 class="mnu-sheet-sec">Mobiliario y utensilios de estación</h2>'+mob):'')+
          (pend.length?('<p class="mnu-note" style="margin-top:14px">Todavía sin datos de mobiliario propio: <b>'+pend.map(esc).join("</b>, <b>")+'</b>. Se completan rellenando esas estaciones en el Excel de parámetros.</p>'):''))
       : (mob
@@ -10363,9 +10436,12 @@ function wireAperitivosAdaptados(){
    que va a la baja). Cambiar cualquiera de estos números es cambiar una línea
    aquí; el resto de la app lo recoge solo. */
 var BEBIDA_CATS=[
-  /* agua: 1 botella cada 1,33 personas, contando a TODOS (adultos y niños), al alza */
-  {key:"agua",       label:"Agua", auto:true, poblacion:"total",   redondeo:"ceil",
-    tramos:[{div:1.33}]},
+  /* agua: se calculan LITROS (1 litro cada 1,33 personas ≈ 0,75 L por persona,
+     contando a TODOS, adultos y niños) y de ahí las botellas según el formato
+     elegido: Benassal de 1 L o la propia de Les Moles de 70 cl (más botellas
+     para los mismos litros). Sin formato elegido se cuenta en botellas de 1 L. */
+  {key:"agua",       label:"Agua", auto:true, poblacion:"total",   redondeo:"ceil", litros:true,
+    tramos:[{div:1.33}], opciones:["Agua de Benassal (1 L)","Agua Les Moles (70 cl)"]},
   /* vino blanco: aperitivo (1 cada 6,667) + banquete (1 cada 4), sobre adultos, al alza */
   {key:"blanco",     label:"Vino blanco", auto:true, poblacion:"adultos", redondeo:"ceil",
     tramos:[{etq:"aperitivo",div:6.667},{etq:"banquete",div:4}], opciones:[
@@ -10387,6 +10463,15 @@ var BEBIDA_CATS=[
   {key:"jamon",      label:"Jamón", delMenu:true, opciones:[
     "Jamón Ibérico Cebo de Campo Blázquez","Jamón de bellota Blázquez","Jamón Joselito 5J"]}
 ];
+/* el formato de la botella de agua, por lo que diga su nombre: «70 cl» o «Les
+   Moles» = 0,70 L; «1 L», «litro» o «Benassal» = 1 L; sin elegir, 1 L */
+function aguaFormato(prod){ var n=String(prod||"").toLowerCase();
+  if(!n) return {l:1,t:"1 L",elegido:false};
+  var cl=/(\d+(?:[.,]\d+)?)\s*cl\b/.exec(n); if(cl) return {l:(+cl[1].replace(",","."))/100,t:cl[1]+" cl",elegido:true};
+  var ml=/(\d+(?:[.,]\d+)?)\s*(l|litros?)\b/.exec(n); if(ml) return {l:+ml[1].replace(",","."),t:ml[1]+" L",elegido:true};
+  if(/moles/.test(n)) return {l:0.7,t:"70 cl",elegido:true};
+  return {l:1,t:"1 L",elegido:true};
+}
 function catByKey(k){ return BEBIDA_CATS.filter(function(c){return c.key===k;})[0]; }
 function bebidas(){ var m=menu(); if(!m) return null; m.bebidas=m.bebidas||{}; return m.bebidas; }
 /* de cada categoría solo se guarda a mano la marca elegida ({prod:"..."});
@@ -10410,6 +10495,8 @@ function calcBebida(cat){
   var base = (cat.poblacion==="total" ? t.total : t.adultos) + staff;
   var tramos=(cat.tramos||[]).map(function(tr){ return {etq:tr.etq||"", div:tr.div, val:base>0?base/tr.div:0}; });
   var suma=tramos.reduce(function(s,tr){ return s+tr.val; },0);
+  if(cat.litros){ var fmt=aguaFormato(bebidaMarca(cat.key));
+    return {base:base, tramos:tramos, suma:suma, litros:suma, fmt:fmt.l, fmtTxt:fmt.t, fmtElegido:fmt.elegido, botellas:base>0?Math.ceil(suma/fmt.l-1e-9):0}; }
   var botellas = base>0 ? (cat.redondeo==="floor"?Math.floor(suma):Math.ceil(suma)) : 0;
   return {base:base, tramos:tramos, suma:suma, botellas:botellas};
 }
@@ -10494,6 +10581,15 @@ function prodInput(k,val,opciones,ph){
   return '<input class="beb-prod" type="text" data-k="'+esc(k)+'" list="'+dl+'" value="'+esc(val||"")+'" placeholder="'+esc(ph||"Elegir o escribir…")+'" aria-label="Producto">'+
     '<datalist id="'+dl+'">'+(opciones||[]).map(function(o){ return '<option value="'+esc(o)+'"></option>'; }).join("")+'</datalist>';
 }
+/* desplegable con el catálogo de la categoría y, al final, «Otro (escribir a
+   mano)…», que abre un campo de texto. Se guarda igual: {prod:"..."} */
+function prodSelect(cat,val){
+  var ops=cat.opciones||[], otro=!!val&&ops.indexOf(val)<0;
+  return '<span class="beb-sel"><select class="beb-dd" data-k="'+esc(cat.key)+'" aria-label="'+esc(marcaPregunta(cat))+'">'+
+    '<option value="">Elegir…</option>'+ops.map(function(o){ return '<option value="'+esc(o)+'"'+(o===val?" selected":"")+'>'+esc(o)+'</option>'; }).join("")+
+    '<option value="__otro"'+(otro?" selected":"")+'>Otro (escribir a mano)…</option></select>'+
+    '<input class="beb-prod beb-otro" type="text" data-k="'+esc(cat.key)+'" value="'+esc(otro?val:"")+'" placeholder="Escribe el producto"'+(otro?'':' hidden')+' aria-label="Producto escrito a mano"></span>';
+}
 function renderBebida(){
   var html='<div class="beb-edit">';
   html+='<p class="mnu-note beb-intro">La <b>previsión de bebidas del evento</b>, para el equipo de sala. '+
@@ -10509,12 +10605,12 @@ function renderBebida(){
     if(cat.delMenu){
       var jm=jamonDelMenu();
       html+='<div class="beb-line">'+(jm.marcado?'<span class="beb-botellas">'+esc(jamonBotellasTexto(jm))+'</span>':'<span class="beb-desglose">Márcalo en «Elegir platos» del menú y la cantidad sale sola.</span>')+'</div>';
-      html+='<div class="beb-marca"><span class="beb-marca-lbl">¿Qué jamón se sirve?</span>'+prodInput(cat.key,r.prod,cat.opciones)+'</div>';
+      html+='<div class="beb-marca"><span class="beb-marca-lbl">¿Qué jamón se sirve?</span>'+prodSelect(cat,r.prod)+'</div>';
     }else{
       var c=calcBebida(cat), man=r.q!=null&&r.q!=="";
       html+='<div class="beb-line"><label class="beb-q"><input type="number" min="0" step="1" inputmode="numeric" data-q="'+cat.key+'" value="'+(man?esc(r.q):(c.base?c.botellas:""))+'" placeholder="0" aria-label="Botellas de '+esc(cat.label)+'"><span>botellas</span></label>'+
-        (man?'<span class="beb-man">a mano · calculado: '+c.botellas+' <button type="button" class="beb-auto" data-auto="'+cat.key+'">volver al cálculo</button></span>':(c.base?'<span class="beb-desglose">calculado solo</span>':'<span class="beb-desglose">Sale sola en cuanto el plano tenga comensales (o escríbela).</span>'))+'</div>';
-      html+='<div class="beb-marca"><span class="beb-marca-lbl">'+esc(marcaPregunta(cat))+'</span>'+prodInput(cat.key,r.prod,cat.opciones)+'</div>';
+        (man?'<span class="beb-man">a mano · calculado: '+c.botellas+' <button type="button" class="beb-auto" data-auto="'+cat.key+'">volver al cálculo</button></span>':(c.base?'<span class="beb-desglose">'+(cat.litros?fmtNum(Math.round(c.litros*10)/10,1)+' L → botellas de '+esc(c.fmtTxt)+(c.fmtElegido?'':' (elige el formato abajo)'):'calculado solo')+'</span>':'<span class="beb-desglose">Sale sola en cuanto el plano tenga comensales (o escríbela).</span>'))+'</div>';
+      html+='<div class="beb-marca"><span class="beb-marca-lbl">'+esc(cat.litros?"¿Qué agua (formato)?":marcaPregunta(cat))+'</span>'+(cat.opciones?prodSelect(cat,r.prod):prodInput(cat.key,r.prod,[]))+'</div>';
     }
     html+='</div>';
   });
@@ -10540,8 +10636,10 @@ function renderBebidaSheet(){
   var wrap=$("beb-sheet-wrap"); if(!wrap) return;
   var t=evTotals(), jm=jamonDelMenu(), filas="";
   bebidaLineas().forEach(function(l){ if(!l.q&&!l.prod) return;
-    var etq=l.prod?l.label+" · "+l.prod:l.label;
-    filas+='<tr><td>'+esc(etq)+'</td><td class="q">'+(l.q?l.q+" "+esc(udLarga(l.ud)):"—")+'</td></tr>'; });
+    var etq=l.prod?l.label+" · "+l.prod:l.label, c=l.cat&&l.cat.litros?calcBebida(l.cat):null;
+    var cant=l.q?l.q+" "+esc(udLarga(l.ud))+(c?" de "+esc(c.fmtTxt):""):"—";
+    if(c&&!l.manual&&c.litros) cant=fmtNum(Math.round(c.litros*10)/10,1)+" L → "+cant;
+    filas+='<tr><td>'+esc(etq)+'</td><td class="q">'+cant+'</td></tr>'; });
   if(!bebOff("jamon")){ var marcaJ=bebidaMarca("jamon");
     if(jm.marcado||marcaJ) filas+='<tr><td>'+esc(marcaJ?"Jamón · "+marcaJ:"Jamón")+'</td><td class="q">'+esc(jamonCantHoja(jm))+'</td></tr>'; }
   var cuerpo=filas
@@ -10556,7 +10654,12 @@ function wireBebida(){
   Array.prototype.forEach.call(mb.querySelectorAll("[data-sirve]"),function(ch){ ch.addEventListener("change",function(){
     var k=ch.getAttribute("data-sirve"); bebSet(k,function(r){ if(ch.checked) delete r.off; else r.off=true; }); renderBebida(); }); });
   Array.prototype.forEach.call(mb.querySelectorAll(".beb-prod"),function(i){ i.addEventListener("change",function(){
-    var k=i.getAttribute("data-k"), v=i.value.trim(); bebSet(k,function(r){ r.prod=v; }); renderBebidaSheet(); }); });
+    var k=i.getAttribute("data-k"), v=i.value.trim(); bebSet(k,function(r){ r.prod=v; }); if(k==="agua") renderBebida(); else renderBebidaSheet(); }); });
+  Array.prototype.forEach.call(mb.querySelectorAll(".beb-dd"),function(sel){ sel.addEventListener("change",function(){
+    var k=sel.getAttribute("data-k"), inp=sel.parentNode.querySelector(".beb-otro");
+    if(sel.value==="__otro"){ if(inp){ inp.hidden=false; inp.focus(); } return; }
+    if(inp){ inp.hidden=true; inp.value=""; }
+    bebSet(k,function(r){ r.prod=sel.value; }); if(k==="agua") renderBebida(); else renderBebidaSheet(); }); });
   Array.prototype.forEach.call(mb.querySelectorAll("[data-q]"),function(i){ i.addEventListener("change",function(){
     var k=i.getAttribute("data-q"), v=i.value.trim(), cat=catByKey(k), calc=cat?calcBebida(cat).botellas:null;
     bebSet(k,function(r){ if(v===""||(+v===calc&&calc>0)) delete r.q; else r.q=Math.max(0,Math.round(+v)||0); }); renderBebida(); }); });
@@ -11328,6 +11431,7 @@ function aplicarParamsMenu(){
     var o=(pb&&pb.cats&&pb.cats[def.key])||{};
     ["label","poblacion","redondeo","tramos","opciones"].forEach(function(k){
       if(o[k]!=null) cat[k]=clon(o[k]); else if(def[k]!=null) cat[k]=clon(def[k]); else delete cat[k]; });
+    if(def.litros&&def.opciones){ cat.opciones=(cat.opciones||[]).slice(); def.opciones.forEach(function(x){ if(cat.opciones.indexOf(x)<0) cat.opciones.unshift(x); }); }
   });
   var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
 }
@@ -14703,7 +14807,7 @@ function vista(){
     '<div class="pv-actions"><button type="button" class="btn sm gold" data-pv="nueva">+ Celebración</button><label class="btn sm" for="pv-file">Importar Excel</label><input type="file" id="pv-file" accept=".xlsx" class="sr-only"></div></header>';
   h+='<div class="pvb-bar"><div class="pvb-anios" role="tablist" aria-label="Año">'+l.map(function(a){ return '<button type="button" role="tab" class="rt-tab'+(+a===+ui.anio?" on":"")+'" aria-selected="'+(+a===+ui.anio)+'" data-pv="anio" data-k="'+a+'">'+a+'</button>'; }).join("")+
     '<button type="button" class="rt-tab pvb-add" data-pv="anio-add" title="Añadir otro año">+ Año</button></div>'+
-    '<div class="seg pvb-seg" role="group" aria-label="Vista">'+[["lista","Lista"],["cal","Calendario"]].map(function(v){ return '<button type="button" class="'+(ui.vista===v[0]?"on":"")+'" aria-pressed="'+(ui.vista===v[0])+'" data-pv="vista" data-k="'+v[0]+'">'+v[1]+'</button>'; }).join("")+'</div></div>';
+    '<div class="seg pvb-seg" role="group" aria-label="Vista">'+[["lista","Lista"],["cal","Calendario"],["local","Por local"]].map(function(v){ return '<button type="button" class="'+(ui.vista===v[0]?"on":"")+'" aria-pressed="'+(ui.vista===v[0])+'" data-pv="vista" data-k="'+v[0]+'">'+v[1]+'</button>'; }).join("")+'</div></div>';
   h+='<div class="rsm-kpis">'+
     kpi("Confirmadas",String(conf.length),pc+" comensales","accent")+
     kpi("Pendientes",String(pend.length),pp?"~"+pp+" comensales previstos":"")+
@@ -14715,7 +14819,7 @@ function vista(){
     '<select data-pv="f-esp" aria-label="Espacio"><option value="todos">Todos los espacios</option>'+["Les Moles","Les Vinyes","Catering"].map(function(e){ return '<option'+(ui.esp===e?" selected":"")+'>'+e+'</option>'; }).join("")+'</select>'+
     '<input type="search" class="pp-search" data-pv="q" value="'+esc(ui.q)+'" placeholder="Buscar nombre, localidad, teléfono…" aria-label="Buscar"></div>';
   var vis=fs.filter(pasaFiltro);
-  h+=ui.vista==="cal"?vCalendario(vis):vLista(vis,fs);
+  h+=ui.vista==="cal"?vCalendario(vis):ui.vista==="local"?vLocal(vis):vLista(vis,fs);
   return h;
 }
 function pillEstado(f){ var e=ESTADOS.filter(function(x){ return x.k===f.estado; })[0]||ESTADOS[1]; return '<span class="pvb-st '+esc(f.estado)+'">'+e.t+'</span>'; }
@@ -14760,6 +14864,58 @@ function vEditar(f){
         ? '<span>Se añadirá sola a Eventos al guardar.</span>'
         : '<span>'+(f.sinEvento?"Su evento se borró. ":"")+(f.estado==="confirmado"?(f.fecha?"":"Ponle la fecha exacta para poder prepararla en Eventos."):"Cuando esté confirmada y con fecha, pasa sola a Eventos.")+'</span>'+(f.fecha?'<button type="button" class="btn sm" data-pv="ev-crear" data-id="'+esc(f.id)+'">Crear su evento ahora</button>':'')))+'</div>'+
     '<div class="pp-dish-foot"><button type="button" class="btn sm danger" data-pv="borrar" data-id="'+esc(f.id)+'">Eliminar</button><button type="button" class="btn sm" data-pv="cerrar">Cerrar</button></div></div>';
+}
+/* ── calendario POR LOCAL: mes a mes, cada local con su color y, si el mismo día
+   hay celebraciones en locales distintos, la celda partida en franjas. Los
+   colores de cada local se cambian aquí (son datos, no el tema de la app). ── */
+var LOCALES=[
+  {k:"moles",  t:"Les Moles",              c:"#C9952B"},
+  {k:"vinyes", t:"Les Vinyes del Convent", c:"#8C2F43"},
+  {k:"fuera",  t:"Catering / fuera",       c:"#2F6DB0"},
+  {k:"sin",    t:"Sin local asignado",     c:"#8E8C84"}];
+var LOC={}; LOCALES.forEach(function(l){ LOC[l.k]=l; });
+/* el local sale del «espacio» de la celebración (que va y viene con el lugar
+   del evento): Les Moles, Les Vinyes o, si es otro sitio (catering, foodtruck,
+   Cornudella, el Observatori…), fuera. Vacío = sin asignar. */
+function localDe(f){ var n=norm(f&&f.espacio||""); if(!n) return "sin"; if(/vinyes/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
+function franjas(cs){ if(cs.length<2) return cs[0];
+  var p=100/cs.length; return "linear-gradient(135deg,"+cs.map(function(c,i){ return c+" "+(i*p)+"% "+((i+1)*p)+"%"; }).join(",")+")"; }
+function tinte(c,a){ var r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16); return "rgba("+r+","+g+","+b+","+a+")"; }
+function vLocal(vis){
+  if(ui.lmes==null){ var hoy=new Date(); ui.lmes=(+ui.anio===hoy.getFullYear())?hoy.getMonth():0; }
+  var m=ui.lmes, y=+ui.anio, porDia={};
+  vis.forEach(function(f){ if(!f.fecha||+f.fecha.slice(0,4)!==y||+f.fecha.slice(5,7)!==m+1) return; (porDia[f.fecha]=porDia[f.fecha]||[]).push(f); });
+  var d0=new Date(y,m,1), off=(d0.getDay()+6)%7, n=new Date(y,m+1,0).getDate(), hoyIso=hoyISO();
+  var nMes=Object.keys(porDia).reduce(function(s,k){ return s+porDia[k].length; },0), usados={};
+  var h='<div class="pvl"><div class="pvl-top"><button type="button" class="cal-ico" data-pv="lmes" data-k="-1" aria-label="Mes anterior">‹</button><b>'+MESES[m]+' de '+y+'</b><button type="button" class="cal-ico" data-pv="lmes" data-k="1" aria-label="Mes siguiente">›</button>'+
+    '<span class="pvl-n">'+nMes+(nMes===1?" celebración":" celebraciones")+'</span></div>';
+  h+='<div class="pvl-grid">'+DIAS.map(function(x){ return '<span class="pvl-dw">'+x+'</span>'; }).join("");
+  for(var i=0;i<off;i++) h+='<span class="pvl-d vacio"></span>';
+  for(var d=1;d<=n;d++){
+    var iso=y+"-"+("0"+(m+1)).slice(-2)+"-"+("0"+d).slice(-2), ev=porDia[iso]||[], st="", cls="pvl-d";
+    if(ev.length){
+      var ls=[]; ev.forEach(function(f){ var k=localDe(f); usados[k]=1; if(ls.indexOf(k)<0) ls.push(k); });
+      ls.sort(function(a,b){ return LOCALES.indexOf(LOC[a])-LOCALES.indexOf(LOC[b]); });
+      var cs=ls.map(function(k){ return LOC[k].c; });
+      st=' style="background:'+franjas(cs.map(function(c){ return tinte(c,.30); }))+';--bar:'+franjas(cs)+'"';
+      cls+=" con"+(ls.length>1?" partida":"")+(ev.every(function(f){ return f.estado!=="confirmado"; })?" pend":"");
+    }
+    if(iso===hoyIso) cls+=" hoy"; if(ui.ldia===iso) cls+=" sel";
+    h+='<div class="'+cls+'"'+st+(ev.length?' role="button" tabindex="0" data-pv="ldia" data-k="'+iso+'" aria-label="'+esc(d+" de "+MESES[m]+": "+ev.map(function(f){ return f.nombre+" ("+LOC[localDe(f)].t+")"; }).join("; "))+'"':'')+'>'+
+      '<span class="pvl-num">'+d+'</span>'+(ev.length>1?'<b class="pvl-cnt">'+ev.length+'</b>':'')+
+      ev.slice(0,3).map(function(f){ return '<span class="pvl-ev'+(f.estado!=="confirmado"?" pend":"")+'"><i style="background:'+LOC[localDe(f)].c+'"></i>'+esc(f.nombre)+'</span>'; }).join("")+
+      (ev.length>3?'<span class="pvl-mas">y '+(ev.length-3)+' más</span>':'')+'</div>';
+  }
+  h+='</div><div class="pvl-leg">'+LOCALES.filter(function(l){ return l.k!=="sin"||usados.sin; }).map(function(l){ return '<span><i style="background:'+l.c+'"></i>'+esc(l.t)+'</span>'; }).join("")+
+    '<span><i class="pvl-i-part"></i>Varios locales el mismo día</span><span><i class="pvl-i-pend"></i>Pendiente (sin confirmar)</span></div>';
+  if(ui.ldia&&porDia[ui.ldia]){
+    var L=porDia[ui.ldia];
+    h+='<div class="pcard pvl-dia"><div class="pp-subh" style="margin-top:0">'+esc(diaLargo(ui.ldia))+' · '+L.length+(L.length===1?" celebración":" celebraciones")+'</div>'+
+      L.map(function(f){ var lc=LOC[localDe(f)], com=comensales(f);
+        return '<div class="pvl-fila"><i style="background:'+lc.c+'"></i><div class="pvl-tx"><b>'+esc(f.nombre)+'</b><span>'+esc(lc.t)+(f.espacio&&lc.k==="fuera"?" · "+esc(f.espacio):"")+(com?" · "+(f.estado==="confirmado"?"":"~")+com+" comensales":"")+'</span></div>'+pillEstado(f)+
+          (f.evento?'<button type="button" class="btn sm gold" data-pv="ev-abrir" data-id="'+esc(f.id)+'">Abrir el evento</button>':'<button type="button" class="btn sm" data-pv="ir" data-id="'+esc(f.id)+'">Ver o cambiar</button>')+'</div>'; }).join("")+'</div>';
+  }
+  return h+'</div>';
 }
 function vCalendario(vis){
   var porDia={}; vis.forEach(function(f){ if(!f.fecha||+f.fecha.slice(0,4)!==+ui.anio) return; (porDia[f.fecha]=porDia[f.fecha]||[]).push(f); });
@@ -14886,7 +15042,7 @@ function render(h2){
       host.addEventListener("focusout",function(ev){ if(!enPrev()||popFijo) return; if(ev.target.closest&&ev.target.closest('.pvb-d[data-pv="dia"]')) ocultar(); });
       document.addEventListener("click",function(ev){ if(!popFijo||!enPrev()) return; if(ev.target.closest&&ev.target.closest('.pvb-pop,.pvb-d[data-pv="dia"]')) return; popFijo=null; ocultar(); });
       document.addEventListener("keydown",function(ev){ if(ev.key==="Escape"&&popFijo&&enPrev()){ var k=popFijo; popFijo=null; ocultar(); var c=host.querySelector('.pvb-d[data-k="'+k+'"]'); if(c) c.focus(); } });
-      host.addEventListener("keydown",function(ev){ if(ev.key==="Enter"&&ev.target.getAttribute&&/^(abrir|dia)$/.test(ev.target.getAttribute("data-pv")||"")) ev.target.click(); }); }
+      host.addEventListener("keydown",function(ev){ if(ev.key==="Enter"&&ev.target.getAttribute&&/^(abrir|dia|ldia)$/.test(ev.target.getAttribute("data-pv")||"")) ev.target.click(); }); }
   } finally { pintando=false; }
 }
 window.LM_renderPrev=render;
@@ -14903,6 +15059,9 @@ function onClick(ev){
   if(a==="anio-add"){ var l=anios(), sig=(l[l.length-1]||new Date().getFullYear())+1, v=window.prompt("¿Qué año quieres añadir?",String(sig)); if(!v||!/^20\d\d$/.test(v.trim())) return;
     var P=prev(); P.anios=P.anios||[]; if(P.anios.indexOf(+v)<0) P.anios.push(+v); ui.anio=+v; guardar(); render(); return; }
   if(a==="vista"){ ui.vista=b.getAttribute("data-k"); render(); return; }
+  if(a==="lmes"){ var mm=(ui.lmes||0)+(+b.getAttribute("data-k")); if(mm<0){ mm=11; ui.anio=+ui.anio-1; } else if(mm>11){ mm=0; ui.anio=+ui.anio+1; }
+    var P2=prev(); P2.anios=P2.anios||[]; if(anios().indexOf(+ui.anio)<0) P2.anios.push(+ui.anio); ui.lmes=mm; ui.ldia=null; render(); return; }
+  if(a==="ldia"){ var k2=b.getAttribute("data-k"); ui.ldia=ui.ldia===k2?null:k2; render(); var pd=host.querySelector(".pvl-dia"); if(pd&&pd.scrollIntoView) pd.scrollIntoView({block:"nearest"}); return; }
   if(a==="abrir"){ var id=b.getAttribute("data-id"); ui.abierta=ui.abierta===id?null:id; render(); var n=host.querySelector('.pvb-edit [data-pvf="nombre"]'); if(n&&ui.abierta) n.focus(); return; }
   if(a==="cerrar"){ ui.abierta=null; render(); return; }
   if(a==="dia"){ var k=b.getAttribute("data-k"); if(popFijo===k){ popFijo=null; ocultar(); return; } popFijo=k; mostrar(b); return; }
