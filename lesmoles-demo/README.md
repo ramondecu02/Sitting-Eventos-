@@ -79,6 +79,13 @@ node tools/interact.mjs    # menú, Esc y foco, cortina, acordeón y movimiento 
 node tools/perf.mjs antes  # fluidez: fotogramas lentos y pintado por capítulo → capturas/perf-antes.json
 ```
 
+### Verla como artefacto de Claude
+
+El visor de artefactos bloquea, sin mostrar ningún error, el JS, el CSS y las fuentes
+enlazados como archivos aparte: solo se vería el HTML sin estilos. `npm run artifact`
+construye la demo y la empaqueta en un único HTML (CSS, JS, fuentes y fotos dentro) en
+`capturas/artifact/index.html`, listo para publicar.
+
 Para comparar la fluidez antes y después de un cambio, se ejecuta `perf.mjs` con una
 etiqueta distinta en cada versión (con `W=390 H=844` mide el tamaño de móvil).
 

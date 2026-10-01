@@ -7,6 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "shots": "node tools/shots.mjs",
+    "artifact": "vite build && node tools/artifact.mjs",
     "deploy": "npm run build && wrangler pages deploy"
   },
   "private": true,
