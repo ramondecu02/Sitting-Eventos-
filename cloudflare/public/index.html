@@ -2719,6 +2719,11 @@ p.mj-tag{border-radius:var(--r); padding:6px 10px}
 .mj-chk{display:flex; align-items:center; gap:8px; font-size:12.5px; grid-column:1/-1}
 .mj-vacio{display:flex; flex-direction:column; gap:10px; align-items:flex-start}
 @media (max-width:760px){ .mj-tabs{display:flex; width:100%} .mj-tabs button{flex:1; padding:9px 6px} .mj-mesas{grid-template-columns:1fr} .mj-row{gap:12px} }
+.mj-m small.mj-ot{color:var(--mj-av); font-weight:600}
+.prop-mj{display:flex; flex-direction:column; gap:3px; padding:10px 12px; border-radius:10px; border:1px solid var(--c-line); border-left:4px solid var(--success,#4F7A3A); margin:2px 0 10px; font-size:12.5px}
+.prop-mj.justo{border-left-color:var(--warning,#B5862E)} .prop-mj.no{border-left-color:var(--danger,#A3333D)}
+.prop-mj b{font-size:13px; line-height:1.3} .prop-mj span{color:var(--c-mut)} .prop-mj i{font-style:normal; font-weight:700}
+.prop-mj .btn{align-self:flex-start; margin-top:4px}
 /*V3-END*/
 </style>
 
@@ -2731,7 +2736,7 @@ p.mj-tag{border-radius:var(--r); padding:6px 10px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.17 · tableros propuestos</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.18 · montaje revisado</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -2957,6 +2962,7 @@ Lluc (trona)</div>
         <label class="prop-field"><span class="lbl">Plazas</span>
           <input type="number" id="p-cap" min="1" max="60" aria-label="Plazas"></label>
       </div>
+      <div id="p-mj" aria-live="polite"></div>
       <div class="prop-field"><span class="lbl">Tamaño de la mesa</span>
         <div class="prop-size">
           <button class="btn ico" id="p-minus" type="button" aria-label="Reducir">−</button>
@@ -5291,6 +5297,8 @@ function showProp(){
   $("p-rot").disabled=!(t.shape==="rect"||t.shape==="presid");
   var pct=Math.round((plan().size[sel]||1)*100);
   $("p-size").value=pct; $("p-pct").textContent=pct+"%";
+  /* qué se monta en esta mesa (Plano → Montaje), con el inventario */
+  var pm=$("p-mj"); if(pm) pm.innerHTML=window.LM_montajeMesa?window.LM_montajeMesa(t.num):"";
 }
 function editSel(fn){var t=findTable(sel);if(!t)return;pushUndo();fn(t);t.edited=1;commit();showProp();}
 var sizeSnap=null;
@@ -15937,12 +15945,13 @@ function mjMedidas(txt){
 function mjInventario(){
   var P=mjP(), L=[];
   try{ L=(window.LM_invLineas?window.LM_invLineas():[])||[]; }catch(_){ L=[]; }
-  var out={redondas:[], tableros:[], raras:[], sillas:0, tronas:0, hay:false};
+  var out={redondas:[], tableros:[], raras:[], sillas:0, tronas:0, aper:0, hay:false};
   L.forEach(function(l){
     if(nrm(l.hoja)!=="MESAS") return; out.hay=true;
     var nom=nrm(l.nombre), cat=nrm(l.cat), cant=Math.max(0,Math.floor(num(l.cantidad)||0));
     if(/SILLA/.test(nom)&&!/APERITIV/.test(cat)) out.sillas+=cant;
     if(/TRONA/.test(nom)) out.tronas+=cant;
+    if(/APERITIV/.test(cat)&&/MESA/.test(nom)&&!/MANTEL/.test(nom)) out.aper+=cant;
     var esMesa=/MESA|TABLERO/.test(nom); if(!esMesa||/APERITIV/.test(cat)) return;
     var md=mjMedidas(l.medidas);
     if(!md){ if(String(l.medidas||"").trim()) out.raras.push({nombre:l.nombre,medidas:l.medidas}); return; }
@@ -15970,9 +15979,11 @@ function mjRedonda(d,P){
   return {per:per/100,max:max,ideal:ideal,tope:tope||null};
 }
 /* ── CÁLCULO B · largas ── */
-function mjLongitud(n,P,ancho){ var cab=P.cabeceras?2*(ancho||0):0;
-  return {min:Math.max(0,(n*P.larga.min/100-cab)/2), ideal:Math.max(0,(n*P.larga.ideal/100-cab)/2)}; }
-function mjPaxLarga(L,P,ancho){ var borde=2*L+(P.cabeceras?2*(ancho||0):0);
+/* lados: 2 = se sientan a los dos lados largos (lo normal); 1 = solo a un
+   lado (p. ej. una presidencial de cara a los invitados) */
+function mjLongitud(n,P,ancho,lados){ var cab=P.cabeceras?2*(ancho||0):0, ld=lados===1?1:2;
+  return {min:Math.max(0,(n*P.larga.min/100-cab)/ld), ideal:Math.max(0,(n*P.larga.ideal/100-cab)/ld)}; }
+function mjPaxLarga(L,P,ancho,lados){ var borde=(lados===1?1:2)*L+(P.cabeceras?2*(ancho||0):0);
   return {max:Math.floor(borde/(P.larga.min/100)+1e-9), ideal:Math.round(borde/(P.larga.ideal/100))}; }
 function mjOpciones(n,t,P){
   var L=mjLongitud(n,P,t.ancho), nt=Math.max(1,Math.ceil(L.min/t.len-1e-9)), ni=Math.max(1,Math.ceil(L.ideal/t.len-1e-9));
@@ -15993,8 +16004,8 @@ function mjConfigs(INV,libre,solo){
 }
 /* la mejor: la mesa más corta en la que caben (a gusto si «holgado», hasta el
    máximo si «ajustado») con el stock que queda; a igual largo, menos tableros */
-function mjMejor(n,P,cfgs,modo){
-  cfgs.forEach(function(c){ var px=mjPaxLarga(c.lon,P,c.ancho); c.ideal=px.ideal; c.max=px.max; });
+function mjMejor(n,P,cfgs,modo,lados){
+  cfgs.forEach(function(c){ var px=mjPaxLarga(c.lon,P,c.ancho,lados); c.ideal=px.ideal; c.max=px.max; c.lados=lados===1?1:2; });
   function ok(c){ return modo==="ajustado"?c.max>=n:c.ideal>=n; }
   function srt(a,b){ return a.lon-b.lon||a.nb-b.nb||b.pref-a.pref; }
   var A=cfgs.filter(function(c){ return ok(c)&&c.stock; }).sort(srt)[0]; if(A) return A;
@@ -16005,14 +16016,35 @@ function mjCfgTxt(c){ return c.segs.map(function(sg){ return sg.n+(sg.n===1?" ta
 /* ── hoja de montaje del evento ── */
 function mjLbl(t){ return (t.explicit!==false||!(t.name||t.shape==="presid"))?"Mesa "+t.num:(t.name||"Presidencial"); }
 var FORMA={round:"Redonda",rect:"Larga",square:"Cuadrada",oval:"Ovalada",presid:"Presidencial"};
-function mjHoja(e,P,INV){
+/* el material de los otros eventos del MISMO día (el inventario es uno solo):
+   lo que usan ellos no está libre para este */
+function mjOtrosDia(e,P,INV){
+  var F=e.ficha||{}, out={uso:{},ev:[],aper:0}; if(!F.fecha) return out;
+  (BR.allEvents?BR.allEvents():[]).forEach(function(x){
+    if(!x||x.id===e.id||x.borrado||!x.ficha||x.ficha.fecha!==F.fecha) return;
+    var h=mjHoja(x,P,INV,null); if(!h.filas.length&&!h.aper) return;
+    Object.keys(h.usado).forEach(function(k){ out.uso[k]=(out.uso[k]||0)+h.usado[k]; });
+    out.uso.__sillas=(out.uso.__sillas||0)+h.sillas; out.uso.__tronas=(out.uso.__tronas||0)+h.bebes; out.aper+=h.aper;
+    out.ev.push(String(x.name||"otro evento")); });
+  return out;
+}
+function mjHojaEv(e,P,INV){ return mjHoja(e,P,INV,mjOtrosDia(e,P,INV)); }
+/* mesas de aperitivo: las mismas que en el Resumen (adultos sin staff entre
+   las personas por mesa de aperitivo del evento) */
+function mjMesasAper(e){ try{ var c=BR.planCounts(e), pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7), ad=Math.max(0,c.adultos-(c.staff||0)); return ad>0?Math.ceil(ad/pma):0; }catch(_){ return 0; } }
+function mjHoja(e,P,INV,otros){
   var doc; try{ doc=BR.conEvento(e,function(){ return BR.planDoc(); }); }catch(_){ doc={tables:[]}; }
   if(!doc||!doc.tables) doc={tables:[]};
+  var ot=otros||{uso:{},ev:[],aper:0};
   var ov=(e.montaje&&e.montaje.mesas)||{}, usado={}, filas=[];
-  function libre(it){ return it.cant-(usado[it.id]||0); }
+  function hay(it){ return Math.max(0,it.cant-(ot.uso[it.id]||0)); }
+  function libre(it){ return hay(it)-(usado[it.id]||0); }
   doc.tables.forEach(function(t){
-    var gs=t.guests||[], bebes=gs.filter(function(g){ return g.kind==="baby"; }).length, n=gs.length;
-    var larga=t.shape==="rect"||t.shape==="presid", o=ov[String(t.num)]||{}, f={t:t,lbl:mjLbl(t),nombre:t.name||"",forma:FORMA[t.shape]||"Redonda",n:n,bebes:bebes,sillas:n-bebes,tipo:o.tipo||"auto",modo:o.modo||"holgado",avisos:[]};
+    var gs=t.guests||[], bebes=gs.filter(function(g){ return g.kind==="baby"; }).length, sent=gs.length;
+    /* plazas: las que se ven en el plano («Redonda 10» o «Plazas» del panel) o
+       las sentadas, lo que sea mayor: se monta para las plazas */
+    var n=Math.max(sent,+t.cap||0);
+    var larga=t.shape==="rect"||t.shape==="presid", o=ov[String(t.num)]||{}, f={t:t,lbl:mjLbl(t),nombre:t.name||"",forma:FORMA[t.shape]||"Redonda",n:n,sent:sent,bebes:bebes,sillas:n-bebes,tipo:o.tipo||"auto",modo:o.modo||"holgado",lados:o.lados===1?1:2,avisos:[]};
     var elegido=null;
     if(f.tipo!=="auto"){ var id=f.tipo.slice(2);
       if(f.tipo.indexOf("r:")===0) elegido={k:"r",it:INV.redondas.filter(function(x){ return x.id===id; })[0]};
@@ -16034,11 +16066,11 @@ function mjHoja(e,P,INV){
     if(f.k==="t"){
       /* el programa elige qué tableros poner: holgado si hay stock; si no, ajustado */
       var cf=mjConfigs(INV,libre,elegido.solo), best=null;
-      if(o.modo) best=mjMejor(n,P,cf,f.modo);
-      else { best=mjMejor(n,P,cf,"holgado"); if(!best||best.sinStock){ var aj=mjMejor(n,P,cf,"ajustado"); if(aj&&!aj.sinStock){ best=aj; f.modo="ajustado"; } } }
+      if(o.modo) best=mjMejor(n,P,cf,f.modo,f.lados);
+      else { best=mjMejor(n,P,cf,"holgado",f.lados); if(!best||best.sinStock){ var aj=mjMejor(n,P,cf,"ajustado",f.lados); if(aj&&!aj.sinStock){ best=aj; f.modo="ajustado"; } } }
       if(!best){ f.avisos.push({c:"mal",t:"No hay tableros para una mesa así."}); filas.push(f); return; }
       f.cfg=best; f.it=best.segs[0].it; f.ideal=best.ideal; f.max=best.max; f.lon=best.lon; f.uds=best.nb;
-      f.monta="Larga · "+mjCfgTxt(best);
+      f.monta="Larga · "+mjCfgTxt(best)+(f.lados===1?" · a un lado":"");
       best.segs.forEach(function(sg){ usado[sg.it.id]=(usado[sg.it.id]||0)+sg.n; });
       if(best.sinStock) f.avisos.push({c:"mal",t:"No hay bastantes tableros para esta mesa",stock:true});
     }
@@ -16047,19 +16079,22 @@ function mjHoja(e,P,INV){
     if(n>f.max) f.avisos.push({c:"mal",t:"Supera el máximo ("+f.max+")"});
     /* en las largas siempre sobra algo (los tableros van enteros): solo se avisa si sobra mucho */
     else if(n<f.ideal&&(f.k!=="t"||f.ideal-n>=6)) f.avisos.push({c:"av",t:"Por debajo del ideal ("+f.ideal+"): sobra sitio"});
-    if(t.cap&&t.cap!==n) f.avisos.push({c:"inf",t:"En el plano pone "+t.cap+" y hay "+n+" sentados"});
+    if(t.cap&&t.cap>sent) f.avisos.push({c:"inf",t:"Mesa de "+t.cap+" en el plano: "+sent+" sentados por ahora"});
     filas.push(f);
   });
   var mat=[];
   INV.redondas.concat(INV.tableros).forEach(function(it){ var u=usado[it.id]||0; if(!u) return;
     var red=INV.redondas.indexOf(it)>-1;
-    mat.push({t:red?"Mesas redondas Ø "+m2(it.d)+" m":"Tableros "+m2(it.len)+" × "+m2(it.ancho)+" m",sub:it.nombre,nec:u,hay:it.cant}); });
+    mat.push({t:red?"Mesas redondas Ø "+m2(it.d)+" m":"Tableros "+m2(it.a)+" × "+m2(it.b)+" m",sub:it.nombre,nec:u,hay:hay(it),total:it.cant,otros:ot.uso[it.id]||0}); });
   var sillas=0, bebes=0; filas.forEach(function(f){ sillas+=f.sillas; bebes+=f.bebes; });
-  if(sillas) mat.push({t:"Sillas",sub:"de banquete",nec:sillas,hay:INV.sillas});
-  if(bebes) mat.push({t:"Tronas",sub:"bebés",nec:bebes,hay:INV.tronas});
+  function hayX(tot,k){ return Math.max(0,tot-(ot.uso[k]||0)); }
+  if(sillas) mat.push({t:"Sillas",sub:"de banquete",nec:sillas,hay:hayX(INV.sillas,"__sillas"),total:INV.sillas,otros:ot.uso.__sillas||0});
+  if(bebes) mat.push({t:"Tronas",sub:"bebés",nec:bebes,hay:hayX(INV.tronas,"__tronas"),total:INV.tronas,otros:ot.uso.__tronas||0});
+  var aper=mjMesasAper(e);
+  if(aper) mat.push({t:"Mesas de aperitivo",sub:(+(e.menu&&e.menu.pMesaAper)||7)+" personas por mesa",nec:aper,hay:Math.max(0,INV.aper-(ot.aper||0)),total:INV.aper,otros:ot.aper||0});
   filas.forEach(function(f){ var its=f.cfg?f.cfg.segs.map(function(sg){ return sg.it; }):f.it?[f.it]:[];
-    if(its.some(function(it){ return (usado[it.id]||0)>it.cant; })&&!f.avisos.some(function(a){ return a.stock; })) f.avisos.push({c:"mal",t:"No hay bastantes en el inventario",stock:true}); });
-  return {filas:filas,mat:mat,doc:doc};
+    if(its.some(function(it){ return (usado[it.id]||0)>hay(it); })&&!f.avisos.some(function(a){ return a.stock; })) f.avisos.push({c:"mal",t:"No hay bastantes en el inventario",stock:true}); });
+  return {filas:filas,mat:mat,doc:doc,usado:usado,sillas:sillas,bebes:bebes,aper:aper,otrosEv:ot.ev};
 }
 
 /* ── pintar ── */
@@ -16079,13 +16114,13 @@ function svgRed(d,n,ideal,max,lbl){
   return '<svg class="mj-svg" viewBox="0 0 120 120" role="img" aria-label="'+esc(lbl||"")+'"><circle cx="60" cy="60" r="'+R+'" class="mj-tabla"/>'+s+
     '<text x="60" y="64" text-anchor="middle" class="mj-svg-t">Ø'+String(Math.round(d*100)/100).replace(".",",")+'</text></svg>'; }
 /* mesa larga: los tableros en fila y las sillas a los dos lados */
-function svgLarga(segs,ancho,n,ideal,max,lbl){
+function svgLarga(segs,ancho,n,ideal,max,lbl,lados){
   var piezas=[]; segs.forEach(function(sg){ for(var i=0;i<sg.n;i++) piezas.push(sg); });
   var L=0; piezas.forEach(function(p){ L+=p.len; });
   var W=260, pad=14, sc=(W-2*pad)/Math.max(L,3), h=Math.max(16,Math.min(34,ancho*sc)), y0=34, s="", xx=pad;
   piezas.forEach(function(p,i){ s+='<rect x="'+xx.toFixed(1)+'" y="'+y0+'" width="'+(p.len*sc).toFixed(1)+'" height="'+h.toFixed(1)+'" class="mj-tabla'+(p.alt?' alt':'')+'" rx="2"/>'; xx+=p.len*sc; });
-  var slots=Math.max(n==null?max:n,max), arr=Math.ceil(slots/2), sr=arr>18?3.4:4.4, out="";
-  for(var i=0;i<slots;i++){ var lado=i%2, k=Math.floor(i/2), nl=lado?Math.floor(slots/2):arr, x=pad+(k+0.5)*(L*sc)/Math.max(nl,1), y=lado?y0+h+sr+3:y0-sr-3;
+  var uno=lados===1, slots=Math.max(n==null?max:n,max), arr=uno?slots:Math.ceil(slots/2), sr=arr>18?3.4:4.4, out="";
+  for(var i=0;i<slots;i++){ var lado=uno?0:i%2, k=uno?i:Math.floor(i/2), nl=lado?Math.floor(slots/2):arr, x=pad+(k+0.5)*(L*sc)/Math.max(nl,1), y=lado?y0+h+sr+3:y0-sr-3;
     var lleno=n==null?i<max:i<n, c=i<ideal?COL.bien:i<max?COL.justo:COL.no;
     if(n==null) out+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+sr+'" fill="'+(i<ideal?c:"none")+'" stroke="'+c+'" stroke-width="1.4"/>';
     else out+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+sr+'" fill="'+(lleno?c:"none")+'" stroke="'+(lleno?c:"var(--c-line-2,#bbb)")+'" stroke-width="1.3"'+(lleno?'':' stroke-dasharray="2 2"')+'/>'; }
@@ -16097,7 +16132,7 @@ function stepper(k,v,lbl,min){ return '<div class="mj-step"><span class="lbl">'+
   '<input type="number" min="'+(min||1)+'" step="1" inputmode="numeric" data-mj="'+k+'" value="'+esc(v)+'" aria-label="'+esc(lbl)+'"><button type="button" class="mj-sb" data-mj="mas" data-x="'+k+'" aria-label="Uno más">+</button></div></div>'; }
 
 function vHoja(e,P,INV){
-  var H=mjHoja(e,P,INV);
+  var H=mjHojaEv(e,P,INV);
   if(!H.filas.length) return '<div class="pcard mj-vacio"><p class="pp-empty">Este evento todavía no tiene mesas en el plano. Cuando las tenga, aquí sale qué montar en cada una y el material que hace falta.</p><button type="button" class="btn sm" data-mj="calc">Usar la calculadora</button></div>';
   var cnt={bien:0,justo:0,no:0}; H.filas.forEach(function(f){ f.est=f.max==null?"no":estado(f.n,f.ideal,f.max); cnt[f.est]++; });
   var falta=H.mat.filter(function(x){ return x.nec>x.hay; });
@@ -16108,20 +16143,22 @@ function vHoja(e,P,INV){
     '</b><span>'+cnt.bien+' a gusto · '+cnt.justo+' apretadas · '+cnt.no+' no caben</span></div></div>';
   var mat='<div class="mj-mat">'+H.mat.map(function(x){ var mal=x.nec>x.hay, pc=Math.min(100,x.hay?Math.round(x.nec/x.hay*100):100);
     return '<div class="mj-m'+(mal?' mal':'')+'"><div class="mj-mh"><b>'+x.nec+'</b><span>de '+x.hay+'</span></div><div class="mj-mt">'+esc(x.t)+'</div>'+
-      '<div class="mj-bar" role="img" aria-label="'+x.nec+' de '+x.hay+'"><i style="width:'+pc+'%"></i></div>'+(mal?'<small>Faltan '+(x.nec-x.hay)+'</small>':'<small>Quedan '+(x.hay-x.nec)+'</small>')+'</div>'; }).join("")+'</div>';
+      '<div class="mj-bar" role="img" aria-label="'+x.nec+' de '+x.hay+'"><i style="width:'+pc+'%"></i></div>'+(mal?'<small>Faltan '+(x.nec-x.hay)+'</small>':'<small>Quedan '+(x.hay-x.nec)+'</small>')+(x.otros?'<small class="mj-ot">'+x.otros+' de '+x.total+' van a otro evento ese día</small>':'')+'</div>'; }).join("")+'</div>'+
+    (H.otrosEv&&H.otrosEv.length?'<p class="mj-sub mj-ajh">El mismo día hay '+(H.otrosEv.length===1?'otro evento':'otros eventos')+': <b>'+esc(H.otrosEv.join(", "))+'</b>. Su material ya está descontado de lo que hay.</p>':'');
   function opts(f){ var s='<option value="auto"'+(f.tipo==="auto"?' selected':'')+'>Automático</option>'+
       INV.redondas.map(function(r){ var v="r:"+r.id; return '<option value="'+esc(v)+'"'+(f.tipo===v?' selected':'')+'>Redonda Ø '+m2(r.d)+' m</option>'; }).join("")+
       INV.tableros.map(function(t){ var v="t:"+t.id; return '<option value="'+esc(v)+'"'+(f.tipo===v?' selected':'')+'>Larga · solo tableros '+m2(t.a)+' × '+m2(t.b)+'</option>'; }).join("")+
       (INV.combos||[]).map(function(c){ return '<option value="'+esc(c.key)+'"'+(f.tipo===c.key?' selected':'')+'>Larga · '+m2(c.big.a)+' × '+m2(c.big.b)+' + '+m2(c.small.a)+' × '+m2(c.small.b)+'</option>'; }).join("");
     return '<label class="mj-cambia"><span>Cambiar</span><select data-mj="tipo" data-n="'+esc(f.t.num)+'" aria-label="Qué montar en '+esc(f.lbl)+'">'+s+'</select></label>'+
+      (f.k==="t"?'<label class="mj-cambia"><span>Se sientan</span><select data-mj="lados" data-n="'+esc(f.t.num)+'" aria-label="A cuántos lados se sientan"><option value="2"'+(f.lados!==1?' selected':'')+'>a los dos lados</option><option value="1"'+(f.lados===1?' selected':'')+'>a un lado</option></select></label>':'')+
       (f.k==="t"?'<label class="mj-cambia"><span>Largo</span><select data-mj="modo" data-n="'+esc(f.t.num)+'" aria-label="Largo de la mesa"><option value="holgado"'+(f.modo!=="ajustado"?' selected':'')+'>holgado</option><option value="ajustado"'+(f.modo==="ajustado"?' selected':'')+'>ajustado</option></select></label>':''); }
   var orden={no:0,justo:1,bien:2};
   var cards=H.filas.map(function(f){
-    var dib=!f.it?'':f.k==="r"?svgRed(f.it.d,f.n,f.ideal,f.max,f.monta):svgLarga(f.cfg.segs.map(function(sg,i){ return {n:sg.n,len:sg.len,alt:i>0}; }),f.cfg.ancho,f.n,f.ideal,f.max,f.monta);
+    var dib=!f.it?'':f.k==="r"?svgRed(f.it.d,f.n,f.ideal,f.max,f.monta):svgLarga(f.cfg.segs.map(function(sg,i){ return {n:sg.n,len:sg.len,alt:i>0}; }),f.cfg.ancho,f.n,f.ideal,f.max,f.monta,f.lados);
     var info=f.est==="no"?(f.max!=null?"Sobran "+(f.n-f.max)+" (máx. "+f.max+")":"Sin mesa"):f.est==="justo"?(f.n-f.ideal)+" por encima del ideal ("+f.ideal+")":(f.ideal-f.n>0?"Caben "+(f.ideal-f.n)+" más a gusto":"Justo el ideal");
     var otros=f.avisos.filter(function(a){ return !/^Supera el máximo|^Por debajo del ideal/.test(a.t); });
     return '<article class="mj-mesa '+f.est+(f.tipo!=="auto"?' amano':'')+'"><header><div><b>'+esc(f.lbl)+'</b>'+(f.nombre&&f.lbl!==f.nombre?'<span>'+esc(f.nombre)+'</span>':'')+'</div>'+
-      '<div class="mj-pax"><b>'+f.n+'</b><span>comensales'+(f.bebes?' · '+f.bebes+' trona'+(f.bebes===1?'':'s'):'')+'</span></div></header>'+
+      '<div class="mj-pax"><b>'+f.n+'</b><span>'+(f.sent<f.n?'plazas · '+f.sent+' sentados':'comensales')+(f.bebes?' · '+f.bebes+' trona'+(f.bebes===1?'':'s'):'')+'</span></div></header>'+
       '<div class="mj-dib">'+dib+'</div>'+
       '<div class="mj-monta">'+esc(f.monta||"Sin mesa en el inventario")+(f.tipo!=="auto"?' <em>elegida a mano</em>':'')+'</div>'+
       '<div class="mj-est"><span class="mj-chip '+f.est+'">'+EST_T[f.est]+'</span><span>'+esc(info)+'</span></div>'+
@@ -16139,12 +16176,12 @@ function vCalc(P,INV){
   var larga="";
   if(INV.tableros.length){
     var cant=function(it){ return it.cant; }, sel=ui.tabLarga||"";
-    var CF=mjConfigs(INV,cant,sel||null), aj=mjMejor(ui.pax||1,P,CF,"ajustado"), CF2=mjConfigs(INV,cant,sel||null), ho=mjMejor(ui.pax||1,P,CF2,"holgado");
-    var anchoRef=(aj||ho||{ancho:(INV.tableros[0]||{}).ancho}).ancho, L=mjLongitud(ui.pax||1,P,anchoRef);
+    var LD=ui.lados===1?1:2, CF=mjConfigs(INV,cant,sel||null), aj=mjMejor(ui.pax||1,P,CF,"ajustado",LD), CF2=mjConfigs(INV,cant,sel||null), ho=mjMejor(ui.pax||1,P,CF2,"holgado",LD);
+    var anchoRef=(aj||ho||{ancho:(INV.tableros[0]||{}).ancho}).ancho, L=mjLongitud(ui.pax||1,P,anchoRef,LD);
     function opcion(c,tit){ if(!c) return '<div class="mj-op sin"><div class="mj-op-h"><b>'+tit+'</b></div><p class="mj-sub">No hay tableros para una mesa así.</p></div>';
       return '<div class="mj-op'+(c.sinStock?' sin':'')+'"><div class="mj-op-h"><b>'+tit+'</b><span>'+m2(c.lon)+' m</span></div>'+
         '<div class="mj-poner">'+c.segs.map(function(sg){ return '<span><b>'+sg.n+'</b> '+(sg.n===1?'tablero':'tableros')+' de '+m2(sg.it.a)+' × '+m2(sg.it.b)+(c.combo&&sg.it===c.combo.small?' <small>(con el 1,60 a lo ancho)</small>':'')+'</span>'; }).join('<i>+</i>')+'</div>'+
-        svgLarga(c.segs.map(function(sg,i){ return {n:sg.n,len:sg.len,alt:i>0}; }),c.ancho,ui.pax||1,c.ideal,c.max,mjCfgTxt(c))+
+        svgLarga(c.segs.map(function(sg,i){ return {n:sg.n,len:sg.len,alt:i>0}; }),c.ancho,ui.pax||1,c.ideal,c.max,mjCfgTxt(c),LD)+
         '<div class="mj-op-f">Caben <b>'+c.ideal+'</b> a gusto y hasta <b>'+c.max+'</b> apretados'+(c.sinStock?' · <span class="mj-tag mal">no hay bastantes tableros</span>':'')+'</div></div>'; }
     var opSel='<option value=""'+(!sel?' selected':'')+'>Los que proponga el programa</option>'+
       INV.tableros.map(function(t){ var v="t:"+t.id; return '<option value="'+esc(v)+'"'+(sel===v?' selected':'')+'>Solo '+m2(t.a)+' × '+m2(t.b)+' (hay '+t.cant+')</option>'; }).join("")+
@@ -16152,6 +16189,7 @@ function vCalc(P,INV){
     larga='<div class="pv-sec">Mesa larga <span class="pv-sec-note">— dime cuántos comensales y te propongo qué tableros poner</span></div>'+
       '<div class="pcard"><div class="mj-row">'+stepper("pax",ui.pax||"","Comensales",1)+
         '<label class="fld mj-tsel"><span class="lbl">Tableros</span><select data-mj="tabLarga">'+opSel+'</select></label>'+
+        '<label class="fld mj-tsel mj-lsel"><span class="lbl">Se sientan</span><select data-mj="ladosCalc"><option value="2"'+(LD===2?' selected':'')+'>a los dos lados</option><option value="1"'+(LD===1?' selected':'')+'>a un lado</option></select></label>'+
         '<div class="mj-nums mj-lon"><div class="av"><b>'+m2(L.min)+' m</b><span>mínimo (apretados)</span></div><div class="ok"><b>'+m2(L.ideal)+' m</b><span>ideal (a gusto)</span></div></div></div>'+
       '<div class="mj-ops">'+opcion(aj,"Ajustado")+(ho&&aj&&ho.lon===aj.lon&&ho.nb===aj.nb?'':opcion(ho,"Holgado"))+'</div>'+
       '<p class="mj-sub mj-ajh">'+(sel?'Solo con los tableros elegidos.':'El programa prueba todos los tableros del inventario (de un mismo tamaño en fila'+((INV.combos||[]).length?', o mezclando '+INV.combos.map(function(c){ return m2(c.big.a)+' × '+m2(c.big.b)+' con '+m2(c.small.a)+' × '+m2(c.small.b); }).join(", ")+', los únicos que se combinan':'')+') y propone la mesa más corta en la que caben, con el stock que hay.')+'</p></div>';
@@ -16161,13 +16199,13 @@ function vCalc(P,INV){
     if(combo){ if(nt+nt2<1) nt=1; segs=[{n:nt,len:combo.lenBig},{n:nt2,len:combo.lenSmall,alt:true}].filter(function(x){ return x.n>0; }); lon=nt*combo.lenBig+nt2*combo.lenSmall; anc=combo.ancho;
       if(nt>combo.big.cant) falta.push('Solo hay '+combo.big.cant+' de '+m2(combo.big.a)+' × '+m2(combo.big.b)); if(nt2>combo.small.cant) falta.push('Solo hay '+combo.small.cant+' de '+m2(combo.small.a)+' × '+m2(combo.small.b)); }
     else { segs=[{n:nt,len:ts.len}]; lon=nt*ts.len; anc=ts.ancho; if(nt>ts.cant) falta.push('Solo hay '+ts.cant+' tableros de este tamaño'); }
-    var px=mjPaxLarga(lon,P,anc);
+    var px=mjPaxLarga(lon,P,anc,LD);
     larga+='<div class="pv-sec">Tengo estos tableros <span class="pv-sec-note">— y te digo cuántos caben</span></div><div class="pcard"><div class="mj-row">'+
       '<label class="fld mj-tsel"><span class="lbl">Tableros</span><select data-mj="tab">'+INV.tableros.map(function(t){ return '<option value="t:'+esc(t.id)+'"'+(!combo&&ts&&t.id===ts.id?' selected':'')+'>'+m2(t.a)+' × '+m2(t.b)+' (hay '+t.cant+')</option>'; }).join("")+
         (INV.combos||[]).map(function(c){ return '<option value="'+esc(c.key)+'"'+(combo===c?' selected':'')+'>'+m2(c.big.a)+' × '+m2(c.big.b)+' + '+m2(c.small.a)+' × '+m2(c.small.b)+'</option>'; }).join("")+'</select></label>'+
       (combo?stepper("ntab",nt,"De "+m2(combo.big.a)+" × "+m2(combo.big.b),0)+stepper("ntab2",nt2,"De "+m2(combo.small.a)+" × "+m2(combo.small.b),0):stepper("ntab",nt,"Tableros en fila",1))+
       '<div class="mj-nums"><div class="ok"><b>'+px.ideal+'</b><span>a gusto</span></div><div class="av"><b>'+px.max+'</b><span>máximo</span></div><div><b>'+m2(lon)+' m</b><span>de mesa</span></div></div></div>'+
-      svgLarga(segs,anc,null,px.ideal,px.max,m2(lon)+" m")+falta.map(function(t){ return '<p class="mj-tag mal">'+esc(t)+'.</p>'; }).join("")+'</div>';
+      svgLarga(segs,anc,null,px.ideal,px.max,m2(lon)+" m",LD)+falta.map(function(t){ return '<p class="mj-tag mal">'+esc(t)+'.</p>'; }).join("")+'</div>';
   }
   return red+larga;
 }
@@ -16217,8 +16255,11 @@ function onInput(ev){ if(!enMtj()) return; var k=ev.target.getAttribute&&ev.targ
 function evMontaje(e){ e.montaje=e.montaje&&typeof e.montaje==="object"?e.montaje:{}; e.montaje.mesas=e.montaje.mesas||{}; return e.montaje.mesas; }
 function onChange(ev){ if(!enMtj()) return; var el=ev.target, k=el.getAttribute&&el.getAttribute("data-mj"); if(!k) return;
   if(k==="tab"||k==="tabLarga"){ ui[k]=el.value; render(); return; }
-  if(k==="tipo"||k==="modo"){ var e=BR.current(); if(!e) return; var M=evMontaje(e), n=el.getAttribute("data-n"), o=M[n]||{};
-    if(k==="tipo"){ if(el.value==="auto"){ delete o.tipo; delete o.modo; } else o.tipo=el.value; } else o.modo=el.value;
+  if(k==="ladosCalc"){ ui.lados=el.value==="1"?1:2; render(); return; }
+  if(k==="tipo"||k==="modo"||k==="lados"){ var e=BR.current(); if(!e) return; var M=evMontaje(e), n=el.getAttribute("data-n"), o=M[n]||{};
+    if(k==="tipo"){ if(el.value==="auto"){ delete o.tipo; delete o.modo; } else o.tipo=el.value; }
+    else if(k==="lados"){ if(el.value==="1") o.lados=1; else delete o.lados; }
+    else o.modo=el.value;
     if(Object.keys(o).length) M[n]=o; else delete M[n];
     e.updated=Date.now(); BR.save(); render(); return; }
   if(!esAdmin()) return;
@@ -16229,12 +16270,12 @@ function onChange(ev){ if(!enMtj()) return; var el=ev.target, k=el.getAttribute&
   else if(k==="tope"){ var x=el.getAttribute("data-x"); if(v>0) P.topes[x]=Math.round(v); else P.topes[x]=null; }
   else if(k==="lado"){ var id=el.getAttribute("data-x"); P.lado[id]=el.checked?"menor":null; }
   mjGuardar(P); render(); }
-function texto(){ var e=BR.current(); if(!e) return ""; var P=mjP(), INV=mjInventario(), H=mjHoja(e,P,INV);
+function texto(){ var e=BR.current(); if(!e) return ""; var P=mjP(), INV=mjInventario(), H=mjHojaEv(e,P,INV);
   var L=["HOJA DE MONTAJE · "+String(e.name||"Evento"),""];
   H.filas.forEach(function(f){ L.push(f.lbl+(f.nombre&&f.lbl!==f.nombre?" ("+f.nombre+")":"")+" — "+f.n+" comensales — "+(f.monta||"sin mesa")+(f.max!=null?" · ideal "+f.ideal+" / máx. "+f.max:"")+(f.avisos.length?" · ¡"+f.avisos.map(function(a){ return a.t; }).join("; ")+"!":"")); });
   L.push("","MATERIAL"); H.mat.forEach(function(x){ L.push(x.t+": "+x.nec+(x.nec>x.hay?"  ← NO LLEGA (hay "+x.hay+")":" (hay "+x.hay+")")); });
   return L.join("\n"); }
-function imprimir(){ var e=BR.current(); if(!e) return; var P=mjP(), INV=mjInventario(), H=mjHoja(e,P,INV);
+function imprimir(){ var e=BR.current(); if(!e) return; var P=mjP(), INV=mjInventario(), H=mjHojaEv(e,P,INV);
   var F=e.ficha||{}, fecha=""; try{ if(F.fecha) fecha=new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); }catch(_){}
   var doc='<!doctype html><html><head><meta charset="utf-8"><title>Hoja de montaje</title><style>@page{size:A4;margin:14mm}body{font:12px/1.4 Georgia,serif;color:#222;margin:0}'+
     '.eb{font:600 9px/1 Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#6E7D50}h1{font-size:24px;font-weight:500;margin:6px 0 2px}.f{font:11px Arial,sans-serif;color:#777;margin-bottom:14px}'+
@@ -16261,6 +16302,15 @@ function onClick(ev){ if(!enMtj()) return; var b=ev.target.closest&&ev.target.cl
   if(k==="copiar"){ var tx=texto(); try{ navigator.clipboard.writeText(tx).then(function(){ aviso("Hoja de montaje copiada."); },function(){ aviso("No se ha podido copiar."); }); }catch(_){ aviso("No se ha podido copiar."); } } }
 function aviso(msg){ var t=document.createElement("div"); t.className="pp-toast"; t.setAttribute("role","status"); t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.classList.add("on"); },10); setTimeout(function(){ t.classList.remove("on"); setTimeout(function(){ t.remove(); },300); },2400); }
 window.LM_renderMontaje=render;
-BR.montaje={configs:mjConfigs, mejor:mjMejor, cfgTxt:mjCfgTxt, medidas:mjMedidas, redonda:mjRedonda, longitud:mjLongitud, paxLarga:mjPaxLarga, opciones:mjOpciones, inventario:mjInventario, hoja:mjHoja, params:mjP, texto:texto};
+/* para el panel de la mesa en el Plano de sala: qué se monta en esa mesa */
+window.LM_montajeMesa=function(num){ try{
+  var e=BR.current(); if(!e) return ""; var P=mjP(), INV=mjInventario(); if(!INV.hay) return "";
+  var H=mjHojaEv(e,P,INV), f=H.filas.filter(function(x){ return String(x.t.num)===String(num); })[0]; if(!f) return "";
+  var est=f.max==null?"no":estado(f.n,f.ideal,f.max);
+  return '<div class="prop-mj '+est+'"><span class="lbl">Montaje</span><b>'+esc(f.monta||"Sin mesa en el inventario")+'</b>'+
+    (f.max!=null?'<span>'+f.ideal+' a gusto · máx. '+f.max+' — <i>'+EST_T[est].toLowerCase()+'</i></span>':'')+
+    '<button type="button" class="btn sm" onclick="window.irASeccion&&window.irASeccion(\'montaje\')">Ver montaje</button></div>';
+}catch(_){ return ""; } };
+BR.montaje={hojaEv:mjHojaEv, otrosDia:mjOtrosDia, mesasAper:mjMesasAper, configs:mjConfigs, mejor:mjMejor, cfgTxt:mjCfgTxt, medidas:mjMedidas, redonda:mjRedonda, longitud:mjLongitud, paxLarga:mjPaxLarga, opciones:mjOpciones, inventario:mjInventario, hoja:mjHoja, params:mjP, texto:texto};
 })();
 </script>
