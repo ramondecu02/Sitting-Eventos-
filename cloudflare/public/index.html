@@ -2736,7 +2736,7 @@ p.mj-tag{border-radius:var(--r); padding:6px 10px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.18 · montaje revisado</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.19 · el clásico primero</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -11183,9 +11183,15 @@ function escBloque(d,cfg){
   var b=cfg.bloque&&cfg.bloque[d._uid]; if(b) return b;
   return escEsEstacion(d)?"est":"aper";
 }
+/* lo que forma El clásico (chips, crujiente de langostinos, jamón y pan con
+   tomate) sale SIEMPRE primero, en su orden; detrás, el resto */
+function escClasico(){ var r={}; try{ var pk=(pvp().packs||[]).filter(function(p){ return p.id==="clasico"; })[0];
+  pvpRefs(pk).forEach(function(x,i){ if(x.indexOf("d:")===0) r[x.slice(2)]=i; }); }catch(_){} return r; }
 function escOrdenar(ds,cfg){
-  var ord=cfg.orden||[], pos={}; ord.forEach(function(u,i){ pos[u]=i; });
+  var ord=cfg.orden||[], pos={}, cl=escClasico(); ord.forEach(function(u,i){ pos[u]=i; });
   return ds.map(function(d,i){ return {d:d,i:i}; }).sort(function(a,b){
+    var ca=cl[a.d._uid], cb=cl[b.d._uid];
+    if(ca!=null||cb!=null){ if(ca==null) return 1; if(cb==null) return -1; if(pos[a.d._uid]!=null&&pos[b.d._uid]!=null) return pos[a.d._uid]-pos[b.d._uid]; return ca-cb; }
     var pa=pos[a.d._uid], pb=pos[b.d._uid];
     if(pa!=null&&pb!=null) return pa-pb; if(pa!=null) return -1; if(pb!=null) return 1; return a.i-b.i; }).map(function(x){ return x.d; });
 }
