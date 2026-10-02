@@ -2724,6 +2724,16 @@ p.mj-tag{border-radius:var(--r); padding:6px 10px}
 .prop-mj.justo{border-left-color:var(--warning,#B5862E)} .prop-mj.no{border-left-color:var(--danger,#A3333D)}
 .prop-mj b{font-size:13px; line-height:1.3} .prop-mj span{color:var(--c-mut)} .prop-mj i{font-style:normal; font-weight:700}
 .prop-mj .btn{align-self:flex-start; margin-top:4px}
+
+/* ── El clásico de un clic (Elegir platos) ── */
+.mnu-clasico{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 14px; margin:4px 0 12px; border-radius:var(--r-lg,12px);
+  border:1px dashed color-mix(in srgb,var(--olive) 55%,transparent); background:color-mix(in srgb,var(--olive) 6%,transparent)}
+.mnu-clasico.on{border-style:solid; background:color-mix(in srgb,var(--olive) 12%,transparent)}
+.mnu-clasico .mc-tx{flex:1 1 260px; display:flex; flex-direction:column; gap:3px; min-width:0}
+.mnu-clasico .mc-tx b{font-family:var(--font-display); font-size:18px; font-weight:500}
+.mnu-clasico .mc-tx b span{font-family:var(--font-text); font-size:13px; color:var(--c-mut); font-weight:600}
+.mnu-clasico .mc-tx>span{font-size:12px; color:var(--c-mut); line-height:1.45}
+.mnu-clasico em{font-style:normal; font-size:11px; font-weight:700; color:var(--warning,#9A722A)}
 /*V3-END*/
 </style>
 
@@ -2736,7 +2746,7 @@ p.mj-tag{border-radius:var(--r); padding:6px 10px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.19 · el clásico primero</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.20 · el clásico de un clic</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9914,6 +9924,28 @@ function wireSelRows(){
     chk.addEventListener("change",function(){ toggleStation(chk.dataset.fam,chk.dataset.st); renderSeleccion(); renderEvStats(); });
   });
 }
+/* El clásico de un clic: marca (o quita) todo lo que lo forma — chips,
+   crujiente de langostinos, jamón Cebo de Campo y pan con tomate — y, si la
+   bebida no tiene marca elegida, su cava rosado (Oriol Rossell) y su jamón */
+function clasicoUids(){ var cl=escClasico(); return Object.keys(cl).filter(function(u){ return DISH_BY_UID[u]; }).sort(function(a,b){ return cl[a]-cl[b]; }); }
+function clasicoCard(){
+  var us=clasicoUids(); if(!us.length) return "";
+  var m=menu(), n=us.filter(function(u){ return m&&m.dishes[u]; }).length, todo=n===us.length;
+  var pk=(pvp().packs||[]).filter(function(p){ return p.id==="clasico"; })[0];
+  return '<div class="mnu-clasico'+(todo?' on':'')+'"><div class="mc-tx"><b>El clásico'+(pk&&pk.p?' <span>· '+fmtEurS(pk.p)+'</span>':'')+'</b>'+
+    '<span>'+us.map(function(u){ return esc(DISH_BY_UID[u].name); }).join(" · ")+' · cava rosado y todo tipo de bebidas</span>'+
+    (n&&!todo?'<em>Marcados '+n+' de '+us.length+'</em>':'')+'</div>'+
+    '<button type="button" class="btn '+(todo?'sm':'gold sm')+'" data-clasico="'+(todo?'0':'1')+'">'+(todo?'Quitar El clásico':(n?'Completar El clásico':'Añadir El clásico'))+'</button></div>';
+}
+function fmtEurS(x){ return (Math.round(x*100)/100).toFixed(2).replace(".",",").replace(",00","")+" €"; }
+function clasicoToggle(poner){
+  var m=menu(); if(!m) return; var us=clasicoUids();
+  us.forEach(function(u){ if(poner) m.dishes[u]=true; else delete m.dishes[u]; });
+  if(poner){ var bb=bebidas(); if(bb){
+    if(!(bb.cavaRosado&&bb.cavaRosado.prod)) bb.cavaRosado=Object.assign({},bb.cavaRosado||{},{prod:"Cava Oriol Rossell Brut rosado"});
+    if(!(bb.jamon&&bb.jamon.prod)) bb.jamon=Object.assign({},bb.jamon||{},{prod:"Jamón Ibérico Cebo de Campo Blázquez"}); } }
+  touchSave();
+}
 function renderSeleccion(){
   var needle=q.trim().toLowerCase();
   var fams=MENU_DATA.filter(function(f){ return !fam||f.key===fam; });
@@ -9929,6 +9961,7 @@ function renderSeleccion(){
       shown.length+(shown.length===f.dishes.length?" platos":" de "+f.dishes.length+" platos")+
       (selCount?' · <b>'+selCount+' marcados</b>':'')+(prs.length?' · <b>'+prs.length+' a mano</b>':'')+'</span>'+
       '<button type="button" class="mp-famadd" data-mpfam="'+esc(f.key)+'">+ Añadir '+(f.key==="APERITIVOS"?"aperitivo":"plato")+' a mano</button></div>';
+    if(f.key==="APERITIVOS"&&!needle) html+=clasicoCard();
     if(prs.length) html+='<div class="mnu-list">'+prs.map(function(d){ return '<div class="mnu-row propio on"><span class="mp-ok" aria-hidden="true">✓</span><span class="nm">'+esc(d.name)+' <i class="mp-badge">a mano</i></span>'+
       (!isDash(d.servicio)?'<span class="sv">'+esc(d.servicio)+'</span>':'')+(d.station?'<span class="cu">'+esc(d.station)+'</span>':'')+
       '<button type="button" class="btn sm" data-mp-ed2="'+esc(d._uid.slice(2))+'">Detalles</button></div>'; }).join("")+'</div>';
@@ -9950,6 +9983,7 @@ function renderSeleccion(){
   var famVacia=!needle&&fams.length===1&&!fams[0].dishes.length?fams[0]:null;
   $("mnu-body").innerHTML=propioHtml()+(any?html:famVacia?window.LM_empty({ic:"Menú del evento",t:"Todavía no hay platos en «"+esc(famVacia.label)+"»",d:"Añádelos al catálogo en Parámetros → Platos y escandallo (con su escandallo, para producción y compra), o escríbelos arriba en «Menú personalizado» eligiendo el tiempo «"+esc(famVacia.label)+"»."}):window.LM_empty({ic:"Menú del evento",t:"Ningún plato coincide con «"+esc(q)+"»",d:"Prueba con otra palabra o con un ingrediente (p. ej. «gamba», «bacalao»)."}));
   wirePropio(); wireSelRows();
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll("[data-clasico]"),function(b){ b.addEventListener("click",function(){ clasicoToggle(b.getAttribute("data-clasico")==="1"); renderSeleccion(); renderEvStats(); }); });
   Array.prototype.forEach.call($("mnu-body").querySelectorAll("[data-mp-ed2]"),function(b){ b.addEventListener("click",function(){ mpEditar(b.getAttribute("data-mp-ed2")); }); });
   Array.prototype.forEach.call($("mnu-body").querySelectorAll("[data-mpfam]"),function(b){ b.addEventListener("click",function(){
     mpFam=b.getAttribute("data-mpfam"); mpAbierto=true; renderSeleccion();
