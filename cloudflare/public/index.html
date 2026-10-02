@@ -2622,7 +2622,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.11 · precios del catálogo</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.12 · almendrado personalizado</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -11580,12 +11580,31 @@ var DEF_MENU=MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f
   return {uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; })}; });
 var DEF_CATALOGO=clon(CATALOGO_DATA), DEF_MOBILIARIO=clon(MOBILIARIO_DATA), DEF_BEBIDAS=clon(BEBIDA_CATS);
 function enSuSitio(arr,nuevo){ arr.length=0; clon(nuevo).forEach(function(x){ arr.push(x); }); }
+/* «Almendrado de chocolate CREO personalizado» (7 €, con la foto de los novios
+   o un diseño exclusivo) se añadió después: a un catálogo guardado antes se le
+   pone detrás del almendrado normal, con el mismo escandallo. Si alguien lo
+   borra después en Parámetros, no vuelve a salir. */
+var CREO_PERS_UID="POSTRES#creo-pers", CREO_PERS_DESDE=Date.UTC(2026,9,2,10,0);
+function conCreoPersonalizado(fams,pm){
+  var meta=pm&&BR.paramMeta?BR.paramMeta("platos"):null;
+  if(pm&&meta&&(meta.updated||0)>=CREO_PERS_DESDE) return fams;
+  var fp=fams.filter(function(f){ return f.key==="POSTRES"; })[0]; if(!fp) return fams;
+  var ds=fp.dishes||[], nn=function(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); };
+  if(ds.some(function(d){ return d.uid===CREO_PERS_UID||/creo personalizado/.test(nn(d.name)); })) return fams;
+  var bi=-1; ds.forEach(function(d,i){ if(bi<0&&/^almendrado de chocolate creo$/.test(nn(d.name).trim())) bi=i; });
+  var base=bi>-1?ds[bi]:{servicio:"CAJA CARTÓN",cubiertos:"—",ingredients:[{name:"Almendrado bañado",qty:1,unit:"uds"}],steps:["Almendrado en caja"]};
+  var nu={uid:CREO_PERS_UID,name:"Almendrado de chocolate CREO personalizado",servicio:base.servicio,cubiertos:base.cubiertos,station:null,
+    ingredients:clon(base.ingredients||[]),steps:clon(base.steps||[]).concat(["Personalizado con la foto de los novios o su diseño exclusivo"])};
+  var nds=ds.slice(); nds.splice(bi>-1?bi+1:nds.length,0,nu);
+  return fams.map(function(f){ return f===fp?Object.assign({},f,{dishes:nds}):f; });
+}
 function aplicarParamsMenu(){
   var pm=BR.param("platos"), fams=(pm&&pm.fams&&pm.fams.length)?pm.fams:DEF_MENU;
   /* «Arroces» (entre Pescados y Carnes) se añadió después: si el catálogo
      guardado en Parámetros es de antes, se le añade la sección vacía */
   if(!fams.some(function(f){ return f.key==="ARROCES"; })){ var ip=-1; fams=fams.slice(); fams.forEach(function(f,i){ if(f.key==="PESCADOS") ip=i; });
     fams.splice(ip>-1?ip+1:fams.length,0,{key:"ARROCES",label:"Arroces",dishes:[]}); }
+  fams=conCreoPersonalizado(fams,pm);
   MENU_DATA.length=0;
   fams.forEach(function(f){ MENU_DATA.push({key:f.key,label:f.label,dishes:(f.dishes||[]).map(function(d){
     var x=clon(d); x._uid=d.uid; x._famLabel=f.label; x._famKey=f.key; delete x.uid;
