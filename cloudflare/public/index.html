@@ -2622,7 +2622,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.12 · almendrado personalizado</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.13 · briefing en la escaleta</span></div>
 </aside>
 <div class="mainwrap" id="mainwrap">
 
@@ -4107,7 +4107,7 @@ function migrate(e){
   if(F.tipo==null) F.tipo="Boda";
   if(F.estado==null) F.estado="planificacion"; /* contacto·propuesta·visita·reserva·planificacion·confirmada·celebrada·cerrada */
   if(F.ubicacion==null) F.ubicacion="Les Moles · Ulldecona";
-  ["fecha","parejaA","parejaB","contacto","telefono","email","origen","comoNos","ceremoniaLugar","ceremoniaHora","ceremoniaDur","llegadaRest","horaAperitivo","horaBanquete","horaBarra","minutas","notas","foto"].forEach(function(k){ if(F[k]==null) F[k]=""; });
+  ["fecha","parejaA","parejaB","contacto","telefono","email","origen","comoNos","ceremoniaLugar","ceremoniaHora","ceremoniaDur","llegadaRest","horaBriefing","horaAperitivo","horaBanquete","horaBarra","minutas","notas","foto"].forEach(function(k){ if(F[k]==null) F[k]=""; });
   if(F.staff==null) F.staff=0;
   /* evento con la fecha escrita solo en el sitting (título «#» o línea «@») y la
      ficha vacía: salía «Sin fecha» en el inicio y no aparecía en el calendario */
@@ -5824,7 +5824,7 @@ function escaletaPages(md,pw,ph,s){
     partir(md.titulo,W,"ser",18*s,0).forEach(function(ln){ cur.push(TX(pw/2,yy,ln,{size:18*s,fo:"ser",a:"middle",c:INK})); yy+=21*s; });
     yy-=8*s;
     if(md.fecha){ cur.push(TX(pw/2,yy+4,md.fecha.toUpperCase(),{size:7.4,fo:"sans",a:"middle",c:SOFT,ls:1.4})); yy+=14; }
-    if(md.horas.length){ /* siempre hay al menos la llegada */
+    if(md.horas.length){ /* siempre hay al menos el briefing del equipo */
       var n=md.horas.length, cw=W/n, bh=30*s+4; yy+=2;
       cur.push(R(M,yy,W,bh,5,"#FBF8F2","#E4D9C0",0.8));
       md.horas.forEach(function(x,i){
@@ -11134,11 +11134,11 @@ function escModelo(){
   function Q(k,calc){ var ov=cfg.ov[k], hay=(ov!=null&&ov!==""); return {k:k,calc:String(calc),q:hay?String(ov):String(calc),ov:hay}; }
   function fila(txt,sub,qo){ var f={txt:txt,sub:sub||""}; if(qo){ f.k=qo.k; f.calc=qo.calc; f.q=qo.q; f.ov=qo.ov; } return f; }
   var fecha=""; try{ if(F.fecha){ var s=new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1); } }catch(_){}
-  /* la llegada de los invitados, lo primero y destacado */
-  var horas=[{l:"Llegada de los invitados",v:F.llegadaRest||"—",llegada:true}];
+  /* la reunión (briefing) del equipo, lo primero y destacado */
+  var horas=[{l:"Briefing del equipo",v:F.horaBriefing||"—",llegada:true}];
   if(F.ceremoniaHora||F.ceremoniaLugar) horas.push({l:"Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),v:F.ceremoniaHora||"—"});
   if(F.horaAperitivo) horas.push({l:"Aperitivo",v:F.horaAperitivo}); if(F.horaBanquete) horas.push({l:"Banquete",v:F.horaBanquete}); if(F.horaBarra) horas.push({l:"Barra libre",v:F.horaBarra});
-  var md={titulo:String(e.name||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim(), fecha:fecha, horas:horas, llegada:F.llegadaRest||"", secs:[], avisos:[], cuentas:c, ban:ban, cfg:cfg};
+  var md={titulo:String(e.name||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim(), fecha:fecha, horas:horas, llegada:F.horaBriefing||"", secs:[], avisos:[], cuentas:c, ban:ban, cfg:cfg};
   var adTot=c.adultos;
   if(cfg.notas) md.secs.push({t:"Notas",filas:[{txt:cfg.notas,nota:true}]});
   /* recuento de menús */
@@ -11313,7 +11313,7 @@ function renderEscaleta(){
   var nov=Object.keys(cfg.ov).length;
   /* 1 · horario */
   var dHor='<div class="fldset esc-horas">'+
-      escIn("Llegada de los invitados","llegadaRest",F.llegadaRest,"text","19:00")+
+      escIn("Reunión / briefing del equipo","horaBriefing",F.horaBriefing,"text","18:00")+
       escIn("Ceremonia (hora)","ceremoniaHora",F.ceremoniaHora,"text","19:00")+escIn("Ceremonia (lugar)","ceremoniaLugar",F.ceremoniaLugar,"text","Les Moles")+
       escIn("Aperitivo","horaAperitivo",F.horaAperitivo,"text","20:00")+escIn("Banquete","horaBanquete",F.horaBanquete,"text","21:15")+escIn("Barra libre","horaBarra",F.horaBarra,"text","00:30")+
     '</div>';
@@ -11352,7 +11352,7 @@ function renderEscaleta(){
     '</div>';
   var ed='<div class="esc-edit">'+
     '<div class="esc-ed-h"><b>Datos de la escaleta</b><span>Todo lo demás sale solo del plano, del menú marcado y de las bebidas. Pulsa una cantidad de la hoja para corregirla.</span></div>'+
-    escDet("hor","Horario",F.llegadaRest?"Llegada "+F.llegadaRest:"falta la hora de llegada",dHor,!F.llegadaRest)+
+    escDet("hor","Horario",F.horaBriefing?"Briefing "+F.horaBriefing:"falta la hora del briefing",dHor,!F.horaBriefing)+
     escDet("ord","Orden de salida · aperitivos y estaciones",AP.std.length+" aperitivos · "+AP.est.length+" estaciones",dOrd,true)+
     escDet("inf","Menú infantil",c.ninos+(c.ninos===1?" niño":" niños")+" · "+(INF.elegidos.length+INF.extra.length)+" platos",dInf,c.ninos>0&&!(INF.elegidos.length+INF.extra.length))+
     escDet("stf","Menú staff",c.staff+(c.staff===1?" persona":" personas")+" · "+(md.staffMenu.length?md.staffMenu.length+" platos":"sin configurar"),dSt,c.staff>0&&!md.staffMenu.length)+
