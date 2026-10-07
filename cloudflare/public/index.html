@@ -3032,6 +3032,22 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .mc-incl .lbl{display:block; margin-bottom:8px}
 .mc-incl .esc-chks{display:flex; flex-wrap:wrap; gap:6px 18px}
 .mc-incl .esc-hint{margin-top:10px; max-width:70ch}
+/* escaleta: estaciones, cada plato en su fila bajo la franja de la estación */
+.esc-band.est{justify-content:flex-start; padding:0 84px 0 14px; min-height:36px; background:color-mix(in srgb,#8A9A6B 22%,#fff); border-left:5px solid #56613F}
+.esc-band.est b{letter-spacing:.1em; font-size:12.5px}
+/* check list de servicio: el plato bien visible y, a su lado, lo que hay que preparar */
+.sv-card{display:grid; grid-template-columns:minmax(0,.36fr) minmax(0,.64fr); border:1px solid #DCD0B3; border-radius:8px; overflow:hidden; margin:8px 0 10px; background:#FFFEFB; break-inside:avoid; text-align:left}
+.sv-dish{background:#F6F0E0; border-left:5px solid var(--cc,#8A9A6B); padding:12px 14px; display:flex; flex-direction:column; justify-content:center; gap:5px}
+.sv-dish b{font-family:var(--font-paper); font-size:17px; line-height:1.2; font-weight:600; color:#1A1A1A}
+.sv-dish .rac{margin:0; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#6B6257; white-space:normal}
+.sv-prep{padding:9px 14px 6px; min-width:0}
+.sv-lbl{font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; font-weight:700; color:#56613F; margin-bottom:2px}
+.sv-card .sv-mat{margin:0}
+.sv-card .sv-sin{margin:4px 0 6px}
+.sv-card.sv-seg .sv-dish{background:#EEF0E6}
+.mnu-sheet-fam.sv-est{background:#EEF0E6; border-left:5px solid #56613F; padding:8px 12px; border-radius:4px; margin:22px 0 6px}
+.mnu-sheet-fam.sv-est .mnu-base{margin-left:8px}
+@media (max-width:640px){ .sv-card{grid-template-columns:1fr} .sv-dish{border-left-width:5px} }
 /*V3-END*/
 </style>
 
@@ -3044,7 +3060,7 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.28</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.29</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6056,6 +6072,13 @@ function bloquesDeHoja(frame){
         out.push({t:"fam", txt:sinHijos(n,".mnu-base"), sub:(n.querySelector(".mnu-base")?txt(n.querySelector(".mnu-base")):"")});
         return;
       }
+      if(cl.contains("sv-card")){
+        var dn=n.querySelector(".sv-dish b"), di=n.querySelector(".sv-dish .rac"), fl=[], sn=n.querySelector(".sv-sin"), mc=/--cc:\s*(#[0-9a-fA-F]{3,8})/.exec(n.getAttribute("style")||"");
+        Array.prototype.forEach.call(n.querySelectorAll(".sv-prep tr"),function(tr){ var tds=tr.querySelectorAll("td"); if(!tds.length) return;
+          var bs=tds[0].querySelector(".mnu-base"); fl.push({izq:sinHijos(tds[0],".chk,.mnu-base"), der:tds.length>1?txt(tds[tds.length-1]):"", sub:bs?txt(bs):""}); });
+        out.push({t:"card", nombre:dn?txt(dn):"", sub:di?txt(di):"", col:mc?mc[1]:"#8A9A6B", filas:fl, sin:sn?txt(sn):""});
+        out.push({t:"esp",h:3}); return;
+      }
       if(cl.contains("mnu-sheet-station")){ out.push({t:"est",txt:txt(n)}); return; }
       if(cl.contains("mnu-prep-steps")){ out.push({t:"pasos",txt:txt(n)}); return; }
       if(cl.contains("mnu-prep-dish-h")){
@@ -6169,6 +6192,37 @@ function hojaPages(bloques,pw,ph){
       });
       if(b.sub) cur.push(TX(pw-M,y0pl,b.sub.toUpperCase(),{size:8,fo:"sans",a:"end",c:GP,ls:1.2}));
       y+=17; return;
+    }
+    if(b.t==="card"){
+      var LW=Math.round(W*0.36), GAP=12, RW=W-LW-GAP-14, qx0=pw-M-10;
+      var nomL=partir(b.nombre,LW-30,"ser",15,0), subL=b.sub?partir(b.sub.toUpperCase(),LW-30,"sans",7.6,1):[];
+      var hL=14+nomL.length*18+(subL.length?6+subL.length*10:0)+12;
+      var rowsC=b.filas.map(function(f){ var qw=f.der?textW({s:f.der,fo:"sansb",size:11,ls:.2}):0, ln=partir(f.izq,RW-16-qw-10,"ser",11.5,0);
+        return {f:f,ln:ln,h:ln.length*14+(f.sub?10:0)+7}; });
+      var hR=18+(rowsC.length?rowsC.reduce(function(a,r){ return a+r.h; },0):16)+8;
+      var hC=Math.max(hL,hR,44);
+      nl(hC+8); y+=2;
+      var top=y;
+      cur.push(R(M,top,W,hC,4,"#FFFEFB","#DCD0B3",0.8));
+      cur.push(R(M,top,LW,hC,4,"#F6F0E0",null,0));
+      cur.push(R(M,top,4,hC,0,b.col,null,0));
+      var yy=top+20;
+      nomL.forEach(function(ln){ cur.push(TX(M+16,yy,ln,{size:15,fo:"ser",a:"start",c:INK})); yy+=18; });
+      if(subL.length){ yy-=4; subL.forEach(function(ln){ cur.push(TX(M+16,yy+6,ln,{size:7.6,fo:"sans",a:"start",c:SOFT,ls:1})); yy+=10; }); }
+      var rx=M+LW+GAP;
+      cur.push(TX(rx,top+13,"QUÉ PREPARAR",{size:7,fo:"sansb",a:"start",c:GP,ls:1.6}));
+      var ry=top+18;
+      if(!rowsC.length) cur.push(TX(rx,ry+12,b.sin||"Sin vajilla ni cubiertos en su ficha.",{size:9.5,fo:"seri",a:"start",c:SOFT}));
+      rowsC.forEach(function(r,ri){
+        var by=ry+12;
+        cur.push(R(rx,by-8,8.6,8.6,1.4,"none",SOFT,0.9));
+        r.ln.forEach(function(ln,i){ cur.push(TX(rx+15,by+i*14,ln,{size:11.5,fo:"ser",a:"start",c:INK})); });
+        if(r.f.sub) cur.push(TX(rx+15,by+r.ln.length*14-3,clipW(r.f.sub,RW-30,"sans",7.6,.2),{size:7.6,fo:"sans",a:"start",c:SOFT,ls:.2}));
+        if(r.f.der) cur.push(TX(qx0,by,r.f.der,{size:11,fo:"sansb",a:"end",c:INK,ls:.2}));
+        ry+=r.h;
+        if(ri<rowsC.length-1) cur.push(LN(rx,ry-3,qx0,ry-3,"#EFE7D4",0.6));
+      });
+      y=top+hC+14; return;
     }
     if(b.t==="fila"){
       nl(20);
@@ -6372,7 +6426,8 @@ function escaletaPages(md,pw,ph,s){
       if(f.head&&f.plato){
         var bh=18*s, by=y+4*s;
         cur.push(R(x,by,CW,bh,3*s,"#EEF0E6","#B9C29E",0.7));
-        cur.push(TX(x+CW/2,by+bh/2+3.1*s,f.head.toUpperCase(),{size:8.8*s,fo:"sansb",a:"middle",c:"#3F4A2A",ls:2.4}));
+        var lsB=f.est?1.4:2.4, hqW=f.hq?textW({s:f.hq+(f.hqTxt||""),fo:"sans",size:6.9*s,ls:.4})+16*s:0;
+        cur.push(TX(x+CW/2,by+bh/2+3.1*s,clipW(f.head.toUpperCase(),Math.max(40,CW-2*hqW),"sansb",8.8*s,lsB),{size:8.8*s,fo:"sansb",a:"middle",c:"#3F4A2A",ls:lsB}));
         if(f.hq) cur.push(TX(x+CW-7*s,by+bh/2+2.6*s,f.hq+(f.hqTxt||""),{size:6.9*s,fo:"sans",a:"end",c:"#56613F",ls:.4}));
         y+=27*s; return;
       }
@@ -7902,7 +7957,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.28</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.29</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10871,10 +10926,13 @@ function renderServicio(){
     return out;
   }
   function filas(ls){ return ls.map(function(l){ return '<tr><td><span class="chk">☐</span>'+esc(l.a)+' <span class="mnu-base">'+esc(l.libre?"no está en el catálogo":l.por)+'</span></td><td class="q">'+(l.libre?'<span class="q-libre">a ojo</span>':uds(l.q))+'</td></tr>'; }).join(""); }
-  function plato(d,info,ls,color){
-    return '<div class="sv-plato"'+(color?' style="--cc:'+color+'"':'')+'><div class="mnu-prep-dish-h"><b>'+esc(d.name)+'</b>'+(info?' <span class="rac">'+esc(info)+'</span>':'')+'</div>'+
-      (ls.length?'<table class="mnu-ing-table sv-mat"><tbody>'+filas(ls)+'</tbody></table>':'<p class="mnu-note sv-sin">Sin vajilla ni cubiertos en su ficha.</p>')+'</div>';
+  /* el plato, bien visible, a la izquierda; a su lado, lo que hay que preparar para servirlo */
+  function card(titulo,info,rows,color,cls,vacio){
+    return '<div class="sv-card'+(cls?' '+cls:'')+'"'+(color?' style="--cc:'+color+'"':'')+'><div class="sv-dish"><b>'+esc(titulo)+'</b>'+(info?'<span class="rac">'+esc(info)+'</span>':'')+'</div>'+
+      '<div class="sv-prep"><div class="sv-lbl">Qué preparar</div>'+(rows?'<table class="mnu-ing-table sv-mat"><tbody>'+rows+'</tbody></table>':'<p class="mnu-note sv-sin">'+esc(vacio||"Sin vajilla ni cubiertos en su ficha.")+'</p>')+'</div></div>';
   }
+  function filasBloque(b){ return b.items.map(function(i){ return '<tr><td><span class="chk">☐</span>'+esc(i.art)+' <span class="mnu-base">'+(i.mob?'mobiliario':'utensilio')+(i.exterior?' · al aire libre':'')+'</span></td><td class="q">'+uds(i.uds)+'</td></tr>'; }).join(""); }
+  function plato(d,info,ls,color,extra){ return card(d.name,info,filas(ls)+(extra||""),color); }
   function regla(b,titulo){
     return '<h3 class="mnu-sheet-fam">'+esc(titulo||b.nombre)+' <span class="mnu-base">'+baseTxt(b.base,b.mult)+'</span></h3><table class="mnu-ing-table"><tbody>'+
       b.items.map(function(i){ return '<tr><td><span class="chk">☐</span>'+esc(i.art)+(i.mob||i.exterior?' <span class="mnu-base">'+(i.mob?'mobiliario':'')+(i.mob&&i.exterior?' · ':'')+(i.exterior?'al aire libre':'')+'</span>':'')+'</td><td class="q">'+uds(i.uds)+'</td></tr>'; }).join("")+'</tbody></table>'+
@@ -10914,20 +10972,26 @@ function renderServicio(){
     var hh='<h3 class="mnu-sheet-fam sv-curso"'+(col?' style="--cc:'+col+'"':'')+'>'+esc(g.t)+' <span class="mnu-base">'+g.ds.length+(g.ds.length===1?' plato':' platos')+'</span></h3>'+
       g.ds.map(function(d){ return plato(d,d._famLabel,lineas(d),col); }).join("");
     if(gi===ultSeg&&cs.length){ var mult=cs[0].b.mult;
-      hh+='<div class="sv-plato sv-seg"><div class="mnu-prep-dish-h"><b>Cubiertos de los segundos</b> <span class="rac">en el puesto · × '+mult+' comensales</span></div><table class="mnu-ing-table sv-mat"><tbody>'+
-        cs.map(function(x){ return '<tr><td><span class="chk">☐</span>'+esc(x.i.art)+' <span class="mnu-base">'+esc(x.b.motivoSeg||"")+'</span></td><td class="q">'+uds(x.i.uds)+'</td></tr>'; }).join("")+'</tbody></table></div>'; }
+      hh+=card("Cubiertos de los segundos","en el puesto · × "+mult+" comensales",cs.map(function(x){ return '<tr><td><span class="chk">☐</span>'+esc(x.i.art)+' <span class="mnu-base">'+esc(x.b.motivoSeg||"")+'</span></td><td class="q">'+uds(x.i.uds)+'</td></tr>'; }).join(""),null,"sv-seg"); }
     return hh; }).join("");
-  if(cs.length&&ultSeg<0) s2cursos+='<div class="sv-plato sv-seg"><div class="mnu-prep-dish-h"><b>Cubiertos de los segundos</b> <span class="rac">en el puesto</span></div><table class="mnu-ing-table sv-mat"><tbody>'+
-    cs.map(function(x){ return '<tr><td><span class="chk">☐</span>'+esc(x.i.art)+' <span class="mnu-base">'+esc(x.b.motivoSeg||"")+'</span></td><td class="q">'+uds(x.i.uds)+'</td></tr>'; }).join("")+'</tbody></table></div>';
+  if(cs.length&&ultSeg<0) s2cursos+=card("Cubiertos de los segundos","en el puesto",cs.map(function(x){ return '<tr><td><span class="chk">☐</span>'+esc(x.i.art)+' <span class="mnu-base">'+esc(x.b.motivoSeg||"")+'</span></td><td class="q">'+uds(x.i.uds)+'</td></tr>'; }).join(""),null,"sv-seg");
   var s2=(s2mesa||s2cursos)?'<h2 class="mnu-sheet-sec">2 · Mesas de banquete</h2>'+s2mesa+(s2cursos?'<h3 class="mnu-sheet-fam">Por curso <span class="mnu-base">en el orden de la escaleta · la cubertería de cada pase</span></h3>'+s2cursos:''):'';
   /* ── 3 · ESTACIONES ── */
   var bEst=bloques.filter(function(b){ return b.cuando.tipo!=="evento"||b.base==="EVENTO"; });
-  var s3platos=est.map(function(d){ return plato(d,d.station||d._famLabel,lineas(d),null); }).join("");
-  var s3mob=bEst.map(function(b){ return regla(b); }).join("");
-  var s3=(est.length||s3mob||pend.length)?'<h2 class="mnu-sheet-sec">3 · Estaciones</h2>'+
-    (s3mob?'<h3 class="mnu-sheet-fam">Mobiliario y utensilios <span class="mnu-base">de cada estación</span></h3>'+s3mob:'')+
-    (pend.length?'<p class="mnu-note" style="margin-top:10px">Todavía sin mobiliario propio: <b>'+pend.map(esc).join("</b>, <b>")+'</b>. Se añade en Parámetros → Platos y escandallo, abriendo un plato de esa estación.</p>':'')+
-    (est.length?'<h3 class="mnu-sheet-fam">Vajilla y cubiertos <span class="mnu-base">de lo que se sirve en estaciones</span></h3>'+s3platos:''):'';
+  var porEst={}, ordEst=[], usados={};
+  est.forEach(function(d){ var k=d.station?escEtqStation(d.station):(d._famLabel||"Estaciones"); if(!porEst[k]){ porEst[k]={ds:[],raw:d.station||""}; ordEst.push(k); } porEst[k].ds.push(d); });
+  var s3platos=ordEst.map(function(k){
+    var g=porEst[k], out='<h3 class="mnu-sheet-fam sv-est">'+esc(k)+' <span class="mnu-base">'+g.ds.length+(g.ds.length===1?' plato':' platos')+'</span></h3>';
+    /* el montaje de la estación entera (si tiene datos) */
+    bEst.forEach(function(b,bi){ if(b.cuando.tipo==="estacion"&&b.cuando.valor===g.raw){ usados[bi]=1; out+=card("Montaje de la estación",k,filasBloque(b),null,"sv-seg")+(b.nota?'<p class="mnu-note">'+esc(b.nota)+'</p>':''); } });
+    g.ds.forEach(function(d){ var ex="", notas=[];
+      bEst.forEach(function(b,bi){ if(b.cuando.tipo==="plato"&&b.cuando.valor===d.name){ usados[bi]=1; ex+=filasBloque(b); if(b.nota) notas.push(b.nota); } });
+      out+=plato(d,d._famLabel!==k?d._famLabel:"",lineas(d),null,ex)+notas.map(function(n){ return '<p class="mnu-note">'+esc(n)+'</p>'; }).join(""); });
+    return out; }).join("");
+  var s3mob=bEst.map(function(b,bi){ return usados[bi]?"":regla(b); }).join("");
+  var s3=(est.length||s3mob||pend.length)?'<h2 class="mnu-sheet-sec">3 · Estaciones</h2>'+s3platos+
+    (s3mob?'<h3 class="mnu-sheet-fam">Montaje general <span class="mnu-base">una vez por evento</span></h3>'+s3mob:'')+
+    (pend.length?'<p class="mnu-note" style="margin-top:10px">Todavía sin mobiliario propio: <b>'+pend.map(esc).join("</b>, <b>")+'</b>. Se añade en Parámetros → Platos y escandallo, abriendo un plato de esa estación.</p>':''):'';
   /* ── total por artículo (para sacar del almacén de una vez) ── */
   function tabla(list){ return '<table class="mnu-ing-table"><tbody>'+list.map(function(a){ return '<tr><td><span class="chk">☐</span>'+esc(a)+'</td><td class="q">'+fmtNum(Math.round(tot[a]),0)+' uds</td></tr>'; }).join("")+'</tbody></table>'; }
   var pl=Object.keys(tot).filter(function(a){ return CATALOGO_BY_ART[a]&&CATALOGO_BY_ART[a].categoria==="PLATO"; }).sort(function(a,b){ return a.localeCompare(b,"es"); });
@@ -12044,9 +12108,14 @@ function escModelo(){
   /* ── estaciones (el café, copa y puro va con los cafés) ── */
   var grp={}, eo=[], cafEst=[];
   AP.est.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(/caf[eé]/i.test(k)){ cafEst.push(d); return; } if(!grp[k]){ grp[k]=[]; eo.push(k); } grp[k].push(d); });
-  if(eo.length) md.secs.push({t:"Estaciones",filas:eo.map(function(k){
-    var ds=grp[k], sub=(ds.length>1||ds[0].name!==k)?ds.map(function(d){ return d.name; }).join(" · "):null;
-    return fila(k,sub,Q("es:"+escNorm(k),adTot*escPor(ds[0]))); })});
+  /* cada plato de una estación va en su fila, con su cantidad, bajo la franja de la estación
+     (brasas, pulpo, mini hamburguesa… no se juntan en una sola línea) */
+  if(eo.length){ var fe=[];
+    eo.forEach(function(k){ var ds=grp[k];
+      if(ds.length===1&&ds[0].name===k){ fe.push(fila(k,null,Q("es:"+escNorm(k),adTot*escPor(ds[0])))); return; }
+      fe.push({head:k, plato:true, est:true, hq:String(ds.length), hqTxt:ds.length===1?" plato":" platos"});
+      ds.forEach(function(d){ fe.push(fila(d.name,null,Q(ds.length===1?"es:"+escNorm(k):"es:"+escNorm(k)+":"+escNorm(d.name).slice(0,30),adTot*escPor(d)))); }); });
+    md.secs.push({t:"Estaciones",filas:fe}); }
   /* ── menú (1º, 2º, 3º…) con los sustitutos debajo de cada plato ── */
   var fb=[], nPlato=0;
   [ban[0],ban[1]].forEach(function(ti){ ti.platos.forEach(function(x){
@@ -12219,7 +12288,7 @@ function renderEscaleta(){
       (sc.leyenda?'<div class="esc-ley"><i></i>'+esc(sc.leyenda)+'</div>':'')+
       '<table class="mnu-table esc-t'+(conQ?"":" sinq")+'"><colgroup>'+(conQ?'<col class="esc-qcol">':'')+'<col></colgroup>';
     sc.filas.forEach(function(f){
-      if(f.head&&f.plato){ h+='<tr class="esc-head esc-plato"><td colspan="'+(conQ?2:1)+'"><div class="esc-band"><b>'+esc(f.head)+'</b>'+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</div></td></tr>'; return; }
+      if(f.head&&f.plato){ h+='<tr class="esc-head esc-plato"><td colspan="'+(conQ?2:1)+'"><div class="esc-band'+(f.est?' est':'')+'"><b>'+esc(f.head)+'</b>'+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</div></td></tr>'; return; }
       if(f.head){ h+='<tr class="esc-head">'+(conQ?'<td class="esc-q"></td>':'')+'<td>'+esc(f.head)+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</td></tr>'; return; }
       if(f.nota||f.orden){ h+='<tr><td colspan="2" class="'+(f.orden?"esc-orden":"esc-nota")+'">'+esc(f.txt)+'</td></tr>'; return; }
       if(f.persona){ h+='<tr class="esc-pers">'+(conQ?'<td></td>':'')+'<td><span class="esc-pn neutro"><b>'+esc(f.n||f.txt)+'</b>'+(f.m?'<i>'+esc(escMesaCorta(f.m))+'</i>':'')+'</span></td></tr>'; return; }
