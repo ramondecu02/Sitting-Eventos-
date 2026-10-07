@@ -3044,7 +3044,7 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.27</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.28</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -7902,7 +7902,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.27</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.28</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8835,62 +8835,157 @@ function ringSvg(pct){
 /* imprime (o guarda como PDF) una hoja-resumen del evento de una página: datos,
    cifras, menú elegido y balance económico. Usa un iframe oculto para que
    funcione también dentro del visor (sin ventanas emergentes). */
-function imprimirResumen(e){
-  if(!e) return;
+/* ══ Hoja resumen del evento (A4) ══════════════════════════════════════
+   Una hoja para todos los departamentos: horarios, cifras, menú con cantidades,
+   bebida, jamón, alergias, sala y material, camareros, proveedores y lo que
+   queda por cerrar. NO lleva presupuesto, precios ni pagos. Todo sale del evento
+   (plano, menú marcado, bebidas, escaleta…), nada se escribe aparte. */
+function resumenDoc(e){
+  var BRG=window.SITTING_BRIDGE||{};
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0}; }
-  var F=e.ficha||{}, P=e.presupuesto||{}, pt=presupTotals(e);
-  var nombre=nombreLimpio(e.name)||"Evento";
+  var F=e.ficha||{}, nombre=nombreLimpio(e.name)||"Evento";
+  var md=null; try{ md=BRG.escModelo?BRG.escModelo():null; }catch(_){ md=null; }
+  var c=(md&&md.cuentas)||null;
+  function sec(tt){ if(!md) return null; var r=md.secs.filter(function(s){ return s.t===tt; })[0]; return r||null; }
   var fechaTxt=F.fecha?(function(){ try{ return capFirst(new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})); }catch(_){ return dmyFromISO(F.fecha); } })():(d.sub||"");
-  /* menú elegido, agrupado por familia (MENU_DATA es global) */
-  var fams=[]; try{ fams=menuPorFamilias(e).map(function(f){ return {lab:f.fam,ds:f.platos}; }); }catch(_){}
-  var menuHTML=fams.length?fams.map(function(f){ return '<div class="mgrp"><h4>'+escH(f.lab)+'</h4><ul>'+f.ds.map(function(n){return '<li>'+escH(n)+'</li>';}).join("")+'</ul></div>'; }).join(""):'<p class="muted">Menú por definir.</p>';
-  var adultos=t.adults-(t.staff||0);
-  var cif=[["Invitados",t.pax],["Adultos",adultos],["Niños",t.child]];
-  if(t.baby)cif.push(["Bebés",t.baby]); if(t.staff)cif.push(["Staff",t.staff]);
-  cif.push(["Mesas aperitivo",mesasAperitivo(e)]); cif.push(["Mesas banquete",d.tables.length]); if(t.espec)cif.push(["Alergias y dietas",t.espec]);
-  var cifHTML=cif.map(function(c){return '<div class="cf"><b>'+c[1]+'</b><span>'+escH(c[0])+'</span></div>';}).join("");
-  var datos=[];
-  if(F.tipo)datos.push(["Tipo",F.tipo]);
-  if(fechaTxt)datos.push(["Fecha",fechaTxt]);
-  if(F.ubicacion)datos.push(["Lugar",F.ubicacion]);
-  if(F.ceremoniaLugar||F.ceremoniaHora)datos.push(["Ceremonia",[F.ceremoniaLugar,F.ceremoniaHora].filter(Boolean).join(" · ")]);
-  if(F.llegadaRest)datos.push(["Llegada",F.llegadaRest]);
-  if(F.parejaA||F.parejaB)datos.push(["Novios / anfitrión",[F.parejaA,F.parejaB].filter(Boolean).join(" & ")]);
-  if(F.telefono||F.contacto||F.email)datos.push(["Contacto",[F.contacto||F.parejaA,F.telefono,F.email].filter(Boolean).join(" · ")]);
-  var datosHTML=datos.map(function(x){return '<tr><th>'+escH(x[0])+'</th><td>'+escH(x[1])+'</td></tr>';}).join("");
-  var balHTML=pt.total>0?('<table class="bal"><tr><th>Total previsto</th><td>'+fmtEur(pt.total)+'</td></tr>'+
-    '<tr><th>Cobrado</th><td>'+fmtEur(pt.pagado)+'</td></tr><tr><th>'+(pt.pend<-0.005?"Cobrado de más":"Pendiente")+'</th><td>'+fmtEur(Math.abs(pt.pend))+'</td></tr></table>'+
-    ((P.pagos||[]).length?'<table class="pagos">'+(P.pagos||[]).slice().sort(function(a,b){ return String(a.fecha||"").localeCompare(String(b.fecha||"")); }).map(function(p){
-      return '<tr><td>'+escH(p.fecha?dmyFromISO(p.fecha):"—")+'</td><td>'+escH(p.concepto||"Pago")+'</td><td class="r">'+fmtEur(p.importe)+'</td></tr>'; }).join("")+'</table>':"")):'<p class="muted">Precios por definir.</p>';
-  /* lo que el equipo necesita el día del evento: quién tiene alergia o dieta,
-     en qué mesa y qué se le sirve; y el reparto de comensales por mesa */
-  var alerRows=[];
+  var lugar=[F.ubicacion, e.loc==="exterior"?"salón exterior":""].filter(Boolean).join(" · ");
+  var pend=[];
+  /* ── horario ── */
+  var hs=[["Briefing del equipo",F.horaBriefing,true],["Llegada de invitados",F.llegadaRest,true],["Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),F.ceremoniaHora,!!(F.ceremoniaHora||F.ceremoniaLugar)],
+    ["Aperitivo",F.horaAperitivo,false],["Banquete",F.horaBanquete,false],["Barra libre",F.horaBarra,false]];
+  if(!F.horaBriefing) pend.push("Falta la hora del briefing del equipo.");
+  if(!F.llegadaRest) pend.push("Falta la hora de llegada de los invitados.");
+  var horHTML=hs.filter(function(h){ return h[1]||h[2]; }).map(function(h){ return '<div class="hr'+(h[1]?'':' vac')+'"><span>'+escH(h[0])+'</span><b>'+escH(h[1]||"por definir")+'</b></div>'; }).join("");
+  /* ── cifras ── */
+  var adultos=c?c.adultos:Math.max(0,t.adults-(t.staff||0)), ninos=c?c.ninos:t.child, staff=c?c.staff:(t.staff||0), tronas=c?c.tronas:(t.baby||0);
+  var nCam=0; try{ nCam=BRG.evTotals?(BRG.evTotals().camareros||0):0; }catch(_){}
+  var cif=[["Invitados",t.pax],["Adultos",adultos],["Niños",ninos]];
+  if(tronas) cif.push(["Bebés en trona",tronas]); if(staff) cif.push(["Staff",staff]);
+  cif.push(["Mesas banquete",d.tables.length]); cif.push(["Mesas aperitivo",mesasAperitivo(e)]);
+  if(t.espec) cif.push(["Alergias y dietas",t.espec]); if(nCam) cif.push(["Camareros",nCam]);
+  var cifHTML=cif.map(function(x){ return '<div class="cf"><b>'+x[1]+'</b><span>'+escH(x[0])+'</span></div>'; }).join("");
+  /* ── una sección de la escaleta como lista con cantidades ── */
+  function lista(s,opt){
+    if(!s) return "";
+    opt=opt||{};
+    var out="", abierto=false;
+    s.filas.forEach(function(f){
+      if(f.sust||f.pend||f.nota||f.alerg||f.persona) return;
+      if(f.head){ if(abierto) out+='</ul>'; out+='<div class="sh">'+escH(f.head)+(f.hq&&opt.hq?'<em>'+escH(f.hq)+escH(f.hqTxt||"")+'</em>':'')+'</div><ul>'; abierto=true; return; }
+      if(!abierto){ out+='<ul>'; abierto=true; }
+      out+='<li>'+(f.q?'<span class="q">'+escH(f.q)+'</span>':'<span class="q"></span>')+'<span class="n">'+escH(String(f.txt||"").replace(/^\d+\.\s*/,opt.num?"$&":""))+(f.sub&&!opt.nosub?'<small>'+escH(f.sub)+'</small>':'')+'</span></li>';
+    });
+    if(abierto) out+='</ul>';
+    return out;
+  }
+  function bloque(titulo,sub,cuerpo,cls){ return cuerpo?'<section class="bl'+(cls?' '+cls:'')+'"><h3>'+escH(titulo)+(sub?'<em>'+escH(sub)+'</em>':'')+'</h3>'+cuerpo+'</section>':''; }
+  /* ── jamón: qué jamón y cuánto ── */
+  var jam="";
+  try{ var sa=sec("Aperitivos"); if(sa) sa.filas.forEach(function(f){ if(!jam&&/jam[oó]n/i.test((f.txt||"")+" "+(f.sub||""))&&!f.sust) { var pl=String(f.txt||"").replace(/^\d+\.\s*/,"").replace(/^Jamón\s*·\s*/i,""), marca=String(f.sub||"").replace(/\s*·?\s*a cortar\s*$/i,"").trim(), esMarca=marca&&!/^por mesa$/i.test(marca);
+      jam='<div class="jm"><span>Jamón</span><b>'+escH(esMarca?marca:pl)+'</b><i>'+(f.q?escH(f.q)+' · a cortar':'a cortar')+'</i>'+(esMarca&&pl!==marca?'<u>'+escH(pl)+'</u>':'')+'</div>'; } }); }catch(_){}
+  /* ── menús (recuento) ── */
+  var menusHTML=lista(sec("Menús"));
+  /* ── alergias (persona a persona) ── */
+  var alerRows=[], sinDec=0, okM=(e.menu&&e.menu.alerOk)||{};
   d.tables.forEach(function(tb){ tb.guests.forEach(function(g){
     if(!(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)) return;
     var mot=g.aler.slice(); if(g.kind==="veg") mot.push("Vegetariano"); if(g.kind==="vegan") mot.push("Vegano"); if(g.preg) mot.push("Embarazada");
-    alerRows.push('<tr><td>'+escH(g.name)+'</td><td>'+escH(mesaTxt(tb,I18N.es))+'</td><td>'+escH(mot.join(" · "))+'</td><td>'+escH((g.menus||[]).join(" + ")||((e.menu&&e.menu.alerOk&&e.menu.alerOk[tb.num+"|"+g.name])?"sin cambios":"por decidir"))+'</td></tr>'); }); });
-  var alerHTML=alerRows.length?'<table class="lst"><tr><th>Comensal</th><th>Mesa</th><th>Motivo</th><th>Se le sirve</th></tr>'+alerRows.join("")+'</table>':'<p class="muted">Nadie con alergias ni dietas especiales.</p>';
-  var mesasHTML=d.tables.length?'<div class="mesas">'+d.tables.map(function(tb){ return '<span><b>'+escH(mesaTxt(tb,I18N.es))+'</b> '+tb.guests.length+'</span>'; }).join("")+'</div>':'<p class="muted">Sin mesas.</p>';
-  var doc='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>'+escH(nombre)+' · Les Moles Events</title>'+
-    '<style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font-family:Georgia,"Times New Roman",serif;color:#1a1a1a;margin:0;font-size:12px}'+
-    'h1{font-size:26px;margin:0 0 2px;font-weight:600}.eyebrow{font:600 10px/1 Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#6E7D50;margin-bottom:10px}'+
-    'h2{font:600 11px/1 Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#6E7D50;border-bottom:1px solid #ddd;padding-bottom:5px;margin:20px 0 10px}'+
-    '.cifras{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0}.cf{border:1px solid #ddd;border-radius:6px;padding:8px 14px;text-align:center;min-width:74px}.cf b{display:block;font-size:22px;font-weight:600}.cf span{font:600 8px/1 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#777}'+
-    'table{border-collapse:collapse}table.bal,table.datos{width:100%}th{text-align:left;color:#555;font:600 11px/1.5 Arial,sans-serif;padding:4px 10px 4px 0;vertical-align:top;white-space:nowrap;width:120px}td{padding:4px 0;font-size:13px}'+
-    '.mgrp{margin-bottom:10px}.mgrp h4{font:600 10px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6E7D50;margin:0 0 4px}.mgrp ul{margin:0;padding-left:18px}.mgrp li{font-size:13px;line-height:1.5}'+
-    'table.pagos{width:100%;margin-top:8px}table.pagos td{font-size:11.5px;padding:2px 0;color:#444}td.r{text-align:right}'+
-    'table.lst{width:100%}table.lst th{width:auto;border-bottom:1px solid #ddd}table.lst td{font-size:12px;padding:3px 8px 3px 0;border-bottom:1px solid #f0ece2}'+
-    '.mesas{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px}.mesas b{font-weight:600}.notas{white-space:pre-wrap;font-size:12.5px}'+
-    '.cols{display:flex;gap:30px}.cols>div{flex:1}.muted{color:#999;font-style:italic}.foot{margin-top:22px;border-top:1px solid #ddd;padding-top:8px;font:10px Arial,sans-serif;color:#999;text-align:center}</style></head><body>'+
-    '<div class="eyebrow">Les Moles Events'+(F.tipo?' · '+escH(F.tipo):'')+'</div><h1>'+escH(nombre)+'</h1>'+
-    '<h2>Cifras</h2><div class="cifras">'+cifHTML+'</div>'+
-    '<div class="cols"><div><h2>Datos</h2><table class="datos">'+(datosHTML||'<tr><td class="muted">Sin datos.</td></tr>')+'</table>'+
-      '<h2>Balance</h2>'+balHTML+'</div>'+
-      '<div><h2>Menú</h2>'+menuHTML+'</div></div>'+
-    '<h2>Alergias y dietas</h2>'+alerHTML+
-    '<h2>Mesas</h2><p style="margin:0 0 8px;font-size:12.5px"><b>Aperitivo:</b> '+mesasAperitivo(e)+' mesas ('+(+(e.menu&&e.menu.pMesaAper)||7)+' personas por mesa) · <b>Banquete:</b> '+d.tables.length+' mesas</p>'+mesasHTML+
-    (F.notas?'<h2>Cosas a tener en cuenta</h2><div class="notas">'+escH(F.notas)+'</div>':'')+
-    '<div class="foot">Les Moles Events · Hoja de evento generada '+dmyFromISO(new Date().toISOString().slice(0,10))+'</div></body></html>';
+    var sirve=(g.menus||[]).join(" + "), hecho=!!(sirve||okM[tb.num+"|"+g.name]);
+    if(!hecho) sinDec++;
+    alerRows.push('<tr><td><b>'+escH(g.name)+'</b></td><td>'+escH(mesaTxt(tb,I18N.es))+'</td><td>'+escH(mot.join(" · "))+'</td><td'+(hecho?'':' class="fal"')+'>'+escH(sirve||(okM[tb.num+"|"+g.name]?"Sin cambios":"POR DECIDIR"))+'</td></tr>'); }); });
+  if(sinDec) pend.unshift(sinDec+(sinDec===1?" persona con alergia o dieta sin decidir qué se le sirve (en rojo arriba).":" personas con alergia o dieta sin decidir qué se les sirve (en rojo arriba)."));
+  var alerHTML=alerRows.length?'<table class="lst"><thead><tr><th>Comensal</th><th>Mesa</th><th>Motivo</th><th>Se le sirve</th></tr></thead><tbody>'+alerRows.join("")+'</tbody></table>':'<p class="muted">Ningún invitado tiene alergia o dieta apuntada en el plano.</p>';
+  /* ── mesas y material de sala ── */
+  var mesasHTML=d.tables.length?'<div class="mesas">'+d.tables.map(function(tb){ return '<span><b>'+escH(mesaTxt(tb,I18N.es))+'</b> ('+tb.guests.length+')</span>'; }).join("")+'</div>':'<p class="muted">El plano no tiene mesas.</p>';
+  var matHTML="";
+  try{ var M=BRG.montaje; if(M){ var H=M.hojaEv(e,M.params(),M.inventario()); if(H&&H.mat&&H.mat.length) matHTML='<ul class="mat">'+H.mat.map(function(x){
+      if(x.nec>x.hay) pend.push("Falta material: "+x.t+" (hacen falta "+x.nec+", hay "+x.hay+").");
+      return '<li><span class="q">'+x.nec+'</span><span class="n">'+escH(x.t)+(x.nec>x.hay?'<small class="fal">hay '+x.hay+': faltan '+(x.nec-x.hay)+'</small>':'')+'</span></li>'; }).join("")+'</ul>'; } }catch(_){}
+  /* ── camareros ── */
+  var camHTML="";
+  try{ var pers=(store.camareros&&store.camareros.personas)||[], cam=e.camareros||{}, hora=e.camarerosHora||{};
+    var conf=pers.filter(function(p){ return p&&!p.borrado&&cam[p.id]==="si"; }).sort(function(a,b){ return String(a.nombre||"").localeCompare(String(b.nombre||""),"es"); });
+    var porId={}; pers.forEach(function(p){ if(p) porId[p.id]=p; });
+    var cl='<p class="cnt"><b>'+conf.length+'</b> confirmados de <b>'+nCam+'</b> necesarios</p>';
+    if(nCam&&conf.length<nCam) pend.push("Faltan camareros: "+conf.length+" confirmados de "+nCam+" necesarios.");
+    if(conf.length) cl+='<ul class="cam">'+conf.map(function(p){ return '<li><span class="n">'+escH(p.nombre||"")+'</span><span class="h">'+escH(hora[p.id]||"")+'</span></li>'; }).join("")+'</ul>';
+    var rp=(e.reparto&&e.reparto.fases)||{}, fn=[["aperitivo","Aperitivo"],["comida",(e.reparto&&e.reparto.tipo==="cena")?"Cena":"Comida"],["cafesbarra","Cafés y barra"],["barralibre","Barra libre"]].map(function(f){
+      var xs=(rp[f[0]]||[]).filter(function(x){ return x&&(x.fn||x.id); }); if(!xs.length) return "";
+      return '<div class="sh">'+escH(f[1])+'</div><ul class="cam">'+xs.map(function(x){ return '<li><span class="n">'+escH(x.fn||"—")+'</span><span class="h">'+escH((porId[x.id]&&porId[x.id].nombre)||"sin asignar")+'</span></li>'; }).join("")+'</ul>'; }).join("");
+    camHTML=cl+fn; }catch(_){}
+  /* ── proveedores (sin precios) ── */
+  var provHTML=(e.proveedores||[]).filter(function(p){ return p&&(p.empresa||p.contacto||p.telefono); }).map(function(p){
+    return '<tr><td>'+escH(p.servicio||"")+'</td><td><b>'+escH(p.empresa||"—")+'</b></td><td>'+escH([p.contacto,p.telefono].filter(Boolean).join(" · "))+'</td><td>'+escH(p.estado||"")+'</td></tr>'; }).join("");
+  provHTML=provHTML?'<table class="lst"><thead><tr><th>Servicio</th><th>Empresa</th><th>Contacto</th><th>Estado</th></tr></thead><tbody>'+provHTML+'</tbody></table>':'';
+  /* ── lo que queda por hacer ── */
+  var tareas=(e.tareas||[]).filter(function(x){ return x&&x.estado!=="completada"; });
+  var tareasHTML=tareas.length?'<ul class="tk">'+tareas.slice(0,6).map(function(x){ var fz=(typeof FASES!=="undefined"&&FASES.filter(function(f){ return f.k===x.fase; })[0])||null;
+    return '<li><span class="ck"></span><span class="n">'+escH(x.texto||"")+(fz?'<small>'+escH(fz.t)+'</small>':'')+'</span></li>'; }).join("")+(tareas.length>6?'<li class="mas">y '+(tareas.length-6)+' más en Planificación → Tareas</li>':'')+'</ul>':'';
+  if(md){ if(md.sustTotal&&md.sustColocados<md.sustTotal) pend.push((md.sustTotal-md.sustColocados)+" plato(s) sustitutivo(s) sin sitio en la escaleta."); (md.avisos||[]).forEach(function(a){ pend.push(a); }); }
+  if(c&&c.ninos>0&&!lista(sec("Menú infantil"))) pend.push("Menú infantil sin elegir ("+c.ninos+(c.ninos===1?" niño":" niños")+").");
+  if(c&&c.staff>0&&!lista(sec("Menú staff"))) pend.push("Menú staff sin configurar ("+c.staff+(c.staff===1?" persona":" personas")+").");
+  var pendHTML=pend.length?'<ul class="pd">'+pend.slice(0,12).map(function(x){ return '<li>'+escH(x)+'</li>'; }).join("")+(pend.length>12?'<li>y '+(pend.length-12)+' más…</li>':'')+'</ul>':'<p class="ok">✓ Nada pendiente de decidir.</p>';
+  /* ── notas ── */
+  var notas=[F.notas, md&&md.cfg&&md.cfg.notas].filter(Boolean).join("\n\n");
+  /* ── datos del evento y contacto ── */
+  var datos=[]; if(F.tipo) datos.push(["Tipo",F.tipo]); if(lugar) datos.push(["Lugar",lugar]);
+  if(F.parejaA||F.parejaB) datos.push(["Anfitriones",[F.parejaA,F.parejaB].filter(Boolean).join(" & ")]);
+  if(F.contacto||F.telefono||F.email) datos.push(["Contacto",[F.contacto||F.parejaA,F.telefono,F.email].filter(Boolean).join(" · ")]);
+  var datosHTML=datos.map(function(x){ return '<div><span>'+escH(x[0])+'</span> '+escH(x[1])+'</div>'; }).join("");
+  /* ── bebidas ── */
+  var bebHTML=lista(sec("Bebidas"));
+  var menuCols=
+    bloque("Aperitivos",sec("Aperitivos")?sec("Aperitivos").sub:"",lista(sec("Aperitivos"),{num:true}))+
+    bloque("Estaciones","",lista(sec("Estaciones")))+
+    bloque("Menú del banquete",sec("Menú")?sec("Menú").sub:"",lista(sec("Menú"),{hq:true}))+
+    bloque("Postres y tarta","",lista(sec("Postres"),{hq:true}))+
+    bloque("Cafés","",lista(sec("Cafés")))+
+    bloque("Ressopó","",lista(sec("Ressopó")));
+  var menuSinEsc=!md;
+  if(menuSinEsc){ var fams=[]; try{ fams=menuPorFamilias(e).map(function(f){ return {lab:f.fam,ds:f.platos}; }); }catch(_){}
+    menuCols=fams.length?fams.map(function(f){ return '<section class="bl"><h3>'+escH(f.lab)+'</h3><ul>'+f.ds.map(function(n){ return '<li><span class="q"></span><span class="n">'+escH(n)+'</span></li>'; }).join("")+'</ul></section>'; }).join(""):'<p class="muted">Menú por definir.</p>'; }
+  var hoy=new Date().toISOString().slice(0,10);
+  var css='@page{size:A4;margin:11mm 11mm 14mm}*{box-sizing:border-box}html{-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+    'body{font:9.4pt/1.35 Arial,Helvetica,sans-serif;color:#1c1b18;margin:0}'+
+    '.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;border-bottom:2px solid #1c1b18;padding-bottom:7px}'+
+    '.eyebrow{font-size:7.5pt;letter-spacing:.2em;text-transform:uppercase;color:#56613F;font-weight:700;margin-bottom:3px}'+
+    'h1{font:600 21pt/1.05 Georgia,"Times New Roman",serif;margin:0}.fecha{font-size:11pt;margin-top:3px;font-weight:600}'+
+    '.datos{font-size:8.6pt;color:#3b3934;text-align:right;line-height:1.5;max-width:80mm}.datos span{color:#8a867b;text-transform:uppercase;letter-spacing:.08em;font-size:7pt;margin-right:4px}'+
+    '.horas{display:flex;gap:0;border:1px solid #cfc8b6;border-radius:3px;margin:9px 0 8px;background:#faf8f2}.hr{flex:1;padding:6px 8px;border-right:1px solid #e3ded2;text-align:center;min-width:0}.hr:last-child{border-right:0}'+
+    '.hr span{display:block;font-size:6.8pt;letter-spacing:.09em;text-transform:uppercase;color:#6B6257;font-weight:700;min-height:16px}.hr b{display:block;font-size:14pt;margin-top:2px}.hr.vac b{font-size:8.5pt;color:#a3333d;font-weight:600;padding-top:4px}'+
+    '.cifras{display:flex;gap:6px;margin:0 0 4px}.cf{flex:1;border:1px solid #cfc8b6;border-radius:3px;text-align:center;padding:5px 2px}.cf b{display:block;font-size:15pt;line-height:1.1}.cf span{display:block;font-size:6.4pt;letter-spacing:.07em;text-transform:uppercase;color:#6B6257;font-weight:700;margin-top:1px}'+
+    '.g2{display:grid;grid-template-columns:1.15fr 1fr;gap:0 16px;margin-top:6px}.g2>div{min-width:0}'+
+    'h2{font-size:8pt;letter-spacing:.17em;text-transform:uppercase;color:#56613F;border-bottom:1px solid #cfc8b6;padding-bottom:3px;margin:11px 0 6px;font-weight:700}'+
+    '.bl{break-inside:avoid;margin-bottom:8px}h3{font:700 9pt/1.2 Arial,sans-serif;margin:0 0 3px;display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #e3ded2;padding-bottom:2px}h3 em{font-style:normal;font-weight:400;font-size:7.5pt;color:#6B6257}'+
+    'ul{list-style:none;margin:0;padding:0}li{display:flex;gap:7px;padding:1.6px 0;border-bottom:1px dotted #e3ded2;break-inside:avoid}li:last-child{border-bottom:0}.q{flex:0 0 17mm;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}.n{flex:1;min-width:0}small{display:block;font-size:7.4pt;color:#6B6257}small.fal,.fal{color:#a3333d;font-weight:700}'+
+    '.sh{font-size:7.2pt;letter-spacing:.1em;text-transform:uppercase;color:#6B6257;font-weight:700;margin:5px 0 1px;display:flex;justify-content:space-between}.sh em{font-style:normal;letter-spacing:0;text-transform:none;font-weight:400}'+
+    '.jm{border:1.5px solid #1c1b18;border-radius:3px;padding:6px 9px;margin:0 0 8px;background:#faf8f2}.jm span{display:block;font-size:6.8pt;letter-spacing:.12em;text-transform:uppercase;color:#6B6257;font-weight:700}.jm b{display:block;font-size:10.5pt;margin-top:1px}.jm i{font-style:normal;font-size:9pt;font-weight:700;color:#56613F}'+
+    'table.lst{width:100%;border-collapse:collapse}table.lst th{text-align:left;font-size:6.9pt;letter-spacing:.09em;text-transform:uppercase;color:#6B6257;border-bottom:1px solid #1c1b18;padding:2px 6px 2px 0}table.lst td{padding:2.4px 6px 2.4px 0;border-bottom:1px solid #ece8de;vertical-align:top;font-size:8.8pt}'+
+    '.mesas{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:8.6pt}.mat .q{flex-basis:12mm}.cnt{margin:0 0 4px;font-size:9pt}.cam .n{font-weight:700}.cam .h{flex:0 0 auto;color:#3b3934}.cam li{justify-content:space-between}'+
+    '.tk .ck{flex:0 0 3.2mm;height:3.2mm;border:1px solid #1c1b18;border-radius:1px;margin-top:1px}.tk .mas{color:#6B6257;font-size:8pt;border:0}.pd li{border:0;padding:1.5px 0 1.5px 11px;position:relative}.pd li:before{content:"!";position:absolute;left:0;font-weight:700;color:#a3333d}.ok{color:#56613F;font-weight:700;margin:0}'+
+    '.notas{white-space:pre-wrap;font-size:9pt}.muted{color:#8a867b;font-style:italic;margin:0}.p2>.cont>:first-child h2,.p2 .cont>h2:first-child{margin-top:0}'+
+    '.pg{display:flex;flex-direction:column;min-height:266mm}.pg.p2{break-before:page}.pie{margin-top:auto;padding-top:8px;border-top:1px solid #e3ded2;font-size:6.8pt;color:#8a867b;text-align:center;letter-spacing:.06em}.jm u{display:block;text-decoration:none;font-size:7.8pt;color:#6B6257;margin-top:2px}';
+  var pie='<div class="pie">Les Moles Events · '+escH(nombre)+' · hoja generada el '+dmyFromISO(hoy)+' · sin presupuesto</div>';
+  return '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>'+escH(nombre)+' · Hoja de evento</title><style>'+css+'</style></head><body>'+
+    '<div class="pg"><div class="cont"><div class="top"><div><div class="eyebrow">Les Moles Events · Hoja de evento</div><h1>'+escH(nombre)+'</h1>'+(fechaTxt?'<div class="fecha">'+escH(fechaTxt)+'</div>':'')+'</div><div class="datos">'+datosHTML+'</div></div>'+
+    '<div class="horas">'+horHTML+'</div><div class="cifras">'+cifHTML+'</div>'+
+    '<div class="g2"><div><h2>Menú</h2>'+menuCols+'</div>'+
+      '<div><h2>Bebida y jamón</h2>'+jam+bloque("Bebidas","",bebHTML)+
+      (menusHTML?'<h2>Menús a servir</h2>'+menusHTML:'')+
+      bloque("Menú infantil",sec("Menú infantil")?sec("Menú infantil").sub:"",lista(sec("Menú infantil")))+
+      bloque("Menú staff",sec("Menú staff")?sec("Menú staff").sub:"",lista(sec("Menú staff")))+'</div></div>'+
+    (notas?'<h2>Cosas a tener en cuenta</h2><div class="notas">'+escH(notas)+'</div>':'')+'</div>'+pie+'</div>'+
+    '<div class="pg p2"><div class="cont"><div><h2>Alergias y dietas</h2>'+alerHTML+'</div>'+
+    '<div class="g2"><div><h2>Sala y material</h2><p style="margin:0 0 5px;font-size:8.8pt"><b>Aperitivo:</b> '+mesasAperitivo(e)+' mesas ('+(+(e.menu&&e.menu.pMesaAper)||7)+' personas por mesa) · <b>Banquete:</b> '+d.tables.length+' mesas</p>'+mesasHTML+(matHTML?'<div class="sh" style="margin-top:8px">Material a montar</div>'+matHTML:'')+'</div>'+
+      '<div><h2>Camareros</h2>'+(camHTML||'<p class="muted">Sin camareros marcados.</p>')+'</div></div>'+
+    (provHTML?'<h2>Proveedores</h2>'+provHTML:'')+
+    '<div class="g2"><div><h2>Por cerrar</h2>'+pendHTML+'</div><div><h2>Tareas pendientes</h2>'+(tareasHTML||'<p class="ok">✓ Sin tareas pendientes.</p>')+'</div></div>'+
+    '</div>'+pie+'</div></body></html>';
+}
+window.LM_resumenDoc=resumenDoc;
+function imprimirResumen(e){
+  if(!e) return;
+  var doc=resumenDoc(e);
   var ifr=document.createElement("iframe"); ifr.setAttribute("aria-hidden","true");
   ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
   document.body.appendChild(ifr);
@@ -9828,7 +9923,7 @@ function viewDocs(e){
     {k:"prov",t:"Proveedores",s:"Contactos y estado"},
     {k:"fotos",t:"Fotografías",s:"Espacios, montajes y gastronomía"}
   ];
-  var cards='<button type="button" class="doc-card doc-main" data-act="doc-resumen"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Hoja resumen del evento</b><span>Ficha, cifras, alergias y pagos · imprimir o PDF</span></span></button>'+
+  var cards='<button type="button" class="doc-card doc-main" data-act="doc-resumen"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Hoja resumen del evento</b><span>Horarios, menú, bebida, alergias, sala y camareros · A4 · sin presupuesto</span></span></button>'+
     '<button type="button" class="doc-card doc-main" data-act="presu-pdf"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Presupuesto</b><span>Menús × precio, extras, pagos y pendiente · PDF</span></span></button>'+links.map(function(l){ return '<button type="button" class="doc-card" data-act="goto" data-k="'+l.k+'"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>'+escH(l.t)+'</b><span>'+escH(l.s)+'</span></span></button>'; }).join("");
   var extra=e.docs.map(function(dc,i){ return '<div class="comm"><span class="comm-ic">'+ICONS.doc+'</span><div class="comm-b"><div class="comm-top"><b>'+escH(dc.nombre)+'</b></div><a class="comm-tx" style="word-break:break-all" href="'+escH(/^https?:\/\//i.test(dc.url)?dc.url:"https://"+dc.url)+'" target="_blank" rel="noopener">'+escH(dc.url)+'</a></div><button type="button" class="row-del" data-act="doc-del" data-i="'+i+'" aria-label="Quitar «'+escH(dc.nombre)+'»">×</button></div>'; }).join("");
   if(!e.docs.length) extra='<p style="color:var(--c-mut);font-style:italic;padding:6px 2px">Sin enlaces. Añade el contrato, la propuesta u otros documentos (URL).</p>';
@@ -12328,7 +12423,7 @@ BR.onExternalChange=refreshAll;
 /* Camareros necesita el total de comensales del evento para calcular cuántos
    hacen falta, y esa cuenta (plano o a mano, con o sin plano hecho) solo la
    sabe hacer evTotals — se expone en vez de duplicarla. */
-BR.evTotals=evTotals;
+BR.evTotals=evTotals; BR.escModelo=escModelo;
 
 /* ══ Parámetros (solo administrador): catálogo de platos con su escandallo,
    vajilla y cubiertos, bebidas y montaje. Se guardan las copias de fábrica y
