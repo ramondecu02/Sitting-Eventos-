@@ -3010,6 +3010,21 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   .propbar{bottom:calc(58px + 10px + env(safe-area-inset-bottom,0px)); z-index:190; max-height:calc(100dvh - 190px)}
   body.has-subnav .propbar{bottom:calc(100px + 10px + env(safe-area-inset-bottom,0px))}
 }
+/* ── escaleta ──────────────────────────────────────────────────── */
+.mnu-esc .esc-ley{color:#8E2C48}
+.mnu-esc .esc-ley i{background:#F8EEF1; border-color:#8E2C48}
+.esc-pn i,.mnu-esc .esc-plista span.ad{color:#8E2C48}
+.mnu-esc .esc-horario span{display:flex; flex-direction:column; gap:1px; align-items:center; justify-content:flex-start; min-height:24px}
+.mnu-esc .esc-horario span small{font-size:8.5px; letter-spacing:.04em; text-transform:none; color:#6B6257}
+.mnu-esc .esc-horario b{margin-top:auto}
+.esc-horas input::placeholder{font-style:italic; opacity:.7}
+.esc-horas input[data-esc-f="horaBriefing"]:placeholder-shown{border-color:var(--warning)}
+.esc-bar{position:sticky; top:0; z-index:5; background:var(--bg); padding-top:8px; padding-bottom:8px}
+.esc-vacio{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:12px 16px; margin:0 0 14px; border:1px solid color-mix(in srgb,var(--warning) 45%,var(--c-line)); border-radius:var(--r-lg); background:var(--warning-soft)}
+.esc-vacio b{display:block; font-size:14px; color:var(--c-ink)}
+.esc-vacio span{display:block; font-size:12.5px; color:var(--c-mut); margin-top:2px; max-width:60ch}
+.esc-vacio-b{display:flex; gap:8px; flex-wrap:wrap}
+#mnu-print-btn:disabled{opacity:.5; cursor:not-allowed}
 /*V3-END*/
 </style>
 
@@ -3022,7 +3037,7 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.24</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.25</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6225,7 +6240,7 @@ function descargarHoja(selector,nombreArchivo,paperSize){
    sustituyen, en una franja de color con «Para: Nombre (Mesa X)», para que se
    vean de un vistazo. Si no cabe en una hoja, se reduce la letra poco a poco
    (hasta un mínimo legible) antes de pasar a una segunda. ══ */
-var ESC_SUST="#A3471F", ESC_SUSTBG="#FCEFE3";
+var ESC_SUST="#8E2C48", ESC_SUSTBG="#F8EEF1";
 function escaletaPages(md,pw,ph,s){
   s=s||1;
   var M=30, W=pw-2*M, G=18*s, CW=(W-G)/2, pages=[], cur=[], top=0, col=0, y=0;
@@ -6253,7 +6268,8 @@ function escaletaPages(md,pw,ph,s){
         var cx=M+cw*i+cw/2;
         if(x.llegada) cur.push(R(M+cw*i+1,yy+1,cw-2,bh-2,4,"#F1E6CC",null,0));
         if(i) cur.push(LN(M+cw*i,yy+5,M+cw*i,yy+bh-5,"#E4D9C0",0.7));
-        cur.push(TX(cx,yy+10*s+1,clipW(x.l.toUpperCase(),cw-10,"sans",6.4,1),{size:6.4,fo:"sans",a:"middle",c:GP,ls:1}));
+        cur.push(TX(cx,yy+(x.sub?8:10)*s+1,clipW(x.l.toUpperCase(),cw-10,"sans",6.4,1),{size:6.4,fo:"sans",a:"middle",c:GP,ls:1}));
+        if(x.sub) cur.push(TX(cx,yy+14*s+2,clipW(x.sub,cw-8,"sans",6,0),{size:6,fo:"sans",a:"middle",c:SOFT}));
         cur.push(TX(cx,yy+24*s+2,x.v,{size:12*s,fo:"sansb",a:"middle",c:INK}));
       });
       yy+=bh+11*s;
@@ -7879,7 +7895,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.24</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.25</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11850,7 +11866,7 @@ function escModelo(){
   var fecha=""; try{ if(F.fecha){ var s=new Date(F.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1); } }catch(_){}
   /* la reunión (briefing) del equipo, lo primero y destacado */
   var horas=[{l:"Briefing del equipo",v:F.horaBriefing||"—",llegada:true}];
-  if(F.ceremoniaHora||F.ceremoniaLugar) horas.push({l:"Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),v:F.ceremoniaHora||"—"});
+  if(F.ceremoniaHora||F.ceremoniaLugar) horas.push({l:"Ceremonia",sub:F.ceremoniaLugar||"",v:F.ceremoniaHora||"—"});
   if(F.horaAperitivo) horas.push({l:"Aperitivo",v:F.horaAperitivo}); if(F.horaBanquete) horas.push({l:"Banquete",v:F.horaBanquete}); if(F.horaBarra) horas.push({l:"Barra libre",v:F.horaBarra});
   var md={titulo:String(e.name||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim(), fecha:fecha, horas:horas, llegada:F.horaBriefing||"", secs:[], avisos:[], cuentas:c, ban:ban, cfg:cfg};
   var adTot=c.adultos;
@@ -12027,9 +12043,9 @@ function renderEscaleta(){
   var nov=Object.keys(cfg.ov).length;
   /* 1 · horario */
   var dHor='<div class="fldset esc-horas">'+
-      escIn("Reunión / briefing del equipo","horaBriefing",F.horaBriefing,"text","18:00")+
-      escIn("Ceremonia (hora)","ceremoniaHora",F.ceremoniaHora,"text","19:00")+escIn("Ceremonia (lugar)","ceremoniaLugar",F.ceremoniaLugar,"text","Les Moles")+
-      escIn("Aperitivo","horaAperitivo",F.horaAperitivo,"text","20:00")+escIn("Banquete","horaBanquete",F.horaBanquete,"text","21:15")+escIn("Barra libre","horaBarra",F.horaBarra,"text","00:30")+
+      escIn("Reunión / briefing del equipo","horaBriefing",F.horaBriefing,"text","p. ej. 18:00")+
+      escIn("Ceremonia (hora)","ceremoniaHora",F.ceremoniaHora,"text","p. ej. 19:00")+escIn("Ceremonia (lugar)","ceremoniaLugar",F.ceremoniaLugar,"text","p. ej. jardín")+
+      escIn("Aperitivo","horaAperitivo",F.horaAperitivo,"text","p. ej. 20:00")+escIn("Banquete","horaBanquete",F.horaBanquete,"text","p. ej. 21:15")+escIn("Barra libre","horaBarra",F.horaBarra,"text","p. ej. 00:30")+
     '</div>';
   /* 2 · orden de salida + aperitivo/estación */
   function filaOrden(d,i,n,tipo){
@@ -12077,7 +12093,7 @@ function renderEscaleta(){
   /* ── la hoja ── */
   var h='<div class="sheet mnu-esc"><div class="frame">'+
     '<header class="doc-head"><div class="eyebrow">Escaleta</div><h2>'+esc(md.titulo)+'</h2>'+(md.fecha?'<div class="doc-meta">'+esc(md.fecha)+'</div>':'')+'</header>'+
-    '<div class="esc-horario">'+md.horas.map(function(x){ return '<div'+(x.llegada?' class="lleg"':'')+'><span>'+esc(x.l)+'</span><b>'+esc(x.v)+'</b></div>'; }).join("")+'</div>'+
+    '<div class="esc-horario">'+md.horas.map(function(x){ return '<div'+(x.llegada?' class="lleg"':'')+'><span>'+esc(x.l)+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span><b>'+esc(x.v)+'</b></div>'; }).join("")+'</div>'+
     '<div class="esc-cols">';
   md.secs.forEach(function(sc){
     var conQ=sc.filas.some(function(f){ return (f.q||f.hq)&&!f.alerg; });
@@ -12100,7 +12116,15 @@ function renderEscaleta(){
     h+='</table></section>';
   });
   h+='</div>'+md.avisos.map(function(a){ return '<p class="esc-aviso">'+esc(a)+'</p>'; }).join("")+'<div class="foot">Les Moles · Ulldecona</div></div></div>';
-  $("mnu-body").innerHTML=printBar("escaleta")+ed+h;
+  var _sinPlatos=!selectedDishes().length, _sinPlano=!c.delPlano;
+  var vacio=(_sinPlatos||_sinPlano)?'<div class="esc-vacio" role="status"><div><b>'+(_sinPlatos&&_sinPlano?'Faltan el plano y los platos':_sinPlatos?'Todavía no hay platos marcados':'El plano todavía no tiene invitados')+'</b><span>La escaleta se rellena sola con el plano de mesas y el menú; hasta entonces las cantidades salen a cero.</span></div><div class="esc-vacio-b">'+(_sinPlatos?'<button type="button" class="btn gold sm" onclick="window.irASeccion&&window.irASeccion(\'m-sel\')">Elegir platos</button>':'')+(_sinPlano?'<button type="button" class="btn sm" onclick="window.irASeccion&&window.irASeccion(\'plan\')">Abrir el plano</button>':'')+'</div></div>':'';
+  $("mnu-body").innerHTML=printBar("escaleta")+vacio+ed+h;
+  var _pb=$("mnu-body").querySelector(".mnu-print-bar"), _pbtn=$("mnu-print-btn");
+  if(_pb){ _pb.classList.add("esc-bar");
+    var _ver=document.createElement("button"); _ver.type="button"; _ver.className="btn sm"; _ver.textContent="Ver la hoja ↓";
+    _ver.addEventListener("click",function(){ var hj=$("mnu-body").querySelector(".sheet.mnu-esc"); if(hj) hj.scrollIntoView({behavior:"smooth",block:"start"}); });
+    _pb.appendChild(_ver); }
+  if(_pbtn&&_sinPlatos){ _pbtn.disabled=true; _pbtn.title="Marca primero los platos del menú"; }
   wirePrintBtn();
   wireEscaleta();
 }
