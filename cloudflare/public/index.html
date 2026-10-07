@@ -3057,6 +3057,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
 .sv-todo{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .sv-ayuda{font-size:12.5px; color:var(--c-mut)}
 .sv-ayuda b{color:var(--c-ink)}
+.mnu-nota-tarta{margin:2px 0 4px; padding:10px 14px; font-size:12.5px; color:var(--c-mut); background:var(--bg-2); border-radius:var(--r-sm); max-width:70ch}
 /*V3-END*/
 </style>
 
@@ -3069,7 +3070,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.31</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.32</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -7966,7 +7967,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.31</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.32</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8942,6 +8943,7 @@ function resumenDoc(e){
   grupos(sec("Estaciones")).forEach(function(g){ linea("#9A722A",g.h?"Estación · "+cap(g.h.toLowerCase()):"Estación",g.items); });
   grupos(sec("Menú")).forEach(function(g){ linea("#8E2C48",g.h||"Menú",g.items); });
   grupos(sec("Postres")).forEach(function(g){ linea("#8E2C48",g.h||"Postre",g.items); });
+  grupos(sec("Tarta")).forEach(function(g){ linea("#8E2C48",g.h||"Tarta",g.items); });
   var caf=noms(sec("Cafés")); linea("#6B6257","Cafés",caf);
   linea("#6B6257","Ressopó",noms(sec("Ressopó")));
   if(c&&c.ninos>0){ var ni=noms(sec("Menú infantil")); if(ni.length) linea("#127D6B","Menú niños ("+c.ninos+")",ni); else pend.push("Menú infantil sin elegir ("+c.ninos+" niños)."); }
@@ -10419,7 +10421,7 @@ function renderSeleccion(){
   fams.forEach(function(f){
     var shown=f.dishes.filter(function(d){ return matches(d,needle); });
     var prs=PR.filter(function(d){ return d._famKey===f.key&&matches(d,needle); });
-    if(!shown.length&&!prs.length) return;
+    if(!shown.length&&!prs.length&&!(f.key==="TARTA"&&!needle)) return;
     any=true;
     var selCount=f.dishes.filter(isSelected).length;
     html+='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>'+esc(f.label)+'</h2><span class="cnt">'+
@@ -10427,6 +10429,7 @@ function renderSeleccion(){
       (selCount?' · <b>'+selCount+' marcados</b>':'')+(prs.length?' · <b>'+prs.length+' a mano</b>':'')+'</span>'+
       '<button type="button" class="mp-famadd" data-mpfam="'+esc(f.key)+'">+ Añadir '+(f.key==="APERITIVOS"?"aperitivo":"plato")+' a mano</button></div>';
     if(f.key==="APERITIVOS"&&!needle) html+=clasicoCard();
+    if(f.key==="TARTA"&&!needle&&!prs.length&&!shown.length) html+='<p class="mnu-nota-tarta">La tarta va aparte de los postres: sale en su propio apartado de la escaleta y del menú, y no se resta de ella cuando hay alergias. Añádela a mano.</p>';
     if(prs.length) html+='<div class="mnu-list">'+prs.map(function(d){ return '<div class="mnu-row propio on"><span class="mp-ok" aria-hidden="true">✓</span><span class="nm">'+esc(d.name)+' <i class="mp-badge">a mano</i></span>'+
       (!isDash(d.servicio)?'<span class="sv">'+esc(d.servicio)+'</span>':'')+(d.station?'<span class="cu">'+esc(d.station)+'</span>':'')+
       '<button type="button" class="btn sm" data-mp-ed2="'+esc(d._uid.slice(2))+'">Detalles</button></div>'; }).join("")+'</div>';
@@ -10945,7 +10948,7 @@ function renderServicio(){
   var seg=[];
   var s2mesa=bMesa.map(function(b){ var its=b.items.filter(function(i){ if(i.seg){ seg.push({i:i,b:b}); return false; } return true; });
     return its.length?regla({nombre:b.nombre,base:b.base,mult:b.mult,items:its,nota:b.cubSeg?"":b.nota}):""; }).join("");
-  var BANQ=["ENTRANTES","MARISCO","CREMAS","PESCADOS","ARROCES","SORBETES","CARNES","POSTRES","NIÑOS","PAN"];
+  var BANQ=["ENTRANTES","MARISCO","CREMAS","PESCADOS","ARROCES","SORBETES","CARNES","POSTRES","TARTA","NIÑOS","PAN"];
   var bq=sel.filter(function(d){ return BANQ.indexOf(d._famKey)>-1; });
   bq.sort(function(a,b){ return BANQ.indexOf(a._famKey)-BANQ.indexOf(b._famKey)||sel.indexOf(a)-sel.indexOf(b); });
   var grupos=[], ultSeg=-1;
@@ -11800,7 +11803,9 @@ function renderTarjeta(){
    solo. Lo único que se escribe aquí: las horas, qué platos lleva el menú
    staff, la tarta, los extras y, si hace falta, una cantidad corregida a mano
    (queda marcada y se puede volver al cálculo). Se guarda en e.menu.escaleta. */
-var ESC_TIEMPOS={primero:["ENTRANTES","MARISCO","CREMAS"], segundo:["PESCADOS","ARROCES","SORBETES","CARNES"], postre:["POSTRES"]};
+var ESC_TIEMPOS={primero:["ENTRANTES","MARISCO","CREMAS"], segundo:["PESCADOS","ARROCES","SORBETES","CARNES"], postre:["POSTRES","TARTA"]};
+/* una tarta: la familia «Tarta», o un plato a mano de Postres que se llama tarta/pastel (así las ya escritas funcionan) */
+function esTartaDish(d){ return !!d&&(d._famKey==="TARTA"||(d._propio&&/\b(tarta|pastel|pastis)\b/.test(escNorm(d.name)))); }
 function escCfg(){ var m=menu(); if(!m) return {ov:{}}; m.escaleta=m.escaleta||{}; m.escaleta.ov=m.escaleta.ov||{}; return m.escaleta; }
 function escNorm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim(); }
 /* cómo se cuenta un plato en la escaleta: por persona o por mesa (y cuántos) */
@@ -11856,8 +11861,8 @@ function primerNombre(n){ var p=String(n||"").split(" "); return p.length>1&&p[1
 function escBanquete(c,cfg){
   var sel=selectedDishes(), out=[];
   ["primero","segundo","postre"].forEach(function(k){
-    var ds=sel.filter(function(d){ return ESC_TIEMPOS[k].indexOf(d._famKey)>-1; }).map(function(d){ return {d:d,uid:d._uid,name:d.name,subs:{},fuera:0,fueraStaff:0,sorbete:d._famKey==="SORBETES",carne:d._famKey==="CARNES"}; });
-    if(k==="postre"&&cfg.tarta) ds.push({uid:"tarta",name:cfg.tarta,subs:{},fuera:0,fueraStaff:0,tarta:true});
+    var ds=sel.filter(function(d){ return ESC_TIEMPOS[k].indexOf(d._famKey)>-1; }).map(function(d){ return {d:d,uid:d._uid,name:d.name,subs:{},fuera:0,fueraStaff:0,sorbete:d._famKey==="SORBETES",carne:d._famKey==="CARNES",tarta:esTartaDish(d)}; });
+    if(k==="postre"&&cfg.tarta&&!ds.some(function(x){ return x.tarta; })) ds.push({uid:"tarta",name:cfg.tarta,subs:{},fuera:0,fueraStaff:0,tarta:true});
     out.push({k:k,platos:ds});
   });
   /* los platos numerados (1º, 2º, 3º…) tal como salen en la escaleta: el
@@ -12166,13 +12171,15 @@ function escModelo(){
     md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:fs});
   }
   /* ── postres (y tarta) con sus sustitutos ── */
-  var fpo=[];
+  var fpo=[], fta=[];
   ban[2].platos.forEach(function(x){
-    fpo.push({head:x.tarta?"Tarta":"Postre", hq:String(adTot), hqTxt:" en total", plato:true});
-    fpo.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
-    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; fpo.push(f); });
+    var dest=x.tarta?fta:fpo;
+    dest.push({head:x.tarta?"Tarta":"Postre", hq:String(adTot), hqTxt:" en total", plato:true});
+    dest.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
+    Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; dest.push(f); });
   });
   if(fpo.length) md.secs.push({t:"Postres",sub:adTot+" adultos",filas:fpo});
+  if(fta.length) md.secs.push({t:"Tarta",sub:adTot+" adultos",filas:fta});
   /* ── cafés ── */
   var fc=[];
   cafEst.forEach(function(d){ fc.push(fila(d.name,escEtqStation(d.station),Q("es:"+escNorm(d.name),adTot*escPor(d)))); });
@@ -12536,6 +12543,9 @@ function aplicarParamsMenu(){
   if(!fams.some(function(f){ return f.key==="ARROCES"; })){ var ip=-1; fams=fams.slice(); fams.forEach(function(f,i){ if(f.key==="PESCADOS") ip=i; });
     fams.splice(ip>-1?ip+1:fams.length,0,{key:"ARROCES",label:"Arroces",dishes:[]}); }
   fams=conCreoPersonalizado(fams,pm);
+  /* «Tarta» va aparte de los postres: no es un postre más ni se resta de él cuando hay alergias */
+  if(!fams.some(function(f){ return f.key==="TARTA"; })){ var ipo=-1; fams=fams.slice(); fams.forEach(function(f,i){ if(f.key==="POSTRES") ipo=i; });
+    fams.splice(ipo>-1?ipo+1:fams.length,0,{key:"TARTA",label:"Tarta",dishes:[]}); }
   MENU_DATA.length=0;
   fams.forEach(function(f){ MENU_DATA.push({key:f.key,label:f.label,dishes:(f.dishes||[]).map(function(d){
     var x=clon(d); x._uid=d.uid; x._famLabel=f.label; x._famKey=f.key; delete x.uid;
@@ -12650,7 +12660,7 @@ function algCursos(sel){
   var num=sel.filter(function(d){ return ALG_SEG.indexOf(d._famKey)>-1; }), out={};
   num.forEach(function(d,i){ out[d._uid]={k:["primero","segundo","tercero"][Math.min(i,2)],t:(i+1)+"º plato"}; });
   sel.forEach(function(d){ if(out[d._uid]) return;
-    var f=d._famKey; out[d._uid]=f==="POSTRES"?{k:"postre",t:"Postre"}:f==="SORBETES"?{k:"",t:"Sorbete"}:f==="NIÑOS"?{k:"",t:"Menú infantil"}:f==="RECENA"?{k:"",t:"Ressopó"}:{k:"",t:"Aperitivo",ap:true}; });
+    var f=d._famKey; out[d._uid]=f==="POSTRES"?{k:"postre",t:"Postre"}:f==="TARTA"?{k:"postre",t:"Tarta"}:f==="SORBETES"?{k:"",t:"Sorbete"}:f==="NIÑOS"?{k:"",t:"Menú infantil"}:f==="RECENA"?{k:"",t:"Ressopó"}:{k:"",t:"Aperitivo",ap:true}; });
   return out;
 }
 function algAnalisis(g,sel,cur){
@@ -13038,6 +13048,7 @@ function rentCalc(){
   var sel=selectedDishes(), mp=[], faltanIng={}, avisos=[];
   /* 1 · materia prima: cada plato marcado × sus raciones reales */
   sel.forEach(function(d){
+    if(esTartaDish(d)) return;   /* la tarta se cuenta aparte, abajo */
     var rac=racionesDe(d,t); if(!rac) return;
     var cp=rentCostePlato(d,P,AM);
     cp.faltan.forEach(function(n){ faltanIng[n]=(faltanIng[n]||0)+1; });
@@ -13059,7 +13070,8 @@ function rentCalc(){
   /* tarta (todas: las normales y las adaptadas, también la del staff) */
   var tartaD=null; ban[2].platos.forEach(function(x){ if(x.tarta) tartaD=x; });
   if(tartaD){ var nT=Math.max(0,c.adultos-tartaD.fuera); Object.keys(tartaD.subs).forEach(function(kk){ nT+=tartaD.subs[kk].gente.length; });
-    var ct=(R.costeTarta!=null&&R.costeTarta!=="")?+R.costeTarta:+RP.costeTarta;
+    var tdish=sel.filter(esTartaDish)[0];
+    var ct=(R.costeTarta!=null&&R.costeTarta!=="")?+R.costeTarta:(tdish&&tdish.coste!=null&&isFinite(tdish.coste)?+tdish.coste:+RP.costeTarta);
     mp.push({grupo:"Postres", txt:"Tarta: "+tartaD.name, rac:nT, cu:ct, total:ct*nT, tarta:true, completo:ct>0, tipo:"elab"}); }
   /* menú staff: su coste por persona (es un menú propio, no un escandallo) */
   if(c.staff>0) mp.push({grupo:"Menú staff", txt:"Menú staff", rac:c.staff, cu:+RP.costeStaff, total:c.staff*RP.costeStaff, staff:true, completo:RP.costeStaff>0, tipo:"elab"});
