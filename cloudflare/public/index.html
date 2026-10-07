@@ -3070,7 +3070,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.32</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.33</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6312,9 +6312,9 @@ function descargarHoja(selector,nombreArchivo,paperSize){
    vean de un vistazo. Si no cabe en una hoja, se reduce la letra poco a poco
    (hasta un mínimo legible) antes de pasar a una segunda. ══ */
 var ESC_SUST="#8E2C48", ESC_SUSTBG="#F8EEF1";
-function escaletaPages(md,pw,ph,s){
-  s=s||1;
-  var M=30, W=pw-2*M, G=18*s, CW=(W-G)/2, pages=[], cur=[], top=0, col=0, y=0;
+function escaletaPages(md,pw,ph,s,NC){
+  s=s||1; NC=NC||2;
+  var M=30, W=pw-2*M, G=(NC>2?12:18)*s, CW=(W-(NC-1)*G)/NC, pages=[], cur=[], top=0, col=0, y=0;
   var GP="#6E7D50", SUBC="#3F3B35", RULE="#E8DEC8";
   var F={t:8.8*s, q:10.6*s, sub:7.5*s, h:12*s, head:7.2*s, lh:10.6*s, lsub:9*s};
   function pie(){
@@ -6348,7 +6348,7 @@ function escaletaPages(md,pw,ph,s){
     return yy;
   }
   function pagina(){ pie(); pages.push(cur); cur=[]; top=cabecera(false); col=0; y=top; }
-  function sitio(h){ if(y+h<=ph-M-6) return false; if(col===0){ col=1; y=top; } else pagina(); return true; }
+  function sitio(h){ if(y+h<=ph-M-6) return false; if(col<NC-1){ col++; y=top; } else pagina(); return true; }
   function X(){ return M+col*(CW+G); }
   /* ancho de la columna de cantidades de un bloque: la cantidad más ancha */
   function anchoQ(sc){ var w=0; sc.filas.forEach(function(f){ var q=f.head?f.hq:f.q; if(q&&!f.alerg) w=Math.max(w,textW({s:q,fo:"sansb",size:F.q,ls:0})); }); return w?Math.max(20*s,w+8*s):0; }
@@ -6421,7 +6421,7 @@ function escaletaPages(md,pw,ph,s){
     if(total<=ph-M-6-top&&!md.__partir) sitio(total); else sitio(hCab+(ms[0]?ms[0].h:0)+(ms[1]&&sc.filas[0].head?ms[1].h:0));
     var x=X();
     cur.push(TX(x,y+11*s,sc.t,{size:F.h,fo:"ser",a:"start",c:INK}));
-    if(sc.sub) cur.push(TX(x+CW,y+11*s,sc.sub.toUpperCase(),{size:6.4,fo:"sans",a:"end",c:SOFT,ls:1}));
+    if(sc.sub){ var wT=textW({s:sc.t,fo:"ser",size:F.h,ls:0}); cur.push(TX(x+CW,y+11*s,clipW(sc.sub.toUpperCase(),Math.max(30,CW-wT-10),"sans",6.4,1),{size:6.4,fo:"sans",a:"end",c:SOFT,ls:1})); }
     y+=15*s; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
     if(sc.leyenda){
       cur.push(R(x,y+3*s,7*s,7*s,1,ESC_SUSTBG,ESC_SUST,0.8));
@@ -6437,7 +6437,8 @@ function escaletaPages(md,pw,ph,s){
         var bh=18*s, by=y+4*s;
         cur.push(R(x,by,CW,bh,3*s,"#EEF0E6","#B9C29E",0.7));
         var lsB=f.est?1.4:2.4, hqW=f.hq?textW({s:f.hq+(f.hqTxt||""),fo:"sans",size:6.9*s,ls:.4})+16*s:0;
-        cur.push(TX(x+CW/2,by+bh/2+3.1*s,clipW(f.head.toUpperCase(),Math.max(40,CW-2*hqW),"sansb",8.8*s,lsB),{size:8.8*s,fo:"sansb",a:"middle",c:"#3F4A2A",ls:lsB}));
+        if(f.est) cur.push(TX(x+8*s,by+bh/2+3.1*s,clipW(f.head.toUpperCase(),Math.max(40,CW-hqW-14*s),"sansb",8.8*s,lsB),{size:8.8*s,fo:"sansb",a:"start",c:"#3F4A2A",ls:lsB}));
+        else cur.push(TX(x+CW/2,by+bh/2+3.1*s,clipW(f.head.toUpperCase(),Math.max(40,CW-2*hqW),"sansb",8.8*s,lsB),{size:8.8*s,fo:"sansb",a:"middle",c:"#3F4A2A",ls:lsB}));
         if(f.hq) cur.push(TX(x+CW-7*s,by+bh/2+2.6*s,f.hq+(f.hqTxt||""),{size:6.9*s,fo:"sans",a:"end",c:"#56613F",ls:.4}));
         y+=27*s; return;
       }
@@ -6490,12 +6491,15 @@ function escaletaPages(md,pw,ph,s){
 function descargarEscaleta(md,nombreArchivo,paperSize){
   if(!md){ toast("No hay ningún evento abierto.",true); return Promise.resolve(); }
   var P=PAPERS[paperSize||"A4"]||PAPERS.A4, pr=null;
-  /* se busca la letra más grande con la que todo cabe en UNA hoja */
-  /* (si sobra sitio, la letra crece un poco: se lee mejor en cocina) */
-  for(var s=1.2;s>=0.66;s-=0.04){ pr=escaletaPages(md,P.w,P.h,s); if(pr.length===1) break; }
-  /* si no cabe con cada bloque entero en su columna, se deja que un bloque
-     siga en la columna de al lado (con «sigue») antes de pasar a dos hojas */
-  if(pr.length>1){ md.__partir=true; for(var s2=1;s2>=0.66;s2-=0.04){ pr=escaletaPages(md,P.w,P.h,s2); if(pr.length===1) break; } delete md.__partir; }
+  /* la escaleta SIEMPRE en una hoja: se busca la letra más grande con la que todo cabe.
+     Con cada tamaño se prueba en dos columnas (bloques enteros o partidos) y, si no cabe,
+     en tres columnas: así se lee mejor que apretando la letra en dos. */
+  var hecho=false;
+  for(var s=1.2;s>=0.4&&!hecho;s-=0.04){
+    [[2,false],[2,true],[3,false],[3,true]].some(function(c){
+      md.__partir=c[1]; pr=escaletaPages(md,P.w,P.h,s,c[0]); delete md.__partir;
+      if(pr.length===1){ hecho=true; return true; } return false; });
+  }
   var pages=pr.map(function(p){ return pageOf(p,P.w,P.h,null); });
   return deliver(nombreArchivo+".pdf",buildPDF(pages)).then(function(){
     toast(pages.length===1?"Escaleta descargada (1 hoja).":"Escaleta descargada ("+pages.length+" páginas: hay mucha información; prueba en A3 para tenerla en una).");
@@ -7967,7 +7971,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.32</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.33</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
