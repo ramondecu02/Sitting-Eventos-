@@ -3070,7 +3070,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.35</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.36</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -7972,7 +7972,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.35</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.36</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10835,11 +10835,14 @@ function aperExterior(){ var m=menu(); if(m&&typeof m.aperExterior==="boolean") 
    Devuelve una línea por tipo de mesa/tablero, o null si no hay montaje que
    leer (sin plano o sin hoja MESAS en el inventario) y entonces se usa la mesa
    genérica de siempre. */
+function esMesaArt(a){ var n=nrmTxt(a); return /^MESAS?\b/.test(n)&&!/MANTEL|CUBREMANTEL|APERITIVO|ALTA/.test(n); }
+function nrmTxt(x){ return String(x||"").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim(); }
+var MESAS_MOTIVO="";
 function mesasDelMontaje(){
   try{
-    var e=ev(), M=BR.montaje; if(!e||!M||!M.hojaEv) return null;
-    var P=M.params(), INV=M.inventario(); if(!INV.hay) return null;
-    var H=M.hojaEv(e,P,INV); if(!H||!H.filas||!H.filas.length) return null;
+    var e=ev(), M=BR.montaje; if(!e||!M||!M.hojaEv){ MESAS_MOTIVO="el Montaje no está disponible"; return null; }
+    var P=M.params(), INV=M.inventario(); if(!INV.hay){ MESAS_MOTIVO="no hay hoja de mesas en el inventario"; return null; }
+    var H=M.hojaEv(e,P,INV); if(!H||!H.filas||!H.filas.length){ MESAS_MOTIVO="el evento todavía no tiene mesas en el plano"; return null; }
     var items=[], mesas=0, sinMesa=0, largas=0, redondas=0;
     H.filas.forEach(function(f){ if(!f.monta) sinMesa++; else if(f.k==="r") redondas++; else largas++; });
     H.mat.forEach(function(x){
@@ -10848,10 +10851,10 @@ function mesasDelMontaje(){
         sub:(red?"mesas":"tableros")+" del Montaje"+(x.nec>x.hay?" · ¡faltan "+(x.nec-x.hay)+" en el almacén!":"")});
     });
     if(sinMesa) items.push({art:"Mesa de banquete sin tipo asignado", uds:sinMesa, mob:true, montaje:true, sub:"revisa el Montaje: no hay mesa en el inventario"});
-    if(!items.length) return null;
+    if(!items.length){ MESAS_MOTIVO="el Montaje no ha asignado ninguna mesa"; return null; }
     var nota="Las mesas salen del Montaje, según el plano y los parámetros: "+H.filas.length+" mesas ("+redondas+" redondas"+(largas?" y "+largas+(largas===1?" larga":" largas"):"")+")."+(largas?" De las largas se cuentan los tableros.":"");
     return {items:items, nota:nota};
-  }catch(_){ return null; }
+  }catch(_){ MESAS_MOTIVO="error al leer el Montaje"; return null; }
 }
 function mobiliarioBloques(){
   var sel=selectedDishes(), t=evTotals(), out=[];
@@ -10868,13 +10871,15 @@ function mobiliarioBloques(){
              : r.base==="MESA APERITIVO"? t.mesasAper : 1;
     if(!mult) return;                       /* sin comensales/mesas no hay nada que montar */
     var items=[], ext=aperExterior();
+    var porMontaje=(r.base==="MESA BANQUETE"&&c.tipo==="evento"&&!!delMontaje);
+    if(porMontaje) delMontaje.items.forEach(function(x){ items.push(x); });
     /* lo marcado «al aire libre» (los ceniceros) solo si el aperitivo es fuera */
     (r.mobiliario||[]).forEach(function(i){ if(i.exterior&&!ext) return;
-      if(r.base==="MESA BANQUETE"&&i.art==="Mesa de banquete"&&delMontaje){ delMontaje.items.forEach(function(x){ items.push(x); }); return; }
+      if(porMontaje&&esMesaArt(i.art)) return;      /* la mesa genérica (se llame como se llame en las reglas guardadas) se cambia por las del Montaje */
       items.push({art:i.art,uds:i.uds==null?null:i.uds*mult,mob:true,exterior:!!i.exterior}); });
     (r.utensilios||[]).forEach(function(i){ if(i.exterior&&!ext) return; items.push({art:i.art,uds:i.uds==null?null:i.uds*mult,exterior:!!i.exterior}); });
     var nota=r.nota, motivoSeg="";
-    if(r.base==="MESA BANQUETE"&&delMontaje) nota=delMontaje.nota+(r.nota?" "+r.nota:"");
+    if(r.base==="MESA BANQUETE"&&c.tipo==="evento") nota=delMontaje?delMontaje.nota+(r.nota?" "+r.nota:""):(r.nota?r.nota+" ":"")+"Mesas genéricas, sin tipo ni medida: "+MESAS_MOTIVO+".";
     if(r.cubiertosSegundos){
       var cs=cubiertosDeSegundos(sel);
       cs.items.forEach(function(i){ items.push({art:i.art,uds:i.uds*mult,seg:true}); });
