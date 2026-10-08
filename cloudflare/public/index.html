@@ -2171,6 +2171,8 @@ details.help[open] summary::before{content:""; transform:rotate(45deg)}
 .mnu-esc .esc-horario div.lleg b{color:#1A1A1A}
 .mnu-esc .esc-sec h3{font-family:var(--font-display); font-weight:500; font-size:18px; letter-spacing:.005em; border-bottom:1px solid #1A1A1A; padding-bottom:4px; margin-bottom:6px}
 .mnu-esc .esc-h3sub{font-family:var(--font-text); font-size:8.5px; letter-spacing:.16em; color:#65645C}
+.mnu-esc .esc-sec h3{display:block; text-align:center; font-family:var(--font-text); font-weight:800; font-size:16.5px; letter-spacing:.13em; text-transform:uppercase; line-height:1.15; padding-bottom:5px; margin-bottom:6px}
+.mnu-esc .esc-sec h3 .esc-h3sub{display:block; margin-top:3px; font-size:8.8px; font-weight:600; letter-spacing:.14em; text-align:center}
 .mnu-esc .esc-t td{border-bottom:1px solid #E6E3D8; padding:4px 3px}
 .mnu-esc .esc-t td.esc-q{font-family:var(--font-text); font-weight:700; font-size:14px; letter-spacing:-.01em; color:#1A1A1A}
 .mnu-esc td .mnu-base{white-space:normal}
@@ -3201,7 +3203,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.43</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.44</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6451,7 +6453,7 @@ function escaletaPages(md,pw,ph,s,NC){
   s=s||1; NC=NC||2;
   var M=30, W=pw-2*M, G=(NC>2?12:18)*s, CW=(W-(NC-1)*G)/NC, pages=[], cur=[], top=0, col=0, y=0;
   var GP="#6E7D50", SUBC="#3F3B35", RULE="#E8DEC8";
-  var F={t:8.8*s, q:10.6*s, sub:7.5*s, h:12*s, head:7.2*s, lh:10.6*s, lsub:9*s};
+  var F={t:8.8*s, q:10.6*s, sub:7.5*s, h:12*s, hT:13.2*s, hL:1.7*s, head:7.2*s, lh:10.6*s, lsub:9*s};
   function pie(){
     cur.push(LN(M,ph-M+2,pw-M,ph-M+2,"#E4D9C0",0.6));
     cur.push(TX(pw/2,ph-M+13,"Les Moles Events  ·  Escaleta  ·  "+md.titulo,{size:6.5,fo:"sans",a:"middle",c:SOFT,ls:1.2}));
@@ -6550,14 +6552,15 @@ function escaletaPages(md,pw,ph,s,NC){
     var sc={t:sc0.t,sub:sc0.sub,leyenda:sc0.leyenda,filas:filas};
     /* el banquete y lo que se sirve en mesa van SIEMPRE en la columna derecha,
        enteros; lo del aperitivo y los recuentos, en la izquierda */
-    var QW=anchoQ(sc), ms=sc.filas.map(function(f){ return mide(f,QW); }), hCab=19*s+(sc.leyenda?10*s:0);
+    var QW=anchoQ(sc), ms=sc.filas.map(function(f){ return mide(f,QW); }), hCab=(sc.sub?32:22)*s+(sc.leyenda?10*s:0);
     var total=hCab+ms.reduce(function(a,m){ return a+m.h; },0);
     /* el bloque entero pasa a la columna siguiente si ahí cabe y aquí no */
     if(total<=ph-M-6-top&&!md.__partir) sitio(total); else sitio(hCab+(ms[0]?ms[0].h:0)+(ms[1]&&sc.filas[0].head?ms[1].h:0));
     var x=X();
-    cur.push(TX(x,y+11*s,sc.t,{size:F.h,fo:"ser",a:"start",c:INK}));
-    if(sc.sub){ var wT=textW({s:sc.t,fo:"ser",size:F.h,ls:0}); cur.push(TX(x+CW,y+11*s,clipW(sc.sub.toUpperCase(),Math.max(30,CW-wT-10),"sans",6.4,1),{size:6.4,fo:"sans",a:"end",c:SOFT,ls:1})); }
-    y+=15*s; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
+    /* título del apartado: MAYÚSCULAS, negrita, centrado y más grande; debajo, en pequeño, el resumen */
+    cur.push(TX(x+CW/2,y+12.5*s,clipW(sc.t.toUpperCase(),CW-4,"sansb",F.hT,F.hL),{size:F.hT,fo:"sansb",a:"middle",c:INK,ls:F.hL}));
+    if(sc.sub) cur.push(TX(x+CW/2,y+22.5*s,clipW(sc.sub.toUpperCase(),CW-4,"sans",6.4,1),{size:6.4,fo:"sans",a:"middle",c:SOFT,ls:1}));
+    y+=(sc.sub?28:18)*s; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
     if(sc.leyenda){
       cur.push(R(x,y+3*s,7*s,7*s,1,ESC_SUSTBG,ESC_SUST,0.8));
       cur.push(TX(x+11*s,y+9*s,sc.leyenda,{size:6.8*s,fo:"sans",a:"start",c:ESC_SUST}));
@@ -8214,7 +8217,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.43</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.44</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -12737,6 +12740,10 @@ function escModelo(){
   var fr=ro.map(function(k){ var ds=rg[k]; return fila(ds.map(function(d){ return d.name; }).join(" · "),ro.length>1?k:null,Q("rs:"+escNorm(k),adTot)); });
   String(cfg.ressopo||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(t){ fr.push(fila(t,null,Q("rsx:"+escNorm(t).slice(0,30),adTot))); });
   if(fr.length) md.secs.push({t:"Ressopó",sub:adTot+" menús adultos (el staff va aparte)",filas:fr});
+  /* orden de la hoja: primero todo lo del menú adulto y su horario (aperitivos, estaciones, platos, postres, tarta, cafés, ressopó)
+     y, juntos y al final, el menú infantil y el del staff */
+  (function(){ var fin=["Menú infantil","Menú staff"]; var cola=md.secs.filter(function(x){ return fin.indexOf(x.t)>=0; });
+    md.secs=md.secs.filter(function(x){ return fin.indexOf(x.t)<0; }).concat(cola); })();
   if(ban.sinSitio.length) md.avisos.push(ban.sinSitio.length+(ban.sinSitio.length===1?" plato sustitutivo no sale":" platos sustitutivos no salen")+" porque ese tiempo no tiene ningún plato marcado en «Elegir platos»: "+ban.sinSitio.join(", ")+".");
   md.sustTotal=ban.total; md.sustColocados=ban.colocados;
   if(!c.delPlano) md.avisos.push("El plano todavía no tiene invitados: las cantidades salen de los comensales escritos a mano en «Elegir platos».");
