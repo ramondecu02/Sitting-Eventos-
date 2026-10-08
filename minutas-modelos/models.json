@@ -1,0 +1,863 @@
+[
+ {
+  "id": "m01",
+  "nombre": "Amanecer de acuarela",
+  "desc": "Manchas de melocotón, lila y celeste que se funden en el papel",
+  "cats": [
+   "boda",
+   "comunion",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFDFB",
+  "tinta": "#4A3A40",
+  "color": "#9A6A7A",
+  "letras": [
+   "Pinyon Script",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Textura",
+   "Elegante"
+  ]
+ },
+ {
+  "id": "m02",
+  "nombre": "Mármol y oro",
+  "desc": "Mármol blanco con venas doradas y marco de doble filete",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#F7F5F2",
+  "tinta": "#2B2824",
+  "color": "#B8902B",
+  "letras": [
+   "Cinzel",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Elegante",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m03",
+  "nombre": "Azulejo mediterráneo",
+  "desc": "Baldosas hidráulicas azules arriba y abajo, y un toque de cal",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFEFA",
+  "tinta": "#1F3A63",
+  "color": "#2B5A9B",
+  "letras": [
+   "Playfair Display",
+   "Lora"
+  ],
+  "tags": [
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m04",
+  "nombre": "Pampa boho",
+  "desc": "Plumas de hierba de la pampa y un arco fino de terracota",
+  "cats": [
+   "boda",
+   "bautizo",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#F7F0E6",
+  "tinta": "#5A4637",
+  "color": "#B07A5A",
+  "letras": [
+   "Cormorant Garamond",
+   "Jost"
+  ],
+  "tags": [
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m05",
+  "nombre": "Noche estrellada",
+  "desc": "Azul medianoche con constelaciones, una luna y letras doradas",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#0F1A33",
+  "tinta": "#EDE4D0",
+  "color": "#E5C77E",
+  "letras": [
+   "Poiret One",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Oscuro",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m06",
+  "nombre": "Viñedo de Terra Alta",
+  "desc": "Hojas de vid y un racimo en granate sobre papel crema",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FBF6EE",
+  "tinta": "#3B2A2E",
+  "color": "#6B2737",
+  "letras": [
+   "Pinyon Script",
+   "Libre Baskerville"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Local"
+  ]
+ },
+ {
+  "id": "m07",
+  "nombre": "Olivos de la casa",
+  "desc": "Dos ramas de olivo con aceitunas que enmarcan el texto",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFFFF",
+  "tinta": "#3A4235",
+  "color": "#6B7F58",
+  "letras": [
+   "Cormorant Garamond",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Local"
+  ]
+ },
+ {
+  "id": "m08",
+  "nombre": "Limones de Amalfi",
+  "desc": "Una rama de limonero y una cenefa de azulejo azul",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFDF4",
+  "tinta": "#23406B",
+  "color": "#2B5A9B",
+  "letras": [
+   "Playfair Display",
+   "Lora"
+  ],
+  "tags": [
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m09",
+  "nombre": "Papel cortado",
+  "desc": "Capas de papel con relieve y un sol de arena detrás de las colinas",
+  "cats": [
+   "otros",
+   "boda",
+   "bautizo"
+  ],
+  "prim": "otros",
+  "fondo": "#F4E8DA",
+  "tinta": "#5A4034",
+  "color": "#B9674A",
+  "letras": [
+   "Josefin Sans",
+   "Josefin Sans"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Moderno"
+  ]
+ },
+ {
+  "id": "m10",
+  "nombre": "Art nouveau",
+  "desc": "Volutas y hojas de la Belle Époque en verde bosque y mostaza",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#F6F0DF",
+  "tinta": "#2F3B2C",
+  "color": "#2F5D44",
+  "letras": [
+   "Limelight",
+   "Sorts Mill Goudy"
+  ],
+  "tags": [
+   "Elegante",
+   "Clásico"
+  ]
+ },
+ {
+  "id": "m11",
+  "nombre": "Curvas de nivel",
+  "desc": "El paisaje de Terra Alta dibujado con líneas, con sus coordenadas",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#F5F2E9",
+  "tinta": "#2E3B30",
+  "color": "#6E8A72",
+  "letras": [
+   "Jost",
+   "Jost"
+  ],
+  "tags": [
+   "Moderno",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m12",
+  "nombre": "Sello de lacre",
+  "desc": "Papel pergamino con un lacre granate y vuestras iniciales",
+  "cats": [
+   "boda",
+   "comunion",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#F3EAD7",
+  "tinta": "#3A2C26",
+  "color": "#8E1B2B",
+  "letras": [
+   "Italianno",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Clásico",
+   "Elegante"
+  ]
+ },
+ {
+  "id": "m13",
+  "nombre": "Jardín de peonías",
+  "desc": "Peonías pintadas a la acuarela en dos esquinas del papel",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFCFA",
+  "tinta": "#4A3A3E",
+  "color": "#C9708A",
+  "letras": [
+   "Allura",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Elegante"
+  ]
+ },
+ {
+  "id": "m14",
+  "nombre": "Fiesta de oro",
+  "desc": "Negro profundo con esquirlas de pan de oro en las esquinas",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#15131A",
+  "tinta": "#F1E6C8",
+  "color": "#D9B756",
+  "letras": [
+   "Limelight",
+   "Poiret One"
+  ],
+  "tags": [
+   "Oscuro",
+   "Elegante"
+  ]
+ },
+ {
+  "id": "m15",
+  "nombre": "Arcoíris boho",
+  "desc": "Un arcoíris pastel con nubes y el nombre del bebé a pincel",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FFFBF5",
+  "tinta": "#6A5A52",
+  "color": "#D79A88",
+  "letras": [
+   "Satisfy",
+   "Quicksand"
+  ],
+  "tags": [
+   "Infantil",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m16",
+  "nombre": "Luna y estrellitas",
+  "desc": "Cielo azul pálido con estrellas blancas y una luna dorada",
+  "cats": [
+   "bautizo",
+   "comunion"
+  ],
+  "prim": "bautizo",
+  "fondo": "#DDE9F6",
+  "tinta": "#2F4468",
+  "color": "#E4B94A",
+  "letras": [
+   "Satisfy",
+   "Quicksand"
+  ],
+  "tags": [
+   "Infantil",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m17",
+  "nombre": "Banderines de fiesta",
+  "desc": "Una guirnalda de banderines de colores sobre el título",
+  "cats": [
+   "bautizo",
+   "otros",
+   "comunion"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FFFFFF",
+  "tinta": "#5A5560",
+  "color": "#E58E8A",
+  "letras": [
+   "Cookie",
+   "Poppins"
+  ],
+  "tags": [
+   "Infantil",
+   "Color vivo"
+  ]
+ },
+ {
+  "id": "m18",
+  "nombre": "Acuarela rosa y florecitas",
+  "desc": "Manchas rosas y una guirnalda de florecillas bajo el nombre",
+  "cats": [
+   "bautizo",
+   "comunion"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FFFAFB",
+  "tinta": "#6A4F57",
+  "color": "#D98893",
+  "letras": [
+   "Birthstone",
+   "Nunito"
+  ],
+  "tags": [
+   "Infantil",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m19",
+  "nombre": "Ballenita y olas",
+  "desc": "Una ballena azul que salta entre olas, para un bautizo de mar",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#F4F9FC",
+  "tinta": "#34506A",
+  "color": "#6A9CC2",
+  "letras": [
+   "Playball",
+   "Nunito"
+  ],
+  "tags": [
+   "Infantil",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m20",
+  "nombre": "Paloma de oro",
+  "desc": "Una paloma dibujada a línea dorada con dos ramas de olivo",
+  "cats": [
+   "bautizo",
+   "comunion"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FBF8F1",
+  "tinta": "#4A4236",
+  "color": "#B8902B",
+  "letras": [
+   "Great Vibes",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Clásico",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m21",
+  "nombre": "Rosetón de vidriera",
+  "desc": "Una vidriera de colores sobre el nombre, con letras doradas",
+  "cats": [
+   "comunion",
+   "boda",
+   "otros"
+  ],
+  "prim": "comunion",
+  "fondo": "#FFFDF8",
+  "tinta": "#3E3A33",
+  "color": "#B8902B",
+  "letras": [
+   "Pinyon Script",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Clásico",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m22",
+  "nombre": "Espigas y uvas",
+  "desc": "Trigo y vid, símbolos de la comunión, en oro sobre crema",
+  "cats": [
+   "comunion",
+   "otros"
+  ],
+  "prim": "comunion",
+  "fondo": "#FBF6EA",
+  "tinta": "#4A3F2E",
+  "color": "#B8902B",
+  "letras": [
+   "Allura",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Clásico",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m23",
+  "nombre": "Cáliz y rayos de luz",
+  "desc": "Rayos dorados que salen de un cáliz, simple y solemne",
+  "cats": [
+   "comunion"
+  ],
+  "prim": "comunion",
+  "fondo": "#FFFEFA",
+  "tinta": "#3E3A33",
+  "color": "#C9A24B",
+  "letras": [
+   "Mrs Saint Delafield",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Clásico",
+   "Elegante"
+  ]
+ },
+ {
+  "id": "m24",
+  "nombre": "Celeste con nubes",
+  "desc": "Acuarela azul y lila con nubes blancas, muy luminoso",
+  "cats": [
+   "comunion",
+   "bautizo"
+  ],
+  "prim": "comunion",
+  "fondo": "#FBFDFF",
+  "tinta": "#34506A",
+  "color": "#6A9CC2",
+  "letras": [
+   "Allura",
+   "Poppins"
+  ],
+  "tags": [
+   "Textura",
+   "Infantil"
+  ]
+ },
+ {
+  "id": "m25",
+  "nombre": "Terrazo menta",
+  "desc": "Lascas de terrazo en menta, arena y rosa; fresco y moderno",
+  "cats": [
+   "comunion",
+   "otros",
+   "bautizo"
+  ],
+  "prim": "comunion",
+  "fondo": "#F6FBF8",
+  "tinta": "#2F4A42",
+  "color": "#5FA89A",
+  "letras": [
+   "Syne",
+   "Jost"
+  ],
+  "tags": [
+   "Moderno",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m26",
+  "nombre": "Luz y cruz",
+  "desc": "Una cruz fina sobre un abanico de luz amarilla muy suave",
+  "cats": [
+   "comunion"
+  ],
+  "prim": "comunion",
+  "fondo": "#FFFEF5",
+  "tinta": "#4A4430",
+  "color": "#D2AE4A",
+  "letras": [
+   "Great Vibes",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Clásico",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m27",
+  "nombre": "Fiesta de confeti",
+  "desc": "Confeti de colores en los bordes y un título grande",
+  "cats": [
+   "otros",
+   "bautizo"
+  ],
+  "prim": "otros",
+  "fondo": "#FFFFFF",
+  "tinta": "#2F2F3A",
+  "color": "#E8604C",
+  "letras": [
+   "Bebas Neue",
+   "Poppins"
+  ],
+  "tags": [
+   "Color vivo",
+   "Moderno"
+  ]
+ },
+ {
+  "id": "m28",
+  "nombre": "Terrazo moderno",
+  "desc": "Grandes lascas de terrazo sobre papel arena, tipografía geométrica",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#F6F1EA",
+  "tinta": "#2D2A28",
+  "color": "#B8654A",
+  "letras": [
+   "Fraunces",
+   "Syne"
+  ],
+  "tags": [
+   "Moderno",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m29",
+  "nombre": "Atardecer retro",
+  "desc": "Un sol de los años setenta con franjas naranjas y magenta",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#F7E8D0",
+  "tinta": "#4A2F3A",
+  "color": "#E0617A",
+  "letras": [
+   "Bebas Neue",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Color vivo",
+   "Moderno"
+  ]
+ },
+ {
+  "id": "m30",
+  "nombre": "Olas japonesas",
+  "desc": "Olas seigaiha en índigo arriba y abajo, con mucho aire en medio",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#F5F2EA",
+  "tinta": "#22304F",
+  "color": "#2E4A7D",
+  "letras": [
+   "Marcellus",
+   "Tenor Sans"
+  ],
+  "tags": [
+   "Elegante",
+   "Textura"
+  ]
+ },
+ {
+  "id": "m31",
+  "nombre": "Corporativo carbón",
+  "desc": "Líneas rectas, una trama de puntos y un acento verde azulado",
+  "cats": [
+   "otros"
+  ],
+  "prim": "otros",
+  "fondo": "#FFFFFF",
+  "tinta": "#23272B",
+  "color": "#1F8A86",
+  "letras": [
+   "Syne",
+   "Inter"
+  ],
+  "tags": [
+   "Moderno"
+  ]
+ },
+ {
+  "id": "m32",
+  "nombre": "Linograbado marinero",
+  "desc": "Papel de estraza con olas, anclas y peces en azul marino y rojo",
+  "cats": [
+   "otros",
+   "bautizo",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#EFE5CE",
+  "tinta": "#1F2E4A",
+  "color": "#B23A2E",
+  "letras": [
+   "Yeseva One",
+   "Rufina"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Clásico"
+  ]
+ },
+ {
+  "id": "m33",
+  "nombre": "Almendros en flor",
+  "desc": "Ramas de almendro con flor rosa pálido, como en febrero en el Montsià",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFBF8",
+  "tinta": "#4F3F44",
+  "color": "#B5577A",
+  "letras": [
+   "Birthstone",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Local"
+  ]
+ },
+ {
+  "id": "m34",
+  "nombre": "Flamencos del Delta",
+  "desc": "Dos flamencos y un sol de atardecer sobre las aguas del Delta del Ebro",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFF6F0",
+  "tinta": "#5A3D40",
+  "color": "#D9667F",
+  "letras": [
+   "Playfair Display",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Ilustrado",
+   "Local"
+  ]
+ },
+ {
+  "id": "m35",
+  "nombre": "Serra del Montsià",
+  "desc": "Capas de montañas azules con un sol bajo, la sierra que se ve desde la masía",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#F6F1E6",
+  "tinta": "#34464C",
+  "color": "#5A7782",
+  "letras": [
+   "Josefin Sans",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Moderno",
+   "Local"
+  ]
+ },
+ {
+  "id": "m36",
+  "nombre": "Osito y globo",
+  "desc": "Un osito de peluche con un globo verde salvia, suave y tierno",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FAF6EE",
+  "tinta": "#5A4A3C",
+  "color": "#8FA58A",
+  "letras": [
+   "Cookie",
+   "Quicksand"
+  ],
+  "tags": [
+   "Infantil",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m37",
+  "nombre": "Globos aerostáticos",
+  "desc": "Dos globos en un cielo suave de nubes, para empezar a volar",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#E9F3F8",
+  "tinta": "#34505E",
+  "color": "#5F9BB5",
+  "letras": [
+   "Playball",
+   "Nunito"
+  ],
+  "tags": [
+   "Infantil",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m38",
+  "nombre": "Barquito de papel",
+  "desc": "Un barco de origami color melocotón navegando en olas azules",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FBF7EF",
+  "tinta": "#2F4A6E",
+  "color": "#E08A62",
+  "letras": [
+   "Satisfy",
+   "Josefin Sans"
+  ],
+  "tags": [
+   "Infantil",
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m39",
+  "nombre": "Flores silvestres",
+  "desc": "Margaritas, amapolas y acianos en un prado, como a la orilla del camino",
+  "cats": [
+   "comunion",
+   "boda",
+   "otros"
+  ],
+  "prim": "comunion",
+  "fondo": "#FFFDF6",
+  "tinta": "#4A4A3A",
+  "color": "#6E8F5A",
+  "letras": [
+   "Birthstone",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Ilustrado"
+  ]
+ },
+ {
+  "id": "m40",
+  "nombre": "Pizarra de tiza",
+  "desc": "Pizarra verde oscuro, trazo de tiza y letras a mano",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#26322E",
+  "tinta": "#F2EEE4",
+  "color": "#F2C14E",
+  "letras": [
+   "Amatic SC",
+   "Shadows Into Light"
+  ],
+  "tags": [
+   "Moderno",
+   "Oscuro"
+  ]
+ },
+ {
+  "id": "m41",
+  "nombre": "Navidad de acebo",
+  "desc": "Verde bosque con acebo, bayas rojas y copos de nieve; con título de Navidad",
+  "cats": [
+   "otros"
+  ],
+  "prim": "otros",
+  "fondo": "#16382C",
+  "tinta": "#F5EBD6",
+  "color": "#E5C77E",
+  "letras": [
+   "Mr De Haviland",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Oscuro",
+   "Ilustrado"
+  ]
+ }
+]
