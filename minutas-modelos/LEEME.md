@@ -1,11 +1,13 @@
-# Modelos nuevos de minuta (pendientes de aprobación)
+# Modelos de minuta (M01–M60)
 
-Fuentes de los 41 modelos creativos (M01–M41) que se enseñan en el Artifact «Modelos de minuta».
-**No están en la app**: solo pasarán a `cloudflare/public/index.html` los que apruebe el cliente.
+Fuentes de los modelos creativos del diseñador de minutas. Ya están integrados en `cloudflare/public/index.html`
+(versión 01.49); esta carpeta guarda el código de origen por si hay que tocarlos.
 
-- `ext_arte.js`, `ext_arte2.js`: ilustraciones y texturas dibujadas con código (se registran en `ARTE`, la tabla que usa `dibujaForma` de `lienzo.js`).
-- `modelos.js`, `modelos2.js`: las plantillas `tpl({...})` (M01–M41) y las tipografías extra.
-- `models.json`: ficha de cada modelo (nombre, categorías, paleta, etiquetas) para la galería.
-- `galeria.html`: la página de la galería (los datos van en `/*@@DATA@@*/`).
+- `ext_arte.js`, `ext_arte2.js`: texturas e ilustraciones dibujadas con código (acuarela, mármol, azulejo, peonías, almendros, flamencos…).
+- `ext_arte3*.js`: serie «tinta y lavado»: trazo de pluma con presión variable, acuarela desplazada del contorno, rayado y grano
+  (brindis, bodegón, masía, tapas, pulpo, conchas, cigüeña, animales, cordero, paloma, bici, tarta, doce uvas, ramo, Sant Jordi, herbario).
+- `modelos.js`, `modelos2.js`, `modelos3.js`: las plantillas `tpl({...})` M01–M60 y las tipografías extra.
+- `models.json`: ficha de cada modelo (nombre, eventos, estilos, paleta). `galeria.html`: página de la galería (datos en `/*@@DATA@@*/`).
 
-Para probarlos: en `lienzo.js` se sustituye el marcador `/*@@ARTE@@*/` por el contenido de `ext_arte.js` + `ext_arte2.js` + `modelos.js` + `modelos2.js`.
+En `lienzo.js` el marcador `/*@@ARTE@@*/` se sustituye por el contenido de estos archivos, en este orden:
+`ext_arte, ext_arte2, ext_arte3, ext_arte3b…3f, modelos, modelos2, modelos3`.

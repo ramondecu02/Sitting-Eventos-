@@ -19,7 +19,8 @@
   "tags": [
    "Textura",
    "Elegante"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m02",
@@ -40,7 +41,8 @@
   "tags": [
    "Elegante",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m03",
@@ -60,7 +62,8 @@
   ],
   "tags": [
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m04",
@@ -81,7 +84,8 @@
   ],
   "tags": [
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m05",
@@ -102,7 +106,8 @@
   "tags": [
    "Oscuro",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m06",
@@ -123,7 +128,8 @@
   "tags": [
    "Ilustrado",
    "Local"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m07",
@@ -144,7 +150,8 @@
   "tags": [
    "Ilustrado",
    "Local"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m08",
@@ -164,7 +171,8 @@
   ],
   "tags": [
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m09",
@@ -186,7 +194,8 @@
   "tags": [
    "Ilustrado",
    "Moderno"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m10",
@@ -207,7 +216,8 @@
   "tags": [
    "Elegante",
    "Clásico"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m11",
@@ -228,7 +238,8 @@
   "tags": [
    "Moderno",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m12",
@@ -250,7 +261,8 @@
   "tags": [
    "Clásico",
    "Elegante"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m13",
@@ -271,7 +283,8 @@
   "tags": [
    "Ilustrado",
    "Elegante"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m14",
@@ -292,7 +305,8 @@
   "tags": [
    "Oscuro",
    "Elegante"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m15",
@@ -313,7 +327,8 @@
   "tags": [
    "Infantil",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m16",
@@ -334,7 +349,8 @@
   "tags": [
    "Infantil",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m17",
@@ -356,7 +372,8 @@
   "tags": [
    "Infantil",
    "Color vivo"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m18",
@@ -377,7 +394,8 @@
   "tags": [
    "Infantil",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m19",
@@ -398,7 +416,8 @@
   "tags": [
    "Infantil",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m20",
@@ -419,7 +438,8 @@
   "tags": [
    "Clásico",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m21",
@@ -441,7 +461,8 @@
   "tags": [
    "Clásico",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m22",
@@ -462,7 +483,8 @@
   "tags": [
    "Clásico",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m23",
@@ -482,7 +504,8 @@
   "tags": [
    "Clásico",
    "Elegante"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m24",
@@ -503,7 +526,8 @@
   "tags": [
    "Textura",
    "Infantil"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m25",
@@ -525,7 +549,8 @@
   "tags": [
    "Moderno",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m26",
@@ -545,7 +570,8 @@
   "tags": [
    "Clásico",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m27",
@@ -566,7 +592,8 @@
   "tags": [
    "Color vivo",
    "Moderno"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m28",
@@ -587,7 +614,8 @@
   "tags": [
    "Moderno",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m29",
@@ -608,7 +636,8 @@
   "tags": [
    "Color vivo",
    "Moderno"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m30",
@@ -629,7 +658,8 @@
   "tags": [
    "Elegante",
    "Textura"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m31",
@@ -648,7 +678,8 @@
   ],
   "tags": [
    "Moderno"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m32",
@@ -670,7 +701,8 @@
   "tags": [
    "Ilustrado",
    "Clásico"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m33",
@@ -691,7 +723,8 @@
   "tags": [
    "Ilustrado",
    "Local"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m34",
@@ -712,7 +745,8 @@
   "tags": [
    "Ilustrado",
    "Local"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m35",
@@ -733,7 +767,8 @@
   "tags": [
    "Moderno",
    "Local"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m36",
@@ -754,7 +789,8 @@
   "tags": [
    "Infantil",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m37",
@@ -775,7 +811,8 @@
   "tags": [
    "Infantil",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m38",
@@ -796,7 +833,8 @@
   "tags": [
    "Infantil",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m39",
@@ -817,7 +855,8 @@
   ],
   "tags": [
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m40",
@@ -838,7 +877,8 @@
   "tags": [
    "Moderno",
    "Oscuro"
-  ]
+  ],
+  "nuevo": false
  },
  {
   "id": "m41",
@@ -858,6 +898,446 @@
   "tags": [
    "Oscuro",
    "Ilustrado"
-  ]
+  ],
+  "nuevo": false
+ },
+ {
+  "id": "m42",
+  "nombre": "Brindis a tinta",
+  "desc": "Dos copas de cava dibujadas a pluma, con chispas y acuarela de oro y rosa",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFCF6",
+  "tinta": "#2E2E36",
+  "color": "#C65A4A",
+  "letras": [
+   "Reenie Beanie",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m43",
+  "nombre": "Bodegón de la casa",
+  "desc": "Botella, copas, pan y uvas sobre el mantel, dibujado a pluma con acuarela",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FBF7EE",
+  "tinta": "#34303A",
+  "color": "#8E2C48",
+  "letras": [
+   "Delicious Handrawn",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Local"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m44",
+  "nombre": "La masía y los cipreses",
+  "desc": "Una masía con cipreses y un sol bajo, dibujada con pluma y acuarela",
+  "cats": [
+   "boda",
+   "comunion",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFBF1",
+  "tinta": "#34303A",
+  "color": "#B5593B",
+  "letras": [
+   "Homemade Apple",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Local"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m45",
+  "nombre": "Tapas dibujadas",
+  "desc": "Una tira de limón, gamba, aceituna, tomate, pez, queso, pimiento y pan arriba y abajo",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#FFF9EE",
+  "tinta": "#3A332C",
+  "color": "#D9453F",
+  "letras": [
+   "Amatic SC",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Color vivo"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m46",
+  "nombre": "Del mar a la mesa",
+  "desc": "Un pulpo sonriente entre burbujas, para menús de pescado y marisco",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#F4F9F8",
+  "tinta": "#2A3338",
+  "color": "#D9805F",
+  "letras": [
+   "Gochi Hand",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Color vivo"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m47",
+  "nombre": "La cigüeña de París",
+  "desc": "Una cigüeña lleva al bebé entre nubes y estrellitas, para bautizos",
+  "cats": [
+   "bautizo"
+  ],
+  "prim": "bautizo",
+  "fondo": "#F6F9FC",
+  "tinta": "#34404F",
+  "color": "#6BA3C9",
+  "letras": [
+   "Covered By Your Grace",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Infantil"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m48",
+  "nombre": "Bosque de animalitos",
+  "desc": "Conejo, zorro y búho en fila, y un erizo con manzana: ilustraciones a pluma y acuarela",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FBF6EC",
+  "tinta": "#3A3228",
+  "color": "#B5693A",
+  "letras": [
+   "Delicious Handrawn",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Infantil"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m49",
+  "nombre": "Cordero y espigas",
+  "desc": "Un corderito con la banderola de la cruz, entre espigas de trigo, para comuniones",
+  "cats": [
+   "comunion",
+   "bautizo"
+  ],
+  "prim": "comunion",
+  "fondo": "#FFFCF3",
+  "tinta": "#3A342C",
+  "color": "#B8902B",
+  "letras": [
+   "Homemade Apple",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Clásico"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m50",
+  "nombre": "Bicicleta con flores",
+  "desc": "Una bici con la cesta llena de amapolas y margaritas, dibujada a pluma",
+  "cats": [
+   "boda",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFDF8",
+  "tinta": "#2E3A38",
+  "color": "#4FA396",
+  "letras": [
+   "Reenie Beanie",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Color vivo"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m51",
+  "nombre": "¡A celebrar!",
+  "desc": "Tarta de dos pisos, globos y banderines de fiesta, a pluma y acuarela",
+  "cats": [
+   "otros",
+   "bautizo",
+   "comunion"
+  ],
+  "prim": "otros",
+  "fondo": "#FFFEFA",
+  "tinta": "#2E2E36",
+  "color": "#E4574A",
+  "letras": [
+   "Gochi Hand",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Color vivo",
+   "Infantil"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m52",
+  "nombre": "Las doce uvas",
+  "desc": "Reloj en medianoche rodeado de las doce uvas y fuegos artificiales, en azul noche",
+  "cats": [
+   "otros"
+  ],
+  "prim": "otros",
+  "fondo": "#1E2540",
+  "tinta": "#F3EDE0",
+  "color": "#E5B94A",
+  "letras": [
+   "Delicious Handrawn",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Oscuro"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m53",
+  "nombre": "Ramo silvestre",
+  "desc": "Amapolas, margaritas, acianos, lavanda y espigas atados con un lazo rosa",
+  "cats": [
+   "boda",
+   "comunion",
+   "otros"
+  ],
+  "prim": "boda",
+  "fondo": "#FFFDF7",
+  "tinta": "#34302A",
+  "color": "#C9493F",
+  "letras": [
+   "Birthstone",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Elegante"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m54",
+  "nombre": "Conchas en la arena",
+  "desc": "Vieira, estrella de mar y caracola sobre un trozo de playa, a pluma y acuarela",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FDFAF2",
+  "tinta": "#34383C",
+  "color": "#E9907C",
+  "letras": [
+   "Nanum Pen Script",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Infantil"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m55",
+  "nombre": "Sant Jordi",
+  "desc": "Una rosa que sale de un libro, para el día del libro y la rosa",
+  "cats": [
+   "otros"
+  ],
+  "prim": "otros",
+  "fondo": "#FFFBF2",
+  "tinta": "#2E2A33",
+  "color": "#C9493F",
+  "letras": [
+   "Delicious Handrawn",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Local"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m56",
+  "nombre": "Herbario mediterráneo",
+  "desc": "Olivo, lavanda y trigo como láminas de botánica con su nombre latino",
+  "cats": [
+   "boda",
+   "otros",
+   "comunion"
+  ],
+  "prim": "boda",
+  "fondo": "#F8F3E6",
+  "tinta": "#3A352B",
+  "color": "#6B7F58",
+  "letras": [
+   "Cormorant SC",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Elegante",
+   "Clásico",
+   "Local"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m57",
+  "nombre": "Paloma y olivos",
+  "desc": "Una paloma con la ramita de olivo entre dos ramas de herbario, para bautizos y comuniones",
+  "cats": [
+   "bautizo",
+   "comunion"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FFFEFA",
+  "tinta": "#34383C",
+  "color": "#7F9A63",
+  "letras": [
+   "Homemade Apple",
+   "Cormorant Garamond"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Clásico"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m58",
+  "nombre": "Pizarra de tapas",
+  "desc": "Pizarra verde con tapas dibujadas a tiza de colores arriba y abajo",
+  "cats": [
+   "otros",
+   "boda"
+  ],
+  "prim": "otros",
+  "fondo": "#26322E",
+  "tinta": "#F2EEE4",
+  "color": "#F2C14E",
+  "letras": [
+   "Amatic SC",
+   "Shadows Into Light"
+  ],
+  "tags": [
+   "Dibujado",
+   "Oscuro",
+   "Color vivo"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m59",
+  "nombre": "Masía en papel kraft",
+  "desc": "La masía y los cipreses dibujados en tinta marrón sobre papel kraft con fibras",
+  "cats": [
+   "otros",
+   "boda",
+   "comunion"
+  ],
+  "prim": "otros",
+  "fondo": "#D9BF98",
+  "tinta": "#3A2A1C",
+  "color": "#8A4A2A",
+  "letras": [
+   "Delicious Handrawn",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Textura",
+   "Local"
+  ],
+  "nuevo": true
+ },
+ {
+  "id": "m60",
+  "nombre": "Bosque encantado",
+  "desc": "Un búho, un zorro y plantas de herbario entre eucaliptos y helechos",
+  "cats": [
+   "bautizo",
+   "otros"
+  ],
+  "prim": "bautizo",
+  "fondo": "#FAF6EA",
+  "tinta": "#34302A",
+  "color": "#6F8A58",
+  "letras": [
+   "Homemade Apple",
+   "Patrick Hand"
+  ],
+  "tags": [
+   "Dibujado",
+   "Ilustrado",
+   "Infantil"
+  ],
+  "nuevo": true
  }
 ]
