@@ -3158,7 +3158,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.41</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.42</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4140,7 +4140,7 @@ function parseHeader(line){
   if(m&&(!m[2].trim()||shapeOf(m[2])||/^\d+\s*$/.test(m[2].trim()))) return {num:+m[1],rest:m[2]};
   return null;
 }
-var ALLERGENS=["marisc","marisco","fruit sec","fruits secs","fruto seco","frutos secos","fruita seca","lactos","lacti","lacte","llet","leche","ou","huevo","soja","sesam","mostas","apio","api","cacahuet","nou","nuez","nueces","crustaci","crustaceo","molusco","sulfit","llegum","legumbre","picant","picante","anisakis","histamin","avellana","almendra","ametlla"];
+var ALLERGENS=["proteina de la vaca","proteina de vaca","proteina de la leche","proteines de la llet","plv","aplv","marisc","marisco","fruit sec","fruits secs","fruto seco","frutos secos","fruita seca","lactos","lacti","lacte","llet","leche","ou","huevo","soja","sesam","mostas","apio","api","cacahuet","nou","nuez","nueces","crustaci","crustaceo","molusco","sulfit","llegum","legumbre","picant","picante","anisakis","histamin","avellana","almendra","ametlla"];
 var MENUWORDS=["carn","carne","peix","pescado","filet","filete","arros","arroz","pollastre","pollo","pasta","macarrons","macarrones","vegetal","vedella","ternera","xai","cordero","bacalla","bacalao"];
 /* qué puede ir detrás de «sin/sense/no» para que sea de verdad una restricción alimentaria */
 var NOFOOD=/(gluten|lact|formatge|queso|llet|leche|sucre|azucar|sal\b|porc|cerdo|marisc|frut|ou\b|huevo|soja|peix|pescado|carn|carne|alcohol|picant|picante|cafe|caf[eè]|fruits|sesam|mostas|api\b|apio|nou|nuez|nueces|cacahuet|llegum|legumbre|sulfit|derivats|derivados)/;
@@ -8165,7 +8165,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.41</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.42</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10864,11 +10864,16 @@ function prodCtx(){
   escAperitivos(c,cfg).pers.forEach(function(r){ r.items.forEach(function(x){ if(!x.ad) return;
     if(!aa[x.t]){ aa[x.t]={txt:x.t,gente:[]}; aaO.push(x.t); } aa[x.t].gente.push({nombre:primerNombre(r.p.g.name),mesa:r.p.mesa}); }); });
   aaO.forEach(function(k){ subs.unshift({txt:aa[k].txt,de:"aperitivo adaptado",n:aa[k].gente.length,para:escNombres(aa[k].gente),aper:true}); });
+  /* los niños con plato sustitutivo: restan del plato infantil que sustituyen y salen con los demás sustitutos */
+  try{ var NS=escNinosSubs(escInfantil(cfg),ban), gr={}, go=[];
+    Object.keys(NS.fuera).forEach(function(u){ fuera[u]=(fuera[u]||0)+NS.fuera[u]; });
+    NS.subs.forEach(function(x){ var kk=escNorm(x.txt)+"|"+x.de; if(!gr[kk]){ gr[kk]={txt:x.txt,de:x.de+" (menú infantil)",gente:[]}; go.push(kk); } gr[kk].gente.push({nombre:x.nombre,mesa:x.mesa}); });
+    go.forEach(function(kk){ subs.push({txt:gr[kk].txt,de:gr[kk].de,n:gr[kk].gente.length,para:escNombres(gr[kk].gente)}); }); }catch(_){}
   return {ad:c.adultos, ninos:c.ninos, staff:c.staff, fuera:fuera, subs:subs};
 }
 function racionesDe(d,t){
   var x=t&&t.esc; if(!x) return esDishJamon(d)?t.adultos:t.total;
-  if(d._famKey==="NIÑOS") return x.ninos;
+  if(d._famKey==="NIÑOS") return Math.max(0,x.ninos-(x.fuera[d._uid]||0));
   if(x.fuera[d._uid]!=null) return Math.max(0,x.ad-x.fuera[d._uid]);
   return x.ad;
 }
@@ -12322,6 +12327,22 @@ function primerNombre(n){ var p=String(n||"").split(" "); return p.length>1&&p[1
    El sustituto de un tiempo («Segundo: crema de calabaza») sustituye a los
    ÚLTIMOS platos de ese tiempo (el pescetariano cambia la carne, no el
    pescado); si el sustituto habla de tarta, sustituye a la tarta. */
+/* los sustitutos de los niños van en SU tiempo del menú infantil (Primeros,
+   Segundos, Postres), debajo de los platos, y restan del plato infantil al que
+   sustituyen; los que no traen tiempo van al final, en «Otros» */
+var ESC_CK_BANDA={primero:"Primeros",segundo:"Segundos",tercero:"Segundos",postre:"Postres"};
+function escNinosSubs(INF,ban){
+  var bandas={}, orden=[], fuera={}, subs=[];
+  (ban.ninos||[]).forEach(function(x){
+    var b=ESC_CK_BANDA[x.ck]||"Otros", kk=escNorm(x.txt);
+    if(!bandas[b]){ bandas[b]={}; orden.push(b); }
+    if(!bandas[b][kk]) bandas[b][kk]={txt:x.txt,gente:[]};
+    bandas[b][kk].gente.push(x);
+    var d0=b==="Otros"?null:INF.elegidos.filter(function(d){ return (d.station?escEtqStation(d.station):"Otros")===b&&escUnidad(d)!=="mesa"; })[0];
+    if(d0) fuera[d0._uid]=(fuera[d0._uid]||0)+1;
+    subs.push({txt:x.txt,de:d0?d0.name:"menú infantil",nombre:x.nombre,mesa:x.mesa}); });
+  return {bandas:bandas, orden:orden, fuera:fuera, subs:subs};
+}
 function escBanquete(c,cfg){
   var sel=selectedDishes(), out=[];
   ["primero","segundo","postre"].forEach(function(k){
@@ -12343,11 +12364,12 @@ function escBanquete(c,cfg){
        así que sus sustitutos de tarta no se cuentan */
     var esTarta=function(t){ return /tarta|pastel|pastis/.test(escNorm(t)); };
     /* los niños no llevan tarta: sus sustitutos de tarta no se cuentan */
-    if(g.kind==="child") subsG=subsG.filter(function(t){ return !esTarta(t); });
+    var paresC=subsG.map(function(t,i){ return {t:t,c:(g.menusC||[])[i]||""}; });
+    if(g.kind==="child"){ subsG=subsG.filter(function(t){ return !esTarta(t); }); paresC=paresC.filter(function(x){ return !esTarta(x.t); }); }
     if(!subsG.length) return;
     out.total+=subsG.length;
     /* los niños comen el menú infantil: sus sustitutos van en ese bloque */
-    if(g.kind==="child"){ subsG.forEach(function(txt){ out.ninos.push({txt:txt,nombre:primerNombre(g.name),mesa:p.mesa}); out.colocados++; }); return; }
+    if(g.kind==="child"){ paresC.forEach(function(x){ out.ninos.push({txt:x.t,ck:x.c,nombre:primerNombre(g.name),mesa:p.mesa}); out.colocados++; }); return; }
     /* el staff tiene su propio menú: sus sustitutos van en ese bloque. Si a
        alguien del staff se le ha puesto una tarta adaptada, esa tarta se
        cuenta con las tartas (sale de las normales) y se le quita su postre
@@ -12611,14 +12633,16 @@ function escModelo(){
   /* ── menú infantil: aperitivo, primeros, segundos, postre y lo que se añada ── */
   var INF=escInfantil(cfg); md.inf=INF;
   if(c.ninos>0){
-    var fi=[], porSt={}, stO=[];
+    var fi=[], porSt={}, stO=[], NS=escNinosSubs(INF,ban);
     INF.elegidos.forEach(function(d){ var k=d.station?escEtqStation(d.station):"Otros"; if(!porSt[k]){ porSt[k]=[]; stO.push(k); } porSt[k].push(d); });
+    NS.orden.forEach(function(k){ if(k!=="Otros"&&!porSt[k]){ porSt[k]=[]; stO.push(k); } });
     var ORD=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
+    function subsDe(k){ var o=NS.bandas[k]||{}; Object.keys(o).forEach(function(kk){ var f=fila(o[kk].txt,escNombres(o[kk].gente),Q("isb:"+kk.slice(0,40),o[kk].gente.length)); f.sust=true; f.gente=o[kk].gente; fi.push(f); }); }
     stO.forEach(function(k){ fi.push({head:k, plato:true});
-      (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,(m?c.mesasNinos:c.ninos)*escPor(d)))); }); });
+      (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,m?c.mesasNinos*escPor(d):Math.max(0,c.ninos-(NS.fuera[d._uid]||0))*escPor(d)))); });
+      subsDe(k); });
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),c.ninos))); }); }
-    var gk={}, ko=[]; ban.ninos.forEach(function(x){ var kk=escNorm(x.txt); if(!gk[kk]){ gk[kk]={txt:x.txt,gente:[]}; ko.push(kk); } gk[kk].gente.push(x); });
-    ko.forEach(function(kk){ var f=fila(gk[kk].txt,escNombres(gk[kk].gente),Q("isb:"+kk.slice(0,40),gk[kk].gente.length)); f.sust=true; f.gente=gk[kk].gente; fi.push(f); });
+    if(NS.bandas.Otros&&!porSt.Otros){ fi.push({head:"Sustitutos sin tiempo"}); subsDe("Otros"); }
     if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(c.ninos); fx.sust=true; fx.pend=true; fi.unshift(fx); }
     md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
@@ -13082,7 +13106,7 @@ function algPlato(d){
 var ALG_INV=[
   {re:/marisc|crustace/,a:["crustaceos","moluscos"]}, {re:/molusc/,a:["moluscos"]},
   {re:/frutos? secos?|fruits? secs?|frutos de cascara|cascara/,a:["frutos_cascara","cacahuetes"]},
-  {re:/lactos|lacte|leche|llet|\bplv\b|aplv|queso|formatge|caseina/,a:["lacteos"]},
+  {re:/lactos|lacte|leche|llet|\bplv\b|aplv|prote\w*\s+(de\s+)?(la\s+|les\s+)?(vaca|vaques|leche|llet)|\bvaca\b|queso|formatge|caseina/,a:["lacteos"]},
   {re:/celiac|gluten|trigo|blat/,a:["gluten"]},
   {re:/anisakis/,a:["pescado","moluscos"]}, {re:/pescado|peix|\bpez\b/,a:["pescado"]},
   {re:/huevo|\bou\b|\bous\b/,a:["huevo"]}, {re:/sulfit/,a:["sulfitos"]},
