@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.47 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.48 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3189,7 +3189,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
 .lz-tp b{font:600 12px/1.2 var(--font-text,system-ui)}.lz-tp:hover{border-color:var(--gold,#A8873A)}.lz-tp.on{border-color:var(--gold,#A8873A);box-shadow:0 0 0 2px var(--gold,#A8873A) inset}
 .lz-sec-w{grid-column:1/-1;margin-top:6px}.lz-tp-w{position:relative;display:flex;flex-direction:column}.lz-tp-w .lz-tp{flex:1}.lz-tp-x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line,#E4DCCB);background:var(--surface,#fff);color:inherit;font:700 15px/1 system-ui;cursor:pointer;display:grid;place-items:center;padding:0}.lz-tp-x:hover{background:#B3261E;color:#fff;border-color:#B3261E}
 
-.lz-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.lz-chip{border:1px solid var(--line,#D9D1BF);background:var(--surface,#fff);color:inherit;border-radius:999px;padding:5px 11px;font:600 12px var(--font-text,system-ui);cursor:pointer}.lz-chip.on{background:var(--c-ink,#222);color:var(--bg,#fff);border-color:var(--c-ink,#222)}
+.lz-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.lz-chips-e{margin-top:-2px}.lz-chips-e .lz-chip{font-weight:500;padding:3px 9px}.lz-chip small{opacity:.6;font-weight:500;font-size:11px}.lz-vacio{grid-column:1/-1;margin:14px 0;color:var(--ink-3,#6b6b6b);font-size:13px}.lz-chip{border:1px solid var(--line,#D9D1BF);background:var(--surface,#fff);color:inherit;border-radius:999px;padding:5px 11px;font:600 12px var(--font-text,system-ui);cursor:pointer}.lz-chip.on{background:var(--c-ink,#222);color:var(--bg,#fff);border-color:var(--c-ink,#222)}
 .lz-ics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:6px}.lz-ics-logos{grid-template-columns:repeat(2,minmax(0,1fr))}.lz-ics-v{grid-template-columns:repeat(4,minmax(0,1fr))}
 .lz-ic{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border:1px solid var(--line,#E4DCCB);border-radius:10px;background:var(--surface,#fff);cursor:pointer;color:inherit}.lz-ic:hover{border-color:var(--gold,#A8873A)}
 .lz-ic small{font:500 10px/1.15 var(--font-text,system-ui);text-align:center;color:var(--ink-soft,#6B6257);word-break:break-word}
@@ -3215,7 +3215,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.47</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.48</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8229,7 +8229,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.47</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.48</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -18019,6 +18019,7 @@ window.LM_LZ_MAN={
 (function(){
 var BR=window.SITTING_BRIDGE; if(!BR) return;
 var W=297.64, H=841.89;                       /* media hoja A4 en puntos */
+var ARTE={};                                  /* arte procedural (ver ext_arte) */
 var IMG_GLOBAL={};                            /* imágenes de fábrica: @olivo, @logos */
 function imgsFab(){ var m=BR.minutaImgs||{}; return {"@olivo":m.head||null,"@logos":m.logos||null}; }
 
@@ -18081,7 +18082,7 @@ function aseguraFuente(nombre){
 function fuentesDeTpl(tp){ var us={}; Object.keys(tp.est).forEach(function(k){ us[tp.est[k].f]=1; }); if(tp.pieFont) us[tp.pieFont]=1; return Object.keys(us); }
 function aseguraTpl(id){ var tp=TPL_POR[id]||PLANTILLAS[0]; return Promise.all(fuentesDeTpl(tp).map(aseguraFuente)); }
 function aseguraEscena(sc){
-  var us={}; (sc.items||[]).forEach(function(it){ if(it.t==="txt"&&it.f) us[it.f]=1; if(it.t==="shape"&&it.f==="monograma"){ if(it.fnt) us[it.fnt]=1; if(it.fnt2) us[it.fnt2]=1; } });
+  var us={}; (sc.items||[]).forEach(function(it){ if(it.t==="txt"&&it.f) us[it.f]=1; if(it.t==="shape"&&(it.fnt||it.fnt2)){ if(it.fnt) us[it.fnt]=1; if(it.fnt2) us[it.fnt2]=1; } });
   return Promise.all(Object.keys(us).map(aseguraFuente).concat([aseguraImagenes(sc)]));
 }
 
@@ -18185,6 +18186,7 @@ function dibujaForma(ctx,it){
     var cx4=x+w/2, cy4=y+h/2, rad=Math.min(w,h)/2*0.86, R3=rng(it.seed||11), N=140, a0=-1.1+R3()*0.4, tot=Math.PI*2*0.93; ctx.fillStyle=it.stroke||"#C0392B";
     var ext=[], inn=[]; for(var z=0;z<=N;z++){ var t3=z/N, a4=a0+tot*t3, th=(it.sw||5)*(0.25+Math.sin(t3*Math.PI)*0.95+R3()*0.05), rj=rad+Math.sin(t3*9+ (it.seed||11))*0.8; ext.push([cx4+Math.cos(a4)*(rj+th/2),cy4+Math.sin(a4)*(rj+th/2)]); inn.push([cx4+Math.cos(a4)*(rj-th/2),cy4+Math.sin(a4)*(rj-th/2)]); }
     ctx.beginPath(); ext.forEach(function(p,i2){ if(i2) ctx.lineTo(p[0],p[1]); else ctx.moveTo(p[0],p[1]); }); for(var z2=inn.length-1;z2>=0;z2--) ctx.lineTo(inn[z2][0],inn[z2][1]); ctx.closePath(); ctx.fill(); }
+  else if(ARTE[f]){ ARTE[f](ctx,it); }
   else if(f==="icono"){ dibujaIcono(ctx,it); }
   else if(f==="monograma"){ dibujaMono(ctx,it); }
   else if(f==="trama"){ /* puntos finos en cuadrícula: textura de papel */ ctx.fillStyle=it.fill||it.stroke; var gap=it.gap||9; for(var gx=x+gap/2;gx<x+w;gx+=gap) for(var gy=y+gap/2;gy<y+h;gy+=gap){ ctx.beginPath(); ctx.arc(gx,gy,it.sw||0.45,0,Math.PI*2); ctx.fill(); } }
@@ -18357,6 +18359,431 @@ tpl({id:"comunion_script",nombre:"Primera comunión · dorado",desc:"Dos palabra
   est:{tit:est("Special Elite",7,"#222222",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.5,"#555555",{lh:1.55}),peq:est("Montserrat",6.1,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.9,"#CDAE74"),nom:est("Mrs Saint Delafield",34,"#CDAE74"),rot:est("Mrs Saint Delafield",44,"#E3CFA6")},
   deco:function(sc,tp,dm){ return [TX("lema","primera comunión",20,34,W-40,est("Mrs Saint Delafield",44,"#E3CFA6",{lh:0.95}),{i18n:{es:"primera\ncomunión",ca:"primera\ncomunió"}}),TX("fec","",20,134,W-40,est("Montserrat",6,"#D5BC8C",{ls:1.4}),{campo:"{fecha}"})]; }});
 
+/* ══ ARTE PROCEDURAL ═════════════════════════════════════════════════════
+   Ilustraciones y texturas que se dibujan con código (nada de imágenes): acuarelas, mármol, terrazo,
+   azulejos, curvas de nivel, cielos de estrellas, arcoíris, banderines, hierba de la pampa, papel cortado,
+   rosetones, peonías, vides, olivos, limones, confeti, pan de oro, sol retro, olas japonesas, lacre…
+   Cada una es una «forma» más del lienzo: se mueve, se estira y se recolorea. Con semilla (seed) cambia
+   el dibujo; con «hueco» el confeti, las estrellas, etc. dejan libre la zona donde va el texto. */
+function rgba(hex,a){ var c=hex2rgb(hex); return "rgba("+c[0]+","+c[1]+","+c[2]+","+(a==null?1:a)+")"; }
+function mezcla(h1,h2,t){ var a=hex2rgb(h1), b=hex2rgb(h2); function p(v){ v=Math.max(0,Math.min(255,Math.round(v))); return (v<16?"0":"")+v.toString(16); } return "#"+p(a[0]+(b[0]-a[0])*t)+p(a[1]+(b[1]-a[1])*t)+p(a[2]+(b[2]-a[2])*t); }
+function suave(ctx,p,cerrado){ var n=p.length; if(n<3) return; var m=function(a,b){ return [(a[0]+b[0])/2,(a[1]+b[1])/2]; };
+  if(cerrado){ var s=m(p[n-1],p[0]); ctx.moveTo(s[0],s[1]); for(var i=0;i<n;i++){ var q=p[i], e=m(p[i],p[(i+1)%n]); ctx.quadraticCurveTo(q[0],q[1],e[0],e[1]); } ctx.closePath(); }
+  else { ctx.moveTo(p[0][0],p[0][1]); for(var j=1;j<n-1;j++){ var e2=m(p[j],p[j+1]); ctx.quadraticCurveTo(p[j][0],p[j][1],e2[0],e2[1]); } ctx.lineTo(p[n-1][0],p[n-1][1]); } }
+function enHueco(it,px,py){ var h=it.hueco; if(!h) return false; if(typeof h[0]==="number") h=[h]; for(var i=0;i<h.length;i++){ var r=h[i]; if(px>r[0]&&px<r[2]&&py>r[1]&&py<r[3]) return true; } return false; }
+function mancha(ctx,cx,cy,r,R,color,alpha){ var N=30, pts=[], ph=R()*6.28, a1=0.14+R()*0.14, a2=0.06+R()*0.08, sx=0.8+R()*0.5;
+  for(var i=0;i<N;i++){ var t=i/N*Math.PI*2, rr=r*(1+a1*Math.sin(3*t+ph)+a2*Math.sin(5*t+ph*1.7)+(R()-0.5)*0.05); pts.push([cx+Math.cos(t)*rr*sx,cy+Math.sin(t)*rr]); }
+  var g=ctx.createRadialGradient(cx,cy,r*0.1,cx,cy,r*1.1); g.addColorStop(0,rgba(color,alpha*0.55)); g.addColorStop(0.7,rgba(color,alpha*0.9)); g.addColorStop(1,rgba(color,alpha*1.5));
+  ctx.fillStyle=g; ctx.beginPath(); suave(ctx,pts,true); ctx.fill(); ctx.strokeStyle=rgba(color,alpha*0.8); ctx.lineWidth=0.5; ctx.stroke(); }
+/* acuarela: manchas de color que se funden entre sí */
+ARTE.acuarela=function(ctx,it){ var R=rng(it.seed||1), cols=it.colors||["#F4C6B8","#E8B4C8","#BFD4E6"], n=it.n||7, x=it.x, y=it.y, w=it.w, h=it.h;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.globalCompositeOperation="multiply";
+  for(var i=0;i<n;i++){ var c=cols[i%cols.length]; mancha(ctx,x+R()*w,y+R()*h,(0.22+R()*0.3)*Math.max(w,h)*(it.k||0.6),R,c,(it.alfa||0.3)+R()*0.14); }
+  ctx.restore(); };
+/* mármol: base clara, nubes y venas que serpentean (con vena dorada opcional) */
+ARTE.marmol=function(ctx,it){ var R=rng(it.seed||2), x=it.x, y=it.y, w=it.w, h=it.h, base=it.fill||"#F7F5F1", vena=it.stroke||"#A9A296", oro=it.oro;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.fillStyle=base; ctx.fillRect(x,y,w,h);
+  for(var i=0;i<7;i++){ var cx=x+R()*w, cy=y+R()*h, r=(0.2+R()*0.35)*Math.max(w,h), g=ctx.createRadialGradient(cx,cy,0,cx,cy,r); g.addColorStop(0,rgba(vena,0.1)); g.addColorStop(1,rgba(vena,0)); ctx.fillStyle=g; ctx.fillRect(x,y,w,h); }
+  var nv=it.n||6; for(var v=0;v<nv;v++){ var px=x+R()*w, py=y+R()*h, ang=R()*6.283, pts=[], gold=oro&&v%3===0;
+    for(var k=0;k<36;k++){ pts.push([px,py]); ang+=(R()-0.5)*0.9; var st=Math.max(w,h)*0.032*(0.6+R()*0.8); px+=Math.cos(ang)*st; py+=Math.sin(ang)*st; }
+    ctx.strokeStyle=gold?rgba(oro,0.75):rgba(vena,0.3+R()*0.3); ctx.lineWidth=gold?0.9+R()*0.9:0.3+R()*1.2; ctx.lineCap="round"; ctx.beginPath(); suave(ctx,pts,false); ctx.stroke();
+    if(!gold&&R()<0.7){ ctx.lineWidth=0.3; ctx.strokeStyle=rgba(vena,0.2); ctx.beginPath(); suave(ctx,pts.map(function(q,i2){ return [q[0]+3+Math.sin(i2)*2,q[1]+2]; }),false); ctx.stroke(); } }
+  ctx.restore(); };
+/* terrazo: lascas de colores sobre fondo claro */
+ARTE.terrazo=function(ctx,it){ var R=rng(it.seed||3), cols=it.colors||["#E7B7A8","#B9C9B0","#D8CBB4","#8FA3A8","#C9A0A0"], x=it.x, y=it.y, w=it.w, h=it.h, n=it.n||160;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); if(it.fill){ ctx.fillStyle=it.fill; ctx.fillRect(x,y,w,h); }
+  for(var i=0;i<n;i++){ var cx=x+R()*w, cy=y+R()*h; if(enHueco(it,cx,cy)) continue; var r=(it.tam||7)*(0.35+R()*R()*1.5), nn=5+Math.floor(R()*3), a0=R()*6.28, pts=[];
+    for(var k=0;k<nn;k++){ var a=a0+k/nn*6.283, rr=r*(0.6+R()*0.6); pts.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr]); }
+    ctx.fillStyle=cols[Math.floor(R()*cols.length)]; ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); for(var j=1;j<nn;j++) ctx.lineTo(pts[j][0],pts[j][1]); ctx.closePath(); ctx.fill(); }
+  ctx.restore(); };
+/* azulejo hidráulico: baldosas con un motivo de cuatro pétalos */
+ARTE.azulejo=function(ctx,it){ var s=it.tam||36, c1=it.stroke||"#2B5A9B", c2=it.fill||"#E6EEF8", x=it.x, y=it.y, w=it.w, h=it.h;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  for(var j=0;j<Math.ceil(h/s);j++) for(var i=0;i<Math.ceil(w/s);i++){ var tx=x+i*s, ty=y+j*s, cx=tx+s/2, cy=ty+s/2, inv=(i+j)%2;
+    ctx.fillStyle=inv?c1:"#FFFFFF"; ctx.fillRect(tx,ty,s,s); ctx.fillStyle=inv?"#FFFFFF":c1;
+    for(var q=0;q<4;q++){ var a=q*Math.PI/2+Math.PI/4; ctx.beginPath(); ctx.arc(cx+Math.cos(a)*s*0.17,cy+Math.sin(a)*s*0.17,s*0.2,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle=inv?c1:"#FFFFFF"; ctx.beginPath(); ctx.arc(cx,cy,s*0.1,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=rgba(c1,0.55); ctx.lineWidth=0.5; ctx.strokeRect(tx+0.25,ty+0.25,s-0.5,s-0.5);
+    ctx.fillStyle=c2; ctx.globalAlpha=0.25; ctx.fillRect(tx,ty,s,s); ctx.globalAlpha=1; }
+  ctx.restore(); };
+/* curvas de nivel: un paisaje dibujado con líneas */
+ARTE.curvas=function(ctx,it){ var R=rng(it.seed||4), x=it.x, y=it.y, w=it.w, h=it.h, np=it.n||3, niv=it.niveles||14, col=it.stroke||"#6E8A72";
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.lineWidth=it.sw||0.6; ctx.lineJoin="round";
+  for(var p=0;p<np;p++){ var cx=x+R()*w, cy=y+R()*h, ph1=R()*6.28, ph2=R()*6.28, ph3=R()*6.28, sx=0.7+R()*0.7, rm=Math.max(w,h)*(0.07+R()*0.06);
+    for(var k=1;k<=niv;k++){ var r=rm*k*(1+0.05*k), pts=[], N=70; for(var i=0;i<N;i++){ var t=i/N*Math.PI*2, rr=r*(1+0.22*Math.sin(2*t+ph1+k*0.07)+0.12*Math.sin(3*t+ph2)+0.06*Math.sin(5*t+ph3-k*0.05)); pts.push([cx+Math.cos(t)*rr*sx,cy+Math.sin(t)*rr]); }
+      ctx.strokeStyle=rgba(col,0.18+0.5*(1-k/niv)); ctx.beginPath(); suave(ctx,pts,true); ctx.stroke(); } }
+  ctx.restore(); };
+function chispa(ctx,x,y,r){ ctx.beginPath(); ctx.moveTo(x,y-r); ctx.quadraticCurveTo(x+r*0.12,y-r*0.12,x+r,y); ctx.quadraticCurveTo(x+r*0.12,y+r*0.12,x,y+r); ctx.quadraticCurveTo(x-r*0.12,y+r*0.12,x-r,y); ctx.quadraticCurveTo(x-r*0.12,y-r*0.12,x,y-r); ctx.fill(); }
+/* cielo estrellado con constelaciones y una luna */
+ARTE.cielo=function(ctx,it){ var R=rng(it.seed||5), x=it.x, y=it.y, w=it.w, h=it.h, col=it.stroke||"#F2E3B5", n=it.n||150;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.fillStyle=col;
+  for(var i=0;i<n;i++){ var px=x+R()*w, py=y+R()*h; if(enHueco(it,px,py)) continue; ctx.globalAlpha=0.25+R()*0.7; ctx.beginPath(); ctx.arc(px,py,0.25+R()*R()*1.1,0,Math.PI*2); ctx.fill(); if(R()<0.05){ ctx.globalAlpha=0.9; chispa(ctx,px,py,2+R()*3); } }
+  ctx.globalAlpha=0.55; ctx.strokeStyle=col; ctx.lineWidth=0.4; var nc=it.constelaciones==null?3:it.constelaciones;
+  for(var c=0;c<nc;c++){ var bx=x+R()*w, by=y+R()*h, pts=[]; for(var k=0;k<5;k++){ pts.push([bx+(R()-0.5)*70,by+(R()-0.5)*60]); } if(pts.some(function(q){ return enHueco(it,q[0],q[1]); })) continue; ctx.beginPath(); pts.forEach(function(q,i2){ if(i2) ctx.lineTo(q[0],q[1]); else ctx.moveTo(q[0],q[1]); }); ctx.stroke(); ctx.globalAlpha=0.95; pts.forEach(function(q){ ctx.beginPath(); ctx.arc(q[0],q[1],0.9,0,Math.PI*2); ctx.fill(); }); ctx.globalAlpha=0.55; }
+  if(it.luna){ var L=it.luna; ctx.globalAlpha=0.95; ctx.beginPath(); ctx.arc(L[0],L[1],L[2],0,Math.PI*2); ctx.arc(L[0]+L[2]*0.42,L[1]-L[2]*0.1,L[2]*0.86,0,Math.PI*2,true); ctx.fill("evenodd"); }
+  ctx.restore(); };
+function nubeFlat(ctx,cx,cy,s,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx-s*0.5,cy,s*0.32,0,Math.PI*2); ctx.arc(cx,cy-s*0.2,s*0.42,0,Math.PI*2); ctx.arc(cx+s*0.5,cy,s*0.32,0,Math.PI*2); ctx.rect(cx-s*0.5,cy-s*0.02,s,s*0.3); ctx.fill(); }
+ARTE.nube=function(ctx,it){ ctx.save(); ctx.globalAlpha=it.op==null?1:it.op; nubeFlat(ctx,it.x+it.w/2,it.y+it.h*0.6,it.w*0.8,it.fill||"#FFFFFF"); ctx.restore(); };
+/* arcoíris boho con nubes */
+ARTE.arcoiris=function(ctx,it){ var cols=it.colors||["#F2B8A8","#F4D7A6","#CFE0C3","#B9D3E6"], r=it.w/2, band=it.band||r*0.15, cx=it.x+it.w/2, cy=it.y+it.h; ctx.save(); ctx.lineCap="butt";
+  cols.forEach(function(c,i){ ctx.strokeStyle=c; ctx.lineWidth=band; ctx.beginPath(); ctx.arc(cx,cy,r-band/2-i*band,Math.PI,Math.PI*2); ctx.stroke(); });
+  nubeFlat(ctx,it.x+band*0.9,cy,band*2.1,it.nube||"#FFFFFF"); nubeFlat(ctx,it.x+it.w-band*0.9,cy,band*2.1,it.nube||"#FFFFFF"); ctx.restore(); };
+/* banderines colgados */
+ARTE.banderines=function(ctx,it){ var cols=it.colors||["#F2B8A8","#F4D7A6","#CFE0C3","#B9D3E6","#D9C2E0"], n=it.n||10, x=it.x, y=it.y, w=it.w, sag=it.sag||it.h*0.45, fs=w/n*0.62;
+  ctx.save(); ctx.strokeStyle=it.stroke||"#9A8F86"; ctx.lineWidth=0.7; ctx.beginPath(); for(var i=0;i<=40;i++){ var t=i/40, px=x+t*w, py=y+4*sag*t*(1-t); if(i) ctx.lineTo(px,py); else ctx.moveTo(px,py); } ctx.stroke();
+  for(var k=0;k<n;k++){ var t2=(k+0.5)/n, px2=x+t2*w, py2=y+4*sag*t2*(1-t2), ang=Math.atan(4*sag*(1-2*t2)/w); ctx.save(); ctx.translate(px2,py2); ctx.rotate(ang); ctx.fillStyle=cols[k%cols.length]; ctx.beginPath(); ctx.moveTo(-fs/2,0); ctx.lineTo(fs/2,0); ctx.lineTo(0,fs*1.25); ctx.closePath(); ctx.fill(); ctx.restore(); }
+  ctx.restore(); };
+/* hierba de la pampa: plumas finas */
+ARTE.pampa=function(ctx,it){ var R=rng(it.seed||6), cols=it.colors||["#D9C3A5","#C9AE8C","#EADBC6","#B89B7A"], x=it.x, y=it.y, w=it.w, h=it.h, n=it.n||5; ctx.save(); ctx.lineCap="round";
+  for(var p=0;p<n;p++){ var bx=x+w*(0.15+0.7*(p+R()*0.5)/n), by=y+h, tx=bx+(R()-0.5)*w*0.5+((p-n/2)*w*0.04), ty=y+h*(0.05+R()*0.25), cx=bx+(tx-bx)*0.2+(R()-0.5)*w*0.2, cy=by-(by-ty)*0.5;
+    ctx.strokeStyle=rgba(cols[2],0.9); ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(bx,by); ctx.quadraticCurveTo(cx,cy,tx,ty); ctx.stroke();
+    var nb=it.cerdas||240; for(var k=0;k<nb;k++){ var t=0.28+R()*0.72, u=1-t, px=u*u*bx+2*u*t*cx+t*t*tx, py=u*u*by+2*u*t*cy+t*t*ty, dx=2*u*(cx-bx)+2*t*(tx-cx), dy=2*u*(cy-by)+2*t*(ty-cy), a=Math.atan2(dy,dx)+(R()-0.5)*1.4, len=(h*0.18)*(0.35+R()*0.9)*(1-0.55*t);
+      ctx.strokeStyle=rgba(cols[Math.floor(R()*cols.length)],0.25+R()*0.4); ctx.lineWidth=0.35+R()*0.5; ctx.beginPath(); ctx.moveTo(px,py); ctx.quadraticCurveTo(px+Math.cos(a)*len*0.6,py+Math.sin(a)*len*0.6-len*0.15,px+Math.cos(a)*len,py+Math.sin(a)*len); ctx.stroke(); } }
+  ctx.restore(); };
+/* papel cortado en capas */
+ARTE.capas=function(ctx,it){ var R=rng(it.seed||7), cols=it.colors||["#E9D3BE","#D6B9A0","#B9967F","#8E7061"], x=it.x, y=it.y, w=it.w, h=it.h;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  if(it.sol){ ctx.fillStyle=it.sol; ctx.beginPath(); ctx.arc(x+w*(it.solx==null?0.5:it.solx),y+h*0.34,w*0.2,0,Math.PI*2); ctx.fill(); }
+  cols.forEach(function(c,i){ var base=y+h*(0.42+0.14*i), a1=h*0.045, a2=h*0.02, f1=(1.4+R()*1.6)/w*Math.PI*2, f2=(3+R()*3)/w*Math.PI*2, p1=R()*6.28, p2=R()*6.28;
+    ctx.save(); ctx.shadowColor="rgba(40,25,10,0.28)"; ctx.shadowBlur=6; ctx.shadowOffsetY=-1.5; ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(x,y+h); for(var k=0;k<=60;k++){ var px=x+k/60*w; ctx.lineTo(px,base+a1*Math.sin(f1*(px-x)+p1)+a2*Math.sin(f2*(px-x)+p2)); } ctx.lineTo(x+w,y+h); ctx.closePath(); ctx.fill(); ctx.restore(); });
+  ctx.restore(); };
+/* rosetón de vidriera */
+ARTE.roseton=function(ctx,it){ var cols=it.colors||["#C9A24B","#8FB3C9","#D98E8E","#9DBE9A","#B79AC9","#E5C98E"], cx=it.x+it.w/2, cy=it.y+it.h/2, r=Math.min(it.w,it.h)/2*0.98, lead=it.stroke||"#4A4338";
+  ctx.save(); ctx.translate(cx,cy); ctx.lineJoin="round";
+  function petalos(n,r0,r1,wd,off,alt){ for(var i=0;i<n;i++){ var a=off+i*Math.PI*2/n; ctx.save(); ctx.rotate(a); ctx.fillStyle=rgba(cols[(i+alt)%cols.length],0.78); ctx.strokeStyle=lead; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(r0,0); ctx.quadraticCurveTo((r0+r1)/2,-wd,r1,0); ctx.quadraticCurveTo((r0+r1)/2,wd,r0,0); ctx.fill(); ctx.stroke(); ctx.restore(); } }
+  ctx.fillStyle=rgba(cols[5],0.35); ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=lead; ctx.lineWidth=1.6; ctx.stroke(); ctx.lineWidth=0.7; ctx.beginPath(); ctx.arc(0,0,r*0.92,0,Math.PI*2); ctx.stroke();
+  petalos(12,r*0.52,r*0.9,r*0.12,Math.PI/12,0); petalos(12,r*0.3,r*0.6,r*0.085,0,2); petalos(6,r*0.1,r*0.38,r*0.09,Math.PI/6,1);
+  for(var i=0;i<12;i++){ var a=i*Math.PI/6; ctx.beginPath(); ctx.moveTo(Math.cos(a)*r*0.5,Math.sin(a)*r*0.5); ctx.lineTo(Math.cos(a)*r*0.92,Math.sin(a)*r*0.92); ctx.stroke(); }
+  ctx.fillStyle=rgba(cols[0],0.95); ctx.beginPath(); ctx.arc(0,0,r*0.12,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore(); };
+/* peonía de acuarela */
+ARTE.peonia=function(ctx,it){ var R=rng(it.seed||8), col=it.fill||"#E9A6B8", cx=it.x+it.w/2, cy=it.y+it.h/2, r=Math.min(it.w,it.h)/2, hoja=it.stroke||"#6E8F6A";
+  ctx.save(); for(var l=0;l<5;l++){ var a=R()*6.283; ctx.save(); ctx.translate(cx,cy); ctx.rotate(a); dibujaFronda(ctx,0,0,0,r*(0.9+R()*0.5),r*0.2,rgba(hoja,0.78),rgba(hoja,0.9),0.5); ctx.restore(); }
+  for(var ring=0;ring<4;ring++){ var n=8+ring*-1+1, rr=r*(0.9-ring*0.2), cnt=Math.max(5,9-ring*1); for(var i=0;i<cnt;i++){ var a2=i/cnt*6.283+R()*0.5+ring*0.4, pr=rr*(0.62+R()*0.2), px=cx+Math.cos(a2)*rr*0.42, py=cy+Math.sin(a2)*rr*0.42;
+    ctx.save(); ctx.translate(px,py); ctx.rotate(a2); var g=ctx.createRadialGradient(pr*0.1,0,0,pr*0.45,0,pr*0.8); g.addColorStop(0,rgba(mezcla(col,"#FFFFFF",0.55+ring*0.05),0.9)); g.addColorStop(1,rgba(col,0.78-ring*0.08)); ctx.fillStyle=g; ctx.strokeStyle=rgba(col,0.55); ctx.lineWidth=0.5; ctx.beginPath(); ctx.ellipse(pr*0.4,0,pr*0.62,pr*0.5,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore(); } }
+  ctx.fillStyle="#E9C46A"; for(var s=0;s<14;s++){ ctx.beginPath(); ctx.arc(cx+(R()-0.5)*r*0.22,cy+(R()-0.5)*r*0.22,0.7+R()*0.6,0,Math.PI*2); ctx.fill(); } ctx.restore(); };
+function hojaVid(ctx,x,y,s,ang,col,vena){ ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.beginPath(); for(var i=0;i<=60;i++){ var t=i/60*Math.PI*2, rr=s*(0.52+0.48*Math.pow(Math.abs(Math.cos(2.5*t)),0.7)); var px=Math.cos(t)*rr, py=Math.sin(t)*rr*0.9; if(i) ctx.lineTo(px,py+s*0.3); else ctx.moveTo(px,py+s*0.3); } ctx.closePath(); ctx.fillStyle=col; ctx.fill(); ctx.strokeStyle=vena; ctx.lineWidth=0.5; ctx.stroke();
+  for(var k=0;k<5;k++){ var a=-Math.PI/2+(k-2)*0.62; ctx.beginPath(); ctx.moveTo(0,s*0.3); ctx.lineTo(Math.cos(a)*s*0.8,Math.sin(a)*s*0.8+s*0.3); ctx.stroke(); } ctx.restore(); }
+function racimo(ctx,cx,top,g,col,R){ var filas=[5,4,4,3,2,1]; for(var f=0;f<filas.length;f++){ var n=filas[f], y=top+f*g*1.7; for(var i=0;i<n;i++){ var x=cx+(i-(n-1)/2)*g*2.05+(R()-0.5)*0.4; var gr=ctx.createRadialGradient(x-g*0.3,y-g*0.3,g*0.1,x,y,g); gr.addColorStop(0,mezcla(col,"#FFFFFF",0.45)); gr.addColorStop(1,col); ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(x,y,g,0,Math.PI*2); ctx.fill(); ctx.strokeStyle="rgba(0,0,0,0.12)"; ctx.lineWidth=0.4; ctx.stroke(); } } }
+/* vid con hojas y un racimo */
+ARTE.vid=function(ctx,it){ var R=rng(it.seed||9), x=it.x, y=it.y, w=it.w, h=it.h, tallo=it.stroke||"#6B4A3A", hoja=it.fill||"#7F9B62", uva=it.fill2||"#5A2A4A"; ctx.save(); ctx.lineCap="round";
+  var pts=[[x+w*0.78,y],[x+w*0.6,y+h*0.12],[x+w*0.42,y+h*0.2],[x+w*0.5,y+h*0.34]]; ctx.strokeStyle=tallo; ctx.lineWidth=1.4; ctx.beginPath(); suave(ctx,pts,false); ctx.stroke();
+  hojaVid(ctx,x+w*0.3,y+h*0.16,w*0.2,-0.5,rgba(hoja,0.88),rgba(tallo,0.6)); hojaVid(ctx,x+w*0.72,y+h*0.2,w*0.17,0.55,rgba(mezcla(hoja,"#2F4A2A",0.25),0.88),rgba(tallo,0.6));
+  ctx.strokeStyle=tallo; ctx.lineWidth=0.9; ctx.beginPath(); ctx.moveTo(x+w*0.5,y+h*0.34); ctx.lineTo(x+w*0.5,y+h*0.42); ctx.stroke(); racimo(ctx,x+w*0.5,y+h*0.46,w*0.055,uva,R);
+  ctx.strokeStyle=tallo; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(x+w*0.42,y+h*0.2); ctx.bezierCurveTo(x+w*0.3,y+h*0.26,x+w*0.26,y+h*0.34,x+w*0.32,y+h*0.4); ctx.stroke(); ctx.restore(); };
+/* rama de olivo con aceitunas */
+ARTE.olivo=function(ctx,it){ var R=rng(it.seed||10), x=it.x, y=it.y, w=it.w, h=it.h, hoja=it.fill||"#7B8F6A", oliva=it.fill2||"#3E4A2E", tallo=it.stroke||"#6B5A45", n=it.nh||9; ctx.save(); ctx.lineCap="round";
+  var pts=[]; for(var i=0;i<=n;i++){ var t=i/n; pts.push([x+w*(0.5+0.2*Math.sin(t*3.1+it.seed)),y+t*h]); } ctx.strokeStyle=tallo; ctx.lineWidth=1.2; ctx.beginPath(); suave(ctx,pts,false); ctx.stroke();
+  for(var j=1;j<n;j++){ var p=pts[j], lado=j%2?1:-1, lar=w*(0.42+R()*0.2), ang=lado>0?-0.45+(R()-0.5)*0.2:-Math.PI+0.45+(R()-0.5)*0.2; dibujaFronda(ctx,p[0],p[1],ang,lar,lar*0.17,rgba(hoja,0.9),rgba(mezcla(hoja,"#000000",0.25),0.7),0.4);
+    if(R()<0.5){ var ox=p[0]+Math.cos(ang+lado*0.6)*lar*0.35, oy=p[1]+lar*0.2+Math.abs(Math.sin(ang))*lar*0.2; ctx.strokeStyle=tallo; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(ox,oy); ctx.stroke(); var g=ctx.createRadialGradient(ox-1,oy+3,0.5,ox,oy+4,w*0.075); g.addColorStop(0,mezcla(oliva,"#FFFFFF",0.35)); g.addColorStop(1,oliva); ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(ox,oy+w*0.08,w*0.055,w*0.08,0.15*lado,0,Math.PI*2); ctx.fill(); } }
+  var q=pts[pts.length-1]; dibujaFronda(ctx,q[0],q[1],Math.PI/2,w*0.34,w*0.06,rgba(hoja,0.9),rgba(mezcla(hoja,"#000000",0.25),0.7),0.4); ctx.restore(); };
+/* rama de limonero */
+ARTE.limones=function(ctx,it){ var R=rng(it.seed||11), x=it.x, y=it.y, w=it.w, h=it.h, hoja=it.fill||"#4F7A3F", lim=it.fill2||"#F2CC3C", tallo=it.stroke||"#6B5A45"; ctx.save(); ctx.lineCap="round";
+  var pts=[[x+w*0.9,y],[x+w*0.62,y+h*0.1],[x+w*0.4,y+h*0.26],[x+w*0.2,y+h*0.5]]; ctx.strokeStyle=tallo; ctx.lineWidth=1.3; ctx.beginPath(); suave(ctx,pts,false); ctx.stroke();
+  for(var i=0;i<9;i++){ var t=0.12+i/9*0.8, u=1-t, px=pts[0][0]*u*u*u+3*pts[1][0]*u*u*t+3*pts[2][0]*u*t*t+pts[3][0]*t*t*t, py=pts[0][1]*u*u*u+3*pts[1][1]*u*u*t+3*pts[2][1]*u*t*t+pts[3][1]*t*t*t, lado=i%2?1:-1; dibujaFronda(ctx,px,py,(lado>0?-0.3:-Math.PI+0.3)+(R()-0.5)*0.4+0.5,w*(0.3+R()*0.1),w*0.1,rgba(mezcla(hoja,"#FFFFFF",R()*0.2),0.95),rgba("#2E4A24",0.8),0.4); }
+  [[0.5,0.2],[0.3,0.38],[0.7,0.14]].forEach(function(q,k){ var cx=x+w*q[0], cy=y+h*q[1]+w*0.08, a=0.5-k*0.3, rx=w*0.1, ry=w*0.075; ctx.strokeStyle=tallo; ctx.lineWidth=0.7; ctx.beginPath(); ctx.moveTo(cx,cy-ry*1.6); ctx.lineTo(cx,cy-ry*0.7); ctx.stroke(); ctx.save(); ctx.translate(cx,cy); ctx.rotate(a); var g=ctx.createRadialGradient(-rx*0.3,-ry*0.3,1,0,0,rx*1.2); g.addColorStop(0,mezcla(lim,"#FFFFFF",0.45)); g.addColorStop(1,mezcla(lim,"#B5891A",0.35)); ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(rx*1.02,0,ry*0.22,0,Math.PI*2); ctx.arc(-rx*1.02,0,ry*0.18,0,Math.PI*2); ctx.fill(); ctx.strokeStyle="rgba(120,90,10,.35)"; ctx.lineWidth=0.4; ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2); ctx.stroke(); ctx.restore(); });
+  ctx.restore(); };
+/* confeti */
+ARTE.confeti=function(ctx,it){ var R=rng(it.seed||12), cols=it.colors||["#F26B5B","#F2C14E","#4FB0AE","#8E7DBE","#F49AC2","#5B8DEF"], x=it.x, y=it.y, w=it.w, h=it.h, n=it.n||120; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  for(var i=0;i<n;i++){ var px=x+R()*w, py=y+R()*h; if(enHueco(it,px,py)) continue; ctx.save(); ctx.translate(px,py); ctx.rotate(R()*6.28); ctx.fillStyle=cols[Math.floor(R()*cols.length)]; ctx.strokeStyle=ctx.fillStyle; var tp=R(), s=(it.tam||1)*(2+R()*4);
+    if(tp<0.35) ctx.fillRect(-s,-s*0.3,s*2,s*0.6); else if(tp<0.6){ ctx.beginPath(); ctx.arc(0,0,s*0.5,0,Math.PI*2); ctx.fill(); } else if(tp<0.8){ ctx.beginPath(); ctx.moveTo(-s,s*0.6); ctx.lineTo(s,s*0.6); ctx.lineTo(0,-s*0.8); ctx.closePath(); ctx.fill(); } else { ctx.lineWidth=1; ctx.lineCap="round"; ctx.beginPath(); ctx.moveTo(-s*1.2,0); ctx.quadraticCurveTo(-s*0.6,-s*0.9,0,0); ctx.quadraticCurveTo(s*0.6,s*0.9,s*1.2,0); ctx.stroke(); } ctx.restore(); }
+  ctx.restore(); };
+/* pan de oro: esquirlas doradas */
+ARTE.foil=function(ctx,it){ var R=rng(it.seed||13), x=it.x, y=it.y, w=it.w, h=it.h, n=it.n||90, c1=it.fill||"#F4E3A1", c2=it.stroke||"#B8902B"; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  for(var i=0;i<n;i++){ var cx=x+R()*w, cy=y+R()*h; if(enHueco(it,cx,cy)) continue; var r=(it.tam||6)*(0.3+R()*R()*2), nn=4+Math.floor(R()*3), a0=R()*6.28, pts=[]; for(var k=0;k<nn;k++){ var a=a0+k/nn*6.283, rr=r*(0.5+R()*0.7); pts.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr*0.7]); }
+    var g=ctx.createLinearGradient(cx-r,cy-r,cx+r,cy+r); g.addColorStop(0,c1); g.addColorStop(0.5,c2); g.addColorStop(1,mezcla(c1,c2,0.5)); ctx.fillStyle=g; ctx.globalAlpha=0.55+R()*0.45; ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); for(var j=1;j<nn;j++) ctx.lineTo(pts[j][0],pts[j][1]); ctx.closePath(); ctx.fill(); }
+  ctx.restore(); };
+/* sol de los 70 con franjas */
+ARTE.retro=function(ctx,it){ var cols=it.colors||["#F7C65B","#F29E4C","#E0617A","#8E4B8E"], bg=it.bg||"#F6E7CF", cx=it.x+it.w/2, r=it.w*0.32, cy=it.y+r*1.1; ctx.save(); ctx.beginPath(); ctx.rect(it.x,it.y,it.w,it.h); ctx.clip();
+  var g=ctx.createLinearGradient(0,cy-r,0,cy+r); g.addColorStop(0,cols[0]); g.addColorStop(0.45,cols[1]); g.addColorStop(0.8,cols[2]); g.addColorStop(1,cols[3]); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=bg; for(var i=0;i<7;i++){ var t=(i+1)/8, yy=cy+r*(0.05+t*0.9), hh=1+t*5; ctx.fillRect(cx-r-1,yy,r*2+2,hh); }
+  var by=cy+r*1.12; for(var k=0;k<cols.length;k++){ ctx.fillStyle=cols[k]; ctx.fillRect(it.x,by+k*5.5,it.w,2.8); } ctx.restore(); };
+/* olas japonesas */
+ARTE.seigaiha=function(ctx,it){ var r=it.r||15, c=it.stroke||"#2E4A7D", f=it.fill||"#F4F1EA", x=it.x, y=it.y, w=it.w, h=it.h; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.lineWidth=it.sw||0.7;
+  for(var j=0;j*r*0.5<h+r;j++){ for(var i=-1;i*r*2<w+r*2;i++){ var cx=x+i*r*2+(j%2?r:0), cy=y+j*r*0.5; ctx.fillStyle=f; ctx.strokeStyle=c; for(var k=0;k<4;k++){ ctx.beginPath(); ctx.arc(cx,cy,r*(1-k*0.22),0,Math.PI*2); if(k===0) ctx.fill(); ctx.stroke(); } } }
+  ctx.restore(); };
+/* sello de lacre */
+ARTE.lacre=function(ctx,it){ var R=rng(it.seed||14), cx=it.x+it.w/2, cy=it.y+it.h/2, r=Math.min(it.w,it.h)/2*0.9, col=it.fill||"#8E1B2B"; ctx.save(); ctx.shadowColor="rgba(0,0,0,.3)"; ctx.shadowBlur=5; ctx.shadowOffsetY=2;
+  var pts=[]; for(var i=0;i<36;i++){ var t=i/36*Math.PI*2, rr=r*(1+(i%2?0.05:-0.02)+(R()-0.5)*0.07+0.05*Math.sin(3*t)); pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr]); }
+  var g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,r*0.1,cx,cy,r*1.1); g.addColorStop(0,mezcla(col,"#FFFFFF",0.25)); g.addColorStop(0.6,col); g.addColorStop(1,mezcla(col,"#000000",0.35)); ctx.fillStyle=g; ctx.beginPath(); suave(ctx,pts,true); ctx.fill(); ctx.shadowColor="transparent";
+  ctx.strokeStyle="rgba(255,255,255,.22)"; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,r*0.72,0,Math.PI*2); ctx.stroke(); ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.beginPath(); ctx.arc(cx,cy,r*0.7,0,Math.PI*2); ctx.stroke();
+  if(it.txt){ ctx.font=(r*0.8)+'px "'+(it.fnt||"Pinyon Script")+'", serif'; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle="rgba(255,255,255,.35)"; ctx.fillText(it.txt,cx-0.7,cy-0.5); ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fillText(it.txt,cx+0.7,cy+0.7); ctx.fillStyle=mezcla(col,"#000000",0.12); ctx.fillText(it.txt,cx,cy); }
+  ctx.restore(); };
+/* rayos de luz */
+ARTE.rayos=function(ctx,it){ var cx=it.x+it.w/2, cy=it.y+it.h, n=it.n||26, c=it.stroke||"#D9B866", r=Math.min(it.h,it.w*0.9); ctx.save(); ctx.lineCap="round";
+  for(var i=0;i<n;i++){ var a=Math.PI+Math.PI*(i+0.5)/n, l=r*(i%2?0.82:1), r0=r*0.2; ctx.strokeStyle=rgba(c,i%2?0.5:0.85); ctx.lineWidth=(it.sw||1)*(i%2?0.6:1); ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0); ctx.lineTo(cx+Math.cos(a)*l,cy+Math.sin(a)*l); ctx.stroke(); } ctx.restore(); };
+/* marco art nouveau con volutas */
+ARTE.nouveau=function(ctx,it){ var x=it.x, y=it.y, w=it.w, h=it.h, c=it.stroke||"#2F5D44", c2=it.fill||"#C99A2E"; ctx.save(); ctx.lineCap="round"; ctx.lineWidth=it.sw||1.2; ctx.strokeStyle=c; ctx.strokeRect(x+4,y+4,w-8,h-8); ctx.lineWidth=0.5; ctx.strokeRect(x+9,y+9,w-18,h-18);
+  function espiral(px,py,sx,sy){ ctx.save(); ctx.translate(px,py); ctx.scale(sx,sy); ctx.lineWidth=1.1; ctx.strokeStyle=c2; ctx.beginPath(); for(var i=0;i<=60;i++){ var t=i/60*Math.PI*3.6, rr=3+t*3.4; var qx=Math.cos(t)*rr, qy=Math.sin(t)*rr; if(i) ctx.lineTo(qx,qy); else ctx.moveTo(qx,qy); } ctx.stroke(); ctx.strokeStyle=c; ctx.lineWidth=0.8; ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(30,-4,48,18,70,12); ctx.bezierCurveTo(80,9,86,4,92,6); ctx.stroke(); ctx.fillStyle=c; dibujaFronda(ctx,50,10,-0.5,14,4,rgba(c,0.85),c,0.3); ctx.restore(); }
+  espiral(x+22,y+22,1,1); espiral(x+w-22,y+22,-1,1); espiral(x+22,y+h-22,1,-1); espiral(x+w-22,y+h-22,-1,-1);
+  ctx.fillStyle=c2; ctx.beginPath(); ctx.arc(x+w/2,y+4,3.2,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+w/2,y+h-4,3.2,0,Math.PI*2); ctx.fill(); ctx.restore(); };
+/* ballenita sencilla */
+ARTE.ballena=function(ctx,it){ var x=it.x, y=it.y, w=it.w, h=it.h, c=it.fill||"#9DB9D2"; ctx.save(); ctx.fillStyle=c; ctx.strokeStyle=rgba(mezcla(c,"#000000",0.3),0.5); ctx.lineWidth=0.6; ctx.beginPath(); ctx.moveTo(x+w*0.05,y+h*0.62); ctx.bezierCurveTo(x+w*0.1,y+h*0.15,x+w*0.62,y+h*0.1,x+w*0.74,y+h*0.52); ctx.bezierCurveTo(x+w*0.8,y+h*0.58,x+w*0.86,y+h*0.45,x+w*0.96,y+h*0.3); ctx.bezierCurveTo(x+w*0.95,y+h*0.52,x+w*0.92,y+h*0.62,x+w*0.86,y+h*0.72); ctx.bezierCurveTo(x+w*0.96,y+h*0.74,x+w*0.99,y+h*0.82,x+w*1.0,y+h*0.9); ctx.bezierCurveTo(x+w*0.86,y+h*0.86,x+w*0.8,y+h*0.82,x+w*0.72,y+h*0.76); ctx.bezierCurveTo(x+w*0.5,y+h*0.98,x+w*0.12,y+h*0.9,x+w*0.05,y+h*0.62); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=rgba("#FFFFFF",0.5); ctx.beginPath(); ctx.ellipse(x+w*0.4,y+h*0.74,w*0.3,h*0.1,-0.05,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#34495E"; ctx.beginPath(); ctx.arc(x+w*0.22,y+h*0.5,w*0.016,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle=c; ctx.lineWidth=1.2; ctx.lineCap="round"; [[0.4,-0.1],[0.34,-0.05],[0.46,-0.05]].forEach(function(q){ ctx.beginPath(); ctx.moveTo(x+w*0.38,y+h*0.1); ctx.quadraticCurveTo(x+w*q[0],y+h*q[1],x+w*(q[0]+(q[0]-0.4)*0.8),y+h*0.0); ctx.stroke(); }); ctx.restore(); };
+/* guirnalda de hojas y flores pequeñas en una esquina */
+ARTE.guirnalda=function(ctx,it){ var R=rng(it.seed||15), x=it.x, y=it.y, w=it.w, h=it.h, hoja=it.fill||"#8FB08A", flor=it.fill2||"#F2B8B8", n=it.n||14; ctx.save();
+  for(var i=0;i<n;i++){ var t=i/(n-1), px=x+t*w, py=y+h*(0.5+0.3*Math.sin(t*5+R())), a=(R()-0.5)*1.4-0.2; dibujaFronda(ctx,px,py,a,w*0.08*(0.8+R()*0.6),w*0.02,rgba(hoja,0.85),rgba(mezcla(hoja,"#000000",0.3),0.6),0.3); if(R()<0.45){ ctx.fillStyle=rgba(flor,0.9); for(var p=0;p<5;p++){ var aa=p*1.2566; ctx.beginPath(); ctx.arc(px+Math.cos(aa)*2.2,py+Math.sin(aa)*2.2,1.6,0,Math.PI*2); ctx.fill(); } ctx.fillStyle="#F2D27A"; ctx.beginPath(); ctx.arc(px,py,1,0,Math.PI*2); ctx.fill(); } }
+  ctx.restore(); };
+
+/* ══ ARTE PROCEDURAL (2.ª tanda) ═════════════════════════════════════════
+   Almendros en flor, flamencos del Delta, montañas del Montsià, osito, globos aerostáticos, barquito de papel,
+   flores silvestres, pizarra de tiza, acebo y copos de nieve. Todo dibujado con código. */
+function flor5(ctx,cx,cy,r,col,cen,R,rot){ ctx.save(); ctx.translate(cx,cy); ctx.rotate(rot||0);
+  for(var p=0;p<5;p++){ ctx.save(); ctx.rotate(p*1.2566+(R?(R()-0.5)*0.12:0)); var g=ctx.createRadialGradient(r*0.12,0,0,r*0.5,0,r*0.62); g.addColorStop(0,rgba(mezcla(col,"#D96A8E",0.45),0.95)); g.addColorStop(0.45,rgba(mezcla(col,"#FFFFFF",0.55),0.97)); g.addColorStop(1,rgba(mezcla(col,"#FFFFFF",0.8),0.96));
+    ctx.fillStyle=g; ctx.strokeStyle=rgba(mezcla(col,"#B05A78",0.35),0.45); ctx.lineWidth=0.35; ctx.beginPath(); ctx.ellipse(r*0.5,0,r*0.5,r*0.4,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore(); }
+  ctx.strokeStyle=rgba("#B24A6C",0.8); ctx.lineWidth=0.35; ctx.fillStyle=cen||"#C0476E"; for(var s=0;s<9;s++){ var a=s*0.7+0.2, l=r*(0.3+(s%3)*0.07); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*l,Math.sin(a)*l); ctx.stroke(); ctx.beginPath(); ctx.arc(Math.cos(a)*l,Math.sin(a)*l,r*0.06,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle=rgba("#E8B84A",0.95); ctx.beginPath(); ctx.arc(0,0,r*0.1,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+/* rama de almendro en flor */
+ARTE.almendro=function(ctx,it){ var R=rng(it.seed||3), x=it.x, y=it.y, w=it.w, h=it.h, petalo=it.fill||"#F7D9E2", cen=it.fill2||"#C0476E", ram=it.stroke||"#5B4638", flip=it.flip?-1:1;
+  ctx.save(); ctx.translate(x+(flip<0?w:0),y); ctx.scale(flip,1); ctx.lineCap="round"; ctx.lineJoin="round";
+  var P=function(px,py){ return [px*w,py*h]; }, tronco=[P(0,0.1),P(0.12,0.16+R()*0.04),P(0.26,0.2+R()*0.06),P(0.4,0.32+R()*0.05),P(0.56,0.42+R()*0.06),P(0.74,0.62+R()*0.06),P(0.88,0.74+R()*0.05),P(1,0.86)];
+  function rama(pts,w0,w1){ for(var i=0;i<pts.length-1;i++){ ctx.strokeStyle=ram; ctx.lineWidth=w0+(w1-w0)*i/(pts.length-1); ctx.beginPath(); ctx.moveTo(pts[i][0],pts[i][1]); ctx.lineTo(pts[i+1][0],pts[i+1][1]); ctx.stroke(); } }
+  var flores=[], yemas=[];
+  function ramita(px,py,ang,lar,nivel){ var pts=[[px,py]], a=ang, qx=px, qy=py, seg=4+Math.floor(R()*2); for(var i=0;i<seg;i++){ a+=(R()-0.5)*0.7; qx+=Math.cos(a)*lar/seg; qy+=Math.sin(a)*lar/seg; pts.push([qx,qy]);
+      if(i>0&&R()<0.8) flores.push([qx,qy,w*(0.05+R()*0.025)]); else if(R()<0.6) yemas.push([qx,qy]); }
+    rama(pts,nivel>0?1.5:1.0,0.45); flores.push([qx,qy,w*0.062]); if(nivel>0&&R()<0.7) ramita(pts[2][0],pts[2][1],a+(R()<0.5?0.9:-0.9),lar*0.5,nivel-1); }
+  rama(tronco,3.6,1.4);
+  for(var k=1;k<tronco.length-1;k++){ var q=tronco[k], dir=Math.atan2(tronco[k+1][1]-tronco[k-1][1],tronco[k+1][0]-tronco[k-1][0]); ramita(q[0],q[1],dir-0.75-R()*0.35,h*(0.2+R()*0.1),1); ramita(q[0],q[1],dir+0.7+R()*0.35,h*(0.18+R()*0.1),1); }
+  ramita(tronco[tronco.length-1][0],tronco[tronco.length-1][1],-0.3,h*0.22,0);
+  yemas.forEach(function(q){ var g=ctx.createRadialGradient(q[0]-0.5,q[1]-0.5,0.2,q[0],q[1],2.6); g.addColorStop(0,"#FBE7EE"); g.addColorStop(1,"#D98AA6"); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(q[0],q[1],2,0,Math.PI*2); ctx.fill(); });
+  flores.forEach(function(q){ flor5(ctx,q[0],q[1],q[2],petalo,cen,R,R()*6.28); });
+  ctx.restore(); };
+/* flamenco del Delta del Ebro */
+ARTE.flamenco=function(ctx,it){ var x=it.x, y=it.y, w=it.w, h=it.h, col=it.fill||"#F08A9B", osc=it.stroke||"#D9667F", flip=it.flip?-1:1; ctx.save(); ctx.translate(x+(flip<0?w:0),y); ctx.scale(flip,1); ctx.lineCap="round"; ctx.lineJoin="round";
+  var X=function(v){ return v*w; }, Y=function(v){ return v*h; };
+  ctx.strokeStyle=rgba(osc,0.9); ctx.lineWidth=Math.max(0.8,w*0.022); ctx.beginPath(); ctx.moveTo(X(0.5),Y(0.7)); ctx.lineTo(X(0.5),Y(0.86)); ctx.lineTo(X(0.52),Y(0.99)); ctx.stroke(); ctx.beginPath(); ctx.moveTo(X(0.52),Y(0.99)); ctx.lineTo(X(0.6),Y(1)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X(0.42),Y(0.7)); ctx.lineTo(X(0.34),Y(0.82)); ctx.lineTo(X(0.46),Y(0.88)); ctx.stroke();
+  var g=ctx.createLinearGradient(0,Y(0.4),0,Y(0.72)); g.addColorStop(0,mezcla(col,"#FFFFFF",0.25)); g.addColorStop(1,col); ctx.fillStyle=g;
+  ctx.beginPath(); ctx.moveTo(X(0.06),Y(0.6)); ctx.bezierCurveTo(X(0.18),Y(0.5),X(0.32),Y(0.42),X(0.5),Y(0.43)); ctx.bezierCurveTo(X(0.7),Y(0.42),X(0.82),Y(0.52),X(0.76),Y(0.64)); ctx.bezierCurveTo(X(0.7),Y(0.74),X(0.5),Y(0.76),X(0.34),Y(0.7)); ctx.bezierCurveTo(X(0.22),Y(0.67),X(0.12),Y(0.66),X(0.06),Y(0.6)); ctx.fill();
+  ctx.strokeStyle=rgba(osc,0.55); ctx.lineWidth=Math.max(0.5,w*0.01); [[0.2,0.58,0.52,0.52],[0.26,0.62,0.56,0.58],[0.34,0.67,0.6,0.63]].forEach(function(l){ ctx.beginPath(); ctx.moveTo(X(l[0]),Y(l[1])); ctx.quadraticCurveTo(X((l[0]+l[2])/2),Y(l[1]-0.045),X(l[2]),Y(l[3])); ctx.stroke(); });
+  ctx.strokeStyle=col; ctx.lineWidth=Math.max(1.6,w*0.07); ctx.beginPath(); ctx.moveTo(X(0.7),Y(0.52)); ctx.bezierCurveTo(X(0.98),Y(0.44),X(0.4),Y(0.28),X(0.7),Y(0.09)); ctx.stroke();
+  ctx.fillStyle=col; ctx.beginPath(); ctx.arc(X(0.7),Y(0.085),w*0.052,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#FBF1EE"; ctx.beginPath(); ctx.moveTo(X(0.74),Y(0.07)); ctx.bezierCurveTo(X(0.86),Y(0.07),X(0.92),Y(0.11),X(0.9),Y(0.15)); ctx.bezierCurveTo(X(0.84),Y(0.12),X(0.78),Y(0.12),X(0.74),Y(0.12)); ctx.closePath(); ctx.fill();
+  ctx.fillStyle="#2B2B33"; ctx.beginPath(); ctx.moveTo(X(0.84),Y(0.075)); ctx.bezierCurveTo(X(0.9),Y(0.085),X(0.93),Y(0.12),X(0.9),Y(0.15)); ctx.bezierCurveTo(X(0.88),Y(0.13),X(0.86),Y(0.12),X(0.82),Y(0.115)); ctx.closePath(); ctx.fill();
+  ctx.fillStyle="#2B2B33"; ctx.beginPath(); ctx.arc(X(0.7),Y(0.075),w*0.009,0,Math.PI*2); ctx.fill(); ctx.restore(); };
+/* cordilleras en capas (la sierra del Montsià y els Ports) */
+ARTE.montes=function(ctx,it){ var R=rng(it.seed||4), x=it.x, y=it.y, w=it.w, h=it.h, cols=it.colors||["#C9D6D8","#A9BDC2","#7F9AA3","#5A7782","#3E5B66"], bg=it.bg||"#F6F1E6", n=cols.length;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+  if(it.sol){ var s=it.sol; ctx.fillStyle=s[3]||"#F6C97B"; ctx.beginPath(); ctx.arc(x+s[0]*w,y+s[1]*h,s[2],0,Math.PI*2); ctx.fill(); }
+  for(var L=0;L<n;L++){ var base=y+h*(0.3+0.62*L/n), amp=h*(0.2-0.12*L/n), N=64, pts=[], vals=[0,0]; var m=[R(),R()]; var puntos=[{x:0,v:R()},{x:1,v:R()}];
+    (function disp(a,b,amp2,d){ if(d<=0) return; var mid=(a.v+b.v)/2+(R()-0.5)*amp2, p={x:(a.x+b.x)/2,v:mid}; puntos.push(p); disp(a,p,amp2*0.55,d-1); disp(p,b,amp2*0.55,d-1); })(puntos[0],puntos[1],1,6);
+    puntos.sort(function(p,q){ return p.x-q.x; });
+    ctx.beginPath(); ctx.moveTo(x,y+h); puntos.forEach(function(p){ ctx.lineTo(x+p.x*w,base-p.v*amp); }); ctx.lineTo(x+w,y+h); ctx.closePath();
+    var g=ctx.createLinearGradient(0,base-amp,0,y+h); g.addColorStop(0,cols[L]); g.addColorStop(0.5,mezcla(cols[L],bg,0.18)); g.addColorStop(1,bg); ctx.fillStyle=g; ctx.fill();
+    ctx.strokeStyle=rgba(mezcla(cols[L],"#FFFFFF",0.5),0.55); ctx.lineWidth=0.5; ctx.beginPath(); puntos.forEach(function(p,i){ if(i) ctx.lineTo(x+p.x*w,base-p.v*amp); else ctx.moveTo(x+p.x*w,base-p.v*amp); }); ctx.stroke(); }
+  ctx.restore(); };
+/* osito de peluche con globo */
+ARTE.osito=function(ctx,it){ var x=it.x, y=it.y, w=it.w, h=it.h, piel=it.fill||"#D9B08C", clara=it.fill2||"#F2DEC8", linea=it.stroke||"#8A6A4F", u=w, cx=x+w/2; ctx.save(); ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle=linea; ctx.lineWidth=Math.max(0.6,u*0.012);
+  var bodyY=y+h*0.8, headY=y+h*0.58;
+  if(it.globo){ var gx=cx+u*0.3, gy=y+h*0.17; ctx.strokeStyle=rgba(linea,0.8); ctx.beginPath(); ctx.moveTo(gx,gy+u*0.2); ctx.quadraticCurveTo(gx-u*0.04,y+h*0.45,cx+u*0.27,y+h*0.69); ctx.stroke();
+    var gg=ctx.createRadialGradient(gx-u*0.06,gy-u*0.08,u*0.02,gx,gy,u*0.22); gg.addColorStop(0,mezcla(it.globo,"#FFFFFF",0.55)); gg.addColorStop(1,it.globo); ctx.fillStyle=gg; ctx.strokeStyle=rgba(mezcla(it.globo,"#000000",0.25),0.6); ctx.beginPath(); ctx.ellipse(gx,gy,u*0.17,u*0.21,0.15,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle=it.globo; ctx.beginPath(); ctx.moveTo(gx-2,gy+u*0.2); ctx.lineTo(gx+2,gy+u*0.2); ctx.lineTo(gx,gy+u*0.235); ctx.fill(); }
+  ctx.strokeStyle=linea; ctx.lineWidth=Math.max(0.6,u*0.012);
+  function el(px,py,rx,ry,f,rot){ ctx.fillStyle=f; ctx.beginPath(); ctx.ellipse(px,py,rx,ry,rot||0,0,Math.PI*2); ctx.fill(); ctx.stroke(); }
+  el(cx-u*0.2,bodyY+u*0.25,u*0.11,u*0.075,piel,0.2); el(cx+u*0.2,bodyY+u*0.25,u*0.11,u*0.075,piel,-0.2);
+  el(cx,bodyY,u*0.3,u*0.28,piel); el(cx,bodyY+u*0.04,u*0.18,u*0.19,clara);
+  el(cx-u*0.2,bodyY+u*0.27,u*0.065,u*0.045,clara,0.2); el(cx+u*0.2,bodyY+u*0.27,u*0.065,u*0.045,clara,-0.2);
+  el(cx-u*0.28,bodyY-u*0.04,u*0.08,u*0.15,piel,0.5); el(cx+u*0.3,bodyY-u*0.1,u*0.08,u*0.15,piel,-0.6);
+  el(cx-u*0.2,headY-u*0.2,u*0.09,u*0.09,piel); el(cx+u*0.2,headY-u*0.2,u*0.09,u*0.09,piel); el(cx-u*0.2,headY-u*0.2,u*0.05,u*0.05,clara); el(cx+u*0.2,headY-u*0.2,u*0.05,u*0.05,clara);
+  el(cx,headY,u*0.25,u*0.22,piel); el(cx,headY+u*0.07,u*0.1,u*0.075,clara);
+  ctx.fillStyle="#4A3A2E"; ctx.beginPath(); ctx.ellipse(cx,headY+u*0.045,u*0.035,u*0.025,0,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(cx-u*0.09,headY-u*0.03,u*0.017,0,Math.PI*2); ctx.arc(cx+u*0.09,headY-u*0.03,u*0.017,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle="#4A3A2E"; ctx.lineWidth=Math.max(0.5,u*0.01); ctx.beginPath(); ctx.moveTo(cx,headY+u*0.07); ctx.lineTo(cx,headY+u*0.095); ctx.moveTo(cx-u*0.04,headY+u*0.105); ctx.quadraticCurveTo(cx,headY+u*0.12,cx+u*0.04,headY+u*0.105); ctx.stroke();
+  ctx.fillStyle=rgba("#F29AA8",0.5); ctx.beginPath(); ctx.ellipse(cx-u*0.15,headY+u*0.05,u*0.04,u*0.025,0,0,Math.PI*2); ctx.ellipse(cx+u*0.15,headY+u*0.05,u*0.04,u*0.025,0,0,Math.PI*2); ctx.fill();
+  if(it.lazo){ ctx.fillStyle=it.lazo; ctx.strokeStyle=rgba(mezcla(it.lazo,"#000000",0.3),0.7); ctx.beginPath(); ctx.moveTo(cx,headY+u*0.22); ctx.lineTo(cx-u*0.1,headY+u*0.17); ctx.lineTo(cx-u*0.1,headY+u*0.27); ctx.closePath(); ctx.moveTo(cx,headY+u*0.22); ctx.lineTo(cx+u*0.1,headY+u*0.17); ctx.lineTo(cx+u*0.1,headY+u*0.27); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(cx,headY+u*0.22,u*0.024,0,Math.PI*2); ctx.fill(); }
+  ctx.restore(); };
+/* globo aerostático */
+ARTE.globoaire=function(ctx,it){ var x=it.x, y=it.y, w=it.w, h=it.h, cols=it.colors||["#F2A99C","#F7D08A","#9FD0C7","#8EB8E0"], cx=x+w/2, H=h*0.76, ng=it.gajos||8, N=26; ctx.save(); ctx.lineJoin="round";
+  function hw(t){ return (w/2)*Math.pow(Math.sin(Math.PI*Math.min(1,0.04+t*0.86)),0.62); }
+  var baseT=1, cesto=cx; ctx.strokeStyle=rgba(it.stroke||"#7A5A45",0.8); ctx.lineWidth=0.6;
+  var bx0=cx-hw(1)*0.9, bx1=cx+hw(1)*0.9, by=y+H, cw=w*0.2, cy1=y+h*0.9; ctx.beginPath(); ctx.moveTo(bx0,by); ctx.lineTo(cx-cw/2,cy1); ctx.moveTo(bx1,by); ctx.lineTo(cx+cw/2,cy1); ctx.moveTo(cx-hw(1)*0.3,by); ctx.lineTo(cx-cw*0.15,cy1); ctx.moveTo(cx+hw(1)*0.3,by); ctx.lineTo(cx+cw*0.15,cy1); ctx.stroke();
+  ctx.fillStyle="#C99B6D"; ctx.strokeStyle="#8A6A4F"; ctx.beginPath(); ctx.rect(cx-cw/2,cy1,cw,h*0.08); ctx.fill(); ctx.stroke(); ctx.strokeStyle=rgba("#8A6A4F",0.6); ctx.beginPath(); ctx.moveTo(cx-cw/2,cy1+h*0.03); ctx.lineTo(cx+cw/2,cy1+h*0.03); ctx.stroke();
+  for(var k=0;k<ng;k++){ var s0=-1+2*k/ng, s1=-1+2*(k+1)/ng; ctx.beginPath(); for(var i=0;i<=N;i++){ var t=i/N; ctx.lineTo(cx+s0*hw(t),y+t*H); } for(var j=N;j>=0;j--){ var t2=j/N; ctx.lineTo(cx+s1*hw(t2),y+t2*H); } ctx.closePath(); ctx.fillStyle=cols[k%cols.length]; ctx.fill(); }
+  var g=ctx.createLinearGradient(x,0,x+w,0); g.addColorStop(0,"rgba(255,255,255,0.35)"); g.addColorStop(0.45,"rgba(255,255,255,0)"); g.addColorStop(1,"rgba(0,0,0,0.12)"); ctx.fillStyle=g; ctx.beginPath(); for(var i2=0;i2<=N;i2++){ var t3=i2/N; ctx.lineTo(cx-hw(t3),y+t3*H); } for(var j2=N;j2>=0;j2--){ var t4=j2/N; ctx.lineTo(cx+hw(t4),y+t4*H); } ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=rgba(it.stroke||"#7A5A45",0.55); ctx.lineWidth=0.5; for(var k2=1;k2<ng;k2++){ var s=-1+2*k2/ng; ctx.beginPath(); for(var i3=0;i3<=N;i3++){ var t5=i3/N; ctx.lineTo(cx+s*hw(t5),y+t5*H); } ctx.stroke(); }
+  ctx.beginPath(); for(var i4=0;i4<=N;i4++){ var t6=i4/N; ctx.lineTo(cx-hw(t6),y+t6*H); } for(var j3=N;j3>=0;j3--){ var t7=j3/N; ctx.lineTo(cx+hw(t7),y+t7*H); } ctx.closePath(); ctx.stroke(); ctx.restore(); };
+/* barquito de papel sobre las olas */
+ARTE.barquito=function(ctx,it){ var x=it.x, y=it.y, w=it.w, h=it.h, c=it.fill||"#F4B183", c2=it.fill2||"#3E6E9C", X=function(v){ return x+v*w; }, Y=function(v){ return y+v*h; }; ctx.save(); ctx.lineJoin="round";
+  function poly(p,f,s){ ctx.beginPath(); p.forEach(function(q,i){ if(i) ctx.lineTo(X(q[0]),Y(q[1])); else ctx.moveTo(X(q[0]),Y(q[1])); }); ctx.closePath(); ctx.fillStyle=f; ctx.fill(); if(s){ ctx.strokeStyle=s; ctx.lineWidth=0.5; ctx.stroke(); } }
+  var sombra=rgba(mezcla(c,"#000000",0.35),0.5);
+  poly([[0.5,0.02],[0.14,0.6],[0.5,0.6]],mezcla(c,"#FFFFFF",0.3),sombra); poly([[0.5,0.02],[0.86,0.6],[0.5,0.6]],mezcla(c,"#000000",0.08),sombra);
+  poly([[0.04,0.62],[0.96,0.62],[0.76,0.86],[0.24,0.86]],c,sombra); poly([[0.04,0.62],[0.5,0.62],[0.4,0.86],[0.24,0.86]],mezcla(c,"#FFFFFF",0.2),null); poly([[0.5,0.62],[0.96,0.62],[0.76,0.86],[0.4,0.86]],mezcla(c,"#000000",0.14),sombra);
+  ctx.strokeStyle=rgba(c2,0.85); ctx.lineWidth=0.9; ctx.lineCap="round"; for(var r=0;r<4;r++){ var yy=Y(0.84+r*0.05), amp=h*0.014; ctx.beginPath(); for(var i=0;i<=40;i++){ var px=x+w*(-0.12+1.24*i/40), py=yy+Math.sin(i/40*Math.PI*(7+r)+r)*amp; if(i) ctx.lineTo(px,py); else ctx.moveTo(px,py); } ctx.globalAlpha=0.95-r*0.18; ctx.stroke(); } ctx.restore(); };
+/* pradera de flores silvestres */
+ARTE.silvestres=function(ctx,it){ var R=rng(it.seed||5), x=it.x, y=it.y, w=it.w, h=it.h, n=it.n||26, verde=it.stroke||"#6E8F5A", cols=it.colors||["#FFFFFF","#E9544A","#6B8FD6","#F2C94C","#F7B7C6"]; ctx.save(); ctx.beginPath(); ctx.rect(x-30,y-30,w+60,h+60); ctx.clip(); ctx.lineCap="round";
+  for(var b=0;b<n*2;b++){ var bx=x+R()*w, hh=h*(0.25+R()*0.5), sw=(R()-0.5)*14; ctx.strokeStyle=rgba(mezcla(verde,"#FFFFFF",R()*0.3),0.75); ctx.lineWidth=0.7+R()*0.6; ctx.beginPath(); ctx.moveTo(bx,y+h); ctx.quadraticCurveTo(bx+sw*0.2,y+h-hh*0.6,bx+sw,y+h-hh); ctx.stroke(); }
+  for(var i=0;i<n;i++){ var px=x+(i+0.2+R()*0.6)/n*w, hh2=h*(0.35+R()*0.62), sw2=(R()-0.5)*18, tx=px+sw2, ty=y+h-hh2, tipo=Math.floor(R()*4), col=cols[Math.floor(R()*cols.length)];
+    ctx.strokeStyle=verde; ctx.lineWidth=0.9; ctx.beginPath(); ctx.moveTo(px,y+h); ctx.quadraticCurveTo(px+sw2*0.15,y+h-hh2*0.55,tx,ty); ctx.stroke(); dibujaFronda(ctx,px+sw2*0.1,y+h-hh2*0.3,-1.1+(R()-0.5)*0.4,hh2*0.22,hh2*0.05,rgba(verde,0.85),null,0);
+    var r=4+R()*3.4;
+    if(tipo===0){ ctx.fillStyle="#FFFFFF"; ctx.strokeStyle=rgba("#B8B8B8",0.6); ctx.lineWidth=0.35; for(var p=0;p<11;p++){ ctx.save(); ctx.translate(tx,ty); ctx.rotate(p*0.5712); ctx.beginPath(); ctx.ellipse(r*0.72,0,r*0.72,r*0.22,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore(); } ctx.fillStyle="#F2C14E"; ctx.beginPath(); ctx.arc(tx,ty,r*0.34,0,Math.PI*2); ctx.fill(); }
+    else if(tipo===1){ var rojo=it.rojo||"#E4483D"; ctx.fillStyle=rgba(rojo,0.95); ctx.strokeStyle=rgba("#9A2A22",0.5); ctx.lineWidth=0.35; for(var q=0;q<4;q++){ ctx.save(); ctx.translate(tx,ty); ctx.rotate(q*1.5708+0.4); ctx.beginPath(); ctx.ellipse(r*0.55,0,r*0.7,r*0.62,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore(); } ctx.fillStyle="#3A2A2A"; ctx.beginPath(); ctx.arc(tx,ty,r*0.2,0,Math.PI*2); ctx.fill(); }
+    else if(tipo===2){ ctx.fillStyle=rgba(it.azul||"#6B8FD6",0.95); for(var s2=0;s2<8;s2++){ ctx.save(); ctx.translate(tx,ty); ctx.rotate(s2*0.7854); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(r*1.05,-r*0.2); ctx.lineTo(r*1.05,r*0.2); ctx.closePath(); ctx.fill(); ctx.restore(); } ctx.fillStyle="#3E4A8A"; ctx.beginPath(); ctx.arc(tx,ty,r*0.2,0,Math.PI*2); ctx.fill(); }
+    else { for(var k=0;k<6;k++){ var kk=ty+k*r*0.5-r*1.4; ctx.fillStyle=rgba(col,0.9); ctx.beginPath(); ctx.arc(tx+(k%2?r*0.28:-r*0.28),kk+r*0.9,r*0.34,0,Math.PI*2); ctx.fill(); } } }
+  ctx.restore(); };
+/* pizarra de tiza */
+ARTE.tiza=function(ctx,it){ var R=rng(it.seed||6), x=it.x, y=it.y, w=it.w, h=it.h, base=it.fill||"#26322E", tiza=it.stroke||"#F2EEE4"; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); var g=ctx.createLinearGradient(0,y,0,y+h); g.addColorStop(0,mezcla(base,"#FFFFFF",0.05)); g.addColorStop(1,mezcla(base,"#000000",0.12)); ctx.fillStyle=g; ctx.fillRect(x,y,w,h);
+  for(var s=0;s<7;s++){ var cx=x+R()*w, cy=y+R()*h, r=Math.min(w,h)*(0.25+R()*0.5), gg=ctx.createRadialGradient(cx,cy,0,cx,cy,r); gg.addColorStop(0,"rgba(255,255,255,0.05)"); gg.addColorStop(1,"rgba(255,255,255,0)"); ctx.fillStyle=gg; ctx.fillRect(x,y,w,h); }
+  for(var i=0;i<(it.n||900);i++){ ctx.fillStyle="rgba(255,255,255,"+(0.015+R()*0.05)+")"; ctx.fillRect(x+R()*w,y+R()*h,0.5+R()*1.6,0.4+R()*0.8); }
+  ctx.restore();
+  if(it.marco!==0){ ctx.save(); ctx.lineCap="round"; ctx.lineJoin="round"; [[14,1.1,0.85],[19,0.6,0.55]].forEach(function(m){ var d=m[0]; ctx.strokeStyle=rgba(tiza,m[2]); ctx.lineWidth=m[1]; ctx.beginPath(); var pts=[[x+d,y+d],[x+w-d,y+d],[x+w-d,y+h-d],[x+d,y+h-d],[x+d,y+d]]; for(var q=0;q<4;q++){ var a=pts[q], b=pts[q+1], len=Math.hypot(b[0]-a[0],b[1]-a[1]), st=Math.ceil(len/10); for(var k=0;k<=st;k++){ var t=k/st, px=a[0]+(b[0]-a[0])*t+(R()-0.5)*0.9, py=a[1]+(b[1]-a[1])*t+(R()-0.5)*0.9; if(q===0&&k===0) ctx.moveTo(px,py); else ctx.lineTo(px,py); } } ctx.stroke(); }); ctx.restore(); } };
+/* acebo navideño */
+function hojaAcebo(ctx,cx,cy,ang,lar,fill,borde){ ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang); var K=10; ctx.beginPath(); ctx.moveTo(0,0); for(var i=1;i<=K;i++){ var t=i/K, ww=lar*0.2*Math.sin(Math.PI*Math.pow(t,0.8)); var rad=(i%2?1:0.62); ctx.lineTo(lar*t,-ww*rad*(i===K?0:1)); } for(var j=K;j>=1;j--){ var t2=j/K, w2=lar*0.2*Math.sin(Math.PI*Math.pow(t2,0.8)); var rad2=(j%2?1:0.62); ctx.lineTo(lar*t2,w2*rad2*(j===K?0:1)); } ctx.closePath();
+  var g=ctx.createLinearGradient(0,-lar*0.2,0,lar*0.2); g.addColorStop(0,mezcla(fill,"#FFFFFF",0.2)); g.addColorStop(0.5,fill); g.addColorStop(1,mezcla(fill,"#000000",0.25)); ctx.fillStyle=g; ctx.fill(); ctx.strokeStyle=borde; ctx.lineWidth=0.5; ctx.stroke();
+  ctx.strokeStyle=rgba("#FFFFFF",0.35); ctx.lineWidth=0.45; ctx.beginPath(); ctx.moveTo(lar*0.04,0); ctx.lineTo(lar*0.92,0); ctx.stroke(); ctx.restore(); }
+ARTE.acebo=function(ctx,it){ var R=rng(it.seed||7), x=it.x, y=it.y, w=it.w, h=it.h, hoja=it.fill||"#2F6B4A", baya=it.fill2||"#C93A35", cx=x+w*0.5, cy=y+h*0.55, r=Math.min(w,h); ctx.save();
+  var n=it.n||5; for(var i=0;i<n;i++){ var a=-Math.PI/2+(i-(n-1)/2)*(1.5/(n-1||1))+(R()-0.5)*0.25+(it.rot||0); hojaAcebo(ctx,cx,cy,a,r*(0.5+R()*0.12),hoja,rgba(mezcla(hoja,"#000000",0.4),0.9)); }
+  for(var b=0;b<4;b++){ var bx=cx+(R()-0.5)*r*0.26, by=cy+(R()-0.5)*r*0.16-r*0.02, br=r*0.065; var gg=ctx.createRadialGradient(bx-br*0.3,by-br*0.3,br*0.1,bx,by,br); gg.addColorStop(0,mezcla(baya,"#FFFFFF",0.5)); gg.addColorStop(0.4,baya); gg.addColorStop(1,mezcla(baya,"#000000",0.3)); ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(bx,by,br,0,Math.PI*2); ctx.fill(); }
+  ctx.restore(); };
+/* copos de nieve */
+ARTE.nieve=function(ctx,it){ var R=rng(it.seed||8), x=it.x, y=it.y, w=it.w, h=it.h, n=it.n||60, c=it.stroke||"#FFFFFF"; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineCap="round";
+  for(var i=0;i<n;i++){ var px=x+R()*w, py=y+R()*h; if(enHueco(it,px,py)) continue; var r=1+R()*R()*(it.tam||6); ctx.globalAlpha=0.35+R()*0.6;
+    if(R()<0.55){ ctx.beginPath(); ctx.arc(px,py,r*0.45,0,Math.PI*2); ctx.fill(); } else { ctx.lineWidth=Math.max(0.35,r*0.1); ctx.save(); ctx.translate(px,py); ctx.rotate(R()*1.05); for(var a=0;a<6;a++){ ctx.rotate(Math.PI/3); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(r,0); ctx.moveTo(r*0.55,0); ctx.lineTo(r*0.8,r*0.28); ctx.moveTo(r*0.55,0); ctx.lineTo(r*0.8,-r*0.28); ctx.stroke(); } ctx.restore(); } }
+  ctx.restore(); };
+
+/* ═══ MODELOS NUEVOS (para elegir) ═══════════════════════════════════════
+   Diseños con ilustraciones dibujadas por código y tipografías nuevas. Todavía no están en la app:
+   se enseñan en la página de modelos y, los que gusten, pasan a la galería. */
+[["Gilda Display","Serif elegante","Gilda+Display"],["Bellefair","Serif elegante","Bellefair"],["Rufina","Serif elegante","Rufina:wght@400;700"],["Fraunces","Serif elegante","Fraunces:ital,wght@0,400;0,700;1,400"],["Sorts Mill Goudy","Serif elegante","Sorts+Mill+Goudy:ital@0;1"],["Prata","Serif elegante","Prata"],["Baskervville","Serif elegante","Baskervville:ital@0;1"],["Cormorant Upright","Serif elegante","Cormorant+Upright"],
+ ["Yeseva One","Display","Yeseva+One"],["Limelight","Art déco","Limelight"],["Marcellus SC","Clásicas","Marcellus+SC"],
+ ["Italianno","Caligrafía","Italianno"],["Montez","Caligrafía","Montez"],["Birthstone","Caligrafía","Birthstone"],["Mr De Haviland","Caligrafía","Mr+De+Haviland"],["Monsieur La Doulaise","Caligrafía","Monsieur+La+Doulaise"],["Corinthia","Caligrafía","Corinthia"],["Petit Formal Script","Caligrafía","Petit+Formal+Script"],["Bilbo Swash Caps","Caligrafía","Bilbo+Swash+Caps"],
+ ["Satisfy","A mano","Satisfy"],["Playball","A mano","Playball"],["Cookie","A mano","Cookie"],["Shadows Into Light","A mano","Shadows+Into+Light"],
+ ["Tenor Sans","Sans","Tenor+Sans"],["Syne","Sans","Syne:wght@400;700"],["Poppins","Sans","Poppins:wght@300;400;600"],["Quicksand","Sans","Quicksand:wght@400;600"],["Nunito","Sans","Nunito:wght@300;400;700"]].forEach(function(f){ var o={n:f[0],c:f[1],g:f[2],b:/wght/.test(f[2])?1:0,it:/ital/.test(f[2])?1:0}; if(!FUENTE_POR[o.n]){ FUENTES.push(o); FUENTE_POR[o.n]=o; } });
+function nomC(x,y,w,f,s,c,o){ return TX("nom2","",x,y,w,est(f,s,c,o||{}),{campo:"{nombre}"}); }
+function fecC(fmt,x,y,w,f,s,c,o){ return TX("fec","",x,y,w,est(f,s,c,o||{}),{campo:fmt}); }
+function fondoPanel(x,y,w,h,col,op,r){ return S({f:"redondo",x:x,y:y,w:w,h:h,r:r||6,fill:col,stroke:"",sw:0,op:op}); }
+
+/* BODA */
+tpl({id:"m01",tags:["Textura", "Elegante"],nombre:"Amanecer de acuarela",desc:"Manchas de melocotón, lila y celeste que se funden en el papel",cat:["boda","comunion","otros"],fondo:"#FFFDFB",tinta:"#4A3A40",color:"#9A6A7A",mx:48,zona:{y0:214},pieY:818,pie:"lz",noNom:true,nomMax:738,
+  est:{tit:est("Cormorant Garamond",13,"#9A6A7A",{i:1,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#4A3A40",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#4A3A40",{ls:1.1,lh:1.5}),ast:est("Cormorant Garamond",10,"#C9A0B0"),nom:est("Pinyon Script",34,"#9A6A7A"),rot:est("Pinyon Script",42,"#9A6A7A")},
+  deco:function(sc,tp,dm){ return [S({f:"acuarela",x:-30,y:-30,w:W+60,h:290,colors:["#F6C9B8","#E9B6CF","#C9D6F0","#F7E2B8"],seed:21,n:9,alfa:0.2}),S({f:"acuarela",x:-30,y:H-190,w:W+60,h:210,colors:["#E9B6CF","#F6C9B8","#C9D6F0"],seed:5,n:5,alfa:0.14}),TX("rot","menú",30,86,W-60,est("Pinyon Script",46,"#7A4A5A")),nomC(30,752,W-60,"Pinyon Script",32,"#9A6A7A",{lh:1})]; }});
+tpl({id:"m02",tags:["Elegante", "Textura"],nombre:"Mármol y oro",desc:"Mármol blanco con venas doradas y marco de doble filete",cat:["boda","otros"],fondo:"#F7F5F2",tinta:"#2B2824",color:"#B8902B",mx:56,zona:{y0:176},pieY:816,pie:"lz",noNom:true,nomMax:734,
+  est:{tit:est("Cinzel",9,"#B8902B",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Cormorant Garamond",10.4,"#2B2824",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#2B2824",{ls:1.2,lh:1.5}),ast:est("Cormorant Garamond",10,"#B8902B"),nom:est("Cinzel",20,"#B8902B",{ls:2,lh:1.2}),rot:est("Cinzel",24,"#B8902B",{ls:12,b:1})},
+  deco:function(sc,tp,dm){ return [S({f:"marmol",x:0,y:0,w:W,h:H,fill:"#F7F5F2",stroke:"#A9A296",oro:"#C9A24B",seed:3,n:8}),fondoPanel(30,36,W-60,H-96,"#FFFFFF",0.84,2),S({f:"rect",x:38,y:44,w:W-76,h:H-112,stroke:"#B8902B",sw:1,doble:4}),TX("rot","MENÚ",30,84,W-60,est("Cinzel",24,"#B8902B",{ls:12,b:1})),S({f:"linea",x:W/2-30,y:128,w:60,stroke:"#B8902B",sw:0.8,dash:"doble"}),nomC(48,748,W-96,"Cinzel",19,"#B8902B",{ls:2,lh:1.2})]; }});
+tpl({id:"m03",tags:["Ilustrado"],nombre:"Azulejo mediterráneo",desc:"Baldosas hidráulicas azules arriba y abajo, y un toque de cal",cat:["boda","otros"],fondo:"#FFFEFA",tinta:"#1F3A63",color:"#2B5A9B",mx:48,zona:{y0:150},pieY:812,pie:"sin",noNom:true,nomMax:680,
+  est:{tit:est("Playfair Display",12,"#2B5A9B",{i:1,lh:1.2}),lin:est("Lora",8.8,"#1F3A63",{lh:1.45}),peq:est("Lora",7.4,"#1F3A63",{ls:0.8,lh:1.5}),ast:est("Lora",8.8,"#2B5A9B"),nom:est("Italianno",38,"#2B5A9B"),rot:est("Playfair Display",36,"#2B5A9B",{i:1})},
+  deco:function(sc,tp,dm){ return [S({f:"azulejo",x:0,y:0,w:W,h:92,tam:30,stroke:"#2B5A9B",fill:"#DCE8F7"}),S({f:"azulejo",x:0,y:H-92,w:W,h:92,tam:30,stroke:"#2B5A9B",fill:"#DCE8F7"}),S({f:"linea",x:0,y:92.5,w:W,stroke:"#1F3A63",sw:1.2}),S({f:"linea",x:0,y:H-92.5,w:W,stroke:"#1F3A63",sw:1.2}),nomC(30,694,W-60,"Italianno",38,"#2B5A9B",{lh:1}),fondoPanel(46,H-70,W-92,38,"#FFFFFF",1,3),TX("pie","LES MOLES · ULLDECONA",46,H-57,W-92,est("Cinzel",7.4,"#1F3A63",{ls:2.6}))]; }});
+tpl({id:"m04",tags:["Ilustrado"],nombre:"Pampa boho",desc:"Plumas de hierba de la pampa y un arco fino de terracota",cat:["boda","bautizo","otros"],fondo:"#F7F0E6",tinta:"#5A4637",color:"#B07A5A",mx:54,zona:{y0:150},pieY:812,pie:"sin",noNom:true,nomMax:694,
+  est:{tit:est("Jost",7.6,"#B07A5A",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Jost",8.4,"#5A4637",{lh:1.55,b:0}),peq:est("Jost",7,"#5A4637",{ls:1,lh:1.6}),ast:est("Jost",8.4,"#B07A5A"),nom:est("Cormorant Garamond",30,"#B07A5A",{i:1,lh:1.1}),rot:est("Cormorant Garamond",44,"#B07A5A",{i:1})},
+  deco:function(sc,tp,dm){ return [S({f:"arco",x:34,y:36,w:W-68,h:H-112,stroke:"#B07A5A",sw:0.9}),S({f:"pampa",x:-34,y:H-300,w:104,h:300,seed:4,n:4}),S({f:"pampa",x:W-72,y:H-270,w:104,h:270,seed:9,n:3,colors:["#D9B99A","#C79E7C","#EAD7C0","#A98462"]}),TX("rot","menú",30,66,W-60,est("Cormorant Garamond",44,"#B07A5A",{i:1})),nomC(60,708,W-120,"Cormorant Garamond",30,"#B07A5A",{i:1,lh:1.1}),TX("pie","LES MOLES · ULLDECONA",30,H-52,W-60,est("Jost",6.6,"#B07A5A",{ls:3.4}))]; }});
+tpl({id:"m05",tags:["Oscuro", "Ilustrado"],nombre:"Noche estrellada",desc:"Azul medianoche con constelaciones, una luna y letras doradas",cat:["boda","otros"],fondo:"#0F1A33",tinta:"#EDE4D0",color:"#E5C77E",mx:50,zona:{y0:176},pieY:812,pie:"sin",noNom:true,nomMax:726,
+  est:{tit:est("Cinzel",8.6,"#E5C77E",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Cormorant Garamond",10.4,"#EDE4D0",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#EDE4D0",{ls:1.2,lh:1.5}),ast:est("Cormorant Garamond",10,"#E5C77E"),nom:est("Pinyon Script",32,"#E5C77E",{lh:1}),rot:est("Poiret One",28,"#E5C77E",{ls:10})},
+  deco:function(sc,tp,dm){ return [S({f:"cielo",x:0,y:0,w:W,h:H,stroke:"#F2E3B5",seed:7,n:210,hueco:[34,150,W-34,770],luna:[W-74,76,22],constelaciones:4}),TX("rot","MENÚ",30,96,W-120,est("Poiret One",28,"#E5C77E",{ls:10,al:"left"})),nomC(30,740,W-60,"Pinyon Script",32,"#E5C77E",{lh:1}),TX("pie","LES MOLES · ULLDECONA",30,H-44,W-60,est("Cinzel",7,"#E5C77E",{ls:4}))]; }});
+tpl({id:"m06",tags:["Ilustrado", "Local"],nombre:"Viñedo de Terra Alta",desc:"Hojas de vid y un racimo en granate sobre papel crema",cat:["boda","otros"],fondo:"#FBF6EE",tinta:"#3B2A2E",color:"#6B2737",mx:50,zona:{y0:204},pieY:814,pie:"lz",noNom:true,nomMax:640,
+  est:{tit:est("Libre Baskerville",8.6,"#6B2737",{i:1,lh:1.2}),lin:est("Libre Baskerville",8.2,"#3B2A2E",{lh:1.55}),peq:est("Libre Baskerville",6.8,"#3B2A2E",{ls:0.6,lh:1.55}),ast:est("Libre Baskerville",8.2,"#6B2737"),nom:est("Pinyon Script",32,"#6B2737",{lh:1}),rot:est("Pinyon Script",44,"#6B2737")},
+  deco:function(sc,tp,dm){ return [S({f:"vid",x:-8,y:-6,w:W*0.62,h:236,seed:9,stroke:"#6B4A3A",fill:"#7F9B62",fill2:"#5A2A4A"}),S({f:"vid",x:W-100,y:H-150,w:124,h:150,seed:3,stroke:"#6B4A3A",fill:"#8AA66B",fill2:"#7A3E5A"}),TX("rot","menú",W/2-8,76,W/2-26,est("Pinyon Script",44,"#6B2737",{al:"right"})),nomC(30,658,W-60,"Pinyon Script",32,"#6B2737",{lh:1})]; }});
+tpl({id:"m07",tags:["Ilustrado", "Local"],nombre:"Olivos de la casa",desc:"Dos ramas de olivo con aceitunas que enmarcan el texto",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#3A4235",color:"#6B7F58",mx:70,zona:{y0:158},pieY:814,pie:"lz",noNom:true,nomMax:698,
+  est:{tit:est("Cormorant SC",11,"#6B7F58",{b:1,ls:1.2,lh:1.2}),lin:est("Cormorant Garamond",10,"#3A4235",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#3A4235",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#6B7F58"),nom:est("Italianno",36,"#6B7F58",{lh:1}),rot:est("Cormorant Garamond",42,"#6B7F58",{i:1})},
+  deco:function(sc,tp,dm){ return [S({f:"olivo",x:-22,y:110,w:70,h:560,seed:5,nh:10}),S({f:"olivo",x:W-48,y:150,w:70,h:560,seed:11,nh:10}),TX("rot","menú",30,62,W-60,est("Cormorant Garamond",42,"#6B7F58",{i:1})),nomC(40,712,W-80,"Italianno",36,"#6B7F58",{lh:1})]; }});
+tpl({id:"m08",tags:["Ilustrado"],nombre:"Limones de Amalfi",desc:"Una rama de limonero y una cenefa de azulejo azul",cat:["boda","otros"],fondo:"#FFFDF4",tinta:"#23406B",color:"#2B5A9B",mx:50,zona:{y0:204},pieY:774,pie:"lz",noNom:true,nomMax:674,
+  est:{tit:est("Playfair Display",11.5,"#2B5A9B",{i:1,lh:1.2}),lin:est("Lora",8.8,"#23406B",{lh:1.45}),peq:est("Lora",7.4,"#23406B",{ls:0.8,lh:1.5}),ast:est("Lora",8.8,"#C9A227"),nom:est("Italianno",38,"#2B5A9B"),rot:est("Playfair Display",34,"#2B5A9B",{i:1})},
+  deco:function(sc,tp,dm){ return [S({f:"limones",x:W-230,y:-6,w:236,h:200,seed:11,fill:"#4F7A3F",fill2:"#F2CC3C",stroke:"#6B5A45"}),S({f:"azulejo",x:0,y:H-24,w:W,h:24,tam:24,stroke:"#2B5A9B",fill:"#DCE8F7"}),TX("rot","menú",24,60,W-130,est("Playfair Display",34,"#2B5A9B",{i:1,al:"left"})),nomC(40,688,W-80,"Italianno",38,"#2B5A9B",{lh:1})]; }});
+tpl({id:"m09",tags:["Ilustrado", "Moderno"],nombre:"Papel cortado",desc:"Capas de papel con relieve y un sol de arena detrás de las colinas",cat:["otros","boda","bautizo"],fondo:"#F4E8DA",tinta:"#5A4034",color:"#B9674A",mx:50,zona:{y0:112},pieY:824,pie:"sin",noNom:true,nomMax:520,
+  est:{tit:est("Josefin Sans",7.6,"#B9674A",{ls:3,up:1,b:1,lh:1.2}),lin:est("Josefin Sans",8.4,"#5A4034",{lh:1.45}),peq:est("Josefin Sans",7,"#5A4034",{ls:1,lh:1.5}),ast:est("Josefin Sans",8.4,"#B9674A"),nom:est("Cormorant Garamond",26,"#5A4034",{i:1,lh:1.1}),rot:est("Josefin Sans",22,"#B9674A",{ls:10,up:1})},
+  deco:function(sc,tp,dm){ return [S({f:"capas",x:0,y:H-330,w:W,h:330,colors:["#E7C9A9","#D9A57F","#C1805B","#8B5A44"],sol:"#F2D3A0",solx:0.68,seed:6}),TX("rot","MENÚ",30,44,W-60,est("Josefin Sans",22,"#B9674A",{ls:10})),nomC(30,544,W-60,"Cormorant Garamond",26,"#5A4034",{i:1,lh:1.1}),TX("pie","LES MOLES · ULLDECONA",30,H-34,W-60,est("Josefin Sans",6.6,"#F4E8DA",{ls:4}))]; }});
+tpl({id:"m10",tags:["Elegante", "Clásico"],nombre:"Art nouveau",desc:"Volutas y hojas de la Belle Époque en verde bosque y mostaza",cat:["boda","otros"],fondo:"#F6F0DF",tinta:"#2F3B2C",color:"#2F5D44",mx:58,zona:{y0:186},pieY:808,pie:"sin",noNom:true,nomMax:686,
+  est:{tit:est("Gilda Display",11,"#2F5D44",{ls:1.6,up:1,lh:1.2}),lin:est("Sorts Mill Goudy",9.6,"#2F3B2C",{lh:1.42}),peq:est("Sorts Mill Goudy",7.8,"#2F3B2C",{ls:0.8,lh:1.5}),ast:est("Sorts Mill Goudy",9.6,"#C99A2E"),nom:est("Montez",30,"#2F5D44",{lh:1}),rot:est("Limelight",34,"#2F5D44",{ls:3})},
+  deco:function(sc,tp,dm){ return [S({f:"nouveau",x:16,y:16,w:W-32,h:H-32,stroke:"#2F5D44",fill:"#C99A2E",sw:1.3}),TX("rot","Menú",30,92,W-60,est("Limelight",36,"#2F5D44",{ls:3})),S({f:"linea",x:W/2-34,y:150,w:68,stroke:"#C99A2E",sw:1}),nomC(40,700,W-80,"Montez",30,"#2F5D44",{lh:1}),TX("pie","LES MOLES",30,774,W-60,est("Gilda Display",9,"#2F5D44",{ls:5}))]; }});
+tpl({id:"m11",tags:["Moderno", "Textura"],nombre:"Curvas de nivel",desc:"El paisaje de Terra Alta dibujado con líneas, con sus coordenadas",cat:["boda","otros"],fondo:"#F5F2E9",tinta:"#2E3B30",color:"#6E8A72",mx:56,zona:{y0:176},pieY:810,pie:"sin",noNom:true,nomMax:680,
+  est:{tit:est("Jost",7.4,"#4F6A55",{ls:3.4,up:1,b:1,lh:1.2}),lin:est("Jost",8.4,"#2E3B30",{lh:1.58}),peq:est("Jost",7,"#2E3B30",{ls:1,lh:1.6}),ast:est("Jost",8.4,"#6E8A72"),nom:est("Cormorant Garamond",26,"#2E3B30",{i:1,lh:1.1}),rot:est("Jost",24,"#2E3B30",{ls:12,up:1})},
+  deco:function(sc,tp,dm){ return [S({f:"curvas",x:0,y:0,w:W,h:H,stroke:"#6E8A72",seed:14,n:4,niveles:16,sw:0.6}),fondoPanel(26,58,W-52,H-122,"#F5F2E9",0.92,3),TX("rot","MENÚ",30,92,W-60,est("Jost",24,"#2E3B30",{ls:12})),S({f:"linea",x:W/2-20,y:128,w:40,stroke:"#6E8A72",sw:0.8}),nomC(40,694,W-80,"Cormorant Garamond",26,"#2E3B30",{i:1,lh:1.1}),TX("pie","40°35′ N · 0°27′ E · LES MOLES",30,H-62,W-60,est("Jost",6.4,"#4F6A55",{ls:3}))]; }});
+tpl({id:"m12",tags:["Clásico", "Elegante"],nombre:"Sello de lacre",desc:"Papel pergamino con un lacre granate y vuestras iniciales",cat:["boda","comunion","otros"],fondo:"#F3EAD7",tinta:"#3A2C26",color:"#8E1B2B",mx:56,zona:{y0:206},pieY:812,pie:"lz",noNom:true,nomMax:690,
+  est:{tit:est("Cormorant Garamond",12,"#8E1B2B",{i:1,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#3A2C26",{lh:1.42}),peq:est("Cormorant Garamond",8.2,"#3A2C26",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#8E1B2B"),nom:est("Italianno",36,"#8E1B2B"),rot:est("Italianno",40,"#8E1B2B")},
+  deco:function(sc,tp,dm){ var ini=((dm.parejaA||dm.pareja||"A").charAt(0)+(dm.parejaB||"").charAt(0)).toUpperCase(); return [S({f:"rect",x:20,y:20,w:W-40,h:H-40,stroke:"#B9A27A",sw:0.9,doble:4}),S({f:"lacre",x:W/2-38,y:50,w:76,h:76,fill:"#8E1B2B",txt:ini,fnt:"Pinyon Script",seed:4}),nomC(40,704,W-80,"Italianno",36,"#8E1B2B",{lh:1})]; }});
+tpl({id:"m13",tags:["Ilustrado", "Elegante"],nombre:"Jardín de peonías",desc:"Peonías pintadas a la acuarela en dos esquinas del papel",cat:["boda","otros"],fondo:"#FFFCFA",tinta:"#4A3A3E",color:"#C9708A",mx:52,zona:{y0:200},pieY:814,pie:"lz",noNom:true,nomMax:676,
+  est:{tit:est("Cormorant Garamond",12,"#C9708A",{i:1,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#4A3A3E",{lh:1.42}),peq:est("Cormorant Garamond",8.2,"#4A3A3E",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#C9708A"),nom:est("Allura",36,"#C9708A"),rot:est("Allura",44,"#C9708A")},
+  deco:function(sc,tp,dm){ return [S({f:"peonia",x:-58,y:-52,w:210,h:210,fill:"#E9A6B8",stroke:"#6E8F6A",seed:3}),S({f:"peonia",x:W-96,y:H-96,w:150,h:150,fill:"#F4C6A8",stroke:"#6E8F6A",seed:8}),S({f:"peonia",x:-48,y:H-84,w:130,h:130,fill:"#F2B8C6",stroke:"#6E8F6A",seed:15}),S({f:"peonia",x:W-86,y:30,w:78,h:78,fill:"#F2B8C6",stroke:"#6E8F6A",seed:12}),TX("rot","menú",30,86,W-60,est("Allura",44,"#C9708A")),nomC(40,690,W-80,"Allura",36,"#C9708A",{lh:1})]; }});
+tpl({id:"m14",tags:["Oscuro", "Elegante"],nombre:"Fiesta de oro",desc:"Negro profundo con esquirlas de pan de oro en las esquinas",cat:["boda","otros"],fondo:"#15131A",tinta:"#F1E6C8",color:"#D9B756",mx:52,zona:{y0:190},pieY:808,pie:"sin",noNom:true,nomMax:716,
+  est:{tit:est("Limelight",9.6,"#D9B756",{ls:2.4,lh:1.2}),lin:est("Poiret One",10.4,"#F1E6C8",{lh:1.45,b:1}),peq:est("Poiret One",8,"#F1E6C8",{ls:1.4,lh:1.5,b:1}),ast:est("Poiret One",10,"#D9B756"),nom:est("Limelight",24,"#D9B756",{ls:1.5,lh:1.2}),rot:est("Limelight",30,"#D9B756",{ls:8})},
+  deco:function(sc,tp,dm){ return [S({f:"foil",x:0,y:0,w:W,h:H,seed:5,n:240,tam:6,hueco:[40,150,W-40,770],fill:"#F4E3A1",stroke:"#B8902B"}),S({f:"rect",x:26,y:26,w:W-52,h:H-52,stroke:"#D9B756",sw:0.8,doble:3}),TX("rot","MENÚ",30,92,W-60,est("Limelight",30,"#D9B756",{ls:8})),nomC(40,730,W-80,"Limelight",22,"#D9B756",{ls:1.5,lh:1.2}),TX("pie","LES MOLES · ULLDECONA",30,H-52,W-60,est("Poiret One",7,"#D9B756",{ls:4,b:1}))]; }});
+/* BAUTIZO */
+tpl({id:"m15",tags:["Infantil", "Ilustrado"],nombre:"Arcoíris boho",desc:"Un arcoíris pastel con nubes y el nombre del bebé a pincel",cat:["bautizo","otros"],fondo:"#FFFBF5",tinta:"#6A5A52",color:"#D79A88",mx:44,zona:{y0:250},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Quicksand",8.4,"#D79A88",{ls:2.4,up:1,b:1,lh:1.2}),lin:est("Quicksand",8.4,"#6A5A52",{lh:1.5}),peq:est("Quicksand",7,"#6A5A52",{ls:0.8,lh:1.55}),ast:est("Quicksand",8.4,"#D79A88"),nom:est("Satisfy",28,"#D79A88"),rot:est("Satisfy",28,"#D79A88")},
+  deco:function(sc,tp,dm){ return [S({f:"arcoiris",x:W/2-100,y:44,w:200,h:100,colors:["#F2B8A8","#F4D7A6","#CFE0C3","#B9D3E6"],band:15}),nomC(30,164,W-60,"Satisfy",32,"#D79A88",{lh:1}),fecC("{tipo} · {fechaCorta}",30,206,W-60,"Quicksand",7.4,"#B7A39A",{ls:2,up:1})]; }});
+tpl({id:"m16",tags:["Infantil", "Ilustrado"],nombre:"Luna y estrellitas",desc:"Cielo azul pálido con estrellas blancas y una luna dorada",cat:["bautizo","comunion"],fondo:"#DDE9F6",tinta:"#2F4468",color:"#E4B94A",mx:46,zona:{y0:244},pieY:814,pie:"sin",noNom:true,nomMax:748,
+  est:{tit:est("Quicksand",8.6,"#4F6C9A",{ls:2.4,up:1,b:1,lh:1.2}),lin:est("Quicksand",8.6,"#2F4468",{lh:1.5}),peq:est("Quicksand",7.2,"#2F4468",{ls:0.8,lh:1.55}),ast:est("Quicksand",8.6,"#E4B94A"),nom:est("Satisfy",30,"#2F4468"),rot:est("Satisfy",30,"#2F4468")},
+  deco:function(sc,tp,dm){ return [S({f:"cielo",x:0,y:0,w:W,h:H,stroke:"#FFFFFF",seed:12,n:150,hueco:[34,226,W-34,770],luna:[W/2+54,92,30],constelaciones:2}),nomC(30,58,W/2-20,"Satisfy",30,"#2F4468",{lh:1,al:"left"}),fecC("{tipo} · {fechaCorta}",34,118,W/2-30,"Quicksand",7.4,"#4F6C9A",{ls:2,up:1,al:"left"}),TX("pie","LES MOLES · ULLDECONA",30,H-40,W-60,est("Quicksand",6.6,"#4F6C9A",{ls:4,b:1}))]; }});
+tpl({id:"m17",tags:["Infantil", "Color vivo"],nombre:"Banderines de fiesta",desc:"Una guirnalda de banderines de colores sobre el título",cat:["bautizo","otros","comunion"],fondo:"#FFFFFF",tinta:"#5A5560",color:"#E58E8A",mx:46,zona:{y0:236},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Poppins",7.6,"#E58E8A",{ls:2.6,up:1,b:1,lh:1.2}),lin:est("Poppins",7.8,"#5A5560",{lh:1.55}),peq:est("Poppins",6.6,"#5A5560",{ls:0.8,lh:1.6}),ast:est("Poppins",7.8,"#E58E8A"),nom:est("Cookie",30,"#E58E8A"),rot:est("Cookie",30,"#E58E8A")},
+  deco:function(sc,tp,dm){ return [S({f:"banderines",x:-6,y:20,w:W+12,h:34,sag:30,n:11,colors:["#F2B8A8","#F4D7A6","#CFE0C3","#B9D3E6","#D9C2E0"]}),S({f:"banderines",x:-6,y:60,w:W+12,h:30,sag:22,n:9,colors:["#B9D3E6","#D9C2E0","#F2B8A8","#F4D7A6","#CFE0C3"],seed:2}),nomC(30,128,W-60,"Cookie",40,"#E58E8A",{lh:1}),fecC("{tipo} · {fechaCorta}",30,186,W-60,"Poppins",7,"#A99FA5",{ls:2,up:1})]; }});
+tpl({id:"m18",tags:["Infantil", "Textura"],nombre:"Acuarela rosa y florecitas",desc:"Manchas rosas y una guirnalda de florecillas bajo el nombre",cat:["bautizo","comunion"],fondo:"#FFFAFB",tinta:"#6A4F57",color:"#D98893",mx:46,zona:{y0:260},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Cormorant Garamond",12,"#D98893",{i:1,lh:1.2}),lin:est("Nunito",8.2,"#6A4F57",{lh:1.55}),peq:est("Nunito",6.8,"#6A4F57",{ls:0.8,lh:1.6}),ast:est("Nunito",8.2,"#D98893"),nom:est("Birthstone",34,"#D98893"),rot:est("Birthstone",34,"#D98893")},
+  deco:function(sc,tp,dm){ return [S({f:"acuarela",x:-30,y:-30,w:W+60,h:240,colors:["#F6C4CF","#F9DAD0","#EAC6E0","#F5E4B8"],seed:8,n:8,alfa:0.3}),nomC(30,64,W-60,"Birthstone",48,"#C26C7C",{lh:1}),S({f:"guirnalda",x:46,y:132,w:W-92,h:34,seed:6,fill:"#8FB08A",fill2:"#F2A9B8",n:18}),fecC("{tipo} · {fechaCorta}",30,186,W-60,"Nunito",7.4,"#C26C7C",{ls:2,up:1})]; }});
+tpl({id:"m19",tags:["Infantil", "Ilustrado"],nombre:"Ballenita y olas",desc:"Una ballena azul que salta entre olas, para un bautizo de mar",cat:["bautizo","otros"],fondo:"#F4F9FC",tinta:"#34506A",color:"#6A9CC2",mx:46,zona:{y0:250},pieY:810,pie:"lz",noNom:true,nomMax:700,
+  est:{tit:est("Nunito",8.2,"#6A9CC2",{ls:2.4,up:1,b:1,lh:1.2}),lin:est("Nunito",8.2,"#34506A",{lh:1.55}),peq:est("Nunito",6.8,"#34506A",{ls:0.8,lh:1.6}),ast:est("Nunito",8.2,"#6A9CC2"),nom:est("Playball",30,"#6A9CC2"),rot:est("Playball",30,"#6A9CC2")},
+  deco:function(sc,tp,dm){ var o=[S({f:"ballena",x:W/2-82,y:34,w:164,h:92,fill:"#9DB9D2"}),nomC(30,136,W-60,"Playball",34,"#4F82AA",{lh:1}),fecC("{tipo} · {fechaCorta}",30,188,W-60,"Nunito",7.4,"#7FA6C6",{ls:2,up:1})]; for(var j=0;j<4;j++) o.push(S({f:"onda",x:-6,y:726+j*10,w:W+12,h:8,stroke:j%2?"#6A9CC2":"#9DB9D2",sw:1,per:7+j,op:1-j*0.18})); return o; }});
+tpl({id:"m20",tags:["Clásico", "Ilustrado"],nombre:"Paloma de oro",desc:"Una paloma dibujada a línea dorada con dos ramas de olivo",cat:["bautizo","comunion"],fondo:"#FBF8F1",tinta:"#4A4236",color:"#B8902B",mx:50,zona:{y0:244},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Cormorant SC",11,"#B8902B",{b:1,ls:1.4,lh:1.2}),lin:est("Cormorant Garamond",9.8,"#4A4236",{lh:1.42}),peq:est("Cormorant Garamond",8,"#4A4236",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",9.8,"#B8902B"),nom:est("Great Vibes",32,"#B8902B"),rot:est("Great Vibes",32,"#B8902B")},
+  deco:function(sc,tp,dm){ return [S({f:"icono",ico:"paloma",x:W/2-44,y:30,w:88,h:88,stroke:"#B8902B",sw:0.9}),S({f:"olivo",x:W/2-112,y:44,w:68,h:84,seed:2,nh:5,fill:"#8FA37A",fill2:"#5E6B45"}),S({f:"olivo",x:W/2+44,y:44,w:68,h:84,seed:6,nh:5,fill:"#8FA37A",fill2:"#5E6B45"}),nomC(30,158,W-60,"Great Vibes",36,"#B8902B",{lh:1}),fecC("{tipo} · {fecha}",30,212,W-60,"Cormorant SC",8,"#8A7A5A",{ls:1.6})]; }});
+/* COMUNIÓN */
+tpl({id:"m21",tags:["Clásico", "Ilustrado"],nombre:"Rosetón de vidriera",desc:"Una vidriera de colores sobre el nombre, con letras doradas",cat:["comunion","boda","otros"],fondo:"#FFFDF8",tinta:"#3E3A33",color:"#B8902B",mx:50,zona:{y0:276},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Cinzel",8.6,"#B8902B",{ls:3,up:1,b:1,lh:1.2}),lin:est("Cormorant Garamond",10,"#3E3A33",{lh:1.4}),peq:est("Cormorant Garamond",8,"#3E3A33",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#B8902B"),nom:est("Pinyon Script",32,"#B8902B"),rot:est("Pinyon Script",32,"#B8902B")},
+  deco:function(sc,tp,dm){ return [S({f:"roseton",x:W/2-76,y:30,w:152,h:152,stroke:"#4A4338"}),nomC(30,208,W-60,"Pinyon Script",32,"#B8902B",{lh:1}),fecC("{tipo} · {fecha}",30,252,W-60,"Cinzel",6.6,"#8A7A5A",{ls:2.4})]; }});
+tpl({id:"m22",tags:["Clásico", "Ilustrado"],nombre:"Espigas y uvas",desc:"Trigo y vid, símbolos de la comunión, en oro sobre crema",cat:["comunion","otros"],fondo:"#FBF6EA",tinta:"#4A3F2E",color:"#B8902B",mx:56,zona:{y0:240},pieY:814,pie:"lz",noNom:true,nomMax:736,
+  est:{tit:est("Cormorant SC",11,"#B8902B",{b:1,ls:1.4,lh:1.2}),lin:est("Cormorant Garamond",10,"#4A3F2E",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#4A3F2E",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#B8902B"),nom:est("Allura",34,"#B8902B"),rot:est("Allura",34,"#B8902B")},
+  deco:function(sc,tp,dm){ return [S({f:"espiga",x:30,y:44,w:40,h:116,stroke:"#B8902B",fill:"#D9B756",sw:1,seed:4}),S({f:"espiga",x:W-70,y:44,w:40,h:116,stroke:"#B8902B",fill:"#D9B756",sw:1,seed:9}),S({f:"vid",x:W/2-62,y:30,w:124,h:130,seed:5,stroke:"#8A6A3A",fill:"#9DAA6A",fill2:"#6B3E6A"}),nomC(30,176,W-60,"Allura",34,"#B8902B",{lh:1}),fecC("{tipo} · {fecha}",30,222,W-60,"Cormorant SC",8,"#8A7A5A",{ls:1.6})]; }});
+tpl({id:"m23",tags:["Clásico", "Elegante"],nombre:"Cáliz y rayos de luz",desc:"Rayos dorados que salen de un cáliz, simple y solemne",cat:["comunion"],fondo:"#FFFEFA",tinta:"#3E3A33",color:"#C9A24B",mx:50,zona:{y0:268},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Marcellus SC",9.6,"#B8902B",{ls:2.6,lh:1.2}),lin:est("Cormorant Garamond",10,"#3E3A33",{lh:1.4}),peq:est("Cormorant Garamond",8,"#3E3A33",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#C9A24B"),nom:est("Mrs Saint Delafield",34,"#B8902B"),rot:est("Mrs Saint Delafield",34,"#B8902B")},
+  deco:function(sc,tp,dm){ return [S({f:"rayos",x:W/2-110,y:26,w:220,h:130,stroke:"#D9B866",n:30,sw:1.1}),S({f:"icono",ico:"caliz",x:W/2-30,y:88,w:60,h:60,stroke:"#B8902B",sw:1.1}),nomC(30,176,W-60,"Mrs Saint Delafield",40,"#B8902B",{lh:1}),fecC("{tipo} · {fecha}",30,240,W-60,"Marcellus SC",7.4,"#8A7A5A",{ls:2.2})]; }});
+tpl({id:"m24",tags:["Textura", "Infantil"],nombre:"Celeste con nubes",desc:"Acuarela azul y lila con nubes blancas, muy luminoso",cat:["comunion","bautizo"],fondo:"#FBFDFF",tinta:"#34506A",color:"#6A9CC2",mx:48,zona:{y0:256},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Cormorant Garamond",12,"#6A9CC2",{i:1,lh:1.2}),lin:est("Poppins",7.8,"#34506A",{lh:1.55}),peq:est("Poppins",6.6,"#34506A",{ls:0.8,lh:1.6}),ast:est("Poppins",7.8,"#6A9CC2"),nom:est("Allura",36,"#4F82AA"),rot:est("Allura",36,"#4F82AA")},
+  deco:function(sc,tp,dm){ return [S({f:"acuarela",x:-30,y:-30,w:W+60,h:250,colors:["#BFD7EE","#D6CCEB","#CFE6F2","#E2EEF8"],seed:15,n:9,alfa:0.34}),S({f:"nube",x:20,y:44,w:110,h:60,fill:"#FFFFFF"}),S({f:"nube",x:W-118,y:104,w:96,h:54,fill:"#FFFFFF"}),nomC(30,112,W-60,"Allura",44,"#4F82AA",{lh:1}),fecC("{tipo} · {fecha}",30,196,W-60,"Poppins",7,"#6A9CC2",{ls:2,up:1})]; }});
+tpl({id:"m25",tags:["Moderno", "Textura"],nombre:"Terrazo menta",desc:"Lascas de terrazo en menta, arena y rosa; fresco y moderno",cat:["comunion","otros","bautizo"],fondo:"#F6FBF8",tinta:"#2F4A42",color:"#5FA89A",mx:46,zona:{y0:204},pieY:814,pie:"lz",noNom:true,nomMax:702,
+  est:{tit:est("Jost",7.6,"#4E9486",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Jost",8.6,"#2F4A42",{lh:1.55}),peq:est("Jost",7.2,"#2F4A42",{ls:1,lh:1.6}),ast:est("Jost",8.6,"#5FA89A"),nom:est("Syne",22,"#2F4A42",{b:1,lh:1.15}),rot:est("Syne",26,"#2F4A42",{b:1,ls:1})},
+  deco:function(sc,tp,dm){ return [S({f:"terrazo",x:0,y:0,w:W,h:168,fill:"#EAF4EE",seed:6,n:170,tam:8,colors:["#9FD1C3","#F2C9B8","#D9CBA8","#7FB9AA","#F4E4B8"]}),S({f:"terrazo",x:0,y:H-86,w:W,h:86,fill:"#EAF4EE",seed:9,n:90,tam:8,colors:["#9FD1C3","#F2C9B8","#D9CBA8","#7FB9AA","#F4E4B8"]}),fondoPanel(46,56,W-92,70,"#F6FBF8",0.94,4),TX("rot","menú",30,72,W-60,est("Syne",28,"#2F4A42",{b:1,ls:1})),fondoPanel(W/2-70,H-62,140,48,"#F6FBF8",1,4),nomC(30,716,W-60,"Syne",22,"#2F4A42",{b:1,lh:1.15})]; }});
+tpl({id:"m26",tags:["Clásico", "Textura"],nombre:"Luz y cruz",desc:"Una cruz fina sobre un abanico de luz amarilla muy suave",cat:["comunion"],fondo:"#FFFEF5",tinta:"#4A4430",color:"#D2AE4A",mx:50,zona:{y0:262},pieY:814,pie:"lz",noNom:true,
+  est:{tit:est("Cormorant SC",10.6,"#B8902B",{b:1,ls:1.6,lh:1.2}),lin:est("Cormorant Garamond",10,"#4A4430",{lh:1.4}),peq:est("Cormorant Garamond",8,"#4A4430",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#D2AE4A"),nom:est("Great Vibes",34,"#B8902B"),rot:est("Great Vibes",34,"#B8902B")},
+  deco:function(sc,tp,dm){ return [S({f:"acuarela",x:W/2-120,y:-20,w:240,h:170,colors:["#FBEFB8","#FDF6D8"],seed:2,n:5,alfa:0.4}),S({f:"rayos",x:W/2-100,y:30,w:200,h:120,stroke:"#E5C877",n:36,sw:0.8}),S({f:"icono",ico:"cruz",x:W/2-18,y:60,w:36,h:36,stroke:"#B8902B",sw:1.3}),nomC(30,170,W-60,"Great Vibes",38,"#B8902B",{lh:1}),fecC("{tipo} · {fecha}",30,232,W-60,"Cormorant SC",8,"#8A7A5A",{ls:1.8})]; }});
+/* OTROS EVENTOS */
+tpl({id:"m27",tags:["Color vivo", "Moderno"],nombre:"Fiesta de confeti",desc:"Confeti de colores en los bordes y un título grande",cat:["otros","bautizo"],fondo:"#FFFFFF",tinta:"#2F2F3A",color:"#E8604C",mx:50,zona:{y0:206},pieY:814,pie:"lz",noNom:true,nomMax:710,
+  est:{tit:est("Bebas Neue",13,"#E8604C",{ls:3,lh:1.1}),lin:est("Poppins",8.2,"#2F2F3A",{lh:1.5}),peq:est("Poppins",6.8,"#2F2F3A",{ls:0.8,lh:1.55}),ast:est("Poppins",8.2,"#E8604C"),nom:est("Bebas Neue",26,"#2F2F3A",{ls:2,lh:1.1}),rot:est("Bebas Neue",44,"#2F2F3A",{ls:6})},
+  deco:function(sc,tp,dm){ return [S({f:"confeti",x:0,y:0,w:W,h:H,seed:7,n:210,hueco:[[36,150,W-36,780],[84,780,W-84,H]]}),TX("rot","MENÚ",30,70,W-60,est("Bebas Neue",54,"#2F2F3A",{ls:8})),nomC(40,724,W-80,"Bebas Neue",28,"#E8604C",{ls:2,lh:1.1})]; }});
+tpl({id:"m28",tags:["Moderno", "Textura"],nombre:"Terrazo moderno",desc:"Grandes lascas de terrazo sobre papel arena, tipografía geométrica",cat:["otros","boda"],fondo:"#F6F1EA",tinta:"#2D2A28",color:"#B8654A",mx:50,zona:{y0:198},pieY:814,pie:"lz",noNom:true,nomMax:708,
+  est:{tit:est("Syne",8.4,"#B8654A",{ls:2.4,up:1,b:1,lh:1.2}),lin:est("Syne",8.2,"#2D2A28",{lh:1.55}),peq:est("Syne",6.8,"#2D2A28",{ls:0.8,lh:1.6}),ast:est("Syne",8.2,"#B8654A"),nom:est("Fraunces",26,"#2D2A28",{i:1,lh:1.1}),rot:est("Fraunces",38,"#2D2A28",{i:1})},
+  deco:function(sc,tp,dm){ return [S({f:"terrazo",x:0,y:0,w:W,h:H,seed:11,n:90,tam:15,hueco:[[34,150,W-34,780],[66,780,W-66,H]],colors:["#E3B7A0","#9FB8A8","#E8D3A4","#6F8A92","#CF8A74"]}),TX("rot","menú",30,66,W-60,est("Fraunces",44,"#2D2A28",{i:1})),nomC(40,722,W-80,"Fraunces",26,"#2D2A28",{i:1,lh:1.1})]; }});
+tpl({id:"m29",tags:["Color vivo", "Moderno"],nombre:"Atardecer retro",desc:"Un sol de los años setenta con franjas naranjas y magenta",cat:["otros","boda"],fondo:"#F7E8D0",tinta:"#4A2F3A",color:"#E0617A",mx:50,zona:{y0:300},pieY:814,pie:"lz",noNom:true,nomMax:710,
+  est:{tit:est("Bebas Neue",13,"#E0617A",{ls:3,lh:1.1}),lin:est("Cormorant Garamond",10,"#4A2F3A",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#4A2F3A",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#E0617A"),nom:est("Yeseva One",24,"#4A2F3A",{lh:1.15}),rot:est("Bebas Neue",40,"#4A2F3A",{ls:10})},
+  deco:function(sc,tp,dm){ return [S({f:"retro",x:0,y:22,w:W,h:206,bg:"#F7E8D0",colors:["#F7C65B","#F29E4C","#E0617A","#8E4B8E"]}),TX("rot","MENÚ",30,246,W-60,est("Bebas Neue",30,"#4A2F3A",{ls:12})),nomC(40,724,W-80,"Yeseva One",24,"#4A2F3A",{lh:1.15})]; }});
+tpl({id:"m30",tags:["Elegante", "Textura"],nombre:"Olas japonesas",desc:"Olas seigaiha en índigo arriba y abajo, con mucho aire en medio",cat:["otros","boda"],fondo:"#F5F2EA",tinta:"#22304F",color:"#2E4A7D",mx:54,zona:{y0:232},pieY:810,pie:"sin",noNom:true,nomMax:662,
+  est:{tit:est("Marcellus",9.6,"#2E4A7D",{ls:3,up:1,lh:1.2}),lin:est("Tenor Sans",8.6,"#22304F",{lh:1.55}),peq:est("Tenor Sans",7,"#22304F",{ls:1.2,lh:1.6}),ast:est("Tenor Sans",8.6,"#C0392B"),nom:est("Marcellus",22,"#22304F",{ls:3,up:1,lh:1.2}),rot:est("Marcellus",28,"#22304F",{ls:12,up:1})},
+  deco:function(sc,tp,dm){ return [S({f:"seigaiha",x:0,y:0,w:W,h:128,r:15,stroke:"#2E4A7D",fill:"#F5F2EA",sw:0.7}),S({f:"seigaiha",x:0,y:H-110,w:W,h:110,r:15,stroke:"#2E4A7D",fill:"#F5F2EA",sw:0.7}),S({f:"circ",x:W/2-8,y:194,w:16,h:16,fill:"#C0392B"}),TX("rot","MENÚ",30,148,W-60,est("Marcellus",28,"#22304F",{ls:12})),nomC(30,676,W-60,"Marcellus",17,"#22304F",{ls:3,up:1,lh:1.2})]; }});
+tpl({id:"m31",tags:["Moderno"],nombre:"Corporativo carbón",desc:"Líneas rectas, una trama de puntos y un acento verde azulado",cat:["otros"],fondo:"#FFFFFF",tinta:"#23272B",color:"#1F8A86",mx:50,x0:56,w:W-100,zona:{y0:190},pieY:814,pie:"lz",noNom:true,nomMax:702,
+  est:{tit:est("Syne",8,"#1F8A86",{al:"left",ls:2.4,up:1,b:1,lh:1.2}),lin:est("Inter",8.4,"#23272B",{al:"left",lh:1.55}),peq:est("Inter",7,"#23272B",{al:"left",ls:0.6,lh:1.6}),ast:est("Inter",8.4,"#1F8A86",{al:"left"}),nom:est("Syne",20,"#23272B",{al:"left",b:1,lh:1.15}),rot:est("Syne",34,"#23272B",{al:"left",b:1})},
+  deco:function(sc,tp,dm){ return [S({f:"rect",x:34,y:46,w:6,h:H-110,fill:"#1F8A86",stroke:"",sw:0}),S({f:"trama",x:W-130,y:36,w:110,h:110,fill:"#23272B",gap:9,sw:0.7,op:0.45}),TX("rot","MENÚ",56,86,W-110,est("Syne",34,"#23272B",{al:"left",b:1})),S({f:"linea",x:56,y:140,w:60,stroke:"#1F8A86",sw:2}),TX("nom","",56,716,W-100,est("Syne",20,"#23272B",{al:"left",b:1,lh:1.15}),{campo:"{nombre}"})]; }});
+tpl({id:"m32",tags:["Ilustrado", "Clásico"],nombre:"Linograbado marinero",desc:"Papel de estraza con olas, anclas y peces en azul marino y rojo",cat:["otros","bautizo","boda"],fondo:"#EFE5CE",tinta:"#1F2E4A",color:"#B23A2E",mx:50,zona:{y0:204},pieY:812,pie:"sin",noNom:true,nomMax:680,
+  est:{tit:est("Rufina",9.6,"#B23A2E",{ls:2,up:1,b:1,lh:1.2}),lin:est("Rufina",8.4,"#1F2E4A",{lh:1.5}),peq:est("Rufina",7,"#1F2E4A",{ls:0.8,lh:1.55}),ast:est("Rufina",8.4,"#B23A2E"),nom:est("Yeseva One",24,"#1F2E4A",{lh:1.15}),rot:est("Yeseva One",34,"#1F2E4A",{ls:2})},
+  deco:function(sc,tp,dm){ var o=[S({f:"rect",x:18,y:18,w:W-36,h:H-36,stroke:"#1F2E4A",sw:1.6,doble:5}),S({f:"icono",ico:"ancla",x:W/2-20,y:40,w:40,h:40,stroke:"#B23A2E",sw:1.6}),TX("rot","menú",30,94,W-60,est("Yeseva One",34,"#1F2E4A",{ls:2})),nomC(40,694,W-80,"Yeseva One",24,"#1F2E4A",{lh:1.15}),S({f:"icono",ico:"pez",x:48,y:742,w:30,h:30,stroke:"#1F2E4A",sw:1.3}),S({f:"icono",ico:"pez",x:W-78,y:742,w:30,h:30,stroke:"#1F2E4A",sw:1.3}),TX("pie","LES MOLES · ULLDECONA",90,758,W-180,est("Rufina",7.4,"#B23A2E",{ls:3.4,b:1}))]; for(var j=0;j<3;j++) o.push(S({f:"onda",x:34,y:784+j*8,w:W-68,h:6,stroke:"#1F2E4A",sw:1.1,per:8+j})); return o; }});
+
+
+/* ─── 2.ª tanda ─── */
+tpl({id:"m33",tags:["Ilustrado", "Local"],nombre:"Almendros en flor",desc:"Ramas de almendro con flor rosa pálido, como en febrero en el Montsià",cat:["boda","otros"],fondo:"#FFFBF8",tinta:"#4F3F44",color:"#B5577A",mx:52,zona:{y0:236},pieY:816,pie:"lz",noNom:true,nomMax:626,
+  est:{tit:est("Cormorant Garamond",12,"#B5577A",{i:1,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#4F3F44",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#4F3F44",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#B5577A"),nom:est("Birthstone",40,"#B5577A",{lh:1}),rot:est("Birthstone",50,"#B5577A")},
+  deco:function(sc,tp,dm){ return [S({f:"almendro",x:-14,y:-6,w:W*1.04,h:178,seed:3}),S({f:"almendro",x:W-130,y:H-182,w:170,h:122,seed:9,flip:1}),TX("rot","menú",30,150,W-60,est("Birthstone",50,"#B5577A")),nomC(30,640,W-60,"Birthstone",40,"#B5577A",{lh:1})]; }});
+tpl({id:"m34",tags:["Ilustrado", "Local"],nombre:"Flamencos del Delta",desc:"Dos flamencos y un sol de atardecer sobre las aguas del Delta del Ebro",cat:["boda","otros"],fondo:"#FFF6F0",tinta:"#5A3D40",color:"#D9667F",mx:52,zona:{y0:228},pieY:814,pie:"lz",noNom:true,nomMax:702,
+  est:{tit:est("Josefin Sans",7.8,"#D9667F",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#5A3D40",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#5A3D40",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#D9667F"),nom:est("Playfair Display",22,"#5A3D40",{i:1,lh:1.2}),rot:est("Playfair Display",40,"#5A3D40",{i:1})},
+  deco:function(sc,tp,dm){ var o=[S({f:"circ",x:W/2-62,y:30,w:124,h:124,fill:"#FAD7C3",stroke:"",sw:0}),S({f:"circ",x:W/2-44,y:48,w:88,h:88,fill:"#F8C3A6",stroke:"",sw:0}),S({f:"flamenco",x:26,y:48,w:84,h:126,seed:1}),S({f:"flamenco",x:W-104,y:62,w:76,h:112,flip:1,fill:"#F4A0AE",stroke:"#D9667F"}),TX("rot","menú",30,86,W-60,est("Playfair Display",40,"#5A3D40",{i:1})),nomC(40,716,W-80,"Playfair Display",22,"#5A3D40",{i:1,lh:1.2})]; for(var j=0;j<3;j++) o.push(S({f:"onda",x:24,y:176+j*7,w:W-48,h:4,stroke:"#8FB8B8",sw:0.9,per:9+j*2,op:0.8-j*0.2})); return o; }});
+tpl({id:"m35",tags:["Moderno", "Local"],nombre:"Serra del Montsià",desc:"Capas de montañas azules con un sol bajo, la sierra que se ve desde la masía",cat:["otros","boda"],fondo:"#F6F1E6",tinta:"#34464C",color:"#5A7782",mx:52,zona:{y0:324},pieY:814,pie:"lz",noNom:true,nomMax:702,
+  est:{tit:est("Josefin Sans",7.6,"#5A7782",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#34464C",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#34464C",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#5A7782"),nom:est("Cormorant Garamond",26,"#34464C",{i:1,lh:1.1}),rot:est("Josefin Sans",22,"#34464C",{ls:10,up:1})},
+  deco:function(sc,tp,dm){ return [S({f:"montes",x:0,y:60,w:W,h:260,seed:6,bg:"#F6F1E6",sol:[0.74,0.08,22,"#F4C98A"]}),TX("rot","MENÚ",30,38,W-60,est("Josefin Sans",22,"#34464C",{ls:10})),nomC(40,716,W-80,"Cormorant Garamond",26,"#34464C",{i:1,lh:1.1})]; }});
+tpl({id:"m36",tags:["Infantil", "Ilustrado"],nombre:"Osito y globo",desc:"Un osito de peluche con un globo verde salvia, suave y tierno",cat:["bautizo","otros"],fondo:"#FAF6EE",tinta:"#5A4A3C",color:"#8FA58A",mx:52,zona:{y0:336},pieY:814,pie:"lz",noNom:true,nomMax:736,
+  est:{tit:est("Quicksand",8,"#8FA58A",{ls:2.6,up:1,b:1,lh:1.2}),lin:est("Quicksand",8.6,"#5A4A3C",{lh:1.5}),peq:est("Quicksand",7,"#5A4A3C",{ls:0.8,lh:1.55}),ast:est("Quicksand",8.6,"#8FA58A"),nom:est("Cookie",38,"#8A6A4F",{lh:1}),rot:est("Cookie",38,"#8A6A4F")},
+  deco:function(sc,tp,dm){ return [S({f:"osito",x:W/2-76,y:26,w:152,h:224,globo:"#A9C5A0",lazo:"#E7B6A4"}),nomC(30,262,W-60,"Cookie",40,"#8A6A4F",{lh:1}),fecC("{tipo} · {fecha}",30,314,W-60,"Quicksand",7,"#9A8878",{ls:2,up:1})]; }});
+tpl({id:"m37",tags:["Infantil", "Ilustrado"],nombre:"Globos aerostáticos",desc:"Dos globos en un cielo suave de nubes, para empezar a volar",cat:["bautizo","otros"],fondo:"#E9F3F8",tinta:"#34505E",color:"#5F9BB5",mx:52,zona:{y0:252},pieY:814,pie:"lz",noNom:true,nomMax:700,
+  est:{tit:est("Nunito",8,"#5F9BB5",{ls:2.6,up:1,b:1,lh:1.2}),lin:est("Nunito",8.6,"#34505E",{lh:1.5}),peq:est("Nunito",7,"#34505E",{ls:0.8,lh:1.55}),ast:est("Nunito",8.6,"#5F9BB5"),nom:est("Playball",34,"#34505E",{lh:1}),rot:est("Playball",34,"#34505E")},
+  deco:function(sc,tp,dm){ return [S({f:"nube",x:-30,y:150,w:130,h:62,fill:"#FFFFFF",op:0.9}),S({f:"nube",x:W-100,y:196,w:130,h:56,fill:"#FFFFFF",op:0.85}),S({f:"nube",x:W/2-60,y:H-130,w:190,h:90,fill:"#FFFFFF",op:0.9}),S({f:"nube",x:-40,y:H-100,w:170,h:80,fill:"#FFFFFF",op:0.9}),S({f:"globoaire",x:26,y:24,w:104,h:164,colors:["#F2A99C","#F7D08A","#F2A99C","#F7D08A"],gajos:6}),S({f:"globoaire",x:W-104,y:62,w:70,h:112,colors:["#8EB8E0","#FFFFFF","#8EB8E0","#FFFFFF"],gajos:6}),nomC(30,198,W-60,"Playball",34,"#34505E",{lh:1})].concat([]).slice(0,7); }});
+tpl({id:"m38",tags:["Infantil", "Ilustrado"],nombre:"Barquito de papel",desc:"Un barco de origami color melocotón navegando en olas azules",cat:["bautizo","otros"],fondo:"#FBF7EF",tinta:"#2F4A6E",color:"#E08A62",mx:52,zona:{y0:244},pieY:814,pie:"lz",noNom:true,nomMax:736,
+  est:{tit:est("Josefin Sans",7.8,"#E08A62",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Josefin Sans",8.4,"#2F4A6E",{lh:1.5}),peq:est("Josefin Sans",7,"#2F4A6E",{ls:0.8,lh:1.55}),ast:est("Josefin Sans",8.4,"#E08A62"),nom:est("Satisfy",34,"#2F4A6E",{lh:1}),rot:est("Satisfy",34,"#2F4A6E")},
+  deco:function(sc,tp,dm){ return [S({f:"barquito",x:W/2-78,y:26,w:156,h:140,fill:"#F2A27C",fill2:"#3E6E9C"}),nomC(30,176,W-60,"Satisfy",34,"#2F4A6E",{lh:1}),fecC("{tipo} · {fecha}",30,222,W-60,"Josefin Sans",6.8,"#8896A8",{ls:2.4,up:1})]; }});
+tpl({id:"m39",tags:["Ilustrado"],nombre:"Flores silvestres",desc:"Margaritas, amapolas y acianos en un prado, como a la orilla del camino",cat:["comunion","boda","otros"],fondo:"#FFFDF6",tinta:"#4A4A3A",color:"#6E8F5A",mx:52,zona:{y0:206},pieY:816,pie:"lz",noNom:true,nomMax:626,
+  est:{tit:est("Cormorant SC",11,"#6E8F5A",{b:1,ls:1.4,lh:1.2}),lin:est("Cormorant Garamond",10.2,"#4A4A3A",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#4A4A3A",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#E4483D"),nom:est("Birthstone",38,"#6E8F5A",{lh:1}),rot:est("Birthstone",52,"#6E8F5A")},
+  deco:function(sc,tp,dm){ return [S({f:"silvestres",x:0,y:H-148,w:W,h:112,seed:5,n:22}),fondoPanel(W/2-68,H-64,136,50,"#FFFDF6",0.97,8),TX("rot","menú",30,66,W-60,est("Birthstone",52,"#6E8F5A")),nomC(30,640,W-60,"Birthstone",38,"#6E8F5A",{lh:1})]; }});
+tpl({id:"m40",tags:["Moderno", "Oscuro"],nombre:"Pizarra de tiza",desc:"Pizarra verde oscuro, trazo de tiza y letras a mano",cat:["otros","boda"],fondo:"#26322E",tinta:"#F2EEE4",color:"#F2C14E",mx:50,zona:{y0:156},pieY:812,pie:"sin",noNom:true,nomMax:708,
+  est:{tit:est("Amatic SC",16,"#F2C14E",{b:1,ls:3,lh:1.1}),lin:est("Shadows Into Light",10.4,"#F2EEE4",{lh:1.38}),peq:est("Shadows Into Light",8.6,"#F2EEE4",{ls:0.4,lh:1.4}),ast:est("Shadows Into Light",10,"#F2A7A0"),nom:est("Amatic SC",30,"#F2EEE4",{b:1,ls:2,lh:1.1}),rot:est("Amatic SC",64,"#F2EEE4",{b:1,ls:4})},
+  deco:function(sc,tp,dm){ return [S({f:"tiza",x:0,y:0,w:W,h:H,seed:4}),TX("rot","menú",30,46,W-60,est("Amatic SC",64,"#F2EEE4",{b:1,ls:4})),S({f:"estrellas",x:W/2-30,y:126,w:60,h:7,fill:"#F2C14E",stroke:""}),nomC(40,722,W-80,"Amatic SC",30,"#F2EEE4",{b:1,ls:2,lh:1.1}),TX("pie","LES MOLES · ULLDECONA",30,H-44,W-60,est("Shadows Into Light",8,"#F2C14E",{ls:3}))]; }});
+tpl({id:"m41",tags:["Oscuro", "Ilustrado"],nombre:"Navidad de acebo",desc:"Verde bosque con acebo, bayas rojas y copos de nieve; con título de Navidad",cat:["otros"],fondo:"#16382C",tinta:"#F5EBD6",color:"#E5C77E",mx:52,zona:{y0:206},pieY:808,pie:"sin",noNom:true,nomMax:650,
+  est:{tit:est("Cormorant SC",11,"#E5C77E",{b:1,ls:2,lh:1.2}),lin:est("Cormorant Garamond",10.4,"#F5EBD6",{lh:1.4}),peq:est("Cormorant Garamond",8.4,"#F5EBD6",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#E5C77E"),nom:est("Mr De Haviland",40,"#E5C77E",{lh:1}),rot:est("Mr De Haviland",50,"#E5C77E",{lh:0.95})},
+  deco:function(sc,tp,dm){ return [S({f:"nieve",x:0,y:0,w:W,h:H,seed:8,n:120,tam:6,hueco:[[30,200,W-30,700]],stroke:"#F5EBD6"}),S({f:"acebo",x:W/2-62,y:20,w:124,h:96,fill:"#4C9A6A",fill2:"#D9453F",seed:3,n:5}),S({f:"acebo",x:-40,y:H-130,w:150,h:110,fill:"#4C9A6A",fill2:"#D9453F",seed:7,n:5,rot:0.5}),S({f:"acebo",x:W-110,y:H-130,w:150,h:110,fill:"#4C9A6A",fill2:"#D9453F",seed:11,n:5,rot:-0.5}),TX("rot","menú de Navidad",30,106,W-60,est("Mr De Haviland",50,"#E5C77E",{lh:0.95}),{i18n:{es:"menú de Navidad",ca:"menú de Nadal"}}),nomC(30,664,W-60,"Mr De Haviland",40,"#E5C77E",{lh:1})]; }});
+
+
+(function(){ var T={olivo:["Ilustrado","Local"],clasico:["Clásico","Elegante"],jardin:["Ilustrado","Elegante"],rosa:["Elegante","Textura"],mar:["Oscuro","Ilustrado"],hora:["Moderno"],deco:["Oscuro","Elegante"],kraft:["Textura","Moderno"],enso:["Moderno","Dibujado"],moderno:["Moderno"],caligrafia:["Elegante"],minimal:["Moderno"],hojas_logo:["Ilustrado","Elegante"],sello:["Clásico"],marinero:["Ilustrado"],granate:["Elegante"],flor_terracota:["Dibujado","Ilustrado"],fuente_bn:["Moderno"],mesa_burdeos:["Dibujado","Elegante"],linea_vertical:["Moderno"],paloma:["Infantil","Ilustrado"],conejita:["Infantil","Dibujado"],globo:["Infantil","Ilustrado"],nino:["Infantil","Ilustrado"],comunion_script:["Elegante","Clásico"]};
+  PLANTILLAS.forEach(function(t){ if(!t.tags&&T[t.id]) t.tags=T[t.id]; }); })();
 var TPL_POR={}; PLANTILLAS.forEach(function(t){ TPL_POR[t.id]=t; });
 var MAPA_VIEJO={olivo:"olivo",clasico:"clasico",verde:"jardin",azul:"moderno",terracota:"hora",moderno:"moderno",deco:"deco",kraft:"kraft",rosa:"rosa",minimal:"minimal"};
 
@@ -18577,17 +19004,25 @@ function posicionaFlotante(){}
 function panelEstado(){ var n=rootEl&&rootEl.querySelector("#lz-aviso"); if(!n) return; var d=datos(); var cambiado=ST.sc.hash!==hashDe(d); n.hidden=!cambiado; }
 function propias(){ try{ var p=BR.param("minutaLienzos"); return (p&&Array.isArray(p.lista))?p.lista:[]; }catch(_){ return []; } }
 var CATS=[["boda","Boda"],["bautizo","Bautizo"],["comunion","Comunión"],["otros","Otros eventos"],["todo","Todos"]];
-function plantillasVisibles(){ var c=ST.cat||"todo"; return PLANTILLAS.filter(function(t){ return c==="todo"||(t.cat||["otros"]).indexOf(c)>=0; }); }
-function galeriaHTML(){ var chips='<div class="lz-chips" role="tablist" aria-label="Tipo de minuta">'+CATS.map(function(c){ return '<button type="button" class="lz-chip'+((ST.cat||"todo")===c[0]?" on":"")+'" data-lz-cat="'+c[0]+'">'+c[1]+'</button>'; }).join("")+'</div>';
-  var h=plantillasVisibles().map(function(t){ return '<button type="button" class="lz-tp'+(ST.sc.tpl===t.id&&!ST.sc.mia?' on':'')+'" data-lz-tpl="'+t.id+'" title="'+esc(t.desc)+'"><canvas width="150" height="424" data-lz-th="'+t.id+'"></canvas><b>'+esc(t.nombre)+'</b></button>'; }).join("");
+var ESTILOS=["Dibujado","Ilustrado","Textura","Elegante","Clásico","Moderno","Infantil","Oscuro","Color vivo","Local"];
+function enCat(t,c){ return c==="todo"||(t.cat||["otros"]).indexOf(c)>=0; }
+function plantillasVisibles(){ var c=ST.cat||"todo", e=ST.est||""; return PLANTILLAS.filter(function(t){ return enCat(t,c)&&(!e||(t.tags||[]).indexOf(e)>=0); }); }
+function galeriaHTML(){ var chips='<div class="lz-chips" role="tablist" aria-label="Tipo de minuta">'+CATS.map(function(c){ var n=PLANTILLAS.filter(function(t){ return enCat(t,c[0]); }).length; return '<button type="button" class="lz-chip'+((ST.cat||"todo")===c[0]?" on":"")+'" data-lz-cat="'+c[0]+'">'+c[1]+' <small>'+n+'</small></button>'; }).join("")+'</div>';
+  var dentro=PLANTILLAS.filter(function(t){ return enCat(t,ST.cat||"todo"); }), est=ESTILOS.filter(function(e){ return dentro.some(function(t){ return (t.tags||[]).indexOf(e)>=0; }); });
+  if(est.length) chips+='<div class="lz-chips lz-chips-e" role="group" aria-label="Estilo"><button type="button" class="lz-chip'+(!ST.est?" on":"")+'" data-lz-est="">Todos los estilos</button>'+est.map(function(e){ return '<button type="button" class="lz-chip'+(ST.est===e?" on":"")+'" data-lz-est="'+e+'">'+e+'</button>'; }).join("")+'</div>';
+  var vis=plantillasVisibles(); var h=vis.length?'':'<p class="lz-vacio">No hay plantillas con ese estilo en este tipo de evento.</p>'; h+=vis.map(function(t){ return '<button type="button" class="lz-tp'+(ST.sc.tpl===t.id&&!ST.sc.mia?' on':'')+'" data-lz-tpl="'+t.id+'" title="'+esc(t.desc)+'"><canvas width="150" height="424" data-lz-th="'+t.id+'"></canvas><b>'+esc(t.nombre)+'</b></button>'; }).join("");
   var mias=propias(); if(mias.length){ h+='<div class="lz-sec lz-sec-w">Mis plantillas</div>'+mias.map(function(o){ return '<div class="lz-tp-w"><button type="button" class="lz-tp'+(ST.sc.mia===o.id?' on':'')+'" data-lz-mi="'+esc(o.id)+'" title="Plantilla guardada"><canvas width="150" height="424" data-lz-mth="'+esc(o.id)+'"></canvas><b>'+esc(o.nombre)+'</b></button>'+(esAdmin()?'<button type="button" class="lz-tp-x" data-lz-mdel="'+esc(o.id)+'" aria-label="Borrar plantilla «'+esc(o.nombre)+'»" title="Borrar">×</button>':'')+'</div>'; }).join(""); }
   return chips+'<div class="lz-tps">'+h+'</div>'; }
 function escenaDePropia(o,dm){ var sc=clon(o.sc); sc.v=2; sc.tpl=o.sc.tpl&&TPL_POR[o.sc.tpl]?o.sc.tpl:PLANTILLAS[0].id; sc.mia=o.id; sc.hash=hashDe(dm); sc.items.forEach(function(it){ if(!it.id) it.id=uid(); }); rellena(sc,dm); return sc; }
 var pintandoMin=0;
-function pintaMiniaturas(){ if(!rootEl) return; var tk=++pintandoMin;
-  Promise.all(plantillasVisibles().map(function(t){ return aseguraTpl(t.id); })).then(function(){ if(tk!==pintandoMin||!rootEl) return; var dm=datos();
-    rootEl.querySelectorAll("canvas[data-lz-th]").forEach(function(cv){ try{ var id=cv.getAttribute("data-lz-th"); var sc=genera(id,dm); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }catch(err){ try{ console.warn("minuta: miniatura",err); }catch(_){} } });
-    propias().forEach(function(o){ var cv=rootEl.querySelector('canvas[data-lz-mth="'+o.id+'"]'); if(!cv) return; var sc=escenaDePropia(o,dm); aseguraEscena(sc).then(function(){ if(tk!==pintandoMin||!rootEl) return; sc.items.forEach(medir); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }); }); }).catch(function(err){ try{ console.warn("minuta: miniaturas",err); }catch(_){} }); }
+var obsMin=null;
+function pintaMiniaturas(){ if(!rootEl) return; var tk=++pintandoMin; var dm=datos();
+  function dibuja(cv){ if(cv.__lz===tk) return; cv.__lz=tk; var id=cv.getAttribute("data-lz-th");
+    aseguraTpl(id).then(function(){ if(tk!==pintandoMin||!rootEl||!cv.isConnected) return; try{ var sc=genera(id,dm); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }catch(err){ try{ console.warn("minuta: miniatura",err); }catch(_){} } }).catch(function(){}); }
+  var cvs=[].slice.call(rootEl.querySelectorAll("canvas[data-lz-th]")); if(obsMin){ try{ obsMin.disconnect(); }catch(_){} obsMin=null; }
+  if(window.IntersectionObserver){ obsMin=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ obsMin.unobserve(e.target); dibuja(e.target); } }); },{rootMargin:"400px 0px"}); cvs.forEach(function(cv){ obsMin.observe(cv); }); }
+  else cvs.forEach(function(cv,k){ setTimeout(function(){ dibuja(cv); },k*30); });
+  Promise.resolve().then(function(){ propias().forEach(function(o){ var cv=rootEl&&rootEl.querySelector('canvas[data-lz-mth="'+o.id+'"]'); if(!cv) return; var sc=escenaDePropia(o,dm); aseguraEscena(sc).then(function(){ if(tk!==pintandoMin||!rootEl) return; sc.items.forEach(medir); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }); }); }).catch(function(err){ try{ console.warn("minuta: miniaturas",err); }catch(_){} }); }
 function anadirHTML(){ var fb=function(a,t){ return '<button type="button" class="lz-add" data-lz-add="'+a+'">'+t+'</button>'; };
   return '<div class="lz-sec">Texto e imágenes</div><div class="lz-adds">'+fb("txt","Aa Texto")+'<label class="lz-add" for="lz-img">🖼 Logo o imagen</label><input type="file" id="lz-img" accept="image/*" hidden>'+fb("@logos","Logo Les Moles")+fb("@olivo","Hojas de olivo")+'</div>'+
     '<div class="lz-sec">Líneas y marcos</div><div class="lz-adds">'+fb("linea","— Línea")+fb("rect","▭ Marco")+fb("redondo","▢ Marco redondo")+fb("arco","⌓ Arco")+fb("esquinas","⌜⌟ Esquinas")+fb("circ","● Círculo")+'</div>'+
@@ -18656,10 +19091,11 @@ function alTecla(ev){ if(!ST||!document.body.contains(ST.cv)){ document.removeEv
   var d=ev.shiftKey?10:1; if(ev.key==="ArrowLeft"){ it.x-=d; } else if(ev.key==="ArrowRight"){ it.x+=d; } else if(ev.key==="ArrowUp"){ it.y-=d; } else if(ev.key==="ArrowDown"){ it.y+=d; } else return; ev.preventDefault(); it.mov=1; it.x=r1(it.x); it.y=r1(it.y); empuja(); guardar(); pintaLienzo(); }
 function alTeclaSube(ev){ if(ev.key===" "&&ST&&ST.espacio){ ST.espacio=false; if(ST.cv) ST.cv.style.cursor=ST.mano?"grab":"default"; } }
 function alClic(ev){
-  var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-cat],[data-lz-img],[data-lz-ico],[data-lz-mono],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
+  var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-cat],[data-lz-est],[data-lz-img],[data-lz-ico],[data-lz-mono],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
   if(t.hasAttribute("data-lz-pest")){ pestana(t.getAttribute("data-lz-pest")); return; }
   if(t.hasAttribute("data-lz-tpl")){ cambiaDiseno(t.getAttribute("data-lz-tpl")); pestana("d"); return; }
-  if(t.hasAttribute("data-lz-cat")){ ST.cat=t.getAttribute("data-lz-cat"); pestana("d"); return; }
+  if(t.hasAttribute("data-lz-cat")){ ST.cat=t.getAttribute("data-lz-cat"); ST.est=""; pestana("d"); return; }
+  if(t.hasAttribute("data-lz-est")){ ST.est=t.getAttribute("data-lz-est"); pestana("d"); return; }
   if(t.hasAttribute("data-lz-img")){ anadeImgCatalogo(t.getAttribute("data-lz-img")); return; }
   if(t.hasAttribute("data-lz-ico")){ anadeIcono(t.getAttribute("data-lz-ico")); return; }
   if(t.hasAttribute("data-lz-mono")){ anadeMono(t.getAttribute("data-lz-mono")); return; }
