@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.46 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.47 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3176,8 +3176,9 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   .lz-stage{max-height:none;padding:14px 8px}
   #lz-side-c{max-height:none}
 }
-.lz-stage{background:repeating-linear-gradient(45deg,rgba(130,120,95,.07) 0 10px,transparent 10px 20px),var(--bg2,#EFEBE0);border:1px solid var(--line,#E4DCCB);border-radius:14px;padding:18px 12px;overflow:auto;max-height:calc(100vh - 150px);min-height:420px;display:flex;flex-direction:column;align-items:center;gap:10px}
-.lz-paper{position:relative;box-shadow:0 6px 28px rgba(30,25,15,.28);flex:none;line-height:0}.lz-paper canvas{display:block;background:#fff;outline:none}
+.lz-stage{background:repeating-linear-gradient(45deg,rgba(130,120,95,.07) 0 10px,transparent 10px 20px),var(--bg2,#EFEBE0);border:1px solid var(--line,#E4DCCB);border-radius:14px;padding:18px 12px;overflow:auto;max-height:calc(100vh - 150px);min-height:420px;display:flex;flex-direction:column;align-items:stretch;gap:10px;overscroll-behavior:contain}
+.lz-paper{position:relative;box-shadow:0 6px 28px rgba(30,25,15,.28);flex:none;line-height:0;margin:0 auto;width:max-content}.lz-pie{text-align:center}
+.lz-zoom{margin-left:auto;border-right:0;padding-right:0}.lz-zp{min-width:54px;font-variant-numeric:tabular-nums}.lz-paper canvas{display:block;background:#fff;outline:none}
 .lz-paper textarea{position:absolute;border:1px dashed #2F7BEA;background:rgba(255,255,255,.55);padding:0;margin:0;resize:none;overflow:hidden;outline:none;box-sizing:content-box;white-space:pre-wrap;caret-color:#2F7BEA}
 .lz-pie{font-size:11px;color:var(--ink-soft,#6B6257);line-height:1.4;text-align:center;margin:0}
 .lz-side{border:1px solid var(--line,#E4DCCB);border-radius:14px;background:var(--surface,#fff);overflow:hidden}
@@ -3187,6 +3188,17 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
 .lz-tp{display:flex;flex-direction:column;gap:5px;padding:7px;border:1px solid var(--line,#E4DCCB);border-radius:12px;background:var(--surface,#fff);cursor:pointer;text-align:left;color:inherit}.lz-tp canvas{width:100%;height:auto;display:block;border:1px solid rgba(0,0,0,.08);border-radius:3px}
 .lz-tp b{font:600 12px/1.2 var(--font-text,system-ui)}.lz-tp:hover{border-color:var(--gold,#A8873A)}.lz-tp.on{border-color:var(--gold,#A8873A);box-shadow:0 0 0 2px var(--gold,#A8873A) inset}
 .lz-sec-w{grid-column:1/-1;margin-top:6px}.lz-tp-w{position:relative;display:flex;flex-direction:column}.lz-tp-w .lz-tp{flex:1}.lz-tp-x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line,#E4DCCB);background:var(--surface,#fff);color:inherit;font:700 15px/1 system-ui;cursor:pointer;display:grid;place-items:center;padding:0}.lz-tp-x:hover{background:#B3261E;color:#fff;border-color:#B3261E}
+
+.lz-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.lz-chip{border:1px solid var(--line,#D9D1BF);background:var(--surface,#fff);color:inherit;border-radius:999px;padding:5px 11px;font:600 12px var(--font-text,system-ui);cursor:pointer}.lz-chip.on{background:var(--c-ink,#222);color:var(--bg,#fff);border-color:var(--c-ink,#222)}
+.lz-ics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:6px}.lz-ics-logos{grid-template-columns:repeat(2,minmax(0,1fr))}.lz-ics-v{grid-template-columns:repeat(4,minmax(0,1fr))}
+.lz-ic{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border:1px solid var(--line,#E4DCCB);border-radius:10px;background:var(--surface,#fff);cursor:pointer;color:inherit}.lz-ic:hover{border-color:var(--gold,#A8873A)}
+.lz-ic small{font:500 10px/1.15 var(--font-text,system-ui);text-align:center;color:var(--ink-soft,#6B6257);word-break:break-word}
+.lz-ic-img span{display:flex;align-items:center;justify-content:center;width:100%;height:64px;background:repeating-conic-gradient(#f3efe6 0 25%,#fff 0 50%) 0 0/12px 12px;border-radius:6px}.lz-ic-img img{max-width:92%;max-height:58px;object-fit:contain}
+.lz-ics-logos .lz-ic-img span{height:54px}.lz-ic-v canvas{width:44px;height:44px;display:block}
+.lz-seg{display:inline-flex;border:1px solid var(--line,#D9D1BF);border-radius:999px;overflow:hidden}.lz-segb{border:0;background:var(--surface,#fff);color:inherit;padding:7px 14px;font:600 12px var(--font-text,system-ui);cursor:pointer}.lz-segb.on{background:var(--c-ink,#222);color:var(--bg,#fff)}
+.lz-mgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lz-mono canvas{background:#fff}
+.lz-bar .lz-sel{max-width:210px;min-width:110px}.lz-t{height:32px;min-width:120px;border:1px solid var(--line,#D9D1BF);border-radius:8px;background:var(--surface,#fff);color:inherit;padding:0 8px;font:500 13px var(--font-text,system-ui)}.lz-t-s{min-width:84px;width:96px}
+.lz-wide{flex:1 1 100%}.lz-wide .lz-t{width:100%}.lz-pg.lz-logo-f{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px 12px;align-items:flex-end}
 .lz-sec{font:700 10px var(--font-text,system-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft,#6B6257);margin:14px 0 6px}.lz-sec:first-child{margin-top:0}
 .lz-adds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.lz-add{justify-content:flex-start;height:36px}
 .lz-pg{display:flex;flex-direction:column;gap:9px;align-items:flex-start}.lz-pg .lz-rg{width:100%}
@@ -3203,7 +3215,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.46</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.47</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8217,7 +8229,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.46</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.47</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -12078,23 +12090,232 @@ function imagenAJpeg(file,maxW){
 }
 var MN_FUERA_DEF={"NIÑOS":true,"PAN":true,"RECENA":true};
 function minutaFuera(){ var mn=(menu()&&menu().minuta)||{}; return mn.fuera||MN_FUERA_DEF; }
+/* ══ La minuta en castellano o en catalán ═══════════════════════════════
+   Los platos del catálogo tienen su traducción al catalán (revisable: es el
+   texto que sale en la minuta y se puede retocar sobre el papel). Los platos
+   escritos a mano se traducen palabra por palabra con un glosario de cocina;
+   si no basta, se corrige a mano. */
+function mnNorm(s){ return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[“”"«»'’`´]/g,"").replace(/\s+/g," ").trim(); }
+var MN_CA_RAW={
+  /* aperitivos */
+  "Ajoblanco con salazones y ahumados":"Ajoblanc amb salaons i fumats",
+  "Arroz de galeras y alcachofas":"Arròs de galeres i carxofes",
+  "Arroz de pato del Delta del Ebro y alcachofas":"Arròs d'ànec del Delta de l'Ebre i carxofes",
+  "Bombón de anguila ahumada, foie y manzana":"Bombó d'anguila fumada, foie i poma",
+  "Brocheta de langostino y beicon":"Broqueta de llagostí i cansalada",
+  "Brocheta de langostino y calamar":"Broqueta de llagostí i calamar",
+  "Capuchino de alcachofas de Benicarló y avellanas":"Capuccino de carxofes de Benicarló i avellanes",
+  "Copa de verduras con olor a whisky":"Copa de verdures amb olor de whisky",
+  "Puro de pimiento":"Puro de pebrot",
+  "Calamares con mayonesa de su tinta":"Calamars amb maionesa de la seva tinta",
+  "Chips de patata con anís estrellado":"Xips de patata amb anís estrellat",
+  "Coca de sardinas con vinagreta de albahaca":"Coca de sardines amb vinagreta d'alfàbrega",
+  "Buñuelos de bacalao":"Bunyols de bacallà",
+  "Croquetas de angulas":"Croquetes d'angules",
+  "Croquetas de jamón":"Croquetes de pernil",
+  "Croquetas de langostinos":"Croquetes de llagostins",
+  "Croquetas de setas":"Croquetes de bolets",
+  "Croquetas de sobrasada":"Croquetes de sobrassada",
+  "Croquetas de trufa":"Croquetes de tòfona",
+  "Croquetas pollo":"Croquetes de pollastre",
+  "Crujiente de langostinos":"Cruixent de llagostins",
+  "Cuchara de foie-gras con cebolla caramelizada":"Cullera de foie-gras amb ceba caramel·litzada",
+  "Cucurucho de pim. rojo con mousse de calabacin":"Cucurutxo de pimentó roig amb mousse de carabassó",
+  "Cucurucho de piña con mousse de foie-gras":"Cucurutxo de pinya amb mousse de foie-gras",
+  "Esfera XXL de parmesano con sopa de cebolla":"Esfera XXL de parmesà amb sopa de ceba",
+  "Falso sushi de verduras":"Fals sushi de verdures",
+  "Foie - gras con higos":"Foie-gras amb figues",
+  "Galleta Oreo de aceitunas negras y sobrasada":"Galeta Oreo d'olives negres i sobrassada",
+  "Gazpacho de frutas y verduras":"Gaspatxo de fruites i verdures",
+  "Gilda de color rojo":"Gilda de color roig",
+  "Huevo con patatas":"Ou amb patates",
+  "Jamón Ibérico de Cebo de Campo Blázquez":"Pernil Ibèric de Cebo de Campo Blázquez",
+  "La deconstrucción de escalivada":"La deconstrucció d'escalivada",
+  "Lata de atún Balfegó en escabeche":"Llauna de tonyina Balfegó en escabetx",
+  "Lata de coquinas con ajo, guindilla y romero":"Llauna de tellerines amb all, bitxo i romaní",
+  "Lata de falsas anchoas":"Llauna de falses anxoves",
+  "Mc Moles":"McMoles",
+  "Mollete de butifarra":"Mollete de botifarra",
+  "Mollete de costilla":"Mollete de costella de porc",
+  "Mollete de pato a la naranja":"Mollete d'ànec a la taronja",
+  "Mollete de setas":"Mollete de bolets",
+  "Mollete de sobrasada":"Mollete de sobrassada",
+  "Nuestra versión de la ensaladilla rusa":"La nostra versió de l'ensaladilla russa",
+  "“Pa amb tomaca” con pan de cristal y AOVE":"«Pa amb tomàquet» amb pa de vidre i OOVE",
+  "“Pizza” de tomate, parmesano y albahaca":"«Pizza» de tomàquet, parmesà i alfàbrega",
+  "Pulpo con espuma de allipebre":"Pop amb escuma d'all i pebre",
+  "Royal de foie con geleé de vermut y lima":"Royal de foie amb gelée de vermut i llima",
+  "Snack de Pollo ast":"Snack de pollastre a l'ast",
+  "Tartar de atún rojo y remolacha":"Tàrtar de tonyina vermella i remolatxa",
+  "Unas aceitunas de OOVE":"Unes olives d'OOVE",
+  /* estaciones */
+  "Buffet de gamba roja al vapor (75 gr)":"Bufet de gamba vermella al vapor (75 gr)",
+  "Buffet de langostino al vapor (75 gr)":"Bufet de llagostí al vapor (75 gr)",
+  "Buffet de ostras del Delta del Ebro":"Bufet d'ostres del Delta de l'Ebre",
+  "Cucurucho de aceitunas con tomate":"Cucurutxo d'olives amb tomàquet",
+  "Cucurucho neutro":"Cucurutxo neutre",
+  "Helado de colmenillas":"Gelat de múrgoles",
+  "Helado de mejillones en escabeche":"Gelat de musclos en escabetx",
+  "Helado de sobrasada":"Gelat de sobrassada",
+  "Polo crocante de foie gras":"Gelat de pal cruixent de foie gras",
+  "ENCURTIDOS":"ENCURTITS",
+  "Brasa de gambas (65gr)":"Brasa de gambes (65gr)",
+  "Brasa de langostinos (65gr.)":"Brasa de llagostins (65gr.)",
+  "Chuletón":"Xuletó",
+  "Mini burguer de vaca vieja":"Mini hamburguesa de vaca vella",
+  "Papada con chutney":"Papada amb chutney",
+  "Pulpo":"Pop",
+  "Ventresca atún Balfegó":"Ventresca de tonyina Balfegó",
+  "Piruletas de aceite de olivos Milenarios":"Piruletes d'oli d'oliveres mil·lenàries",
+  "Foie con chutney de boniato":"Foie amb chutney de moniato",
+  "Huevos de codorniz con sobrasada":"Ous de guatlla amb sobrassada",
+  "Navajas (4u)":"Navalles (4u)",
+  "TABLA DE QUESOS":"TAULA DE FORMATGES",
+  /* entrantes, marisco y cremas */
+  "Bogavante en milhojas de verduras y azafrán":"Llamàntol en milfulls de verdures i safrà",
+  "Ensalada de color rojo":"Amanida de color roig",
+  "Ensalada de gamba roja de Tarragona":"Amanida de gamba vermella de Tarragona",
+  "Ensalada de texturas de tomate y de anguila":"Amanida de textures de tomàquet i d'anguila",
+  "Ensalada de ventresca de atún de Balfegó":"Amanida de ventresca de tonyina de Balfegó",
+  "Gazpacho de frutas con gamba de Tarragona":"Gaspatxo de fruites amb gamba de Tarragona",
+  "Sopa fría de tomate con langostinos":"Sopa freda de tomàquet amb llagostins",
+  "Gambas rojas a la sal 2 - 3 (120gr)":"Gambes vermelles a la sal 2 - 3 (120gr)",
+  "Gambas rojas a la sal 3 - 4 (170gr)":"Gambes vermelles a la sal 3 - 4 (170gr)",
+  "Langostinos a la sal 5 - 6 (140gr)":"Llagostins a la sal 5 - 6 (140gr)",
+  "Langostinos a la sal 8 - 10 (170gr)":"Llagostins a la sal 8 - 10 (170gr)",
+  "Langostinos a la sal 10 - 12 (200gr)":"Llagostins a la sal 10 - 12 (200gr)",
+  "Langostinos al vapor 5 - 6 (140gr)":"Llagostins al vapor 5 - 6 (140gr)",
+  "Langostinos al vapor 8 - 10 (170gr)":"Llagostins al vapor 8 - 10 (170gr)",
+  "Langostinos al vapor 10 - 12 (200gr)":"Llagostins al vapor 10 - 12 (200gr)",
+  "Crema de gambas y mejillones":"Crema de gambes i musclos",
+  "Sopa de calabaza, huevo pochado y langostino":"Sopa de carabassa, ou poché i llagostí",
+  /* pescados */
+  "Armónica de atún de Balfegó, puré de patata y huevo":"Harmònica de tonyina de Balfegó, puré de patata i ou",
+  "Bacalao con crema de allioli y crujiente de su piel":"Bacallà amb crema d'allioli i cruixent de la seva pell",
+  "Bacalao con pil pil de plancton y crujiente de su piel":"Bacallà amb pil-pil de plàncton i cruixent de la seva pell",
+  "Bogavante a la brasa con salsa de sus cabezas":"Llamàntol a la brasa amb salsa dels seus caps",
+  "Carrillera de atún Balfegó, coliflor y mantequilla":"Galta de tonyina Balfegó, coliflor i mantega",
+  "Langostinos con pil - pil de sus cabezas, aceite de cebollino y ñoquis":"Llagostins amb pil-pil dels seus caps, oli de cebollí i nyoquis",
+  "Lubina a la brasa con holandesa de piparras":"Llobarro a la brasa amb holandesa de piparres",
+  "Lubina con coliflor, angulas de calamar y caviar":"Llobarro amb coliflor, angules de calamar i caviar",
+  "Merluza con pil pil de plancton":"Lluç amb pil-pil de plàncton",
+  "Merluza con suquet marinero y puré de patata":"Lluç amb suquet mariner i puré de patata",
+  "Rape a la brasa con pilpil de azafrán del Perelló":"Rap a la brasa amb pil-pil de safrà del Perelló",
+  "Rodaballo con puré de 'allipebre'":"Rèmol amb puré d'«allipebre»",
+  "Suquet de raya":"Suquet de rajada",
+  /* sorbetes */
+  "De fresa y vinagre":"De maduixa i vinagre",
+  "De fruta de la pasión":"De fruita de la passió",
+  "De limón y menta":"De llimona i menta",
+  "De limón y piña":"De llimona i pinya",
+  "De limón y tomillo":"De llimona i farigola",
+  "De manzana verde":"De poma verda",
+  /* carnes */
+  "Cabrito con setas":"Cabrit amb bolets",
+  "1/2 Cabrito con setas":"1/2 Cabrit amb bolets",
+  "Canelón crujiente de cola de buey":"Canelò cruixent de cua de bou",
+  "1/2 Canelón crujiente de cola de buey":"1/2 Canelò cruixent de cua de bou",
+  "Cerdo Ral de Aviñón con manzana de feria":"Porc Ral d'Avinyó amb poma de fira",
+  "1/2 Cerdo Ral de Aviñón con manzana de feria":"1/2 Porc Ral d'Avinyó amb poma de fira",
+  "Cochinillo confitado con texturas de col":"Garrí confitat amb textures de col",
+  "1/2 Cochinillo confitado con texturas de col":"1/2 Garrí confitat amb textures de col",
+  "Confit de pato con puré de manzana y canela":"Confit d'ànec amb puré de poma i canyella",
+  "Jarrete de cordero con bearnesa y puré de patata y romero":"Jarret de corder amb bearnesa i puré de patata i romaní",
+  "Meloso de ternera con frutos secos y puré de orejones":"Melós de vedella amb fruits secs i puré d'orellanes d'albercoc",
+  "1/2 Meloso de ternera con frutos secos y puré de orejones":"1/2 Melós de vedella amb fruits secs i puré d'orellanes d'albercoc",
+  "Paletilla de cabrito al horno":"Espatlla de cabrit al forn",
+  /* postres */
+  "Algarroba parece.. plátano es!":"Garrofa sembla.. plàtan és!",
+  "Almendra":"Ametlla",
+  "Almendrado de chocolate CREO":"Ametllat de xocolata CREO",
+  "Almendrado de chocolate CREO personalizado":"Ametllat de xocolata CREO personalitzat",
+  "El jardín":"El jardí",
+  "Huevo de maracuyá, menta y coco":"Ou de maracuià, menta i coco",
+  "Huevo Kinder":"Ou Kinder",
+  "Los aromas del vino de Les Moles":"Els aromes del vi de Les Moles",
+  "Macarrones a la boloñesa":"Macarrons a la bolonyesa",
+  "Nuestra versión del tarta tatin con helado de vainilla":"La nostra versió de la tarta tatin amb gelat de vainilla",
+  "Texturas de chocolate CREO":"Textures de xocolata CREO",
+  /* niños y recena */
+  "Jamón ibérico":"Pernil ibèric",
+  "Pan con tomate":"Pa amb tomàquet",
+  "Surtido de croquetas":"Assortit de croquetes",
+  "Helado de chocolate y vainilla":"Gelat de xocolata i vainilla",
+  "Canelones de pollo con bechamel":"Canelons de pollastre amb beixamel",
+  "Fideuá":"Fideuà",
+  "Macarrones en la boloñesa":"Macarrons a la bolonyesa",
+  "Costillas de cordero a la brasa":"Costelles de corder a la brasa",
+  "Lomo rebozado":"Llom arrebossat",
+  "Pechuga de pollo rebozado":"Pit de pollastre arrebossat",
+  "Focaccia de Les Moles":"Focaccia de Les Moles",
+  "Surtido de donuts de casa":"Assortit de donuts de casa",
+  "Sandwiches":"Sandvitxos",
+  "Hamburguesa de vaca vieja":"Hamburguesa de vaca vella",
+  "Patatas bravas":"Patates braves",
+  "Creps":"Creps",
+  /* lo que sale siempre */
+  "El clásico":"El clàssic",
+  "Cafés y licores":"Cafès i licors"
+};
+var MN_CA={}; Object.keys(MN_CA_RAW).forEach(function(k){ MN_CA[mnNorm(k)]=MN_CA_RAW[k]; });
+/* glosario para los platos que no están en el catálogo (escritos a mano) */
+var MN_GLOS_FRASES=[["a la brasa","a la brasa"],["al horno","al forn"],["a la plancha","a la planxa"],["al vapor","al vapor"],["a la sal","a la sal"],["de la casa","de la casa"],["de su tinta","de la seva tinta"],["de la pasión","de la passió"],["en escabeche","en escabetx"],["foie gras","foie gras"],["a la naranja","a la taronja"],["con olor a","amb olor de"]];
+var MN_GLOS={"con":"amb","y":"i","e":"i","de":"de","del":"del","la":"la","el":"el","los":"els","las":"les","al":"al","un":"un","una":"una","unos":"uns","unas":"unes","sin":"sense","para":"per a","o":"o","en":"en",
+  "tomate":"tomàquet","tomates":"tomàquets","patata":"patata","patatas":"patates","pollo":"pollastre","cerdo":"porc","ternera":"vedella","cordero":"corder","cabrito":"cabrit","pato":"ànec","atún":"tonyina","bacalao":"bacallà","merluza":"lluç","lubina":"llobarro","rape":"rap","gamba":"gamba","gambas":"gambes","langostino":"llagostí","langostinos":"llagostins","calamar":"calamar","calamares":"calamars","pulpo":"pop","arroz":"arròs","setas":"bolets","seta":"bolet","trufa":"tòfona","queso":"formatge","quesos":"formatges","jamón":"pernil","huevo":"ou","huevos":"ous","mantequilla":"mantega","salsa":"salsa","crema":"crema","helado":"gelat","chocolate":"xocolata","limón":"llimona","fresa":"maduixa","manzana":"poma","naranja":"taronja","piña":"pinya","almendra":"ametlla","almendras":"ametlles","coco":"coco","ensalada":"amanida","sopa":"sopa","croquetas":"croquetes","croqueta":"croqueta","tarta":"pastís","café":"cafè","cafés":"cafès","licores":"licors","vino":"vi","blanco":"blanc","tinto":"negre","agua":"aigua","verduras":"verdures","verdura":"verdura","ajo":"all","cebolla":"ceba","pimiento":"pebrot","calabacín":"carabassó","calabaza":"carabassa","alcachofas":"carxofes","alcachofa":"carxofa","espárragos":"espàrrecs","champiñones":"xampinyons","foie":"foie","higos":"figues","higo":"figa","miel":"mel","nata":"nata","leche":"llet","azúcar":"sucre","sal":"sal","pimienta":"pebre","aceite":"oli","aceitunas":"olives","oliva":"oliva","vinagre":"vinagre","pan":"pa","pasta":"pasta","macarrones":"macarrons","fideuá":"fideuà","costillas":"costelles","costilla":"costella","carrillera":"galta","lomo":"llom","pechuga":"pit","cochinillo":"garrí","buey":"bou","vaca":"vaca","vieja":"vella","caviar":"caviar","ostras":"ostres","mejillones":"musclos","almejas":"cloïsses","sardinas":"sardines","anchoas":"anxoves","boquerones":"seitons","salmón":"salmó","dorada":"orada","rodaballo":"rèmol","bogavante":"llamàntol","cangrejo":"cranc","navajas":"navalles","anguila":"anguila","angulas":"angules","ahumado":"fumat","ahumada":"fumada","ahumados":"fumats","crujiente":"cruixent","frito":"fregit","frita":"fregida","rebozado":"arrebossat","caramelizada":"caramel·litzada","caramelizado":"caramel·litzat","rojo":"roig","roja":"vermella","verde":"verd","negro":"negre","negras":"negres","blanca":"blanca","dulce":"dolç","frío":"fred","fría":"freda","caliente":"calent","versión":"versió","nuestra":"nostra","nuestro":"nostre","surtido":"assortit","mini":"mini","hamburguesa":"hamburguesa","bocadillo":"entrepà","bunuelos":"bunyols","buñuelos":"bunyols","gazpacho":"gaspatxo","tarta":"pastís","bizcocho":"pastís","fruta":"fruita","frutas":"fruites","frutos":"fruits","secos":"secs","vainilla":"vainilla","canela":"canyella","menta":"menta","albahaca":"alfàbrega","romero":"romaní","tomillo":"farigola","perejil":"julivert","azafrán":"safrà","mostaza":"mostassa","mayonesa":"maionesa","boniato":"moniato","remolacha":"remolatxa","zanahoria":"pastanaga","coliflor":"coliflor","puré":"puré","bechamel":"beixamel","salchicha":"salsitxa","butifarra":"botifarra","sobrasada":"sobrassada","chorizo":"xoriço","lentejas":"llenties","garbanzos":"cigrons","judías":"mongetes","mousse":"mousse","espuma":"escuma","textura":"textura","texturas":"textures","trozos":"trossos","copa":"copa","cucharita":"cullereta","cuchara":"cullera","cucurucho":"cucurutxo","brocheta":"broqueta","bombón":"bombó","coca":"coca","esfera":"esfera","tartar":"tàrtar","pizza":"pizza","aperitivo":"aperitiu","aperitivos":"aperitius","postre":"postres","postres":"postres"};
+function mnCasar(orig,rep){ if(!orig||!rep) return rep; if(orig===orig.toUpperCase()&&orig.length>1) return rep.toUpperCase(); if(orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase()) return rep.charAt(0).toUpperCase()+rep.slice(1); return rep; }
+function mnGlosario(txt){
+  var s=String(txt||"");
+  MN_GLOS_FRASES.forEach(function(p){ s=s.replace(new RegExp("(^|[^\\p{L}])"+p[0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![\\p{L}])","giu"),function(m,pre){ return pre+p[1]; }); });
+  return s.replace(/[\p{L}]+/gu,function(w){ var k=w.toLowerCase(); return Object.prototype.hasOwnProperty.call(MN_GLOS,k)?mnCasar(w,MN_GLOS[k]):w; });
+}
+function mnPlatoCA(nombre){
+  var n=String(nombre==null?"":nombre), k=mnNorm(n), r=MN_CA[k];
+  if(r==null){ var m=/^(1\/2\s+)(.*)$/.exec(n); if(m&&MN_CA[mnNorm(m[2])]) r=m[1]+MN_CA[mnNorm(m[2])]; }
+  if(r==null) r=mnGlosario(n);
+  var letras=n.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g,""); if(letras.length>3&&n===n.toUpperCase()) r=r.toUpperCase();
+  return r;
+}
+/* los textos fijos de la minuta en cada idioma */
+function mnLang(id){
+  if(id==="ca") return {id:"ca",loc:"ca-ES",cab1:"als nostres jardins...",bodega:"el celler...",pista:"a la pista de ball...",clasico:"El clàssic",barra:"Barra lliure",recena:"Ressopó",cafes:"Cafès i licors",y:" i ",agua:"Aigua mineral",
+    vi:{blanco:"Vi blanc",tinto:"Vi negre",rosado:"Vi rosat"},cava:"Cava",plato:mnPlatoCA,rotulo:"menú",comedor:"al nostre menjador..."};
+  return {id:"es",loc:"es-ES",cab1:"en los jardines...",bodega:"la bodega...",pista:"en la pista de baile...",clasico:"El clásico",barra:"Barra libre",recena:"Recena",cafes:"Cafés y licores",y:" y ",agua:"Agua mineral",
+    vi:{blanco:"Vino blanco",tinto:"Vino tinto",rosado:"Vino rosado"},cava:"Cava",plato:function(n){ return n; },rotulo:"menú",comedor:"en nuestro comedor..."};
+}
+
 /* «BODA TERESA Y JUANLU» → «Teresa y Juanlu» */
 function parejaBonita(txt){
   var t=String(txt||"").replace(/^\s*(boda|bautizo|comuni[oó]n|comida|cena|aniversario)\s+(de\s+|del\s+)?/i,"").replace(/\s+/g," ").trim();
   return t.toLowerCase().split(" ").map(function(w,i){ return /^(y|i|e|&|\+|de|del|la)$/.test(w)&&i>0?w:w.charAt(0).toUpperCase()+w.slice(1); }).join(" ");
 }
-/* las bebidas tal como se escribirían en una minuta: «Les Moles Blanc», sin los centilitros */
-function bodegaLineas(){
-  var out=[]; try{ bebidaLineas().forEach(function(l){ var n=String(l.prod||l.label||"").replace(/\s*\([^)]*\)\s*$/,"").trim();
-    if(!n||(!l.q&&!l.prod)) return; if(out.indexOf(n)<0) out.push(n); }); }catch(_){}
+/* las bebidas tal como se escribirían en una minuta: «Vino blanco Les Moles D.O. Terra Alta», «Cava Oriol Rossell Brut Reserva», sin los centilitros */
+function bodegaLineas(L,doTxt){
+  L=L||mnLang("es"); var out=[], ca=L.id==="ca";
+  function sinColor(n){ return String(n).replace(/^(vino\s+|vi\s+)?(tinto|blanco|negre|blanc|rosado|rosat)\s+/i,"").replace(/\s+(tinto|blanco|negre|blanc|rosado|rosat)$/i,"").trim(); }
+  try{ bebidaLineas().forEach(function(l){
+    if(!l.q&&!l.prod) return;
+    var prod=String(l.prod||"").replace(/\s*\([^)]*\)\s*$/,"").trim(), lab=String(l.label||"").trim(), k=l.key, txt="";
+    if(k==="agua") txt=prod?prod.replace(/^agua\b/i,ca?"Aigua":"Agua"):L.agua;
+    else if(k==="blanco"||k==="tinto"){ txt=prod?L.vi[k]+" "+sinColor(prod):L.vi[k]; if(doTxt) txt+=" "+doTxt; }
+    else if(k==="cava") txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+" "+prod):L.cava;
+    else if(k==="cavaRosado") txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+(ca?" rosat ":" rosado ")+prod):L.cava+(ca?" rosat":" rosado");
+    else txt=prod||lab;
+    if(txt&&out.indexOf(txt)<0) out.push(txt); }); }catch(_){}
   return out;
 }
-function pistaDefecto(sel,e){
-  var o=[]; var F=(e&&e.ficha)||{};
-  if(String(F.horaBarra||"").trim()) o.push("Barra libre");
-  if(sel.some(function(d){ return d._famKey==="RECENA"; })) o.push("Recena");
+function pistaDefecto(sel,e,L){
+  L=L||mnLang("es"); var o=[]; var F=(e&&e.ficha)||{};
+  if(String(F.horaBarra||"").trim()) o.push(L.barra);
+  if(sel.some(function(d){ return d._famKey==="RECENA"; })) o.push(L.recena);
   return o;
 }
+/* tipo de minuta: boda, bautizo, comunión u otros (sale del tipo de evento y se puede cambiar) */
+function minutaCat(e,mn){
+  if(mn&&/^(boda|bautizo|comunion|otros)$/.test(mn.cat||"")) return mn.cat;
+  var F=(e&&e.ficha)||{}, t=String(F.tipo||((e&&e.name)||"")).toLowerCase();
+  if(/boda/.test(t)) return "boda"; if(/bautiz|bateig/.test(t)) return "bautizo"; if(/comuni/.test(t)) return "comunion"; return "otros";
+}
+function nombreHomenajeado(txt){ return parejaBonita(String(txt||"").replace(/^\s*primera\s+/i,"")); }
 /* lo que sale en la minuta: el nombre del evento (sin la fecha pegada), la
    fecha bonita y los platos marcados agrupados por tiempo, en el orden del menú */
 /* ── el texto de la minuta, editable ──
@@ -12135,8 +12356,9 @@ function textoAItems(txt){
   return it;
 }
 function datosMinuta(){
-  var sel=selectedDishes(), e=ev(), fecha="";
-  try{ var f=e&&e.ficha&&e.ficha.fecha; if(f){ var s=new Date(f+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1); } }catch(_){}
+  var sel=selectedDishes(), e=ev(), fecha="", fechaTxt="", fechaCorta="", mn0=(menu()&&menu().minuta)||{}, idioma=mn0.idioma==="ca"?"ca":"es", L=mnLang(idioma);
+  try{ var f=e&&e.ficha&&e.ficha.fecha; if(f){ var d0=new Date(f+"T00:00:00"); var s=d0.toLocaleDateString(L.loc,{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1);
+    fechaTxt=d0.toLocaleDateString(L.loc,{day:"numeric",month:"long",year:"numeric"}); fechaCorta=String(f).slice(8,10)+"."+String(f).slice(5,7)+"."+String(f).slice(0,4); } }catch(_){}
   var titulo0=(e&&e.name?String(e.name):"Menú").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim()||"Menú";
   var mn=(menu()&&menu().minuta)||{}, fuera=minutaFuera();
   var titulo=(mn.titulo&&String(mn.titulo).trim())||titulo0;
@@ -12146,12 +12368,12 @@ function datosMinuta(){
   var secciones=[], ae=escAperYEst(escCfg()), lab={};
   MENU_DATA.forEach(function(f){ lab[f.key]=f.label; });
   var ap=ae.aper.filter(function(d){ return d._famKey!=="RECENA"&&d._famKey!=="PAN"; }), es=ae.est.filter(function(d){ return d._famKey!=="RECENA"; });
-  if(ap.length) secciones.push({k:"APERITIVOS",t:lab.APERITIVOS||"Aperitivos",platos:ap.map(function(d){ return d.name; })});
-  if(es.length) secciones.push({k:"ESTACIONES",t:lab.ESTACIONES||"Estaciones",platos:es.map(function(d){ return d.name; })});
+  if(ap.length) secciones.push({k:"APERITIVOS",t:lab.APERITIVOS||"Aperitivos",platos:ap.map(function(d){ return L.plato(d.name); })});
+  if(es.length) secciones.push({k:"ESTACIONES",t:lab.ESTACIONES||"Estaciones",platos:es.map(function(d){ return L.plato(d.name); })});
   MENU_DATA.forEach(function(f){
     if(f.key==="APERITIVOS"||f.key==="ESTACIONES") return;
     var ds=sel.filter(function(d){ return d._famKey===f.key; });
-    if(ds.length) secciones.push({k:f.key,t:f.label,platos:ds.map(function(d){ return d.name; })});
+    if(ds.length) secciones.push({k:f.key,t:f.label,platos:ds.map(function(d){ return L.plato(d.name); })});
   });
   var todas=secciones.map(function(x){ return {k:x.k,t:x.t,n:x.platos.length,fuera:!!fuera[x.k]}; });
   secciones=secciones.filter(function(x){ return !fuera[x.k]; });
@@ -12164,17 +12386,19 @@ function datosMinuta(){
   function meter(grupo,lineas){ if(!lineas.length) return;
     var sep=null; if(bloques.length){ sep=grupo===ult?"sm":(grupo>=4?"gap":"ast"); }
     bloques.push({g:grupo,sep:sep,lineas:lineas}); ult=grupo; }
-  if(hayCl&&!fuera.APERITIVOS) meter(1,["El clásico"]);
+  if(hayCl&&!fuera.APERITIVOS) meter(1,[L.clasico]);
   secciones.forEach(function(x){
     var ls=x.platos;
-    if(x.k==="APERITIVOS"&&hayCl){ ls=ap.filter(function(d){ return !clSet[d._uid]; }).map(function(d){ return d.name; }); }
+    if(x.k==="APERITIVOS"&&hayCl){ ls=ap.filter(function(d){ return !clSet[d._uid]; }).map(function(d){ return L.plato(d.name); }); }
     meter(GR(x.k),ls); });
-  var cierres=[], bod=bodegaLineas(), pi=(mn.pista!=null?String(mn.pista).split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean):pistaDefecto(sel,e));
+  var doTxt=(mn.do==null||String(mn.do).trim()==="")?"D.O. Terra Alta":(/^(-|ninguna|no)$/i.test(String(mn.do).trim())?"":String(mn.do).trim());
+  var cierres=[], bod=bodegaLineas(L,doTxt), pi=(mn.pista!=null?String(mn.pista).split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean):pistaDefecto(sel,e,L));
   todas.push({k:"BODEGA",t:"La bodega",n:bod.length,fuera:!!fuera.BODEGA}); todas.push({k:"PISTA",t:"La pista de baile",n:pi.length,fuera:!!fuera.PISTA});
-  if(!fuera.BODEGA&&bod.length) cierres.push({t:"la bodega...",lineas:bod});
-  if(!fuera.PISTA&&pi.length) cierres.push({t:"en la pista de baile...",lineas:pi});
-  var pareja=(mn.titulo&&String(mn.titulo).trim())||((F0.parejaA&&F0.parejaB)?(String(F0.parejaA).trim()+" y "+String(F0.parejaB).trim()):parejaBonita(titulo0));
-  var cab1=(mn.cab1!=null?String(mn.cab1).trim():"en los jardines...");
+  if(!fuera.BODEGA&&bod.length) cierres.push({t:L.bodega,lineas:bod});
+  if(!fuera.PISTA&&pi.length) cierres.push({t:L.pista,lineas:pi});
+  var cat=minutaCat(e,mn), parejaA=String(F0.parejaA||"").trim(), parejaB=String(F0.parejaB||"").trim();
+  var pareja=(mn.titulo&&String(mn.titulo).trim())||(cat==="boda"?((parejaA&&parejaB)?(parejaA+L.y+parejaB):parejaBonita(titulo0)):nombreHomenajeado(titulo0));
+  var cab1=(mn.cab1!=null?String(mn.cab1).trim():L.cab1);
   var auto=[];
   if(cab1) auto.push({t:"tit",s:cab1});
   bloques.forEach(function(bq,bi){
@@ -12188,7 +12412,9 @@ function datosMinuta(){
   return {titulo:titulo,titulo0:titulo0,fecha:fecha,secciones:secciones,todas:todas,pie:"Les Moles · Ulldecona",
     formato:(mn.formato==="hoja"?"hoja":mn.formato==="doble"?"doble":"lienzo"), bloques:bloques, cierres:cierres, pareja:nom?nom.s:(editado?"":pareja),
     rotulo:rot?rot.s:"", items:items.filter(function(x){ return x.t!=="nom"&&x.t!=="rot"; }), editado:editado, textoAuto:itemsATexto(auto), textoActual:editado?String(mn.texto):itemsATexto(auto),
-    cab1:cab1, pistaDef:pistaDefecto(sel,e), tpl:plantillaDe(mn.plantilla||"olivo")};
+    cab1:cab1, pistaDef:pistaDefecto(sel,e,L), tpl:plantillaDe(mn.plantilla||"olivo"),
+    idioma:idioma, cat:cat, doTxt:doTxt, fechaTxt:(mn.sub!=null&&String(mn.sub).trim()!==""?String(mn.sub).trim():fechaTxt), fechaCorta:fechaCorta,
+    parejaA:parejaA, parejaB:parejaB, nombreCorto:(cat==="boda"?(parejaA&&parejaB?parejaA+" & "+parejaB:pareja):pareja), tipoTxt:(cat==="bautizo"?(idioma==="ca"?"Bateig":"Bautizo"):cat==="comunion"?(idioma==="ca"?"Primera comunió":"Primera comunión"):cat==="boda"?(idioma==="ca"?"Data de boda":"Fecha de boda"):"")};
 }
 function previaMinuta(dm){
   var T=dm.tpl, sans=T.titulos==="sans", prevT="";
@@ -12255,7 +12481,10 @@ function renderTarjeta(){
     (ed?'':
       (doble||lienzo)?'<label class="fld"><span class="lbl">Nombre de la pareja <small>(sale abajo, en grande)</small></span><input type="text" data-mc="titulo" value="'+esc(mn.titulo||"")+'" placeholder="'+esc(dm.pareja)+'"></label>'+
         '<label class="fld"><span class="lbl">Encabezado <small>(bajo «menú»)</small></span><input type="text" data-mc="cab1" value="'+esc(mn.cab1!=null?mn.cab1:"en los jardines...")+'" placeholder="en los jardines..."></label>'+
-        '<label class="fld"><span class="lbl">En la pista de baile <small>(una línea por cada cosa)</small></span><textarea rows="2" data-mc="pista" placeholder="'+esc(dm.pistaDef.join(" · "))+'">'+esc(mn.pista!=null?mn.pista:dm.pistaDef.join("\n"))+'</textarea></label>'
+        '<label class="fld"><span class="lbl">En la pista de baile <small>(una línea por cada cosa)</small></span><textarea rows="2" data-mc="pista" placeholder="'+esc(dm.pistaDef.join(" · "))+'">'+esc(mn.pista!=null?mn.pista:dm.pistaDef.join("\n"))+'</textarea></label>'+
+        '<label class="fld"><span class="lbl">Idioma de la minuta</span><select data-mc="idioma"><option value="es"'+(dm.idioma==="es"?" selected":"")+'>Castellano</option><option value="ca"'+(dm.idioma==="ca"?" selected":"")+'>Català</option></select></label>'+
+        '<label class="fld"><span class="lbl">Tipo de minuta <small>(los diseños se ordenan por tipo)</small></span><select data-mc="cat">'+[["","Según el evento ("+({boda:"Boda",bautizo:"Bautizo",comunion:"Comunión",otros:"Otros eventos"}[minutaCat(ev(),{})])+")"],["boda","Boda"],["bautizo","Bautizo"],["comunion","Comunión"],["otros","Otros eventos"]].map(function(o){ return '<option value="'+o[0]+'"'+((mn.cat||"")===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></label>'+
+        '<label class="fld"><span class="lbl">Denominación de los vinos <small>(sale tras el nombre de cada vino; «-» para no poner ninguna)</small></span><input type="text" data-mc="do" value="'+esc(mn.do||"")+'" placeholder="D.O. Terra Alta"></label>'
       :'<label class="fld"><span class="lbl">Título</span><input type="text" data-mc="titulo" value="'+esc(mn.titulo||"")+'" placeholder="'+esc(dm.titulo0)+'"></label>'+
         '<label class="fld"><span class="lbl">Línea bajo el título <small>(vacío = la fecha)</small></span><input type="text" data-mc="sub" value="'+esc(mn.sub||"")+'" placeholder="p. ej. Sábado, 26 de septiembre de 2026"></label>')+'</div>'+
     (ed?'<p class="esc-hint mn-ed-nota">Has editado el texto a mano: los cambios del menú ya no lo modifican. Pulsa «Volver al texto automático» para recomponerlo desde el menú.</p>':
@@ -12289,7 +12518,7 @@ function renderTarjeta(){
   wirePrintBtn();
   if(lienzo&&window.LM_lienzo){ window.LM_lienzo.mount($("lz-host")); }
   var bd=$("mnu-body");
-  Array.prototype.forEach.call(bd.querySelectorAll("[data-mc]"),function(i){ i.addEventListener("change",function(){ var m=menu().minuta=menu().minuta||{}; var k=i.getAttribute("data-mc"); m[k]=(k==="pista"?i.value.replace(/\s+$/,""):i.value.trim()); touchSave(); renderTarjeta(); }); });
+  Array.prototype.forEach.call(bd.querySelectorAll("[data-mc]"),function(i){ i.addEventListener("change",function(){ var m=menu().minuta=menu().minuta||{}; var k=i.getAttribute("data-mc"); m[k]=(k==="pista"?i.value.replace(/\s+$/,""):i.value.trim()); if(dm.formato==="lienzo"&&/^(idioma|cat|do|titulo|cab1|pista)$/.test(k)) m.refrescar=1; touchSave(); renderTarjeta(); }); });
   Array.prototype.forEach.call(bd.querySelectorAll("[data-mc-k]"),function(i){ i.addEventListener("change",function(){ var k=i.getAttribute("data-mc-k"), m=menu().minuta=menu().minuta||{}; if(!m.fuera){ m.fuera={}; Object.keys(MN_FUERA_DEF).forEach(function(q){ m.fuera[q]=true; }); } if(i.checked) delete m.fuera[k]; else m.fuera[k]=true; touchSave(); renderTarjeta();
     var b2=bd.querySelector('[data-mc-k="'+k.replace(/"/g,'\\"')+'"]'); if(b2) b2.focus(); }); });
   /* texto editable: la vista previa se actualiza al escribir, sin perder el cursor */
@@ -12571,6 +12800,7 @@ function escAperitivos(c,cfg){
 var ESC_GRUPOS={gluten:"Celíacos · sin gluten",lacteos:"Sin lácteos",marisco:"Sin marisco",frutosSecos:"Sin frutos secos",huevo:"Sin huevo",pescado:"Sin pescado",pescetariano:"Pescetarianos",soja:"Sin soja",sesamo:"Sin sésamo",mostaza:"Sin mostaza",apio:"Sin apio",sulfitos:"Sin sulfitos",legumbres:"Sin legumbres",picante:"Sin picante"};
 BR.escGruposDe=function(g){ return escGruposDe(g); };
 BR.minutaDatos=function(){ return datosMinuta(); };
+BR.minutaSet=function(k,v){ var m=menu(); if(!m) return; m.minuta=m.minuta||{}; if(v==null) delete m.minuta[k]; else m.minuta[k]=v; touchSave(); };
 function escGruposDe(g){
   var out=[];
   (g.alerFams||[]).forEach(function(f,i){ out.push(ESC_GRUPOS[f]||(g.aler[i]?g.aler[i].charAt(0).toUpperCase()+g.aler[i].slice(1):"Otras")); });
@@ -17744,6 +17974,41 @@ BR.montaje={hojaEv:mjHojaEv, otrosDia:mjOtrosDia, mesasAper:mjMesasAper, configs
 })();
 </script>
 <script>/*LZ-START*/
+/* catálogo de imágenes del diseñador (se cargan de lz/NOMBRE.webp) */
+window.LM_LZ_MAN={
+"logo_lesmoles":{w:760,h:118,n:"Les Moles",g:"logos"},
+"logo_events":{w:268,h:82,n:"Les Moles Events",g:"logos"},
+"sol_sostenible":{w:700,h:172,n:"Sol Sostenible 2026",g:"logos"},
+"repsol":{w:401,h:109,n:"2 Soles Guía Repsol",g:"logos"},
+"michelin":{w:284,h:139,n:"Michelin",g:"logos"},
+"paloma":{w:241,h:283,n:"Paloma",g:"bautizo"},
+"conejita":{w:358,h:417,n:"Conejita",g:"bautizo"},
+"ramita_a":{w:250,h:480,n:"Ramita izquierda",g:"bautizo"},
+"ramita_b":{w:250,h:471,n:"Ramita derecha",g:"bautizo"},
+"globo":{w:323,h:481,n:"Globo aerostático",g:"bautizo"},
+"nube":{w:121,h:54,n:"Nube",g:"bautizo"},
+"filete_corazon":{w:216,h:33,n:"Filete con corazón",g:"bautizo"},
+"nino":{w:257,h:680,n:"Niño de comunión",g:"comunion"},
+"nina_azul":{w:187,h:390,n:"Niña · lazo azul",g:"comunion"},
+"nina_rosa":{w:187,h:400,n:"Niña · lazo rosa",g:"comunion"},
+"nina_beige":{w:197,h:403,n:"Niña · lazo beige",g:"comunion"},
+"nina_menta":{w:197,h:406,n:"Niña · lazo menta",g:"comunion"},
+"marisco":{w:658,h:241,n:"Marisco y sal",g:"otros"},
+"fuente_bn":{w:559,h:420,n:"Fuente en blanco y negro",g:"boda"},
+"mesa_linea":{w:349,h:242,n:"Mesa de boda",g:"boda"},
+"hoja_1":{w:212,h:540,n:"Hoja acuarela 1",g:"hojas"},
+"hoja_2":{w:300,h:532,n:"Hoja acuarela 2",g:"hojas"},
+"hoja_3":{w:236,h:520,n:"Hoja acuarela 3",g:"hojas"},
+"hoja_5":{w:240,h:300,n:"Hoja acuarela 4",g:"hojas"},
+"hoja_6":{w:200,h:324,n:"Hoja acuarela 5",g:"hojas"},
+"hoja_7":{w:192,h:312,n:"Hoja acuarela 6",g:"hojas"},
+"hoja_9":{w:96,h:188,n:"Hoja suelta 1",g:"hojas"},
+"hoja_10":{w:88,h:180,n:"Hoja suelta 2",g:"hojas"},
+"hoja_11":{w:92,h:188,n:"Hoja suelta 3",g:"hojas"},
+"hoja_12":{w:88,h:180,n:"Hoja suelta 4",g:"hojas"},
+"flor_linea":{w:596,h:760,n:"Flor de línea",g:"boda"},
+"distinciones":{w:1266,h:120,n:"Las tres distinciones",g:"logos"},
+};
 /* ══ LIENZO · el diseñador de minutas ═══════════════════════════════════
    Un papel de verdad (media hoja A4, para cortar por la mitad) donde cada cosa
    —texto, logo, línea, adorno— es un objeto que se toca, se arrastra, se
@@ -17816,8 +18081,8 @@ function aseguraFuente(nombre){
 function fuentesDeTpl(tp){ var us={}; Object.keys(tp.est).forEach(function(k){ us[tp.est[k].f]=1; }); if(tp.pieFont) us[tp.pieFont]=1; return Object.keys(us); }
 function aseguraTpl(id){ var tp=TPL_POR[id]||PLANTILLAS[0]; return Promise.all(fuentesDeTpl(tp).map(aseguraFuente)); }
 function aseguraEscena(sc){
-  var us={}; (sc.items||[]).forEach(function(it){ if(it.t==="txt"&&it.f) us[it.f]=1; });
-  return Promise.all(Object.keys(us).map(aseguraFuente));
+  var us={}; (sc.items||[]).forEach(function(it){ if(it.t==="txt"&&it.f) us[it.f]=1; if(it.t==="shape"&&it.f==="monograma"){ if(it.fnt) us[it.fnt]=1; if(it.fnt2) us[it.fnt2]=1; } });
+  return Promise.all(Object.keys(us).map(aseguraFuente).concat([aseguraImagenes(sc)]));
 }
 
 /* ── utilidades ──────────────────────────────────────────────────────── */
@@ -17855,13 +18120,18 @@ function baseLinea(it,i){
 }
 
 /* ── imágenes ────────────────────────────────────────────────────────── */
-var cacheImg={}, alCargar=null;
+var cacheImg={}, alCargar=null, tAlCargar=null;
+var LZ_MAN=window.LM_LZ_MAN||{}, LZ_BASE=window.LM_LZ_BASE||"lz/", LZ_VER="1";
+function resuelve(src){ if(!src) return null; if(src.indexOf("@lz:")===0){ var n=src.slice(4); return LZ_MAN[n]?LZ_BASE+n+".webp?v="+LZ_VER:null; } if(src.charAt(0)==="@"){ var f=imgsFab()[src]; return f?f.src:null; } return src; }
+function avisaCarga(){ clearTimeout(tAlCargar); tAlCargar=setTimeout(function(){ if(alCargar) alCargar(); },50); }
 function imagen(src){
-  if(!src) return null; var fab=imgsFab(); if(src.charAt(0)==="@"){ var f=fab[src]; if(!f) return null; src=f.src; }
-  var c=cacheImg[src]; if(c) return c.ok?c.im:null;
-  var im=new Image(); c=cacheImg[src]={im:im,ok:false}; im.onload=function(){ c.ok=true; if(alCargar) alCargar(); }; im.src=src; return null;
+  var u=resuelve(src); if(!u) return null;
+  var c=cacheImg[u]; if(c) return c.ok?c.im:null;
+  var im=new Image(); c=cacheImg[u]={im:im,ok:false}; im.onload=function(){ c.ok=true; avisaCarga(); }; im.onerror=function(){ c.err=true; }; im.src=u; return null;
 }
-function relImg(it){ var fab=imgsFab(), s=it.src; if(s&&s.charAt(0)==="@"&&fab[s]) return fab[s].w/fab[s].h; var c=it.src&&cacheImg[it.src]; return c&&c.ok?c.im.naturalWidth/c.im.naturalHeight:(it.w/it.h||1); }
+function esperaImg(src){ return new Promise(function(res){ var u=resuelve(src); if(!u) return res(); imagen(src); var c=cacheImg[u]; if(!c||c.ok||c.err) return res(); c.im.addEventListener("load",function(){ res(); }); c.im.addEventListener("error",function(){ res(); }); setTimeout(res,9000); }); }
+function aseguraImagenes(sc){ return Promise.all((sc.items||[]).filter(function(i){ return i.t==="img"; }).map(function(i){ return esperaImg(i.src); })); }
+function relImg(it){ var fab=imgsFab(), s=it.src; if(s&&s.indexOf("@lz:")===0&&LZ_MAN[s.slice(4)]){ var m=LZ_MAN[s.slice(4)]; return m.w/m.h; } if(s&&s.charAt(0)==="@"&&fab[s]) return fab[s].w/fab[s].h; var c=it.src&&cacheImg[it.src]; return c&&c.ok?c.im.naturalWidth/c.im.naturalHeight:(it.w/it.h||1); }
 
 /* ── dibujo de adornos (todos vectoriales; los orgánicos con semilla) ── */
 function trazo(ctx,it){ ctx.strokeStyle=it.stroke||"#333"; ctx.lineWidth=it.sw==null?1:it.sw; ctx.lineCap="round"; ctx.lineJoin="round";
@@ -17915,6 +18185,8 @@ function dibujaForma(ctx,it){
     var cx4=x+w/2, cy4=y+h/2, rad=Math.min(w,h)/2*0.86, R3=rng(it.seed||11), N=140, a0=-1.1+R3()*0.4, tot=Math.PI*2*0.93; ctx.fillStyle=it.stroke||"#C0392B";
     var ext=[], inn=[]; for(var z=0;z<=N;z++){ var t3=z/N, a4=a0+tot*t3, th=(it.sw||5)*(0.25+Math.sin(t3*Math.PI)*0.95+R3()*0.05), rj=rad+Math.sin(t3*9+ (it.seed||11))*0.8; ext.push([cx4+Math.cos(a4)*(rj+th/2),cy4+Math.sin(a4)*(rj+th/2)]); inn.push([cx4+Math.cos(a4)*(rj-th/2),cy4+Math.sin(a4)*(rj-th/2)]); }
     ctx.beginPath(); ext.forEach(function(p,i2){ if(i2) ctx.lineTo(p[0],p[1]); else ctx.moveTo(p[0],p[1]); }); for(var z2=inn.length-1;z2>=0;z2--) ctx.lineTo(inn[z2][0],inn[z2][1]); ctx.closePath(); ctx.fill(); }
+  else if(f==="icono"){ dibujaIcono(ctx,it); }
+  else if(f==="monograma"){ dibujaMono(ctx,it); }
   else if(f==="trama"){ /* puntos finos en cuadrícula: textura de papel */ ctx.fillStyle=it.fill||it.stroke; var gap=it.gap||9; for(var gx=x+gap/2;gx<x+w;gx+=gap) for(var gy=y+gap/2;gy<y+h;gy+=gap){ ctx.beginPath(); ctx.arc(gx,gy,it.sw||0.45,0,Math.PI*2); ctx.fill(); } }
   ctx.restore();
 }
@@ -17947,7 +18219,13 @@ function est(f,s,c,o){ var e={f:f,s:s,c:c,al:"center",b:0,i:0,ls:0,lh:1.28,up:0}
 function S(o){ var e={t:"shape",id:uid(),x:0,y:0,w:10,h:10,stroke:"",sw:1,fill:"",op:1}; Object.keys(o).forEach(function(k){ e[k]=o[k]; }); return e; }
 function TX(k,txt,x,y,w,e,extra){ var it={t:"txt",id:uid(),k:k,txt:txt,x:x,y:y,w:w,f:e.f,s:e.s,c:e.c,al:e.al||"center",b:e.b||0,i:e.i||0,ls:e.ls||0,lh:e.lh||1.28,up:e.up||0,op:1}; if(extra) Object.keys(extra).forEach(function(q){ it[q]=extra[q]; }); return it; }
 function IMG(src,x,y,w,h,extra){ var it={t:"img",id:uid(),src:src,x:x,y:y,w:w,h:h,op:1}; if(extra) Object.keys(extra).forEach(function(q){ it[q]=extra[q]; }); return it; }
+function pieLz(tp){ /* medidas del pie con los logos transparentes: «lz» = distinciones + Les Moles, «events» = distinciones + Les Moles Events */
+  var d=LZ_MAN.distinciones||{w:1266,h:120}, l=LZ_MAN[tp.pie==="events"?"logo_events":"logo_lesmoles"]||{w:760,h:118};
+  var dw=tp.pieDw||112, dh=dw*d.h/d.w, lw=tp.pieLw||(tp.pie==="events"?96:94), lh=lw*l.h/l.w, gap=tp.pieGap||6; return {dw:dw,dh:dh,lw:lw,lh:lh,gap:gap,alto:dh+gap+lh}; }
 function logoPie(sc,tp,cy){ /* el logo de la casa abajo, o su nombre escrito si el fondo no es blanco */
+  if(tp.pie==="sin") return [];
+  if(tp.pie==="lz"||tp.pie==="events"){ var m=pieLz(tp), yb=cy+6-m.lh, xc=(tp.pieX==null?W/2:tp.pieX), nm=tp.pie==="events"?"@lz:logo_events":"@lz:logo_lesmoles";
+    var o=[IMG("@lz:distinciones",xc-m.dw/2,yb-m.gap-m.dh,m.dw,m.dh),IMG(nm,xc-m.lw/2,yb,m.lw,m.lh)]; return o; }
   var fab=imgsFab(), L=fab["@logos"], out=[];
   if(tp.pieTxt||!L){ out.push(TX("pie",tp.pieTxt||"LES MOLES",30,cy-22,W-60,est(tp.pieFont||"Cinzel",11,tp.tinta||"#333",{ls:5,b:1})));
     out.push(TX("pie","ULLDECONA",30,cy-4,W-60,est(tp.pieFont||"Cinzel",6.5,tp.color||"#777",{ls:3.4}))); }
@@ -17958,54 +18236,127 @@ var PLANTILLAS=[];
 function tpl(def){ PLANTILLAS.push(def); }
 
 /* 1 · la de la casa */
-tpl({id:"olivo",nombre:"Olivo · la de la casa",desc:"Hojas de olivo y títulos a máquina de escribir",fondo:"#FFFFFF",tinta:"#3B3B3B",color:"#6A8A70",mx:44,zona:{y0:166},pieY:818,
+tpl({id:"olivo",cat:["boda","bautizo","comunion","otros"],def:["boda","otros"],nombre:"Olivo · la de la casa",desc:"Hojas de olivo y títulos a máquina de escribir",fondo:"#FFFFFF",tinta:"#3B3B3B",color:"#6A8A70",mx:44,zona:{y0:166},pieY:818,
   est:{tit:est("Special Elite",9.6,"#2A2A2A",{ls:0.6}),lin:est("Montserrat",8.8,"#3B3B3B",{lh:1.42}),peq:est("Montserrat",7.4,"#3B3B3B",{ls:0.6,lh:1.5}),ast:est("Montserrat",8.8,"#3B3B3B"),nom:est("Great Vibes",34,"#6A8A70",{lh:1.05}),rot:est("Great Vibes",44,"#6A8A70")},
   deco:function(sc,tp){ return [IMG("@olivo",5,0,W-10,(W-10)*523/1169)]; }});
 /* 2 · clásico dorado */
-tpl({id:"clasico",nombre:"Clásico dorado",desc:"Doble filete, cursivas y un punto de oro",fondo:"#FFFFFF",tinta:"#3A3226",color:"#A8873A",mx:50,zona:{y0:150},pieY:812,nomMax:770,
+tpl({id:"clasico",cat:["boda","bautizo","comunion","otros"],nombre:"Clásico dorado",desc:"Doble filete, cursivas y un punto de oro",fondo:"#FFFFFF",tinta:"#3A3226",color:"#A8873A",mx:50,zona:{y0:150},pieY:812,nomMax:770,
   est:{tit:est("Cormorant Garamond",14,"#A8873A",{i:1,lh:1.2}),lin:est("Cormorant Garamond",10.6,"#3A3226",{lh:1.38,b:0}),peq:est("Cormorant Garamond",8.6,"#3A3226",{ls:1.2,lh:1.5}),ast:est("Cormorant Garamond",10.6,"#A8873A"),nom:est("Pinyon Script",34,"#A8873A",{lh:1.05}),rot:est("Cormorant Garamond",46,"#A8873A",{i:1})},
   deco:function(sc,tp){ var c=tp.color; return [S({f:"rect",x:20,y:20,w:W-40,h:H-40,stroke:c,sw:1.1,doble:5}),TX("rot","menú",30,62,W-60,tp.est.rot),S({f:"linea",x:W/2-38,y:128,w:76,stroke:c,sw:0.7}),S({f:"estrellas",x:W/2-12,y:121,w:24,h:6,fill:c})]; }});
 /* 3 · jardín botánico (theme-factory: Botanical Garden) */
-tpl({id:"jardin",nombre:"Jardín botánico",desc:"Verde helecho, terracota y una corona de laurel dibujada a mano",fondo:"#F5F3ED",tinta:"#2F3A2F",color:"#4A7C59",mx:46,zona:{y0:196},pieY:812,nomMax:748,pieTxt:"LES MOLES",pieFont:"Playfair Display",
+tpl({id:"jardin",cat:["boda","otros"],nombre:"Jardín botánico",desc:"Verde helecho, terracota y una corona de laurel dibujada a mano",fondo:"#F5F3ED",tinta:"#2F3A2F",color:"#4A7C59",mx:46,zona:{y0:196},pieY:812,nomMax:748,pieTxt:"LES MOLES",pieFont:"Playfair Display",
   est:{tit:est("Playfair Display",11.5,"#B7472A",{i:1,lh:1.2}),lin:est("Lora",9,"#2F3A2F",{lh:1.45}),peq:est("Lora",7.6,"#2F3A2F",{ls:0.9,lh:1.5}),ast:est("Lora",9,"#4A7C59"),nom:est("Allura",36,"#4A7C59",{lh:1.02}),rot:est("Great Vibes",52,"#4A7C59")},
   deco:function(sc,tp){ return [S({f:"laurel",x:W/2-80,y:36,w:160,h:150,stroke:"#4A7C59",fill:"#6A9C79",sw:1,seed:4}),TX("rot","menú",30,86,W-60,tp.est.rot),S({f:"puntos",x:W/2-24,y:760,w:48,h:5,fill:"#B7472A"})]; }});
 /* 4 · rosa del desierto (Desert Rose) */
-tpl({id:"rosa",nombre:"Rosa del desierto",desc:"Un arco de arena y rosa polvo, burdeos profundo",fondo:"#F7ECE3",tinta:"#5D2E46",color:"#B87D6D",mx:56,zona:{y0:212},pieY:812,nomMax:748,pieTxt:"LES MOLES",pieFont:"Italiana",
+tpl({id:"rosa",cat:["boda","bautizo","comunion"],nombre:"Rosa del desierto",desc:"Un arco de arena y rosa polvo, burdeos profundo",fondo:"#F7ECE3",tinta:"#5D2E46",color:"#B87D6D",mx:56,zona:{y0:212},pieY:812,nomMax:748,pieTxt:"LES MOLES",pieFont:"Italiana",
   est:{tit:est("Cormorant Garamond",12.5,"#B87D6D",{ls:3.4,up:1,b:1,lh:1.2}),lin:est("Cormorant Garamond",10.6,"#5D2E46",{lh:1.4}),peq:est("Cormorant Garamond",8.8,"#5D2E46",{ls:1.2,lh:1.5}),ast:est("Cormorant Garamond",10.6,"#B87D6D"),nom:est("Cormorant Garamond",32,"#5D2E46",{lh:1.08,ls:1,i:1}),rot:est("Italiana",40,"#5D2E46",{ls:6,up:1})},
   deco:function(sc,tp){ return [S({f:"arco",x:30,y:28,w:W-60,h:742,fill:"#EBD3C6",stroke:"",sw:0}),S({f:"arco",x:42,y:40,w:W-84,h:718,fill:"",stroke:"#B87D6D",sw:0.9}),S({f:"circ",x:W/2-34,y:76,w:68,h:68,fill:"#D4A5A5"}),TX("rot","menú",30,150,W-60,tp.est.rot),S({f:"linea",x:W/2-24,y:196,w:48,stroke:"#B87D6D",sw:0.8})]; }});
 /* 5 · mar adentro (Ocean Depths) */
-tpl({id:"mar",nombre:"Mar adentro",desc:"Azul marino profundo, olas en turquesa y crema",fondo:"#1A2332",tinta:"#F1FAEE",color:"#A8DADC",mx:44,zona:{y0:210},pieY:812,nomMax:744,pieTxt:"LES MOLES",pieFont:"Josefin Sans",
+tpl({id:"mar",cat:["boda","otros"],nombre:"Mar adentro",desc:"Azul marino profundo, olas en turquesa y crema",fondo:"#1A2332",tinta:"#F1FAEE",color:"#A8DADC",mx:44,zona:{y0:210},pieY:812,nomMax:744,pieTxt:"LES MOLES",pieFont:"Josefin Sans",
   est:{tit:est("Josefin Sans",8.4,"#A8DADC",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Josefin Sans",9,"#F1FAEE",{lh:1.45}),peq:est("Josefin Sans",7.4,"#F1FAEE",{ls:1.1,lh:1.5}),ast:est("Josefin Sans",9,"#2D8B8B"),nom:est("Cormorant Garamond",34,"#F1FAEE",{i:1,lh:1.05}),rot:est("Josefin Sans",26,"#F1FAEE",{ls:11,up:1})},
   deco:function(sc,tp){ var o=[]; for(var i=0;i<5;i++) o.push(S({f:"onda",x:34,y:62+i*9,w:W-68,h:7,stroke:i%2?"#2D8B8B":"#A8DADC",sw:0.9-i*0.07,per:6+i*0.5,op:1-i*0.14})); o.push(TX("rot","menú",30,138,W-60,tp.est.rot)); o.push(S({f:"linea",x:W/2-22,y:182,w:44,stroke:"#2D8B8B",sw:0.9}));
     for(var j=0;j<3;j++) o.push(S({f:"onda",x:34,y:752+j*8,w:W-68,h:6,stroke:j%2?"#A8DADC":"#2D8B8B",sw:0.8,per:6+j*0.6,op:0.9-j*0.2})); return o; }});
 /* 6 · hora dorada (Golden Hour) */
-tpl({id:"hora",nombre:"Hora dorada",desc:"Un sol de mostaza detrás del título, tierra y chocolate",fondo:"#EBDCC5",tinta:"#4A403A",color:"#C1666B",mx:46,zona:{y0:206},pieY:812,pieTxt:"LES MOLES",pieFont:"Playfair Display",
+tpl({id:"hora",cat:["boda","otros"],nombre:"Hora dorada",desc:"Un sol de mostaza detrás del título, tierra y chocolate",fondo:"#EBDCC5",tinta:"#4A403A",color:"#C1666B",mx:46,zona:{y0:206},pieY:812,pieTxt:"LES MOLES",pieFont:"Playfair Display",
   est:{tit:est("Playfair Display",12,"#C1666B",{i:1,lh:1.2}),lin:est("Lato",8.8,"#4A403A",{lh:1.5}),peq:est("Lato",7.4,"#4A403A",{ls:1,lh:1.5}),ast:est("Lato",8.8,"#C1666B"),nom:est("Playfair Display",30,"#4A403A",{i:1,lh:1.1}),rot:est("Playfair Display",50,"#4A403A",{i:1})},
   deco:function(sc,tp){ return [S({f:"circ",x:W/2-62,y:38,w:124,h:124,fill:"#F4A900"}),S({f:"circ",x:W/2-74,y:26,w:148,h:148,stroke:"#F4A900",sw:0.8}),TX("rot","menú",30,70,W-60,tp.est.rot),S({f:"linea",x:46,y:188,w:W-92,stroke:"#4A403A",sw:0.6})]; }});
 /* 7 · art déco medianoche */
-tpl({id:"deco",nombre:"Art déco · medianoche",desc:"Azul noche, rayos de sol y filetes de oro",fondo:"#101A2E",tinta:"#EDE4D0",color:"#C8A24D",mx:50,zona:{y0:204},pieY:798,nomMax:770,pieTxt:"LES MOLES",pieFont:"Cinzel",
+tpl({id:"deco",cat:["boda","otros"],nombre:"Art déco · medianoche",desc:"Azul noche, rayos de sol y filetes de oro",fondo:"#101A2E",tinta:"#EDE4D0",color:"#C8A24D",mx:50,zona:{y0:204},pieY:798,nomMax:770,pieTxt:"LES MOLES",pieFont:"Cinzel",
   est:{tit:est("Cinzel",8.6,"#C8A24D",{ls:3.2,up:1,b:1,lh:1.2}),lin:est("Poiret One",10.4,"#EDE4D0",{lh:1.42,b:1}),peq:est("Poiret One",8,"#EDE4D0",{ls:1.4,lh:1.5,b:1}),ast:est("Cinzel",8.6,"#C8A24D"),nom:est("Cinzel",24,"#C8A24D",{lh:1.15,ls:1.5}),rot:est("Cinzel",26,"#C8A24D",{ls:10,up:1,b:1})},
   deco:function(sc,tp){ var c="#C8A24D"; return [S({f:"rect",x:20,y:20,w:W-40,h:H-40,stroke:c,sw:1.1,doble:6}),S({f:"sol",x:W/2-48,y:62,w:96,h:48,stroke:c,sw:1,rays:15}),TX("rot","menú",30,128,W-60,tp.est.rot),S({f:"linea",x:W/2-40,y:176,w:80,stroke:c,sw:0.8,dash:"doble"})]; }});
 /* 8 · rústico kraft */
-tpl({id:"kraft",nombre:"Rústico kraft",desc:"Papel de estraza, marco de puntos y letra de máquina",fondo:"#EBDFC8",tinta:"#4B3B2A",color:"#8B5A2B",mx:50,zona:{y0:196},pieY:800,pieTxt:"LES MOLES",pieFont:"Courier Prime",
+tpl({id:"kraft",cat:["otros","boda"],nombre:"Rústico kraft",desc:"Papel de estraza, marco de puntos y letra de máquina",fondo:"#EBDFC8",tinta:"#4B3B2A",color:"#8B5A2B",mx:50,zona:{y0:196},pieY:800,pieTxt:"LES MOLES",pieFont:"Courier Prime",
   est:{tit:est("Courier Prime",10,"#2F2418",{b:1,ls:0.6}),lin:est("Courier Prime",8.8,"#4B3B2A",{lh:1.42}),peq:est("Courier Prime",7.6,"#4B3B2A",{ls:0.5,lh:1.5}),ast:est("Courier Prime",8.8,"#8B5A2B"),nom:est("Caveat",38,"#8B5A2B",{b:1,lh:1}),rot:est("Special Elite",40,"#8B5A2B")},
   deco:function(sc,tp){ var c="#8B5A2B"; return [S({f:"rect",x:18,y:18,w:W-36,h:H-36,stroke:c,sw:1.6,dash:"punto"}),S({f:"trama",x:34,y:34,w:W-68,h:H-68,fill:c,gap:11,sw:0.35,op:0.28}),TX("rot","menú",30,86,W-60,tp.est.rot),S({f:"estrellas",x:W/2-20,y:128,w:40,h:7,fill:c}),S({f:"linea",x:W/2-50,y:160,w:100,stroke:c,sw:1.2,dash:"punto"})]; }});
 /* 9 · tinta y silencio (japandi) */
-tpl({id:"enso",nombre:"Tinta y silencio",desc:"Un círculo de pincel bermellón sobre papel de arroz",fondo:"#F4F1EA",tinta:"#2B2B2B",color:"#C0392B",mx:52,zona:{y0:212},pieY:812,pieTxt:"LES MOLES",pieFont:"Italiana",
+tpl({id:"enso",cat:["boda","otros"],nombre:"Tinta y silencio",desc:"Un círculo de pincel bermellón sobre papel de arroz",fondo:"#F4F1EA",tinta:"#2B2B2B",color:"#C0392B",mx:52,zona:{y0:212},pieY:812,pieTxt:"LES MOLES",pieFont:"Italiana",
   est:{tit:est("Cormorant Garamond",11,"#2B2B2B",{ls:4.2,up:1,b:1,lh:1.2}),lin:est("Jost",8.6,"#2B2B2B",{lh:1.55,b:0}),peq:est("Jost",7.2,"#555555",{ls:1.3,lh:1.6}),ast:est("Jost",8.6,"#C0392B"),nom:est("Cormorant Garamond",30,"#2B2B2B",{lh:1.1,ls:2,up:1}),rot:est("Italiana",26,"#2B2B2B",{ls:8,up:1})},
   deco:function(sc,tp){ return [S({f:"enso",x:W/2-76,y:30,w:152,h:152,stroke:"#C0392B",sw:7.5,seed:21}),TX("rot","menú",30,88,W-60,tp.est.rot),S({f:"linea",x:W/2,y:176,w:0.01,stroke:"#2B2B2B",sw:0.5}) ].slice(0,2); }});
 /* 10 · moderno teal */
-tpl({id:"moderno",nombre:"Moderno teal",desc:"Banda de color, mayúsculas aireadas y orden suizo",fondo:"#FFFFFF",tinta:"#22313A",color:"#1F6F6B",mx:42,zona:{y0:170},pieY:810,
+tpl({id:"moderno",cat:["otros","boda"],nombre:"Moderno teal",desc:"Banda de color, mayúsculas aireadas y orden suizo",fondo:"#FFFFFF",tinta:"#22313A",color:"#1F6F6B",mx:42,zona:{y0:170},pieY:810,
   est:{tit:est("Montserrat",7.8,"#1F6F6B",{ls:2.6,up:1,b:1,lh:1.2}),lin:est("Montserrat",8.4,"#22313A",{lh:1.5}),peq:est("Montserrat",7,"#22313A",{ls:0.9,lh:1.55}),ast:est("Montserrat",8.4,"#1F6F6B"),nom:est("Montserrat",24,"#1F6F6B",{lh:1.12,b:1}),rot:est("Montserrat",24,"#FFFFFF",{ls:12,up:1,b:1})},
   deco:function(sc,tp){ var c="#1F6F6B"; return [S({f:"rect",x:0,y:0,w:W,h:120,fill:c}),TX("rot","menú",30,48,W-60,tp.est.rot),S({f:"puntos",x:W/2-22,y:86,w:44,h:5,fill:"#FFFFFF"}),S({f:"rect",x:0,y:H-10,w:W,h:10,fill:c})]; }});
 /* 11 · caligrafía */
-tpl({id:"caligrafia",nombre:"Caligrafía",desc:"Una palabra grande escrita a mano entre dos filetes",fondo:"#FBF8F1",tinta:"#2C3A2F",color:"#2F5D44",mx:48,zona:{y0:206},pieY:802,pieTxt:"LES MOLES",pieFont:"Libre Baskerville",
+tpl({id:"caligrafia",cat:["boda","comunion"],nombre:"Caligrafía",desc:"Una palabra grande escrita a mano entre dos filetes",fondo:"#FBF8F1",tinta:"#2C3A2F",color:"#2F5D44",mx:48,zona:{y0:206},pieY:802,pieTxt:"LES MOLES",pieFont:"Libre Baskerville",
   est:{tit:est("Libre Baskerville",8.4,"#2F5D44",{ls:2.2,up:1,lh:1.2}),lin:est("Libre Baskerville",8.4,"#2C3A2F",{lh:1.62}),peq:est("Libre Baskerville",7,"#2C3A2F",{ls:0.8,lh:1.6}),ast:est("Libre Baskerville",8.4,"#2F5D44"),nom:est("Pinyon Script",36,"#2F5D44",{lh:1.05}),rot:est("Pinyon Script",70,"#2F5D44")},
   deco:function(sc,tp){ var c="#2F5D44"; return [S({f:"linea",x:46,y:44,w:W-92,stroke:c,sw:1.2}),S({f:"linea",x:46,y:50,w:W-92,stroke:c,sw:0.4}),TX("rot","Menú",30,76,W-60,tp.est.rot),S({f:"flor",x:W/2-18,y:156,w:36,h:36,stroke:c,sw:0.8,petalos:8}),S({f:"linea",x:46,y:H-34,w:W-92,stroke:c,sw:0.4}),S({f:"linea",x:46,y:H-28,w:W-92,stroke:c,sw:1.2})]; }});
 /* 12 · carbón minimal (Modern Minimalist) */
-tpl({id:"minimal",nombre:"Carbón minimal",desc:"Gris carbón, mucho aire y una sola línea",fondo:"#FFFFFF",tinta:"#36454F",color:"#708090",mx:52,zona:{y0:180},pieY:812,
+tpl({id:"minimal",cat:["boda","bautizo","comunion","otros"],nombre:"Carbón minimal",desc:"Gris carbón, mucho aire y una sola línea",fondo:"#FFFFFF",tinta:"#36454F",color:"#708090",mx:52,zona:{y0:180},pieY:812,
   est:{tit:est("Jost",7.4,"#708090",{ls:3.4,up:1,b:1,lh:1.2}),lin:est("Jost",8.6,"#36454F",{lh:1.6}),peq:est("Jost",7.2,"#36454F",{ls:1,lh:1.6}),ast:est("Jost",8.6,"#708090"),nom:est("Jost",22,"#36454F",{lh:1.2,ls:2.2,up:1}),rot:est("Jost",34,"#36454F",{ls:14,up:1})},
   deco:function(sc,tp){ return [TX("rot","menú",30,66,W-60,tp.est.rot),S({f:"linea",x:W/2-20,y:112,w:40,stroke:"#36454F",sw:0.7}),S({f:"linea",x:W/2-0.4,y:134,w:0.8,stroke:"#708090",sw:0.1})].slice(0,2); }});
+/* ═══ DISEÑOS DE LAS PLANTILLAS PROPIAS (adaptados del PDF de minutas de la casa) ═══ */
+function LZI(n,x,y,w,extra){ var m=LZ_MAN[n]||{w:1,h:1}; return IMG("@lz:"+n,x,y,w,w*m.h/m.w,extra); }
+function iniDe(n){ return String(n||"").trim().charAt(0).toUpperCase(); }
+function monoDeco(dm,est,x,y,w,h,col,fnt){ var A=iniDe(dm.parejaA)||iniDe(String(dm.pareja||"").split(/\s+/)[0])||"A", B=iniDe(dm.parejaB)||iniDe(String(dm.pareja||"").split(/\s+/).pop())||"B";
+  return S({f:"monograma",est:est,a:A,b:B,nom:dm.nombreCorto,fec:dm.fechaCorta,stroke:col,fnt:fnt||MONO_DEF[est],fnt2:"Jost",x:x,y:y,w:w,h:h,sw:1,campo:"{nombres}"}); }
+function cabLogos(x,y,dw,lw,dos){ var d=LZ_MAN.distinciones||{w:1266,h:120}, l=LZ_MAN[dos?"logo_events":"logo_lesmoles"]||{w:760,h:118}; return [LZI("distinciones",x-dw/2,y,dw),LZI(dos?"logo_events":"logo_lesmoles",x-lw/2,y+dw*d.h/d.w+5,lw)]; }
+
+/* hojas y logo: arriba la casa, los nombres centrados, texto a la izquierda y el logo de la pareja abajo */
+tpl({id:"hojas_logo",nombre:"Hojas y logo de la pareja",desc:"Distinciones y logo arriba, hojas de acuarela y el monograma de los novios abajo",cat:["boda","otros","comunion"],fondo:"#FFFFFF",tinta:"#1E1E1E",color:"#4E6B47",mx:34,x0:34,w:196,zona:{y0:184},pieY:818,pie:"sin",noNom:true,
+  est:{tit:est("Montserrat",8.6,"#111111",{al:"left",ls:0.4,up:1,b:1,lh:1.2}),lin:est("Montserrat",6.3,"#444444",{al:"left",lh:1.5}),peq:est("Montserrat",5.9,"#555555",{al:"left",ls:0.3,lh:1.55}),ast:est("Montserrat",6.3,"#999999",{al:"left"}),nom:est("Montserrat",17,"#111111",{b:1,i:1,lh:1.1}),rot:est("Montserrat",17,"#111111")},
+  deco:function(sc,tp,dm){ var o=cabLogos(W/2,30,112,118); o.push(LZI("hoja_7",W-86,34,46)); o.push(TX("nom2","",24,112,W-48,est("Montserrat",17,"#111111",{b:1,i:1,lh:1.1}),{campo:"{nombre}"}));
+    o.push(TX("fec","",24,142,W-48,est("Montserrat",9.4,"#333333",{i:1}),{campo:"{fecha}"}));
+    o.push(LZI("hoja_6",W-82,462,58)); o.push(LZI("hoja_10",W-40,300,20)); o.push(LZI("hoja_1",W-70,596,38));
+    if(dm.cat==="boda") o.push(monoDeco(dm,"aro",W/2-62,664,124,156,"#1E1E1E","Cormorant Garamond")); return o; }});
+/* sello de fecha */
+tpl({id:"sello",nombre:"Sello de fecha",desc:"Frase de agradecimiento en caligrafía verde y un sello con vuestros nombres y la fecha",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#2B2B2B",color:"#6E8F68",mx:46,x0:52,w:190,zona:{y0:182},pieY:818,pie:"sin",noNom:true,
+  est:{tit:est("Cormorant Garamond",10.4,"#2B2B2B",{al:"left",up:1,ls:0.6,b:0,lh:1.2}),lin:est("Cormorant Garamond",7.2,"#3A3A3A",{al:"left",i:1,lh:1.42}),peq:est("Cormorant Garamond",6.8,"#3A3A3A",{al:"left",i:1,lh:1.5}),ast:est("Cormorant Garamond",7,"#6E8F68",{al:"left"}),nom:est("Allura",26,"#6E8F68"),rot:est("Allura",26,"#6E8F68")},
+  deco:function(sc,tp,dm){ var o=[IMG("@lz:distinciones",W-146,34,100,100*(LZ_MAN.distinciones||{w:1266,h:120}).h/(LZ_MAN.distinciones||{w:1266,h:120}).w),LZI("logo_lesmoles",W-148,50,104),LZI("hoja_2",W-68,70,40)];
+    o.push(TX("lema",dm.idioma==="ca"?"gràcies per formar part del nostre viatge":"gracias por formar parte de nuestro viaje",24,108,W-48,est("Allura",15,"#6E8F68",{lh:1.15}),{i18n:{es:"gracias por formar parte\nde nuestro viaje",ca:"gràcies per formar part\ndel nostre viatge"}}));
+    o.push(LZI("hoja_10",W-56,236,22)); o.push(LZI("hoja_6",W-80,548,54));
+    o.push(monoDeco(dm,"sello",W/2-60,684,120,120,"#6E8F68","Cormorant Garamond")); return o; }});
+/* marinero */
+tpl({id:"marinero",nombre:"Marinero",desc:"Sal, gambas y olivo en la cabecera; vuestros nombres en rojo caligráfico",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#2A2A2A",color:"#B5322C",mx:44,zona:{y0:182},pieY:816,pie:"lz",noNom:true,
+  est:{tit:est("Special Elite",7.4,"#222222",{ls:0.5,lh:1.2,b:0}),lin:est("Montserrat",6.2,"#666666",{lh:1.5}),peq:est("Montserrat",5.8,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",6.2,"#999999"),nom:est("Allura",30,"#B5322C"),rot:est("Allura",30,"#B5322C")},
+  deco:function(sc,tp,dm){ return [LZI("marisco",0,0,W),TX("nom2","",20,92,W-40,est("Allura",30,"#B5322C",{lh:1.05}),{campo:"{nombre}"}),TX("fec","",20,134,W-40,est("Montserrat",6.4,"#555555",{ls:1.2}),{campo:"{fechaCorta}"})]; }});
+/* caligrafía granate */
+tpl({id:"granate",nombre:"Caligrafía granate",desc:"Nombres a pluma en granate, texto gris muy fino y títulos a máquina",cat:["boda","comunion","otros"],fondo:"#FFFFFF",tinta:"#3A3A3A",color:"#A63D40",mx:40,zona:{y0:196},pieY:816,pie:"lz",noNom:true,
+  est:{tit:est("Special Elite",7.2,"#222222",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.1,"#555555",{lh:1.62}),peq:est("Montserrat",5.8,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",6.1,"#888888"),nom:est("Mrs Saint Delafield",34,"#A63D40"),rot:est("Mrs Saint Delafield",34,"#A63D40")},
+  deco:function(sc,tp,dm){ return [TX("nom2","",20,70,W-40,est("Mrs Saint Delafield",38,"#A63D40",{lh:1.0}),{campo:"{nombre}"}),TX("fec","",20,132,W-40,est("Special Elite",6,"#777777",{ls:0.6}),{campo:"{fechaCorta}"})]; }});
+/* flor de línea terracota */
+tpl({id:"flor_terracota",nombre:"Flor de línea terracota",desc:"Un ramo dibujado a plumilla en terracota, títulos en versalitas",cat:["boda"],fondo:"#FFFFFF",tinta:"#2F2A28",color:"#C0714F",mx:50,zona:{y0:236},pieY:818,pie:"lz",noNom:true,
+  est:{tit:est("Cormorant SC",10.4,"#2F2A28",{b:1,ls:0.8,lh:1.2}),lin:est("Cormorant Garamond",8.4,"#3A3430",{lh:1.4}),peq:est("Cormorant Garamond",7.4,"#3A3430",{ls:0.6,lh:1.5}),ast:est("Cormorant Garamond",8,"#C0714F"),nom:est("Mrs Saint Delafield",30,"#2B2B2B"),rot:est("Mrs Saint Delafield",30,"#2B2B2B")},
+  deco:function(sc,tp,dm){ return [LZI("flor_linea",-8,-6,142),TX("nom2","",120,70,W-140,est("Mrs Saint Delafield",32,"#2B2B2B",{al:"right",lh:1.0}),{campo:"{nombre}"}),TX("fec","",120,118,W-140,est("Cormorant Garamond",9.4,"#C0714F",{al:"right"}),{campo:"{fecha}"})]; }});
+/* fuente en blanco y negro */
+tpl({id:"fuente_bn",nombre:"Fuente en blanco y negro",desc:"Grabado de una fuente en el jardín, que se funde con el papel",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#2B2B2B",color:"#7A7A7A",mx:46,zona:{y0:344},pieY:818,pie:"lz",noNom:true,
+  est:{tit:est("Cormorant SC",10,"#262626",{b:1,ls:0.8,lh:1.2}),lin:est("Cormorant Garamond",8.2,"#333333",{lh:1.4}),peq:est("Cormorant Garamond",7.2,"#444444",{ls:0.6,lh:1.5}),ast:est("Cormorant Garamond",8,"#888888"),nom:est("Mrs Saint Delafield",30,"#262626"),rot:est("Mrs Saint Delafield",30,"#262626")},
+  deco:function(sc,tp,dm){ return [LZI("fuente_bn",-6,-4,W+12),TX("nom2","",30,250,W-60,est("Mrs Saint Delafield",34,"#262626",{lh:1.0}),{campo:"{nombre}"}),TX("fec","",30,296,W-60,est("Cormorant Garamond",9,"#777777"),{campo:"{fecha}"})]; }});
+/* mesa burdeos */
+tpl({id:"mesa_burdeos",nombre:"Mesa burdeos",desc:"Dibujo de la mesa de boda en burdeos y vuestros nombres a pluma",cat:["boda"],fondo:"#FFFFFF",tinta:"#2F2428",color:"#7A2535",mx:46,zona:{y0:96},pieY:822,pie:"lz",noNom:true,nomMax:600,
+  est:{tit:est("Cormorant SC",11,"#7A2535",{b:1,ls:0.9,lh:1.2}),lin:est("Cormorant Garamond",8.6,"#3A2A2E",{lh:1.4}),peq:est("Cormorant Garamond",7.6,"#3A2A2E",{ls:0.6,lh:1.5}),ast:est("Cormorant Garamond",8,"#7A2535"),nom:est("Mrs Saint Delafield",30,"#2B2B2B"),rot:est("Mrs Saint Delafield",30,"#2B2B2B")},
+  deco:function(sc,tp,dm){ return [LZI("mesa_linea",22,628,150),TX("nom2","",96,726,W-110,est("Mrs Saint Delafield",30,"#2B2B2B",{lh:1.0}),{campo:"{nombre}"}),TX("fec","",96,764,W-110,est("Cormorant Garamond",8.6,"#7A2535"),{campo:"{fecha}"})]; }});
+/* línea vertical */
+tpl({id:"linea_vertical",nombre:"Línea vertical",desc:"Una línea fina a la izquierda, «menú» a mano y la fecha en vertical",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#1F1F1F",color:"#1F1F1F",mx:50,x0:62,w:W-92,zona:{y0:150},pieY:818,pie:"sin",noNom:true,nomMax:780,
+  est:{tit:est("Cormorant Garamond",10.4,"#1F1F1F",{b:1,up:1,ls:0.6,lh:1.2}),lin:est("Cormorant Garamond",9,"#1F1F1F",{lh:1.4}),peq:est("Cormorant Garamond",8.2,"#1F1F1F",{ls:0.3,lh:1.45}),ast:est("Cormorant Garamond",8.6,"#777777"),nom:est("Mrs Saint Delafield",26,"#1F1F1F"),rot:est("Mrs Saint Delafield",30,"#1F1F1F")},
+  deco:function(sc,tp,dm){ var o=[S({f:"linea",x:44,y:90,w:0.01,stroke:"#1F1F1F",sw:0.6}),TX("rot","menú",52,28,120,est("Mrs Saint Delafield",44,"#1F1F1F",{al:"left"})),LZI("distinciones",W-132,38,100),LZI("logo_lesmoles",W-130,52,96)];
+    o[0]=S({f:"rect",x:43.6,y:96,w:0.8,h:690,fill:"#1F1F1F",stroke:"",sw:0}); o.push(TX("fecv","",22,706,14,est("Jost",5.8,"#444444",{lh:1.35}),{campo:"{fechaV}"})); return o; }});
+/* paloma · bautizo */
+tpl({id:"paloma",nombre:"Paloma · bautizo",desc:"Paloma de acuarela con una ramita de olivo y el nombre en rosa",cat:["bautizo","otros"],def:["bautizo"],fondo:"#FFFFFF",tinta:"#444444",color:"#E48F9B",mx:36,zona:{y0:206},pieY:816,pie:"events",noNom:true,
+  est:{tit:est("Special Elite",7.2,"#222222",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.4,"#666666",{lh:1.5}),peq:est("Montserrat",6.1,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.8,"#E48F9B",{ls:1}),nom:est("Mrs Saint Delafield",34,"#E48F9B"),rot:est("Mrs Saint Delafield",34,"#E48F9B")},
+  deco:function(sc,tp,dm){ return [LZI("paloma",-4,24,130),TX("nom2","",124,70,W-134,est("Mrs Saint Delafield",34,"#E48F9B",{lh:1.0}),{campo:"{nombre}"}),TX("fec","",124,126,W-134,est("Special Elite",6.2,"#E48F9B",{ls:0.5}),{campo:"{tipo} · {fechaCorta}"})]; }});
+/* conejita · bautizo */
+tpl({id:"conejita",nombre:"Conejita · bautizo",desc:"Conejita de acuarela entre dos ramitas, sobre rosa muy pálido",cat:["bautizo","otros"],fondo:"#FDF1F1",tinta:"#6A5558",color:"#D98893",mx:40,zona:{y0:268},pieY:816,pie:"events",noNom:true,astTxt:"♥",
+  est:{tit:est("Allura",12.5,"#D98893",{lh:1.15}),lin:est("Montserrat",6.8,"#6A5558",{lh:1.55}),peq:est("Montserrat",6.3,"#6A5558",{ls:0.4,lh:1.55}),ast:est("Montserrat",6,"#D98893"),nom:est("Allura",36,"#D98893"),rot:est("Allura",36,"#D98893")},
+  deco:function(sc,tp,dm){ return [TX("nom2","",20,26,W-40,est("Allura",40,"#D98893",{lh:1.0}),{campo:"{nombre}"}),LZI("ramita_a",24,84,66),LZI("ramita_b",W-90,84,66),LZI("conejita",W/2-52,92,104),TX("fec","",30,224,W-60,est("Jost",7.6,"#D98893",{ls:1.4}),{campo:"♥  {fechaCorta}  ♥"})]; }});
+/* globo aerostático · bautizo */
+tpl({id:"globo",nombre:"Globo aerostático · bautizo",desc:"Nubes y un globo antiguo en azules suaves",cat:["bautizo","otros"],fondo:"#FFFFFF",tinta:"#34495E",color:"#86A9C4",mx:40,zona:{y0:190},pieY:816,pie:"events",pieX:W-92,noNom:true,
+  est:{tit:est("Special Elite",7,"#86A9C4",{ls:0.4,lh:1.2,i:0}),lin:est("Montserrat",6.2,"#34495E",{lh:1.5}),peq:est("Montserrat",5.9,"#34495E",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.6,"#86A9C4"),nom:est("Jost",9,"#86A9C4",{ls:2.6,up:1}),rot:est("Jost",9,"#86A9C4")},
+  deco:function(sc,tp,dm){ return [LZI("nube",W-124,22,92),LZI("nube",16,86,60),TX("tipo","",30,52,W-60,est("Mrs Saint Delafield",24,"#86A9C4"),{campo:"{tipo}"}),TX("nom2","",30,92,W-60,est("Jost",9,"#86A9C4",{ls:3,up:1}),{campo:"{nombre}"}),TX("fec","",30,114,W-60,est("Jost",6.6,"#9BB8CE",{ls:2}),{campo:"{fechaCorta}"}),LZI("globo",20,640,100),LZI("nube",104,742,60)]; }});
+/* comunión: niñas y niño */
+function tplNina(id,nombre,fig,acento,oscuro,fondo){ tpl({id:id,nombre:nombre,desc:"Una niña de espaldas con vestido de comunión y lazo "+fig,cat:["comunion"],def:id==="nina_rosa"?["comunion"]:undefined,fondo:fondo,tinta:"#4A4A4A",color:oscuro,mx:38,zona:{y0:216},pieY:816,pie:"events",pieX:W/2+44,noNom:true,
+  est:{tit:est("Special Elite",6.9,"#2A2A2A",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.5,"#555555",{lh:1.55}),peq:est("Montserrat",6.1,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.9,acento),nom:est("Mrs Saint Delafield",34,oscuro),rot:est("Mrs Saint Delafield",34,oscuro)},
+  deco:function(sc,tp,dm){ return [TX("nom2","",20,48,W-40,est("Mrs Saint Delafield",38,oscuro,{lh:1.0}),{campo:"{nombre}"}),TX("fec","",20,112,W-40,est("Special Elite",6.2,acento,{ls:0.5}),{campo:"{tipo} · {fecha}"}),LZI("nina_"+fig.split(" ")[0],8,624,96)]; }}); }
+tplNina("nina_azul","Niña de comunión · azul","azul","#8FA9C9","#6E8DB5","#FFFFFF");
+tplNina("nina_rosa","Niña de comunión · rosa","rosa","#E7A3B5","#D98BA0","#FFFFFF");
+tplNina("nina_beige","Niña de comunión · beige","beige","#CDB89A","#B79B72","#FCFCF7");
+tplNina("nina_menta","Niña de comunión · menta","menta","#8CCFC5","#5FB5A8","#FFFFFF");
+tpl({id:"nino",nombre:"Niño de comunión",desc:"Un niño con las manos juntas, en terracota y beige",cat:["comunion"],fondo:"#FDFDF8",tinta:"#4A4A4A",color:"#C8785A",mx:38,zona:{y0:200},pieY:816,pie:"events",pieX:W/2+44,noNom:true,
+  est:{tit:est("Special Elite",6.9,"#2A2A2A",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.5,"#555555",{lh:1.55}),peq:est("Montserrat",6.1,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.9,"#C8785A"),nom:est("Mrs Saint Delafield",36,"#C8785A"),rot:est("Mrs Saint Delafield",36,"#C8785A")},
+  deco:function(sc,tp,dm){ return [TX("nom2","",20,40,W-40,est("Mrs Saint Delafield",40,"#C8785A",{lh:1.0}),{campo:"{nombre}"}),TX("fec","",20,104,W-40,est("Special Elite",6.2,"#C8785A",{ls:0.5}),{campo:"{tipo} · {fecha}"}),LZI("nino",8,608,78)]; }});
+tpl({id:"comunion_script",nombre:"Primera comunión · dorado",desc:"Dos palabras grandes a pluma en dorado pálido y texto a máquina",cat:["comunion","bautizo","otros"],fondo:"#FFFFFF",tinta:"#444444",color:"#CDAE74",mx:40,zona:{y0:196},pieY:816,pie:"events",noNom:true,
+  est:{tit:est("Special Elite",7,"#222222",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.5,"#555555",{lh:1.55}),peq:est("Montserrat",6.1,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.9,"#CDAE74"),nom:est("Mrs Saint Delafield",34,"#CDAE74"),rot:est("Mrs Saint Delafield",44,"#E3CFA6")},
+  deco:function(sc,tp,dm){ return [TX("lema","primera comunión",20,34,W-40,est("Mrs Saint Delafield",44,"#E3CFA6",{lh:0.95}),{i18n:{es:"primera\ncomunión",ca:"primera\ncomunió"}}),TX("fec","",20,134,W-40,est("Montserrat",6,"#D5BC8C",{ls:1.4}),{campo:"{fecha}"})]; }});
+
 var TPL_POR={}; PLANTILLAS.forEach(function(t){ TPL_POR[t.id]=t; });
 var MAPA_VIEJO={olivo:"olivo",clasico:"clasico",verde:"jardin",azul:"moderno",terracota:"hora",moderno:"moderno",deco:"deco",kraft:"kraft",rosa:"rosa",minimal:"minimal"};
 
@@ -18019,33 +18370,40 @@ function bloquesDe(dm){
     else if(x.t==="gap") corte="gap"; else if(x.t==="sm") corte=corte||"sm"; });
   return out;
 }
-function hashDe(dm){ var s=JSON.stringify(dm.items||[])+"|"+(dm.pareja||""); var h=0; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h); }
+function hashDe(dm){ var s=JSON.stringify(dm.items||[])+"|"+(dm.pareja||"")+(dm.idioma==="ca"?"|ca":""); var h=0; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h); }
 function partirNombre(t,w,e){ var tmp={f:e.f,s:e.s,b:e.b,i:e.i,ls:e.ls||0}; if(anchoTxt(t,tmp)>w*0.78){ var m=String(t).match(/^(.+?\s(?:y|i|&|\+|e)\s)(.+)$/i); if(m) return m[1].trim()+"\n"+m[2].trim(); } return t; }
 /* apila los bloques del menú de arriba abajo, centrados, con espacios proporcionados; si no caben, reduce el tamaño todo lo justo */
-function pieTopDe(tp){ var L=imgsFab()["@logos"]; if(tp.pieTxt||!L) return (tp.pieY||818)-22; var lw=Math.min(150,W-90), lh=lw*L.h/L.w; return (tp.pieY||818)-lh+6; }
+function pieTopDe(tp){ if(tp.pie==="sin") return (tp.pieY||818)-6; if(tp.pie==="lz"||tp.pie==="events"){ var m=pieLz(tp); return (tp.pieY||818)+6-m.lh-m.gap-m.dh; } var L=imgsFab()["@logos"]; if(tp.pieTxt||!L) return (tp.pieY||818)-22; var lw=Math.min(150,W-90), lh=lw*L.h/L.w; return (tp.pieY||818)-lh+6; }
 function colocaAuto(sc,bloques,dm){
-  var tp=TPL_POR[sc.tpl]||PLANTILLAS[0], mx=sc.mx||tp.mx||44, w=W-2*mx, z=sc.zona||tp.zona, E=sc.estilos;
+  var tp=TPL_POR[sc.tpl]||PLANTILLAS[0], mx=sc.mx||tp.mx||44, w=tp.w||(W-2*mx), x0=tp.x0!=null?tp.x0:mx, z=sc.zona||tp.zona, E=sc.estilos;
   var cuerpo=bloques.filter(function(b){ return b.k!=="nom"; }), nomB=bloques.filter(function(b){ return b.k==="nom"; })[0];
   /* primero el nombre, pegado a lo de abajo; el cuerpo se reparte en lo que queda */
   var nomIt=null, y1=pieTopDe(tp)-15; if(tp.nomMax) y1=Math.min(y1,tp.nomMax);
-  if(nomB){ var e=E.nom; nomIt=medir(TX("nom",partirNombre(nomB.txt,w,e),mx,0,w,e,{auto:1})); nomIt.y=r1(y1-nomIt.h); y1=nomIt.y-14; }
-  function monta(k){ var its=[]; cuerpo.forEach(function(b){ var e=E[b.k]||E.lin; its.push(medir(TX(b.k,b.txt,mx,0,w,{f:e.f,s:r1(e.s*(b.k==="ast"?1:k)),c:e.c,al:e.al,b:e.b,i:e.i,ls:e.ls*k,lh:r1(e.lh*(b.k==='ast'?1:(k>=1?1:0.8+0.2*k))),up:e.up},{auto:1,antes:b.antes}))); });
+  if(nomB){ var e=E.nom; nomIt=medir(TX("nom",partirNombre(nomB.txt,w,e),x0,0,w,e,{auto:1})); nomIt.y=r1(y1-nomIt.h); y1=nomIt.y-14; }
+  function monta(k){ var its=[]; cuerpo.forEach(function(b){ var e=E[b.k]||E.lin; its.push(medir(TX(b.k,(b.k==="ast"&&tp.astTxt)?tp.astTxt:b.txt,x0,0,w,{f:e.f,s:r1(e.s*(b.k==="ast"?1:k)),c:e.c,al:e.al,b:e.b,i:e.i,ls:e.ls*k,lh:r1(e.lh*(b.k==='ast'?1:(k>=1?1:0.8+0.2*k))),up:e.up},{auto:1,antes:b.antes}))); });
     var y=z.y0, prev=null; its.forEach(function(it,i){ var g=0; if(prev){ var kg=k<1?k*k:1; g=5*kg; if(it.k==="tit") g=17*kg; if(prev.k==="tit") g=9*kg; if(it.antes==="gap") g+=9*kg; else if(it.antes==="sm") g=Math.max(g,3.5*kg); if(it.k==="ast") g=Math.min(g,2); if(prev.k==="ast") g=Math.min(g,2); } y+=g; it.y=r1(y); y+=it.h; prev=it; }); return {its:its,fin:y}; }
   var k=1, m=monta(k); while(m.fin>y1&&k>0.42){ k=Math.round((k-0.03)*100)/100; m=monta(k); }
   var res=m.its.slice(); if(nomIt) res.push(nomIt); return res;
 }
+/* textos que se rellenan solos con los datos del evento: «{nombre}», «{fecha}», «{fechaCorta}», «{tipo}», «{A}», «{B}» */
+function valorCampo(f,dm){ return String(f||"").replace(/\{(\w+)\}/g,function(m,k){ var v={nombre:dm.pareja,fecha:dm.fechaTxt,fechaCorta:dm.fechaCorta,tipo:dm.tipoTxt,A:dm.parejaA,B:dm.parejaB,nombres:dm.nombreCorto,ini:((dm.parejaA||"").charAt(0)+(dm.parejaB||"").charAt(0)).toUpperCase(),fechaV:String(dm.fechaCorta||"").replace(/\./g,"/").split("").join("\n")}[k]; return v==null?"":v; }); }
+function aplicaCampos(sc,dm){ sc.items.forEach(function(it){ if(it.i18n&&it.t==="txt"&&!it.man){ it.txt=it.i18n[dm.idioma==="ca"?"ca":"es"]||it.i18n.es; medir(it); } if(!it.campo||it.man) return;
+  if(it.t==="txt"){ it.txt=valorCampo(it.campo,dm); medir(it); }
+  else if(it.t==="shape"&&it.f==="monograma"){ var ini=function(n){ return String(n||"").trim().charAt(0).toUpperCase(); }; it.a=ini(dm.parejaA)||it.a; it.b=ini(dm.parejaB)||it.b; it.nom=valorCampo(it.campo,dm)||it.nom; it.fec=dm.fechaCorta||it.fec; } }); }
+function bloquesNombre(tp,dm){ return (dm.pareja&&!tp.noNom)?[{k:"nom",txt:dm.pareja}]:[]; }
 function genera(plId,dm){
   var tp=TPL_POR[plId]||PLANTILLAS[0], sc={v:2,tpl:tp.id,fondo:tp.fondo,mx:tp.mx,zona:clon(tp.zona),estilos:clon(tp.est),items:[],hash:hashDe(dm)};
-  tp.deco(sc,tp).forEach(function(it){ sc.items.push(it); });
-  colocaAuto(sc,bloquesDe(dm).concat(dm.pareja?[{k:"nom",txt:dm.pareja}]:[]),dm).forEach(function(it){ sc.items.push(it); });
+  tp.deco(sc,tp,dm).forEach(function(it){ sc.items.push(it); });
+  colocaAuto(sc,bloquesDe(dm).concat(bloquesNombre(tp,dm)),dm).forEach(function(it){ sc.items.push(it); });
   logoPie(sc,tp,tp.pieY||818).forEach(function(it){ sc.items.push(it); });
+  aplicaCampos(sc,dm);
   return sc;
 }
 function rellena(sc,dm){
-  var tp=TPL_POR[sc.tpl]||PLANTILLAS[0], nuevos=colocaAuto(sc,bloquesDe(dm).concat(dm.pareja?[{k:"nom",txt:dm.pareja}]:[]),dm);
+  var tp=TPL_POR[sc.tpl]||PLANTILLAS[0], nuevos=colocaAuto(sc,bloquesDe(dm).concat(bloquesNombre(tp,dm)),dm);
   /* los bloques del menú se sustituyen; lo demás (diseño, logos, lo que se haya añadido a mano) se queda */
   var primero=-1; sc.items=sc.items.filter(function(it,i){ if(it.auto){ if(primero<0) primero=i; return false; } return true; });
-  var pos=primero<0?sc.items.length:primero; nuevos.forEach(function(it,j){ sc.items.splice(pos+j,0,it); }); sc.hash=hashDe(dm);
+  var pos=primero<0?sc.items.length:primero; nuevos.forEach(function(it,j){ sc.items.splice(pos+j,0,it); }); sc.hash=hashDe(dm); aplicaCampos(sc,dm);
 }
 /* ordena en vertical lo que ya hay, con un espacio uniforme (lo que hace «Repartir espacios») */
 function reparte(sc,gap,idsSolo){
@@ -18071,7 +18429,7 @@ function porId(id){ return ST.sc.items.filter(function(i){ return i.id===id; })[
 /* ── pintar ── */
 function pintaLienzo(){
   if(!ST||!ST.cv) return; var cv=ST.cv, z=ST.zoom, dpr=Math.min(2.5,window.devicePixelRatio||1), ctx=cv.getContext("2d");
-  var cw=Math.round(W*z), ch=Math.round(H*z); if(cv.width!==Math.round(cw*dpr)||cv.height!==Math.round(ch*dpr)){ cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr); cv.style.width=cw+"px"; cv.style.height=ch+"px"; }
+  var cw=Math.round(W*z), ch=Math.round(H*z); dpr=Math.max(0.6,Math.min(dpr,Math.sqrt(14000000/(cw*ch)))); if(cv.width!==Math.round(cw*dpr)||cv.height!==Math.round(ch*dpr)){ cv.width=Math.round(cw*dpr); cv.height=Math.round(ch*dpr); cv.style.width=cw+"px"; cv.style.height=ch+"px"; }
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height); ctx.setTransform(dpr,0,0,dpr,0,0);
   dibujaEscena(ctx,ST.sc,z,{salvo:ST.editando});
   /* guías de corte y margen de seguridad */
@@ -18099,14 +18457,21 @@ function ajusta(it,nx,ny,w,h){ /* imán a centro y a bordes/centros de otros obj
   if(mejorX){ dx=mejorX.d; gs.push({v:mejorX.g}); } if(mejorY){ dy=mejorY.d; gs.push({h:mejorY.g}); }
   return {x:nx+dx,y:ny+dy,g:gs};
 }
+function distPtrs(){ var k=Object.keys(ST.ptrs||{}); if(k.length<2) return null; var a=ST.ptrs[k[0]], b=ST.ptrs[k[1]]; return {d:Math.hypot(a.x-b.x,a.y-b.y),x:(a.x+b.x)/2,y:(a.y+b.y)/2}; }
 function alPulsar(ev){
-  if(ST.editando) return; var p=ptsDe(ev); ST.cv.setPointerCapture&&ST.cv.setPointerCapture(ev.pointerId);
+  if(ST.editando) return; var p=ptsDe(ev); try{ ST.cv.setPointerCapture&&ST.cv.setPointerCapture(ev.pointerId); }catch(_){}
+  ST.ptrs=ST.ptrs||{}; ST.ptrs[ev.pointerId]={x:ev.clientX,y:ev.clientY};
+  if(Object.keys(ST.ptrs).length>=2){ var dd=distPtrs(); ST.arr=null; ST.pan=null; ST.pinch={d0:dd.d,z0:ST.zoom}; return; }
+  if(ST.mano||ST.espacio||ev.button===1){ ST.pan={x:ev.clientX,y:ev.clientY}; ST.cv.style.cursor="grabbing"; return; }
   var m=manijaEn(p), it=sel();
   if(m&&it){ ST.arr={tipo:"tam",m:m,it:it,p0:p,b0:clon(bbox(it)),s0:it.s,tx0:it.t==="txt"?it.w:null}; return; }
   var h=golpe(p); if(h){ ST.sel=h.id; ST.arr=h.bloq?null:{tipo:"mover",it:h,p0:p,x0:h.x,y0:h.y,movido:false}; pintaTodo(); }
-  else { ST.sel=null; ST.arr=null; pintaTodo(); }
+  else { ST.sel=null; ST.arr=null; if(ev.pointerType==="touch") ST.pan={x:ev.clientX,y:ev.clientY}; pintaTodo(); }
 }
 function alMover(ev){
+  if(ST.ptrs&&ST.ptrs[ev.pointerId]){ ST.ptrs[ev.pointerId]={x:ev.clientX,y:ev.clientY}; }
+  if(ST.pinch){ var dd=distPtrs(); if(dd&&ST.pinch.d0>10) ponZoom(ST.pinch.z0*dd.d/ST.pinch.d0,dd.x,dd.y); return; }
+  if(ST.pan){ panBy(ev.clientX-ST.pan.x,ev.clientY-ST.pan.y); ST.pan={x:ev.clientX,y:ev.clientY}; return; }
   if(!ST.arr){ var p0=ptsDe(ev), mk=manijaEn(p0); ST.cv.style.cursor=mk?(mk.length===2||mk==="n"||mk==="s"?(mk==="n"||mk==="s"?"ns-resize":"nwse-resize"):"ew-resize"):(golpe(p0)?"move":"default"); if(mk==="ne"||mk==="sw") ST.cv.style.cursor="nesw-resize"; if(mk==="e"||mk==="w") ST.cv.style.cursor="ew-resize"; return; }
   var a=ST.arr, p=ptsDe(ev), dx=p.x-a.p0.x, dy=p.y-a.p0.y, it=a.it;
   if(a.tipo==="mover"){ if(!a.movido&&Math.abs(dx)+Math.abs(dy)<1.2) return; a.movido=true; var b=bbox(it), r=ajusta(it,a.x0+dx,a.y0+dy,b.w,b.h); if(ev.altKey){ r={x:a.x0+dx,y:a.y0+dy,g:[]}; } it.x=r1(r.x); it.y=r1(r.y); ST.gAl=r.g; }
@@ -18122,14 +18487,15 @@ function alMover(ev){
       it.x=r1(x); it.y=r1(y); it.w=r1(w); it.h=r1(h); } }
   pintaLienzo(); if(a.tipo==="mover") posicionaFlotante();
 }
-function alSoltar(){ if(!ST.arr) return; var a=ST.arr; ST.arr=null; ST.gAl=[]; if((a.tipo==="mover"&&a.movido)||a.tipo==="tam"){ a.it.mov=1; empuja(); guardar(); } pintaTodo(); }
+function alSoltar(ev){ if(ST.ptrs&&ev&&ev.pointerId!=null) delete ST.ptrs[ev.pointerId]; if(ST.pinch&&Object.keys(ST.ptrs||{}).length<2) ST.pinch=null; if(ST.pan){ ST.pan=null; ST.cv.style.cursor=(ST.mano||ST.espacio)?"grab":"default"; }
+  if(!ST.arr) return; var a=ST.arr; ST.arr=null; ST.gAl=[]; if((a.tipo==="mover"&&a.movido)||a.tipo==="tam"){ a.it.mov=1; empuja(); guardar(); } pintaTodo(); }
 function alDoble(ev){ var p=ptsDe(ev), h=golpe(p); if(h&&h.t==="txt"&&!h.bloq) edita(h); }
 function edita(it){
   ST.sel=it.id; ST.editando=it.id; var ta=ST.ta, z=ST.zoom; medir(it);
   ta.value=it.txt; ta.hidden=false; estiloTa(it); pintaLienzo(); ta.focus(); ta.select&&ta.setSelectionRange(0,ta.value.length);
 }
 function estiloTa(it){ var ta=ST.ta, z=ST.zoom; ta.style.left=(it.x*z)+"px"; ta.style.top=(it.y*z)+"px"; ta.style.width=(it.w*z)+"px"; ta.style.font=fontStr(it,z); ta.style.lineHeight=(it.s*(it.lh||1.25)*z)+"px"; ta.style.letterSpacing=((it.ls||0)*z)+"px"; ta.style.color=it.c; ta.style.textAlign=it.al; ta.style.textTransform=it.up?"uppercase":"none"; ta.style.height=(Math.max(1,it._l.length)*it.s*(it.lh||1.25)*z+2)+"px"; }
-function terminaEdicion(){ if(!ST||!ST.editando) return; var it=porId(ST.editando); ST.editando=null; ST.ta.hidden=true; if(it){ it.txt=ST.ta.value; if(it.auto) it.man=1; medir(it); empuja(); guardar(); } pintaTodo(); }
+function terminaEdicion(){ if(!ST||!ST.editando) return; var it=porId(ST.editando); ST.editando=null; ST.ta.hidden=true; if(it){ it.txt=ST.ta.value; if(it.auto||it.campo) it.man=1; medir(it); empuja(); guardar(); } pintaTodo(); }
 function alEscribir(){ var it=porId(ST.editando); if(!it) return; it.txt=ST.ta.value; medir(it); estiloTa(it); }
 
 /* ── operaciones ── */
@@ -18155,7 +18521,8 @@ function aviso(t){ if(BR.toast) BR.toast(t); }
 
 /* ── el menú cambió: ¿hay que reescribir los textos? ── */
 function datos(){ return BR.minutaDatos?BR.minutaDatos():{items:[],pareja:""}; }
-function rellenaDesdeMenu(){ rellena(ST.sc,datos()); empuja(); guardar(); pintaTodo(); aviso("Textos puestos desde el menú. Con «Deshacer» vuelves atrás."); }
+function rellenaDesdeMenu(silencio){ rellena(ST.sc,datos()); empuja(); guardar(); pintaTodo(); if(!silencio) aviso("Textos puestos desde el menú. Con «Deshacer» vuelves atrás."); }
+function cambiaIdioma(id){ if(ST.sc.items.some(function(i){ return i.man&&i.auto; })&&!window.confirm("Has retocado a mano algunos textos del menú. Al cambiar de idioma se volverán a escribir desde el menú (puedes deshacerlo). ¿Seguir?")){ pestana("p"); return; } if(BR.minutaSet) BR.minutaSet("idioma",id); rellenaDesdeMenu(true); if(ST.pest==="p") pestana("p"); aviso(id==="ca"?"Minuta en català: platos, títulos y bodega traducidos. Si algún plato escrito a mano no queda bien, corrígelo sobre el papel.":"Minuta en castellano."); }
 function cambiaDiseno(id){ aseguraTpl(id).then(function(){ var dm=datos(); ST.sc=genera(id,dm); ST.sel=null; ST.sc.items.forEach(medir); empuja(); guardar(); pintaTodo(); pestana(ST.pest); }); }
 
 /* ── exportar ── */
@@ -18185,10 +18552,14 @@ function barra(){
       '<div class="lz-grp"><label class="lz-rg" title="Espaciado entre letras">Letras<input type="range" min="-1" max="14" step="0.1" data-lz-p="ls" value="'+(it.ls||0)+'"></label><label class="lz-rg" title="Interlineado">Líneas<input type="range" min="0.8" max="2.6" step="0.02" data-lz-p="lh" value="'+(it.lh||1.25)+'"></label></div>';
   } else if(it&&it.t==="img"){
     h+='<div class="lz-grp"><label class="lz-rg">Opacidad<input type="range" min="0.1" max="1" step="0.05" data-lz-p="op" value="'+(it.op==null?1:it.op)+'"></label><label class="lz-b lz-up" for="lz-reemp">Cambiar imagen</label><input type="file" id="lz-reemp" accept="image/*" hidden></div>';
+  } else if(it&&it.t==="shape"&&it.f==="monograma"){
+    h+='<div class="lz-grp"><select class="lz-sel" data-lz-p="est" aria-label="Estilo del logo">'+MONO_ESTILOS.map(function(e){ return '<option value="'+e.id+'"'+(it.est===e.id?" selected":"")+'>'+esc(e.n)+'</option>'; }).join("")+'</select><select class="lz-sel" data-lz-p="fnt" aria-label="Letra de las iniciales">'+MONO_FUENTES.map(function(n){ return '<option value="'+esc(n)+'"'+((it.fnt||MONO_DEF[it.est])===n?" selected":"")+'>'+esc(n)+'</option>'; }).join("")+'</select></div>'+
+      '<div class="lz-grp"><input class="lz-n" data-lz-p="a" maxlength="2" value="'+esc(it.a)+'" aria-label="Primera inicial"><input class="lz-n" data-lz-p="b" maxlength="2" value="'+esc(it.b)+'" aria-label="Segunda inicial"><input class="lz-t" type="text" data-lz-p="nom" value="'+esc(it.nom||"")+'" placeholder="Nombres" aria-label="Nombres"><input class="lz-t lz-t-s" type="text" data-lz-p="fec" value="'+esc(it.fec||"")+'" placeholder="Fecha" aria-label="Fecha"></div>'+
+      '<div class="lz-grp"><label class="lz-rg">Color<input type="color" class="lz-col" data-lz-p="stroke" value="'+esc(colorOk(it.stroke||"#333333"))+'"></label><label class="lz-rg">Opacidad<input type="range" min="0.1" max="1" step="0.05" data-lz-p="op" value="'+(it.op==null?1:it.op)+'"></label><button type="button" class="lz-b lz-up" data-lz-a="monopng" title="Guardar este logo como imagen PNG con fondo transparente">⬇ PNG</button></div>';
   } else if(it&&it.t==="shape"){
     var f=it.f;
     h+='<div class="lz-grp">'+(f!=="estrellas"&&f!=="puntos"&&f!=="trama"?'<label class="lz-rg">Línea<input type="color" class="lz-col" data-lz-p="stroke" value="'+esc(colorOk(it.stroke||"#333333"))+'"></label>':'')+
-      (["rect","redondo","arco","circ","estrellas","puntos","rama","laurel","espiga","flor","trama"].indexOf(f)>=0?'<label class="lz-rg">Relleno<input type="color" class="lz-col" data-lz-p="fill" value="'+esc(colorOk(it.fill||it.stroke||"#333333"))+'"></label><button type="button" class="lz-b" data-lz-a="sinrelleno" title="Sin relleno">∅</button>':'')+
+      (["rect","redondo","arco","circ","estrellas","puntos","rama","laurel","espiga","flor","trama","icono"].indexOf(f)>=0?'<label class="lz-rg">Relleno<input type="color" class="lz-col" data-lz-p="fill" value="'+esc(colorOk(it.fill||it.stroke||"#333333"))+'"></label><button type="button" class="lz-b" data-lz-a="sinrelleno" title="Sin relleno">∅</button>':'')+
       '<label class="lz-rg">Grosor<input type="range" min="0" max="12" step="0.1" data-lz-p="sw" value="'+(it.sw||0)+'"></label>'+
       '<label class="lz-rg">Opacidad<input type="range" min="0.05" max="1" step="0.05" data-lz-p="op" value="'+(it.op==null?1:it.op)+'"></label>'+
       (["rama","laurel","espiga","enso"].indexOf(f)>=0?'<button type="button" class="lz-b lz-up" data-lz-a="semilla" title="Dibujarla de otra forma">Variar</button>':'')+
@@ -18198,19 +18569,23 @@ function barra(){
     h+='<div class="lz-grp"><label class="lz-rg">Fondo del papel<input type="color" class="lz-col" data-lz-pg="fondo" value="'+esc(colorOk(ST.sc.fondo))+'"></label></div><div class="lz-ayuda">Toca cualquier cosa del papel para editarla · doble toque en un texto para escribir</div>';
   }
   if(it){ h+='<div class="lz-grp">'+btn("centrar","⇔","Centrar en el papel")+btn("dup","⧉","Duplicar (Ctrl+D)")+btn("atras","⤓","Mandar atrás")+btn("adelante","⤒","Traer adelante")+btn("bloq",it.bloq?"🔒":"🔓","Bloquear / desbloquear",it.bloq)+btn("del","🗑","Eliminar (Supr)")+(it.t==="txt"&&it.k&&ST.sc.estilos[it.k]?'<button type="button" class="lz-b lz-up" data-lz-a="atodos" title="Usar este estilo en todos los textos del mismo tipo">Aplicar a todos</button>':'')+'</div>'; }
+  h+='<div class="lz-grp lz-zoom">'+btn("z-","−","Alejar (Ctrl y rueda del ratón)")+'<button type="button" class="lz-b lz-zp" data-lz-a="zfit" title="Ajustar el papel a la pantalla" aria-label="Zoom, pulsa para ajustar">'+Math.round(ST.zoom/1.3333*100)+'%</button>'+btn("z+","+","Acercar (Ctrl y rueda del ratón)")+btn("mano","✋","Mover el papel arrastrando (o mantén la barra espaciadora)",ST.mano)+'</div>';
   b.innerHTML=h; posicionaFlotante();
 }
 function colorOk(c){ c=String(c||"#000000"); if(/^#[0-9a-f]{6}$/i.test(c)) return c; if(/^#[0-9a-f]{3}$/i.test(c)) return "#"+c.slice(1).replace(/(.)/g,"$1$1"); return "#000000"; }
 function posicionaFlotante(){}
 function panelEstado(){ var n=rootEl&&rootEl.querySelector("#lz-aviso"); if(!n) return; var d=datos(); var cambiado=ST.sc.hash!==hashDe(d); n.hidden=!cambiado; }
 function propias(){ try{ var p=BR.param("minutaLienzos"); return (p&&Array.isArray(p.lista))?p.lista:[]; }catch(_){ return []; } }
-function galeriaHTML(){ var h=PLANTILLAS.map(function(t){ return '<button type="button" class="lz-tp'+(ST.sc.tpl===t.id&&!ST.sc.mia?' on':'')+'" data-lz-tpl="'+t.id+'" title="'+esc(t.desc)+'"><canvas width="150" height="424" data-lz-th="'+t.id+'"></canvas><b>'+esc(t.nombre)+'</b></button>'; }).join("");
+var CATS=[["boda","Boda"],["bautizo","Bautizo"],["comunion","Comunión"],["otros","Otros eventos"],["todo","Todos"]];
+function plantillasVisibles(){ var c=ST.cat||"todo"; return PLANTILLAS.filter(function(t){ return c==="todo"||(t.cat||["otros"]).indexOf(c)>=0; }); }
+function galeriaHTML(){ var chips='<div class="lz-chips" role="tablist" aria-label="Tipo de minuta">'+CATS.map(function(c){ return '<button type="button" class="lz-chip'+((ST.cat||"todo")===c[0]?" on":"")+'" data-lz-cat="'+c[0]+'">'+c[1]+'</button>'; }).join("")+'</div>';
+  var h=plantillasVisibles().map(function(t){ return '<button type="button" class="lz-tp'+(ST.sc.tpl===t.id&&!ST.sc.mia?' on':'')+'" data-lz-tpl="'+t.id+'" title="'+esc(t.desc)+'"><canvas width="150" height="424" data-lz-th="'+t.id+'"></canvas><b>'+esc(t.nombre)+'</b></button>'; }).join("");
   var mias=propias(); if(mias.length){ h+='<div class="lz-sec lz-sec-w">Mis plantillas</div>'+mias.map(function(o){ return '<div class="lz-tp-w"><button type="button" class="lz-tp'+(ST.sc.mia===o.id?' on':'')+'" data-lz-mi="'+esc(o.id)+'" title="Plantilla guardada"><canvas width="150" height="424" data-lz-mth="'+esc(o.id)+'"></canvas><b>'+esc(o.nombre)+'</b></button>'+(esAdmin()?'<button type="button" class="lz-tp-x" data-lz-mdel="'+esc(o.id)+'" aria-label="Borrar plantilla «'+esc(o.nombre)+'»" title="Borrar">×</button>':'')+'</div>'; }).join(""); }
-  return h; }
+  return chips+'<div class="lz-tps">'+h+'</div>'; }
 function escenaDePropia(o,dm){ var sc=clon(o.sc); sc.v=2; sc.tpl=o.sc.tpl&&TPL_POR[o.sc.tpl]?o.sc.tpl:PLANTILLAS[0].id; sc.mia=o.id; sc.hash=hashDe(dm); sc.items.forEach(function(it){ if(!it.id) it.id=uid(); }); rellena(sc,dm); return sc; }
 var pintandoMin=0;
 function pintaMiniaturas(){ if(!rootEl) return; var tk=++pintandoMin;
-  Promise.all(PLANTILLAS.map(function(t){ return aseguraTpl(t.id); })).then(function(){ if(tk!==pintandoMin||!rootEl) return; var dm=datos();
+  Promise.all(plantillasVisibles().map(function(t){ return aseguraTpl(t.id); })).then(function(){ if(tk!==pintandoMin||!rootEl) return; var dm=datos();
     rootEl.querySelectorAll("canvas[data-lz-th]").forEach(function(cv){ try{ var id=cv.getAttribute("data-lz-th"); var sc=genera(id,dm); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }catch(err){ try{ console.warn("minuta: miniatura",err); }catch(_){} } });
     propias().forEach(function(o){ var cv=rootEl.querySelector('canvas[data-lz-mth="'+o.id+'"]'); if(!cv) return; var sc=escenaDePropia(o,dm); aseguraEscena(sc).then(function(){ if(tk!==pintandoMin||!rootEl) return; sc.items.forEach(medir); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }); }); }).catch(function(err){ try{ console.warn("minuta: miniaturas",err); }catch(_){} }); }
 function anadirHTML(){ var fb=function(a,t){ return '<button type="button" class="lz-add" data-lz-add="'+a+'">'+t+'</button>'; };
@@ -18219,36 +18594,41 @@ function anadirHTML(){ var fb=function(a,t){ return '<button type="button" class
     '<div class="lz-sec">Adornos dibujados</div><div class="lz-adds">'+fb("rama","Rama de olivo")+fb("laurel","Corona de laurel")+fb("espiga","Espiga")+fb("flor","Flor")+fb("onda","Olas")+fb("sol","Sol art déco")+fb("estrellas","Estrellas")+fb("puntos","Puntos")+fb("enso","Círculo de pincel")+fb("trama","Textura de puntos")+'</div>'; }
 function paginaHTML(){ return '<div class="lz-sec">Página</div><div class="lz-pg">'+
   '<label class="lz-rg">Fondo<input type="color" class="lz-col" data-lz-pg="fondo" value="'+esc(colorOk(ST.sc.fondo))+'"></label>'+
-  '<label class="lz-rg">Zoom<input type="range" min="0.6" max="2.2" step="0.05" data-lz-pg="zoom" value="'+ST.zoom+'"></label>'+
+  '<label class="lz-rg">Zoom<input type="range" min="0.4" max="4" step="0.05" data-lz-pg="zoom" value="'+ST.zoom+'"></label>'+
   '<label class="ag-chk"><input type="checkbox" data-lz-pg="guias"'+(ST.guias?' checked':'')+'> Ver margen de seguridad</label></div>'+
+  '<div class="lz-sec">Idioma y vinos</div><div class="lz-pg"><div class="lz-seg" role="group" aria-label="Idioma de la minuta"><button type="button" class="lz-segb'+(datos().idioma!=="ca"?" on":"")+'" data-lz-a="idioma-es">Castellano</button><button type="button" class="lz-segb'+(datos().idioma==="ca"?" on":"")+'" data-lz-a="idioma-ca">Català</button></div><label class="lz-rg lz-wide">Denominación de los vinos<input class="lz-t" type="text" data-lz-pg="do" value="'+esc(datos().doTxt)+'" placeholder="D.O. Terra Alta"></label></div>'+
   '<div class="lz-sec">Texto del menú</div><div class="lz-pg"><button type="button" class="btn sm gold" data-lz-a="rellenar">Rellenar desde el menú</button><button type="button" class="btn sm" data-lz-a="repartir">Repartir espacios</button><label class="lz-rg">Espacio entre bloques<input type="range" min="0" max="30" step="1" data-lz-pg="gap" value="'+(ST.gap==null?7:ST.gap)+'"></label></div>'+
   '<div class="lz-sec">Estilo de este diseño</div><div class="lz-pg"><button type="button" class="btn sm" data-lz-a="restablecer">Volver al diseño original</button>'+(esAdmin()?'<button type="button" class="btn sm" data-lz-a="guardarpl">Guardar como plantilla propia</button>':'')+'</div>'+
   '<div class="lz-sec">Descargar</div><div class="lz-pg"><button type="button" class="btn sm gold" data-lz-a="pdf">PDF · dos por hoja A4</button><button type="button" class="btn sm" data-lz-a="png">PNG · una minuta</button></div>'; }
 function esAdmin(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); if(!u) return true; return u.role==="admin"; }catch(_){ return true; } }
-function pestana(t){ ST.pest=t; var c=rootEl.querySelector("#lz-side-c"); if(!c) return; c.innerHTML=t==="d"?'<div class="lz-tps">'+galeriaHTML()+'</div>':t==="a"?anadirHTML():paginaHTML();
-  rootEl.querySelectorAll("[data-lz-pest]").forEach(function(b){ b.setAttribute("aria-selected",b.getAttribute("data-lz-pest")===t?"true":"false"); }); if(t==="d") pintaMiniaturas(); }
+function pestana(t){ ST.pest=t; var c=rootEl.querySelector("#lz-side-c"); if(!c) return; c.innerHTML=t==="d"?galeriaHTML():t==="a"?anadirHTML():t==="i"?iconoHTML():t==="l"?monoHTML():paginaHTML();
+  var tl=rootEl.querySelector("#lz-tab-l"); if(tl) tl.hidden=ST.catEv!=="boda"&&t!=="l";
+  rootEl.querySelectorAll("[data-lz-pest]").forEach(function(b){ b.setAttribute("aria-selected",b.getAttribute("data-lz-pest")===t?"true":"false"); }); if(t==="d") pintaMiniaturas(); else if(t==="i") pintaIconos(); else if(t==="l") pintaMonos(); }
 
 function monta(h){
   host=h; cargaFuentes(); var m=minuta(); var dm=datos(); h.innerHTML='<p class="lz-cargando">Preparando el lienzo y las tipografías…</p>';
   var sc=m.lienzo&&m.lienzo.items?clon(m.lienzo):null, pid=null;
-  if(!sc||sc.v!==2){ pid=(m&&m.plantilla&&MAPA_VIEJO[m.plantilla])||"olivo"; sc=null; }
+  if(!sc||sc.v!==2){ pid=(m&&m.plantilla&&MAPA_VIEJO[m.plantilla])||defectoPorCat(dm.cat); sc=null; }
   else if(!TPL_POR[sc.tpl]){ sc.tpl="olivo"; }
   var pronto=sc?aseguraEscena(sc):aseguraTpl(pid);
   var ficha=m; pronto.then(function(){ if(!document.body.contains(h)) return; if(!sc){ sc=genera(pid,dm); ficha.lienzo=clon(sc); } arranca(h,sc,dm); }); return;
 }
 function arranca(h,sc,dm){
-  ST={sc:sc,sel:null,zoom:1.15,guias:false,hist:[],rehacer:[],gAl:[],editando:null,pest:"d",gap:7,cv:null,ta:null};
+  ST={sc:sc,sel:null,zoom:1.15,guias:false,hist:[],rehacer:[],gAl:[],editando:null,pest:"d",gap:7,cv:null,ta:null,cat:dm.cat||"todo",catEv:dm.cat||"otros"};
+  var mi=function(n){ return String(n||"").trim().charAt(0).toUpperCase(); }; ST.logo={a:mi(dm.parejaA)||"A",b:mi(dm.parejaB)||"B",nom:dm.nombreCorto||"",fec:dm.fechaCorta||"",color:(TPL_POR[sc.tpl]||PLANTILLAS[0]).color||"#333333"};
   ST.h0=sc.items.map(function(i){ return i.t==="txt"?i.h:null; }); sc.items.forEach(medir); empuja();
   h.innerHTML='<div class="lz" id="lz-root"><div class="lz-aviso" id="lz-aviso" hidden><span>El menú ha cambiado desde que diseñaste la minuta.</span><button type="button" class="btn sm gold" data-lz-a="rellenar">Actualizar los textos</button></div>'+
     '<div class="lz-bar" id="lz-bar"></div><div class="lz-main"><div class="lz-stage" id="lz-stage"><div class="lz-paper" id="lz-paper"><canvas id="lz-cv" aria-label="Minuta: lienzo de diseño" tabindex="0"></canvas><textarea id="lz-ta" hidden spellcheck="true" aria-label="Escribir el texto"></textarea></div><p class="lz-pie">Media hoja A4 (10,5 × 29,7 cm). En el PDF van dos iguales, para cortar por la mitad.</p></div>'+
-    '<aside class="lz-side"><div class="lz-tabs" role="tablist"><button type="button" role="tab" data-lz-pest="d" aria-selected="true">Diseños</button><button type="button" role="tab" data-lz-pest="a" aria-selected="false">Añadir</button><button type="button" role="tab" data-lz-pest="p" aria-selected="false">Página</button></div><div id="lz-side-c"></div></aside></div></div>';
-  rootEl=h.querySelector("#lz-root"); ST.cv=rootEl.querySelector("#lz-cv"); ST.ta=rootEl.querySelector("#lz-ta"); alCargar=function(){ pintaLienzo(); if(ST.pest==="d") pintaMiniaturas(); };
+    '<aside class="lz-side"><div class="lz-tabs" role="tablist"><button type="button" role="tab" data-lz-pest="d" aria-selected="true">Diseños</button><button type="button" role="tab" data-lz-pest="a" aria-selected="false">Añadir</button><button type="button" role="tab" data-lz-pest="i" aria-selected="false">Iconos</button><button type="button" role="tab" data-lz-pest="l" id="lz-tab-l" aria-selected="false"'+(ST.catEv==="boda"?'':' hidden')+'>Logo</button><button type="button" role="tab" data-lz-pest="p" aria-selected="false">Página</button></div><div id="lz-side-c"></div></aside></div></div>';
+  rootEl=h.querySelector("#lz-root"); ST.cv=rootEl.querySelector("#lz-cv"); ST.ta=rootEl.querySelector("#lz-ta"); alCargar=function(){ if(!ST) return; pintaLienzo(); if(ST.pest==="d") pintaMiniaturas(); };
   /* eventos */
   var cv=ST.cv; cv.style.touchAction="none"; cv.addEventListener("pointerdown",alPulsar); cv.addEventListener("pointermove",alMover); cv.addEventListener("pointerup",alSoltar); cv.addEventListener("pointercancel",alSoltar); cv.addEventListener("dblclick",alDoble);
   ST.ta.addEventListener("input",alEscribir); ST.ta.addEventListener("blur",terminaEdicion); ST.ta.addEventListener("keydown",function(ev){ if(ev.key==="Escape"){ ev.preventDefault(); terminaEdicion(); } ev.stopPropagation(); });
+  rootEl.querySelector("#lz-stage").addEventListener("wheel",function(ev){ if(ev.ctrlKey||ev.metaKey){ ev.preventDefault(); ponZoom(ST.zoom*Math.exp(-ev.deltaY*(ev.deltaMode===1?0.05:0.0022)),ev.clientX,ev.clientY); } },{passive:false});
   rootEl.addEventListener("click",alClic); rootEl.addEventListener("input",alCambio); rootEl.addEventListener("change",alCambio);
-  document.addEventListener("keydown",alTecla);
+  document.addEventListener("keydown",alTecla); document.addEventListener("keyup",alTeclaSube);
   ST.sc.items.forEach(medir); ajustaZoomInicial(); pestana("d"); barra(); pintaTodo(); panelEstado();
+  var mm=minuta(); if(mm&&mm.refrescar){ delete mm.refrescar; if(!ST.sc.items.some(function(i){ return i.man; })){ rellena(ST.sc,datos()); ST.sc.items.forEach(medir); guardar(); pintaTodo(); } }
   aseguraEscena(ST.sc).then(function(){ remideYReacomoda(); pintaTodo(); }); if(!hookFuentes&&document.fonts&&document.fonts.addEventListener){ hookFuentes=true; document.fonts.addEventListener("loadingdone",function(){ if(ST&&rootEl&&document.body.contains(rootEl)){ remideYReacomoda(); pintaLienzo(); if(ST.pest==="d") pintaMiniaturas(); } }); }
 }
 /* si las letras acaban de cargarse y los bloques del menú ocupan otro alto, se recoloca todo (solo si nadie los ha tocado a mano) */
@@ -18256,16 +18636,33 @@ function remideYReacomoda(){ if(!ST) return; var ant=ST.h0||ST.sc.items.map(func
   var cambio=ST.sc.items.some(function(i,j){ return i.t==="txt"&&i.auto&&i.h!==ant[j]; });
   if(cambio&&!ST.editando&&!ST.arr&&!ST.sc.items.some(function(i){ return i.mov||i.man; })){ try{ var dm=datos(); if(ST.sc.hash===hashDe(dm)){ rellena(ST.sc,dm); ST.sc.items.forEach(medir); guardar(); } }catch(_){} } }
 var hookFuentes=false;
-function ajustaZoomInicial(){ var stage=rootEl.querySelector("#lz-stage"), disp=Math.max(280,Math.min(window.innerHeight-170,1100)); ST.zoom=Math.max(0.7,Math.min(1.5,disp/H)); var av=(stage.clientWidth||360)-24; if(W*ST.zoom>av) ST.zoom=Math.max(0.6,av/W); ST.zoom=Math.round(ST.zoom*20)/20; }
-function alTecla(ev){ if(!ST||!document.body.contains(ST.cv)){ document.removeEventListener("keydown",alTecla); return; } var tg=ev.target; if(tg&&/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName)&&tg!==ST.cv) return; if(ST.editando) return; var it=sel();
+function ponZoom(nz,cx,cy){
+  if(!ST||!rootEl) return; nz=Math.max(0.4,Math.min(4,Math.round(nz*1000)/1000)); if(Math.abs(nz-ST.zoom)<0.001) return;
+  var stage=rootEl.querySelector("#lz-stage"), r=ST.cv.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+  var px=cx==null?sr.left+sr.width/2:cx, py=cy==null?sr.top+Math.min(sr.height,window.innerHeight)/2:cy;
+  var ux=(px-r.left)/ST.zoom, uy=(py-r.top)/ST.zoom; ST.zoom=nz; pintaTodo(); if(ST.editando) estiloTa(porId(ST.editando));
+  var r2=ST.cv.getBoundingClientRect(); stage.scrollLeft+=(r2.left+ux*nz)-px; stage.scrollTop+=(r2.top+uy*nz)-py; }
+function zoomFit(){ ajustaZoomInicial(); pintaTodo(); var st=rootEl.querySelector("#lz-stage"); st.scrollLeft=0; st.scrollTop=0; }
+function panBy(dx,dy){ var st=rootEl.querySelector("#lz-stage"); if(!st) return; var t0=st.scrollTop; st.scrollLeft-=dx; st.scrollTop-=dy; if(Math.abs(st.scrollTop-t0)<0.5&&dy) window.scrollBy(0,-dy); }
+function defectoPorCat(c){ var t=PLANTILLAS.filter(function(x){ return x.def&&x.def.indexOf(c)>=0; })[0]||PLANTILLAS.filter(function(x){ return (x.cat||[]).indexOf(c)>=0; })[0]||PLANTILLAS[0]; return t.id; }
+function ajustaZoomInicial(){ var stage=rootEl.querySelector("#lz-stage"), disp=Math.max(280,Math.min(window.innerHeight-170,1100)); ST.zoom=Math.max(0.7,Math.min(1.5,disp/H)); var av=(stage.clientWidth||360)-24; if(W*ST.zoom>av) ST.zoom=Math.max(0.6,av/W); ST.zoom=Math.round(ST.zoom*20)/20; ST.fit=ST.zoom; }
+function alTecla(ev){ if(!ST||!document.body.contains(ST.cv)){ document.removeEventListener("keydown",alTecla); document.removeEventListener("keyup",alTeclaSube); return; } var tg=ev.target;
+  var dentro=rootEl&&(rootEl.contains(document.activeElement)||tg===document.body);
+  if((ev.ctrlKey||ev.metaKey)&&dentro&&!(tg&&/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName))){ if(ev.key==="+"||ev.key==="="){ ev.preventDefault(); ponZoom(ST.zoom*1.25); return; } if(ev.key==="-"||ev.key==="_"){ ev.preventDefault(); ponZoom(ST.zoom/1.25); return; } if(ev.key==="0"){ ev.preventDefault(); zoomFit(); return; } }
+  if(ev.key===" "&&dentro&&!(tg&&/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(tg.tagName))&&!ST.editando){ ev.preventDefault(); if(!ST.espacio){ ST.espacio=true; ST.cv.style.cursor="grab"; } return; } if(tg&&/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName)&&tg!==ST.cv) return; if(ST.editando) return; var it=sel();
   if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="z"){ ev.preventDefault(); if(ev.shiftKey) rehacerAccion(); else deshacer(); return; } if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="y"){ ev.preventDefault(); rehacerAccion(); return; }
   if(!it) return; if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="d"){ ev.preventDefault(); duplica(); return; }
   if(ev.key==="Delete"||ev.key==="Backspace"){ ev.preventDefault(); borra(); return; } if(ev.key==="Enter"&&it.t==="txt"){ ev.preventDefault(); edita(it); return; } if(ev.key==="Escape"){ ST.sel=null; pintaTodo(); return; }
   var d=ev.shiftKey?10:1; if(ev.key==="ArrowLeft"){ it.x-=d; } else if(ev.key==="ArrowRight"){ it.x+=d; } else if(ev.key==="ArrowUp"){ it.y-=d; } else if(ev.key==="ArrowDown"){ it.y+=d; } else return; ev.preventDefault(); it.mov=1; it.x=r1(it.x); it.y=r1(it.y); empuja(); guardar(); pintaLienzo(); }
+function alTeclaSube(ev){ if(ev.key===" "&&ST&&ST.espacio){ ST.espacio=false; if(ST.cv) ST.cv.style.cursor=ST.mano?"grab":"default"; } }
 function alClic(ev){
-  var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
+  var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-cat],[data-lz-img],[data-lz-ico],[data-lz-mono],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
   if(t.hasAttribute("data-lz-pest")){ pestana(t.getAttribute("data-lz-pest")); return; }
   if(t.hasAttribute("data-lz-tpl")){ cambiaDiseno(t.getAttribute("data-lz-tpl")); pestana("d"); return; }
+  if(t.hasAttribute("data-lz-cat")){ ST.cat=t.getAttribute("data-lz-cat"); pestana("d"); return; }
+  if(t.hasAttribute("data-lz-img")){ anadeImgCatalogo(t.getAttribute("data-lz-img")); return; }
+  if(t.hasAttribute("data-lz-ico")){ anadeIcono(t.getAttribute("data-lz-ico")); return; }
+  if(t.hasAttribute("data-lz-mono")){ anadeMono(t.getAttribute("data-lz-mono")); return; }
   if(t.hasAttribute("data-lz-mi")){ aplicaPropia(t.getAttribute("data-lz-mi")); return; }
   if(t.hasAttribute("data-lz-mdel")){ borraPropia(t.getAttribute("data-lz-mdel")); return; }
   if(t.hasAttribute("data-lz-font")){ var it=sel(); if(it){ var nombre=t.getAttribute("data-lz-font"); aseguraFuente(nombre).then(function(){ cambia("f",nombre); }); cambia("f",nombre); } return; }
@@ -18278,6 +18675,8 @@ function alClic(ev){
   else if(a2.indexOf("al-")===0&&it2) cambia("al",a2.slice(3));
   else if(a2==="centrar") centra(); else if(a2==="dup") duplica(); else if(a2==="del") borra(); else if(a2==="atras") orden(-1); else if(a2==="adelante") orden(1);
   else if(a2==="bloq"&&it2){ it2.bloq=!it2.bloq; empuja(); guardar(); pintaTodo(); aviso(it2.bloq?"Bloqueado: no se mueve por error. Tócalo y pulsa el candado para soltarlo.":"Desbloqueado."); }
+  else if(a2==="z+") ponZoom(ST.zoom*1.25); else if(a2==="z-") ponZoom(ST.zoom/1.25); else if(a2==="zfit") zoomFit(); else if(a2==="mano"){ ST.mano=!ST.mano; ST.cv.style.cursor=ST.mano?"grab":"default"; barra(); }
+  else if(a2==="idioma-es"||a2==="idioma-ca"){ cambiaIdioma(a2.slice(7)); } else if(a2==="monopng"&&it2&&it2.f==="monograma") exportaMonoPNG(it2);
   else if(a2==="atodos") aplicaEstiloATodos(); else if(a2==="sinrelleno"&&it2) cambia("fill",""); else if(a2==="semilla"&&it2) cambia("seed",Math.floor(Math.random()*9999));
   else if(a2==="rellenar"){ rellenaDesdeMenu(); } else if(a2==="repartir"){ reparte(ST.sc,ST.gap==null?7:ST.gap); empuja(); guardar(); pintaTodo(); }
   else if(a2==="restablecer"){ if(window.confirm("¿Volver al diseño original?\n\nSe pierde lo que hayas colocado a mano (puedes deshacerlo).")) cambiaDiseno(ST.sc.tpl); }
@@ -18286,16 +18685,165 @@ function alClic(ev){
 function alCambio(ev){
   var el=ev.target; if(el.id==="lz-img"&&el.files&&el.files[0]){ subeImagen(el.files[0],anadeImagen); el.value=""; return; }
   if(el.id==="lz-reemp"&&el.files&&el.files[0]){ var it0=sel(); subeImagen(el.files[0],function(src,w,h){ if(it0){ it0.src=src; it0.h=it0.w*h/w; empuja(); guardar(); pintaTodo(); } }); el.value=""; return; }
+  var lg=el.getAttribute("data-lz-lg"); if(lg){ ST.logo[lg]=el.value; pintaMonos(); return; }
   var p=el.getAttribute("data-lz-p"), pg=el.getAttribute("data-lz-pg"), fin=ev.type==="change";
-  if(pg){ if(pg==="fondo"){ ST.sc.fondo=el.value; if(fin){ empuja(); guardar(); } pintaLienzo(); } else if(pg==="zoom"){ ST.zoom=+el.value; pintaTodo(); if(ST.editando){ estiloTa(porId(ST.editando)); } } else if(pg==="guias"){ ST.guias=el.checked; pintaLienzo(); } else if(pg==="gap"){ ST.gap=+el.value; reparte(ST.sc,ST.gap); pintaLienzo(); if(fin){ empuja(); guardar(); } } return; }
+  if(pg){ if(pg==="fondo"){ ST.sc.fondo=el.value; if(fin){ empuja(); guardar(); } pintaLienzo(); } else if(pg==="zoom"){ ponZoom(+el.value); } else if(pg==="guias"){ ST.guias=el.checked; pintaLienzo(); } else if(pg==="do"){ if(fin){ BR.minutaSet&&BR.minutaSet("do",el.value.trim()); rellenaDesdeMenu(true); } } else if(pg==="gap"){ ST.gap=+el.value; reparte(ST.sc,ST.gap); pintaLienzo(); if(fin){ empuja(); guardar(); } } return; }
   if(!p) return; var it=sel(); if(!it) return; var v=el.value; if(p==="s"||p==="ls"||p==="lh"||p==="op"||p==="sw"||p==="doble") v=+v; if(p==="s"&&!(v>=4)) return;
-  it[p]=v; if(it.t==="txt") medir(it); if(fin){ empuja(); guardar(); pintaTodo(); } else { pintaLienzo(); guardar(); }
+  it[p]=v; if(it.f==="monograma"&&(p==="a"||p==="b"||p==="nom"||p==="fec")) it.man=1; if(it.t==="txt") medir(it); if(p==="fnt"||p==="fnt2"){ aseguraFuente(v).then(function(){ pintaLienzo(); }); }
+  if(fin){ empuja(); guardar(); pintaTodo(); } else { pintaLienzo(); guardar(); }
 }
 function aplicaPropia(id){ var o=propias().filter(function(p){ return p.id===id; })[0]; if(!o) return; var sc=escenaDePropia(o,datos()); aseguraEscena(sc).then(function(){ return aseguraTpl(sc.tpl); }).then(function(){ ST.sc=sc; ST.sel=null; ST.sc.items.forEach(medir); empuja(); guardar(); pintaTodo(); pestana("d"); aviso("Plantilla «"+o.nombre+"» aplicada con los textos del menú."); }); }
 function borraPropia(id){ var o=propias().filter(function(p){ return p.id===id; })[0]; if(!o||!window.confirm("¿Borrar la plantilla «"+o.nombre+"»?")) return; BR.setParam("minutaLienzos",{lista:propias().filter(function(p){ return p.id!==id; })}); pestana("d"); }
 function guardarPlantilla(){
   var nombre=window.prompt("Nombre de la plantilla:"); if(!nombre) return; var lista=(BR.param("minutaLienzos")||{}).lista||[]; var o={id:"l"+Date.now().toString(36),nombre:String(nombre).slice(0,40),sc:clon({tpl:ST.sc.tpl,fondo:ST.sc.fondo,mx:ST.sc.mx,zona:ST.sc.zona,estilos:ST.sc.estilos,items:ST.sc.items.map(function(it){ var c={}; Object.keys(it).forEach(function(k){ if(k.charAt(0)!=="_") c[k]=it[k]; }); return c; })})}; lista=lista.concat([o]); BR.setParam("minutaLienzos",{lista:lista}); pestana("d"); aviso("Plantilla guardada para todo el equipo. Está en «Diseños»."); }
 
-window.LM_lienzo={aseguraTpl:aseguraTpl,mount:monta,exportarPDF:function(){ if(!ST) return Promise.resolve(); return exportaPDF(); },desmonta:function(){ if(ST){ terminaEdicion(); guardarYa(); } ST=null; document.removeEventListener("keydown",alTecla); },plantillas:PLANTILLAS,genera:genera,dibujaEscena:dibujaEscena,aseguraEscena:aseguraEscena,dibujaHoja:function(sc,esc){ var prev=ST; ST={sc:sc}; try{ return dibujaHoja(esc); } finally{ ST=prev; } },fuentes:FUENTES};
+/* ═══ ICONOS Y LOGOS DE LOS NOVIOS ═══ */
+/* ── iconos dibujados (rejilla de 24×24, trazo redondeado; se pueden colorear y estirar) ─────────────
+   Cada icono es una lista de trazos: una cadena = camino SVG; {c:[x,y,r]} = círculo; f:1 = relleno;
+   r:grados,p:[x,y] = girado alrededor de un punto. */
+var ICONOS={
+  /* mesa y celebración */
+  brindis:{n:"Brindis",g:"Mesa",o:[{d:"M3.5 4.5h7l-.9 6.2a2.6 2.6 0 0 1-5.2 0z",r:-14,p:[7,12]},{d:"M7 11.5v6.5",r:-14,p:[7,12]},{d:"M4.4 20h5.2",r:-14,p:[7,12]},{d:"M13.5 4.5h7l-.9 6.2a2.6 2.6 0 0 1-5.2 0z",r:14,p:[17,12]},{d:"M17 11.5v6.5",r:14,p:[17,12]},{d:"M14.4 20h5.2",r:14,p:[17,12]},{c:[12,3.2,.35],f:1},{c:[10.2,2,.3],f:1},{c:[13.8,2,.3],f:1}]},
+  copa:{n:"Copa de vino",g:"Mesa",o:["M7 3h10c0 5.5-2 8.5-5 8.5S7 8.5 7 3z","M12 11.5V20","M8.5 21h7"]},
+  champan:{n:"Copa de cava",g:"Mesa",o:["M9 3h6l-.6 9a2.4 2.4 0 0 1-4.8 0z","M12 14.4V20","M8.8 21h6.4",{c:[11,6.6,.4],f:1},{c:[13,8.8,.4],f:1},{c:[11.4,10.4,.3],f:1}]},
+  botella:{n:"Botella",g:"Mesa",o:["M10 2.5h4v4.2c0 1.2 2 2 2 4.3V20a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 20v-9c0-2.300 2-3.100 2-4.300z","M8 13.5h8v4.5H8z"]},
+  cubiertos:{n:"Tenedor y cuchillo",g:"Mesa",o:["M6 3v5.500a2.600 2.600 0 0 0 5.200 0V3","M8.600 3v18","M17.500 21V3c-2.300 1.500-3.500 4.500-3.500 8h3.500"]},
+  plato:{n:"Plato cloche",g:"Mesa",o:["M3.500 17a8.500 8.500 0 0 1 17 0z","M2 20h20",{c:[12,6.600,1.100]}]},
+  tarta:{n:"Tarta",g:"Mesa",o:["M4 21h16v-6.500H4z","M6 14.500V10h12v4.500","M8.500 10V7h7v3","M12 7V4.300","M12 1.800c1 1 1 2 0 2.800-1-.8-1-1.800 0-2.800z"]},
+  pastel:{n:"Magdalena",g:"Mesa",o:["M5 12.500h14l-1.600 8.500H6.600z","M5 12.500c0-4 3-6.500 7-6.500s7 2.500 7 6.500","M12 6V3.500","M9 15v3.500M12 15v3.500M15 15v3.500"]},
+  uvas:{n:"Racimo de uvas",g:"Mesa",o:[{c:[9,9,2.200]},{c:[15,9,2.200]},{c:[6.500,13.500,2.200]},{c:[12,13.500,2.200]},{c:[17.500,13.500,2.200]},{c:[9,18,2.200]},{c:[15,18,2.200]},"M12 2.500v4","M12 4.500c2-1.600 4-1.600 5.500-.600-1 2.200-3.200 2.700-5.500.600z"]},
+  chef:{n:"Gorro de cocinero",g:"Mesa",o:["M7 14a4 4 0 1 1 2-7.500A4 4 0 0 1 15 6.500a4 4 0 1 1 2 7.500V20H7z","M7 17h10"]},
+  regalo:{n:"Regalo",g:"Mesa",o:["M4 11h16v10H4z","M3 7.500h18V11H3z","M12 7.500V21","M12 7.500C9 7.500 7.500 4.500 9.500 3.700S12.500 6 12 7.500zm0 0c3 0 4.500-3 2.500-3.800S11.500 6 12 7.500z"]},
+  globo:{n:"Globo",g:"Mesa",o:["M12 2.500a6.500 6.500 0 0 1 6.500 6.500c0 4-3.500 7.200-6.500 8.800-3-1.600-6.500-4.800-6.500-8.800A6.500 6.500 0 0 1 12 2.500z","M10.800 18h2.400l-1.200 1.800z","M12 19.800c-1.200 1.200 1.200 2 0 3"]},
+  confeti:{n:"Confeti",g:"Mesa",o:[{c:[5,6,1],f:1},{c:[18.500,5,.9],f:1},{c:[12,11,1.100],f:1},{c:[19,15,1],f:1},{c:[6,17,.9],f:1},"M9 3l1.500 2.500","M15 8l2.500 1","M4 11.500l2.500-1","M13 18.500l1.500 2.500","M20.500 10l-2-1"]},
+  corona:{n:"Corona",g:"Mesa",o:["M3.500 18L2.500 8l5 4 4.500-7 4.500 7 5-4-1 10z","M3.500 21h17"]},
+  /* boda */
+  anillos:{n:"Alianzas",g:"Boda",o:[{c:[9.500,15,5]},{c:[14.500,15,5]},"M7.500 4.500l2 2.500 2-2.500-1-1.500h-2z"]},
+  corazon:{n:"Corazón",g:"Boda",o:["M12 20.500S4 16 4 9.500a4.500 4.500 0 0 1 8-2.800A4.500 4.500 0 0 1 20 9.500c0 6.500-8 11-8 11z"]},
+  corazones:{n:"Dos corazones",g:"Boda",o:["M9.500 19S3 15 3 9.800a3.800 3.800 0 0 1 6.500-2.600A3.800 3.800 0 0 1 16 9.800C16 15 9.500 19 9.500 19z","M15.500 20.500c3.500-1.800 6-4 6-7a3 3 0 0 0-5.200-2"]},
+  lazo:{n:"Lazo",g:"Boda",o:["M12 12c-3-4-8-5-8-2s5 4 8 2z","M12 12c3-4 8-5 8-2s-5 4-8 2z",{c:[12,12,1.600]},"M11 13.500L8 21","M13 13.500L16 21"]},
+  flor:{n:"Flor",g:"Boda",o:[{d:"M12 4c2 0 3 2 3 4s-1 3.500-3 3.500S9 10 9 8s1-4 3-4z",r:0,p:[12,12]},{d:"M12 4c2 0 3 2 3 4s-1 3.500-3 3.500S9 10 9 8s1-4 3-4z",r:72,p:[12,12]},{d:"M12 4c2 0 3 2 3 4s-1 3.500-3 3.500S9 10 9 8s1-4 3-4z",r:144,p:[12,12]},{d:"M12 4c2 0 3 2 3 4s-1 3.500-3 3.500S9 10 9 8s1-4 3-4z",r:216,p:[12,12]},{d:"M12 4c2 0 3 2 3 4s-1 3.500-3 3.500S9 10 9 8s1-4 3-4z",r:288,p:[12,12]},{c:[12,12,1.500],f:1}]},
+  infinito:{n:"Infinito",g:"Boda",o:["M12 12c-2-3-3.500-4.500-5.500-4.500a4.500 4.500 0 0 0 0 9C8.500 16.500 10 15 12 12zm0 0c2 3 3.500 4.500 5.500 4.500a4.500 4.500 0 0 0 0-9C15.500 7.500 14 9 12 12z"]},
+  /* bautizo y comunión */
+  cruz:{n:"Cruz",g:"Fe",o:["M12 2.500v19","M6.500 8.500h11"]},
+  caliz:{n:"Cáliz",g:"Fe",o:["M6.500 3.500h11c0 5.500-2 8.500-5.500 8.500S6.500 9 6.500 3.500z","M12 12v6","M8.500 21h7","M9.500 18h5"]},
+  hostia:{n:"Hostia",g:"Fe",o:[{c:[12,12,8.500]},"M12 7.500v9","M8 11h8"]},
+  biberon:{n:"Biberón",g:"Fe",o:["M12 2.500c1.300 0 2 .9 2 2.200h-4c0-1.300.7-2.200 2-2.200z","M8 6.500h8","M9 6.500h6V20a1.500 1.500 0 0 1-1.500 1.500h-3A1.500 1.500 0 0 1 9 20z","M9 11h2.500M9 14h2.500M9 17h2.500"]},
+  chupete:{n:"Chupete",g:"Fe",o:[{c:[12,5.500,3]},"M4.500 13c0-2 3.300-3.500 7.500-3.500s7.500 1.500 7.500 3.500-3.300 3.500-7.500 3.500-7.500-1.500-7.500-3.500z","M10.200 16.500v3.300a1.800 1.800 0 0 0 3.600 0v-3.300"]},
+  huellas:{n:"Huellas",g:"Fe",o:["M8 21c-1.500 0-2.500-1.500-2.500-3.500s1-4.500 2.500-4.500 2.500 2.500 2.500 4.500S9.500 21 8 21z",{c:[5.500,10,1],f:1},{c:[8,8.500,1],f:1},{c:[10.500,10,1],f:1},"M16 17c-1.500 0-2.500-1.500-2.500-3.500s1-4.500 2.500-4.500 2.500 2.500 2.500 4.500S17.500 17 16 17z",{c:[13.500,6,1],f:1},{c:[16,4.500,1],f:1},{c:[18.500,6,1],f:1}]},
+  gota:{n:"Gota de agua",g:"Fe",o:["M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z"]},
+  vela:{n:"Vela",g:"Fe",o:["M9.500 10.500h5V21h-5z","M12 10.500V8.500","M12 2.500c2.200 2.200 2.400 4.300 0 6-2.400-1.700-2.200-3.800 0-6z"]},
+  libro:{n:"Libro abierto",g:"Fe",o:["M3 5h7a2 2 0 0 1 2 2v13a3 3 0 0 0-3-2H3z","M21 5h-7a2 2 0 0 0-2 2v13a3 3 0 0 1 3-2h6z"]},
+  paloma:{n:"Paloma (línea)",g:"Fe",o:["M3 14c3-1 5-3 6-6 4 2 7 1 9-2 .8 3-.5 6-3 8 1 .3 2 .2 3-.5-.8 3-3.500 5-7 5-3.500 0-6-1.800-8-4.500z","M18 6.500l2.500-1.500"]},
+  /* naturaleza */
+  hoja:{n:"Hoja",g:"Naturaleza",o:["M5 19C5 9.500 11 4 20 4c0 9-5.500 15-15 15z","M5 19L15.500 8.500"]},
+  estrella:{n:"Estrella",g:"Naturaleza",o:["M12 3l2.600 5.600 6.100.7-4.500 4.200 1.200 6L12 16.500 6.600 19.500l1.200-6L3.300 9.300l6.100-.7z"]},
+  roseta:{n:"Roseta (tipo estrella)",g:"Naturaleza",o:[{d:"M12 12c-1.800-1.200-2.800-3-2.800-5a2.800 2.800 0 0 1 5.600 0c0 2-1 3.800-2.800 5z",r:0,p:[12,12]},{d:"M12 12c-1.800-1.200-2.800-3-2.800-5a2.800 2.800 0 0 1 5.600 0c0 2-1 3.800-2.800 5z",r:72,p:[12,12]},{d:"M12 12c-1.800-1.200-2.800-3-2.800-5a2.800 2.800 0 0 1 5.600 0c0 2-1 3.800-2.800 5z",r:144,p:[12,12]},{d:"M12 12c-1.800-1.200-2.800-3-2.800-5a2.800 2.800 0 0 1 5.600 0c0 2-1 3.800-2.800 5z",r:216,p:[12,12]},{d:"M12 12c-1.800-1.200-2.800-3-2.800-5a2.800 2.800 0 0 1 5.600 0c0 2-1 3.800-2.800 5z",r:288,p:[12,12]}]},
+  luna:{n:"Luna",g:"Naturaleza",o:["M20 14.500A8.500 8.500 0 1 1 9.500 4a7 7 0 0 0 10.500 10.500z"]},
+  sol:{n:"Sol",g:"Naturaleza",o:[{c:[12,12,4]},"M12 2.500v2.500M12 19v2.500M2.500 12H5M19 12h2.500M5.300 5.300l1.800 1.800M16.900 16.900l1.800 1.800M5.300 18.700l1.800-1.800M16.900 7.100l1.800-1.800"]},
+  pez:{n:"Pez",g:"Naturaleza",o:["M3 12c3-5 8-6 12-3l5-3v12l-5-3c-4 3-9 2-12-3z",{c:[8,11.500,.8],f:1}]},
+  ancla:{n:"Ancla",g:"Naturaleza",o:[{c:[12,5,2]},"M12 7v14","M7 11h10","M4.500 15c0 3.500 3.500 6 7.500 6s7.500-2.500 7.500-6"]},
+  /* datos y detalles */
+  nota:{n:"Nota musical",g:"Detalles",o:["M9 18V5.500l10-2V16",{c:[7,18,2]},{c:[17,16,2]}]},
+  wifi:{n:"Wi-Fi",g:"Detalles",o:["M2 9a15 15 0 0 1 20 0","M5 12.500a10.500 10.500 0 0 1 14 0","M8.500 16a5.500 5.500 0 0 1 7 0",{c:[12,19.500,1],f:1}]},
+  hashtag:{n:"Almohadilla #",g:"Detalles",o:["M9 3.500L7 20.500","M17 3.500l-2 17","M4 9h17","M3 15h17"]},
+  pin:{n:"Ubicación",g:"Detalles",o:["M12 21.500s7-6 7-11.500a7 7 0 0 0-14 0c0 5.500 7 11.500 7 11.500z",{c:[12,10,2.500]}]},
+  reloj:{n:"Reloj",g:"Detalles",o:[{c:[12,12,9]},"M12 6.500V12l3.500 2"]},
+  llave:{n:"Llave",g:"Detalles",o:[{c:[7.500,7.500,4]},"M10.500 10.500L20 20","M16 16l2.500-2.500","M18.500 18.500l2-2"]}
+};
+var ICONO_GRUPOS=["Mesa","Boda","Fe","Naturaleza","Detalles"];
+var ICONO_GR_N={Mesa:"Mesa y celebración",Boda:"Boda",Fe:"Bautizo y comunión",Naturaleza:"Naturaleza",Detalles:"Detalles"};
+function dibujaIcono(ctx,it){
+  var ic=ICONOS[it.ico]; if(!ic) return; var x=it.x, y=it.y, w=it.w, h=it.h, k=Math.min(w,h)/24;
+  ctx.save(); ctx.globalAlpha=it.op==null?1:it.op; ctx.translate(x+(w-24*k)/2,y+(h-24*k)/2); ctx.scale(k,k);
+  var col=it.stroke||"#333", rel=it.fill||col; ctx.strokeStyle=col; ctx.fillStyle=rel; ctx.lineWidth=it.sw==null?1.5:it.sw; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.setLineDash([]);
+  ic.o.forEach(function(op){
+    if(typeof op==="string") op={d:op};
+    ctx.save(); if(op.r){ var p=op.p||[12,12]; ctx.translate(p[0],p[1]); ctx.rotate(op.r*Math.PI/180); ctx.translate(-p[0],-p[1]); }
+    if(op.c){ ctx.beginPath(); ctx.arc(op.c[0],op.c[1],op.c[2],0,Math.PI*2); } else { ctx.beginPath(); var pa=new Path2D(op.d); if(op.f) ctx.fill(pa); else ctx.stroke(pa); ctx.restore(); return; }
+    if(op.f) ctx.fill(); else ctx.stroke(); ctx.restore(); });
+  ctx.restore();
+}
+function iconoHTML(){
+  var h="";
+  /* logos de la casa */
+  var g=function(titulo,filtro,cls){ var ks=Object.keys(LZ_MAN).filter(filtro); if(!ks.length) return ""; return '<div class="lz-sec">'+titulo+'</div><div class="lz-ics'+(cls?" "+cls:"")+'">'+ks.map(function(k){ var m=LZ_MAN[k]; return '<button type="button" class="lz-ic lz-ic-img" data-lz-img="@lz:'+k+'" title="'+esc(m.n)+'"><span><img alt="" loading="lazy" src="'+LZ_BASE+k+'.webp?v='+LZ_VER+'"></span><small>'+esc(m.n)+'</small></button>'; }).join("")+'</div>'; };
+  h+=g("Logos de la casa y distinciones",function(k){ return LZ_MAN[k].g==="logos"; },"lz-ics-logos");
+  h+=g("Bautizo",function(k){ return LZ_MAN[k].g==="bautizo"; });
+  h+=g("Comunión",function(k){ return LZ_MAN[k].g==="comunion"; });
+  h+=g("Boda",function(k){ return LZ_MAN[k].g==="boda"; });
+  h+=g("Hojas de acuarela",function(k){ return LZ_MAN[k].g==="hojas"; });
+  h+=g("Otras ilustraciones",function(k){ return LZ_MAN[k].g==="otros"; });
+  /* iconos dibujados */
+  ICONO_GRUPOS.forEach(function(gr){ var ks=Object.keys(ICONOS).filter(function(k){ return ICONOS[k].g===gr; }); h+='<div class="lz-sec">Iconos · '+esc(ICONO_GR_N[gr])+'</div><div class="lz-ics lz-ics-v">'+ks.map(function(k){ return '<button type="button" class="lz-ic lz-ic-v" data-lz-ico="'+k+'" title="'+esc(ICONOS[k].n)+'"><canvas width="64" height="64" data-lz-icc="'+k+'"></canvas><small>'+esc(ICONOS[k].n)+'</small></button>'; }).join("")+'</div>'; });
+  h+='<p class="esc-hint">Toca uno para ponerlo en el papel; luego se mueve, se agranda y se cambia de color. Los iconos dibujados usan el color de línea.</p>';
+  return h;
+}
+function pintaIconos(){ if(!rootEl) return; rootEl.querySelectorAll("canvas[data-lz-icc]").forEach(function(cv){ var k=cv.getAttribute("data-lz-icc"), g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); g.setTransform(1,0,0,1,0,0);
+  var it={ico:k,x:0,y:0,w:cv.width/ (cv.width/64),h:64,stroke:"#3B3B3B",sw:1.5}; dibujaIcono(g,{ico:k,x:6,y:6,w:52,h:52,stroke:"#3B3B3B",sw:1.5}); }); }
+function anadeIcono(k){ var ic=ICONOS[k]; if(!ic) return; var c=(TPL_POR[ST.sc.tpl]||PLANTILLAS[0]).color||"#3B3B3B"; var it=S({f:"icono",ico:k,x:W/2-20,y:380,w:40,h:40,stroke:c,sw:1.5}); ST.sc.items.push(it); ST.sel=it.id; empuja(); guardar(); pintaTodo(); }
+function anadeImgCatalogo(src){ var n=src.slice(4), m=LZ_MAN[n]; if(!m) return; var ww=Math.min(m.g==="logos"?(m.w/m.h>5?150:100):(m.w>m.h*2?140:(m.h>m.w?70:110)),W-60), hh=ww*m.h/m.w; if(hh>300){ hh=300; ww=hh*m.w/m.h; }
+  var gr=m.g, y=gr==="logos"?(m.w/m.h>5?700:600):300, it=IMG(src,(W-ww)/2,y,ww,hh); ST.sc.items.push(it); ST.sel=it.id; empuja(); guardar(); pintaTodo(); }
+
+/* ── logos de los novios: monogramas con las iniciales y los nombres ───────────────────────────────
+   Un monograma es un único objeto del papel (se mueve, se agranda y se recolorea como un icono);
+   se dibuja con el mismo código en pantalla, miniaturas y PDF. */
+var MONO_ESTILOS=[{id:"aro",n:"Aro"},{id:"entrelazado",n:"Entrelazado"},{id:"laurel",n:"Laurel"},{id:"lineal",n:"Línea"},{id:"escudo",n:"Escudo"},{id:"sello",n:"Sello"},{id:"arco",n:"Arco"},{id:"corazon",n:"Corazón"},{id:"deco",n:"Art déco"},{id:"rombo",n:"Rombo"},{id:"caligrafico",n:"Caligráfico"},{id:"minimal",n:"Minimal"}];
+var MONO_FUENTES=["Cormorant Garamond","Playfair Display","Cinzel","Bodoni Moda","Great Vibes","Pinyon Script","Poiret One","Jost","Italiana"];
+var MONO_DEF={aro:"Cormorant Garamond",entrelazado:"Playfair Display",laurel:"Cormorant Garamond",lineal:"Cinzel",escudo:"Cinzel",sello:"Cormorant Garamond",arco:"Cormorant Garamond",corazon:"Great Vibes",deco:"Poiret One",rombo:"Cinzel",caligrafico:"Pinyon Script",minimal:"Jost"};
+function mTxt(ctx,t,cx,cy,font,size,ls,o){ o=o||{}; ctx.save(); ctx.font=(o.i?"italic ":"")+(o.b?"700 ":"400 ")+size+'px "'+font+'", Georgia, serif'; ctx.textBaseline="middle"; ctx.textAlign="left";
+  var ch=Array.from(String(t)), ws=ch.map(function(c){ return ctx.measureText(c).width; }), tot=ws.reduce(function(a,b){ return a+b; },0)+ls*Math.max(0,ch.length-1), x0=cx-tot/2;
+  ch.forEach(function(c,i){ if(o.s) ctx.strokeText(c,x0,cy); else ctx.fillText(c,x0,cy); x0+=ws[i]+ls; }); ctx.restore(); return tot; }
+function mHeart(ctx,cx,top,s){ ctx.beginPath(); ctx.moveTo(cx,top+s*0.30); ctx.bezierCurveTo(cx-s*0.02,top+s*0.10,cx-s*0.30,top-s*0.02,cx-s*0.46,top+s*0.18); ctx.bezierCurveTo(cx-s*0.62,top+s*0.40,cx-s*0.40,top+s*0.62,cx,top+s*0.96); ctx.bezierCurveTo(cx+s*0.40,top+s*0.62,cx+s*0.62,top+s*0.40,cx+s*0.46,top+s*0.18); ctx.bezierCurveTo(cx+s*0.30,top-s*0.02,cx+s*0.02,top+s*0.10,cx,top+s*0.30); ctx.closePath(); }
+function mPoli(ctx,cx,cy,r,n,rot){ ctx.beginPath(); for(var i=0;i<n;i++){ var a=rot+i*2*Math.PI/n; if(i) ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); else ctx.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); } ctx.closePath(); }
+function dibujaMono(ctx,it){
+  var est=it.est||"aro", A=String(it.a||"A").toUpperCase(), B=String(it.b||"B").toUpperCase(), c=it.stroke||"#333", fa=it.fnt||MONO_DEF[est]||"Cormorant Garamond", fb=it.fnt2||"Jost", amp="Great Vibes";
+  var x=it.x, y=it.y, w=it.w, h=it.h, sello=est==="sello", txt=!sello&&(it.nom||it.fec), d=Math.min(w,txt?h*0.76:h), cx=x+w/2, lw=Math.max(0.35,d*0.012);
+  ctx.save(); ctx.globalAlpha=it.op==null?1:it.op; ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.setLineDash([]); ctx.lineWidth=lw;
+  var cy=y+d/2, R=d/2*0.97;
+  if(est==="aro"){ ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke(); ctx.lineWidth=lw*0.5; ctx.beginPath(); ctx.arc(cx,cy,R*0.9,0,Math.PI*2); ctx.stroke();
+    mTxt(ctx,A,cx-d*0.2,cy,fa,d*0.38,0); mTxt(ctx,B,cx+d*0.2,cy,fa,d*0.38,0); mTxt(ctx,"&",cx,cy+d*0.02,amp,d*0.2,0); }
+  else if(est==="entrelazado"){ ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+    mTxt(ctx,A,cx-d*0.1,cy+d*0.02,fa,d*0.64,0,{b:0}); ctx.lineWidth=lw*1.1; mTxt(ctx,B,cx+d*0.1,cy+d*0.02,fa,d*0.64,0,{s:1}); }
+  else if(est==="laurel"){ dibujaForma(ctx,{f:"laurel",x:cx-d/2,y:y,w:d,h:d,stroke:c,fill:c,sw:0.9,seed:it.seed||4,op:1}); mTxt(ctx,A,cx-d*0.16,cy,fa,d*0.3,0); mTxt(ctx,B,cx+d*0.16,cy,fa,d*0.3,0); mTxt(ctx,"&",cx,cy+d*0.015,amp,d*0.17,0); }
+  else if(est==="lineal"){ var vh=d*0.62; ctx.beginPath(); ctx.moveTo(cx,cy-vh/2); ctx.lineTo(cx,cy+vh/2); ctx.stroke(); mTxt(ctx,A,cx-d*0.22,cy,fa,d*0.44,0); mTxt(ctx,B,cx+d*0.22,cy,fa,d*0.44,0);
+    ctx.lineWidth=lw*0.6; ctx.beginPath(); ctx.moveTo(cx-d*0.42,cy-vh*0.62); ctx.lineTo(cx+d*0.42,cy-vh*0.62); ctx.moveTo(cx-d*0.42,cy+vh*0.62); ctx.lineTo(cx+d*0.42,cy+vh*0.62); ctx.stroke(); }
+  else if(est==="escudo"){ var sw=d*0.74, sh=d*0.94, sx=cx-sw/2, sy=y+d*0.03; function esc2(k){ var ww=sw*k, hh=sh*k, xx=cx-ww/2, yy=sy+(sh-hh)/2; ctx.beginPath(); ctx.moveTo(xx,yy); ctx.lineTo(xx+ww,yy); ctx.lineTo(xx+ww,yy+hh*0.55); ctx.quadraticCurveTo(xx+ww,yy+hh*0.88,cx,yy+hh); ctx.quadraticCurveTo(xx,yy+hh*0.88,xx,yy+hh*0.55); ctx.closePath(); }
+    esc2(1); ctx.stroke(); ctx.lineWidth=lw*0.5; esc2(0.88); ctx.stroke(); mTxt(ctx,A,cx-d*0.16,cy-d*0.04,fa,d*0.3,0); mTxt(ctx,B,cx+d*0.16,cy-d*0.04,fa,d*0.3,0); mTxt(ctx,"&",cx,cy-d*0.03,amp,d*0.16,0); dibujaForma(ctx,{f:"estrellas",x:cx-d*0.12,y:cy+d*0.2,w:d*0.24,h:d*0.05,fill:c,stroke:"",op:1}); }
+  else if(est==="sello"){ d=Math.min(w,h); cy=y+d/2; R=d/2*0.97; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke(); ctx.lineWidth=lw*0.55; ctx.beginPath(); ctx.arc(cx,cy,R*0.78,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx,cy,R*0.97-lw*3,0,Math.PI*2); ctx.stroke();
+    var seg=((it.nom||"")+(it.nom&&it.fec?"  ·  ":"")+(it.fec||"")).toUpperCase(), size=d*0.072, ls=size*0.28; ctx.font=size+'px "'+fb+'", sans-serif';
+    if(seg){ var rr=R*0.885, circ=2*Math.PI*rr, unit=seg+"  ·  ", uw=Array.from(unit).reduce(function(a,ch){ return a+ctx.measureText(ch).width+ls; },0), reps=Math.max(1,Math.round(circ/uw)), full=Array.from(unit.repeat(reps)), tot=full.reduce(function(a,ch){ return a+ctx.measureText(ch).width+ls; },0), k=circ/tot, ang=-Math.PI/2;
+      ctx.textBaseline="middle"; ctx.textAlign="center"; full.forEach(function(ch){ var cw=(ctx.measureText(ch).width+ls)*k, a2=ang+cw/2/rr; ctx.save(); ctx.translate(cx+Math.cos(a2)*rr,cy+Math.sin(a2)*rr); ctx.rotate(a2+Math.PI/2); ctx.fillText(ch,0,0); ctx.restore(); ang+=cw/rr; }); }
+    mTxt(ctx,A,cx-d*0.16,cy,fa,d*0.26,0); mTxt(ctx,B,cx+d*0.16,cy,fa,d*0.26,0); mTxt(ctx,"&",cx,cy+d*0.012,amp,d*0.14,0); }
+  else if(est==="arco"){ var aw=d*0.76, ah=d*0.98, ax=cx-aw/2; pathArco(ctx,ax,y+d*0.01,aw,ah); ctx.stroke(); ctx.lineWidth=lw*0.5; pathArco(ctx,ax+d*0.045,y+d*0.01+d*0.045,aw-d*0.09,ah-d*0.045); ctx.stroke();
+    mTxt(ctx,A,cx-d*0.15,cy-d*0.05,fa,d*0.3,0); mTxt(ctx,B,cx+d*0.15,cy-d*0.05,fa,d*0.3,0); mTxt(ctx,"&",cx,cy-d*0.04,amp,d*0.16,0); dibujaForma(ctx,{f:"puntos",x:cx-d*0.12,y:cy+d*0.2,w:d*0.24,h:d*0.04,fill:c,stroke:"",op:1}); }
+  else if(est==="corazon"){ mHeart(ctx,cx,y+d*0.04,d*0.98); ctx.stroke(); mTxt(ctx,A,cx-d*0.16,cy-d*0.03,fa,d*0.3,0); mTxt(ctx,B,cx+d*0.16,cy-d*0.03,fa,d*0.3,0); mTxt(ctx,"&",cx,cy-d*0.02,amp,d*0.15,0); }
+  else if(est==="deco"){ mPoli(ctx,cx,cy,R,8,Math.PI/8); ctx.stroke(); ctx.lineWidth=lw*0.55; mPoli(ctx,cx,cy,R*0.88,8,Math.PI/8); ctx.stroke();
+    ctx.lineWidth=lw*0.6; [0,1,2,3].forEach(function(i){ var a=Math.PI/4*i*2; ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*R*0.88,cy+Math.sin(a)*R*0.88); ctx.lineTo(cx+Math.cos(a)*R*1.0,cy+Math.sin(a)*R*1.0); ctx.stroke(); });
+    mTxt(ctx,A,cx-d*0.17,cy,fa,d*0.3,d*0.01); mTxt(ctx,B,cx+d*0.17,cy,fa,d*0.3,d*0.01); mPoli(ctx,cx,cy,d*0.035,4,0); ctx.fill(); }
+  else if(est==="rombo"){ mPoli(ctx,cx,cy,R,4,Math.PI/4*0+(-Math.PI/2)); ctx.stroke(); ctx.lineWidth=lw*0.5; mPoli(ctx,cx,cy,R*0.9,4,-Math.PI/2); ctx.stroke(); mTxt(ctx,A,cx-d*0.14,cy,fa,d*0.26,0); mTxt(ctx,B,cx+d*0.14,cy,fa,d*0.26,0); mPoli(ctx,cx,cy,d*0.028,4,-Math.PI/2); ctx.fill(); }
+  else if(est==="caligrafico"){ mTxt(ctx,A,cx-d*0.2,cy-d*0.04,fa,d*0.62,0); mTxt(ctx,B,cx+d*0.22,cy+d*0.04,fa,d*0.62,0); mTxt(ctx,"&",cx,cy+d*0.0,amp,d*0.2,0); ctx.lineWidth=lw*0.7; ctx.beginPath(); ctx.moveTo(cx-d*0.4,cy+d*0.36); ctx.bezierCurveTo(cx-d*0.15,cy+d*0.28,cx+d*0.15,cy+d*0.44,cx+d*0.4,cy+d*0.34); ctx.stroke(); }
+  else if(est==="minimal"){ ctx.lineWidth=lw*0.6; ctx.beginPath(); ctx.moveTo(cx-d*0.34,cy-d*0.22); ctx.lineTo(cx+d*0.34,cy-d*0.22); ctx.moveTo(cx-d*0.34,cy+d*0.22); ctx.lineTo(cx+d*0.34,cy+d*0.22); ctx.stroke(); mTxt(ctx,A+"  +  "+B,cx,cy,fa,d*0.2,d*0.04); }
+  /* nombres y fecha bajo el emblema */
+  if(txt){ var th=h-d, t1=it.nom&&it.fec?y+d+th*0.36:y+d+th*0.5, t2=y+d+th*0.76;
+    if(it.nom) mTxt(ctx,String(it.nom).toUpperCase(),cx,t1,fb,Math.max(3,Math.min(d*0.085,w/(String(it.nom).length*0.8))),Math.max(0.2,d*0.022));
+    if(it.fec) mTxt(ctx,String(it.fec),cx,it.nom?t2:t1,fb,Math.max(3,d*0.062),Math.max(0.2,d*0.03)); }
+  ctx.restore();
+}
+function monoHTML(){
+  var L=ST.logo; var campos='<div class="lz-pg lz-logo-f"><label class="lz-rg">1ª inicial<input class="lz-n" data-lz-lg="a" maxlength="2" value="'+esc(L.a)+'"></label><label class="lz-rg">2ª inicial<input class="lz-n" data-lz-lg="b" maxlength="2" value="'+esc(L.b)+'"></label>'+
+    '<label class="lz-rg lz-wide">Nombres<input class="lz-t" type="text" data-lz-lg="nom" value="'+esc(L.nom)+'"></label><label class="lz-rg lz-wide">Fecha<input class="lz-t" type="text" data-lz-lg="fec" value="'+esc(L.fec)+'"></label>'+
+    '<label class="lz-rg">Color<input type="color" class="lz-col" data-lz-lg="color" value="'+esc(colorOk(L.color))+'"></label></div>';
+  return '<div class="lz-sec">Logo de los novios</div><p class="esc-hint">Con las iniciales y los nombres de la pareja. Elige un estilo y se añade al papel; después se mueve, se agranda y se cambia de color o de letra.</p>'+campos+
+    '<div class="lz-sec">Estilos</div><div class="lz-mgrid">'+MONO_ESTILOS.map(function(e){ return '<button type="button" class="lz-tp lz-mono" data-lz-mono="'+e.id+'" title="'+esc(e.n)+'"><canvas width="150" height="190" data-lz-mc="'+e.id+'"></canvas><b>'+esc(e.n)+'</b></button>'; }).join("")+'</div>';
+}
+function monoItem(est,L,x,y,w,h){ return S({f:"monograma",est:est,a:L.a,b:L.b,nom:L.nom,fec:L.fec,stroke:L.color,fnt:MONO_DEF[est],fnt2:"Jost",x:x,y:y,w:w,h:h,sw:1}); }
+function pintaMonos(){ if(!rootEl||!ST||!ST.logo) return; var fs=MONO_ESTILOS.map(function(e){ return MONO_DEF[e.id]; }).concat(["Jost","Great Vibes"]);
+  Promise.all(fs.filter(function(v,i,a){ return a.indexOf(v)===i; }).map(aseguraFuente)).then(function(){ if(!ST||!rootEl) return; rootEl.querySelectorAll("canvas[data-lz-mc]").forEach(function(cv){ var e=cv.getAttribute("data-lz-mc"), g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); try{ dibujaMono(g,monoItem(e,ST.logo,8,6,134,178)); }catch(err){} }); }); }
+function anadeMono(est){ var L=ST.logo, it=monoItem(est,L,(W-150)/2,300,150,190); ST.sc.items.push(it); ST.sel=it.id; empuja(); guardar(); aseguraEscena(ST.sc).then(function(){ pintaTodo(); }); pintaTodo(); }
+function exportaMonoPNG(it){ aseguraEscena({items:[it]}).then(function(){ var c=document.createElement("canvas"), k=1500/it.w; c.width=Math.round(it.w*k); c.height=Math.round(it.h*k); var g=c.getContext("2d"); g.scale(k,k); dibujaMono(g,{est:it.est,a:it.a,b:it.b,nom:it.nom,fec:it.fec,stroke:it.stroke,fnt:it.fnt,fnt2:it.fnt2,seed:it.seed,x:0,y:0,w:it.w,h:it.h,sw:it.sw,op:it.op});
+  c.toBlob(function(b){ var a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="logo_novios.png"; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500); },"image/png"); }); }
+
+window.LM_lienzo={estado:function(){ return ST; },aseguraTpl:aseguraTpl,mount:monta,exportarPDF:function(){ if(!ST) return Promise.resolve(); return exportaPDF(); },desmonta:function(){ if(ST){ terminaEdicion(); guardarYa(); } ST=null; document.removeEventListener("keydown",alTecla); document.removeEventListener("keyup",alTeclaSube); },plantillas:PLANTILLAS,genera:genera,dibujaEscena:dibujaEscena,aseguraEscena:aseguraEscena,dibujaHoja:function(sc,esc){ var prev=ST; ST={sc:sc}; try{ return dibujaHoja(esc); } finally{ ST=prev; } },fuentes:FUENTES};
 })();
 /*LZ-END*/</script>
