@@ -3203,7 +3203,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.44</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.45</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8217,7 +8217,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.44</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.45</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -17806,12 +17806,12 @@ function cargaFuentes(){
   FUENTES.forEach(function(f){ if(!f.g) return; var l=document.createElement("link"); l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family="+f.g+"&display=swap"; l.setAttribute("data-lz","1");
     ps.push(new Promise(function(res){ l.onload=l.onerror=function(){ res(); }; })); document.head.appendChild(l); });
   /* hasta que no llegan las hojas de estilo, el navegador no sabe que existen esas letras: se espera (máx. 7 s) */
-  hojasListas=Promise.race([Promise.all(ps),new Promise(function(res){ setTimeout(res,7000); })]);
+  hojasListas=Promise.race([Promise.all(ps),new Promise(function(res){ setTimeout(res,6000); })]);
 }
 var fuentesListas={};
 function aseguraFuente(nombre){
   if(fuentesListas[nombre]) return fuentesListas[nombre];
-  return (fuentesListas[nombre]=hojasListas.then(function(){ var p=[]; try{ ["400","700"].forEach(function(w){ ["normal","italic"].forEach(function(st){ p.push(document.fonts.load(st+" "+w+' 20px "'+nombre+'"').catch(function(){})); }); }); }catch(_){} return Promise.all(p); }));
+  return (fuentesListas[nombre]=hojasListas.then(function(){ var p=[]; try{ ["400","700"].forEach(function(w){ ["normal","italic"].forEach(function(st){ p.push(document.fonts.load(st+" "+w+' 20px "'+nombre+'"').catch(function(){})); }); }); }catch(_){} /* con mala conexión no se espera para siempre: se sigue con una letra provisional y, al llegar la buena, se recoloca */ return Promise.race([Promise.all(p),new Promise(function(res){ setTimeout(res,6000); })]); }));
 }
 function fuentesDeTpl(tp){ var us={}; Object.keys(tp.est).forEach(function(k){ us[tp.est[k].f]=1; }); if(tp.pieFont) us[tp.pieFont]=1; return Object.keys(us); }
 function aseguraTpl(id){ var tp=TPL_POR[id]||PLANTILLAS[0]; return Promise.all(fuentesDeTpl(tp).map(aseguraFuente)); }
@@ -17869,7 +17869,7 @@ function trazo(ctx,it){ ctx.strokeStyle=it.stroke||"#333"; ctx.lineWidth=it.sw==
 function pathArco(ctx,x,y,w,h){ var r=w/2; ctx.beginPath(); ctx.moveTo(x,y+h); ctx.lineTo(x,y+r); ctx.arc(x+r,y+r,r,Math.PI,0); ctx.lineTo(x+w,y+h); ctx.closePath(); }
 function pathRR(ctx,x,y,w,h,r){ r=Math.min(r,w/2,h/2); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function hoja(ctx,cx,cy,ang,lar,anc){ ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang); ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(lar*0.25,-anc,lar*0.75,-anc*0.8,lar,0); ctx.bezierCurveTo(lar*0.75,anc*0.8,lar*0.25,anc,0,0); ctx.closePath(); ctx.restore(); }
-function dibujaHoja(ctx,cx,cy,ang,lar,anc,fill,stroke,sw){ ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang); ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(lar*0.25,-anc,lar*0.75,-anc*0.8,lar,0); ctx.bezierCurveTo(lar*0.75,anc*0.8,lar*0.25,anc,0,0); ctx.closePath();
+function dibujaFronda(ctx,cx,cy,ang,lar,anc,fill,stroke,sw){ ctx.save(); ctx.translate(cx,cy); ctx.rotate(ang); ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(lar*0.25,-anc,lar*0.75,-anc*0.8,lar,0); ctx.bezierCurveTo(lar*0.75,anc*0.8,lar*0.25,anc,0,0); ctx.closePath();
   if(fill){ ctx.fillStyle=fill; ctx.fill(); } if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke(); } ctx.restore(); }
 function ramaPath(ctx,it,x,y,w,h,flip){
   /* rama de olivo: tallo curvo de arriba abajo con hojas alternas; la semilla varía el desorden */
@@ -17880,9 +17880,9 @@ function ramaPath(ctx,it,x,y,w,h,flip){
   ctx.stroke();
   for(var j=1;j<n;j++){ var p=pts[j], lado=j%2?1:-1, lar=(w*0.42)*(0.7+R()*0.45)*(1-j/n*0.35), anc=lar*0.22, ang=lado*(0.55+R()*0.35)-Math.PI/2+(lado>0?Math.PI/2:-Math.PI/2)*0;
     var base=lado>0?-0.5:-Math.PI+0.5; ang=base+(R()-0.5)*0.35;
-    dibujaHoja(ctx,p[0],p[1],ang+ (lado>0?0:0),lar,anc,it.fill||it.stroke,it.stroke,0.4); }
+    dibujaFronda(ctx,p[0],p[1],ang+ (lado>0?0:0),lar,anc,it.fill||it.stroke,it.stroke,0.4); }
   /* hoja terminal */
-  var q=pts[pts.length-1]; dibujaHoja(ctx,q[0],q[1],Math.PI/2,w*0.3,w*0.07,it.fill||it.stroke,it.stroke,0.4);
+  var q=pts[pts.length-1]; dibujaFronda(ctx,q[0],q[1],Math.PI/2,w*0.3,w*0.07,it.fill||it.stroke,it.stroke,0.4);
   ctx.restore();
 }
 function dibujaForma(ctx,it){
@@ -17906,11 +17906,11 @@ function dibujaForma(ctx,it){
     var rr2=Math.min(w,h)/2, c2x=x+w/2, c2y=y+h/2, R=rng(it.seed||3), nn=11;
     [-1,1].forEach(function(lado){ ctx.save(); trazo(ctx,it); ctx.setLineDash([]); ctx.beginPath(); for(var i=0;i<=24;i++){ var t=i/24, a=Math.PI/2+lado*(0.18+t*2.35); var px=c2x+Math.cos(a)*rr2*0.82, py=c2y+Math.sin(a)*rr2*0.82; if(i) ctx.lineTo(px,py); else ctx.moveTo(px,py); } ctx.stroke();
       for(var j=1;j<=nn;j++){ var tt=j/(nn+1), a3=Math.PI/2+lado*(0.18+tt*2.35), bx=c2x+Math.cos(a3)*rr2*0.82, by=c2y+Math.sin(a3)*rr2*0.82, tan=a3+lado*Math.PI/2*(-1);
-        [-1,1].forEach(function(s2){ dibujaHoja(ctx,bx,by,tan+s2*0.75+(R()-0.5)*0.2+(lado>0?Math.PI:0),rr2*0.2*(0.8+R()*0.4),rr2*0.05,it.fill||it.stroke,it.stroke,0.3); }); }
+        [-1,1].forEach(function(s2){ dibujaFronda(ctx,bx,by,tan+s2*0.75+(R()-0.5)*0.2+(lado>0?Math.PI:0),rr2*0.2*(0.8+R()*0.4),rr2*0.05,it.fill||it.stroke,it.stroke,0.3); }); }
       ctx.restore(); }); }
   else if(f==="espiga"){ var R2=rng(it.seed||5), cx2=x+w/2; trazo(ctx,it); ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(cx2,y+h); ctx.lineTo(cx2,y+h*0.15); ctx.stroke(); var m=Math.max(5,Math.round(h/16));
-    for(var u=0;u<m;u++){ var py2=y+h*0.12+u*(h*0.7/m); [-1,1].forEach(function(l2){ dibujaHoja(ctx,cx2,py2+ (l2>0?4:0),(l2>0?-0.9:-Math.PI+0.9),w*0.42*(1-u/m*0.25),w*0.1,it.fill||it.stroke,it.stroke,0.3); }); } dibujaHoja(ctx,cx2,y+h*0.12,-Math.PI/2,h*0.1,w*0.07,it.fill||it.stroke,it.stroke,0.3); }
-  else if(f==="flor"){ var cx3=x+w/2, cy3=y+h/2, rp=Math.min(w,h)/2, pet=it.petalos||8; for(var p=0;p<pet;p++){ dibujaHoja(ctx,cx3,cy3,p*Math.PI*2/pet,rp*0.92,rp*0.22,it.fill||null,it.stroke,it.sw||0.8); } ctx.beginPath(); ctx.arc(cx3,cy3,rp*0.12,0,Math.PI*2); ctx.fillStyle=it.stroke; ctx.fill(); }
+    for(var u=0;u<m;u++){ var py2=y+h*0.12+u*(h*0.7/m); [-1,1].forEach(function(l2){ dibujaFronda(ctx,cx2,py2+ (l2>0?4:0),(l2>0?-0.9:-Math.PI+0.9),w*0.42*(1-u/m*0.25),w*0.1,it.fill||it.stroke,it.stroke,0.3); }); } dibujaFronda(ctx,cx2,y+h*0.12,-Math.PI/2,h*0.1,w*0.07,it.fill||it.stroke,it.stroke,0.3); }
+  else if(f==="flor"){ var cx3=x+w/2, cy3=y+h/2, rp=Math.min(w,h)/2, pet=it.petalos||8; for(var p=0;p<pet;p++){ dibujaFronda(ctx,cx3,cy3,p*Math.PI*2/pet,rp*0.92,rp*0.22,it.fill||null,it.stroke,it.sw||0.8); } ctx.beginPath(); ctx.arc(cx3,cy3,rp*0.12,0,Math.PI*2); ctx.fillStyle=it.stroke; ctx.fill(); }
   else if(f==="enso"){ /* círculo de pincel: grosor que respira, abierto en un extremo (semilla = la mano) */
     var cx4=x+w/2, cy4=y+h/2, rad=Math.min(w,h)/2*0.86, R3=rng(it.seed||11), N=140, a0=-1.1+R3()*0.4, tot=Math.PI*2*0.93; ctx.fillStyle=it.stroke||"#C0392B";
     var ext=[], inn=[]; for(var z=0;z<=N;z++){ var t3=z/N, a4=a0+tot*t3, th=(it.sw||5)*(0.25+Math.sin(t3*Math.PI)*0.95+R3()*0.05), rj=rad+Math.sin(t3*9+ (it.seed||11))*0.8; ext.push([cx4+Math.cos(a4)*(rj+th/2),cy4+Math.sin(a4)*(rj+th/2)]); inn.push([cx4+Math.cos(a4)*(rj-th/2),cy4+Math.sin(a4)*(rj-th/2)]); }
@@ -18028,8 +18028,8 @@ function colocaAuto(sc,bloques,dm){
   /* primero el nombre, pegado a lo de abajo; el cuerpo se reparte en lo que queda */
   var nomIt=null, y1=pieTopDe(tp)-15; if(tp.nomMax) y1=Math.min(y1,tp.nomMax);
   if(nomB){ var e=E.nom; nomIt=medir(TX("nom",partirNombre(nomB.txt,w,e),mx,0,w,e,{auto:1})); nomIt.y=r1(y1-nomIt.h); y1=nomIt.y-14; }
-  function monta(k){ var its=[]; cuerpo.forEach(function(b){ var e=E[b.k]||E.lin; its.push(medir(TX(b.k,b.txt,mx,0,w,{f:e.f,s:r1(e.s*(b.k==="ast"?1:k)),c:e.c,al:e.al,b:e.b,i:e.i,ls:e.ls*k,lh:e.lh,up:e.up},{auto:1,antes:b.antes}))); });
-    var y=z.y0, prev=null; its.forEach(function(it,i){ var g=0; if(prev){ g=5*k; if(it.k==="tit") g=17*k; if(prev.k==="tit") g=9*k; if(it.antes==="gap") g+=9*k; else if(it.antes==="sm") g=Math.max(g,3.5*k); if(it.k==="ast") g=Math.min(g,2); if(prev.k==="ast") g=Math.min(g,2); } y+=g; it.y=r1(y); y+=it.h; prev=it; }); return {its:its,fin:y}; }
+  function monta(k){ var its=[]; cuerpo.forEach(function(b){ var e=E[b.k]||E.lin; its.push(medir(TX(b.k,b.txt,mx,0,w,{f:e.f,s:r1(e.s*(b.k==="ast"?1:k)),c:e.c,al:e.al,b:e.b,i:e.i,ls:e.ls*k,lh:r1(e.lh*(b.k==='ast'?1:(k>=1?1:0.8+0.2*k))),up:e.up},{auto:1,antes:b.antes}))); });
+    var y=z.y0, prev=null; its.forEach(function(it,i){ var g=0; if(prev){ var kg=k<1?k*k:1; g=5*kg; if(it.k==="tit") g=17*kg; if(prev.k==="tit") g=9*kg; if(it.antes==="gap") g+=9*kg; else if(it.antes==="sm") g=Math.max(g,3.5*kg); if(it.k==="ast") g=Math.min(g,2); if(prev.k==="ast") g=Math.min(g,2); } y+=g; it.y=r1(y); y+=it.h; prev=it; }); return {its:its,fin:y}; }
   var k=1, m=monta(k); while(m.fin>y1&&k>0.42){ k=Math.round((k-0.03)*100)/100; m=monta(k); }
   var res=m.its.slice(); if(nomIt) res.push(nomIt); return res;
 }
@@ -18121,7 +18121,7 @@ function alMover(ev){
       it.x=r1(x); it.y=r1(y); it.w=r1(w); it.h=r1(h); } }
   pintaLienzo(); if(a.tipo==="mover") posicionaFlotante();
 }
-function alSoltar(){ if(!ST.arr) return; var a=ST.arr; ST.arr=null; ST.gAl=[]; if((a.tipo==="mover"&&a.movido)||a.tipo==="tam"){ empuja(); guardar(); } pintaTodo(); }
+function alSoltar(){ if(!ST.arr) return; var a=ST.arr; ST.arr=null; ST.gAl=[]; if((a.tipo==="mover"&&a.movido)||a.tipo==="tam"){ a.it.mov=1; empuja(); guardar(); } pintaTodo(); }
 function alDoble(ev){ var p=ptsDe(ev), h=golpe(p); if(h&&h.t==="txt"&&!h.bloq) edita(h); }
 function edita(it){
   ST.sel=it.id; ST.editando=it.id; var ta=ST.ta, z=ST.zoom; medir(it);
@@ -18146,8 +18146,8 @@ function anadeImagen(src,w,h){ var ww=Math.min(150,W-60), hh=ww*h/w; if(hh>260){
 function borra(){ var it=sel(); if(!it) return; ST.sc.items=ST.sc.items.filter(function(i){ return i!==it; }); ST.sel=null; empuja(); guardar(); pintaTodo(); }
 function duplica(){ var it=sel(); if(!it) return; var c=clon(it); delete c._l; c.id=uid(); c.x+=10; c.y+=10; c.auto=0; ST.sc.items.push(c); ST.sel=c.id; empuja(); guardar(); pintaTodo(); }
 function orden(d){ var it=sel(); if(!it) return; var a=ST.sc.items, i=a.indexOf(it), j=Math.max(0,Math.min(a.length-1,i+d)); a.splice(i,1); a.splice(j,0,it); empuja(); guardar(); pintaTodo(); }
-function centra(){ var it=sel(); if(!it) return; var b=bbox(it); it.x=r1((W-b.w)/2); empuja(); guardar(); pintaTodo(); }
-function cambia(k,v){ var it=sel(); if(!it) return; it[k]=v; if(it.t==="txt") medir(it); empuja(); guardar(); pintaTodo(); }
+function centra(){ var it=sel(); if(!it) return; it.mov=1; var b=bbox(it); it.x=r1((W-b.w)/2); empuja(); guardar(); pintaTodo(); }
+function cambia(k,v){ var it=sel(); if(!it) return; it[k]=v; it.mov=1; if(it.t==="txt") medir(it); empuja(); guardar(); pintaTodo(); }
 function aplicaEstiloATodos(){ var it=sel(); if(!it||it.t!=="txt"||!it.k) return; var e=ST.sc.estilos[it.k]; if(!e) return; ["f","s","c","al","b","i","ls","lh","up"].forEach(function(p){ e[p]=it[p]; });
   ST.sc.items.forEach(function(o){ if(o!==it&&o.t==="txt"&&o.k===it.k){ ["f","c","al","b","i","ls","lh","up"].forEach(function(p){ o[p]=it[p]; }); o.s=it.s; medir(o); } }); empuja(); guardar(); pintaTodo(); aviso("Aplicado a todos los textos de este tipo."); }
 function aviso(t){ if(BR.toast) BR.toast(t); }
@@ -18237,7 +18237,7 @@ function monta(h){
 }
 function arranca(h,sc,dm){
   ST={sc:sc,sel:null,zoom:1.15,guias:false,hist:[],rehacer:[],gAl:[],editando:null,pest:"d",gap:7,cv:null,ta:null};
-  sc.items.forEach(medir); empuja();
+  ST.h0=sc.items.map(function(i){ return i.t==="txt"?i.h:null; }); sc.items.forEach(medir); empuja();
   h.innerHTML='<div class="lz" id="lz-root"><div class="lz-aviso" id="lz-aviso" hidden><span>El menú ha cambiado desde que diseñaste la minuta.</span><button type="button" class="btn sm gold" data-lz-a="rellenar">Actualizar los textos</button></div>'+
     '<div class="lz-bar" id="lz-bar"></div><div class="lz-main"><div class="lz-stage" id="lz-stage"><div class="lz-paper" id="lz-paper"><canvas id="lz-cv" aria-label="Minuta: lienzo de diseño" tabindex="0"></canvas><textarea id="lz-ta" hidden spellcheck="true" aria-label="Escribir el texto"></textarea></div><p class="lz-pie">Media hoja A4 (10,5 × 29,7 cm). En el PDF van dos iguales, para cortar por la mitad.</p></div>'+
     '<aside class="lz-side"><div class="lz-tabs" role="tablist"><button type="button" role="tab" data-lz-pest="d" aria-selected="true">Diseños</button><button type="button" role="tab" data-lz-pest="a" aria-selected="false">Añadir</button><button type="button" role="tab" data-lz-pest="p" aria-selected="false">Página</button></div><div id="lz-side-c"></div></aside></div></div>';
@@ -18248,14 +18248,19 @@ function arranca(h,sc,dm){
   rootEl.addEventListener("click",alClic); rootEl.addEventListener("input",alCambio); rootEl.addEventListener("change",alCambio);
   document.addEventListener("keydown",alTecla);
   ST.sc.items.forEach(medir); ajustaZoomInicial(); pestana("d"); barra(); pintaTodo(); panelEstado();
-  aseguraEscena(ST.sc).then(function(){ pintaTodo(); }); if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener("loadingdone",function(){ if(ST){ ST.sc.items.forEach(medir); pintaLienzo(); if(ST.pest==="d") pintaMiniaturas(); } });
+  aseguraEscena(ST.sc).then(function(){ remideYReacomoda(); pintaTodo(); }); if(!hookFuentes&&document.fonts&&document.fonts.addEventListener){ hookFuentes=true; document.fonts.addEventListener("loadingdone",function(){ if(ST&&rootEl&&document.body.contains(rootEl)){ remideYReacomoda(); pintaLienzo(); if(ST.pest==="d") pintaMiniaturas(); } }); }
 }
+/* si las letras acaban de cargarse y los bloques del menú ocupan otro alto, se recoloca todo (solo si nadie los ha tocado a mano) */
+function remideYReacomoda(){ if(!ST) return; var ant=ST.h0||ST.sc.items.map(function(i){ return i.t==="txt"?i.h:null; }); ST.h0=null; ST.sc.items.forEach(medir);
+  var cambio=ST.sc.items.some(function(i,j){ return i.t==="txt"&&i.auto&&i.h!==ant[j]; });
+  if(cambio&&!ST.editando&&!ST.arr&&!ST.sc.items.some(function(i){ return i.mov||i.man; })){ try{ var dm=datos(); if(ST.sc.hash===hashDe(dm)){ rellena(ST.sc,dm); ST.sc.items.forEach(medir); guardar(); } }catch(_){} } }
+var hookFuentes=false;
 function ajustaZoomInicial(){ var stage=rootEl.querySelector("#lz-stage"), disp=Math.max(280,Math.min(window.innerHeight-170,1100)); ST.zoom=Math.max(0.7,Math.min(1.5,disp/H)); var av=(stage.clientWidth||360)-24; if(W*ST.zoom>av) ST.zoom=Math.max(0.6,av/W); ST.zoom=Math.round(ST.zoom*20)/20; }
 function alTecla(ev){ if(!ST||!document.body.contains(ST.cv)){ document.removeEventListener("keydown",alTecla); return; } var tg=ev.target; if(tg&&/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName)&&tg!==ST.cv) return; if(ST.editando) return; var it=sel();
   if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="z"){ ev.preventDefault(); if(ev.shiftKey) rehacerAccion(); else deshacer(); return; } if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="y"){ ev.preventDefault(); rehacerAccion(); return; }
   if(!it) return; if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="d"){ ev.preventDefault(); duplica(); return; }
   if(ev.key==="Delete"||ev.key==="Backspace"){ ev.preventDefault(); borra(); return; } if(ev.key==="Enter"&&it.t==="txt"){ ev.preventDefault(); edita(it); return; } if(ev.key==="Escape"){ ST.sel=null; pintaTodo(); return; }
-  var d=ev.shiftKey?10:1; if(ev.key==="ArrowLeft"){ it.x-=d; } else if(ev.key==="ArrowRight"){ it.x+=d; } else if(ev.key==="ArrowUp"){ it.y-=d; } else if(ev.key==="ArrowDown"){ it.y+=d; } else return; ev.preventDefault(); it.x=r1(it.x); it.y=r1(it.y); empuja(); guardar(); pintaLienzo(); }
+  var d=ev.shiftKey?10:1; if(ev.key==="ArrowLeft"){ it.x-=d; } else if(ev.key==="ArrowRight"){ it.x+=d; } else if(ev.key==="ArrowUp"){ it.y-=d; } else if(ev.key==="ArrowDown"){ it.y+=d; } else return; ev.preventDefault(); it.mov=1; it.x=r1(it.x); it.y=r1(it.y); empuja(); guardar(); pintaLienzo(); }
 function alClic(ev){
   var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
   if(t.hasAttribute("data-lz-pest")){ pestana(t.getAttribute("data-lz-pest")); return; }
