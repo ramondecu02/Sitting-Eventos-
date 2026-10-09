@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.55 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.56 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3294,6 +3294,26 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .bk-pill.s-falta{background:#F8EEF1; color:#8E2C48}
 .bk-pie{margin-top:10px}
 @media (max-width:620px){ .bk-stats b{font-size:18px} .bk-row{align-items:flex-start} }
+
+/* ── Historial de cambios del evento ── */
+.hi-lista{padding:4px 14px}
+.hi-row{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--c-line,#E4DCCB)}
+.hi-row:last-child{border-bottom:0}
+.hi-av{flex:none; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--c-ink,#1A1A1A); color:#fff; font-weight:700; font-size:14px}
+.hi-tx{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px}
+.hi-l1{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.hi-l1>b{margin-right:2px}
+.hi-chip{font:700 9.5px/1 var(--font-text,system-ui); letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:99px; color:var(--hc,#65645C); background:color-mix(in srgb,var(--hc,#65645C) 12%,transparent); border:1px solid color-mix(in srgb,var(--hc,#65645C) 35%,transparent); white-space:nowrap}
+.hi-ult{font:700 9px/1 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; color:#56613F; margin-left:4px}
+.hi-tx small{color:var(--c-mut); font-size:12px}
+.hi-nota{color:var(--c-mut); font-style:italic; font-size:12.5px}
+.hi-panel{background:var(--bg-2,#F4F1E8); border-radius:10px; padding:12px 14px; margin:0 0 10px 46px}
+.hi-panel p{margin:0 0 8px}
+.hi-peq{font-size:12.5px; color:var(--c-mut)}
+.hi-btns{display:flex; gap:8px; flex-wrap:wrap}
+.hi-err{border-color:#8E2C48; background:#F8EEF1}
+.hi-pie{font-size:12px; color:var(--c-mut); margin:8px 2px 0}
+@media (max-width:620px){ .hi-row{flex-wrap:wrap} .hi-row .btn{margin-left:46px} .hi-panel{margin-left:0} }
 /*V3-END*/
 </style>
 
@@ -3306,7 +3326,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.55</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.56</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8132,6 +8152,7 @@ var SECCIONES=[
   {k:"prov",     g:"Planificación", t:"Proveedores"},
   {k:"presup",   g:"Planificación", t:"Presupuesto"},
   {k:"comm",     g:"Planificación", t:"Comunicación"},
+  {k:"hist",     g:"Planificación", t:"Historial de cambios"},
   {k:"plan",     g:"Plano de mesas", t:"Plano de sala"},
   {k:"list",     g:"Plano de mesas", t:"Listado por mesas"},
   {k:"card",     g:"Plano de mesas", t:"Marcasitios"},
@@ -8359,7 +8380,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.55</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.56</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9729,7 +9750,7 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,fotos:1,docs:1,
   "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
@@ -9964,6 +9985,7 @@ function renderPlanV(k){
     if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
     if(window.LM_renderRent) window.LM_renderRent(k,host); return;
   }
+  if(k==="hist"){ if(window.LM_renderHist) window.LM_renderHist(host); return; }
   var e=current();
   if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
   var top=host.scrollTop;
@@ -15451,6 +15473,105 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════
+   HISTORIAL DE CAMBIOS del evento: quién cambió qué y cuándo (con el servidor).
+   Cada línea junta los cambios seguidos de una persona (menos de 10 min entre
+   uno y otro). «Volver a antes de este cambio» deja el evento como estaba
+   antes de esa línea; eso se apunta como un cambio más, así que también se
+   puede deshacer. Lo ven y lo usan el administrador y el equipo de eventos.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE;
+  var H={ev:"",datos:null,t:0,cargando:false,err:"",abierto:0,ver:null,cargandoVer:false,ocupado:false};
+  var host=null;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function hace(ts){ var m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora mismo"; if(m<60) return "hace "+m+" min"; var h=Math.round(m/60); if(h<24) return "hace "+h+" h"; var d=Math.round(h/24); return "hace "+d+(d===1?" día":" días"); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function fmt(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+"/"+d.getFullYear()+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function hora(ms){ var d=new Date(ms); return z(d.getHours())+":"+z(d.getMinutes()); }
+  function puede(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); return !!u&&(u.role==="admin"||u.role==="eventos"); }catch(_){ return false; } }
+  function toast(m){ try{ if(BR&&BR.toast) BR.toast(m); }catch(_){} }
+  function api(path,body){
+    var h={"Accept":"application/json"}; if(body) h["Content-Type"]="application/json";
+    return fetch(path,{method:body?"POST":"GET",headers:h,credentials:"same-origin",body:body?JSON.stringify(body):undefined}).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){
+        if(!r.ok) throw new Error(j&&j.message?j.message:(r.status===403?"Esto lo puede hacer el administrador o el equipo de eventos.":r.status===401?"La sesión ha caducado: recarga la página.":"No se ha podido (error "+r.status+")."));
+        return j; }); });
+  }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function cargar(){
+    var e=evActual(); if(!e||H.cargando) return; H.cargando=true; var antes=JSON.stringify(H.datos&&H.datos.cambios), errAntes=H.err, ev=e.id; H.err="";
+    api("/api/historial?ev="+encodeURIComponent(ev)).then(function(j){ if(ev===H.ev){ H.datos=j; H.t=Date.now(); } }).catch(function(x){ H.err=x.message; })
+      .then(function(){ H.cargando=false; if(activo()&&(JSON.stringify(H.datos&&H.datos.cambios)!==antes||H.err!==errAntes)) pintar(); });
+  }
+  function activo(){ return host&&host.querySelector&&host.querySelector(".hi-root")&&document.body.classList.contains("mode-plan"); }
+  var CH={plano:"#6E7D50",ficha:"#8A5A0B",menú:"#9A722A",bebidas:"#8E2C48",escaleta:"#5E6E78",minuta:"#7D6A83",alergias:"#8E2C48",camareros:"#56613F",montaje:"#5E6E78",agenda:"#8A5A0B",tareas:"#56613F",proveedores:"#9A722A",presupuesto:"#8A5A0B",comunicación:"#5E6E78",documentos:"#7D6A83","portal del cliente":"#6E7D50"};
+  function chip(t){ return '<span class="hi-chip" style="--hc:'+(CH[t]||"#65645C")+'">'+esc(t)+'</span>'; }
+  function fila(c,i){
+    var ab=H.abierto===c.id;
+    return '<div class="hi-row'+(ab?" open":"")+'"><span class="hi-av" aria-hidden="true">'+esc((c.by||"?").charAt(0).toUpperCase())+'</span>'+
+      '<div class="hi-tx"><div class="hi-l1"><b>'+esc(c.by||"Alguien")+'</b>'+(c.secs.length?c.secs.map(chip).join(""):'<span class="hi-nota">'+esc(c.nota||"cambió algo")+'</span>')+(i===0?'<span class="hi-ult">Último cambio</span>':'')+'</div>'+
+      (c.nota&&c.secs.length?'<small class="hi-nota">'+esc(c.nota)+'</small>':'')+
+      '<small title="'+esc(fmt(c.fin))+'">'+esc(hace(c.fin))+' · '+esc(fmt(c.fin))+(c.fin-c.ts>120000?' · desde las '+esc(hora(c.ts)):'')+'</small></div>'+
+      (c.tiene&&puede()?'<button type="button" class="btn sm'+(ab?' on':'')+'" data-hi="ver" data-i="'+c.id+'" aria-expanded="'+ab+'"'+(H.ocupado?' disabled':'')+'>'+(ab?'Cerrar':'Volver a antes de este cambio…')+'</button>':'')+
+      '</div>'+(ab?panel(c):'');
+  }
+  function panel(c){
+    if(H.cargandoVer||!H.ver) return '<div class="hi-panel"><p class="pp-empty">Mirando qué cambiaría…</p></div>';
+    var v=H.ver, dis=H.ocupado?' disabled':'';
+    if(!v.existe) return '<div class="hi-panel"><p>Este evento ya no está en la lista (se borró). Recupéralo desde Parámetros → Copias de seguridad.</p></div>';
+    if(!v.cambian.length) return '<div class="hi-panel"><p><b>El evento ya está igual que en esa versión.</b> No hay nada que cambiar.</p></div>';
+    return '<div class="hi-panel" role="alertdialog" aria-label="Volver a una versión anterior"><p><b>Si vuelves a antes de este cambio, cambiarán:</b> '+v.cambian.map(chip).join(" ")+'.</p>'+
+      '<p class="hi-peq">Lo de ahora se guarda como un cambio más en este historial, así que se puede deshacer.</p>'+
+      '<div class="hi-btns"><button type="button" class="btn gold sm" data-hi="ok" data-i="'+c.id+'"'+dis+'>Sí, volver a esta versión</button><button type="button" class="btn sm" data-hi="no">Cancelar</button></div></div>';
+  }
+  function pintar(){
+    if(!host) return; var e=evActual(), top=host.scrollTop;
+    var cab='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Planificación</div><h1 class="pv-title">Historial de cambios</h1>'+
+      '<div class="pv-sub">'+esc(e?(e.name||"Sin título"):"")+'</div>'+
+      '<p class="pv-guide">Quién cambió qué y cuándo en este evento. Cada línea junta los cambios seguidos de una persona (menos de 10 minutos entre uno y otro). Con «Volver a antes de este cambio» el evento queda como estaba antes de esa línea.</p></div>'+
+      '<div class="pv-actions"><button type="button" class="btn sm" data-hi="act">Actualizar</button></div></header>';
+    var cuerpo;
+    if(!(window.LM_backend&&window.LM_backend())) cuerpo='<div class="pcard"><p>El historial funciona con el servidor de Les Moles (la web en Cloudflare). Sin servidor no se apunta nada.</p></div>';
+    else if(!puede()) cuerpo='<div class="pcard"><p>El historial lo ven el administrador y el equipo de eventos.</p></div>';
+    else if(!e) cuerpo='<div class="pcard"><p>Selecciona un evento.</p></div>';
+    else if(H.err) cuerpo='<div class="pcard hi-err" role="alert"><p>'+esc(H.err)+'</p><button type="button" class="btn sm" data-hi="reint">Reintentar</button></div>';
+    else if(!H.datos) cuerpo='<div class="pcard"><p class="pp-empty">Cargando el historial…</p></div>';
+    else cuerpo='<div class="pcard hi-lista">'+(H.datos.cambios.length?H.datos.cambios.map(fila).join(""):'<p class="pp-empty">Todavía no hay cambios apuntados en este evento. Se irán apuntando desde ahora.</p>')+'</div>'+
+      '<p class="hi-pie">Se guardan los últimos 50 grupos de cambios de cada evento (hasta 180 días).</p>';
+    host.innerHTML='<div class="pv-inner hi-root">'+cab+cuerpo+'</div>'; host.scrollTop=top;
+    if(window.etiquetarCampos) try{ window.etiquetarCampos(host); }catch(_){}
+  }
+  function onClick(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-hi]"); if(!b||!activo()) return;
+    var a=b.getAttribute("data-hi"), id=+b.getAttribute("data-i")||0;
+    if(H.ocupado) return;
+    if(a==="act"||a==="reint"){ H.err=""; H.t=0; H.cargando=false; cargar(); pintar(); return; }
+    if(a==="no"){ H.abierto=0; H.ver=null; pintar(); return; }
+    if(a==="ver"){
+      if(H.abierto===id){ H.abierto=0; H.ver=null; pintar(); return; }
+      H.abierto=id; H.ver=null; H.cargandoVer=true; H.err=""; pintar();
+      api("/api/historial/ver?id="+id).then(function(j){ H.ver=j; }).catch(function(x){ H.err=x.message; H.abierto=0; }).then(function(){ H.cargandoVer=false; pintar(); }); return; }
+    if(a==="ok"){
+      H.ocupado=true; pintar();
+      api("/api/historial/restaurar",{id:id}).then(function(){ toast("Evento devuelto a como estaba antes de ese cambio."); H.abierto=0; H.ver=null; H.t=0; if(window.hydrateFromServer) window.hydrateFromServer(); })
+        .catch(function(x){ H.err=x.message; }).then(function(){ H.ocupado=false; H.cargando=false; pintar(); if(!H.err) cargar(); });
+    }
+  }
+  window.LM_renderHist=function(h){
+    host=h; var e=evActual();
+    if(!host.__hiBound){ host.__hiBound=true; host.addEventListener("click",onClick); }
+    if(e&&H.ev!==e.id){ H.ev=e.id; H.datos=null; H.abierto=0; H.ver=null; H.err=""; }
+    H.t=0; pintar();
+    if(e&&window.LM_backend&&window.LM_backend()&&puede()) cargar();
+  };
+  /* mientras está abierta, se mira cada 20 s si hay cambios nuevos (de otros compañeros) */
+  setInterval(function(){ try{ if(activo()&&!H.ocupado&&!H.cargando&&!H.err&&!H.abierto&&document.visibilityState==="visible"){ var e=evActual(); if(e&&e.id===H.ev) cargar(); } }catch(_){} },20000);
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
    PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
    Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
    una página elegante con lo celebrativo del evento: nombres, fecha, lugar,
@@ -15861,7 +15982,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","fotos","docs","prev"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","fotos","docs","prev"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","prov","presup","inv","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje","docs"]}

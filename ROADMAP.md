@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.55** (octubre 2026).
+Documento vivo. Última actualización: versión **01.56** (octubre 2026).
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -24,6 +24,10 @@ WhatsApp suelto ni Excel.
 | Previsión de banquetes, rentabilidad, inventario, presupuesto imprimible | ✅ |
 | Despliegue automático: cada `git push` a la rama de producción publica en Cloudflare Pages | ✅ |
 | **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
+| **Historial de cambios por evento** (quién, qué y cuándo; volver a una versión) | ✅ |
+
+### Novedad de la versión 01.56
+- **Historial de cambios por evento** (fase 1.2): ver más abajo.
 
 ### Ajuste de la versión 01.55
 - **Copias de seguridad:** la pantalla ya se actualiza sola (al entrar, cada 20 s y con el botón «Actualizar»), de modo que un evento recién borrado sale enseguida en la papelera.
@@ -66,10 +70,14 @@ se recupera con el código manual por evento.
 - **Detalle técnico:** tablas `backups` y `papelera` en D1 (se crean solas), comprimidas (gzip); API `/api/backups…` solo para admin; lo restaurado se marca como «tocado ahora» para que gane a las copias viejas de los navegadores abiertos, que se actualizan solos. D1 además guarda su propio historial de restauración (7–30 días según plan) como segunda red de seguridad.
 - **Comprobado:** un evento borrado se recupera en menos de 1 segundo; se restaura un evento de una copia sin tocar los demás; la descarga completa se vuelve a importar; los roles que no son admin reciben 403.
 
-### 1.2 Historial de cambios por evento — *~1 día* — v01.56
-- **Qué:** «quién cambió qué y cuándo» en cada evento (plano, menú, bebidas, escaleta, presupuesto, camareros, ficha) y opción de **volver a la versión anterior** de un evento.
-- **Detalle técnico:** al guardar, el servidor compara cada evento con el anterior y apunta usuario + secciones modificadas; guarda una instantánea del evento como máximo cada 10 min por usuario y evento (últimas 50).
-- **Hecho cuando:** en un evento aparece la lista «Ana · plano · hace 5 min»; se deshace el último cambio; no engorda la base de datos de forma apreciable.
+### 1.2 Historial de cambios por evento — ✅ **hecho en la v01.56**
+- **Qué se apunta:** cada guardado que cambia un evento deja una línea: **quién**, **qué secciones** (plano, ficha, menú, bebidas, escaleta, minuta, alergias, camareros, montaje, agenda, tareas, proveedores, presupuesto, comunicación, documentos, portal del cliente) y **cuándo**. Los cambios seguidos de la misma persona (menos de 10 minutos entre uno y otro) se juntan en una sola línea; también se apunta «Evento creado».
+- **Sin ruido:** lo que añade la app sola a un evento viejo (valores vacíos por defecto, marcas internas de las migraciones, la «foto» del portal) no cuenta como cambio; un guardado sin cambios reales no deja nada.
+- **Volver a una versión:** cada línea guarda el evento tal como estaba **antes** de ese cambio. «Volver a antes de este cambio…» enseña qué secciones cambiarían y pide confirmación; solo cambia ese evento y los demás no se tocan. Volver deja su propia línea (con lo que había), así que **también se puede deshacer**.
+- **Dónde:** Planificación → **Historial de cambios** (administrador y equipo de eventos; cocina, compras y servicio no lo ven). Se actualiza solo cada 20 s y con el botón «Actualizar».
+- **Límites:** las últimas 50 líneas por evento y 180 días; cada versión guardada va comprimida y pesa unos pocos KB.
+- **Detalle técnico:** tabla `historial` en D1 (se crea sola); API `/api/historial` (lista), `/api/historial/ver`, `/api/historial/restaurar`.
+- **Comprobado:** «Ana · plano · ficha · menú · hace 5 min»; deshacer el último cambio devuelve el plano, la ficha y el menú sin recargar la página; la base de datos no engorda (máx. 50 líneas por evento, ~3 KB cada versión en las pruebas).
 
 ### 1.3 App instalable y con modo sin conexión — *~1 día* — v01.57
 - **Qué:** icono en la pantalla del móvil/tablet; los eventos del día quedan guardados para **consultar** aunque falle el wifi del salón; los cambios hechos sin conexión se guardan y **se sincronizan al volver**, con aviso claro («sin conexión · 3 cambios pendientes»).

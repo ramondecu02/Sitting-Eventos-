@@ -26,6 +26,9 @@
  *   GET  /api/backups/ver?id=   qué eventos cambian si se restaura esa copia (solo admin)
  *   GET  /api/backups/bajar     ?id=.. una copia, o ?actual=1 todo lo de ahora, como archivo .json (solo admin)
  *   POST /api/backups/restaurar {backup,evento} | {backup,todo} | {papelera} | {documento,todo} (solo admin)
+ *   GET  /api/historial?ev=..   quién cambió qué y cuándo en un evento (admin y eventos)
+ *   GET  /api/historial/ver?id= qué secciones cambiarían si se vuelve a esa versión (admin y eventos)
+ *   POST /api/historial/restaurar {id}  vuelve el evento a como estaba antes de ese cambio (admin y eventos)
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -77,6 +80,9 @@ async function api(request, env, url) {
   if (p === "/api/backups/ver" && m === "GET") return bkVer(request, env, url);
   if (p === "/api/backups/bajar" && m === "GET") return bkBajar(request, env, url);
   if (p === "/api/backups/restaurar" && m === "POST") return bkRestaurar(request, env);
+  if (p === "/api/historial" && m === "GET") return hiList(request, env, url);
+  if (p === "/api/historial/ver" && m === "GET") return hiVer(request, env, url);
+  if (p === "/api/historial/restaurar" && m === "POST") return hiRestaurar(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -356,6 +362,7 @@ async function storePut(request, env) {
     const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
     /* otros = alguien había guardado algo que este navegador aún no tenía */
     if (ch > 0) {
+      try { await hiTrasGuardar(env, s, prev, merged); } catch (_) {}
       try { await bkTrasGuardar(env, s, row, prev, merged); } catch (_) {}
       return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes) });
     }
@@ -579,6 +586,148 @@ async function bkRestaurar(request, env) {
     else r = await env.DB.prepare("INSERT OR IGNORE INTO store (id, data, updated) VALUES (1, ?1, ?2)").bind(out, v).run();
     const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
     if (ch > 0) return json({ ok: true, v, eventos: n, que });
+  }
+  return json({ error: "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
+}
+
+/* ── HISTORIAL DE CAMBIOS POR EVENTO ───────────────────────────────────────
+   Cada guardado que cambia un evento deja una huella: quién, qué secciones
+   (plano, menú, escaleta…) y cuándo. Los cambios seguidos de la misma persona
+   en el mismo evento (menos de HI_RAFAGA entre uno y otro) se juntan en una
+   sola línea. Cada línea guarda el evento TAL COMO ESTABA ANTES de ese cambio:
+   así se puede «volver a esa versión». Hasta HI_MAX líneas por evento y 180 días.
+   Volver a una versión también deja su línea (con lo que había antes), de modo
+   que se puede deshacer. */
+const HI_RAFAGA = 10 * 60e3, HI_MAX = 50;
+const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "portal del cliente", "otros datos"];
+let HI_OK = false;
+async function ensureHistorial(env) {
+  if (HI_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS historial (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id TEXT NOT NULL, ts INTEGER NOT NULL, ts_fin INTEGER NOT NULL, uid TEXT, by_name TEXT, secs TEXT, nota TEXT, gz TEXT)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS historial_ev ON historial (event_id, id)").run();
+  HI_OK = true;
+}
+/* a qué sección del evento pertenece cada dato (lo derivado, como la «foto» del portal, no cuenta) */
+function hiSeccion(k) {
+  if (/^(text|name|plans|loc|tpl\w*|userSize|rot\w*|pos|plan\w*)$/.test(k)) return "plano";
+  if (k === "ficha") return "ficha";
+  if (/^camareros|^reparto$/.test(k)) return "camareros";
+  if (k === "hitos" || k === "agendaHecho") return "agenda";
+  if (k === "tareas") return "tareas";
+  if (k === "proveedores") return "proveedores";
+  if (k === "presupuesto") return "presupuesto";
+  if (k === "comunicaciones") return "comunicación";
+  if (k === "fotos" || k === "docs") return "documentos";
+  if (k === "montaje") return "montaje";
+  return "otros datos";
+}
+/* para comparar: lo vacío (texto vacío, 0, false, [], {}) es como si no estuviera, así que cuando la app añade valores por defecto a un evento viejo no cuenta como cambio */
+function hiLimpia(v) {
+  if (Array.isArray(v)) { const a = v.map(hiLimpia).filter((x) => x !== undefined); return a.length ? a : undefined; }
+  if (v && typeof v === "object") { const o = {}; Object.keys(v).forEach((k) => { const x = hiLimpia(v[k]); if (x !== undefined) o[k] = x; }); return Object.keys(o).length ? o : undefined; }
+  if (v === "" || v === null || v === undefined || v === false || v === 0) return undefined;
+  return v;
+}
+function hiHuella(e) {
+  const o = {}, add = (sec, k, v) => { v = hiLimpia(v); if (v !== undefined) o[sec] = (o[sec] || "") + k + "=" + JSON.stringify(v) + "|"; };
+  Object.keys(e || {}).forEach((k) => {
+    if (k === "id" || k === "updated") return;
+    if (/^(fitV\d+|numV\d+|marcasLM|prevId|tplFixed\d*)$/.test(k)) return;   /* marcas internas de las migraciones de la app */
+    if (k === "reparto" && JSON.stringify(hiLimpia(e.reparto)) === '{"tipo":"comida"}') return;   /* el reparto «de fábrica» */
+    if (k === "menu") {
+      const m = e.menu || {};
+      Object.keys(m).forEach((mk) => add(/^bebida/.test(mk) ? "bebidas" : mk === "escaleta" ? "escaleta" : mk === "minuta" ? "minuta" : /^aler/.test(mk) ? "alergias" : "menú", "menu." + mk, m[mk]));
+      return;
+    }
+    if (k === "share") { const sh = e.share || {}; add("portal del cliente", "share", { on: sh.on, id: sh.id, auto: sh.auto }); return; }
+    add(hiSeccion(k), k, e[k]);
+  });
+  return o;
+}
+function hiDiff(a, b) {
+  const x = hiHuella(a), y = hiHuella(b), ks = {}; Object.keys(x).concat(Object.keys(y)).forEach((k) => { ks[k] = 1; });
+  return Object.keys(ks).filter((k) => x[k] !== y[k]).sort((p, q) => HI_ORDEN.indexOf(p) - HI_ORDEN.indexOf(q));
+}
+async function hiAnotar(env, e, antes, secs, uid, quien, nota, ahora, juntar) {
+  const ult = juntar ? await env.DB.prepare("SELECT id, uid, ts_fin, secs, (gz IS NOT NULL) AS tiene FROM historial WHERE event_id=?1 ORDER BY id DESC LIMIT 1").bind(e.id).first() : null;
+  if (ult && ult.tiene && antes && ult.uid === uid && ahora - (+ult.ts_fin) < HI_RAFAGA) {   /* la línea «Evento creado» no se junta con nada: no tiene versión anterior */
+    const un = {}; String(ult.secs || "").split(",").concat(secs).forEach((x) => { if (x) un[x] = 1; });
+    const todas = Object.keys(un).sort((p, q) => HI_ORDEN.indexOf(p) - HI_ORDEN.indexOf(q));
+    await env.DB.prepare("UPDATE historial SET ts_fin=?1, secs=?2 WHERE id=?3").bind(ahora, todas.join(","), ult.id).run();
+    return;
+  }
+  await env.DB.prepare("INSERT INTO historial (event_id, ts, ts_fin, uid, by_name, secs, nota, gz) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")
+    .bind(String(e.id), ahora, ahora, uid || "", quien || "", secs.join(","), nota || "", antes ? await bkZip(JSON.stringify(antes)) : null).run();
+  await env.DB.prepare("DELETE FROM historial WHERE event_id=?1 AND id NOT IN (SELECT id FROM historial WHERE event_id=?1 ORDER BY id DESC LIMIT " + HI_MAX + ")").bind(String(e.id)).run();
+}
+/* tras cada guardado correcto: ¿qué eventos han cambiado y en qué? («prev» es el documento de antes y «merged» el de ahora) */
+async function hiTrasGuardar(env, s, prev, merged) {
+  const antes = {}; (prev.events || []).forEach((e) => { if (e && e.id) antes[e.id] = e; });
+  const cambios = [];
+  (merged.events || []).forEach((e) => {
+    if (!e || !e.id) return;
+    const p = antes[e.id];
+    if (!p) { cambios.push({ e, p: null, secs: [], nota: "Evento creado" }); return; }
+    if ((p.updated || 0) === (e.updated || 0)) return;          /* misma versión: nada que mirar */
+    const secs = hiDiff(p, e); if (secs.length) cambios.push({ e, p, secs, nota: "" });
+  });
+  if (!cambios.length) return;
+  await ensureHistorial(env);
+  const ahora = Date.now(), quien = s.name || s.email || "";
+  for (const c of cambios) await hiAnotar(env, c.e, c.p, c.secs, s.uid, quien, c.nota, ahora, !c.nota);
+  if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM historial WHERE ts_fin < ?1").bind(ahora - 180 * 864e5).run();
+}
+async function hiAcceso(request, env) {
+  const s = await session(request, env);
+  if (!s) return { err: json({ error: "unauth" }, 401) };
+  if (s.role !== "admin" && s.role !== "eventos") return { err: json({ error: "forbidden" }, 403) };
+  await ensureHistorial(env);
+  return { s };
+}
+async function hiList(request, env, url) {
+  const a = await hiAcceso(request, env); if (a.err) return a.err;
+  const ev = String(url.searchParams.get("ev") || "");
+  if (!ev) return json({ error: "invalid" }, 400);
+  const { results } = await env.DB.prepare("SELECT id, ts, ts_fin, by_name AS by, secs, nota, (gz IS NOT NULL) AS tiene FROM historial WHERE event_id=?1 ORDER BY id DESC LIMIT " + HI_MAX).bind(ev).all();
+  return json({ ahora: Date.now(), cambios: (results || []).map((r) => ({ id: r.id, ts: r.ts, fin: r.ts_fin, by: r.by, secs: String(r.secs || "").split(",").filter(Boolean), nota: r.nota || "", tiene: !!r.tiene })) });
+}
+async function hiLeer(env, id) {
+  const r = await env.DB.prepare("SELECT id, event_id, ts, ts_fin, by_name, gz FROM historial WHERE id=?1").bind(id).first();
+  if (!r || !r.gz) return null;
+  let snap = null; try { snap = JSON.parse(await bkUnzip(r.gz)); } catch (_) { return null; }
+  return { r, snap };
+}
+async function hiVer(request, env, url) {
+  const a = await hiAcceso(request, env); if (a.err) return a.err;
+  const h = await hiLeer(env, +url.searchParams.get("id") || 0);
+  if (!h) return json({ error: "not-found", message: "Esa versión ya no está guardada." }, 404);
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {}
+  const act = (doc.events || []).filter((e) => e && e.id === h.r.event_id)[0];
+  return json({ existe: !!act, cambian: act ? hiDiff(act, h.snap) : ["evento borrado"], nombre: h.snap.name || "" });
+}
+async function hiRestaurar(request, env) {
+  const a = await hiAcceso(request, env); if (a.err) return a.err;
+  const b = await body(request), h = await hiLeer(env, +b.id || 0);
+  if (!h) return json({ error: "not-found", message: "Esa versión ya no está guardada." }, 404);
+  const quien = a.s.name || a.s.email || "";
+  for (let intento = 0; intento < 6; intento++) {
+    const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
+    let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { doc = {}; }
+    const antes = row ? (+row.updated || 0) : 0, t = Date.now();
+    const act = (doc.events || []).filter((e) => e && e.id === h.r.event_id)[0] || null;
+    const previo = act ? JSON.parse(JSON.stringify(act)) : null;
+    bkPonerEvento(doc, h.snap, t);
+    const out = JSON.stringify(doc); let v = t; if (v <= antes) v = antes + 1;
+    let r;
+    if (row) r = await env.DB.prepare("UPDATE store SET data=?1, updated=?2 WHERE id=1 AND updated=?3").bind(out, v, antes).run();
+    else r = await env.DB.prepare("INSERT OR IGNORE INTO store (id, data, updated) VALUES (1, ?1, ?2)").bind(out, v).run();
+    const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
+    if (ch > 0) {
+      const secs = previo ? hiDiff(previo, h.snap) : ["plano"];
+      try { await hiAnotar(env, h.snap, previo, secs.length ? secs : ["otros datos"], a.s.uid, quien, "Volvió a la versión anterior al cambio de " + new Date(+h.r.ts).toISOString().slice(0, 16).replace("T", " "), Date.now(), false); } catch (_) {}
+      return json({ ok: true, v, cambian: secs });
+    }
   }
   return json({ error: "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
 }
