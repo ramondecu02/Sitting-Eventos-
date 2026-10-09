@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.56 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.57 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3314,6 +3314,56 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .hi-err{border-color:#8E2C48; background:#F8EEF1}
 .hi-pie{font-size:12px; color:var(--c-mut); margin:8px 2px 0}
 @media (max-width:620px){ .hi-row{flex-wrap:wrap} .hi-row .btn{margin-left:46px} .hi-panel{margin-left:0} }
+
+/* ── Equipo y accesos ── */
+.users-card.ut-card{max-width:980px}
+.ut-tabs{display:flex; gap:4px; border-bottom:1px solid var(--c-line); margin:0 0 16px; overflow-x:auto}
+.ut-tabs button{border:0; background:transparent; padding:10px 14px; font:inherit; font-size:13px; font-weight:600; color:var(--c-mut); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap}
+.ut-tabs button[aria-selected="true"]{color:var(--c-ink); border-bottom-color:var(--c-ink)}
+.ut-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:0 0 12px}
+.ut-sum{font-size:13px; color:var(--c-mut)} .ut-sum b{color:var(--c-ink); font-size:15px}
+.ut-peq{font-size:12.5px; color:var(--c-mut); line-height:1.5; margin:4px 0 10px; max-width:80ch}
+.ut-vacio{font-size:13px; color:var(--c-mut); padding:14px 2px}
+.ut-form,.ut-enlace,.ut-seg{background:var(--bg-2); border-radius:10px; padding:14px 16px; margin:0 0 14px}
+.ut-form h3,.ut-seg h3{margin:0 0 2px; font-size:14px}
+.ut-enlace{border:1.5px solid color-mix(in srgb,var(--olive) 55%,transparent); background:color-mix(in srgb,var(--olive) 8%,var(--panel))}
+.ut-enlace p{margin:4px 0 8px; font-size:12.5px; color:var(--c-mut)}
+.ut-enlace input{width:100%; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; margin-bottom:10px}
+.ut-chk{display:flex; gap:8px; align-items:center; font-size:12.5px; margin:10px 0}
+.ut-btns{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px}
+.ut-lista{display:flex; flex-direction:column; gap:8px}
+.ut-row{border:1px solid var(--c-line); border-radius:var(--r); padding:11px 13px}
+.ut-row.est-desactivado{opacity:.62}
+.ut-main{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.ut-info{flex:1 1 240px; min-width:0; display:flex; flex-direction:column; gap:2px}
+.ut-info small{font-size:11.5px; color:var(--c-mut)}
+.ut-acc{color:var(--c-faint)!important}
+.ut-l1{display:flex; align-items:center; gap:8px; flex-wrap:wrap} .ut-l1 b{font-size:13.5px}
+.ut-tu{font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:var(--c-faint)}
+.ut-est{font:700 9px/1 var(--font-text,system-ui); letter-spacing:.1em; text-transform:uppercase; padding:3px 8px; border-radius:99px}
+.ut-est.e-ok{background:#E6EADA; color:#56613F} .ut-est.e-pend{background:#FFE9B5; color:#7A4E08} .ut-est.e-bad{background:#F8EEF1; color:#8E2C48} .ut-est.e-off{background:#EFEFEA; color:#65645C}
+.ut-acts{display:flex; gap:6px; flex-wrap:wrap; margin:9px 0 0 46px; align-items:center}
+.ut-edit{margin:10px 0 0 46px}
+.ut-mat{border-collapse:collapse; width:100%; font-size:12.5px}
+.ut-roles{overflow-x:auto; border:1px solid var(--c-line); border-radius:10px; margin-bottom:6px}
+.ut-mat th{position:sticky; top:0; background:var(--panel); text-align:center; padding:9px 8px; vertical-align:bottom; border-bottom:1.5px solid var(--c-ink)}
+.ut-mat th:first-child{text-align:left}
+.ut-mat th span{display:block; font-size:12px; font-weight:700}
+.ut-mat th small{display:block; font-size:10px; font-weight:400; color:var(--c-mut); max-width:130px; margin:2px auto 0; line-height:1.3}
+.ut-mat td{padding:6px 8px; border-bottom:1px solid var(--c-line)}
+.ut-g td{background:var(--bg-2); font:700 10px/1 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut); padding:8px}
+.ut-c{text-align:center} .ut-ok{font-style:normal; color:#56613F; font-weight:700}
+.ut-mat input[type=checkbox]{width:17px; height:17px; accent-color:#56613F; cursor:pointer}
+.ut-seg{margin-top:18px} .ut-seg select{max-width:240px}
+.ut-fil{min-width:220px; margin:0}
+.ut-reg{display:flex; flex-direction:column; border:1px solid var(--c-line); border-radius:10px; overflow:hidden}
+.ut-reg-row{display:grid; grid-template-columns:92px 150px 1fr; gap:10px; padding:8px 12px; border-bottom:1px solid var(--c-line); font-size:12.5px; align-items:baseline}
+.ut-reg-row:last-child{border-bottom:0} .ut-reg-row.aviso{background:#FFF7E2}
+.ut-fh{color:var(--c-faint); font-variant-numeric:tabular-nums} .ut-quien{font-weight:600}
+.ut-det{color:var(--c-mut)} .ut-obj{font-weight:600}
+@media (max-width:700px){ .ut-reg-row{grid-template-columns:1fr; gap:2px} .ut-acts,.ut-edit{margin-left:0} }
+.login-scrim{position:fixed; z-index:1100}
+.ut-main .u-role,.ut-main .u-role-sel{flex:0 0 auto; width:auto; min-width:120px}
 /*V3-END*/
 </style>
 
@@ -3326,7 +3376,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.56</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.57</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -3774,8 +3824,10 @@ Lluc (trona)</div>
       <p class="login-note" id="login-note">Accede al panel de gestión de eventos de Les Moles.</p>
       <form id="login-form" novalidate>
         <label class="fld" id="fld-name" hidden><span class="lbl">Nombre</span><input type="text" id="login-name" autocomplete="name" placeholder="Tu nombre"></label>
-        <label class="fld"><span class="lbl">Email</span><input type="email" id="login-email" autocomplete="username" placeholder="nombre@lesmoles.com"></label>
-        <label class="fld"><span class="lbl">Contraseña</span><input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••"></label>
+        <label class="fld" id="fld-email"><span class="lbl">Email</span><input type="email" id="login-email" autocomplete="username" placeholder="nombre@lesmoles.com"></label>
+        <label class="fld" id="fld-pass0" hidden><span class="lbl">Contraseña actual</span><input type="password" id="login-pass0" autocomplete="current-password" placeholder="••••••••"></label>
+        <label class="fld"><span class="lbl" id="lbl-pass">Contraseña</span><input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••"></label>
+        <label class="fld" id="fld-pass2" hidden><span class="lbl">Repite la contraseña</span><input type="password" id="login-pass2" autocomplete="new-password" placeholder="••••••••"></label>
         <div class="login-err" id="login-err" hidden></div>
         <button class="gate-btn full" id="login-submit" type="submit">Iniciar sesión</button>
       </form>
@@ -3785,32 +3837,20 @@ Lluc (trona)</div>
   </div>
 </div>
 
-<!-- ══ Usuarios y roles (solo administrador, con backend) ══ -->
+<!-- ══ Equipo y accesos (solo administrador, con backend) ══ -->
 <div class="users-scrim" id="users-scrim">
-  <div class="users-card" role="dialog" aria-modal="true" aria-labelledby="users-title">
+  <div class="users-card ut-card" role="dialog" aria-modal="true" aria-labelledby="users-title">
     <button class="login-x" id="users-x" type="button" aria-label="Cerrar">×</button>
     <div class="pv-eyebrow">Administración</div>
-    <h2 class="users-title" id="users-title">Usuarios y roles</h2>
-    <p class="users-note">Da acceso al equipo y asigna a cada persona su rol. Cada rol verá solo lo que necesita.</p>
-    <div class="users-list" id="users-list"></div>
-    <div class="users-add">
-      <div class="pv-sec">Añadir usuario</div>
-      <div class="fldset">
-        <label class="fld"><span class="lbl">Nombre</span><input type="text" id="nu-name" placeholder="Nombre y apellido"></label>
-        <label class="fld"><span class="lbl">Email</span><input type="email" id="nu-email" placeholder="nombre@lesmoles.com"></label>
-        <label class="fld"><span class="lbl">Rol</span>
-          <select id="nu-role">
-            <option value="eventos">Eventos</option>
-            <option value="cocina">Cocina</option>
-            <option value="compras">Compras</option>
-            <option value="servicio">Servicio</option>
-            <option value="admin">Administrador</option>
-          </select></label>
-        <label class="fld"><span class="lbl">Contraseña inicial</span><input type="text" id="nu-pass" placeholder="mín. 6 caracteres"></label>
-      </div>
-      <div class="users-err" id="users-err" hidden></div>
-      <div style="margin-top:12px"><button class="btn gold" id="nu-add" type="button">Crear usuario</button></div>
+    <h2 class="users-title" id="users-title">Equipo y accesos</h2>
+    <p class="users-note">Quién tiene acceso, qué ve cada rol y qué ha hecho cada persona en el programa.</p>
+    <div class="ut-tabs" id="ut-tabs" role="tablist" aria-label="Apartados">
+      <button type="button" role="tab" data-ut="personas" aria-selected="true">Personas</button>
+      <button type="button" role="tab" data-ut="roles" aria-selected="false">Roles y permisos</button>
+      <button type="button" role="tab" data-ut="registro" aria-selected="false">Registro de actividad</button>
     </div>
+    <div class="users-err" id="users-err" hidden role="alert"></div>
+    <div id="ut-body" class="ut-body"></div>
   </div>
 </div>
 
@@ -8193,6 +8233,7 @@ var SECCIONES=[
   /* la previsión de banquetes del año (el Excel «PREVISION BANQUETES») */
   {k:"prev",       g:"Previsión", t:"Previsión de banquetes"}
 ];
+window.LM_SECCIONES=SECCIONES;
 function seccionActual(){
   if(document.body.classList.contains("mode-resumen")) return "resumen";
   if(document.body.classList.contains("mode-plan")) return planView;
@@ -8378,9 +8419,10 @@ function abrirMas(){
   ovl.innerHTML='<div class="ovl-box" role="dialog" aria-modal="true" aria-label="Más"><div class="ovl-head"><h3>Más</h3><div class="spacer"></div><button class="btn" id="mas-x" type="button">Cerrar</button></div>'+
     '<div class="ovl-body" style="flex-direction:column;align-items:stretch;gap:10px">'+
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
-    (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
+    (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Equipo y accesos</button>':'')+
+    '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.56</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.57</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8388,6 +8430,7 @@ function abrirMas(){
   ovl.addEventListener("click",function(e){ if(e.target===ovl) close(); });
   $("mas-x").addEventListener("click",close);
   var mu=$("mas-users"); if(mu) mu.addEventListener("click",function(){ close(); us.click(); });
+  $("mas-pass").addEventListener("click",function(){ close(); $("side-pass").click(); });
   $("mas-out").addEventListener("click",function(){ close(); $("side-out").click(); });
   setTimeout(function(){ var f=$("mas-out"); if(f) f.focus(); },40);
 }
@@ -16017,19 +16060,63 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   window.LM_SESSION=SESSION;
 
   var scrim=$("login-scrim");
+  /* el cuadro de acceso cuelga del <body> (no de la puerta de entrada): así también se ve con la sesión iniciada, para cambiar la contraseña */
+  if(scrim&&scrim.parentNode!==document.body) document.body.appendChild(scrim);
   function openLogin(){ if(!scrim) return; scrim.classList.add("on"); var em=$("login-email"); if(em) setTimeout(function(){ em.focus(); },70); }
   function closeLogin(){ if(scrim) scrim.classList.remove("on"); }
   function showErr(msg,ok){ var e=$("login-err"); if(!e) return; e.removeAttribute("style"); if(ok){ e.style.background="rgba(138,154,107,.16)"; e.style.color="#B7C098"; e.style.borderColor="rgba(138,154,107,.45)"; } e.textContent=msg; e.hidden=false; }
   function clearErr(){ var e=$("login-err"); if(e) e.hidden=true; }
-  function setMode(setup){
-    setupMode=setup;
-    var t=$("login-title"), n=$("login-note"), nm=$("fld-name"), sub=$("login-submit"), fg=$("login-forgot");
-    if(t) t.textContent=setup?"Crear administrador":"Iniciar sesión";
-    if(n) n.textContent=setup?"Primer acceso: crea la cuenta de administrador de Les Moles Events.":"Accede al panel de gestión de eventos de Les Moles.";
-    if(nm) nm.hidden=!setup;
-    if(sub) sub.textContent=setup?"Crear cuenta":"Iniciar sesión";
-    if(fg) fg.hidden=setup;
+  /* modos del cuadro de acceso: login · setup (primer administrador) · invite (crear contraseña con un enlace) · change (cambiar la propia) */
+  var modo="login", invitacion=null, cambioObligado=false;
+  function setMode(m){
+    if(m===true) m="setup"; if(m===false||!m) m="login";
+    var cambio=(m!==modo); modo=m; setupMode=(m==="setup");
+    var T={login:["Iniciar sesión","Accede al panel de gestión de eventos de Les Moles.","Iniciar sesión"],
+           setup:["Crear administrador","Primer acceso: crea la cuenta de administrador de Les Moles Events.","Crear cuenta"],
+           invite:["Crea tu contraseña","","Crear contraseña y entrar"],
+           change:["Cambiar mi contraseña","Elige una contraseña nueva de 8 caracteres o más.","Guardar contraseña"]}[m];
+    var t=$("login-title"), n=$("login-note"), nm=$("fld-name"), sub=$("login-submit"), fg=$("login-forgot"), lp=$("lbl-pass");
+    if(t) t.textContent=T[0]; if(n) n.textContent=T[1]; if(sub) sub.textContent=T[2];
+    if(nm) nm.hidden=(m!=="setup");
+    if(fg) fg.hidden=(m!=="login");
+    var fe=$("fld-email"); if(fe) fe.hidden=(m==="change");
+    var f0=$("fld-pass0"); if(f0) f0.hidden=(m!=="change");
+    var f2=$("fld-pass2"); if(f2) f2.hidden=(m!=="invite"&&m!=="change");
+    if(lp) lp.textContent=(m==="invite")?"Crea tu contraseña (8 caracteres o más)":(m==="change")?"Contraseña nueva":"Contraseña";
+    var pe=$("login-email"); if(pe) pe.readOnly=(m==="invite");
+    var pp=$("login-pass"); if(pp) pp.setAttribute("autocomplete",(m==="invite"||m==="change")?"new-password":"current-password");
+    var x=$("login-x"); if(x) x.hidden=(m==="invite"||(m==="change"&&cambioObligado));
+    if(cambio) ["login-pass","login-pass0","login-pass2"].forEach(function(id){ var e=$(id); if(e) e.value=""; });
   }
+  /* ajustes que manda el servidor a todo el equipo: qué ve cada rol y cuándo se cierra la sesión por inactividad */
+  var ROLES_DEF=null, idleMin=480;
+  function aplicarAjustes(d){
+    if(!d) return;
+    if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
+    Object.keys(ROLES).forEach(function(k){
+      if(k==="admin") return;
+      var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null;
+      ROLES[k].secciones=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
+    });
+    idleMin=(d.idleMin==null)?480:+d.idleMin; vigilarInactividad();
+    try{ if(window.LM_refreshNav) window.LM_refreshNav(); }catch(_){}
+  }
+  async function refrescarAjustes(){
+    try{ var r=await fetch("/api/me",{headers:{"Accept":"application/json"}}); if(!r.ok) return; var d=await r.json(); if(d.authed){ if(d.user){ setUser(Object.assign({},curUser||{},d.user)); } aplicarAjustes(d); if(d.user&&d.user.mustChange) abrirCambio(true); } }catch(_){}
+  }
+  /* cierre de sesión por inactividad (sin tocar el ratón, el teclado ni la pantalla) */
+  var ultAct=Date.now(), vigiliaPuesta=false, vigiliaTm=null;
+  function vigilarInactividad(){
+    if(!vigiliaPuesta){ vigiliaPuesta=true;
+      ["mousemove","mousedown","keydown","touchstart","scroll","wheel","click"].forEach(function(ev){ document.addEventListener(ev,function(){ ultAct=Date.now(); },{passive:true,capture:true}); }); }
+    clearInterval(vigiliaTm);
+    if(!(idleMin>0)||!backend) return;
+    vigiliaTm=setInterval(function(){
+      if(!SESSION.isAuthed()||!document.body.classList.contains("authed")) return;
+      if(Date.now()-ultAct>idleMin*60000){ clearInterval(vigiliaTm); SESSION.logout(); showGate(); setMode("login"); showErr("Se cerró tu sesión porque llevabas un rato sin usar el programa. Vuelve a entrar.",true); openLogin(); }
+    },30000);
+  }
+  function abrirCambio(obligado){ cambioObligado=!!obligado; setMode("change"); clearErr(); if(obligado) showErr("Tu contraseña es temporal: elige la tuya para seguir.",true); openLogin(); setTimeout(function(){ var e=$("login-pass0"); if(e) e.focus(); },90); }
   function enterApp(){
     document.body.classList.add("authed"); closeLogin();
     /* la navegación se reconstruye ahora que ya se sabe el rol (filtra secciones) */
@@ -16039,6 +16126,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     try{ if(backend && window.hydrateFromServer) window.hydrateFromServer(); }catch(_){}
     /* la gestión de usuarios solo para administradores con backend real */
     var su=$("side-users"); if(su) su.hidden=!(backend && curUser && curUser.role==="admin");
+    var sp=$("side-pass"); if(sp) sp.hidden=!backend;
+    if(backend) refrescarAjustes();
   }
   function showGate(){ document.body.classList.remove("authed"); }
 
@@ -16049,12 +16138,35 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   async function doLogin(email,pass){
     try{
       var r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email,password:pass})});
-      if(r.status===200){ var d=await r.json(); backend=true; setUser(d.user); enterApp(); return; }
+      if(r.status===200){ var d=await r.json(); backend=true; setUser(d.user); enterApp(); if(d.user&&d.user.mustChange) abrirCambio(true); return; }
       if(r.status===401){ showErr("Email o contraseña incorrectos."); return; }
       if(r.status===400){ showErr("Revisa el email y la contraseña."); return; }
+      if(r.status===403||r.status===429){ var e403=await r.json().catch(function(){return {};}); showErr(e403.message||"No se puede entrar con esta cuenta."); return; }
       if(WEB_REAL){ showErr("El servidor ha contestado con un error ("+r.status+"). Vuelve a intentarlo en unos segundos."); return; }
       demoEnter(email,pass); /* sin ruta real (Artifact): demostración */
     }catch(err){ if(WEB_REAL){ showErr("No se puede conectar con el servidor ("+((err&&err.message)||"sin respuesta")+")."); return; } demoEnter(email,pass); }
+  }
+  async function doInvitacion(pw,pw2){
+    if(pw.length<8){ showErr("La contraseña debe tener 8 caracteres o más."); return; }
+    if(pw!==pw2){ showErr("Las dos contraseñas no coinciden."); return; }
+    try{
+      var r=await fetch("/api/invitacion",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({t:invitacion.t,password:pw})});
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok){ showErr(d.message||"No se pudo crear la contraseña."); return; }
+      backend=true; setUser(d.user); try{ history.replaceState(null,"",location.pathname); }catch(_){} invitacion=null; setMode("login"); enterApp();
+    }catch(_){ showErr("No se puede conectar con el servidor."); }
+  }
+  async function doCambio(actual,nueva,rep){
+    if(!actual){ showErr("Escribe tu contraseña actual."); return; }
+    if(nueva.length<8){ showErr("La contraseña nueva debe tener 8 caracteres o más."); return; }
+    if(nueva!==rep){ showErr("Las dos contraseñas nuevas no coinciden."); return; }
+    try{
+      var r=await fetch("/api/me/password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({actual:actual,nueva:nueva})});
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok){ showErr(d.message||"No se pudo cambiar la contraseña."); return; }
+      cambioObligado=false; if(curUser){ curUser.mustChange=false; setUser(curUser); } setMode("login"); closeLogin();
+      try{ if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.toast) window.SITTING_BRIDGE.toast("Contraseña cambiada."); }catch(_){}
+    }catch(_){ showErr("No se puede conectar con el servidor."); }
   }
   async function doSetup(email,name,pass){
     if(!email||!name||pass.length<6){ showErr("Nombre, email válido y contraseña de 6+ caracteres."); return; }
@@ -16067,87 +16179,230 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
 
   var lb=$("gate-login-btn"); if(lb) lb.addEventListener("click",function(){ clearErr(); openLogin(); });
-  var lx=$("login-x"); if(lx) lx.addEventListener("click",closeLogin);
-  if(scrim) scrim.addEventListener("click",function(e){ if(e.target===scrim && !setupMode) closeLogin(); });
-  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&scrim&&scrim.classList.contains("on")&&!setupMode) closeLogin(); });
+  var lx=$("login-x"); if(lx) lx.addEventListener("click",function(){ if(modo==="change"&&!cambioObligado) setMode("login"); closeLogin(); });
+  function cierrable(){ return !setupMode&&modo!=="invite"&&!(modo==="change"&&cambioObligado); }
+  if(scrim) scrim.addEventListener("click",function(e){ if(e.target===scrim && cierrable()) closeLogin(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&scrim&&scrim.classList.contains("on")&&cierrable()) closeLogin(); });
 
   var lf=$("login-form");
   if(lf) lf.addEventListener("submit",function(e){
     e.preventDefault(); clearErr();
     var em=(($("login-email")||{}).value||"").trim().toLowerCase(), pw=($("login-pass")||{}).value||"";
+    if(modo==="invite"){ doInvitacion(pw,($("login-pass2")||{}).value||""); return; }
+    if(modo==="change"){ doCambio(($("login-pass0")||{}).value||"",pw,($("login-pass2")||{}).value||""); return; }
     if(setupMode){ var nm=(($("login-name")||{}).value||"").trim(); doSetup(em,nm,pw); }
     else { if(!em||!pw){ showErr("Introduce tu email y tu contraseña."); return; } doLogin(em,pw); }
   });
   var fg=$("login-forgot");
-  if(fg) fg.addEventListener("click",function(){ showErr("Pide a un administrador de Les Moles que te ponga una contraseña nueva desde «Usuarios y roles». Por seguridad no se envían contraseñas por email.",true); });
+  if(fg) fg.addEventListener("click",function(){ showErr("Pide a un administrador de Les Moles que te ponga una contraseña temporal o te envíe una invitación nueva desde «Equipo y accesos». Por seguridad no se envían contraseñas por email.",true); });
+  var spw=$("side-pass"); if(spw) spw.addEventListener("click",function(){ abrirCambio(false); });
 
   /* Cerrar sesión: vuelve a la puerta de acceso (captura para anular el envío
      del formulario /api/logout heredado de la versión anterior). */
   var so=$("side-out");
   if(so) so.addEventListener("click",function(ev){ ev.preventDefault(); ev.stopImmediatePropagation(); SESSION.logout(); showGate(); }, true);
 
-  /* ── Usuarios y roles (solo admin, solo con backend real) ── */
+  /* ── Equipo y accesos (solo admin, solo con backend real): personas · roles y permisos · registro ── */
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];}); }
   function roleLabel(r){ return (ROLES[r]&&ROLES[r].label)||r; }
+  var ROL_DESC={admin:"Lo ve y lo cambia todo, incluidos parámetros, rentabilidad, copias de seguridad y usuarios.",
+    eventos:"Organiza los eventos: ficha, plano, menú, camareros y presupuesto.",
+    cocina:"Cocina: menú, producción, alergias, escaleta e inventario.",
+    compras:"Compras: lista de la compra, proveedores, presupuesto e inventario.",
+    servicio:"Sala: camareros, check list, escaleta, plano y montaje."};
   var uScrim=$("users-scrim");
-  function openUsers(){ if(!uScrim) return; var e=$("users-err"); if(e) e.hidden=true; uScrim.classList.add("on"); loadUsers(); }
+  var U={tab:"personas",users:null,cargando:false,invitar:false,editar:"",enlace:null,draft:null,sucio:false,reg:[],regUid:"",regFin:false,regCargando:false};
+  function openUsers(){ if(!uScrim) return; uMsg(""); U.tab="personas"; U.enlace=null; U.invitar=false; U.editar=""; uScrim.classList.add("on"); pintarTabs(); cargarUsers(); }
   function closeUsers(){ if(uScrim) uScrim.classList.remove("on"); }
-  function uErr(msg){ var e=$("users-err"); if(e){ e.textContent=msg; e.hidden=false; } }
-  async function loadUsers(){
-    var list=$("users-list"); if(list) list.innerHTML='<p style="color:var(--c-mut);font-size:12.5px;padding:4px 2px">Cargando…</p>';
-    try{ var r=await fetch("/api/users"); if(!r.ok) throw 0; var d=await r.json(); renderUsers(d.users||[]); }
-    catch(_){ if(list) list.innerHTML='<p style="color:var(--c-mut);font-size:12.5px;padding:4px 2px">No se pudieron cargar los usuarios.</p>'; }
+  function uMsg(msg,ok){ var e=$("users-err"); if(!e) return; if(!msg){ e.hidden=true; return; } e.textContent=msg; e.hidden=false; e.classList.toggle("ok",!!ok); if(ok) setTimeout(function(){ if(e.textContent===msg) e.hidden=true; },3000); }
+  function uErr(msg){ uMsg(msg,false); }
+  async function api(path,method,body){
+    var r=await fetch(path,{method:method||"GET",headers:body?{"Content-Type":"application/json","Accept":"application/json"}:{"Accept":"application/json"},credentials:"same-origin",body:body?JSON.stringify(body):undefined});
+    var d=await r.json().catch(function(){return {};});
+    if(!r.ok){ var e=new Error(d.message||(r.status===403?"Solo un administrador puede hacer esto.":"No se pudo ("+r.status+").")); e.status=r.status; throw e; }
+    return d;
   }
-  function renderUsers(users){
-    var list=$("users-list"); if(!list) return; list.innerHTML="";
+  function hace(ts){ if(!ts) return ""; var m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora mismo"; if(m<60) return "hace "+m+" min"; var h=Math.round(m/60); if(h<24) return "hace "+h+" h"; var d=Math.round(h/24); if(d<60) return "hace "+d+(d===1?" día":" días"); return "hace "+Math.round(d/30)+" meses"; }
+  function z2(n){ return (n<10?"0":"")+n; }
+  function fecha(ts){ var d=new Date(ts); return z2(d.getDate())+"/"+z2(d.getMonth()+1)+" "+z2(d.getHours())+":"+z2(d.getMinutes()); }
+  function urlInv(t){ return location.origin+location.pathname+"?invitacion="+t; }
+  function copiar(txt,btn,ok){
+    function listo(){ if(btn){ var t=btn.textContent; btn.textContent="Copiado ✓"; setTimeout(function(){ btn.textContent=t; },1600); } }
+    try{ navigator.clipboard.writeText(txt).then(listo,function(){ throw 0; }); }
+    catch(_){ var ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); listo(); }catch(__){} ta.remove(); }
+  }
+  function mensajeInv(nombre,url){ return "Hola "+nombre.split(" ")[0]+", ya tienes acceso a Les Moles Events (el programa de eventos del restaurante). Abre este enlace para crear tu contraseña y entrar: "+url+" (es de un solo uso y vale 7 días)."; }
+  function enlaceWa(tel,txt){ var d=String(tel||"").replace(/\D/g,""); if(d.length===9) d="34"+d; return "https://wa.me/"+d+"?text="+encodeURIComponent(txt); }
+  function pintarTabs(){ Array.prototype.forEach.call(document.querySelectorAll("#ut-tabs [data-ut]"),function(b){ b.setAttribute("aria-selected",b.getAttribute("data-ut")===U.tab?"true":"false"); }); pintar(); }
+  function pintar(){
+    var b=$("ut-body"); if(!b) return;
+    if(U.tab==="personas") b.innerHTML=htmlPersonas(); else if(U.tab==="roles") b.innerHTML=htmlRoles(); else b.innerHTML=htmlRegistro();
+  }
+  async function cargarUsers(callado){
+    if(U.cargando) return; U.cargando=true; var antes=JSON.stringify(U.users&&U.users.map(function(u){ return [u.id,u.estado,u.role,u.name,u.lastLogin,u.logins,u.mustChange,u.phone,u.puesto]; }));
+    try{ var d=await api("/api/users"); U.users=d.users||[]; }catch(e){ if(!callado) uErr(e.message); }
+    U.cargando=false;
+    var ahora=JSON.stringify(U.users&&U.users.map(function(u){ return [u.id,u.estado,u.role,u.name,u.lastLogin,u.logins,u.mustChange,u.phone,u.puesto]; }));
+    if(U.tab==="personas"&&(!callado||ahora!==antes)) pintar();
+  }
+  /* ── Personas ── */
+  var EST={activo:["Activo","ok"],invitado:["Pendiente de aceptar","pend"],"invitacion-caducada":["Invitación caducada","bad"],desactivado:["Desactivado","off"]};
+  function htmlPersonas(){
+    if(!U.users) return '<p class="ut-vacio">Cargando…</p>';
+    var us=U.users, act=us.filter(function(u){return u.estado==="activo";}).length, pen=us.filter(function(u){return u.estado==="invitado"||u.estado==="invitacion-caducada";}).length, des=us.filter(function(u){return u.estado==="desactivado";}).length;
+    var h='<div class="ut-head"><span class="ut-sum"><b>'+us.length+'</b> '+(us.length===1?"persona":"personas")+' · '+act+' '+(act===1?"activa":"activas")+(pen?' · '+pen+' sin aceptar la invitación':'')+(des?' · '+des+(des===1?" desactivada":" desactivadas"):'')+'</span>'+
+      '<button type="button" class="btn gold sm" data-u="nuevo">+ Invitar a una persona</button></div>';
+    if(U.invitar) h+=htmlInvitar();
+    if(U.enlace) h+=htmlEnlace(U.enlace);
     var meId=(curUser&&curUser.id)||"";
-    users.forEach(function(u){
-      var row=document.createElement("div"); row.className="u-row";
-      var ini=((u.name||u.email||"?").trim().charAt(0)||"?").toUpperCase();
-      row.innerHTML='<span class="u-av">'+esc(ini)+'</span><span class="u-b"><b>'+esc(u.name)+'</b><span>'+esc(u.email)+'</span></span>'+
-        (u.id===meId?'<span class="u-role">'+esc(roleLabel(u.role))+'</span>':
-          '<select class="u-role u-role-sel" data-id="'+esc(u.id)+'" aria-label="Rol">'+Object.keys(ROLES).map(function(k){ return '<option value="'+esc(k)+'"'+(k===u.role?" selected":"")+'>'+esc(roleLabel(k))+'</option>'; }).join("")+'</select>')+
-        '<button class="u-pass" data-id="'+esc(u.id)+'" data-nm="'+esc(u.name||u.email)+'" type="button" title="Poner una contraseña nueva">Contraseña</button>'+
-        (u.id===meId?'<span class="u-me">Tú</span>':'<button class="u-del" data-id="'+esc(u.id)+'" data-nm="'+esc(u.name||u.email)+'" aria-label="Eliminar">×</button>');
-      list.appendChild(row);
+    h+='<div class="ut-lista">'+us.map(function(u){ return filaPersona(u,meId); }).join("")+'</div>';
+    return h;
+  }
+  function htmlInvitar(){
+    return '<div class="ut-form"><h3>Invitar a una persona</h3><p class="ut-peq">Se le crea el acceso y recibe un enlace para elegir su propia contraseña: tú no tienes que saberla.</p><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Nombre</span><input type="text" id="u-n" placeholder="Nombre y apellido"></label>'+
+      '<label class="fld"><span class="lbl">Email</span><input type="email" id="u-e" placeholder="nombre@lesmoles.com"></label>'+
+      '<label class="fld"><span class="lbl">Rol</span><select id="u-r">'+Object.keys(ROLES).map(function(k){ return '<option value="'+esc(k)+'"'+(k==="eventos"?" selected":"")+'>'+esc(roleLabel(k))+' — '+esc(ROL_DESC[k]||"")+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">Puesto <small>(opcional)</small></span><input type="text" id="u-p" placeholder="p. ej. Jefa de sala"></label>'+
+      '<label class="fld"><span class="lbl">Teléfono <small>(opcional)</small></span><input type="tel" id="u-t" placeholder="600 000 000"></label>'+
+      '</div><label class="ut-chk"><input type="checkbox" id="u-cp"> Prefiero ponerle yo una contraseña inicial (tendrá que cambiarla al entrar)</label>'+
+      '<label class="fld" id="u-pw" hidden><span class="lbl">Contraseña inicial</span><input type="text" id="u-pwi" placeholder="mín. 6 caracteres"></label>'+
+      '<div class="ut-btns"><button type="button" class="btn gold sm" data-u="crear">Crear acceso</button><button type="button" class="btn sm" data-u="cancelar">Cancelar</button></div></div>';
+  }
+  function htmlEnlace(L){
+    var msg=mensajeInv(L.name,L.url);
+    return '<div class="ut-enlace"><b>Acceso listo para '+esc(L.name)+'</b><p>Pásale este enlace (por WhatsApp, por ejemplo). Es de un solo uso y vale 7 días: con él crea su propia contraseña.</p>'+
+      '<input type="text" readonly id="ut-url" value="'+esc(L.url)+'" aria-label="Enlace de invitación">'+
+      '<div class="ut-btns"><button type="button" class="btn gold sm" data-u="copiar">Copiar enlace</button><button type="button" class="btn sm" data-u="copiar-msg">Copiar mensaje</button>'+
+      '<a class="btn sm" target="_blank" rel="noopener" href="'+esc(enlaceWa(L.tel,msg))+'">Abrir WhatsApp</a><button type="button" class="btn sm" data-u="cerrar-enlace">Cerrar</button></div></div>';
+  }
+  function filaPersona(u,meId){
+    var yo=u.id===meId, e=EST[u.estado]||EST.activo;
+    var sub=[u.puesto,u.phone].filter(Boolean).map(esc).join(" · ");
+    var acceso=u.lastLogin?('Último acceso '+esc(hace(u.lastLogin))+' · '+u.logins+(u.logins===1?" acceso":" accesos")):(u.estado==="activo"?"Todavía no ha entrado":"");
+    var panel='';
+    if(U.editar===u.id) panel='<div class="ut-edit"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Nombre</span><input type="text" id="e-n" value="'+esc(u.name)+'"></label>'+
+      '<label class="fld"><span class="lbl">Puesto</span><input type="text" id="e-p" value="'+esc(u.puesto)+'"></label>'+
+      '<label class="fld"><span class="lbl">Teléfono</span><input type="tel" id="e-t" value="'+esc(u.phone)+'"></label></div>'+
+      '<div class="ut-btns"><button type="button" class="btn gold sm" data-u="guardar" data-id="'+esc(u.id)+'">Guardar</button><button type="button" class="btn sm" data-u="cancelar-edit">Cancelar</button></div></div>';
+    return '<div class="ut-row est-'+esc(u.estado)+'"><div class="ut-main"><span class="u-av">'+esc((u.name||u.email||"?").trim().charAt(0).toUpperCase())+'</span>'+
+      '<div class="ut-info"><div class="ut-l1"><b>'+esc(u.name)+'</b>'+(yo?'<span class="ut-tu">Tú</span>':'')+'<span class="ut-est e-'+e[1]+'">'+e[0]+'</span></div>'+
+      '<small>'+esc(u.email)+(sub?' · '+sub:'')+'</small>'+(acceso?'<small class="ut-acc">'+acceso+'</small>':'')+(u.mustChange?'<small class="ut-acc">Tiene que cambiar su contraseña al entrar</small>':'')+'</div>'+
+      (yo?'<span class="u-role">'+esc(roleLabel(u.role))+'</span>':'<select class="u-role u-role-sel" data-u="rol" data-id="'+esc(u.id)+'" aria-label="Rol de '+esc(u.name)+'">'+Object.keys(ROLES).map(function(k){ return '<option value="'+esc(k)+'"'+(k===u.role?" selected":"")+'>'+esc(roleLabel(k))+'</option>'; }).join("")+'</select>')+'</div>'+
+      '<div class="ut-acts"><button type="button" class="u-pass" data-u="editar" data-id="'+esc(u.id)+'">Editar</button>'+
+      (u.invite?'<button type="button" class="u-pass" data-u="ver-enlace" data-id="'+esc(u.id)+'">Ver enlace</button>':'')+
+      ((u.estado==="invitacion-caducada"||u.estado==="invitado")?'<button type="button" class="u-pass" data-u="reinvitar" data-id="'+esc(u.id)+'">Invitación nueva</button>':'')+
+      '<button type="button" class="u-pass" data-u="clave" data-id="'+esc(u.id)+'" data-nm="'+esc(u.name)+'">Contraseña temporal</button>'+
+      (yo?'':'<button type="button" class="u-pass" data-u="activar" data-id="'+esc(u.id)+'" data-v="'+(u.active?"0":"1")+'">'+(u.active?"Desactivar":"Activar")+'</button><button type="button" class="u-del" data-u="borrar" data-id="'+esc(u.id)+'" data-nm="'+esc(u.name)+'" aria-label="Eliminar a '+esc(u.name)+'">×</button>')+'</div>'+panel+'</div>';
+  }
+  /* ── Roles y permisos ── */
+  var ROLES_EDIT=["eventos","cocina","compras","servicio"];
+  function seccionesEditables(){
+    var out=[{g:"Inicio",items:[{k:"resumen",t:"Resumen del evento",fijo:true}]}], por={}, orden=[];
+    (window.LM_SECCIONES||[]).forEach(function(x){ if(/^(p-|r-)/.test(x.k)) return; if(!por[x.g]){ por[x.g]=[]; orden.push(x.g); } por[x.g].push({k:x.k,t:x.t}); });
+    orden.forEach(function(g){ out.push({g:g,items:por[g]}); });
+    return out;
+  }
+  function draftRoles(){ if(!U.draft){ U.draft={}; ROLES_EDIT.forEach(function(r){ U.draft[r]=(ROLES[r]&&Array.isArray(ROLES[r].secciones)?ROLES[r].secciones:[]).slice(); }); } return U.draft; }
+  function htmlRoles(){
+    var D=draftRoles();
+    var h='<p class="ut-peq">Marca qué ve cada rol en el menú. El <b>administrador</b> lo ve todo. Parámetros, Rentabilidad, Copias de seguridad y Equipo y accesos son solo del administrador. Los cambios llegan a todo el equipo al volver a cargar sus pantallas.</p>'+
+      '<div class="ut-roles"><table class="ut-mat"><thead><tr><th>Sección</th><th><span>Administrador</span><small>todo</small></th>'+ROLES_EDIT.map(function(r){ return '<th><span>'+esc(roleLabel(r))+'</span><small>'+esc(ROL_DESC[r]||"")+'</small></th>'; }).join("")+'</tr></thead><tbody>';
+    seccionesEditables().forEach(function(gr){
+      h+='<tr class="ut-g"><td colspan="'+(2+ROLES_EDIT.length)+'">'+esc(gr.g)+'</td></tr>';
+      gr.items.forEach(function(it){
+        h+='<tr><td>'+esc(it.t)+'</td><td class="ut-c"><i class="ut-ok" aria-label="Sí">✓</i></td>'+ROLES_EDIT.map(function(r){
+          var on=it.fijo||D[r].indexOf(it.k)>=0;
+          return '<td class="ut-c"><input type="checkbox" data-u="perm" data-r="'+r+'" data-k="'+esc(it.k)+'"'+(on?" checked":"")+(it.fijo?" disabled":"")+' aria-label="'+esc(roleLabel(r))+': '+esc(it.t)+'"></td>'; }).join("")+'</tr>';
+      });
     });
-    Array.prototype.forEach.call(list.querySelectorAll(".u-del"),function(b){ b.addEventListener("click",function(){
-      if(!window.confirm("¿Eliminar a "+b.getAttribute("data-nm")+"? Ya no podrá entrar en la aplicación.")) return;
-      delUser(b.getAttribute("data-id")); }); });
-    Array.prototype.forEach.call(list.querySelectorAll(".u-pass"),function(b){ b.addEventListener("click",function(){
-      var p=window.prompt("Nueva contraseña para "+b.getAttribute("data-nm")+" (mínimo 6 caracteres):","");
-      if(p==null) return; if(p.length<6){ uErr("La contraseña debe tener 6 caracteres o más."); return; }
-      patchUser(b.getAttribute("data-id"),{password:p},"Contraseña cambiada."); }); });
-    Array.prototype.forEach.call(list.querySelectorAll(".u-role-sel"),function(sl){ sl.addEventListener("change",function(){
-      patchUser(sl.getAttribute("data-id"),{role:sl.value},"Rol actualizado."); }); });
+    h+='</tbody></table></div><div class="ut-btns"><button type="button" class="btn gold sm" data-u="guardar-perm"'+(U.sucio?'':' disabled')+'>Guardar permisos</button><button type="button" class="btn sm" data-u="perm-fabrica">Volver a los de fábrica</button>'+(U.sucio?'<span class="ut-peq">Hay cambios sin guardar</span>':'')+'</div>'+
+      '<div class="ut-seg"><h3>Cierre de sesión por inactividad</h3><p class="ut-peq">Si alguien deja el programa abierto sin tocarlo, se cierra la sesión pasado este tiempo. Útil en tablets compartidas.</p>'+
+      '<select id="u-idle" aria-label="Cierre de sesión por inactividad">'+[[0,"Nunca"],[15,"15 minutos"],[30,"30 minutos"],[60,"1 hora"],[120,"2 horas"],[240,"4 horas"],[480,"8 horas"],[720,"12 horas"]].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===idleMin?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></div>';
+    return h;
   }
-  async function patchUser(id,data,okMsg){
-    var e=$("users-err"); if(e) e.hidden=true;
+  /* ── Registro de actividad ── */
+  var TIPO_TX={login:"Entró en el programa",login_fallido:"Intento de acceso fallido",logout:"Cerró sesión",usuario_invitado:"Invitó a",invitacion_aceptada:"Aceptó su invitación",usuario_creado:"Creó el acceso de",clave_cambiada:"Cambió su contraseña",clave_restablecida:"Puso una contraseña temporal a",usuario_desactivado:"Desactivó a",usuario_activado:"Activó a",usuario_eliminado:"Eliminó a",usuario_editado:"Cambió los datos de",rol_cambiado:"Cambió el rol de",roles_cambiados:"Cambió qué ve cada rol",seguridad:"Cambió la seguridad",evento_creado:"Creó el evento",evento_borrado:"Borró el evento",copia_manual:"Hizo una copia de seguridad",restauracion:"Restauró",version_restaurada:"Volvió a una versión anterior de",descarga_datos:"Descargó los datos"};
+  var TIPO_AVISO={login_fallido:1,evento_borrado:1,usuario_eliminado:1,usuario_desactivado:1,restauracion:1};
+  function htmlRegistro(){
+    var us=U.users||[];
+    var h='<div class="ut-head"><label class="fld ut-fil"><span class="lbl">Persona</span><select id="r-uid"><option value="">Todo el equipo</option>'+us.map(function(u){ return '<option value="'+esc(u.id)+'"'+(U.regUid===u.id?" selected":"")+'>'+esc(u.name)+'</option>'; }).join("")+'</select></label>'+
+      '<button type="button" class="btn sm" data-u="reg-act">Actualizar</button></div>';
+    if(!U.reg.length) return h+'<p class="ut-vacio">'+(U.regCargando?"Cargando…":"Todavía no hay actividad apuntada.")+'</p>';
+    h+='<div class="ut-reg">'+U.reg.map(function(r){
+      var tx=TIPO_TX[r.tipo]||r.tipo, det=r.detalle?(/^(Antes de|Hace|Primer)/.test(r.detalle)||r.tipo==="login_fallido"||r.tipo==="roles_cambiados"||r.tipo==="seguridad"||r.tipo==="restauracion"?'<span class="ut-det"> · '+esc(r.detalle)+'</span>':'<b class="ut-obj"> '+esc(r.detalle)+'</b>'):'';
+      return '<div class="ut-reg-row'+(TIPO_AVISO[r.tipo]?' aviso':'')+'"><span class="ut-fh" title="'+esc(fecha(r.ts))+'">'+esc(fecha(r.ts))+'</span><span class="ut-quien">'+esc(r.name||"—")+'</span><span class="ut-que">'+esc(tx)+det+'</span></div>'; }).join("")+'</div>'+
+      (U.regFin?'':'<div class="ut-btns"><button type="button" class="btn sm" data-u="reg-mas">Ver más antiguos</button></div>');
+    return h;
+  }
+  async function cargarReg(mas){
+    if(U.regCargando) return; U.regCargando=true; if(!mas){ U.reg=[]; U.regFin=false; } pintar();
     try{
-      var r=await fetch("/api/users",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(Object.assign({id:id},data))});
-      var d=await r.json().catch(function(){return {};});
-      if(r.ok){ loadUsers(); if(okMsg&&e){ e.textContent=okMsg; e.hidden=false; e.classList.add("ok"); setTimeout(function(){ e.hidden=true; e.classList.remove("ok"); },2600); } }
-      else uErr(d.message||"No se pudo guardar el cambio.");
-    }catch(_){ uErr("No se pudo guardar el cambio."); }
+      var antes=mas&&U.reg.length?U.reg[U.reg.length-1].id:0;
+      var d=await api("/api/actividad?limit=100"+(U.regUid?"&uid="+encodeURIComponent(U.regUid):"")+(antes?"&antes="+antes:""));
+      U.reg=U.reg.concat(d.registros||[]); if((d.registros||[]).length<100) U.regFin=true;
+    }catch(e){ uErr(e.message); }
+    U.regCargando=false; if(U.tab==="registro") pintar();
   }
-  async function delUser(id){
-    try{ var r=await fetch("/api/users?id="+encodeURIComponent(id),{method:"DELETE"}); if(r.ok){ loadUsers(); } else { var d=await r.json().catch(function(){return {};}); uErr(d.message||"No se pudo eliminar."); } }
-    catch(_){ uErr("No se pudo eliminar."); }
+  /* ── acciones ── */
+  async function accion(fn,okMsg,tras){
+    uMsg("");
+    try{ var d=await fn(); if(okMsg) uMsg(okMsg,true); if(tras) await tras(d); }catch(e){ uErr(e.message); }
   }
-  async function addUser(){
-    var name=(($("nu-name")||{}).value||"").trim(), email=(($("nu-email")||{}).value||"").trim().toLowerCase(), role=($("nu-role")||{}).value||"eventos", pass=($("nu-pass")||{}).value||"";
-    var e=$("users-err"); if(e) e.hidden=true;
-    if(!name||!email||pass.length<6){ uErr("Nombre, email válido y contraseña de 6+ caracteres."); return; }
-    try{
-      var r=await fetch("/api/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name,email:email,role:role,password:pass})});
-      if(r.ok){ $("nu-name").value=""; $("nu-email").value=""; $("nu-pass").value=""; loadUsers(); }
-      else { var d=await r.json().catch(function(){return {};}); uErr(d.message||"No se pudo crear el usuario."); }
-    }catch(_){ uErr("No se pudo crear el usuario."); }
+  async function onClickU(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-u]"); if(!b||b.tagName==="SELECT"||b.type==="checkbox") return;
+    var a=b.getAttribute("data-u"), id=b.getAttribute("data-id");
+    var u=id&&U.users?U.users.filter(function(x){return x.id===id;})[0]:null;
+    if(a==="nuevo"){ U.invitar=true; U.enlace=null; pintar(); var n=$("u-n"); if(n) n.focus(); return; }
+    if(a==="cancelar"){ U.invitar=false; pintar(); return; }
+    if(a==="cerrar-enlace"){ U.enlace=null; pintar(); return; }
+    if(a==="copiar"){ copiar(U.enlace.url,b); return; }
+    if(a==="copiar-msg"){ copiar(mensajeInv(U.enlace.name,U.enlace.url),b); return; }
+    if(a==="crear"){
+      var nm=($("u-n").value||"").trim(), em=($("u-e").value||"").trim().toLowerCase(), rl=$("u-r").value, pu=($("u-p").value||"").trim(), te=($("u-t").value||"").trim(), cp=$("u-cp").checked, pw=cp?($("u-pwi").value||""):"";
+      if(!nm||!em){ uErr("Hace falta un nombre y un email."); return; }
+      if(cp&&pw.length<6){ uErr("La contraseña inicial debe tener 6 caracteres o más."); return; }
+      await accion(function(){ return api("/api/users","POST",{name:nm,email:em,role:rl,puesto:pu,phone:te,password:cp?pw:undefined}); },null,async function(d){
+        U.invitar=false; U.enlace=d.user.invite?{name:d.user.name,url:urlInv(d.user.invite.token),tel:d.user.phone}:null;
+        uMsg(d.user.invite?"Acceso creado. Pásale el enlace para que elija su contraseña.":"Acceso creado con contraseña inicial: tendrá que cambiarla al entrar.",true); await cargarUsers(); });
+      return; }
+    if(a==="ver-enlace"&&u&&u.invite){ U.enlace={name:u.name,url:urlInv(u.invite.token),tel:u.phone}; pintar(); return; }
+    if(a==="reinvitar"&&u){ await accion(function(){ return api("/api/users","PATCH",{id:id,reinvitar:true}); },null,async function(d){ U.enlace={name:d.user.name,url:urlInv(d.user.invite.token),tel:d.user.phone}; await cargarUsers(); }); return; }
+    if(a==="editar"){ U.editar=(U.editar===id?"":id); pintar(); return; }
+    if(a==="cancelar-edit"){ U.editar=""; pintar(); return; }
+    if(a==="guardar"&&u){ var nn=($("e-n").value||"").trim(); if(!nn){ uErr("El nombre no puede quedar vacío."); return; }
+      await accion(function(){ return api("/api/users","PATCH",{id:id,name:nn,puesto:$("e-p").value,phone:$("e-t").value}); },"Datos guardados.",async function(){ U.editar=""; await cargarUsers(); }); return; }
+    if(a==="clave"&&u){ var p=window.prompt("Contraseña temporal para "+u.name+" (mínimo 6 caracteres). Tendrá que cambiarla al entrar:",""); if(p==null) return; if(p.length<6){ uErr("La contraseña debe tener 6 caracteres o más."); return; }
+      await accion(function(){ return api("/api/users","PATCH",{id:id,password:p}); },"Contraseña temporal puesta: tendrá que cambiarla al entrar.",cargarUsers); return; }
+    if(a==="activar"&&u){ var on=b.getAttribute("data-v")==="1";
+      if(!on&&!window.confirm("¿Desactivar a "+u.name+"? No podrá entrar, pero conservas su historial. Puedes volver a activarla cuando quieras.")) return;
+      await accion(function(){ return api("/api/users","PATCH",{id:id,active:on}); },on?"Acceso activado.":"Acceso desactivado.",cargarUsers); return; }
+    if(a==="borrar"&&u){ if(!window.confirm("¿Eliminar a "+u.name+" del todo? Ya no podrá entrar. (Si solo quieres quitarle el acceso un tiempo, es mejor «Desactivar».)")) return;
+      await accion(function(){ return api("/api/users?id="+encodeURIComponent(id),"DELETE"); },"Persona eliminada.",cargarUsers); return; }
+    if(a==="guardar-perm"){ await accion(function(){ return api("/api/roles","PUT",{roles:U.draft}); },"Permisos guardados.",async function(){ U.sucio=false; await refrescarAjustes(); U.draft=null; pintar(); }); return; }
+    if(a==="perm-fabrica"){ if(!window.confirm("¿Volver a los permisos de fábrica de todos los roles?")) return;
+      await accion(function(){ return api("/api/roles","PUT",{roles:null}); },"Permisos de fábrica restaurados.",async function(){ U.sucio=false; U.draft=null; await refrescarAjustes(); pintar(); }); return; }
+    if(a==="reg-act"){ cargarReg(false); return; }
+    if(a==="reg-mas"){ cargarReg(true); return; }
   }
+  function onChangeU(ev){
+    var el=ev.target, a=el.getAttribute&&el.getAttribute("data-u");
+    if(el.id==="u-cp"){ var w=$("u-pw"); if(w) w.hidden=!el.checked; return; }
+    if(el.id==="u-idle"){ var v=+el.value; accion(function(){ return api("/api/seguridad","PUT",{idleMin:v}); },"Guardado: "+(v?"se cierra la sesión tras "+el.options[el.selectedIndex].text+" sin usar el programa.":"sin cierre por inactividad."),function(){ idleMin=v; vigilarInactividad(); }); return; }
+    if(el.id==="r-uid"){ U.regUid=el.value; cargarReg(false); return; }
+    if(a==="rol"){ var id=el.getAttribute("data-id"); accion(function(){ return api("/api/users","PATCH",{id:id,role:el.value}); },"Rol actualizado.",cargarUsers); return; }
+    if(a==="perm"){ var D=draftRoles(), r=el.getAttribute("data-r"), k=el.getAttribute("data-k"), i=D[r].indexOf(k);
+      if(el.checked&&i<0) D[r].push(k); if(!el.checked&&i>=0) D[r].splice(i,1);
+      U.sucio=true; var g=document.querySelector('[data-u="guardar-perm"]'); if(g) g.disabled=false; return; }
+  }
+  var ub=$("ut-body"); if(ub){ ub.addEventListener("click",onClickU); ub.addEventListener("change",onChangeU); }
+  var ut=$("ut-tabs"); if(ut) ut.addEventListener("click",function(ev){ var b=ev.target.closest&&ev.target.closest("[data-ut]"); if(!b) return; U.tab=b.getAttribute("data-ut"); uMsg(""); if(U.tab==="roles"){ U.draft=null; U.sucio=false; } pintarTabs(); if(U.tab==="registro"){ if(!U.users) cargarUsers(); cargarReg(false); } if(U.tab==="personas") cargarUsers(); });
+  /* con la ventana abierta en «Personas», se mira cada 15 s si alguien ha aceptado su invitación o ha entrado (solo repinta si hay algo nuevo y no se está escribiendo) */
+  setInterval(function(){ if(uScrim&&uScrim.classList.contains("on")&&U.tab==="personas"&&!U.invitar&&!U.editar&&!U.cargando) cargarUsers(true); },15000);
   var su=$("side-users"); if(su) su.addEventListener("click",openUsers);
   var ux=$("users-x"); if(ux) ux.addEventListener("click",closeUsers);
   if(uScrim) uScrim.addEventListener("click",function(e){ if(e.target===uScrim) closeUsers(); });
-  var na=$("nu-add"); if(na) na.addEventListener("click",addUser);
 
   /* Arranque: preguntamos al servidor por la sesión. Si no hay backend
      (Artifact), caemos a modo demostración con la sesión local. */
@@ -16164,7 +16419,21 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         backend=true;
         var d=await r.json();
         var demo=$("login-demo"); if(demo) demo.hidden=true;
-        if(d.authed){ setUser(d.user); enterApp(); return; }
+        var it=""; try{ it=new URL(location.href).searchParams.get("invitacion")||""; }catch(_){}
+        if(it&&!d.authed){
+          showGate();
+          try{
+            var ri=await fetch("/api/invitacion?t="+encodeURIComponent(it),{headers:{"Accept":"application/json"}}), di=await ri.json().catch(function(){return {};});
+            if(ri.ok){
+              invitacion={t:it,name:di.name,email:di.email}; setMode("invite");
+              var pe=$("login-email"); if(pe) pe.value=di.email||""; var nn=$("login-note"); if(nn) nn.textContent="Hola, "+(di.name||"")+". Crea tu contraseña para entrar en Les Moles Events. Tu usuario será "+(di.email||"")+".";
+              openLogin(); var pp=$("login-pass"); if(pp) setTimeout(function(){ pp.focus(); },90);
+            } else { setMode(false); showErr(di.message||"Esta invitación no es válida.",false); openLogin(); }
+          }catch(_){ setMode(false); }
+          return;
+        }
+        if(it){ try{ history.replaceState(null,"",location.pathname); }catch(_){} }
+        if(d.authed){ setUser(d.user); aplicarAjustes(d); enterApp(); if(d.user&&d.user.mustChange) abrirCambio(true); return; }
         showGate();
         if(d.setup){ setMode(true); openLogin(); } else { setMode(false); }
         return;

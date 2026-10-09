@@ -13,10 +13,17 @@
  *   GET  /api/store             documento compartido (requiere sesión)
  *   PUT  /api/store             guarda el documento JUNTÁNDOLO con lo que ya hay (requiere sesión)
  *   GET  /api/sync?ev=&tab=     versión del documento y quién más está conectado (y en qué evento)
- *   GET  /api/users             lista de usuarios (solo admin)
- *   POST /api/users             crea usuario {email,name,role,password} (solo admin)
- *   PATCH  /api/users           {id, password?, role?, name?} cambia clave/rol (solo admin)
+ *   GET  /api/users             fichas de usuario: rol, estado, último acceso… (solo admin)
+ *   POST /api/users             {email,name,role,phone?,puesto?,password?}: con contraseña crea el usuario (deberá cambiarla);
+ *                               sin contraseña lo INVITA y devuelve el enlace (solo admin)
+ *   PATCH  /api/users           {id, name?, role?, phone?, puesto?, active?, password?, reinvitar?} (solo admin)
  *   DELETE /api/users?id=..     elimina usuario (solo admin)
+ *   GET  /api/invitacion?t=..   datos de una invitación (público, con el enlace)
+ *   POST /api/invitacion        {t,password}: la persona crea su contraseña y entra
+ *   POST /api/me/password       {actual,nueva}: cambia la contraseña propia
+ *   GET  /api/actividad         registro de actividad: accesos, usuarios, borrados, copias… (solo admin)
+ *   PUT  /api/roles             {roles:{rol:[secciones]}|null} qué secciones ve cada rol (solo admin)
+ *   PUT  /api/seguridad         {idleMin} cierre de sesión por inactividad (solo admin)
  *   GET  /api/share?t=..        portal del cliente: su evento, pagos, presupuesto (lectura) y su lista
  *   POST /api/share?t=..        el cliente guarda/envía SOLO sus nombres y su lista de invitados
  *   GET  /api/propuestas        listas enviadas por el cliente (equipo con sesión)
@@ -67,7 +74,13 @@ async function api(request, env, url) {
   if (p === "/api/me" && m === "GET") return meRoute(request, env);
   if (p === "/api/setup" && m === "POST") return setupRoute(request, env);
   if (p === "/api/login" && m === "POST") return loginRoute(request, env);
-  if (p === "/api/logout" && m === "POST") return logoutRoute();
+  if (p === "/api/logout" && m === "POST") return logoutRoute(request, env);
+  if (p === "/api/invitacion" && m === "GET") return invGet(request, env, url);
+  if (p === "/api/invitacion" && m === "POST") return invPost(request, env);
+  if (p === "/api/me/password" && m === "POST") return mePassword(request, env);
+  if (p === "/api/actividad" && m === "GET") return actList(request, env, url);
+  if (p === "/api/roles" && m === "PUT") return rolesPut(request, env);
+  if (p === "/api/seguridad" && m === "PUT") return seguridadPut(request, env);
   if (p === "/api/share" && m === "GET") return shareRoute(request, env, url);
   if (p === "/api/share" && m === "POST") return sharePost(request, env, url);
   if (p === "/api/propuestas" && m === "GET") return propuestasList(request, env);
@@ -111,7 +124,11 @@ async function secret(env) {
 
 async function meRoute(request, env) {
   const s = await session(request, env);
-  if (s) return json({ authed: true, user: pubUser(s) });
+  if (s) {
+    const u = await env.DB.prepare("SELECT phone, puesto, must_change FROM users WHERE id=?1").bind(s.uid).first();
+    const aj = await ajustes(env);
+    return json({ authed: true, user: Object.assign(pubUser(s), { phone: (u && u.phone) || "", puesto: (u && u.puesto) || "", mustChange: !!(u && u.must_change) }), roles: aj.roles, idleMin: aj.idleMin });
+  }
   const n = await countUsers(env);
   return json({ authed: false, setup: n === 0 });
 }
@@ -123,25 +140,37 @@ async function setupRoute(request, env) {
   const email = norm(b.email), name = (b.name || "").trim(), pass = b.password || "";
   if (!validEmail(email) || !name || pass.length < 6) return json({ error: "invalid", message: "Email válido, nombre y contraseña de 6+ caracteres." }, 400);
   const user = await createUser(env, { email, name, role: "admin", password: pass });
+  await logAct(env, { uid: user.id, name }, "login", "Primer acceso: se creó la cuenta de administrador");
   return withSession(json({ ok: true, user: pubUser(user) }), env, user);
 }
 
 async function loginRoute(request, env) {
+  await ensureUsers(env);
   const b = await body(request);
   const email = norm(b.email), pass = b.password || "";
   if (!email || !pass) return json({ error: "invalid" }, 400);
+  /* demasiados fallos seguidos con el mismo correo: se espera 10 minutos */
+  const f = await env.DB.prepare("SELECT COUNT(*) AS n FROM actividad WHERE tipo='login_fallido' AND detalle=?1 AND ts>?2").bind(email, Date.now() - 10 * 60e3).first();
+  if (f && f.n >= 5) return json({ error: "locked", message: "Demasiados intentos fallidos. Espera 10 minutos o pide a un administrador que te ponga una contraseña nueva." }, 429);
   const row = await env.DB.prepare("SELECT * FROM users WHERE email=?").bind(email).first();
-  if (!row) return json({ error: "credentials" }, 401);
+  if (!row) { await logAct(env, null, "login_fallido", email); return json({ error: "credentials" }, 401); }
+  if (row.invite_token) return json({ error: "pending", message: "Todavía no has creado tu contraseña: usa el enlace de invitación que te enviaron." }, 403);
   const hash = await pbkdf2(pass, row.pass_salt);
-  if (!timingSafeEqual(hash, row.pass_hash)) return json({ error: "credentials" }, 401);
-  return withSession(json({ ok: true, user: pubUser(row) }), env, row);
+  if (!timingSafeEqual(hash, row.pass_hash)) { await logAct(env, { uid: row.id, name: row.name }, "login_fallido", email); return json({ error: "credentials" }, 401); }
+  if (row.active === 0) { await logAct(env, { uid: row.id, name: row.name }, "login_fallido", email + " (acceso desactivado)"); return json({ error: "inactive", message: "Tu acceso está desactivado. Habla con un administrador." }, 403); }
+  const ahora = Date.now();
+  await env.DB.prepare("UPDATE users SET last_login=?1, login_count=COALESCE(login_count,0)+1, last_seen=?1 WHERE id=?2").bind(ahora, row.id).run();
+  await logAct(env, { uid: row.id, name: row.name }, "login", "");
+  return withSession(json({ ok: true, user: Object.assign(pubUser(row), { mustChange: !!row.must_change }) }), env, row);
 }
 
-function logoutRoute() {
+async function logoutRoute(request, env) {
+  try { const s = await session(request, env); if (s) await logAct(env, s, "logout", ""); } catch (_) {}
   const r = json({ ok: true });
   r.headers.append("Set-Cookie", `${COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
   return r;
 }
+
 
 /* ── PORTAL DEL CLIENTE (sin sesión, con el enlace privado de su evento: boda, bautizo, comida de empresa…) ──
    LECTURA: lo celebrativo de siempre + la «foto» que la app del equipo deja en
@@ -349,6 +378,8 @@ async function storePut(request, env) {
   try { incoming = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) return json({ error: "bad-doc" }, 400);
   const base = +(request.headers.get("X-Store-Base") || 0);
+  /* borrar eventos: solo administración y eventos (cocina, compras y servicio no pueden borrar nada, ni por error) */
+  if (s.role !== "admin" && s.role !== "eventos") incoming.borrados = {};
   for (let intento = 0; intento < 6; intento++) {
     const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
     let prev = {}; try { prev = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { prev = {}; }
@@ -446,6 +477,7 @@ async function bkTrasGuardar(env, s, row, prev, merged) {
         .bind(String(e.id), String(e.name || "").slice(0, 200), String((e.ficha && e.ficha.fecha) || ""), ahora, quien, await bkZip(JSON.stringify(e))).run();
     }
     await env.DB.prepare("DELETE FROM papelera WHERE ts < ?1").bind(ahora - 30 * 864e5).run();
+    for (const e of idos) await logAct(env, s, "evento_borrado", String(e.name || e.id).slice(0, 120));
     if (idos.length >= 3) { await bkGuardar(env, row.data, "auto", quien, "Antes de borrar " + idos.length + " eventos de golpe", ahora); copiado = true; }
   }
   if (!copiado) {
@@ -477,6 +509,7 @@ async function bkCrear(request, env) {
   const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
   if (!row || !row.data) return json({ error: "empty", message: "Todavía no hay nada que copiar." }, 400);
   const c = await bkGuardar(env, row.data, "manual", a.s.name || a.s.email, String(b.nota || "").slice(0, 120));
+  await logAct(env, a.s, "copia_manual", "");
   await bkPodar(env, Date.now());
   return json({ ok: true, copia: c });
 }
@@ -514,6 +547,7 @@ async function bkBajar(request, env, url) {
     if (!r) return json({ error: "not-found" }, 404);
     txt = await bkUnzip(r.gz); ts = +r.ts; tag = "copia";
   }
+  await logAct(env, a.s, "descarga_datos", url.searchParams.get("actual") === "1" ? "Todo" : "Una copia");
   const f = new Date(ts).toISOString().slice(0, 16).replace("T", "_").replace(":", "h");
   return new Response(txt, { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "Content-Disposition": 'attachment; filename="LesMoles_' + tag + "_" + f + '.json"' } });
 }
@@ -585,7 +619,7 @@ async function bkRestaurar(request, env) {
     if (row) r = await env.DB.prepare("UPDATE store SET data=?1, updated=?2 WHERE id=1 AND updated=?3").bind(out, v, antes).run();
     else r = await env.DB.prepare("INSERT OR IGNORE INTO store (id, data, updated) VALUES (1, ?1, ?2)").bind(out, v).run();
     const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
-    if (ch > 0) return json({ ok: true, v, eventos: n, que });
+    if (ch > 0) { await logAct(env, a.s, "restauracion", que); return json({ ok: true, v, eventos: n, que }); }
   }
   return json({ error: "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
 }
@@ -674,7 +708,7 @@ async function hiTrasGuardar(env, s, prev, merged) {
   if (!cambios.length) return;
   await ensureHistorial(env);
   const ahora = Date.now(), quien = s.name || s.email || "";
-  for (const c of cambios) await hiAnotar(env, c.e, c.p, c.secs, s.uid, quien, c.nota, ahora, !c.nota);
+  for (const c of cambios) { await hiAnotar(env, c.e, c.p, c.secs, s.uid, quien, c.nota, ahora, !c.nota); if (!c.p) await logAct(env, s, "evento_creado", String(c.e.name || c.e.id).slice(0, 120)); }
   if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM historial WHERE ts_fin < ?1").bind(ahora - 180 * 864e5).run();
 }
 async function hiAcceso(request, env) {
@@ -726,6 +760,7 @@ async function hiRestaurar(request, env) {
     if (ch > 0) {
       const secs = previo ? hiDiff(previo, h.snap) : ["plano"];
       try { await hiAnotar(env, h.snap, previo, secs.length ? secs : ["otros datos"], a.s.uid, quien, "Volvió a la versión anterior al cambio de " + new Date(+h.r.ts).toISOString().slice(0, 16).replace("T", " "), Date.now(), false); } catch (_) {}
+      await logAct(env, a.s, "version_restaurada", String(h.snap.name || h.r.event_id).slice(0, 120));
       return json({ ok: true, v, cambian: secs });
     }
   }
@@ -814,68 +849,212 @@ function mergeParams(prev, inc, isAdmin) {
 }
 
 /* ── usuarios (solo admin) ──────────────────────────────────────────── */
-async function usersList(request, env) {
+/* columnas y tablas nuevas (se crean solas la primera vez) */
+let US_OK = false;
+async function ensureUsers(env) {
+  if (US_OK) return;
+  const { results } = await env.DB.prepare("SELECT name FROM pragma_table_info('users')").all();
+  const tiene = {}; (results || []).forEach((r) => { tiene[r.name] = 1; });
+  const cols = [["phone", "TEXT"], ["puesto", "TEXT"], ["active", "INTEGER DEFAULT 1"], ["last_login", "INTEGER"], ["login_count", "INTEGER DEFAULT 0"], ["last_seen", "INTEGER"], ["must_change", "INTEGER DEFAULT 0"], ["invite_token", "TEXT"], ["invite_exp", "INTEGER"]];
+  for (const c of cols) if (!tiene[c[0]]) { try { await env.DB.prepare("ALTER TABLE users ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (_) {} }
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS actividad (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, uid TEXT, name TEXT, tipo TEXT NOT NULL, detalle TEXT)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS actividad_ts ON actividad (ts)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)").run();
+  US_OK = true;
+}
+/* registro de actividad: quién hizo qué (nunca debe hacer fallar lo que se estaba haciendo) */
+async function logAct(env, s, tipo, detalle) {
+  try {
+    await ensureUsers(env);
+    const ahora = Date.now();
+    await env.DB.prepare("INSERT INTO actividad (ts, uid, name, tipo, detalle) VALUES (?1, ?2, ?3, ?4, ?5)").bind(ahora, (s && s.uid) || "", (s && (s.name || s.email)) || "", tipo, String(detalle || "").slice(0, 300)).run();
+    if (Math.random() < 0.01) await env.DB.prepare("DELETE FROM actividad WHERE ts < ?1").bind(ahora - 400 * 864e5).run();
+  } catch (_) {}
+}
+function fichaUsuario(u, ahora) {
+  const pend = !!u.invite_token;
+  return {
+    id: u.id, email: u.email, name: u.name, role: u.role, phone: u.phone || "", puesto: u.puesto || "", active: u.active !== 0,
+    estado: u.active === 0 ? "desactivado" : pend ? ((u.invite_exp || 0) > ahora ? "invitado" : "invitacion-caducada") : "activo",
+    mustChange: !!u.must_change, created: u.created_at, lastLogin: u.last_login || null, logins: u.login_count || 0, lastSeen: u.last_seen || null,
+    invite: pend && (u.invite_exp || 0) > ahora ? { token: u.invite_token, exp: u.invite_exp } : null,
+  };
+}
+const COLS_USER = "id, email, name, role, phone, puesto, active, created_at, last_login, login_count, last_seen, must_change, invite_token, invite_exp";
+async function otrosAdmins(env, id) {
+  const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE role='admin' AND COALESCE(active,1)=1 AND id<>?1").bind(id).first();
+  return (r && r.n) || 0;
+}
+async function usersAdmin(request, env) {
   const s = await session(request, env);
-  if (!s) return json({ error: "unauth" }, 401);
-  if (s.role !== "admin") return json({ error: "forbidden" }, 403);
-  const { results } = await env.DB.prepare("SELECT id, email, name, role, created_at FROM users ORDER BY created_at").all();
-  return json({ users: results || [] });
+  if (!s) return { err: json({ error: "unauth" }, 401) };
+  if (s.role !== "admin") return { err: json({ error: "forbidden" }, 403) };
+  return { s };
+}
+async function usersList(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  const { results } = await env.DB.prepare("SELECT " + COLS_USER + " FROM users ORDER BY created_at").all();
+  const ahora = Date.now();
+  return json({ ahora, users: (results || []).map((u) => fichaUsuario(u, ahora)) });
 }
 
 async function usersCreate(request, env) {
-  const s = await session(request, env);
-  if (!s) return json({ error: "unauth" }, 401);
-  if (s.role !== "admin") return json({ error: "forbidden" }, 403);
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
   const b = await body(request);
-  const email = norm(b.email), name = (b.name || "").trim(), pass = b.password || "";
+  const email = norm(b.email), name = (b.name || "").trim(), pass = b.password ? String(b.password) : "";
+  const phone = String(b.phone || "").trim().slice(0, 40), puesto = String(b.puesto || "").trim().slice(0, 80);
   let role = (b.role || "eventos").trim();
   if (ROLES.indexOf(role) < 0) role = "eventos";
-  if (!validEmail(email) || !name || pass.length < 6) return json({ error: "invalid", message: "Email válido, nombre y contraseña de 6+ caracteres." }, 400);
+  if (!validEmail(email) || !name) return json({ error: "invalid", message: "Hace falta un nombre y un email válido." }, 400);
+  if (pass && pass.length < 6) return json({ error: "invalid", message: "La contraseña debe tener 6 caracteres o más." }, 400);
   const exists = await env.DB.prepare("SELECT id FROM users WHERE email=?").bind(email).first();
   if (exists) return json({ error: "exists", message: "Ya existe un usuario con ese email." }, 409);
-  const user = await createUser(env, { email, name, role, password: pass });
-  return json({ ok: true, user: pubUser(user) });
+  /* con contraseña inicial: la persona deberá cambiarla al entrar; sin ella: se la invita con un enlace de un solo uso (7 días) */
+  const user = await createUser(env, { email, name, role, password: pass || randomHex(16), phone, puesto, mustChange: pass ? 1 : 0, invite: !pass });
+  await logAct(env, a.s, pass ? "usuario_creado" : "usuario_invitado", name + " (" + email + ", " + rolTxt(role) + ")");
+  const row = await env.DB.prepare("SELECT " + COLS_USER + " FROM users WHERE id=?1").bind(user.id).first();
+  return json({ ok: true, user: fichaUsuario(row, Date.now()) });
 }
+function rolTxt(r) { return { admin: "administrador", eventos: "eventos", cocina: "cocina", compras: "compras", servicio: "servicio" }[r] || r; }
 
 async function usersPatch(request, env) {
-  const s = await session(request, env);
-  if (!s) return json({ error: "unauth" }, 401);
-  if (s.role !== "admin") return json({ error: "forbidden" }, 403);
-  const b = await body(request);
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  const s = a.s, b = await body(request);
   const id = (b.id || "").trim();
   if (!id) return json({ error: "invalid" }, 400);
-  const row = await env.DB.prepare("SELECT id FROM users WHERE id=?").bind(id).first();
+  const row = await env.DB.prepare("SELECT " + COLS_USER + " FROM users WHERE id=?").bind(id).first();
   if (!row) return json({ error: "not-found", message: "Ese usuario ya no existe." }, 404);
+  const quien = row.name || row.email;
   if (b.role != null) {
     const role = String(b.role).trim();
     if (ROLES.indexOf(role) < 0) return json({ error: "invalid", message: "Rol no válido." }, 400);
     if (id === s.uid && role !== "admin") return json({ error: "self", message: "No puedes quitarte el rol de administrador a ti mismo." }, 400);
-    await env.DB.prepare("UPDATE users SET role=? WHERE id=?").bind(role, id).run();
+    if (row.role === "admin" && role !== "admin" && !(await otrosAdmins(env, id))) return json({ error: "last-admin", message: "Tiene que quedar al menos un administrador." }, 400);
+    if (role !== row.role) { await env.DB.prepare("UPDATE users SET role=? WHERE id=?").bind(role, id).run(); await logAct(env, s, "rol_cambiado", quien + ": " + rolTxt(row.role) + " → " + rolTxt(role)); }
   }
   if (b.name != null) {
     const name = String(b.name).trim();
     if (!name) return json({ error: "invalid", message: "El nombre no puede quedar vacío." }, 400);
-    await env.DB.prepare("UPDATE users SET name=? WHERE id=?").bind(name, id).run();
+    if (name !== row.name) { await env.DB.prepare("UPDATE users SET name=? WHERE id=?").bind(name, id).run(); await logAct(env, s, "usuario_editado", quien + " ahora se llama " + name); }
+  }
+  if (b.phone != null || b.puesto != null) {
+    await env.DB.prepare("UPDATE users SET phone=?1, puesto=?2 WHERE id=?3").bind(b.phone != null ? String(b.phone).trim().slice(0, 40) : (row.phone || ""), b.puesto != null ? String(b.puesto).trim().slice(0, 80) : (row.puesto || ""), id).run();
+  }
+  if (b.active != null) {
+    const act = b.active ? 1 : 0;
+    if (!act && id === s.uid) return json({ error: "self", message: "No puedes desactivar tu propia cuenta." }, 400);
+    if (!act && row.role === "admin" && !(await otrosAdmins(env, id))) return json({ error: "last-admin", message: "Tiene que quedar al menos un administrador activo." }, 400);
+    if ((row.active !== 0 ? 1 : 0) !== act) { await env.DB.prepare("UPDATE users SET active=? WHERE id=?").bind(act, id).run(); await logAct(env, s, act ? "usuario_activado" : "usuario_desactivado", quien); }
   }
   if (b.password != null) {
     const pass = String(b.password);
     if (pass.length < 6) return json({ error: "invalid", message: "La contraseña debe tener 6 caracteres o más." }, 400);
-    const salt = randomHex(16);
-    const hash = await pbkdf2(pass, salt);
-    await env.DB.prepare("UPDATE users SET pass_hash=?, pass_salt=? WHERE id=?").bind(hash, salt, id).run();
+    const salt = randomHex(16), hash = await pbkdf2(pass, salt);
+    /* contraseña puesta por un administrador: es temporal, la persona elige la suya al entrar */
+    await env.DB.prepare("UPDATE users SET pass_hash=?, pass_salt=?, must_change=1, invite_token=NULL, invite_exp=NULL WHERE id=?").bind(hash, salt, id).run();
+    await logAct(env, s, "clave_restablecida", quien);
   }
-  return json({ ok: true });
+  if (b.reinvitar) {
+    await env.DB.prepare("UPDATE users SET invite_token=?1, invite_exp=?2, pass_hash=?3, pass_salt=?4, must_change=0 WHERE id=?5").bind(randomHex(16), Date.now() + INVITE_DIAS * 864e5, randomHex(32), randomHex(16), id).run();
+    await logAct(env, s, "usuario_invitado", quien + " (invitación nueva)");
+  }
+  const fresh = await env.DB.prepare("SELECT " + COLS_USER + " FROM users WHERE id=?1").bind(id).first();
+  return json({ ok: true, user: fichaUsuario(fresh, Date.now()) });
 }
 
 async function usersDelete(request, env, url) {
-  const s = await session(request, env);
-  if (!s) return json({ error: "unauth" }, 401);
-  if (s.role !== "admin") return json({ error: "forbidden" }, 403);
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
   const id = url.searchParams.get("id");
   if (!id) return json({ error: "invalid" }, 400);
-  if (id === s.uid) return json({ error: "self", message: "No puedes eliminar tu propia cuenta." }, 400);
+  if (id === a.s.uid) return json({ error: "self", message: "No puedes eliminar tu propia cuenta." }, 400);
+  const row = await env.DB.prepare("SELECT name, email, role FROM users WHERE id=?").bind(id).first();
+  if (row && row.role === "admin" && !(await otrosAdmins(env, id))) return json({ error: "last-admin", message: "Tiene que quedar al menos un administrador." }, 400);
   await env.DB.prepare("DELETE FROM users WHERE id=?").bind(id).run();
+  if (row) await logAct(env, a.s, "usuario_eliminado", (row.name || row.email) + " (" + row.email + ")");
   return json({ ok: true });
+}
+
+/* ── invitaciones: la persona crea su propia contraseña con un enlace de un solo uso ── */
+const INVITE_DIAS = 7;
+async function invGet(request, env, url) {
+  await ensureUsers(env);
+  const t = String(url.searchParams.get("t") || "");
+  const mal = json({ error: "invalid", message: "Esta invitación ha caducado o ya se usó. Pide una nueva a un administrador." }, 404);
+  if (!/^[a-f0-9]{32}$/.test(t)) return mal;
+  const u = await env.DB.prepare("SELECT name, email, role, invite_exp FROM users WHERE invite_token=?1").bind(t).first();
+  if (!u || (u.invite_exp || 0) < Date.now()) return mal;
+  return json({ ok: true, name: u.name, email: u.email, role: u.role });
+}
+async function invPost(request, env) {
+  await ensureUsers(env);
+  const b = await body(request), t = String(b.t || ""), pass = String(b.password || "");
+  if (!/^[a-f0-9]{32}$/.test(t)) return json({ error: "invalid", message: "Esta invitación no es válida." }, 400);
+  if (pass.length < 8) return json({ error: "invalid", message: "La contraseña debe tener 8 caracteres o más." }, 400);
+  const u = await env.DB.prepare("SELECT * FROM users WHERE invite_token=?1").bind(t).first();
+  if (!u || (u.invite_exp || 0) < Date.now()) return json({ error: "invalid", message: "Esta invitación ha caducado o ya se usó. Pide una nueva a un administrador." }, 404);
+  const salt = randomHex(16), hash = await pbkdf2(pass, salt), ahora = Date.now();
+  await env.DB.prepare("UPDATE users SET pass_hash=?1, pass_salt=?2, invite_token=NULL, invite_exp=NULL, must_change=0, last_login=?3, last_seen=?3, login_count=COALESCE(login_count,0)+1 WHERE id=?4").bind(hash, salt, ahora, u.id).run();
+  await logAct(env, { uid: u.id, name: u.name }, "invitacion_aceptada", u.name + " (" + u.email + ")");
+  return withSession(json({ ok: true, user: pubUser(u) }), env, u);
+}
+/* cambiar la contraseña propia */
+async function mePassword(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  const b = await body(request), actual = String(b.actual || ""), nueva = String(b.nueva || "");
+  if (nueva.length < 8) return json({ error: "invalid", message: "La contraseña nueva debe tener 8 caracteres o más." }, 400);
+  if (nueva === actual) return json({ error: "invalid", message: "La contraseña nueva tiene que ser distinta de la actual." }, 400);
+  const row = await env.DB.prepare("SELECT pass_hash, pass_salt FROM users WHERE id=?1").bind(s.uid).first();
+  if (!row || !timingSafeEqual(await pbkdf2(actual, row.pass_salt), row.pass_hash)) return json({ error: "credentials", message: "La contraseña actual no es correcta." }, 400);
+  const salt = randomHex(16), hash = await pbkdf2(nueva, salt);
+  await env.DB.prepare("UPDATE users SET pass_hash=?1, pass_salt=?2, must_change=0 WHERE id=?3").bind(hash, salt, s.uid).run();
+  await logAct(env, s, "clave_cambiada", "");
+  return json({ ok: true });
+}
+
+/* ── registro de actividad (solo admin) ── */
+async function actList(request, env, url) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureUsers(env);
+  const uid = String(url.searchParams.get("uid") || ""), lim = Math.max(1, Math.min(300, +url.searchParams.get("limit") || 100)), antes = +url.searchParams.get("antes") || 0;
+  const { results } = await env.DB.prepare("SELECT id, ts, uid, name, tipo, detalle FROM actividad WHERE (?1='' OR uid=?1) AND (?2=0 OR id<?2) ORDER BY id DESC LIMIT " + lim).bind(uid, antes).all();
+  return json({ ahora: Date.now(), registros: results || [] });
+}
+
+/* ── qué ve cada rol y cierre por inactividad: ajustes del admin, para todo el equipo ── */
+const IDLE_VALS = [0, 15, 30, 60, 120, 240, 480, 720];
+async function ajustes(env) {
+  let roles = null, idleMin = 480;
+  try {
+    await ensureUsers(env);
+    const { results } = await env.DB.prepare("SELECT k, v FROM meta WHERE k IN ('roles','idle_min')").all();
+    (results || []).forEach((r) => { try { if (r.k === "roles") roles = JSON.parse(r.v); if (r.k === "idle_min") idleMin = +JSON.parse(r.v); } catch (_) {} });
+  } catch (_) {}
+  return { roles, idleMin };
+}
+async function rolesPut(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureUsers(env);
+  const b = await body(request);
+  if (b.roles == null) { await env.DB.prepare("DELETE FROM meta WHERE k='roles'").run(); await logAct(env, a.s, "roles_cambiados", "Vuelven los permisos de fábrica"); return json({ ok: true }); }
+  const out = {};
+  Object.keys(b.roles || {}).forEach((r) => {
+    if (r === "admin" || ROLES.indexOf(r) < 0 || !Array.isArray(b.roles[r])) return;
+    /* lo del administrador (parámetros, rentabilidad, copias, usuarios) no se puede dar a otros roles */
+    out[r] = b.roles[r].map(String).filter((k) => /^[a-z0-9-]{1,30}$/.test(k) && !/^(p-|r-)/.test(k) && k !== "users" && k !== "copias").slice(0, 80);
+  });
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('roles', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(out)).run();
+  await logAct(env, a.s, "roles_cambiados", Object.keys(out).map((r) => rolTxt(r) + ": " + out[r].length + " secciones").join(" · "));
+  return json({ ok: true, roles: out });
+}
+async function seguridadPut(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureUsers(env);
+  const b = await body(request), v = +b.idleMin;
+  if (IDLE_VALS.indexOf(v) < 0) return json({ error: "invalid", message: "Valor no válido." }, 400);
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('idle_min', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(v)).run();
+  await logAct(env, a.s, "seguridad", v ? "Cierre de sesión tras " + v + " min sin usar la app" : "Sin cierre de sesión por inactividad");
+  return json({ ok: true, idleMin: v });
 }
 
 /* ── helpers de usuario ─────────────────────────────────────────────── */
@@ -883,13 +1062,14 @@ async function countUsers(env) {
   const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM users").first();
   return (r && r.n) || 0;
 }
-async function createUser(env, { email, name, role, password }) {
+async function createUser(env, { email, name, role, password, phone, puesto, mustChange, invite }) {
+  await ensureUsers(env);
   const id = "u" + randomHex(8);
   const salt = randomHex(16);
   const hash = await pbkdf2(password, salt);
   const now = Date.now();
-  await env.DB.prepare("INSERT INTO users (id, email, name, role, pass_hash, pass_salt, created_at) VALUES (?,?,?,?,?,?,?)")
-    .bind(id, email, name, role, hash, salt, now).run();
+  await env.DB.prepare("INSERT INTO users (id, email, name, role, pass_hash, pass_salt, created_at, phone, puesto, active, must_change, invite_token, invite_exp) VALUES (?,?,?,?,?,?,?,?,?,1,?,?,?)")
+    .bind(id, email, name, role, hash, salt, now, phone || "", puesto || "", mustChange ? 1 : 0, invite ? randomHex(16) : null, invite ? now + INVITE_DIAS * 864e5 : null).run();
   return { id, email, name, role };
 }
 function pubUser(u) { return { id: u.uid || u.id, email: u.email, name: u.name, role: u.role }; }
@@ -908,8 +1088,11 @@ async function session(request, env) {
   if (!pl) return null;
   /* el usuario tiene que seguir existiendo, y manda su rol ACTUAL: si el admin
      lo borra o le cambia el rol, surte efecto ya, no cuando caduque la cookie */
-  const u = await env.DB.prepare("SELECT id, email, name, role FROM users WHERE id=?").bind(pl.uid).first();
-  if (!u) return null;
+  await ensureUsers(env);
+  const u = await env.DB.prepare("SELECT id, email, name, role, active, last_seen FROM users WHERE id=?").bind(pl.uid).first();
+  if (!u || u.active === 0) return null;     /* borrado o desactivado: surte efecto ya */
+  const ahora = Date.now();
+  if (!u.last_seen || ahora - (+u.last_seen) > 5 * 60e3) { try { await env.DB.prepare("UPDATE users SET last_seen=?1 WHERE id=?2").bind(ahora, u.id).run(); } catch (_) {} }
   return { uid: u.id, email: u.email, name: u.name, role: u.role, exp: pl.exp };
 }
 function cookie(request, name) {
