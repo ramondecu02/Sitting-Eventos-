@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.50 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.51 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -1585,7 +1585,7 @@ body.authed .gate{display:none}
 .nv-empty{text-align:center; color:var(--c-mut); font-family:var(--font-display);
   font-size:22px; padding:80px 24px}
 @media(max-width:600px){ .nv-sec{padding:40px 0} .nv-hero{min-height:70vh} }
-/* tarjeta «compartir con los novios» dentro del Resumen */
+/* tarjeta «compartir con el cliente» dentro del Resumen */
 .share-card{background:var(--panel); border:1px solid var(--c-line); border-radius:var(--r-lg);
   padding:20px 22px; box-shadow:var(--shadow-sm); margin-top:18px}
 .share-h{font-family:"Barlow Semi Condensed",sans-serif; letter-spacing:.14em; text-transform:uppercase;
@@ -3235,7 +3235,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.50</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.51</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -3723,7 +3723,7 @@ Lluc (trona)</div>
   </div>
 </div>
 
-<!-- ══ Página pública para los novios (solo lectura, sin login) ══════════ -->
+<!-- ══ Portal del cliente: página pública (sin login) ══════════ -->
 <div id="novios" aria-hidden="true"></div>
 
 <script>
@@ -4768,7 +4768,7 @@ function migrate(e){
   /* comunicaciones: bitácora de contactos con la pareja */
   e.comunicaciones=e.comunicaciones||[]; /* [{id,fecha,tipo,nota}] */
   /* enlace para los novios: página pública de solo lectura. on=activo,
-     id=token secreto de la URL (?novios=<id>). Solo se comparte lo
+     id=token secreto de la URL (?cliente=<id>). Solo se comparte lo
      celebrativo; nunca presupuesto, contactos ni la lista de invitados. */
   if(!e.share) e.share={on:false,id:""};
   return e;
@@ -5105,7 +5105,7 @@ function hydrateFromServer(){
    se junta (evento a evento, gana lo más reciente). Nunca mientras se está
    escribiendo: se espera a que pasen unos segundos sin teclear. */
 var SYNC_TAB=(function(){ try{ var t=sessionStorage.getItem("lm_tab"); if(!t){ t="t"+Date.now().toString(36)+Math.random().toString(36).slice(2,8); sessionStorage.setItem("lm_tab",t); } return t; }catch(_){ return "t"+Math.random().toString(36).slice(2,10); } })();
-var ultTecla=0, syncBusy=false, PRES=[], presAvisados={};
+var ultTecla=0, syncBusy=false, PRES=[], presAvisados={}, LISTA_V=null;
 document.addEventListener("input",function(){ ultTecla=Date.now(); },true);
 document.addEventListener("keydown",function(){ ultTecla=Date.now(); },true);
 function escribiendo(){ return Date.now()-ultTecla<6000; }
@@ -5117,10 +5117,22 @@ function syncTick(){
     .then(function(r){ return r.ok?r.json():null; })
     .then(function(j){ if(!j) return;
       PRES=j.otros||[]; pintarPresencia();
+      /* ¿el cliente ha guardado su lista desde la última vez? entonces se mira ya, sin esperar al minuto */
+      if(j.l!=null&&j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } }
       if(j.v&&srvV&&j.v!==srvV&&!remoteBusy&&!escribiendo()) hydrateFromServer();
     }).catch(function(){}).finally(function(){ syncBusy=false; });
 }
 setInterval(syncTick,15000);
+/* latido ligero: cada 5 s se pregunta solo si el cliente ha guardado una lista nueva en su portal; así sus nombres llegan al plano casi al momento */
+var listaBusy=false;
+function listaTick(){
+  if(listaBusy||!hayServidor()||document.visibilityState!=="visible"||!document.body.classList.contains("authed")) return;
+  listaBusy=true;
+  fetch("/api/sync?l=1",{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){ if(!j||j.l==null) return; if(j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } } })
+    .catch(function(){}).finally(function(){ listaBusy=false; });
+}
+setInterval(listaTick,5000);
 document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") setTimeout(syncTick,300); });
 window.LM_syncTick=syncTick;
 /* quién más está conectado: en la barra lateral, y un aviso si otra persona
@@ -8069,7 +8081,7 @@ var SECCIONES=[
   {k:"p-pvp",      g:"Parámetros", t:"Precios de venta"},
   {k:"p-alg",      g:"Parámetros", t:"Alérgenos"},
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
-  {k:"p-agenda",   g:"Parámetros", t:"Agenda con los novios"},
+  {k:"p-agenda",   g:"Parámetros", t:"Agenda con el cliente"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
@@ -8264,7 +8276,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.50</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.51</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8520,12 +8532,33 @@ function duplicarEvento(id,quedarse){
   return c;
 }
 window.LM_duplicarEvento=duplicarEvento;
-/* ══ PORTAL DE LOS NOVIOS · la «foto» del evento ═══════════════════════
-   Lo que ven los novios en su enlace sale de aquí: la app calcula con SUS
+/* ══ PORTAL DEL CLIENTE · la «foto» del evento ═══════════════════════
+   Lo que ve el cliente en su enlace sale de aquí: la app calcula con SUS
    reglas (presupuesto, agenda de pagos, lista del plano, menú, horarios) y lo
    deja en e.share.portal, que viaja al servidor con el resto del evento. El
-   servidor solo lo enseña: así los novios ven exactamente las mismas cifras
+   servidor solo lo enseña: así el cliente ve exactamente las mismas cifras
    que el equipo y no hay una segunda copia de las cuentas que se desajuste. */
+/* Vocabulario del portal según el tipo de evento (boda, bautizo, comida de
+   empresa…). El portal es «del cliente»: solo la boda habla de «los novios». */
+function palabrasEvento(tipo){
+  var t=String(tipo||"").toLowerCase(), k="otro";
+  if(/boda|wedding/.test(t)) k="boda"; else if(/bautiz|bateig/.test(t)) k="bautizo"; else if(/comuni/.test(t)) k="comunion";
+  else if(/corporat|empresa|convenci/.test(t)) k="empresa"; else if(/aniversar/.test(t)) k="aniversario";
+  else if(/c[oó]ctel|cocktail/.test(t)) k="coctel"; else if(/catering/.test(t)) k="catering"; else if(/celebra|fiesta/.test(t)) k="celebracion";
+  var T={
+    boda:       {nom:"vuestra boda",         dia:"El día de la boda",         hito:"¡Vuestra boda!",         con:"BODA",        org:"Los novios"},
+    bautizo:    {nom:"vuestro bautizo",      dia:"El día del bautizo",        hito:"¡Vuestro bautizo!",      con:"BAUTIZO",     org:"Quién organiza"},
+    comunion:   {nom:"vuestra comunión",     dia:"El día de la comunión",     hito:"¡Vuestra comunión!",     con:"COMUNIÓN",    org:"Quién organiza"},
+    empresa:    {nom:"vuestro evento",       dia:"El día del evento",         hito:"¡Vuestro evento!",       con:"EVENTO",      org:"Quién organiza"},
+    aniversario:{nom:"vuestro aniversario",  dia:"El día del aniversario",    hito:"¡Vuestro aniversario!",  con:"ANIVERSARIO", org:"Quién organiza"},
+    celebracion:{nom:"vuestra celebración",  dia:"El día de la celebración",  hito:"¡Vuestra celebración!",  con:"CELEBRACIÓN", org:"Quién organiza"},
+    coctel:     {nom:"vuestro cóctel",       dia:"El día del cóctel",         hito:"¡Vuestro cóctel!",       con:"CÓCTEL",      org:"Quién organiza"},
+    catering:   {nom:"vuestro catering",     dia:"El día del catering",       hito:"¡Vuestro catering!",     con:"CATERING",    org:"Quién organiza"},
+    otro:       {nom:"vuestro evento",       dia:"El día del evento",         hito:"¡Vuestro evento!",       con:"EVENTO",      org:"Quién organiza"}
+  };
+  var o=T[k]; o.k=k; o.marca=k==="boda"?"Vuestra boda":"Vuestro evento"; return o;
+}
+window.LM_palabras=palabrasEvento;
 var PORTAL_TXT={doc:{t:"Enviarnos la lista de invitados",d:"Mesas, adultos, niños, staff y alergias. Podéis rellenarla aquí mismo."},
   pago1:{t:"Primer pago"}, reu1:{t:"Reunión de dudas"}, reu2:{t:"Última reunión"},
   pago2:{t:"Último pago",d:"Ese día se cierran los cambios de mesas y menú."}};
@@ -8556,7 +8589,7 @@ function portalFoto(e){
     pasos.push({id:h.id,tipo:h.tipo,t:(tx.t||h.t)+(h.id==="pago1"?" ("+pct+" %)":""),d:tx.d||h.d||"",fecha:h.fecha,importe:h.importe!=null?Math.round(h.importe*100)/100:null,done:!!h.done});
     if(h.cierre) cierre=h.fecha;
   });
-  if(F.fecha) pasos.push({id:"boda",tipo:"boda",t:"¡Vuestra boda!",d:[F.ubicacion||"Les Moles"].join(""),fecha:F.fecha,done:false});
+  if(F.fecha) pasos.push({id:"boda",tipo:"boda",t:palabrasEvento(F.tipo).hito,d:[F.ubicacion||"Les Moles"].join(""),fecha:F.fecha,done:false});
   var menu=[]; try{ menu=menuPorFamilias(e).map(function(f){ return {fam:f.fam,platos:f.platos}; }); }catch(_){}
   var horas=[];
   if(F.llegadaRest) horas.push({l:"Llegada de invitados",v:F.llegadaRest});
@@ -8625,7 +8658,8 @@ function marcarLista(r,estado){
    renombradas) y se aplica eso sobre el plano tal como esté ahora. Los platos
    sustitutivos, notas y posiciones de las mesas se conservan. */
 function mkKey(m){ return m&&m.k?"k"+m.k:"n"+pvNorm((m&&m.nombre)||""); }
-function indiceLista(L){ var I={}; ((L&&L.mesas)||[]).forEach(function(m){ var mk=mkKey(m); (m.g||[]).forEach(function(g){ if((g.n||"").trim()) I[nomKey(g.n)]={g:g,mk:mk,m:m}; }); }); return I; }
+/* dos personas con el mismo nombre (dos «María García») no son la misma: cada una se identifica por su nombre y por la vez que aparece en la lista */
+function indiceLista(L){ var I={}, vez={}; ((L&&L.mesas)||[]).forEach(function(m){ var mk=mkKey(m); (m.g||[]).forEach(function(g){ if(!(g.n||"").trim()) return; var nk=nomKey(g.n), i=vez[nk]||0; vez[nk]=i+1; I[nk+"#"+i]={g:g,mk:mk,m:m,nk:nk,i:i}; }); }); return I; }
 function cambiosNovios(base,nuevo){
   base=base||{mesas:[]}; nuevo=nuevo||{mesas:[]};
   var B=indiceLista(base), N=indiceLista(nuevo), c={add:[],del:[],mov:[],mod:[],ren:[],fuera:[],pareja:null};
@@ -8648,13 +8682,13 @@ function fusionarEnPlano(e,c){
     if(!x&&m&&(m.nombre||"").trim()) x=cur.filter(function(q){ return pvNorm(q.nombre)===pvNorm(m.nombre); })[0];
     if(!x){ x={k:null,nombre:(m&&m.nombre)||"",staff:!!(m&&m.staff),g:[]}; cur.push(x); }
     return x; }
-  function donde(key){ for(var i=0;i<cur.length;i++) for(var j=0;j<cur[i].g.length;j++) if(nomKey(cur[i].g[j].n)===key) return {m:cur[i],j:j}; return null; }
+  function donde(key,vez){ var n=0; for(var i=0;i<cur.length;i++) for(var j=0;j<cur[i].g.length;j++) if(nomKey(cur[i].g[j].n)===key){ if(n===(vez||0)) return {m:cur[i],j:j}; n++; } return null; }
   c.ren.forEach(function(r){ var x=cur.filter(function(q){ return q.k===r.k; })[0]; if(x) x.nombre=r.nombre; });
-  c.del.forEach(function(d){ var w=donde(nomKey(d.g.n)); if(w) w.m.g.splice(w.j,1); });
-  c.mov.forEach(function(mv){ var w=donde(nomKey(mv.a.g.n)), dest=mesaDe(mv.a.m);
+  c.del.sort(function(a,b){ return b.i-a.i; }).forEach(function(d){ var w=donde(d.nk,d.i); if(w) w.m.g.splice(w.j,1); });
+  c.mov.forEach(function(mv){ var w=donde(mv.a.nk,mv.a.i), dest=mesaDe(mv.a.m);
     if(w&&w.m!==dest){ dest.g.push(w.m.g.splice(w.j,1)[0]); } else if(!w) dest.g.push({n:mv.a.g.n,t:mv.a.g.t,a:mv.a.g.a}); });
-  c.mod.forEach(function(md){ var w=donde(nomKey(md.n.g.n)); if(w){ w.m.g[w.j].t=md.n.g.t; w.m.g[w.j].a=md.n.g.a; } });
-  c.add.forEach(function(ad){ var w=donde(nomKey(ad.g.n)); if(w){ w.m.g[w.j].t=ad.g.t; w.m.g[w.j].a=ad.g.a; return; } mesaDe(ad.m).g.push({n:ad.g.n,t:ad.g.t,a:ad.g.a}); });
+  c.mod.forEach(function(md){ var w=donde(md.n.nk,md.n.i); if(w){ w.m.g[w.j].t=md.n.g.t; w.m.g[w.j].a=md.n.g.a; } });
+  c.add.forEach(function(ad){ var w=donde(ad.nk,ad.i); if(w){ w.m.g[w.j].t=ad.g.t; w.m.g[w.j].a=ad.g.a; return; } mesaDe(ad.m).g.push({n:ad.g.n,t:ad.g.t,a:ad.g.a}); });
   /* las mesas que ellos han quitado solo desaparecen si en el plano han quedado vacías */
   c.fuera.forEach(function(m){ var x=m.k?cur.filter(function(q){ return q.k===m.k; })[0]:cur.filter(function(q){ return !q.k&&pvNorm(q.nombre)===pvNorm(m.nombre); })[0]; if(x&&!x.g.length) cur.splice(cur.indexOf(x),1); });
   return cur.filter(function(q){ return q.k||q.g.length; });
@@ -8675,22 +8709,26 @@ function aplicarCambiosNovios(e,r){
   if(c.pareja){ if(c.pareja.a) F.parejaA=c.pareja.a; if(c.pareja.b) F.parejaB=c.pareja.b; }
   e.share.ultNovios={ts:Date.now(),add:c.add.length,del:c.del.length,mov:c.mov.length,mod:c.mod.length+c.ren.length,visto:false};
   e.updated=Date.now();
-  if(esActual){ $("src").value=e.text; prevText=e.text; sel=null; render(); }
+  if(esActual){ var srcEl=$("src"), foco=document.activeElement===srcEl, s0=srcEl.selectionStart, s1=srcEl.selectionEnd; srcEl.value=e.text;
+    if(foco){ try{ srcEl.setSelectionRange(Math.min(s0,e.text.length),Math.min(s1,e.text.length)); }catch(_){} }
+    prevText=e.text; sel=null; render(); }
   fillSelect(); portalAlDia(e); save();
   return c;
 }
 function resumenCambios(u){ var b=[]; if(u.add) b.push("+"+u.add+(u.add===1?" persona":" personas")); if(u.del) b.push("−"+u.del+(u.del===1?" persona":" personas")); if(u.mov) b.push(u.mov+(u.mov===1?" cambia":" cambian")+" de mesa"); if(u.mod) b.push(u.mod+(u.mod===1?" cambio":" cambios")+" de alergia, tipo o nombre de mesa"); return b.join(" · ")||"sin cambios"; }
 function autoAplicarNovios(lista){
   lista.forEach(function(e){ var r=listaNoviosDe(e); if(!r) return;
+    /* si en este momento alguien está escribiendo en el plano de ese evento, se espera unos segundos para no pisarlo */
+    try{ if(current()&&current().id===e.id&&escribiendo()){ setTimeout(function(){ cargarListasNovios(); },3500); return; } }catch(_){}
     try{ var c=aplicarCambiosNovios(e,r); marcarLista(r,"aplicada");
-      if(c.total) toast("Cambios de los novios de «"+nombreLimpio(e.name)+"» pasados al plano: "+resumenCambios(e.share.ultNovios)+".",false,"Ver",function(){ if(e.share.ultNovios) e.share.ultNovios.visto=true; save(); abrirEvento(e.id,"plan"); });
+      if(c.total) toast("Cambios del cliente de «"+nombreLimpio(e.name)+"» pasados al plano: "+resumenCambios(e.share.ultNovios)+".",false,"Ver",function(){ if(e.share.ultNovios) e.share.ultNovios.visto=true; save(); abrirEvento(e.id,"plan"); });
     }catch(err){ try{ console.warn("lista de los novios:",err); }catch(_){} } });
 }
 function deshacerNovios(e){
   var a=e.share&&e.share.antes; if(!a) return;
   e.text=a.text; e.name=eventName(e.text); e.ficha=e.ficha||{}; e.ficha.parejaA=a.parejaA; e.ficha.parejaB=a.parejaB; delete e.share.antes; e.share.ultNovios=null; e.updated=Date.now();
   if(current()&&current().id===e.id){ $("src").value=e.text; prevText=e.text; render(); }
-  fillSelect(); portalAlDia(e); save(); renderResumen(); toast("Deshecho: el plano vuelve a estar como antes del último cambio de los novios.");
+  fillSelect(); portalAlDia(e); save(); renderResumen(); toast("Deshecho: el plano vuelve a estar como antes del último cambio del cliente.");
 }
 /* cada minuto (y al volver a la pestaña) se miran las listas de los novios */
 setInterval(function(){ try{ if(hayServidor()&&document.body.classList.contains("authed")&&document.visibilityState==="visible") cargarListasNovios(); }catch(_){} },60000);
@@ -9427,7 +9465,7 @@ function renderResumen(){
         '</div>'+
         '<div class="rsm-ring">'+ringSvg(prog.pct)+'<div class="ring-cap">Preparación<br>del evento</div></div>'+
       '</header>'+
-      (listaPorRevisar(e)?'<div class="hn-box rsm-nov"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>Los novios han enviado su lista de invitados</b><span>Revísala y pásala al plano con un clic.</span></div><div class="hn-acts"><button class="btn sm gold" type="button" id="rsm-nov-rev2">Revisar su lista</button></div></div>':'')+
+      (listaPorRevisar(e)?'<div class="hn-box rsm-nov"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>El cliente ha enviado su lista de invitados</b><span>Revísala y pásala al plano con un clic.</span></div><div class="hn-acts"><button class="btn sm gold" type="button" id="rsm-nov-rev2">Revisar su lista</button></div></div>':'')+
       emptyNote+
       (alertas.length?('<div class="rsm-sech">Atención</div><div class="alertbox">'+alertas.map(function(al){return '<button type="button" class="alert-item'+(al.sev==="urgent"?" urgent":"")+'" data-k="'+al.k+'"><span class="alert-ic">!</span><span class="alert-tx">'+escH(al.t)+'</span><span class="rcard-arrow">'+ICONS.caret+'</span></button>';}).join("")+'</div>'):"")+
       '<div class="rsm-sech">Cifras del evento</div>'+
@@ -9448,49 +9486,49 @@ function renderResumen(){
   var _rp=$("rsm-print"); if(_rp) _rp.addEventListener("click",function(){ imprimirResumen(current()); });
   var _rd=$("rsm-dup"); if(_rd) _rd.addEventListener("click",function(){ var c=duplicarEvento(current().id); if(c) irASeccion("resumen"); });
 
-  /* ── Portal de los novios: enlace privado, estado de su lista y datos de pago ── */
+  /* ── Portal del cliente: enlace privado, estado de su lista y datos de pago ── */
   if(!e.share) e.share={on:false,id:""};
   var base=location.origin+location.pathname;
-  var link=(e.share.id?base+"?novios="+e.share.id:"");
+  var link=(e.share.id?base+"?cliente="+e.share.id:"");
   var fuerte=(e.share.id||"").length>=24, lr=listaNoviosDe(e);
   function cuandoTs(ts){ try{ var d=new Date(ts); return d.toLocaleDateString("es-ES",{day:"numeric",month:"long"})+" a las "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }catch(_){ return ""; } }
   var auto=e.share.auto!==false, un=e.share.ultNovios;
-  var estLista=!lr?"Todavía no han empezado su lista de invitados.":
-    auto&&(lr.estado==="borrador"||lr.estado==="enviada")?"Han cambiado su lista hace un momento; se pasa al plano sola en unos segundos.":
-    lr.estado==="enviada"?"<b>Han enviado su lista de invitados</b> el "+escH(cuandoTs(lr.enviada||lr.updated))+". Revísala y pásala al plano.":
-    lr.estado==="borrador"?"Están rellenando su lista (sin enviar todavía). Última modificación: "+escH(cuandoTs(lr.updated))+".":
-    lr.estado==="aplicada"?(un?"<b>Último cambio de los novios</b> pasado al plano el "+escH(cuandoTs(un.ts))+": "+escH(resumenCambios(un))+".":"Su lista está al día en el plano (último cambio el "+escH(cuandoTs(lr.revisada))+")."+(lr.enviada?" La marcaron como completa el "+escH(cuandoTs(lr.enviada))+".":"")):
+  var estLista=!lr?"El cliente todavía no ha empezado su lista de invitados.":
+    auto&&(lr.estado==="borrador"||lr.estado==="enviada")?"El cliente ha cambiado su lista hace un momento; se pasa al plano sola en unos segundos.":
+    lr.estado==="enviada"?"<b>El cliente ha enviado su lista de invitados</b> el "+escH(cuandoTs(lr.enviada||lr.updated))+". Revísala y pásala al plano.":
+    lr.estado==="borrador"?"El cliente está rellenando su lista (sin enviar todavía). Última modificación: "+escH(cuandoTs(lr.updated))+".":
+    lr.estado==="aplicada"?(un?"<b>Último cambio del cliente</b> pasado al plano el "+escH(cuandoTs(un.ts))+": "+escH(resumenCambios(un))+".":"Su lista está al día en el plano (último cambio el "+escH(cuandoTs(lr.revisada))+")."+(lr.enviada?" La marcó como completa el "+escH(cuandoTs(lr.enviada))+".":"")):
     "Su última lista se descartó el "+escH(cuandoTs(lr.revisada))+".";
   var ses=null; try{ ses=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
   var esAdmin=!hayServidor()||(ses&&ses.role==="admin"), ct=paramData("portal")||{};
   var shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card portal-card">'+
-    '<div class="share-h">Portal de los novios</div>'+
+    '<div class="share-h">Portal del cliente</div>'+
     (e.share.on
-      ? '<p class="share-p">Los novios ven su boda, qué toca y cuándo, los pagos y el presupuesto (sin poder cambiarlo), y rellenan su lista de invitados. Es un enlace privado: quien lo tenga puede verlo.</p>'+
-        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly aria-label="Enlace del portal de los novios" value="'+escH(link)+'">'+
+      ? '<p class="share-p">El cliente ve su evento (boda, bautizo, comida de empresa…), qué toca y cuándo, los pagos y el presupuesto (sin poder cambiarlo), y rellena su lista de invitados. Es un enlace privado: quien lo tenga puede verlo.</p>'+
+        '<div class="share-row"><input id="rsm-share-url" class="share-url" readonly aria-label="Enlace del portal del cliente" value="'+escH(link)+'">'+
         '<button class="btn" id="rsm-share-copy" type="button">Copiar</button>'+
-        '<button class="btn" id="rsm-share-ver" type="button">Ver como los novios</button></div>'+
+        '<button class="btn" id="rsm-share-ver" type="button">Ver como el cliente</button></div>'+
         (!fuerte?'<p class="portal-warn">Este enlace es de antes y solo permite ver. Crea uno nuevo para que puedan rellenar su lista; el anterior dejará de funcionar.</p>':'')+
         '<div class="portal-st'+(lr&&lr.estado==="enviada"&&!auto?" nueva":"")+'"><span>'+estLista+'</span>'+(e.share.antes&&un?'<button class="btn sm" id="rsm-nov-undo" type="button">Deshacer ese cambio</button>':'')+(!auto&&lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
-        '<label class="portal-auto"><input type="checkbox" id="rsm-nov-auto"'+(auto?' checked':'')+'><span><b>Pasar sus cambios al plano automáticamente</b><small>'+(auto?'Cuando añaden, quitan o cambian a alguien de mesa, el plano se actualiza solo (sin deshacer lo que hayáis tocado vosotros) y os avisa aquí y en el panel de inicio.':'Desactivado: cuando envíen su lista, la revisáis y la pasáis al plano con un clic.')+'</small></span></label>'+
+        '<label class="portal-auto"><input type="checkbox" id="rsm-nov-auto"'+(auto?' checked':'')+'><span><b>Pasar sus cambios al plano automáticamente</b><small>'+(auto?'Cuando el cliente añade, quita o cambia a alguien de mesa, el plano se actualiza solo (sin deshacer lo que hayáis tocado vosotros) y os avisa aquí y en el panel de inicio.':'Desactivado: cuando el cliente envíe su lista, la revisáis y la pasáis al plano con un clic.')+'</small></span></label>'+
         '<div class="portal-links"><button class="share-off" id="rsm-share-new" type="button">Crear enlace nuevo</button><button class="share-off" id="rsm-share-off" type="button">Desactivar el portal</button></div>'
-      : '<p class="share-p">Activa su portal y envíales el enlace: verán su boda, qué toca y cuándo, los pagos y el presupuesto (solo lectura), y podrán rellenar la lista de invitados por mesas. Lo que cambien pasa solo al plano.</p>'+
+      : '<p class="share-p">Activa el portal y envía el enlace al cliente: verá su evento, qué toca y cuándo, los pagos y el presupuesto (solo lectura), y podrá rellenar la lista de invitados por mesas. Lo que cambie pasa solo al plano.</p>'+
         '<button class="btn gold" id="rsm-share-on" type="button">Activar el portal</button>')+
-    (esAdmin?'<details class="portal-datos"'+(!ct.iban&&e.share.on?' open':'')+'><summary>Datos de pago y contacto que ven los novios <span>(los mismos para todas las bodas)</span></summary>'+
+    (esAdmin?'<details class="portal-datos"'+(!ct.iban&&e.share.on?' open':'')+'><summary>Datos de pago y contacto que ve el cliente <span>(los mismos para todos los eventos)</span></summary>'+
       '<div class="fldset">'+
         '<label class="fld"><span class="lbl">Cuenta para transferencias (IBAN)</span><input id="pt-iban" value="'+escH(ct.iban||"")+'" placeholder="ES00 0000 0000 0000 0000 0000"></label>'+
         '<label class="fld"><span class="lbl">Teléfono del equipo de eventos</span><input id="pt-tel" value="'+escH(ct.tel||"")+'" placeholder="977 …"></label>'+
         '<label class="fld"><span class="lbl">Correo del equipo de eventos</span><input id="pt-mail" value="'+escH(ct.mail||"")+'" placeholder="eventos@…"></label>'+
-        '<label class="fld wide"><span class="lbl">Nota para los novios (opcional)</span><input id="pt-nota" value="'+escH(ct.nota||"")+'" placeholder="Para cualquier duda, escribidnos o llamadnos de 10 a 18 h."></label>'+
+        '<label class="fld wide"><span class="lbl">Nota para el cliente (opcional)</span><input id="pt-nota" value="'+escH(ct.nota||"")+'" placeholder="Para cualquier duda, escribidnos o llamadnos de 10 a 18 h."></label>'+
       '</div><button class="btn sm gold" id="pt-save" type="button">Guardar datos</button> <span class="portal-hint">Mientras estén vacíos, el portal no enseña esas líneas.</span></details>':'')+
     '</section></div>';
   host.insertAdjacentHTML("beforeend",shareHTML);
   var _on=$("rsm-share-on"); if(_on) _on.addEventListener("click",function(){
     if(!e.share.id||e.share.id.length<24) e.share.id=tokenNuevo();
     e.share.on=true; e.updated=Date.now(); portalAlDia(e); save(); renderResumen();
-    toast("Portal activado. Copia el enlace y envíaselo a los novios.");
+    toast("Portal activado. Copia el enlace y envíaselo al cliente.");
   });
-  var _new=$("rsm-share-new"); if(_new) _new.addEventListener("click",function(){ arm(_new,"Crear enlace nuevo","¿Seguro? El anterior dejará de funcionar",function(){ e.share.id=tokenNuevo(); e.share.on=true; e.updated=Date.now(); portalAlDia(e); save(); renderResumen(); toast("Enlace nuevo creado. Envíaselo a los novios; el anterior ya no funciona."); }); });
+  var _new=$("rsm-share-new"); if(_new) _new.addEventListener("click",function(){ arm(_new,"Crear enlace nuevo","¿Seguro? El anterior dejará de funcionar",function(){ e.share.id=tokenNuevo(); e.share.on=true; e.updated=Date.now(); portalAlDia(e); save(); renderResumen(); toast("Enlace nuevo creado. Envíaselo al cliente; el anterior ya no funciona."); }); });
   var _off=$("rsm-share-off"); if(_off) _off.addEventListener("click",function(){ arm(_off,"Desactivar el portal","¿Seguro? El enlace dejará de funcionar",function(){ e.share.on=false; e.updated=Date.now(); save(); renderResumen(); }); });
   var _cp=$("rsm-share-copy"); if(_cp) _cp.addEventListener("click",function(){
     var i=$("rsm-share-url"); if(!i) return; i.select();
@@ -9503,7 +9541,7 @@ function renderResumen(){
   var _aut=$("rsm-nov-auto"); if(_aut) _aut.addEventListener("change",function(){ e.share.auto=_aut.checked?true:false; e.updated=Date.now(); portalAlDia(e); save(); if(_aut.checked) cargarListasNovios(); renderResumen(); });
   var _pts=$("pt-save"); if(_pts) _pts.addEventListener("click",function(){
     setParam("portal",{iban:($("pt-iban").value||"").trim(),tel:($("pt-tel").value||"").trim(),mail:($("pt-mail").value||"").trim(),nota:($("pt-nota").value||"").trim()});
-    if(portalTodos()) save(); toast("Datos guardados. Los novios ya los ven en su portal.");
+    if(portalTodos()) save(); toast("Datos guardados. El cliente ya los ve en su portal.");
   });
 }
 
@@ -9512,7 +9550,7 @@ function nomKey(s){ return pvNorm(s); }
 function dietaKey(a){ return String(a||"").split(/\s*,\s*/).map(pvNorm).filter(Boolean).sort().join("|"); }
 var TIPO_NOV={adulto:"Adulto",nino:"Niño/a",bebe:"Bebé",staff:"Staff"};
 function revisarListaNovios(e){
-  var r=listaNoviosDe(e); if(!r||!r.data){ toast("No hay ninguna lista de los novios para revisar.",true); return; }
+  var r=listaNoviosDe(e); if(!r||!r.data){ toast("No hay ninguna lista del cliente para revisar.",true); return; }
   if(ovlOpen) return; ovlOpen=true;
   var D=r.data, c=cambiosDe(e,r), F=e.ficha||{};
   function mn(m){ return (m&&m.nombre)||("Mesa "+((m&&m.k)||"")); }
@@ -9522,11 +9560,11 @@ function revisarListaNovios(e){
   function lista(tit,arr,fn,cls){ if(!arr.length) return ""; var max=40;
     return '<div class="rv-grp '+(cls||"")+'"><div class="rv-h">'+tit+' <b>'+arr.length+'</b></div><ul>'+arr.slice(0,max).map(fn).join("")+(arr.length>max?'<li class="rv-more">y '+(arr.length-max)+' más</li>':'')+'</ul></div>'; }
   var cambiosNom=!!c.pareja&&((D.parejaA||"")!==(F.parejaA||"")||(D.parejaB||"")!==(F.parejaB||""));
-  var html='<div class="ovl-box rv-box" role="dialog" aria-modal="true" aria-label="Lista de invitados de los novios"><div class="ovl-head"><h3>Lista de los novios</h3><div class="spacer"></div><button class="btn" id="rv-x" type="button">Cerrar</button></div>'+
+  var html='<div class="ovl-box rv-box" role="dialog" aria-modal="true" aria-label="Lista de invitados del cliente"><div class="ovl-head"><h3>Lista del cliente</h3><div class="spacer"></div><button class="btn" id="rv-x" type="button">Cerrar</button></div>'+
     '<div class="ovl-note">'+(r.estado==="enviada"?"Enviada el ":"Borrador (sin enviar) · ")+escH(new Date(r.enviada||r.updated).toLocaleDateString("es-ES",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}))+' · <b>'+n+'</b> personas en '+(D.mesas||[]).length+' mesas. '+
       'Solo se aplica lo que <b>ellos</b> han cambiado desde la última vez; lo que hayáis tocado vosotros en el plano, los platos sustitutivos, las notas y la posición de las mesas se conservan.</div>'+
     '<div class="ovl-body rv-body">'+
-      (cambiosNom?'<div class="rv-grp"><div class="rv-h">Nombres de los novios</div><p>'+escH((F.parejaA||"—")+" & "+(F.parejaB||"—"))+' → <b>'+escH((D.parejaA||"")+" & "+(D.parejaB||""))+'</b></p></div>':'')+
+      (cambiosNom?'<div class="rv-grp"><div class="rv-h">Nombres del cliente</div><p>'+escH((F.parejaA||"—")+" & "+(F.parejaB||"—"))+' → <b>'+escH((D.parejaA||"")+" & "+(D.parejaB||""))+'</b></p></div>':'')+
       '<div class="rv-sum"><span><b>'+df.nuevos.length+'</b> nuevos</span><span><b>'+df.quitados.length+'</b> quitados</span><span><b>'+df.movidos.length+'</b> cambian de mesa</span><span><b>'+df.cambios.length+'</b> con alergia, dieta o tipo distinto</span></div>'+
       lista("Nuevos",df.nuevos,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>'+escH(x.m)+(x.g.t!=="adulto"?" · "+TIPO_NOV[x.g.t]:"")+(x.g.a?' · <i>'+escH(x.g.a)+'</i>':'')+'</span></li>'; },"add")+
       lista("Quitados",df.quitados,function(x){ return '<li><b>'+escH(x.g.n)+'</b> <span>estaba en '+escH(x.m)+'</span></li>'; },"del")+
@@ -9578,7 +9616,7 @@ function textoDesdeLista(e,data){
 function aplicarListaNovios(e,r){
   var c=aplicarCambiosNovios(e,r); marcarLista(r,"aplicada"); renderResumen();
   if(!c.total){ toast("No había cambios nuevos que pasar al plano."); return; }
-  toast("Cambios de los novios pasados al plano: "+resumenCambios(e.share.ultNovios)+".",false,"Deshacer",function(){ deshacerNovios(e); });
+  toast("Cambios del cliente pasados al plano: "+resumenCambios(e.share.ultNovios)+".",false,"Deshacer",function(){ deshacerNovios(e); });
 }
 /* aviso en el panel de inicio: listas que esperan revisión */
 function novedadNovios(e){ var u=e&&e.share&&e.share.on&&e.share.ultNovios; return u&&!u.visto&&(Date.now()-u.ts)<14*864e5?u:null; }
@@ -9587,9 +9625,9 @@ function renderHomeNovios(){
   var pend=store.events.filter(function(e){ return listaPorRevisar(e); });
   var nov=store.events.filter(function(e){ return novedadNovios(e); }).sort(function(a,b){ return b.share.ultNovios.ts-a.share.ultNovios.ts; });
   var h="";
-  if(pend.length) h+='<div class="hn-box"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(pend.length===1?"Unos novios han enviado su lista de invitados":pend.length+" parejas han enviado su lista de invitados")+'</b><span>'+pend.map(function(e){ return escH(nombreLimpio(e.name)); }).join(" · ")+'</span></div>'+
+  if(pend.length) h+='<div class="hn-box"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(pend.length===1?"Un cliente ha enviado su lista de invitados":pend.length+" clientes han enviado su lista de invitados")+'</b><span>'+pend.map(function(e){ return escH(nombreLimpio(e.name)); }).join(" · ")+'</span></div>'+
     '<div class="hn-acts">'+pend.slice(0,3).map(function(e){ return '<button class="btn sm gold" type="button" data-rv="'+escH(e.id)+'">Revisar'+(pend.length>1?" "+escH(nombreLimpio(e.name).split(/\s+/).slice(-3).join(" ")):"")+'</button>'; }).join("")+'</div></div>';
-  if(nov.length) h+='<div class="hn-box hn-auto"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(nov.length===1?"Los novios han cambiado su lista y ya está en el plano":nov.length+" parejas han cambiado su lista y ya está en el plano")+'</b>'+
+  if(nov.length) h+='<div class="hn-box hn-auto"><span class="hn-ic">'+AG_IC.documento+'</span><div class="hn-tx"><b>'+(nov.length===1?"Un cliente ha cambiado su lista y ya está en el plano":nov.length+" clientes han cambiado su lista y ya está en el plano")+'</b>'+
     nov.slice(0,4).map(function(e){ return '<span>'+escH(nombreLimpio(e.name))+': '+escH(resumenCambios(e.share.ultNovios))+'</span>'; }).join("")+'</div>'+
     '<div class="hn-acts">'+nov.slice(0,3).map(function(e){ return '<button class="btn sm" type="button" data-nv="'+escH(e.id)+'">Ver'+(nov.length>1?" "+escH(nombreLimpio(e.name).split(/\s+/).slice(-3).join(" ")):" el plano")+'</button>'; }).join("")+
     '<button class="btn sm ghost" type="button" id="hn-visto">Visto</button></div></div>';
@@ -9694,7 +9732,7 @@ function diasRestantes(e){ var f=e.ficha&&e.ficha.fecha; if(!f) return null; var
      · 2 días antes: último pago y se cierran los cambios
    Salen en el calendario, en los avisos del evento y en «Próximos avisos». */
 var AGENDA_DEF={senal:1000, hitos:[
-  {id:"doc",  tipo:"documento", dias:25, t:"Enviar el documento a los novios", d:"Datos del evento, listado de mesas, adultos, niños, staff…"},
+  {id:"doc",  tipo:"documento", dias:25, t:"Enviar el documento al cliente", d:"Datos del evento, listado de mesas, adultos, niños, staff…"},
   {id:"pago1",tipo:"pago",      dias:18, t:"Primer pago"},
   {id:"reu1", tipo:"reunion",   dias:11, t:"Reunión de dudas"},
   {id:"reu2", tipo:"reunion",   dias:4,  t:"Última reunión"},
@@ -9975,8 +10013,8 @@ function viewFicha(e){
   '<div class="pcard"><div class="fldset">'+
     /* los nombres de la pareja salen en la página que se comparte con los novios;
        la persona de contacto puede ser otra (madre, organizadora, empresa…) */
-    fld("Novio/a o anfitrión","ficha.parejaA",F.parejaA)+
-    fld("Pareja","ficha.parejaB",F.parejaB)+
+    fld("Cliente o anfitrión","ficha.parejaA",F.parejaA)+
+    fld("Segunda persona (pareja)","ficha.parejaB",F.parejaB)+
     fld("Persona de contacto","ficha.contacto",F.contacto)+
     fld("Teléfono","ficha.telefono",F.telefono,"tel")+
     fld("Email","ficha.email",F.email,"email")+
@@ -10022,7 +10060,7 @@ function viewTimeline(e){
         '<span class="ag-tx"><b>'+escH(h.t)+'</b>'+(h.importe?' <span class="ag-imp">'+fmtEur(h.importe)+'</span>':'')+(h.d?'<small>'+escH(h.d)+'</small>':'')+'</span>'+
         '<span class="ag-st">'+st+'</span>'+accion+'</div>';
     }).join("")+'</div>';
-  return '<div class="pv-sec">Agenda con los novios <span class="pv-sec-note">— se programa sola a partir de la fecha del evento; sale en el calendario y en los avisos</span></div>'+agHTML+
+  return '<div class="pv-sec">Agenda con el cliente <span class="pv-sec-note">— se programa sola a partir de la fecha del evento; sale en el calendario y en los avisos</span></div>'+agHTML+
     '<div class="pv-sec">Cronología del ciclo <span class="pv-sec-note">— marca la fecha de cada hito</span></div>'+
     '<div class="pcard"><div class="tl">'+rows+'</div></div>';
 }
@@ -10216,7 +10254,7 @@ function viewComm(e){
     '<div class="pcard"><div class="comm-form">'+
       '<label class="fld"><span class="lbl">Fecha</span><input id="comm-fecha" type="date" value="'+hoyISO()+'"></label>'+
       '<label class="fld"><span class="lbl">Tipo</span><select id="comm-tipo">'+tipoSel+'</select></label>'+
-      '<label class="fld grow"><span class="lbl">Nota</span><input id="comm-nota" type="text" placeholder="Ej.: Los novios confirman que finalmente serán 128 invitados."></label>'+
+      '<label class="fld grow"><span class="lbl">Nota</span><input id="comm-nota" type="text" placeholder="Ej.: El cliente confirma que finalmente serán 128 invitados."></label>'+
       '<button type="button" class="btn gold" data-act="comm-add">Registrar</button>'+
     '</div></div>'+
     '<div class="pv-sec">Historial</div><div class="pcard">'+list+'</div>';
@@ -15289,8 +15327,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════
-   PORTAL DE LOS NOVIOS — su página privada (enlace ?novios=<token>).
-   Se abre con ?novios=<token> en la URL. Salta el login por completo y pinta
+   PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
+   Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
    una página elegante con lo celebrativo del evento: nombres, fecha, lugar,
    ceremonia, nº de invitados/mesas, el menú elegido y las fotos. Los datos
    llegan del backend (/api/share) o, sin backend (Artifact), del almacén
@@ -15326,7 +15364,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function P(){ return (D&&D.portal)||{}; }
   function cerrado(){ var c=P().cierre; return !!(c&&(D.hoy||hoyISO())>=c); }
   function puedeEditar(){ return !!(D&&D.editable)&&!cerrado(); }
-  function nombres(){ var a=(S&&S.parejaA)||"", b=(S&&S.parejaB)||""; if(!a&&!b){ var t=(P().titulo||(D&&D.event&&D.event.title)||"Vuestra boda"); return {a:t,b:"",solo:true}; } return {a:a||"—",b:b||"—"}; }
+  function PAL(){ var f=window.LM_palabras; try{ if(f) return f((P().tipo)||(D&&D.event&&D.event.tipo)); }catch(_){} return {k:"otro",nom:"vuestro evento",dia:"El día del evento",hito:"¡Vuestro evento!",con:"EVENTO",org:"Quién organiza",marca:"Vuestro evento"}; }
+  function nombres(){ var a=((S&&S.parejaA)||"").trim(), b=((S&&S.parejaB)||"").trim(); if(!a&&!b){ var t=(P().titulo||(D&&D.event&&D.event.title)||PAL().marca); return {a:t,b:"",solo:true,fb:true}; } if(!a||!b) return {a:a||b,b:"",solo:true}; return {a:a,b:b}; }
   function cuenta(){ var c={total:0,adulto:0,nino:0,bebe:0,staff:0,al:0};
     ((S&&S.mesas)||[]).forEach(function(m){ var st=!!m.staff||/(^|\s)(staff|personal)(\s|$)/i.test(m.nombre||""); (m.g||[]).forEach(function(g){ if(!(g.n||"").trim()) return; c.total++; var t=st?"staff":(g.t||"adulto"); c[t]=(c[t]||0)+1; if((g.a||"").trim()) c.al++; }); }); return c; }
 
@@ -15441,7 +15480,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function vHero(){
     var n=nombres(), f=d0(P().fecha||(D.event&&D.event.fecha)), dd=dias(f), pr=P().presupuesto||{}, c=cuenta();
-    return '<header class="pn-hero">'+MOLA+'<div class="pn-wrap"><div class="pn-brand"><span>Les Moles · Ulldecona</span><span>'+esc(P().tipo||"Vuestra boda")+'</span></div>'+
+    return '<header class="pn-hero">'+MOLA+'<div class="pn-wrap"><div class="pn-brand"><span>Les Moles · Ulldecona</span><span>'+esc(P().tipo||PAL().marca)+'</span></div>'+
       '<h1 class="pn-names">'+(n.solo?esc(n.a):esc(n.a)+' <i>&amp;</i> '+esc(n.b))+'</h1>'+
       '<div class="pn-when">'+(f?'<span>'+esc(largo(f))+'</span>':'')+(P().ubicacion?'<span>'+esc(P().ubicacion)+'</span>':'')+'</div>'+
       '<div class="pn-count"><div><b class="pn-n">'+(dd!=null&&dd>=0?dd:"—")+'</b><span>'+(dd===1?"día":"días")+'</span></div><div><b class="pn-n" id="pn-c-inv">'+c.total+'</b><span>invitados en vuestra lista</span></div>'+
@@ -15452,7 +15491,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function vInicio(){
     var L=pasos(), sig=L.filter(function(p){ return !p.done&&p.id!=="boda"; })[0], h='';
     var n=nombres();
-    h+='<div><h2 class="pn-h2">Hola'+(n.solo?"":", "+esc(n.a)+" y "+esc(n.b))+'</h2><p class="pn-lead">Aquí tenéis todo lo de vuestra boda en Les Moles: qué toca hacer y cuándo, los pagos, el presupuesto y la lista de invitados, que podéis rellenar vosotros mismos.</p></div>';
+    h+='<div><h2 class="pn-h2">Hola'+(n.fb?"":", "+(n.solo?esc(n.a):esc(n.a)+" y "+esc(n.b)))+'</h2><p class="pn-lead">Aquí tenéis todo lo de '+esc(PAL().nom)+' en Les Moles: qué toca hacer y cuándo, los pagos, el presupuesto y la lista de invitados, que podéis rellenar vosotros mismos.</p></div>';
     if(sig){ var k=dias(sig.f);
       h+='<div class="pn-next"><span class="ic">'+(IC[sig.tipo]||IC.reunion)+'</span><div><span>Lo siguiente'+(k!=null?" · "+esc(cuando(k)):"")+'</span><b>'+esc(sig.t)+(sig.importe?" · "+eur(sig.importe):"")+'</b><span>'+esc(corto(sig.f))+(sig.d?" · "+esc(sig.d):"")+'</span></div>'+
         (sig.id==="doc"?'<button class="pn-btn pri go" type="button" data-pn-go="inv">Rellenar la lista</button>':sig.tipo==="pago"?'<button class="pn-btn go" type="button" data-pn-go="pagos">Ver cómo pagar</button>':'')+'</div>';
@@ -15479,7 +15518,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var rec=P().pagos||[];
     if(rec.length) h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:10px">Pagos recibidos</div>'+rec.map(function(p){ return '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--ph)"><span>'+esc(p.fecha?corto(d0(p.fecha)):"")+' · '+esc(p.concepto)+'</span><b class="pn-n">'+eur(p.importe)+'</b></div>'; }).join("")+'</div>';
     var ct=P().contacto||{}, n=nombres(), f=d0(P().fecha);
-    var concepto=("BODA "+(n.solo?n.a:n.a+" Y "+n.b)+(f?" "+("0"+f.getDate()).slice(-2)+"/"+("0"+(f.getMonth()+1)).slice(-2)+"/"+f.getFullYear():"")).toUpperCase();
+    var concepto=(PAL().con+" "+(n.solo?n.a:n.a+" Y "+n.b)+(f?" "+("0"+f.getDate()).slice(-2)+"/"+("0"+(f.getMonth()+1)).slice(-2)+"/"+f.getFullYear():"")).toUpperCase();
     h+='<div class="pn-card" style="display:grid;gap:10px"><div class="pn-eb">Cómo pagar</div><p style="margin:0;color:var(--pm)">Por transferencia'+(ct.iban?' a la cuenta de Les Moles':'; os damos la cuenta en la reunión')+'. Poned este concepto para que sepamos de quién es el pago:</p>'+
       '<div class="pn-copy"><span>Concepto</span><code id="pn-cpt">'+esc(concepto)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-cpt">Copiar</button></div>'+
       (ct.iban?'<div class="pn-copy"><span>Cuenta (IBAN)</span><code id="pn-iban">'+esc(ct.iban)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-iban">Copiar</button></div>':'')+'</div>';
@@ -15506,9 +15545,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(estado==="aplicada") h+='<div class="pn-aviso ok">'+IC.check+'<span><b>Ya tenemos vuestra lista en el plano.</b> '+(P().auto!==false?'Si cambiáis algo, se guarda solo y nos llega al momento.':'Si cambiáis algo, volved a enviarla y la revisamos.')+'</span></div>';
     if(estado==="descartada") h+='<div class="pn-aviso">'+IC.info+'<span>No hemos aplicado vuestra última lista tal cual; lo hablamos en la próxima reunión.</span></div>';
     var dis=ed?"":" disabled";
-    h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:12px">Los novios</div><div class="pn-pair">'+
+    h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:12px">'+esc(PAL().org)+'</div><div class="pn-pair">'+
       '<label class="pn-fld"><span class="pn-lbl">Nombre</span><input type="text" id="pn-n1" autocomplete="off" value="'+esc(S.parejaA||"")+'"'+dis+'></label>'+
-      '<label class="pn-fld"><span class="pn-lbl">Nombre</span><input type="text" id="pn-n2" autocomplete="off" value="'+esc(S.parejaB||"")+'"'+dis+'></label></div></div>';
+      '<label class="pn-fld"><span class="pn-lbl">'+(PAL().k==="boda"?"Nombre":"Nombre (opcional)")+'</span><input type="text" id="pn-n2" autocomplete="off" value="'+esc(S.parejaB||"")+'"'+dis+'></label></div></div>';
     h+='<div class="pn-tally" id="pn-tally">'+vTally(c)+'</div><div id="pn-mesas" style="display:grid;gap:14px">'+vMesas(ed)+'</div>';
     if(ed) h+='<div><button class="pn-btn" type="button" data-pn-act="add-mesa">+ Añadir mesa</button></div>'+
       '<div class="pn-send"><div class="st" id="pn-send-st">'+vSendSt()+'</div><button class="pn-btn pri" type="button" data-pn-act="enviar">Enviar a Les Moles</button></div>';
@@ -15517,7 +15556,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function vTally(c){ return '<div><b class="pn-n">'+c.total+'</b><span>Personas</span></div><div><b class="pn-n">'+c.adulto+'</b><span>Adultos</span></div><div><b class="pn-n">'+c.nino+'</b><span>Niños</span></div><div><b class="pn-n">'+c.bebe+'</b><span>Bebés</span></div><div><b class="pn-n">'+c.staff+'</b><span>Staff</span></div><div class="al"><b class="pn-n">'+c.al+'</b><span>Alergias o dietas</span></div>'; }
   function conServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); }catch(_){ return false; } }
   function soloMirar(){ return VISTA&&conServidor(); }
-  function vSendSt(){ var g=soloMirar()?' <i>(vista del equipo: lo que escribas aquí no se guarda)</i>':(VISTA?' <i>(prueba: se guarda en este navegador como si fueran los novios)</i>':'');
+  function vSendSt(){ var g=soloMirar()?' <i>(vista del equipo: lo que escribas aquí no se guarda)</i>':(VISTA?' <i>(prueba: se guarda en este navegador como si fuera el cliente)</i>':'');
     if(P().auto!==false) return (enviadaTs?'<b>Enviada el '+esc(new Date(enviadaTs).toLocaleDateString("es-ES",{day:"numeric",month:"long"}))+'.</b> Si cambiáis algo, se guarda solo y nos llega al momento.':'<b>Se guarda sola</b> mientras escribís y nos llega al momento. Cuando esté completa, pulsad «Enviar a Les Moles».')+g;
     if(estado==="enviada") return '<b>Enviada'+(enviadaTs?" el "+esc(new Date(enviadaTs).toLocaleDateString("es-ES",{day:"numeric",month:"long"})):"")+'.</b> Si cambiáis algo, se guarda solo; volved a enviarla cuando esté lista.'+g;
     return '<b>Borrador.</b> Se guarda solo mientras escribís; cuando esté lista, enviádnosla.'+g; }
@@ -15537,7 +15576,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }).join("")+'<datalist id="pn-dietas"><option value="Celíaca / sin gluten"><option value="Sin lactosa"><option value="Vegetariana"><option value="Vegana"><option value="Pescetariana"><option value="Embarazada"><option value="Marisco"><option value="Frutos secos"><option value="Huevo"></datalist>';
   }
   function vDia(){
-    var h='<div class="pn-head"><div><h2 class="pn-h2">El día de la boda</h2><p class="pn-lead">Horarios y menú tal como los tenemos preparados. Si queréis cambiar algo, habladlo con nosotros en la reunión.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
+    var h='<div class="pn-head"><div><h2 class="pn-h2">'+esc(PAL().dia)+'</h2><p class="pn-lead">Horarios y menú tal como los tenemos preparados. Si queréis cambiar algo, habladlo con nosotros en la reunión.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
     var hs=P().horas||[];
     if(hs.length) h+='<div class="pn-horas">'+hs.map(function(x){ return '<div><b class="pn-n">'+esc(x.v)+'</b><span>'+esc(x.l)+'</span></div>'; }).join("")+'</div>';
     var mn=P().menu||[];
@@ -15554,7 +15593,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var y=host.scrollTop;
     host.className="pn on";
     var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():vInicio();
-    host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ven los novios'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
+    host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ve el cliente'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
       vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona</footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
     host.scrollTop=y;
     try{ var n=nombres(); document.title=(n.solo?n.a:n.a+" & "+n.b)+" · Les Moles"; }catch(_){}
@@ -15580,7 +15619,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       .then(function(j){ estado=j.estado; NUEVO=false; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
       .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar. Revisad la conexión e intentadlo otra vez."); });
   }
-  function programar(){ clearTimeout(saveTm); saveTm=setTimeout(function(){ guardar(false); },900); }
+  function programar(){ clearTimeout(saveTm); saveTm=setTimeout(function(){ saveTm=null; guardar(false); },900); }
 
   /* ── interacción ── */
   function onClick(ev){
@@ -15639,7 +15678,28 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return {event:{tipo:F.tipo||"Evento",title:e.name||"",fecha:F.fecha||"",ubicacion:F.ubicacion||"",parejaA:F.parejaA||"",parejaB:F.parejaB||""},
       portal:e.share.portal||null, lista:loc, editable:token.length>=24, hoy:hoyISO(), local:e.id};
   }
-  /* opts.vista: el equipo la abre desde la app para ver lo que ven los novios */
+  /* ── se mantiene al día: lo que cambia el equipo (fechas, horas, pagos, plano) se ve sin recargar la página ── */
+  var refTm=null;
+  function refrescar(){
+    if(!D||D.local||VISTA||!host||!host.classList.contains("on")||document.visibilityState!=="visible"||!TOKEN) return;
+    fetch("/api/share?t="+encodeURIComponent(TOKEN),{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+      if(!j||!j.event) return;
+      var antes=JSON.stringify([D.portal,D.event,estado]);
+      D.portal=j.portal||D.portal; D.event=j.event; D.hoy=j.hoy; D.editable=j.editable;
+      if(j.lista&&j.lista.estado) estado=j.lista.estado;
+      /* si el equipo ya tiene su lista en el plano y ella no está tocando nada, se le enseña el plano tal como está ahora */
+      var ocupado=!!saveTm||(host.contains(document.activeElement)&&/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName));
+      if(estado==="aplicada"&&!ocupado&&D.portal&&D.portal.lista&&D.portal.lista.mesas){
+        var nuevo=JSON.stringify(D.portal.lista.mesas.map(function(m){ return {nombre:m.nombre||"",g:(m.g||[]).map(function(g){ return [g.n||"",g.t||"adulto",g.a||""]; })}; })), actual=JSON.stringify((S.mesas||[]).map(function(m){ return {nombre:m.nombre||"",g:(m.g||[]).map(function(g){ return [g.n||"",g.t||"adulto",g.a||""]; })}; }));
+        if(nuevo!==actual){ var nu=(D.portal.nombres||{}); S={parejaA:nu.a||S.parejaA||"",parejaB:nu.b||S.parejaB||"",mesas:D.portal.lista.mesas.map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; })};
+          BASE0=JSON.parse(JSON.stringify(S)); NUEVO=true; antes+="x"; } }
+      if(JSON.stringify([D.portal,D.event,estado])!==antes.replace(/x$/,"")||/x$/.test(antes)){ if(!ocupado) pintar(); }
+    }).catch(function(){});
+  }
+  setInterval(refrescar,45000);
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") setTimeout(refrescar,400); });
+  window.LM_portalRefrescar=refrescar;
+  /* opts.vista: el equipo la abre desde la app para ver lo que ve el cliente */
   window.showNovios=function(token,opts){
     TOKEN=token; VISTA=!!(opts&&opts.vista);
     if(!VISTA) document.documentElement.style.background="#1A1A1A";
@@ -15649,11 +15709,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       .then(function(j){ if(j&&j.notFound){ arrancar(null); return; } arrancar(j); })
       .catch(function(){ arrancar(fromLocal(token)); });
   };
-  /* token de la URL: ?novios=<id> (o #novios=<id>) */
+  /* token de la URL: ?cliente=<id> (el antiguo ?novios=<id> también vale) */
   window.novioToken=function(){
     try{
-      var u=new URL(location.href); var t=u.searchParams.get("novios");
-      if(!t&&location.hash){ var m=/novios=([^&]+)/.exec(location.hash); if(m) t=decodeURIComponent(m[1]); }
+      var u=new URL(location.href); var t=u.searchParams.get("cliente")||u.searchParams.get("novios");
+      if(!t&&location.hash){ var m=/(?:cliente|novios)=([^&]+)/.exec(location.hash); if(m) t=decodeURIComponent(m[1]); }
       return t||"";
     }catch(_){ return ""; }
   };
@@ -15923,7 +15983,7 @@ var VISTAS={
   "p-alg":     {t:"Alérgenos de los ingredientes", secs:["alergenos"], guia:"Qué alérgenos (de los 14 de la UE) lleva cada ingrediente de los escandallos. La app propone por el nombre; cocina lo revisa y lo confirma. Con esto, en «Alergias y sustituciones» de cada evento se ve qué platos no puede comer cada invitado y se proponen alternativas."},
   "p-pvp":     {t:"Precios de venta", secs:["pvp"], guia:"Lo que se cobra por comensal (sin IVA) por cada plato, los packs, los suplementos de vino, cava y jamón, la barra libre y los menús infantil y staff. Con esto cada evento calcula solo el precio de su menú en «Presupuesto». Lo que esté vacío sale como «pendiente», nunca como 0 €."},
   "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."},
-  "p-agenda":  {t:"Agenda con los novios", secs:["agenda"], guia:"La señal que se cobra al reservar y los pasos que se programan solos a partir de la fecha de cada evento (documento, pagos, reuniones y cierre de cambios). Salen en el calendario, en los avisos y en la cronología de TODOS los eventos, también los que ya existen."}
+  "p-agenda":  {t:"Agenda con el cliente", secs:["agenda"], guia:"La señal que se cobra al reservar y los pasos que se programan solos a partir de la fecha de cada evento (documento, pagos, reuniones y cierre de cambios). Salen en el calendario, en los avisos y en la cronología de TODOS los eventos, también los que ya existen."}
 };
 
 /* datos de trabajo: lo que hay en uso (con los valores de fábrica si nadie
@@ -16139,7 +16199,7 @@ function vComercial(){
   var c=datos("comercial");
   return '<div class="pv-sec">Pagos</div><div class="pcard"><div class="fldset">'+
       '<label class="fld"><span class="lbl">Primer pago (%)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="senal" value="'+esc(c.senal)+'"></label>'+
-      '<div class="fld"><span class="lbl">Último pago</span><div class="fld-val"><b>'+(100-(+c.senal||65))+' %</b> menos la señal · las fechas y la señal, en «Agenda con los novios»</div></div>'+
+      '<div class="fld"><span class="lbl">Último pago</span><div class="fld-val"><b>'+(100-(+c.senal||65))+' %</b> menos la señal · las fechas y la señal, en «Agenda con el cliente»</div></div>'+
     '</div></div>'+
     '<div class="pv-sec">Precios de partida <span class="pv-sec-note">— se ponen solos al crear un evento; en cada evento se pueden cambiar</span></div><div class="pcard"><div class="fldset">'+
       '<label class="fld"><span class="lbl">Menú adulto (€)</span><input type="text" inputmode="decimal" data-pp="cm" data-k="precioAdulto" value="'+esc(c.precioAdulto)+'"></label>'+

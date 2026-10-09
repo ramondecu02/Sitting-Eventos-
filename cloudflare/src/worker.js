@@ -17,9 +17,9 @@
  *   POST /api/users             crea usuario {email,name,role,password} (solo admin)
  *   PATCH  /api/users           {id, password?, role?, name?} cambia clave/rol (solo admin)
  *   DELETE /api/users?id=..     elimina usuario (solo admin)
- *   GET  /api/share?t=..        portal de los novios: su boda, pagos, presupuesto (lectura) y su lista
- *   POST /api/share?t=..        los novios guardan/envían SOLO sus nombres y su lista de invitados
- *   GET  /api/propuestas        listas enviadas por los novios (equipo con sesión)
+ *   GET  /api/share?t=..        portal del cliente: su evento, pagos, presupuesto (lectura) y su lista
+ *   POST /api/share?t=..        el cliente guarda/envía SOLO sus nombres y su lista de invitados
+ *   GET  /api/propuestas        listas enviadas por el cliente (equipo con sesión)
  *   PATCH /api/propuestas       {token, estado:"aplicada"|"descartada"} (equipo con sesión)
  *
  * Todo lo demás se sirve como asset estático (la app).
@@ -127,11 +127,11 @@ function logoutRoute() {
   return r;
 }
 
-/* ── PORTAL DE LOS NOVIOS (sin sesión, con el enlace privado de su boda) ──
+/* ── PORTAL DEL CLIENTE (sin sesión, con el enlace privado de su evento: boda, bautizo, comida de empresa…) ──
    LECTURA: lo celebrativo de siempre + la «foto» que la app del equipo deja en
    ev.share.portal (pasos, pagos, presupuesto, horarios, menú y la lista del
    plano). Esa foto la calcula la app con las mismas reglas que usa el equipo.
-   ESCRITURA: los novios SOLO pueden guardar sus nombres y su lista de
+   ESCRITURA: el cliente SOLO puede guardar sus nombres y su lista de
    invitados, y eso va a una tabla aparte (novios_listas). Este endpoint no
    escribe NUNCA en el documento de la app: el presupuesto, los precios, los
    pagos y el resto del evento no se pueden tocar desde el enlace, ni siquiera
@@ -142,7 +142,7 @@ async function ensureNovios(env) {
   if (NOVIOS_OK) return;
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS novios_listas (token TEXT PRIMARY KEY, event_id TEXT NOT NULL, data TEXT NOT NULL, estado TEXT NOT NULL DEFAULT 'borrador', enviada INTEGER, updated INTEGER NOT NULL, revisada INTEGER, base TEXT)").run();
   /* «base» = la lista de la que partieron: así el equipo aplica al plano SOLO lo
-     que los novios han cambiado, sin deshacer lo que el equipo haya tocado */
+     que el cliente ha cambiado, sin deshacer lo que el equipo haya tocado */
   try { await env.DB.prepare("ALTER TABLE novios_listas ADD COLUMN base TEXT").run(); } catch (_) {}
   NOVIOS_OK = true;
 }
@@ -240,7 +240,7 @@ async function sharePost(request, env, url) {
   return json({ ok: true, estado, enviada, updated: now });
 }
 
-/* ── lo que ve el equipo: listas de los novios pendientes de revisar ── */
+/* ── lo que ve el equipo: listas del cliente pendientes de revisar ── */
 async function propuestasList(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
@@ -401,6 +401,12 @@ async function ensurePresencia(env) {
 async function syncRoute(request, env, url) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
+  /* ?l=1: latido ligero (cada pocos segundos): solo «hay una lista nueva del cliente»; no apunta presencia */
+  if (url.searchParams.get("l") === "1") {
+    let l = 0;
+    try { await ensureNovios(env); const r = await env.DB.prepare("SELECT MAX(updated) AS m FROM novios_listas WHERE estado IN ('borrador','enviada')").first(); l = (r && +r.m) || 0; } catch (_) {}
+    return json({ l });
+  }
   await ensurePresencia(env);
   const tab = String(url.searchParams.get("tab") || "").slice(0, 40), ev = String(url.searchParams.get("ev") || "").slice(0, 80), now = Date.now();
   if (tab) await env.DB.prepare("INSERT INTO presencia (tab, uid, name, ev, ts) VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(tab) DO UPDATE SET uid=?2, name=?3, ev=?4, ts=?5")
@@ -408,7 +414,10 @@ async function syncRoute(request, env, url) {
   if (Math.random() < 0.05) await env.DB.prepare("DELETE FROM presencia WHERE ts < ?").bind(now - 3600e3).run();
   const { results } = await env.DB.prepare("SELECT tab, uid, name, ev, ts FROM presencia WHERE ts > ?1 AND tab <> ?2 ORDER BY ts DESC LIMIT 50").bind(now - 45e3, tab).all();
   const row = await env.DB.prepare("SELECT updated FROM store WHERE id=1").first();
-  return json({ v: (row && +row.updated) || 0, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
+  /* «l»: cuándo guardó el cliente por última vez una lista pendiente de pasar al plano. Si cambia, la app del equipo la mira al momento */
+  let l = 0;
+  try { await ensureNovios(env); const r = await env.DB.prepare("SELECT MAX(updated) AS m FROM novios_listas WHERE estado IN ('borrador','enviada')").first(); l = (r && +r.m) || 0; } catch (_) {}
+  return json({ v: (row && +row.updated) || 0, l, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
 }
 
 function mergeParams(prev, inc, isAdmin) {
