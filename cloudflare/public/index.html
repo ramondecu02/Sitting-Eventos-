@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.51 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.52 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3208,21 +3208,42 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
 .mnu-esc .esc-horario div.par{background:#FFF4D6;box-shadow:inset 0 3px 0 #D9A441}
 .mnu-esc .esc-horario div.par span{color:#8A5A0B}
 .mnu-esc .esc-parada td{padding:6px 0 4px}
-.mnu-esc .esc-stop{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px;padding:7px 11px;border:1.5px dashed #D9A441;border-left:5px solid #D9A441;background:#FFF4D6;border-radius:4px;color:#1A1A1A}
+.mnu-esc .esc-stop{display:flex;align-items:stretch;justify-content:space-between;gap:12px;padding:8px 9px 8px 12px;border:1.5px dashed #D9A441;border-left:5px solid #D9A441;background:#FFF4D6;border-radius:4px;color:#1A1A1A}
+.mnu-esc .esc-stop-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px}
 .mnu-esc .esc-stop-k{font:700 9px/1 var(--font-text,system-ui);letter-spacing:.16em;text-transform:uppercase;color:#8A5A0B}
-.mnu-esc .esc-stop-n{font-weight:700;font-size:13px;flex:1 1 auto;min-width:0}
-.mnu-esc .esc-stop-h{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
-.mnu-esc .esc-stop-h.vac{font-size:11px;font-weight:600;color:#8E2C48}
-.mnu-esc .esc-stop small{flex:1 0 100%;font-size:10.5px;color:#6A4A12}
+.mnu-esc .esc-stop-n{font-weight:700;font-size:15px;line-height:1.2;min-width:0}
+.mnu-esc .esc-stop small{font-size:10.5px;color:#6A4A12}
+.mnu-esc .esc-stop-d{flex:none;min-width:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 11px 6px;background:#fff;border:2px solid #D9A441;border-radius:8px;line-height:1;color:#1A1A1A}
+.mnu-esc .esc-stop-d b{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums lining-nums}
+.mnu-esc .esc-stop-d.txt b{font-size:19px;letter-spacing:0}
+.mnu-esc .esc-stop-d i{font:700 9px/1 var(--font-text,system-ui);letter-spacing:.2em;text-transform:uppercase;color:#8A5A0B}
+.mnu-esc .esc-stop-d.vac{border-style:dashed;border-color:#8E2C48;min-width:76px}
+.mnu-esc .esc-stop-d.vac i{color:#8E2C48;letter-spacing:.06em;text-transform:none;font-size:10px;font-weight:600}
 .mnu-esc .esc-stop.orf{border-color:#8E2C48;background:#F8EEF1}
-.esc-par{display:grid;grid-template-columns:minmax(150px,3fr) 96px minmax(220px,4fr) 92px;gap:8px 12px;align-items:end;padding:12px;margin:8px 0;border:1px solid var(--c-line,#E4D9C0);border-left:4px solid #D9A441;border-radius:8px;background:var(--panel,#fff)}
+.esc-par{display:grid;grid-template-columns:minmax(150px,3fr) 112px minmax(220px,4fr) auto;gap:8px 12px;align-items:end;padding:12px;margin:8px 0;border:1px solid var(--c-line,#E4D9C0);border-left:4px solid #D9A441;border-radius:8px;background:var(--panel,#fff)}
 .esc-par.orf{border-left-color:#8E2C48}
 .esc-par .fld{margin:0}
 .esc-par-nota{grid-column:1 / span 3}
-.esc-par-x{align-self:end;justify-self:end}
+.esc-par-dur input{font-size:17px;font-weight:700;text-align:center}
+.esc-par-x{grid-column:4;grid-row:1;align-self:end;justify-self:end}
 .esc-par-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .esc-par-aviso{color:#8E2C48}
-@media (max-width:720px){ .esc-par{grid-template-columns:1fr 1fr}.esc-par-nom,.esc-par-tras,.esc-par-nota{grid-column:1 / -1}.esc-par-x{grid-column:1 / -1} }
+@media (max-width:720px){ .esc-par{grid-template-columns:1fr 1fr}.esc-par-nom,.esc-par-tras,.esc-par-nota{grid-column:1 / -1}.esc-par-x{grid-column:1 / -1;grid-row:auto} }
+
+/* ── Escaleta 01.52: títulos de apartado (Menús, Bebidas, Aperitivos…) subrayados y bien marcados ── */
+.mnu-esc .esc-sec h3{background:#F1EFE4; border-bottom:3px solid #1A1A1A; padding:9px 6px 7px; margin-bottom:8px}
+.mnu-esc .esc-sec h3 .esc-h3t{display:inline-block; padding-bottom:3px; border-bottom:3px solid #6E7D50}
+.mnu-esc .esc-sec h3 .esc-h3sub{margin-top:6px}
+
+/* ── Camareros 01.52: a quién hay que avisar ── */
+.cam-row.av{background:#FFF7E2; box-shadow:inset 4px 0 0 #D9A441; border-radius:6px}
+.cam-row.avd{box-shadow:inset 4px 0 0 var(--olive,#8A9A6B); border-radius:6px}
+.cam-tag{flex:none; font:700 9.5px/1 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; padding:4px 8px; border-radius:99px; background:#FFE9B5; color:#7A4E08; border:1px solid #E5BE63}
+.cam-tag.ok{background:var(--ols,#E6EADA); color:var(--olt,#56613F); border-color:color-mix(in srgb,var(--olive,#8A9A6B) 55%,#fff)}
+.cam-aviso button[data-a="avisar"][aria-pressed="true"]{background:#FFE9B5; color:#7A4E08; font-weight:700}
+.cam-aviso button[data-a="avisado"][aria-pressed="true"]{background:var(--ols,#E6EADA); color:var(--olt,#56613F); font-weight:700}
+.cam-filtrobar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:2px 0 8px}
+.cam-aviso button[data-a=""][aria-pressed="true"]{background:transparent; box-shadow:none; color:var(--c-mut); font-weight:500}
 /*V3-END*/
 </style>
 
@@ -3235,7 +3256,7 @@ td.sv-q.ov::after{content:" ✎"; font-size:12px}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.51</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.52</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4732,6 +4753,10 @@ function migrate(e){
      personaId -> "AAAA-MM-DD". Se dan de alta y de baja en cada evento. */
   e.camarerosAlta=e.camarerosAlta||{};
   e.camarerosBaja=e.camarerosBaja||{};
+  /* a quién HAY QUE AVISAR para este evento: personaId -> "avisar" (por avisar)
+     | "avisado" (ya se le ha avisado). Sin marca = no hace falta avisarle.
+     Va aparte de la disponibilidad: avisar es llamarle, no que venga o no. */
+  e.camarerosAvisar=e.camarerosAvisar||{};
   /* reparto del equipo por tiempos de la boda (comida/cena + funciones con su
      camarero por cada tiempo). Es de CADA evento, como la disponibilidad. */
   e.reparto=e.reparto||{tipo:"comida",fases:{}};
@@ -6571,7 +6596,7 @@ function escaletaPages(md,pw,ph,s,NC){
       }); });
   }
   function mide(f,QW){
-    if(f.parada){ var pl=f.sub?partir(f.sub,CW-16*s,"sans",F.sub,0):[]; return {h:24*s+(pl.length?pl.length*F.lsub+3*s:0)+8*s, sl:pl}; }
+    if(f.parada){ var pl=f.sub?partir(f.sub,CW-20*s,"sans",F.sub,0):[]; return {h:35*s+(pl.length?pl.length*F.lsub+3*s:0)+8*s, sl:pl}; }
     if(f.head) return {h:f.plato?27*s:15*s};
     if(f.orden){ var lo=partir(f.txt,CW,"sans",F.sub,0); return {h:lo.length*F.lsub+5*s,ln:lo}; }
     if(f.persona) return {h:F.lh+4*s};
@@ -6601,15 +6626,18 @@ function escaletaPages(md,pw,ph,s,NC){
     var sc={t:sc0.t,sub:sc0.sub,leyenda:sc0.leyenda,filas:filas};
     /* el banquete y lo que se sirve en mesa van SIEMPRE en la columna derecha,
        enteros; lo del aperitivo y los recuentos, en la izquierda */
-    var QW=anchoQ(sc), ms=sc.filas.map(function(f){ return mide(f,QW); }), hCab=(sc.sub?32:22)*s+(sc.leyenda?10*s:0);
+    var QW=anchoQ(sc), ms=sc.filas.map(function(f){ return mide(f,QW); }), hCab=(sc.sub?36:27)*s+(sc.leyenda?10*s:0);
     var total=hCab+ms.reduce(function(a,m){ return a+m.h; },0);
     /* el bloque entero pasa a la columna siguiente si ahí cabe y aquí no */
     if(total<=ph-M-6-top&&!md.__partir) sitio(total); else sitio(hCab+(ms[0]?ms[0].h:0)+(ms[1]&&sc.filas[0].head?ms[1].h:0));
     var x=X();
     /* título del apartado: MAYÚSCULAS, negrita, centrado y más grande; debajo, en pequeño, el resumen */
-    cur.push(TX(x+CW/2,y+12.5*s,clipW(sc.t.toUpperCase(),CW-4,"sansb",F.hT,F.hL),{size:F.hT,fo:"sansb",a:"middle",c:INK,ls:F.hL}));
-    if(sc.sub) cur.push(TX(x+CW/2,y+22.5*s,clipW(sc.sub.toUpperCase(),CW-4,"sans",6.4,1),{size:6.4,fo:"sans",a:"middle",c:SOFT,ls:1}));
-    y+=(sc.sub?28:18)*s; cur.push(LN(x,y,x+CW,y,"#CBB889",0.8)); y+=2;
+    var tTxt=clipW(sc.t.toUpperCase(),CW-4,"sansb",F.hT,F.hL), tw=Math.min(CW,textW({s:tTxt,fo:"sansb",size:F.hT,ls:F.hL})+8*s), hb=(sc.sub?33:24)*s;
+    cur.push(R(x,y,CW,hb,0,"#F1EFE4",null,0));
+    cur.push(TX(x+CW/2,y+13.5*s,tTxt,{size:F.hT,fo:"sansb",a:"middle",c:INK,ls:F.hL}));
+    cur.push(LN(x+(CW-tw)/2,y+16.6*s,x+(CW+tw)/2,y+16.6*s,GP,1.6));
+    if(sc.sub) cur.push(TX(x+CW/2,y+26*s,clipW(sc.sub.toUpperCase(),CW-4,"sans",6.4,1),{size:6.4,fo:"sans",a:"middle",c:SOFT,ls:1}));
+    y+=hb; cur.push(LN(x,y,x+CW,y,INK,1.6)); y+=3;
     if(sc.leyenda){
       cur.push(R(x,y+3*s,7*s,7*s,1,ESC_SUSTBG,ESC_SUST,0.8));
       cur.push(TX(x+11*s,y+9*s,sc.leyenda,{size:6.8*s,fo:"sans",a:"start",c:ESC_SUST}));
@@ -6619,14 +6647,18 @@ function escaletaPages(md,pw,ph,s,NC){
       var m=ms[i];
       if(sitio(m.h+(f.head&&ms[i+1]?ms[i+1].h:0))){ x=X(); cur.push(TX(x,y+8,(sc.t+" (sigue)").toUpperCase(),{size:6.4,fo:"sans",a:"start",c:SOFT,ls:1})); y+=12; }
       x=X();
-      /* parada del servicio (regalos, discursos…): una banda ámbar entre los dos platos, con su hora a la derecha */
+      /* parada del servicio (regalos, discursos…): una banda ámbar entre los dos platos; a la derecha, en un recuadro, lo que dura (sin hora) */
       if(f.parada){
-        var ph0=24*s, py0=y+3*s, extra=m.sl.length?m.sl.length*F.lsub+3*s:0, kw=textW({s:"PARADA",fo:"sansb",size:6.6*s,ls:1.4}), hw=f.hora?textW({s:f.hora,fo:"sansb",size:11*s,ls:0}):textW({s:"sin hora",fo:"sans",size:7*s,ls:0});
+        var ph0=35*s, py0=y+3*s, extra=m.sl.length?m.sl.length*F.lsub+3*s:0, bw=46*s, bx=x+CW-bw-6*s, bhh=ph0-9*s, by0=py0+4.5*s;
         cur.push(R(x,py0,CW,ph0+extra,3*s,"#FFF3D0","#D9A441",0.9)); cur.push(R(x,py0,3*s,ph0+extra,0,"#D9A441",null,0));
-        cur.push(TX(x+9*s,py0+ph0/2+2.4*s,"PARADA",{size:6.6*s,fo:"sansb",a:"start",c:"#8A5A0B",ls:1.4}));
-        if(f.hora) cur.push(TX(x+CW-8*s,py0+ph0/2+3.9*s,f.hora,{size:11*s,fo:"sansb",a:"end",c:INK})); else cur.push(TX(x+CW-8*s,py0+ph0/2+2.8*s,"sin hora",{size:7*s,fo:"sans",a:"end",c:ESC_SUST}));
-        var nx0=x+9*s+kw+9*s; cur.push(TX(nx0,py0+ph0/2+3.1*s,clipW(f.txt,Math.max(30,CW-(nx0-x)-hw-16*s),"sansb",8.6*s,0),{size:8.6*s,fo:"sansb",a:"start",c:INK}));
-        m.sl.forEach(function(l,j){ cur.push(TX(x+9*s,py0+ph0+F.lsub*(j+1)-1.6*s,l,{size:F.sub,fo:"sans",a:"start",c:"#6A4A12"})); });
+        cur.push(TX(x+10*s,py0+13*s,"PARADA",{size:6.2*s,fo:"sansb",a:"start",c:"#8A5A0B",ls:1.4}));
+        cur.push(TX(x+10*s,py0+26*s,clipW(f.txt,Math.max(30,CW-10*s-bw-18*s),"sansb",10.2*s,0),{size:10.2*s,fo:"sansb",a:"start",c:INK}));
+        cur.push(R(bx,by0,bw,bhh,3*s,"#FFFFFF","#D9A441",1.1));
+        var dd=String(f.dur||"").trim();
+        if(/^\d+$/.test(dd)){ cur.push(TX(bx+bw/2,by0+15.8*s,dd,{size:16*s,fo:"sansb",a:"middle",c:INK})); cur.push(TX(bx+bw/2,by0+bhh-2.7*s,"MIN",{size:5.8*s,fo:"sansb",a:"middle",c:"#8A5A0B",ls:1.2})); }
+        else if(dd) cur.push(TX(bx+bw/2,by0+bhh/2+3.6*s,clipW(dd,bw-6*s,"sansb",10*s,0),{size:10*s,fo:"sansb",a:"middle",c:INK}));
+        else cur.push(TX(bx+bw/2,by0+bhh/2+2.4*s,"sin duración",{size:6.2*s,fo:"sans",a:"middle",c:ESC_SUST}));
+        m.sl.forEach(function(l,j){ cur.push(TX(x+10*s,py0+ph0+F.lsub*(j+1)-1.6*s,l,{size:F.sub,fo:"sans",a:"start",c:"#6A4A12"})); });
         y+=m.h; return;
       }
       /* separación de cada plato del menú: banda centrada y marcada */
@@ -8276,7 +8308,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.51</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.52</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8516,8 +8548,8 @@ function duplicarEvento(id,quedarse){
   F.estado="contacto";
   c.presupuesto=c.presupuesto||{}; c.presupuesto.pagos=[];
   (c.tareas||[]).forEach(function(t){ t.estado="pendiente"; delete t.hecha; delete t.fechaHecha; });
-  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","hitos"].forEach(function(k){ delete c[k]; });
-  c.comunicaciones=[]; c.hitos={}; c.camareros={}; c.camarerosHora={};
+  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","camarerosAvisar","hitos"].forEach(function(k){ delete c[k]; });
+  c.comunicaciones=[]; c.hitos={}; c.camareros={}; c.camarerosHora={}; c.camarerosAvisar={};
   c.updated=Date.now();
   /* planos de fondo propios del evento (catering), si los tiene */
   try{ var pre=PLANOEVKEY+"__"+src.id+"__", ks=[];
@@ -9255,9 +9287,9 @@ function resumenDoc(e){
   var llega=F.llegadaRest||"";
   if(!F.horaBriefing) pend.push("Falta la hora del briefing del equipo.");
   if(!llega) pend.push("Falta la hora de llegada de los invitados.");
-  var hs=[["Briefing equipo",F.horaBriefing,"eq"],["Llegan los invitados",llega,"ll"],["Ceremonia",F.ceremoniaHora,"",F.ceremoniaLugar],["Aperitivo",F.horaAperitivo],["Banquete",F.horaBanquete]].concat(((md&&md.paradas)||[]).filter(function(p){ return !p.huerfana; }).map(function(p){ return [p.nom,p.hora,"par","tras "+p.cor]; })).concat([["Barra libre",F.horaBarra]]);
-  var horHTML=hs.filter(function(h){ return h[1]||h[2]==="eq"||h[2]==="ll"; }).map(function(h){
-    return '<div class="h '+(h[2]||"")+(h[1]?'':' vac')+'"><span>'+escH(h[0])+'</span><b>'+escH(h[1]||"por definir")+'</b>'+(h[3]?'<i>'+escH(h[3])+'</i>':'')+'</div>'; }).join("");
+  var hs=[["Briefing equipo",F.horaBriefing,"eq"],["Llegan los invitados",llega,"ll"],["Ceremonia",F.ceremoniaHora,"",F.ceremoniaLugar],["Aperitivo",F.horaAperitivo],["Banquete",F.horaBanquete]].concat(((md&&md.paradas)||[]).filter(function(p){ return !p.huerfana; }).map(function(p){ return [p.nom,p.dur?(/^\d+$/.test(p.dur)?p.dur+" min":p.dur):"","par","tras "+p.cor]; })).concat([["Barra libre",F.horaBarra]]);
+  var horHTML=hs.filter(function(h){ return h[1]||h[2]==="eq"||h[2]==="ll"||h[2]==="par"; }).map(function(h){
+    return '<div class="h '+(h[2]||"")+(h[1]?'':' vac')+'"><span>'+escH(h[0])+'</span><b>'+escH(h[1]||(h[2]==="par"?"—":"por definir"))+'</b>'+(h[3]?'<i>'+escH(h[3])+'</i>':'')+'</div>'; }).join("");
   /* ── cuántos somos ── */
   var adultos=c?c.adultos:Math.max(0,t.adults-(t.staff||0)), ninos=c?c.ninos:t.child, staff=c?c.staff:(t.staff||0), tronas=c?c.tronas:(t.baby||0);
   var nCam=0; try{ nCam=BRG.evTotals?(BRG.evTotals().camareros||0):0; }catch(_){}
@@ -9792,6 +9824,8 @@ function eventoAlertas(e){
   if(alerSinPlato>0) add(alerSinPlato+(alerSinPlato===1?" invitado con alergia o dieta especial sin plato adaptado.":" invitados con alergia o dieta especial sin plato adaptado."),"m-aler",true);
   if(!beb) add("Las bebidas del evento no están definidas.","m-bebida",true);
   if(c.pax>0&&camSi===0) add("No hay camareros asignados al servicio.","cam",true);
+  var camAv=Object.keys(e.camarerosAvisar||{}).filter(function(k){ return e.camarerosAvisar[k]==="avisar"; }).length;
+  if(camAv>0) add(camAv===1?"Hay 1 camarero por avisar.":"Hay "+camAv+" camareros por avisar.","cam",true);
   var pt=presupTotals(e);
   /* la señal fija (1.000 €) es lo primero que se cobra, al reservar */
   var _cfg=agendaCfg();
@@ -13052,35 +13086,23 @@ function escModelo(){
      y, juntos y al final, el menú infantil y el del staff */
   (function(){ var fin=["Menú infantil","Menú staff"]; var cola=md.secs.filter(function(x){ return fin.indexOf(x.t)>=0; });
     md.secs=md.secs.filter(function(x){ return fin.indexOf(x.t)<0; }).concat(cola); })();
-  /* ── paradas (regalos, discursos…): una fila destacada justo después del plato elegido, y su hora en la franja de arriba ── */
+  /* ── paradas (regalos, discursos…): una fila destacada justo después del plato elegido, con su duración (sin hora: depende de cómo vaya el día) ── */
   md.anclas=ANC.map(function(a,i){ var sg=ANC[i+1]; return {id:a.id,label:a.label,sig:sg?sg.label:""}; });
   md.paradas=[]; (function(){
     var lista=Array.isArray(cfg.paradas)?cfg.paradas:[], ult={}, mal=[];
     lista.forEach(function(p,n){
       var ix=-1; ANC.forEach(function(a,i){ if(a.id===p.tras) ix=i; }); var a=ix>=0?ANC[ix]:null, sg=a?ANC[ix+1]:null;
       var nom=String(p.nom||"").trim()||"Parada", dur=String(p.dur||"").trim().replace(/\s*min.*$/i,""), nota=String(p.nota||"").trim();
-      var info={id:p.id,nom:nom,hora:String(p.hora||"").trim(),dur:dur,nota:nota,tras:p.tras||"",ix:ix,trasTxt:a?a.label:"",antesTxt:sg?sg.label:"",cor:a?a.cor:"",huerfana:!a,n:n};
+      var info={id:p.id,nom:nom,dur:dur,nota:nota,tras:p.tras||"",ix:ix,trasTxt:a?a.label:"",antesTxt:sg?sg.label:"",cor:a?a.cor:"",huerfana:!a,n:n};
       md.paradas.push(info);
-      var fila2={parada:true,txt:nom,hora:info.hora,sub:[dur?"dura "+dur+" min":"",nota].filter(Boolean).join(" · "),antes:sg?sg.label:"",tras:a?a.label:""};
+      var fila2={parada:true,txt:nom,dur:dur,sub:nota,antes:sg?sg.label:"",tras:a?a.label:""};
       var sc=a?md.secs.filter(function(x){ return x.t===a.sec; })[0]:null;
       if(!sc){ info.huerfana=true; mal.push(nom); sc=md.secs.filter(function(x){ return x.t==="Menú"; })[0]||md.secs[md.secs.length-1]; if(sc){ fila2.huerfana=true; sc.filas.push(fila2); } return; }
       var base=ult[a.id]||a.row, pos=base?sc.filas.indexOf(base):-1, at=pos>=0?pos+1:sc.filas.length;
       sc.filas.splice(at,0,fila2); ult[a.id]=fila2;
     });
     md.paradas.sort(function(a,b){ return (a.huerfana?999:a.ix)-(b.huerfana?999:b.ix)||a.n-b.n; });
-    /* franja de horas: las paradas con su hora, tras el banquete (las de los aperitivos, antes) */
-    var antesB=[], despB=[]; md.paradas.forEach(function(p){ if(p.huerfana) return; var cel={l:p.nom,sub:"tras "+p.cor,v:p.hora||"—",parada:true}; (p.tras==="aper"?antesB:despB).push(cel); });
-    var iB=-1; md.horas.forEach(function(h,i){ if(h.l==="Banquete") iB=i; });
-    var iBarra=-1; md.horas.forEach(function(h,i){ if(h.l==="Barra libre") iBarra=i; });
-    if(antesB.length){ var iA=iB>=0?iB:(iBarra>=0?iBarra:md.horas.length); Array.prototype.splice.apply(md.horas,[iA,0].concat(antesB)); iB=-1; md.horas.forEach(function(h,i){ if(h.l==="Banquete") iB=i; }); iBarra=-1; md.horas.forEach(function(h,i){ if(h.l==="Barra libre") iBarra=i; }); }
-    if(despB.length){ var iD=iB>=0?iB+1:(iBarra>=0?iBarra:md.horas.length); Array.prototype.splice.apply(md.horas,[iD,0].concat(despB)); }
     if(mal.length) md.avisos.push((mal.length===1?"La parada «":"Las paradas «")+mal.join("», «")+(mal.length===1?"» estaba colocada tras un plato que ya no está en el menú":"» estaban colocadas tras platos que ya no están en el menú")+": elige otro sitio en «Datos de la escaleta · Paradas».");
-    /* las horas deberían seguir el orden del servicio: banquete → paradas → barra libre (de madrugada cuenta como el día siguiente) */
-    function mins(t){ var m=/^(\d{1,2})[:.hH](\d{2})?$/.exec(String(t||"").trim()); if(!m) return null; var v=(+m[1])*60+(+(m[2]||0)); return v<5*60?v+1440:v; }
-    var prev=mins(F.horaBanquete), pn=F.horaBanquete?"el banquete":"", mal2=[];
-    md.paradas.forEach(function(p){ if(p.huerfana) return; var m=mins(p.hora); if(m==null) return; if(prev!=null&&m<prev) mal2.push("«"+p.nom+"» ("+p.hora+") queda antes que "+pn); prev=m; pn="«"+p.nom+"»"; });
-    var mb=mins(F.horaBarra); if(mb!=null&&prev!=null&&mb<prev&&md.paradas.some(function(p){ return mins(p.hora)!=null; })) mal2.push("la barra libre ("+F.horaBarra+") queda antes que "+pn);
-    if(mal2.length) md.avisos.push("Revisa las horas de las paradas: "+mal2.join("; ")+".");
   })();
   if(ban.sinSitio.length) md.avisos.push(ban.sinSitio.length+(ban.sinSitio.length===1?" plato sustitutivo no sale":" platos sustitutivos no salen")+" porque ese tiempo no tiene ningún plato marcado en «Elegir platos»: "+ban.sinSitio.join(", ")+".");
   md.sustTotal=ban.total; md.sustColocados=ban.colocados;
@@ -13127,7 +13149,7 @@ function escHtmlAdaptados(){
 }
 function escRefrescar(){ if(mnuView==="aler") renderAlergias(); else renderEscaleta(); }
 
-/* ── paradas del servicio (entrega de regalos, discursos…): nombre, hora y entre qué platos se hacen ── */
+/* ── paradas del servicio (entrega de regalos, discursos…): nombre, duración y entre qué platos se hacen ── */
 function escParOpciones(md,sel){
   var o='<option value="">— elige entre qué platos —</option>', vista=false;
   md.anclas.forEach(function(a){ var t=a.sig?"Entre «"+a.label+"» y «"+a.sig+"»":"Después de «"+a.label+"»"; if(a.id===sel) vista=true; o+='<option value="'+esc(a.id)+'"'+(a.id===sel?" selected":"")+'>'+esc(t)+'</option>'; });
@@ -13136,20 +13158,26 @@ function escParOpciones(md,sel){
 }
 function escParadasHTML(md){
   var lista=Array.isArray(md.cfg.paradas)?md.cfg.paradas:[];
-  var h='<p class="esc-hint">Una parada es una pausa del servicio: la entrega de regalos, los discursos, el baile de los novios… Elige entre qué platos se hace y a qué hora; sale destacada en la escaleta, entre esos dos platos, y su hora en la franja de arriba, para que cocina y sala sigan el ritmo.</p>'+
+  var h='<p class="esc-hint">Una parada es una pausa del servicio: la entrega de regalos, los discursos, el baile de los novios… Elige entre qué platos se hace y cuánto dura; sale destacada en la escaleta, entre esos dos platos, con la duración bien grande para que cocina y sala sigan el ritmo. No lleva hora: depende de cómo vaya el día.</p>'+
     '<datalist id="esc-par-sug">'+["Entrega de regalos","Discursos","Baile de los novios","Brindis","Pausa de cocina","Vídeo y fotos"].map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+'</datalist>';
   if(!md.anclas.length) h+='<p class="esc-hint esc-par-aviso">Todavía no hay aperitivos ni platos marcados en «Elegir platos»: sin ellos no hay entre qué platos poner la parada.</p>';
   h+=lista.map(function(p,i){
     var id=esc(p.id), orf=!!p.tras&&!md.anclas.some(function(a){ return a.id===p.tras; });
     return '<div class="esc-par'+(orf?" orf":"")+'" role="group" aria-label="Parada '+(i+1)+'">'+
       '<label class="fld esc-par-nom"><span class="lbl">Parada</span><input type="text" list="esc-par-sug" data-esc-par="nom" data-id="'+id+'" value="'+esc(p.nom||"")+'" placeholder="p. ej. Entrega de regalos"></label>'+
-      '<label class="fld esc-par-hora"><span class="lbl">Hora</span><input type="text" inputmode="numeric" data-esc-par="hora" data-id="'+id+'" value="'+esc(p.hora||"")+'" placeholder="22:15"></label>'+
+      '<label class="fld esc-par-dur"><span class="lbl">Duración (min)</span><input type="text" inputmode="numeric" data-esc-par="dur" data-id="'+id+'" value="'+esc(p.dur||"")+'" placeholder="15"></label>'+
       '<label class="fld esc-par-tras"><span class="lbl">Se hace</span><select data-esc-par="tras" data-id="'+id+'">'+escParOpciones(md,p.tras)+'</select></label>'+
-      '<label class="fld esc-par-dur"><span class="lbl">Dura (min)</span><input type="text" inputmode="numeric" data-esc-par="dur" data-id="'+id+'" value="'+esc(p.dur||"")+'" placeholder="min"></label>'+
       '<label class="fld esc-par-nota"><span class="lbl">Nota para cocina y sala <small>(opcional)</small></span><input type="text" data-esc-par="nota" data-id="'+id+'" value="'+esc(p.nota||"")+'" placeholder="p. ej. Cocina espera: el siguiente plato sale al terminar"></label>'+
       '<button type="button" class="btn sm esc-par-x" data-esc-par-del="'+id+'" aria-label="Quitar la parada '+esc(p.nom||String(i+1))+'">Quitar</button></div>'; }).join("");
   h+='<div class="esc-par-add"><button type="button" class="btn sm" data-esc-par-add="Entrega de regalos">+ Parada de regalos</button><button type="button" class="btn sm" data-esc-par-add="">+ Otra parada</button></div>';
   return h;
+}
+/* recuadro con la duración de una parada, bien grande */
+function escDurHTML(d){
+  d=String(d||"").trim();
+  if(!d) return '<span class="esc-stop-d vac"><i>sin duración</i></span>';
+  if(/^\d+$/.test(d)) return '<span class="esc-stop-d"><b>'+esc(d)+'</b><i>min</i></span>';
+  return '<span class="esc-stop-d txt"><b>'+esc(d)+'</b></span>';
 }
 function escParFoco(){ var f=escUI.foco; if(!f) return; var n=$("mnu-body").querySelector('[data-esc-par="'+f.k+'"][data-id="'+String(f.id).replace(/"/g,'\\"')+'"]'); if(n){ n.focus(); try{ if(n.select&&n.type==="text") n.setSelectionRange(n.value.length,n.value.length); }catch(_){} } }
 function renderEscaleta(){
@@ -13198,7 +13226,7 @@ function renderEscaleta(){
   var ed='<div class="esc-edit">'+
     '<div class="esc-ed-h"><b>Datos de la escaleta</b><span>Todo lo demás sale solo del plano, del menú marcado y de las bebidas. Pulsa una cantidad de la hoja para corregirla.</span></div>'+
     escDet("hor","Horario",F.horaBriefing?"Briefing "+F.horaBriefing:"falta la hora del briefing",dHor,!F.horaBriefing)+
-    escDet("par","Paradas · regalos y pausas",(Array.isArray(cfg.paradas)&&cfg.paradas.length)?cfg.paradas.length+(cfg.paradas.length===1?" parada":" paradas"):"entre qué platos y a qué hora",escParadasHTML(md),!!(Array.isArray(cfg.paradas)&&cfg.paradas.length&&md.paradas.some(function(p){ return p.huerfana||!p.hora; })))+
+    escDet("par","Paradas · regalos y pausas",(Array.isArray(cfg.paradas)&&cfg.paradas.length)?cfg.paradas.length+(cfg.paradas.length===1?" parada":" paradas"):"entre qué platos y cuánto dura",escParadasHTML(md),!!(Array.isArray(cfg.paradas)&&cfg.paradas.length&&md.paradas.some(function(p){ return p.huerfana||!p.dur; })))+
     escDet("ord","Orden de salida · aperitivos y estaciones",AP.std.length+" aperitivos · "+AP.est.length+" estaciones",dOrd,true)+
     escDet("inf","Menú infantil",c.ninos+(c.ninos===1?" niño":" niños")+" · "+(INF.elegidos.length+INF.extra.length)+" platos",dInf,c.ninos>0&&!(INF.elegidos.length+INF.extra.length))+
     escDet("stf","Menú staff",c.staff+(c.staff===1?" persona":" personas")+" · "+(md.staffMenu.length?md.staffMenu.length+" platos":"sin configurar"),dSt,c.staff>0&&!md.staffMenu.length)+
@@ -13213,11 +13241,11 @@ function renderEscaleta(){
     '<div class="esc-cols">';
   md.secs.forEach(function(sc){
     var conQ=sc.filas.some(function(f){ return (f.q||f.hq)&&!f.alerg; });
-    h+='<section class="esc-sec"><h3>'+esc(sc.t)+(sc.sub?' <span class="esc-h3sub">'+esc(sc.sub)+'</span>':'')+'</h3>'+
+    h+='<section class="esc-sec"><h3><span class="esc-h3t">'+esc(sc.t)+'</span>'+(sc.sub?' <span class="esc-h3sub">'+esc(sc.sub)+'</span>':'')+'</h3>'+
       (sc.leyenda?'<div class="esc-ley"><i></i>'+esc(sc.leyenda)+'</div>':'')+
       '<table class="mnu-table esc-t'+(conQ?"":" sinq")+'"><colgroup>'+(conQ?'<col class="esc-qcol">':'')+'<col></colgroup>';
     sc.filas.forEach(function(f){
-      if(f.parada){ h+='<tr class="esc-parada"><td colspan="'+(conQ?2:1)+'"><div class="esc-stop'+(f.huerfana?' orf':'')+'"><b class="esc-stop-k">Parada</b><span class="esc-stop-n">'+esc(f.txt)+'</span><span class="esc-stop-h'+(f.hora?'':' vac')+'">'+(f.hora?esc(f.hora):'sin hora')+'</span>'+(f.sub?'<small>'+esc(f.sub)+'</small>':'')+'</div></td></tr>'; return; }
+      if(f.parada){ h+='<tr class="esc-parada"><td colspan="'+(conQ?2:1)+'"><div class="esc-stop'+(f.huerfana?' orf':'')+'"><div class="esc-stop-t"><b class="esc-stop-k">Parada</b><span class="esc-stop-n">'+esc(f.txt)+'</span>'+(f.sub?'<small>'+esc(f.sub)+'</small>':'')+'</div>'+escDurHTML(f.dur)+'</div></td></tr>'; return; }
       if(f.head&&f.plato){ h+='<tr class="esc-head esc-plato"><td colspan="'+(conQ?2:1)+'"><div class="esc-band'+(f.est?' est':'')+'"><b>'+esc(f.head)+'</b>'+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</div></td></tr>'; return; }
       if(f.head){ h+='<tr class="esc-head">'+(conQ?'<td class="esc-q"></td>':'')+'<td>'+esc(f.head)+(f.hq?'<span class="esc-hq">'+esc(f.hq)+esc(f.hqTxt||"")+'</span>':'')+'</td></tr>'; return; }
       if(f.nota||f.orden){ h+='<tr><td colspan="2" class="'+(f.orden?"esc-orden":"esc-nota")+'">'+esc(f.txt)+'</td></tr>'; return; }
@@ -13318,8 +13346,8 @@ function wireEscaleta(){
     var cfg=escCfg(), b;
     if(mnuView==="aler"&&!(ev2.target.closest&&ev2.target.closest("[data-esc-pq],[data-esc-pauto],[data-esc-pdel]"))) return;
     if((b=ev2.target.closest("[data-esc-par-add]"))){ var m0=escModelo(), an=(m0&&m0.anclas)||[], def=(an.filter(function(a){ return a.id.indexOf("pl:")===0; })[0]||an[0]||{}).id||"";
-      cfg.paradas=Array.isArray(cfg.paradas)?cfg.paradas:[]; var np0={id:"p"+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),nom:b.getAttribute("data-esc-par-add")||"",hora:"",tras:def,dur:"",nota:""};
-      cfg.paradas.push(np0); escUI.abiertos.par=true; touchSave(); renderEscaleta(); escUI.foco={k:np0.nom?"hora":"nom",id:np0.id}; escParFoco(); return; }
+      cfg.paradas=Array.isArray(cfg.paradas)?cfg.paradas:[]; var np0={id:"p"+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),nom:b.getAttribute("data-esc-par-add")||"",tras:def,dur:"",nota:""};
+      cfg.paradas.push(np0); escUI.abiertos.par=true; touchSave(); renderEscaleta(); escUI.foco={k:np0.nom?"dur":"nom",id:np0.id}; escParFoco(); return; }
     if((b=ev2.target.closest("[data-esc-par-del]"))){ var qid=b.getAttribute("data-esc-par-del"); cfg.paradas=(cfg.paradas||[]).filter(function(x){ return x.id!==qid; }); escUI.foco=null; touchSave(); renderEscaleta(); return; }
     if((b=ev2.target.closest("[data-esc-pdel]"))){ var dk=b.getAttribute("data-esc-pdel"); if(cfg.aperPers) delete cfg.aperPers[dk]; cfg.aperNo=cfg.aperNo||{}; cfg.aperNo[dk]=true; touchSave(); escRefrescar(); return; }
     var a=ev2.target.closest("[data-esc-act]");
@@ -14900,6 +14928,22 @@ function marcarDisponibilidad(id,estado){
   e.camareros[id]=estado;
   e.updated=Date.now(); BR.save();
 }
+/* a quién hay que avisar en este evento: "" (no) | "avisar" | "avisado" */
+function avisoCam(id){
+  var e=BR.current();
+  return (e&&e.camarerosAvisar&&e.camarerosAvisar[id])||"";
+}
+function marcarAviso(id,v){
+  var e=BR.current(); if(!e) return;
+  e.camarerosAvisar=e.camarerosAvisar||{};
+  if(v==="avisar"||v==="avisado") e.camarerosAvisar[id]=v; else delete e.camarerosAvisar[id];
+  e.updated=Date.now(); BR.save();
+}
+function cuentaAvisos(){
+  var n={avisar:0,avisado:0};
+  personas().forEach(function(p){ var a=avisoCam(p.id); if(a) n[a]++; });
+  return n;
+}
 /* la hora de entrada es de CADA evento, no de la agenda: el mismo camarero
    puede entrar a las 18:00 en una boda y a las 12:00 en la siguiente */
 function horaCamarero(id){
@@ -14968,7 +15012,7 @@ function confirmadosLista(){
 }
 
 /* ══ render ══════════════════════════════════════════════════════════ */
-var q="", editando=null, form=null, camPaper="A4", camView="list";
+var q="", editando=null, form=null, camPaper="A4", camView="list", camFiltro="";
 
 function renderStats(){
   var lista=personas(), nec=necesarios();
@@ -14982,6 +15026,7 @@ function renderStats(){
     '<div class="stat'+(si<nec?" alert":"")+'"><b>'+si+'</b><span>disponibles</span></div>'+
     '<div class="stat"><b>'+pend+'</b><span>pendientes</span></div>'+
     '<div class="stat"><b>'+no+'</b><span>no disponibles</span></div>'+
+    (function(){ var n=cuentaAvisos(); return n.avisar?'<div class="stat alert" title="Camareros marcados para avisar y todavía sin avisar"><b>'+n.avisar+'</b><span>por avisar</span></div>':''; })()+
     (function(){ var sinAlta=lista.filter(function(p){ return disponibilidad(p.id)==="si"&&!fechaCam("Alta",p.id); }).length;
       return sinAlta?'<div class="stat alert" title="Confirmados a los que todavía no se ha puesto fecha de alta"><b>'+sinAlta+'</b><span>sin fecha de alta</span></div>':''; })();
   var e=BR.current();
@@ -14991,13 +15036,17 @@ function renderStats(){
 }
 
 function filaHtml(p){
-  var d=disponibilidad(p.id);
-  return '<div class="cam-row">'+
-    '<div class="cam-info"><span class="cam-nm">'+esc(p.nombre)+'</span>'+
+  var d=disponibilidad(p.id), av=avisoCam(p.id);
+  return '<div class="cam-row'+(av==="avisar"?" av":av==="avisado"?" avd":"")+'">'+
+    '<div class="cam-info"><span class="cam-nm">'+esc(p.nombre)+'</span>'+(av==="avisar"?'<span class="cam-tag">Avisar</span>':av==="avisado"?'<span class="cam-tag ok">Avisado</span>':'')+
     (p.telefono?'<span class="cam-tel">'+esc(p.telefono)+'</span>':'')+
     (p.nota?'<span class="cam-nota">'+esc(p.nota)+'</span>':'')+'</div>'+
     '<div class="seg cam-disp" data-id="'+esc(p.id)+'" role="group" aria-label="Disponibilidad de '+esc(p.nombre)+'">'+
       ESTADOS.map(function(es){ return '<button type="button" data-e="'+es[0]+'" aria-pressed="'+(d===es[0]?"true":"false")+'">'+es[1]+'</button>'; }).join("")+
+    '</div>'+
+    /* ¿hay que avisarle? (llamarle o escribirle para este evento): se marca a quien sí y, al hacerlo, «Avisado» */
+    '<div class="seg cam-aviso" data-id="'+esc(p.id)+'" role="group" aria-label="¿Avisar a '+esc(p.nombre)+'?">'+
+      [["","No avisar"],["avisar","Avisar"],["avisado","Avisado ✓"]].map(function(a){ return '<button type="button" data-a="'+a[0]+'" aria-pressed="'+(av===a[0]?"true":"false")+'">'+a[1]+'</button>'; }).join("")+
     '</div>'+
     /* la hora solo se pide a quien viene (Disponible): a un pendiente o a uno
        que no viene no tiene sentido ponerle hora de entrada */
@@ -15189,11 +15238,17 @@ function engancharReparto(){
 function renderBody(){
   if(camView==="rep"){ renderReparto(); return; }
   var needle=norm(q.trim());
-  var lista=personas().filter(function(p){ return coincide(p,needle); })
+  var nav=cuentaAvisos();
+  var lista=personas().filter(function(p){ return coincide(p,needle)&&(!camFiltro||avisoCam(p.id)===camFiltro); })
     .sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
   var html='<div class="mnu-fam-section"><div class="mnu-fam-h"><h2>Agenda de camareros</h2><span class="cnt">'+
-    lista.length+(lista.length===1?" persona":" personas")+'</span></div>';
-  html += lista.length ? lista.map(filaHtml).join("") : (q.trim()
+    lista.length+(lista.length===1?" persona":" personas")+'</span></div>'+
+    '<div class="cam-filtrobar"><div class="seg cam-filtro" role="group" aria-label="Ver camareros">'+
+      [["","Todos"],["avisar","Por avisar ("+nav.avisar+")"],["avisado","Avisados ("+nav.avisado+")"]].map(function(f){ return '<button type="button" data-f="'+f[0]+'" aria-pressed="'+(camFiltro===f[0]?"true":"false")+'">'+f[1]+'</button>'; }).join("")+'</div>'+
+      (nav.avisar?'<button type="button" class="btn sm" id="cam-copiar-avisar">Copiar a quién avisar</button>':'')+'</div>';
+  html += lista.length ? lista.map(filaHtml).join("") : (camFiltro&&!q.trim()
+    ? window.LM_empty({ic:"Camareros",t:camFiltro==="avisar"?"No hay nadie por avisar":"Todavía no has avisado a nadie",d:camFiltro==="avisar"?"Marca «Avisar» a los camareros a los que hay que llamar para este evento y saldrán aquí.":"Cuando avises a alguien, márcalo como «Avisado ✓»."})
+    : q.trim()
     ? window.LM_empty({ic:"Camareros",t:"Nadie coincide con «"+esc(q.trim())+"»",d:"Busca por nombre, teléfono o comentario."})
     : window.LM_empty({ic:"Camareros",t:"Todavía no hay camareros en la agenda",d:"Añade al equipo abajo: nombre y teléfono. La agenda es la misma para todos los eventos."}));
   if(!q.trim()){
@@ -15201,7 +15256,7 @@ function renderBody(){
       : '<div class="inv-pie"><button class="btn sm cam-add">+ Añadir camarero</button></div>';
   }
   html += '</div>';
-  if(!q.trim()) html += pdfTablaHtml();
+  if(!q.trim()&&!camFiltro) html += pdfTablaHtml();
   $("cam-body").innerHTML=html;
   engancharBody();
 }
@@ -15213,6 +15268,24 @@ function engancharBody(){
       marcarDisponibilidad(bt.closest(".cam-disp").dataset.id, bt.dataset.e);
       renderBody(); renderStats();
     });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll(".cam-aviso button"),function(bt){
+    bt.addEventListener("click",function(){
+      marcarAviso(bt.closest(".cam-aviso").dataset.id, bt.dataset.a);
+      renderBody(); renderStats();
+    });
+  });
+  Array.prototype.forEach.call(b.querySelectorAll(".cam-filtro button"),function(bt){
+    bt.addEventListener("click",function(){ camFiltro=bt.dataset.f; renderBody(); });
+  });
+  var bc=$("cam-copiar-avisar");
+  if(bc) bc.addEventListener("click",function(){
+    var e=BR.current();
+    var l=personas().filter(function(p){ return avisoCam(p.id)==="avisar"; }).sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+    var txt="Camareros por avisar"+(e&&e.name?" · "+e.name:"")+"\n"+l.map(function(p){ return "· "+p.nombre+(p.telefono?" — "+p.telefono:""); }).join("\n");
+    var ok=function(){ if(BR.toast) BR.toast("Copiada la lista de "+l.length+(l.length===1?" camarero":" camareros")+" por avisar."); bc.textContent="Copiado ✓"; setTimeout(function(){ bc.textContent="Copiar a quién avisar"; },1600); };
+    try{ navigator.clipboard.writeText(txt).then(ok,function(){ throw 0; }); }
+    catch(_){ var ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy"); ok(); }catch(__){} ta.remove(); }
   });
   /* la hora de entrada: se guarda al soltar el campo (change) y se repinta para
      que la hoja de abajo (la que va a contabilidad/sala) recoja el cambio */
