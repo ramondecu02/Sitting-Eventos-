@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.54 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.55 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3306,7 +3306,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.54</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.55</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8359,7 +8359,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.54</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.55</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -16468,10 +16468,14 @@ function bkApi(path,opts){
       return j; }); });
 }
 function bkCargar(){
-  if(BK.cargando) return; BK.cargando=true; BK.err="";
+  if(BK.cargando) return; BK.cargando=true; var antes=JSON.stringify(BK.datos&&{b:BK.datos.backups,p:BK.datos.papelera}), errAntes=BK.err; BK.err="";
   bkApi("/api/backups").then(function(j){ BK.datos=j; BK.t=Date.now(); }).catch(function(e){ BK.err=e.message; })
-    .then(function(){ BK.cargando=false; if(vistaActual==="p-copias") render(); });
+    .then(function(){ BK.cargando=false;
+      var ahora=JSON.stringify(BK.datos&&{b:BK.datos.backups,p:BK.datos.papelera});
+      if(vistaActual==="p-copias"&&(ahora!==antes||BK.err!==errAntes)) render(); });
 }
+/* mientras la pantalla está abierta se mira cada 20 s si hay copias o eventos borrados nuevos */
+setInterval(function(){ try{ if(vistaActual==="p-copias"&&enParam()&&!BK.ocupado&&!BK.cargando&&!BK.err&&document.visibilityState==="visible") bkCargar(); }catch(_){} },20000);
 function bkHacer(fn,okMsg,recargarApp){
   BK.ocupado=true; BK.err=""; render();
   fn().then(function(){ toastP(okMsg); BK.confTodo=0; BK.archivo=null; BK.verId=0; BK.ver=null; BK.t=0; if(recargarApp&&window.hydrateFromServer) window.hydrateFromServer(); })
@@ -16499,6 +16503,7 @@ function bkClick(a,b){
   var id=+b.getAttribute("data-i")||0, k=b.getAttribute("data-k");
   if(BK.ocupado) return;
   if(a==="bk-reintentar"){ BK.err=""; BK.t=0; render(); return; }
+  if(a==="bk-actualizar"){ BK.t=0; BK.cargando=false; bkCargar(); toastP("Listado al día."); return; }
   if(a==="bk-ahora"){ bkHacer(function(){ return bkApi("/api/backups",{method:"POST",body:{nota:"Hecha a mano"}}); },"Copia hecha."); return; }
   if(a==="bk-bajar-todo"){ bkBajar("/api/backups/bajar?actual=1"); return; }
   if(a==="bk-bajar"){ bkBajar("/api/backups/bajar?id="+id); return; }
@@ -16528,6 +16533,7 @@ function vCopias(){
     '<button type="button" class="btn gold sm" data-pa="bk-ahora"'+dis+'>Hacer una copia ahora</button>'+
     '<button type="button" class="btn sm" data-pa="bk-bajar-todo"'+dis+'>Descargar todo (.json)</button>'+
     '<label class="btn sm bk-file'+(BK.ocupado?' off':'')+'">Restaurar desde un archivo…<input type="file" accept=".json,application/json" data-pp="bk-file" hidden'+dis+'></label>'+
+    '<button type="button" class="btn sm ghost" data-pa="bk-actualizar"'+dis+'>Actualizar</button>'+
     (BK.ocupado?'<span class="bk-trab" role="status">Trabajando…</span>':'')+'</div>'+
     '<p class="bk-nota">Se hace una copia sola cada '+esc(String(d.cadaHoras))+' horas de trabajo, y al momento si alguien borra 3 eventos o más de golpe. Se guardan las 12 últimas, una por día durante 30 días y una por semana durante 12 semanas. Los eventos borrados se quedan 30 días en la papelera.</p></div>';
   if(BK.archivo){
@@ -16576,6 +16582,7 @@ function bkPanel(c,dis){
 var hostRef=null, vistaActual=null;
 function render(k,host){
   hostRef=host||hostRef; vistaActual=k||vistaActual; if(!hostRef||!vistaActual) return;
+  if(k==="p-copias") BK.t=0;   /* al entrar en la sección, siempre se pide el listado de nuevo */
   var top=hostRef.scrollTop, body;
   if(!esAdmin()) body='<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div>';
   else if(vistaActual==="p-copias") body=vCopias();
@@ -16589,7 +16596,7 @@ function render(k,host){
   else if(vistaActual==="p-alg") body=vAlg();
   else body=vTareas();
   hostRef.innerHTML='<div class="pv-inner pp-root" data-vista="'+esc(vistaActual)+'">'+cabecera(vistaActual)+body+'</div>';
-  if(vistaActual==="p-copias"&&esAdmin()&&!BK.cargando&&!BK.err&&(!BK.datos||Date.now()-BK.t>60000)) bkCargar();
+  if(vistaActual==="p-copias"&&esAdmin()&&!BK.cargando&&!BK.err&&(!BK.datos||Date.now()-BK.t>20000)) bkCargar();
   hostRef.scrollTop=top;
   if(!hostRef.__ppBound){ hostRef.__ppBound=true; hostRef.addEventListener("change",onChange); hostRef.addEventListener("input",onInput); hostRef.addEventListener("click",onClick); }
 }

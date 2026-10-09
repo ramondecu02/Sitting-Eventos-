@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.54** (octubre 2026).
+Documento vivo. Última actualización: versión **01.55** (octubre 2026).
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -24,6 +24,9 @@ WhatsApp suelto ni Excel.
 | Previsión de banquetes, rentabilidad, inventario, presupuesto imprimible | ✅ |
 | Despliegue automático: cada `git push` a la rama de producción publica en Cloudflare Pages | ✅ |
 | **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
+
+### Ajuste de la versión 01.55
+- **Copias de seguridad:** la pantalla ya se actualiza sola (al entrar, cada 20 s y con el botón «Actualizar»), de modo que un evento recién borrado sale enseguida en la papelera.
 
 ### Novedad de la versión 01.54
 - **Copias de seguridad, papelera y restaurar** (fase 1.1): ver más abajo.
@@ -63,30 +66,30 @@ se recupera con el código manual por evento.
 - **Detalle técnico:** tablas `backups` y `papelera` en D1 (se crean solas), comprimidas (gzip); API `/api/backups…` solo para admin; lo restaurado se marca como «tocado ahora» para que gane a las copias viejas de los navegadores abiertos, que se actualizan solos. D1 además guarda su propio historial de restauración (7–30 días según plan) como segunda red de seguridad.
 - **Comprobado:** un evento borrado se recupera en menos de 1 segundo; se restaura un evento de una copia sin tocar los demás; la descarga completa se vuelve a importar; los roles que no son admin reciben 403.
 
-### 1.2 Historial de cambios por evento — *~1 día* — v01.55
+### 1.2 Historial de cambios por evento — *~1 día* — v01.56
 - **Qué:** «quién cambió qué y cuándo» en cada evento (plano, menú, bebidas, escaleta, presupuesto, camareros, ficha) y opción de **volver a la versión anterior** de un evento.
 - **Detalle técnico:** al guardar, el servidor compara cada evento con el anterior y apunta usuario + secciones modificadas; guarda una instantánea del evento como máximo cada 10 min por usuario y evento (últimas 50).
 - **Hecho cuando:** en un evento aparece la lista «Ana · plano · hace 5 min»; se deshace el último cambio; no engorda la base de datos de forma apreciable.
 
-### 1.3 App instalable y con modo sin conexión — *~1 día* — v01.56
+### 1.3 App instalable y con modo sin conexión — *~1 día* — v01.57
 - **Qué:** icono en la pantalla del móvil/tablet; los eventos del día quedan guardados para **consultar** aunque falle el wifi del salón; los cambios hechos sin conexión se guardan y **se sincronizan al volver**, con aviso claro («sin conexión · 3 cambios pendientes»).
 - **Detalle técnico:** `manifest.webmanifest`, `sw.js` (caché de la app y del último documento), iconos; el guardado ya es local primero («Guardado en este dispositivo»), solo falta la cola de subida.
 - **Hecho cuando:** con el avión activado se abre la escaleta del día, se marca algo, y al recuperar la red aparece en otro dispositivo.
 
-### 1.4 Permisos finos por rol y usuarios reales — *~0,5 día* — v01.56
+### 1.4 Permisos finos por rol y usuarios reales — *~0,5 día* — v01.57
 - Matriz clara de qué ve/edita cada rol (p. ej. cocina no ve precios; servicio no cambia el plano). Alta de las personas reales de la lista 1.1. Cierre de sesión por inactividad.
 
-### 1.5 RGPD y datos de clientes — *~0,5 día* — v01.56
+### 1.5 RGPD y datos de clientes — *~0,5 día* — v01.57
 - Las **alergias son datos de salud** (categoría especial). Aviso de privacidad en el portal del cliente, texto de consentimiento, y política de conservación: anonimizar nombres y alergias de eventos cerrados pasado un plazo que decida el restaurante (p. ej. 12 meses).
 
-### 1.6 Salud del sistema — *~0,5 día* — v01.56
+### 1.6 Salud del sistema — *~0,5 día* — v01.57
 - Pantalla «Estado» para admin (último guardado, último backup, errores recientes) y registro de errores del servidor, para enterarse antes de que lo note un camarero.
 
 ---
 
 ## 3. Fase 2 — El día del evento (días 4–9)
 
-### 2.1 Modo servicio — *2–3 días* — v01.57
+### 2.1 Modo servicio — *2–3 días* — v01.58
 - **Qué:** una pantalla pensada para móvil, con letra grande, para sala y cocina durante el evento:
   - escaleta **en directo** (qué toca ahora, qué viene, cuánto dura la parada en curso);
   - botón por plato/tiempo «**Salido**» con hora real, visible para todos en segundos (reutiliza el latido de 5 s ya existente);
@@ -95,39 +98,39 @@ se recupera con el código manual por evento.
   - incidencias rápidas («falta pan en mesa 4») que ve el responsable.
 - **Hecho cuando:** dos móviles ven el mismo estado en menos de 6 s; tras el evento queda el **registro real de horas** (comparado con la escaleta prevista).
 
-### 2.2 Turnos y horas de camareros — *~2 días* — v01.58
+### 2.2 Turnos y horas de camareros — *~2 días* — v01.59
 - **Qué:** asignar personal a cada evento (ya hay disponibilidad, alta/baja y reparto por tiempos); registrar **hora real de entrada y salida**; total de horas por camarero y por mes; exportación a Excel/CSV para la gestoría. Hoja por camarero con sus funciones y su horario.
 - **Hecho cuando:** al cerrar un evento sale el resumen «María · 7,5 h · barra» y el CSV mensual cuadra.
 
-### 2.3 Cierre del evento — *~1 día* — v01.58
+### 2.3 Cierre del evento — *~1 día* — v01.59
 - Lista de cierre (cobros pendientes, devoluciones de material, incidencias, nota para la próxima vez) y paso del evento a «celebrado» con su resumen económico real frente a lo presupuestado (conecta con Rentabilidad).
 
 ---
 
 ## 4. Fase 3 — Comunicación (días 10–14)
 
-### 3.1 Avisos por correo — *1–2 días* — v01.59
+### 3.1 Avisos por correo — *1–2 días* — v01.60
 - **Qué:** resumen diario/semanal al equipo («esta semana: 3 eventos · faltan 2 pagos · 4 camareros por avisar»); recordatorios al cliente (enviar la lista, pagos, reunión); aviso a camareros marcados «Avisar» con los datos de su turno.
 - **Detalle técnico:** envío mediante servicio de correo (punto 1.3); como Pages no ejecuta tareas programadas, el disparo se hace con una acción programada que llama a un endpoint protegido. Tabla `outbox` con intentos y estado; plantillas editables en Parámetros.
 - **Hecho cuando:** llega el resumen del lunes a las 8:00 y un recordatorio de lista a un cliente de prueba; cada envío queda registrado.
 
-### 3.2 WhatsApp con un clic — *~0,5 día* — v01.59
+### 3.2 WhatsApp con un clic — *~0,5 día* — v01.60
 - Botones «Avisar por WhatsApp» con el mensaje ya redactado (camareros, clientes, proveedores) mediante enlace directo (`wa.me`), sin necesidad de API de pago.
 
-### 3.3 Portal del cliente ampliado — *~2 días* — v01.60
+### 3.3 Portal del cliente ampliado — *~2 días* — v01.61
 - El cliente puede **aprobar la minuta y el menú** (con su fecha y nombre), subir su logo y fotos, ver el plano y dejar comentarios al equipo. Cada aprobación queda en el historial del evento.
 
 ---
 
 ## 5. Fase 4 — Parte comercial y compras (semanas 3–4)
 
-### 4.1 Presupuesto → contrato → firma — *2–3 días* — v01.61
+### 4.1 Presupuesto → contrato → firma — *2–3 días* — v01.62
 - PDF de propuesta y de contrato desde el presupuesto del evento (plantilla editable en Parámetros), aceptación online en el portal del cliente (nombre, fecha y hora), registro de la señal. *Firma electrónica simple: si se necesita validez reforzada, se valorará un proveedor de firma externo.*
 
-### 4.2 Compras por proveedor — *~2 días* — v01.62
+### 4.2 Compras por proveedor — *~2 días* — v01.63
 - A partir de producción: pedido **agrupado por proveedor** (con teléfono/correo), envío por correo o WhatsApp, y control de **recepción** (lo pedido frente a lo llegado). Conecta con inventario y con los precios de «Análisis de compras».
 
-### 4.3 Consultas y disponibilidad — *~2 días* — v01.63
+### 4.3 Consultas y disponibilidad — *~2 días* — v01.64
 - Formulario web (con protección anti-spam) que crea una **consulta** en la app; calendario de disponibilidad por fecha y salón (usa Previsión + eventos); seguimiento hasta confirmar → se convierte en evento con un clic.
 
 ---
@@ -144,10 +147,10 @@ se recupera con el código manual por evento.
 
 | Días | Entrega | Versión |
 |---|---|---|
-| 1–3 | Copias y papelera · historial · app instalable y sin conexión · permisos · RGPD · estado | 01.54–01.56 |
-| 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.57–01.58 |
-| 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.59–01.60 |
-| 15–28 | Contrato y firma · compras por proveedor · consultas | 01.61–01.63 |
+| 1–3 | Copias y papelera · historial · app instalable y sin conexión · permisos · RGPD · estado | 01.54–01.57 |
+| 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.58–01.59 |
+| 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.60–01.61 |
+| 15–28 | Contrato y firma · compras por proveedor · consultas | 01.62–01.64 |
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,
