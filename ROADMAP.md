@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.53** (octubre 2026).
+Documento vivo. Última actualización: versión **01.54** (octubre 2026).
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -23,6 +23,10 @@ WhatsApp suelto ni Excel.
 | Usuarios y roles (admin, eventos, cocina, compras, servicio) | ✅ |
 | Previsión de banquetes, rentabilidad, inventario, presupuesto imprimible | ✅ |
 | Despliegue automático: cada `git push` a la rama de producción publica en Cloudflare Pages | ✅ |
+| **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
+
+### Novedad de la versión 01.54
+- **Copias de seguridad, papelera y restaurar** (fase 1.1): ver más abajo.
 
 ### Ajustes de la versión 01.53
 - **Móvil sin zoom:** ya no se puede ampliar la página con el pellizco ni con doble toque, y el móvil no hace zoom solo al entrar en un campo de texto. El zoom propio del editor de minutas y del plano sigue funcionando.
@@ -50,11 +54,14 @@ fusiona evento a evento. Funciona bien con varias personas a la vez, pero **no
 hay copias automáticas ni historial**: si alguien borra o sobrescribe algo, solo
 se recupera con el código manual por evento.
 
-### 1.1 Copias de seguridad, papelera y restaurar — *~1 día* — v01.54
-- **Qué:** copia automática del documento completo (como máximo una cada pocas horas, tomada al guardar, porque Pages no admite tareas programadas), conservando las últimas 30 diarias y 12 semanales. Papelera de eventos borrados (30 días). Botón «Descargar todo» (JSON) para admin.
-- **Restaurar:** desde Parámetros → Copias: elegir fecha → ver qué eventos cambian → recuperar **un evento** (sin tocar el resto) o todo.
-- **Detalle técnico:** tabla `backups(id, ts, by, bytes, data)` en D1; la copia se toma dentro de `storePut` si la última tiene más de N horas. Además, D1 guarda su propio historial de restauración (7–30 días según plan) como segunda red de seguridad.
-- **Hecho cuando:** se borra un evento de prueba y se recupera en menos de 1 minuto; se restaura un evento de ayer sin afectar a los demás; la descarga completa se abre y se vuelve a importar.
+### 1.1 Copias de seguridad, papelera y restaurar — ✅ **hecho en la v01.54**
+- **Copia automática:** al guardar, si la última tiene más de **4 horas**, se guarda una copia del documento tal como estaba (Pages no admite tareas programadas, así que se hace «al trabajar»; la primera se hace en el primer guardado tras publicar). Se conservan las **12 últimas**, **una por día durante 30 días** y **una por semana durante 12 semanas**. Si un solo guardado borra **3 eventos o más**, copia al instante.
+- **Papelera:** cada evento borrado se guarda entero **30 días**; se recupera con un clic. Si se pulsa «Deshacer» al borrar, deja de aparecer allí.
+- **Copia manual** («Hacer una copia ahora», hasta 30) y **copia previa**: antes de restaurar algo, se guarda lo que hay (hasta 10), así restaurar también se puede deshacer.
+- **Restaurar:** Parámetros → **Copias de seguridad** (solo admin). Elegir una copia → ver qué eventos han cambiado, cuáles ya no están y cuáles se crearon después → restaurar **un evento** o **todo** (con confirmación). Lo creado después de la copia se conserva.
+- **Descargar y reimportar:** «Descargar todo (.json)», descarga de cualquier copia y «Restaurar desde un archivo…» (comprueba que el archivo sea una copia de Les Moles).
+- **Detalle técnico:** tablas `backups` y `papelera` en D1 (se crean solas), comprimidas (gzip); API `/api/backups…` solo para admin; lo restaurado se marca como «tocado ahora» para que gane a las copias viejas de los navegadores abiertos, que se actualizan solos. D1 además guarda su propio historial de restauración (7–30 días según plan) como segunda red de seguridad.
+- **Comprobado:** un evento borrado se recupera en menos de 1 segundo; se restaura un evento de una copia sin tocar los demás; la descarga completa se vuelve a importar; los roles que no son admin reciben 403.
 
 ### 1.2 Historial de cambios por evento — *~1 día* — v01.55
 - **Qué:** «quién cambió qué y cuándo» en cada evento (plano, menú, bebidas, escaleta, presupuesto, camareros, ficha) y opción de **volver a la versión anterior** de un evento.

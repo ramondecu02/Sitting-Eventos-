@@ -21,6 +21,11 @@
  *   POST /api/share?t=..        el cliente guarda/envía SOLO sus nombres y su lista de invitados
  *   GET  /api/propuestas        listas enviadas por el cliente (equipo con sesión)
  *   PATCH /api/propuestas       {token, estado:"aplicada"|"descartada"} (equipo con sesión)
+ *   GET  /api/backups           copias de seguridad y papelera (solo admin)
+ *   POST /api/backups           {nota?} hace una copia ahora (solo admin)
+ *   GET  /api/backups/ver?id=   qué eventos cambian si se restaura esa copia (solo admin)
+ *   GET  /api/backups/bajar     ?id=.. una copia, o ?actual=1 todo lo de ahora, como archivo .json (solo admin)
+ *   POST /api/backups/restaurar {backup,evento} | {backup,todo} | {papelera} | {documento,todo} (solo admin)
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -67,6 +72,11 @@ async function api(request, env, url) {
   if (p === "/api/store" && m === "GET") return storeGet(request, env);
   if (p === "/api/store" && m === "PUT") return storePut(request, env);
   if (p === "/api/sync" && m === "GET") return syncRoute(request, env, url);
+  if (p === "/api/backups" && m === "GET") return bkList(request, env);
+  if (p === "/api/backups" && m === "POST") return bkCrear(request, env);
+  if (p === "/api/backups/ver" && m === "GET") return bkVer(request, env, url);
+  if (p === "/api/backups/bajar" && m === "GET") return bkBajar(request, env, url);
+  if (p === "/api/backups/restaurar" && m === "POST") return bkRestaurar(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -345,9 +355,232 @@ async function storePut(request, env) {
     else r = await env.DB.prepare("INSERT OR IGNORE INTO store (id, data, updated) VALUES (1, ?1, ?2)").bind(out, v).run();
     const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
     /* otros = alguien había guardado algo que este navegador aún no tenía */
-    if (ch > 0) return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes) });
+    if (ch > 0) {
+      try { await bkTrasGuardar(env, s, row, prev, merged); } catch (_) {}
+      return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes) });
+    }
   }
   return json({ error: "busy", message: "Muchos guardados a la vez; se reintentará." }, 409);
+}
+
+/* ── COPIAS DE SEGURIDAD, PAPELERA Y RESTAURAR ────────────────────────────
+   Todo el negocio vive en un solo documento (tabla store). Para no depender de
+   que nadie se equivoque nunca:
+   · COPIA AUTOMÁTICA: al guardar, si la última tiene más de BK_CADA horas, se
+     guarda una copia del documento tal como estaba (Pages no admite tareas
+     programadas: se hace «al trabajar»). Se conservan las 12 últimas, la última
+     de cada día de los últimos 30 días y la última de cada semana de 12 semanas.
+     Si un solo guardado borra 3 eventos o más, copia al instante.
+   · PAPELERA: cada evento que se borra se guarda entero 30 días.
+   · COPIA MANUAL (botón del admin) y COPIA PREVIA: antes de restaurar algo se
+     copia lo que hay, así restaurar también se puede deshacer.
+   · RESTAURAR: un evento (de una copia o de la papelera) o todo; lo restaurado
+     se marca como «tocado ahora» para que gane a las copias viejas de los
+     navegadores. Lo creado después de la copia se conserva.
+   Las copias van comprimidas (gzip + base64) en D1. Solo el admin las ve. */
+const BK_CADA = 4 * 3600e3;
+let BK_OK = false;
+async function ensureBackups(env) {
+  if (BK_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS backups (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, kind TEXT NOT NULL, by_name TEXT, nev INTEGER, bytes INTEGER, nota TEXT, gz TEXT NOT NULL)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS papelera (id INTEGER PRIMARY KEY AUTOINCREMENT, event_id TEXT NOT NULL, name TEXT, fecha TEXT, ts INTEGER NOT NULL, by_name TEXT, gz TEXT NOT NULL)").run();
+  BK_OK = true;
+}
+function bkB64(u8) { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function bkUnB64(t) { const bin = atob(t), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+async function bkZip(txt) {
+  const cs = new CompressionStream("gzip"), w = cs.writable.getWriter();
+  w.write(enc.encode(txt)); w.close();
+  return bkB64(new Uint8Array(await new Response(cs.readable).arrayBuffer()));
+}
+async function bkUnzip(b64) {
+  const ds = new DecompressionStream("gzip"), w = ds.writable.getWriter();
+  w.write(bkUnB64(b64)); w.close();
+  return await new Response(ds.readable).text();
+}
+async function bkGuardar(env, txt, kind, by, nota, ts) {
+  let n = 0; try { n = ((JSON.parse(txt) || {}).events || []).length; } catch (_) {}
+  const r = await env.DB.prepare("INSERT INTO backups (ts, kind, by_name, nev, bytes, nota, gz) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)")
+    .bind(ts || Date.now(), kind, by || "", n, txt.length, nota || "", await bkZip(txt)).run();
+  return { ts: ts || Date.now(), kind, by: by || "", nev: n, bytes: txt.length, nota: nota || "", id: r && r.meta && r.meta.last_row_id };
+}
+/* qué copias se quedan: las 12 últimas automáticas + la última de cada día (30 días) y de cada semana (12 semanas);
+   las manuales (30) y las previas a restaurar (10) aparte */
+async function bkPodar(env, ahora) {
+  const { results } = await env.DB.prepare("SELECT id, ts, kind FROM backups ORDER BY ts DESC, id DESC").all();
+  const keep = new Set(), dias = {}, sems = {}; let nA = 0, nM = 0, nP = 0;
+  (results || []).forEach((r) => {
+    const ts = +r.ts;
+    if (r.kind === "auto") {
+      nA++; if (nA <= 12) keep.add(r.id);
+      const dia = new Date(ts).toISOString().slice(0, 10), sem = Math.floor((ts + 3 * 864e5) / (7 * 864e5));
+      if (!dias[dia] && ahora - ts <= 30 * 864e5) { dias[dia] = 1; keep.add(r.id); }
+      if (!sems[sem] && ahora - ts <= 84 * 864e5) { sems[sem] = 1; keep.add(r.id); }
+    } else if (r.kind === "manual") { nM++; if (nM <= 30) keep.add(r.id); }
+    else { nP++; if (nP <= 10) keep.add(r.id); }
+  });
+  const fuera = (results || []).filter((r) => !keep.has(r.id)).map((r) => r.id);
+  for (let i = 0; i < fuera.length; i += 40) {
+    const ch = fuera.slice(i, i + 40);
+    await env.DB.prepare("DELETE FROM backups WHERE id IN (" + ch.map((_, k) => "?" + (k + 1)).join(",") + ")").bind(...ch).run();
+  }
+}
+/* se llama tras cada guardado correcto; «prev» es el documento de antes y «merged» el de ahora */
+async function bkTrasGuardar(env, s, row, prev, merged) {
+  if (!row || !row.data) return;
+  await ensureBackups(env);
+  const ahora = Date.now(), quien = s.name || s.email || "";
+  const vivos = {}; (merged.events || []).forEach((e) => { if (e && e.id) vivos[e.id] = 1; });
+  const idos = (prev.events || []).filter((e) => e && e.id && !vivos[e.id]);
+  let copiado = false;
+  if (idos.length) {
+    for (const e of idos) {
+      await env.DB.prepare("INSERT INTO papelera (event_id, name, fecha, ts, by_name, gz) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")
+        .bind(String(e.id), String(e.name || "").slice(0, 200), String((e.ficha && e.ficha.fecha) || ""), ahora, quien, await bkZip(JSON.stringify(e))).run();
+    }
+    await env.DB.prepare("DELETE FROM papelera WHERE ts < ?1").bind(ahora - 30 * 864e5).run();
+    if (idos.length >= 3) { await bkGuardar(env, row.data, "auto", quien, "Antes de borrar " + idos.length + " eventos de golpe", ahora); copiado = true; }
+  }
+  if (!copiado) {
+    const ult = await env.DB.prepare("SELECT MAX(ts) AS m FROM backups WHERE kind='auto'").first();
+    if (!ult || !ult.m || ahora - (+ult.m) >= BK_CADA) { await bkGuardar(env, row.data, "auto", quien, "", ahora); copiado = true; }
+  }
+  if (copiado) await bkPodar(env, ahora);
+}
+
+async function bkAdmin(request, env) {
+  const s = await session(request, env);
+  if (!s) return { err: json({ error: "unauth" }, 401) };
+  if (s.role !== "admin") return { err: json({ error: "forbidden" }, 403) };
+  await ensureBackups(env);
+  return { s };
+}
+async function bkList(request, env) {
+  const a = await bkAdmin(request, env); if (a.err) return a.err;
+  const b = await env.DB.prepare("SELECT id, ts, kind, by_name AS by, nev, bytes, nota FROM backups ORDER BY ts DESC, id DESC LIMIT 200").all();
+  const p = await env.DB.prepare("SELECT id, event_id, name, fecha, ts, by_name AS by FROM papelera WHERE ts >= ?1 ORDER BY ts DESC LIMIT 100").bind(Date.now() - 30 * 864e5).all();
+  /* si el evento ya está otra vez en la lista (p. ej. se pulsó «Deshacer» al borrarlo), no se ofrece recuperar la copia vieja */
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  const vivos = {}; try { (JSON.parse((row && row.data) || "{}").events || []).forEach((e) => { if (e && e.id) vivos[e.id] = 1; }); } catch (_) {}
+  return json({ ahora: Date.now(), cadaHoras: BK_CADA / 3600e3, backups: b.results || [], papelera: (p.results || []).filter((x) => !vivos[x.event_id]) });
+}
+async function bkCrear(request, env) {
+  const a = await bkAdmin(request, env); if (a.err) return a.err;
+  const b = await body(request);
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  if (!row || !row.data) return json({ error: "empty", message: "Todavía no hay nada que copiar." }, 400);
+  const c = await bkGuardar(env, row.data, "manual", a.s.name || a.s.email, String(b.nota || "").slice(0, 120));
+  await bkPodar(env, Date.now());
+  return json({ ok: true, copia: c });
+}
+function bkSinUpdated(e) { const c = Object.assign({}, e); delete c.updated; return JSON.stringify(c); }
+async function bkLeer(env, id) {
+  const r = await env.DB.prepare("SELECT id, ts, kind, by_name AS by, gz FROM backups WHERE id=?1").bind(id).first();
+  if (!r) return null;
+  let doc = {}; try { doc = JSON.parse(await bkUnzip(r.gz)) || {}; } catch (_) { return null; }
+  return { meta: { id: r.id, ts: r.ts, kind: r.kind, by: r.by }, doc };
+}
+async function bkVer(request, env, url) {
+  const a = await bkAdmin(request, env); if (a.err) return a.err;
+  const c = await bkLeer(env, +url.searchParams.get("id") || 0);
+  if (!c) return json({ error: "not-found", message: "Esa copia ya no existe." }, 404);
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  let ahora = {}; try { ahora = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {}
+  const ya = {}; (ahora.events || []).forEach((e) => { if (e && e.id) ya[e.id] = e; });
+  const eventos = (c.doc.events || []).filter((e) => e && e.id).map((e) => ({
+    id: e.id, name: e.name || "", fecha: (e.ficha && e.ficha.fecha) || "", updated: e.updated || 0,
+    estado: !ya[e.id] ? "falta" : (bkSinUpdated(ya[e.id]) === bkSinUpdated(e) ? "igual" : "cambia"),
+  }));
+  const dentro = {}; (c.doc.events || []).forEach((e) => { if (e && e.id) dentro[e.id] = 1; });
+  const nuevos = (ahora.events || []).filter((e) => e && e.id && !dentro[e.id]).length;
+  const dif = (k) => JSON.stringify(c.doc[k] || null) !== JSON.stringify(ahora[k] || null);
+  return json({ copia: c.meta, eventos, nuevosDespues: nuevos, otros: { inventario: dif("inventario") || dif("invExtra"), camareros: dif("camareros"), prevision: dif("prevision"), parametros: dif("params") } });
+}
+async function bkBajar(request, env, url) {
+  const a = await bkAdmin(request, env); if (a.err) return a.err;
+  let txt, ts = Date.now(), tag = "completa";
+  if (url.searchParams.get("actual") === "1") {
+    const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
+    txt = (row && row.data) || "{}"; if (row && row.updated) ts = +row.updated;
+  } else {
+    const r = await env.DB.prepare("SELECT ts, gz FROM backups WHERE id=?1").bind(+url.searchParams.get("id") || 0).first();
+    if (!r) return json({ error: "not-found" }, 404);
+    txt = await bkUnzip(r.gz); ts = +r.ts; tag = "copia";
+  }
+  const f = new Date(ts).toISOString().slice(0, 16).replace("T", "_").replace(":", "h");
+  return new Response(txt, { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "Content-Disposition": 'attachment; filename="LesMoles_' + tag + "_" + f + '.json"' } });
+}
+
+/* aplica una copia a un documento vivo: lo restaurado se marca como tocado ahora (gana a copias viejas de los navegadores) */
+function bkPonerEvento(doc, ev, ahora) {
+  const e = JSON.parse(JSON.stringify(ev)); doc.events = Array.isArray(doc.events) ? doc.events : [];
+  const i = doc.events.findIndex((x) => x && x.id === e.id);
+  e.updated = Math.max(ahora, i >= 0 ? ((doc.events[i].updated || 0) + 1) : 0);
+  if (i >= 0) doc.events[i] = e; else doc.events.push(e);
+  if (doc.borrados) delete doc.borrados[e.id];
+  return e;
+}
+function bkListaId(snap, act, ahora) {
+  const por = {}; (act || []).forEach((x) => { if (x && x.id) por[x.id] = x; });
+  (snap || []).forEach((x) => { if (x && x.id) { const c = JSON.parse(JSON.stringify(x)); c.updated = ahora; por[x.id] = c; } });
+  return Object.keys(por).map((k) => por[k]);
+}
+function bkPonerTodo(doc, snap, ahora) {
+  let ne = 0; (snap.events || []).forEach((e) => { if (e && e.id) { bkPonerEvento(doc, e, ahora); ne++; } });
+  doc.inventario = Object.assign({}, doc.inventario || {});
+  Object.keys(snap.inventario || {}).forEach((k) => { const a = snap.inventario[k]; doc.inventario[k] = (a && typeof a === "object") ? Object.assign({}, JSON.parse(JSON.stringify(a)), { updated: ahora }) : a; });
+  const ie = doc.invExtra || {}, se = snap.invExtra || {};
+  doc.invExtra = { hojas: bkListaId(se.hojas, ie.hojas, ahora), categorias: bkListaId(se.categorias, ie.categorias, ahora), items: bkListaId(se.items, ie.items, ahora) };
+  doc.camareros = { personas: bkListaId((snap.camareros || {}).personas, (doc.camareros || {}).personas, ahora) };
+  const pa = doc.prevision || {}, ps = snap.prevision || {}, an = {};
+  (pa.anios || []).concat(ps.anios || []).forEach((x) => { an[x] = 1; });
+  doc.prevision = Object.assign({}, pa, ps, { filas: bkListaId(ps.filas, pa.filas, ahora), anios: Object.keys(an).map(Number) });
+  const sec = Object.assign({}, (doc.params && doc.params.sec) || {});
+  Object.keys(((snap.params || {}).sec) || {}).forEach((k) => { sec[k] = Object.assign({}, JSON.parse(JSON.stringify(snap.params.sec[k])), { updated: ahora }); });
+  doc.params = { v: 1, sec };
+  return ne;
+}
+async function bkRestaurar(request, env) {
+  const a = await bkAdmin(request, env); if (a.err) return a.err;
+  const b = await body(request), quien = a.s.name || a.s.email || "", ahora = Date.now();
+  let fuente = null, evento = null, que = "";
+  if (b.papelera) {
+    const r = await env.DB.prepare("SELECT event_id, name, gz FROM papelera WHERE id=?1").bind(+b.papelera || 0).first();
+    if (!r) return json({ error: "not-found", message: "Ese evento ya no está en la papelera." }, 404);
+    try { evento = JSON.parse(await bkUnzip(r.gz)); } catch (_) { return json({ error: "corrupt" }, 500); }
+    const act = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+    try { if (((JSON.parse((act && act.data) || "{}").events) || []).some((e) => e && e.id === r.event_id)) return json({ error: "exists", message: "Ese evento ya está en la lista de eventos." }, 409); } catch (_) {}
+    que = "el evento «" + (r.name || r.event_id) + "» de la papelera";
+  } else if (b.documento && typeof b.documento === "object" && !Array.isArray(b.documento) && b.todo) {
+    if (!Array.isArray(b.documento.events)) return json({ error: "invalid", message: "Ese archivo no parece una copia de Les Moles." }, 400);
+    fuente = b.documento; que = "todo desde un archivo";
+  } else {
+    const c = await bkLeer(env, +b.backup || 0);
+    if (!c) return json({ error: "not-found", message: "Esa copia ya no existe." }, 404);
+    if (b.todo) { fuente = c.doc; que = "todo desde la copia del " + new Date(c.meta.ts).toISOString().slice(0, 16).replace("T", " "); }
+    else {
+      evento = (c.doc.events || []).filter((e) => e && e.id === b.evento)[0];
+      if (!evento) return json({ error: "not-found", message: "Ese evento no está en esa copia." }, 404);
+      que = "el evento «" + (evento.name || evento.id) + "»";
+    }
+  }
+  /* antes de tocar nada, copia de lo que hay: restaurar también se deshace */
+  const cur = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  if (cur && cur.data) { await bkGuardar(env, cur.data, "previa", quien, "Antes de restaurar " + que, ahora); await bkPodar(env, ahora); }
+  for (let intento = 0; intento < 6; intento++) {
+    const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
+    let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { doc = {}; }
+    const antes = row ? (+row.updated || 0) : 0, t = Date.now();
+    let n = 0;
+    if (evento) { bkPonerEvento(doc, evento, t); n = 1; } else n = bkPonerTodo(doc, fuente, t);
+    const out = JSON.stringify(doc); let v = t; if (v <= antes) v = antes + 1;
+    let r;
+    if (row) r = await env.DB.prepare("UPDATE store SET data=?1, updated=?2 WHERE id=1 AND updated=?3").bind(out, v, antes).run();
+    else r = await env.DB.prepare("INSERT OR IGNORE INTO store (id, data, updated) VALUES (1, ?1, ?2)").bind(out, v).run();
+    const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
+    if (ch > 0) return json({ ok: true, v, eventos: n, que });
+  }
+  return json({ error: "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
 }
 
 function porId(a, b, preferA) {

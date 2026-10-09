@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.53 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.54 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3260,6 +3260,40 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 @media (hover:none) and (pointer:coarse){
   input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]):not([type=hidden]),select,textarea{font-size:16px!important}
 }
+
+/* ── Copias de seguridad (Parámetros) ── */
+.bk-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:0 0 12px}
+.bk-stats>div{background:var(--panel,#fff); border:1px solid var(--c-line,#E4DCCB); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column; gap:3px}
+.bk-stats b{font-size:22px; font-weight:600; letter-spacing:-.01em; font-variant-numeric:tabular-nums}
+.bk-stats span{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut); font-weight:600}
+.bk-acc .bk-btns,.bk-conf .bk-btns{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.bk-nota{margin:10px 0 0; font-size:12.5px; color:var(--c-mut); max-width:75ch}
+.bk-file{display:inline-flex; align-items:center; cursor:pointer}
+.bk-file.off{opacity:.5; pointer-events:none}
+.bk-trab{font-size:12px; color:var(--c-mut)}
+.bk-err{border-color:#8E2C48; background:#F8EEF1; color:#6B1D34}
+.bk-conf{background:#FFF4D6; border:1.5px solid #D9A441; border-radius:10px; padding:12px 14px; margin:8px 0}
+.bk-conf p{margin:0 0 10px; max-width:75ch}
+.bk-lista{padding:4px 14px}
+.bk-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--c-line,#E4DCCB); flex-wrap:wrap}
+.bk-row:last-child{border-bottom:0}
+.bk-nm{display:flex; flex-direction:column; gap:2px; min-width:0; flex:1 1 240px}
+.bk-nm small{color:var(--c-mut); font-size:12px}
+.bk-row>.bk-nm>b{font-variant-numeric:tabular-nums}
+.bk-tipo{align-self:flex-start; font:700 9.5px/1 var(--font-text,system-ui); letter-spacing:.12em; text-transform:uppercase; padding:3px 8px; border-radius:99px; background:var(--bg-2,#EFEBE0); color:var(--c-mut)}
+.bk-tipo.t-manual{background:#E6EADA; color:#56613F}
+.bk-tipo.t-previa{background:#FFE9B5; color:#7A4E08}
+.bk-panel{background:var(--bg-2,#F4F1E8); border-radius:10px; padding:12px 14px; margin:2px 0 10px}
+.bk-res{margin:0 0 8px; font-size:13px}
+.bk-evs{display:flex; flex-direction:column; gap:6px}
+.bk-ev{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--panel,#fff); border:1px solid var(--c-line,#E4DCCB); border-radius:8px; padding:8px 10px}
+.bk-ev .bk-nm{flex:1 1 200px}
+.bk-pill{flex:none; font:700 9.5px/1 var(--font-text,system-ui); letter-spacing:.08em; text-transform:uppercase; padding:4px 8px; border-radius:99px; white-space:nowrap}
+.bk-pill.s-igual{background:#EFEFEA; color:#65645C}
+.bk-pill.s-cambia{background:#FFE9B5; color:#7A4E08}
+.bk-pill.s-falta{background:#F8EEF1; color:#8E2C48}
+.bk-pie{margin-top:10px}
+@media (max-width:620px){ .bk-stats b{font-size:18px} .bk-row{align-items:flex-start} }
 /*V3-END*/
 </style>
 
@@ -3272,7 +3306,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.53</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Usuarios y roles</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.54</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -7807,7 +7841,7 @@ $("del").addEventListener("click",function(){
     deletedIds[dead.id]=1; store.borrados=store.borrados||{}; store.borrados[dead.id]=Date.now();
     store.active=store.events[0].id; sel=null; undoStack=[]; refreshUndo(); $("src").value=current().text; prevText=current().text;
     syncPrefs(); fillSelect(); render(); save();
-    toast("Evento «"+(dead.name||"")+"» borrado.",false,"Deshacer",function(){
+    toast("Evento «"+(dead.name||"")+"» borrado"+(window.LM_backend&&window.LM_backend()?" (30 días en la papelera).":"."),false,"Deshacer",function(){
       delete deletedIds[dead.id]; if(store.borrados) delete store.borrados[dead.id]; dead.updated=Date.now();
       try{ Object.keys(planosMuertos).forEach(function(k){ localStorage.setItem(k,planosMuertos[k]); }); }catch(e){}
       store.events.splice(Math.max(0,idx),0,dead); store.active=dead.id;
@@ -8130,6 +8164,7 @@ var SECCIONES=[
   {k:"p-alg",      g:"Parámetros", t:"Alérgenos"},
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
   {k:"p-agenda",   g:"Parámetros", t:"Agenda con el cliente"},
+  {k:"p-copias",   g:"Parámetros", t:"Copias de seguridad"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
@@ -8324,7 +8359,7 @@ function abrirMas(){
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Usuarios y roles</button>':'')+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.53</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.54</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9695,7 +9730,7 @@ function renderHomeNovios(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -16072,6 +16107,7 @@ var VISTAS={
   "p-alg":     {t:"Alérgenos de los ingredientes", secs:["alergenos"], guia:"Qué alérgenos (de los 14 de la UE) lleva cada ingrediente de los escandallos. La app propone por el nombre; cocina lo revisa y lo confirma. Con esto, en «Alergias y sustituciones» de cada evento se ve qué platos no puede comer cada invitado y se proponen alternativas."},
   "p-pvp":     {t:"Precios de venta", secs:["pvp"], guia:"Lo que se cobra por comensal (sin IVA) por cada plato, los packs, los suplementos de vino, cava y jamón, la barra libre y los menús infantil y staff. Con esto cada evento calcula solo el precio de su menú en «Presupuesto». Lo que esté vacío sale como «pendiente», nunca como 0 €."},
   "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."},
+  "p-copias":  {t:"Copias de seguridad", secs:[], guia:"Todo el negocio queda copiado solo, varias veces al día. Aquí se ven las copias, se recuperan los eventos borrados y se restaura un evento (o todo) a como estaba. Antes de restaurar, siempre se guarda lo que hay."},
   "p-agenda":  {t:"Agenda con el cliente", secs:["agenda"], guia:"La señal que se cobra al reservar y los pasos que se programan solos a partir de la fecha de cada evento (documento, pagos, reuniones y cierre de cambios). Salen en el calendario, en los avisos y en la cronología de TODOS los eventos, también los que ya existen."}
 };
 
@@ -16094,6 +16130,10 @@ function guardar(sec,d,msg){ BR.setParam(sec,d); if(msg) toastP(msg); }
 /* ── cabecera común ── */
 function cabecera(k){
   var v=VISTAS[k];
+  if(k==="p-copias"){ var u=BK.datos&&BK.datos.backups&&BK.datos.backups[0];
+    return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div>'+
+      '<h1 class="pv-title">'+esc(v.t)+'</h1><div class="pv-sub pp-meta">'+(u?'<span class="pp-state mod">Al día</span> Última copia '+esc(bkHace(u.ts))+' · '+esc(fmtFechaHora(u.ts)):'<span class="pp-state">Sin copias todavía</span>')+'</div>'+
+      '<p class="pv-guide">'+esc(v.guia)+'</p></div></header>'; }
   var metas=v.secs.map(function(s){ return {s:s,m:BR.paramMeta(s)}; });
   var tocado=metas.filter(function(x){ return x.m&&x.m.data!=null; });
   var ult=metas.filter(function(x){ return x.m; }).sort(function(a,b){ return (b.m.updated||0)-(a.m.updated||0); })[0];
@@ -16413,12 +16453,132 @@ function vAgenda(){
       '<div class="ag-padd"><button type="button" class="btn gold sm" data-pa="ag-add">+ Añadir paso</button></div></div>';
 }
 
+/* ══ COPIAS DE SEGURIDAD (solo administración, con el servidor) ═════════
+   Habla con /api/backups: copias automáticas y manuales, papelera de eventos
+   borrados, «ver qué cambia» y restaurar un evento o todo. */
+var BK={datos:null,t:0,cargando:false,err:"",ver:null,verId:0,cargandoVer:false,ocupado:false,confTodo:0,archivo:null};
+var BK_TIPO={auto:"Automática",manual:"Manual",previa:"Antes de restaurar"};
+function bkHace(ts){ var m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora mismo"; if(m<60) return "hace "+m+" min"; var h=Math.round(m/60); if(h<24) return "hace "+h+" h"; var d=Math.round(h/24); return "hace "+d+(d===1?" día":" días"); }
+function bkKB(b){ return b>=1048576?(b/1048576).toFixed(1).replace(".",",")+" MB":Math.max(1,Math.round((b||0)/1024))+" KB"; }
+function bkApi(path,opts){
+  opts=opts||{}; var h={"Accept":"application/json"}; if(opts.body) h["Content-Type"]="application/json";
+  return fetch(path,{method:opts.method||"GET",headers:h,credentials:"same-origin",body:opts.body?JSON.stringify(opts.body):undefined}).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(j){
+      if(!r.ok) throw new Error(j&&j.message?j.message:(r.status===403?"Solo un administrador puede hacer esto.":r.status===401?"La sesión ha caducado: recarga la página.":"No se ha podido (error "+r.status+")."));
+      return j; }); });
+}
+function bkCargar(){
+  if(BK.cargando) return; BK.cargando=true; BK.err="";
+  bkApi("/api/backups").then(function(j){ BK.datos=j; BK.t=Date.now(); }).catch(function(e){ BK.err=e.message; })
+    .then(function(){ BK.cargando=false; if(vistaActual==="p-copias") render(); });
+}
+function bkHacer(fn,okMsg,recargarApp){
+  BK.ocupado=true; BK.err=""; render();
+  fn().then(function(){ toastP(okMsg); BK.confTodo=0; BK.archivo=null; BK.verId=0; BK.ver=null; BK.t=0; if(recargarApp&&window.hydrateFromServer) window.hydrateFromServer(); })
+    .catch(function(e){ BK.err=e.message; })
+    .then(function(){ BK.ocupado=false; if(!BK.err) BK.cargando=false; render(); if(!BK.err) bkCargar(); });
+}
+function bkBajar(path){
+  BK.ocupado=true; render();
+  fetch(path,{credentials:"same-origin"}).then(function(r){
+    if(!r.ok) throw new Error("No se ha podido descargar (error "+r.status+").");
+    var m=/filename="([^"]+)"/.exec(r.headers.get("Content-Disposition")||"");
+    return r.blob().then(function(bl){ return {bl:bl,nom:m?m[1]:"LesMoles_copia.json"}; }); })
+  .then(function(x){ var a=document.createElement("a"); a.href=URL.createObjectURL(x.bl); a.download=x.nom; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },600); toastP("Descargado: "+x.nom); })
+  .catch(function(e){ BK.err=e.message; }).then(function(){ BK.ocupado=false; render(); });
+}
+function bkArchivo(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return; var rd=new FileReader();
+  rd.onload=function(){
+    try{ var doc=JSON.parse(rd.result); if(!doc||!Array.isArray(doc.events)) throw 0; BK.archivo={nombre:f.name,doc:doc,nev:doc.events.length}; BK.err=""; BK.confTodo=0; }
+    catch(_){ BK.archivo=null; BK.err="Ese archivo no parece una copia de Les Moles (tiene que ser el .json que se descarga desde aquí)."; }
+    inp.value=""; render(); };
+  rd.readAsText(f);
+}
+function bkClick(a,b){
+  var id=+b.getAttribute("data-i")||0, k=b.getAttribute("data-k");
+  if(BK.ocupado) return;
+  if(a==="bk-reintentar"){ BK.err=""; BK.t=0; render(); return; }
+  if(a==="bk-ahora"){ bkHacer(function(){ return bkApi("/api/backups",{method:"POST",body:{nota:"Hecha a mano"}}); },"Copia hecha."); return; }
+  if(a==="bk-bajar-todo"){ bkBajar("/api/backups/bajar?actual=1"); return; }
+  if(a==="bk-bajar"){ bkBajar("/api/backups/bajar?id="+id); return; }
+  if(a==="bk-ver"){
+    if(BK.verId===id){ BK.verId=0; BK.ver=null; BK.confTodo=0; render(); return; }
+    BK.verId=id; BK.ver=null; BK.cargandoVer=true; BK.confTodo=0; BK.err=""; render();
+    bkApi("/api/backups/ver?id="+id).then(function(j){ BK.ver=j; }).catch(function(e){ BK.err=e.message; BK.verId=0; })
+      .then(function(){ BK.cargandoVer=false; render(); }); return; }
+  if(a==="bk-recup"){ bkHacer(function(){ return bkApi("/api/backups/restaurar",{method:"POST",body:{papelera:id}}); },"Evento recuperado: ya está en la lista de eventos.",true); return; }
+  if(a==="bk-rest-ev"){ bkHacer(function(){ return bkApi("/api/backups/restaurar",{method:"POST",body:{backup:id,evento:k}}); },"Evento restaurado a como estaba en esa copia.",true); return; }
+  if(a==="bk-todo-ask"){ BK.confTodo=id; render(); return; }
+  if(a==="bk-todo-no"){ BK.confTodo=0; BK.archivo=null; render(); return; }
+  if(a==="bk-todo-ok"){ bkHacer(function(){ return bkApi("/api/backups/restaurar",{method:"POST",body:{backup:id,todo:true}}); },"Todo restaurado a como estaba en esa copia.",true); return; }
+  if(a==="bk-arch-ok"&&BK.archivo){ var doc=BK.archivo.doc; bkHacer(function(){ return bkApi("/api/backups/restaurar",{method:"POST",body:{documento:doc,todo:true}}); },"Todo restaurado desde el archivo.",true); return; }
+}
+function vCopias(){
+  if(!(window.LM_backend&&window.LM_backend())) return '<div class="pcard"><p>Las copias de seguridad funcionan con el servidor de Les Moles (la web en Cloudflare). Sin servidor no hay nada que copiar.</p></div>';
+  var d=BK.datos, h='';
+  if(BK.err) h+='<div class="pcard bk-err" role="alert"><p>'+esc(BK.err)+'</p><button type="button" class="btn sm" data-pa="bk-reintentar">Reintentar</button></div>';
+  if(!d) return h+(BK.err?'':'<div class="pcard"><p class="pp-empty">Cargando las copias…</p></div>');
+  var dis=BK.ocupado?' disabled':'';
+  var ult=d.backups[0];
+  h+='<div class="bk-stats"><div><b>'+(ult?esc(bkHace(ult.ts)):'—')+'</b><span>última copia'+(ult?' · '+esc((BK_TIPO[ult.kind]||ult.kind).toLowerCase()):'')+'</span></div>'+
+    '<div><b>'+d.backups.length+'</b><span>copias guardadas</span></div>'+
+    '<div><b>'+d.papelera.length+'</b><span>en la papelera</span></div></div>';
+  h+='<div class="pcard bk-acc"><div class="bk-btns">'+
+    '<button type="button" class="btn gold sm" data-pa="bk-ahora"'+dis+'>Hacer una copia ahora</button>'+
+    '<button type="button" class="btn sm" data-pa="bk-bajar-todo"'+dis+'>Descargar todo (.json)</button>'+
+    '<label class="btn sm bk-file'+(BK.ocupado?' off':'')+'">Restaurar desde un archivo…<input type="file" accept=".json,application/json" data-pp="bk-file" hidden'+dis+'></label>'+
+    (BK.ocupado?'<span class="bk-trab" role="status">Trabajando…</span>':'')+'</div>'+
+    '<p class="bk-nota">Se hace una copia sola cada '+esc(String(d.cadaHoras))+' horas de trabajo, y al momento si alguien borra 3 eventos o más de golpe. Se guardan las 12 últimas, una por día durante 30 días y una por semana durante 12 semanas. Los eventos borrados se quedan 30 días en la papelera.</p></div>';
+  if(BK.archivo){
+    h+='<div class="pcard bk-conf" role="alertdialog" aria-label="Restaurar desde un archivo"><p><b>El archivo «'+esc(BK.archivo.nombre)+'» trae '+BK.archivo.nev+(BK.archivo.nev===1?' evento':' eventos')+'.</b> Al restaurar, cada evento y cada dato (inventario, camareros, previsión, parámetros) vuelve a como estaba en el archivo; lo que se haya creado después se conserva. Antes se guarda una copia de lo de ahora, por si acaso.</p>'+
+      '<div class="bk-btns"><button type="button" class="btn danger sm" data-pa="bk-arch-ok"'+dis+'>Sí, restaurar todo desde el archivo</button><button type="button" class="btn sm" data-pa="bk-todo-no">Cancelar</button></div></div>';
+  }
+  /* papelera */
+  h+='<div class="pv-sec">Papelera <span class="pv-sec-note">— eventos borrados, se guardan 30 días</span></div><div class="pcard bk-lista">';
+  h+=d.papelera.length?d.papelera.map(function(x){
+    return '<div class="bk-row"><div class="bk-nm"><b>'+esc(x.name||"(sin nombre)")+'</b><small>'+(x.fecha?esc(x.fecha.split("-").reverse().join("/"))+' · ':'')+'borrado '+esc(bkHace(x.ts))+(x.by?' por '+esc(x.by):'')+'</small></div>'+
+      '<button type="button" class="btn gold sm" data-pa="bk-recup" data-i="'+x.id+'"'+dis+'>Recuperar</button></div>'; }).join(""):'<p class="pp-empty">No hay nada en la papelera.</p>';
+  h+='</div>';
+  /* copias */
+  h+='<div class="pv-sec">Copias <span class="pv-sec-note">— elige una para ver qué cambiaría y restaurar</span></div><div class="pcard bk-lista">';
+  h+=d.backups.length?d.backups.map(function(c){
+    var abierto=BK.verId===c.id;
+    return '<div class="bk-row'+(abierto?' open':'')+'"><div class="bk-nm"><b>'+esc(fmtFechaHora(c.ts))+'</b>'+
+      '<span class="bk-tipo t-'+esc(c.kind)+'">'+esc(BK_TIPO[c.kind]||c.kind)+'</span>'+
+      '<small>'+(c.nev!=null?c.nev+(c.nev===1?' evento':' eventos')+' · ':'')+esc(bkKB(c.bytes))+(c.by?' · '+esc(c.by):'')+(c.nota?' · '+esc(c.nota):'')+' · '+esc(bkHace(c.ts))+'</small></div>'+
+      '<div class="bk-btns"><button type="button" class="btn sm'+(abierto?' on':'')+'" data-pa="bk-ver" data-i="'+c.id+'" aria-expanded="'+abierto+'"'+dis+'>'+(abierto?'Cerrar':'Ver y restaurar')+'</button>'+
+      '<button type="button" class="btn sm" data-pa="bk-bajar" data-i="'+c.id+'"'+dis+' aria-label="Descargar la copia del '+esc(fmtFechaHora(c.ts))+'">Descargar</button></div></div>'+
+      (abierto?bkPanel(c,dis):''); }).join(""):'<p class="pp-empty">Todavía no hay copias: la primera se hará sola en cuanto alguien trabaje, o pulsa «Hacer una copia ahora».</p>';
+  h+='</div>';
+  return h;
+}
+function bkPanel(c,dis){
+  if(BK.cargandoVer||!BK.ver) return '<div class="bk-panel"><p class="pp-empty">Mirando qué cambiaría…</p></div>';
+  var v=BK.ver, E=v.eventos||[], cam=E.filter(function(e){ return e.estado==="cambia"; }).length, fal=E.filter(function(e){ return e.estado==="falta"; }).length;
+  var otros=[]; if(v.otros.inventario) otros.push("inventario"); if(v.otros.camareros) otros.push("camareros"); if(v.otros.prevision) otros.push("previsión"); if(v.otros.parametros) otros.push("parámetros");
+  var ST={igual:["Igual que ahora","igual"],cambia:["Ha cambiado desde entonces","cambia"],falta:["Ya no está","falta"]};
+  var h='<div class="bk-panel"><p class="bk-res"><b>'+E.length+(E.length===1?' evento':' eventos')+' en esta copia:</b> '+(cam?cam+' han cambiado desde entonces':'ninguno ha cambiado')+(fal?', '+fal+(fal===1?' ya no está':' ya no están'):'')+
+    (v.nuevosDespues?'. Hay '+v.nuevosDespues+(v.nuevosDespues===1?' evento creado después: se conserva':' eventos creados después: se conservan'):'')+
+    (otros.length?'. También difieren: '+esc(otros.join(", ")):'')+'.</p><div class="bk-evs">';
+  h+=E.length?E.map(function(e){ var st=ST[e.estado]||ST.cambia;
+    return '<div class="bk-ev"><span class="bk-pill s-'+st[1]+'">'+esc(st[0])+'</span><div class="bk-nm"><b>'+esc(e.name||"(sin nombre)")+'</b>'+(e.fecha?'<small>'+esc(e.fecha.split("-").reverse().join("/"))+'</small>':'')+'</div>'+
+      '<button type="button" class="btn sm'+(e.estado==="igual"?'':' gold')+'" data-pa="bk-rest-ev" data-i="'+c.id+'" data-k="'+esc(e.id)+'"'+(e.estado==="igual"?' disabled title="Ya está igual"':dis)+'>Restaurar este evento</button></div>'; }).join(""):'<p class="pp-empty">Esta copia no tiene eventos.</p>';
+  h+='</div>';
+  if(BK.confTodo===c.id){
+    h+='<div class="bk-conf" role="alertdialog" aria-label="Restaurar todo"><p><b>¿Restaurar todo a como estaba el '+esc(fmtFechaHora(c.ts))+'?</b> Cada evento y cada dato (inventario, camareros, previsión, parámetros) vuelve a esa copia. Lo creado después se conserva. Antes se guarda una copia de lo de ahora, por si acaso.</p>'+
+      '<div class="bk-btns"><button type="button" class="btn danger sm" data-pa="bk-todo-ok" data-i="'+c.id+'"'+dis+'>Sí, restaurar todo</button><button type="button" class="btn sm" data-pa="bk-todo-no">Cancelar</button></div></div>';
+  } else h+='<div class="bk-btns bk-pie"><button type="button" class="btn danger sm" data-pa="bk-todo-ask" data-i="'+c.id+'"'+dis+'>Restaurar todo desde esta copia…</button></div>';
+  return h+'</div>';
+}
+
 /* ══ pintar ══════════════════════════════════════════════════════════ */
 var hostRef=null, vistaActual=null;
 function render(k,host){
   hostRef=host||hostRef; vistaActual=k||vistaActual; if(!hostRef||!vistaActual) return;
   var top=hostRef.scrollTop, body;
   if(!esAdmin()) body='<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div>';
+  else if(vistaActual==="p-copias") body=vCopias();
   else if(!M) body='<div class="pcard"><p>No se han podido cargar los datos del menú.</p></div>';
   else if(vistaActual==="p-platos") body=vPlatos();
   else if(vistaActual==="p-bebidas") body=vBebidas();
@@ -16429,6 +16589,7 @@ function render(k,host){
   else if(vistaActual==="p-alg") body=vAlg();
   else body=vTareas();
   hostRef.innerHTML='<div class="pv-inner pp-root" data-vista="'+esc(vistaActual)+'">'+cabecera(vistaActual)+body+'</div>';
+  if(vistaActual==="p-copias"&&esAdmin()&&!BK.cargando&&!BK.err&&(!BK.datos||Date.now()-BK.t>60000)) bkCargar();
   hostRef.scrollTop=top;
   if(!hostRef.__ppBound){ hostRef.__ppBound=true; hostRef.addEventListener("change",onChange); hostRef.addEventListener("input",onInput); hostRef.addEventListener("click",onClick); }
 }
@@ -16450,6 +16611,7 @@ function onInput(ev){
 function onChange(ev){
   if(!enParam()) return;
   var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(!pp||pp==="q"||pp==="catq"||pp==="pvpq"||pp==="algq") return;
+  if(pp==="bk-file"){ bkArchivo(el); return; }
   var k=el.getAttribute("data-k"), i=+el.getAttribute("data-i"), v=el.value;
   if(pp==="pvp"){
     var T=BR.pvp(), x=el.getAttribute("data-x"), vt=String(v).trim().replace(",","."), nv=vt===""?null:+vt;
@@ -16554,6 +16716,7 @@ function onClick(ev){
   if(!enParam()) return;
   var b=ev.target.closest?ev.target.closest("[data-pa]"):null; if(!b) return;
   var a=b.getAttribute("data-pa"), i=+b.getAttribute("data-i");
+  if(a.indexOf("bk-")===0){ bkClick(a,b); return; }
   if(a==="fam"){ ui.fam=b.getAttribute("data-k"); ui.q=""; ui.open=null; render(); return; }
   if(a==="dish-open"){ var u=b.getAttribute("data-uid"); ui.open=ui.open===u?null:u; render(); return; }
   if(a==="reset"){
