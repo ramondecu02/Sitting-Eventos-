@@ -21,12 +21,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.66 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.67 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.66".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.67".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3879,6 +3879,66 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .cn-doc .cn-tab td.r{text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; font-family:system-ui,sans-serif}
 .cn-doc .cn-tab tr.tot td{font-weight:700; border-bottom:1px solid #C9B182}
 @media (max-width:560px){ .cn-doc{padding:16px 14px; font-size:14.5px} .cn-doc .cn-t{font-size:21px} }
+/* ── Pedidos a proveedores (pd-) ── */
+.pd-wrap{max-width:1040px}
+.pd-res-strip{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:0 0 14px}
+.pd-res-strip>div{background:var(--panel); border:1px solid var(--c-line); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.pd-res-strip b{font:600 22px/1.15 var(--font-display,Georgia,serif); font-variant-numeric:tabular-nums; overflow-wrap:anywhere}
+.pd-res-strip span{font-size:12.5px; color:var(--c-mut)}
+.pd-ev{margin:0 0 14px; font-size:15px}
+.pd-vacio{padding:18px; border:1px dashed var(--c-line); border-radius:12px; color:var(--c-mut); margin-bottom:14px}
+.pd-card{background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:14px 16px; margin:0 0 16px; display:flex; flex-direction:column; gap:8px}
+.pd-card.pd-sin{border-color:var(--warning); background:var(--warning-soft)}
+.pd-ch{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 12px}
+.pd-pn{min-width:0; display:flex; flex-direction:column; gap:1px}
+.pd-pn h2{margin:0; font:600 19px/1.25 var(--font-display,Georgia,serif); overflow-wrap:anywhere}
+.pd-pn small{color:var(--c-mut); font-size:13px; overflow-wrap:anywhere}
+.pd-chip{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.05em; text-transform:uppercase; padding:6px 10px; border-radius:99px; background:var(--bg-2,#eee); color:var(--c-mut)}
+.pd-chip.ok{background:var(--success-soft); color:var(--success)} .pd-chip.aviso{background:var(--warning-soft); color:var(--warning-tx)} .pd-chip.env{background:var(--accent-soft,var(--bg-2)); color:var(--c-ink)} .pd-chip.borr{background:var(--bg-2,#eee); color:var(--c-ink)}
+.pd-aviso{padding:10px 14px; border:1px solid var(--warning); background:var(--warning-soft); border-radius:12px; font-size:14px}
+.pd-aviso ul{margin:6px 0 10px; padding-left:20px} .pd-aviso li{margin:2px 0; overflow-wrap:anywhere}
+.pd-cab{display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--c-mut); padding:2px 0; border-bottom:1px solid var(--c-line)}
+.pd-l{display:grid; grid-template-columns:minmax(0,1.6fr) minmax(70px,.6fr) minmax(70px,.6fr) auto; gap:4px 12px; align-items:center; padding:7px 0; border-bottom:1px solid var(--c-line); font-size:14.5px}
+.pd-l.pd-lr{grid-template-columns:minmax(0,1.5fr) minmax(70px,.55fr) minmax(70px,.55fr) minmax(110px,.7fr) minmax(90px,.6fr)}
+.pd-l:last-of-type{border-bottom:0}
+.pd-n{min-width:0; overflow-wrap:anywhere; font-weight:600}
+.pd-q{font-variant-numeric:tabular-nums; white-space:nowrap}
+.pd-c{font-variant-numeric:tabular-nums; color:var(--c-mut); white-space:nowrap; font-size:13.5px}
+.pd-c small{font-size:12px}
+.pd-r{display:flex; align-items:center; gap:6px} .pd-r input{width:90px; min-height:42px; text-align:right} .pd-r em{font-style:normal; color:var(--c-mut); font-size:12.5px}
+.pd-e{font-size:12.5px; font-weight:700; color:var(--c-mut)} .pd-e.ok{color:var(--success)} .pd-e.falta{color:var(--danger)} .pd-e.mas{color:var(--warning-tx)}
+.pd-s select{min-height:42px; max-width:100%}
+.pd-tot{font-size:14px; padding:6px 0}
+.pd-cfg{display:grid; grid-template-columns:minmax(150px,200px) 1fr; gap:10px 14px}
+.pd-acc{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.pd-acc .btn{min-height:42px}
+a.pd-wa{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; background:#1F8F4E; border-color:#1F8F4E; color:#fff}
+a.pd-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
+.pd-masivo{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 0 10px}
+.pd-masivo select{min-height:42px}
+.pd-nk{display:inline-flex; align-items:flex-start; gap:8px; cursor:pointer; min-height:32px} .pd-nk input{margin-top:3px; width:18px; height:18px; flex:0 0 auto} .pd-nk span{min-width:0; overflow-wrap:anywhere}
+.pd-peq{margin:4px 0 12px; font-size:13px; color:var(--c-mut)}
+.pd-res{margin:4px 0 0; padding:9px 12px; border-radius:10px; font-size:14px}
+.pd-res.ok{background:var(--success-soft); color:var(--success)} .pd-res.sim{background:var(--warning-soft); color:var(--warning-tx)} .pd-res.mal{background:var(--danger-soft); color:var(--danger)}
+.pd-comp{margin:6px 0 4px; padding:14px; border:2px solid var(--gold); border-radius:14px; background:var(--panel); display:flex; flex-direction:column; gap:10px}
+.pd-comp label{display:flex; flex-direction:column; gap:4px; font:700 11px/1.2 var(--font-text,system-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut)}
+.pd-comp input,.pd-comp textarea{font:400 15px/1.45 var(--font-text,system-ui); letter-spacing:0; text-transform:none; color:var(--c-ink); background:var(--field,var(--panel)); border:1px solid var(--c-line); border-radius:10px; padding:10px 12px; min-height:44px; width:100%; box-sizing:border-box}
+.pd-comp textarea{min-height:200px}
+.pd-cb,.pd-b{display:flex; flex-wrap:wrap; gap:8px}
+.pd-man{margin:18px 0 10px; background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:6px 16px 14px}
+.pd-man summary{cursor:pointer; font:600 17px/1.3 var(--font-display,Georgia,serif); min-height:44px; display:flex; align-items:center; gap:10px}
+.pd-man summary small{font:500 13px/1.3 var(--font-text,system-ui); color:var(--c-mut)}
+.pd-pl{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px 12px; padding:9px 0; border-bottom:1px solid var(--c-line)}
+.pd-pl>div:first-child{min-width:0; display:flex; flex-direction:column; gap:1px; flex:1 1 240px} .pd-pl small{color:var(--c-mut); font-size:13px; overflow-wrap:anywhere}
+.pd-edit{padding:10px 0; display:flex; flex-direction:column; gap:10px}
+@media (max-width:760px){
+  .pd-l,.pd-l.pd-lr{grid-template-columns:minmax(0,1fr) auto}
+  .pd-l .pd-n{grid-column:1/-1}
+  .pd-l .pd-s,.pd-l .pd-r,.pd-l .pd-e{grid-column:1/-1}
+  .pd-l.pd-lr .pd-r{justify-content:flex-start}
+  .pd-cfg{grid-template-columns:1fr}
+  .pd-cab .pd-rcab{display:none}
+}
 /*V3-END*/
 </style>
 
@@ -3891,7 +3951,7 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.66</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.67</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5641,6 +5701,7 @@ function mergeStore(){
   store.inventario=mergeInv(store.inventario,disk.inventario);
   store.invExtra=mergeInvExtra(store.invExtra,disk.invExtra);
   store.camareros=mergeCamareros(store.camareros,disk.camareros);
+  store.compras=mergeCompras(store.compras,disk.compras);
   store.prevision=mergePrevision(store.prevision,disk.prevision);
   store.params=mergeParams(store.params,disk.params);
   if(!current()) store.active=out.length?out[0].id:null;
@@ -5706,6 +5767,20 @@ function mergeCamareros(mio,otro){
 }
 /* la previsión de banquetes: fila a fila, gana la más reciente (y borrar se
    marca borrado:true para que llegue a los demás); los años añadidos se suman */
+/* los proveedores de compra y a quién se asigna cada artículo (del negocio): por id y «updated», como la agenda de camareros;
+   quitar es «borrado:true» y desasignar es «prov:""», para que llegue a los demás */
+function mergeCompras(mio,otro){
+  var vacio={provs:[],asig:[]};
+  if(!otro) return mio||vacio;
+  mio=mio||vacio;
+  function unir(a,b){
+    var por={};
+    (b||[]).forEach(function(x){ if(x&&x.id) por[x.id]=x; });
+    (a||[]).forEach(function(x){ if(!x||!x.id) return; var y=por[x.id]; if(!y||(x.updated||0)>=(y.updated||0)) por[x.id]=x; });
+    return Object.keys(por).map(function(k){ return por[k]; });
+  }
+  return {provs:unir(mio.provs,otro.provs),asig:unir(mio.asig,otro.asig)};
+}
 function mergePrevision(mio,otro){
   if(!otro) return mio||{filas:[]};
   mio=mio||{filas:[]};
@@ -5977,7 +6052,7 @@ function hydrateFromServer(){
       if(!remote) return;
       var before=sigEventos();
       var invBefore=JSON.stringify([store.inventario||{},store.invExtra||{}]);
-      var camBefore=JSON.stringify(store.camareros||{});
+      var camBefore=JSON.stringify(store.camareros||{}), cmpBefore0=JSON.stringify(store.compras||{});
       var parBefore=JSON.stringify(store.params||{});
       /* El inventario y la agenda de camareros son del negocio, no de un evento:
          se combinan siempre, aunque el servidor todavía no tenga ningún evento.
@@ -5986,6 +6061,7 @@ function hydrateFromServer(){
       store.inventario=mergeInv(store.inventario,remote.inventario);
       store.invExtra=mergeInvExtra(store.invExtra,remote.invExtra);
       store.camareros=mergeCamareros(store.camareros,remote.camareros);
+      store.compras=mergeCompras(store.compras,remote.compras);
       var prvBefore=JSON.stringify(store.prevision||{});
       store.prevision=mergePrevision(store.prevision,remote.prevision);
       if(JSON.stringify(store.prevision||{})!==prvBefore){ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){} try{ if(document.body.classList.contains("mode-plan")&&planView==="prev") renderPlanV("prev"); }catch(_){} }
@@ -6008,8 +6084,8 @@ function hydrateFromServer(){
       try{ cargarListasNovios(true); }catch(_){}
       var after=sigEventos();
       var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
-      var camCambia=JSON.stringify(store.camareros||{})!==camBefore;
-      if(after!==before||invCambia||camCambia){
+      var camCambia=JSON.stringify(store.camareros||{})!==camBefore, cmpCambia=JSON.stringify(store.compras||{})!==cmpBefore0;
+      if(after!==before||invCambia||camCambia||cmpCambia){
         try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){}
       }
       if(after!==before){
@@ -6032,6 +6108,7 @@ function hydrateFromServer(){
          alguno para este evento (esto último ya viene en "after", pero el
          cambio de agenda en sí no toca ningún evento) */
       if((camCambia||after!==before)&&window.camRefrescar) window.camRefrescar();
+      if(cmpCambia&&after===before){ try{ if(document.body.classList.contains("mode-plan")&&planView==="pedidos") renderPlanV("pedidos"); }catch(_){} }
     })
     .catch(function(err){ /* sin conexión con el servidor: se sigue trabajando en local */ try{ if(window.console&&err&&!/Failed to fetch|NetworkError|Load failed/i.test(String(err))) console.warn("sincronización:",err); }catch(_){} });
 }
@@ -9015,6 +9092,7 @@ var SECCIONES=[
   {k:"m-sel",    g:"Menú del evento", t:"Elegir platos"},
   {k:"m-prod",   g:"Menú del evento", t:"Producción"},
   {k:"m-compra", g:"Menú del evento", t:"Lista de la compra"},
+  {k:"pedidos",  g:"Menú del evento", t:"Pedidos a proveedores"},
   {k:"m-aler",   g:"Menú del evento", t:"Alergias y sustituciones"},
   {k:"m-serv",   g:"Menú del evento", t:"Check list de servicio"},
   {k:"m-bebida", g:"Menú del evento", t:"Bebida del evento"},
@@ -9245,7 +9323,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.66</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.67</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10669,7 +10747,7 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,pedidos:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
   "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
@@ -10822,6 +10900,8 @@ function eventoAlertas(e){
   var _cfg=agendaCfg();
   if(+_cfg.senal>0&&pt.pagado<+_cfg.senal-0.5&&(dr==null||dr>=0)) a.push({t:"Señal de "+fmtEur(+_cfg.senal)+" sin cobrar (se cobra al reservar).",k:"presup",sev:"urgent"});
   try{ var _cs=conEstado(e); if(_cs.pub&&!_cs.ok&&_cs.ts){ var _dd=Math.floor((Date.now()-_cs.ts)/864e5); if(_dd>=7) a.push({t:(_cs.tipo==="propuesta"?"La propuesta":"El contrato")+" lleva "+_dd+" días publicado y el cliente no lo ha aceptado.",k:"presup",sev:"warn"}); } }catch(_){}
+  try{ var _pe=window.LM_pedidosEstado&&window.LM_pedidosEstado(e); if(_pe&&_pe.pendRecib.length) a.push({t:"Pedido sin recibir (la entrega prevista ya pasó): "+_pe.pendRecib.join(", ")+".",k:"pedidos",sev:"warn"});
+    if(_pe&&_pe.n>_pe.enviados&&dr!=null&&dr>=0&&dr<=5) a.push({t:"Hay "+(_pe.n-_pe.enviados)+(_pe.n-_pe.enviados===1?" pedido preparado":" pedidos preparados")+" sin enviar al proveedor.",k:"pedidos",sev:"urgent"}); }catch(_){}
   /* agenda automática: lo vencido, urgente; lo de las próximas 2 semanas, aviso */
   if(dr==null||dr>=0) hitosAuto(e).forEach(function(h){
     if(h.done) return;
@@ -10896,6 +10976,7 @@ function renderPlanV(k){
   if(k==="p-correo"){ if(window.LM_renderCorreoCfg) window.LM_renderCorreoCfg(host); return; }
   if(k==="p-contrato"){ if(window.LM_renderContratoCfg) window.LM_renderContratoCfg(host); return; }
   if(k==="avisos"){ if(window.LM_renderAvisos) window.LM_renderAvisos(host); return; }
+  if(k==="pedidos"){ if(window.LM_renderPedidos) window.LM_renderPedidos(host); return; }
   if(k==="portal"){ if(window.LM_renderPortal) window.LM_renderPortal(host); return; }
   if(String(k).indexOf("p-")===0){
     if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
@@ -11451,7 +11532,7 @@ function conBloques(texto){
     if((m=/^#\s+(.*)$/.exec(t))) out.push({t:"h1",x:m[1]});
     else if((m=/^##\s+(.*)$/.exec(t))) out.push({t:"h2",x:m[1]});
     else if((m=/^-\s+(.*)$/.exec(t))) out.push({t:"li",x:m[1]});
-    else if(t.charAt(0)==="|"){ var tot=t.charAt(1)==="!", c=t.replace(/^\|!?\s*/,"").replace(/\s*\|\s*$/,"").split(/\s*\|\s*/); out.push({t:"row",bold:tot,c:[c[0]||"",c.slice(1).join(" ")]}); }
+    else if(t.charAt(0)==="|"){ var tot=t.charAt(1)==="!", c=t.replace(/^\|!?\s*/,"").replace(/\s*\|\s*$/,"").split(/\s*\|\s*/); out.push({t:"row",bold:tot,c:c.length>2?[c[0]||"",c[1]||"",c.slice(2).join(" ")]:[c[0]||"",c.slice(1).join(" "),""]}); }
     else out.push({t:"p",x:t});
   });
   return out;
@@ -11461,7 +11542,7 @@ function conHtml(texto){
   function cierra(){ if(ul){ out.push("</ul>"); ul=false; } if(tb){ out.push("</tbody></table></div>"); tb=false; } }
   conBloques(texto).forEach(function(b){
     if(b.t==="li"){ if(tb){ cierra(); } if(!ul){ out.push('<ul class="cn-ul">'); ul=true; } out.push("<li>"+escH(b.x)+"</li>"); return; }
-    if(b.t==="row"){ if(ul){ cierra(); } if(!tb){ out.push('<div class="cn-tw"><table class="cn-tab"><tbody>'); tb=true; } out.push('<tr'+(b.bold?' class="tot"':"")+"><td>"+escH(b.c[0])+'</td><td class="r">'+escH(b.c[1])+"</td></tr>"); return; }
+    if(b.t==="row"){ if(ul){ cierra(); } if(!tb){ out.push('<div class="cn-tw"><table class="cn-tab"><tbody>'); tb=true; } out.push('<tr'+(b.bold?' class="tot"':"")+"><td>"+escH(b.c[0])+'</td><td class="r">'+escH(b.c[1])+"</td>"+(b.c[2]?'<td class="r">'+escH(b.c[2])+"</td>":"")+"</tr>"); return; }
     cierra();
     if(b.t==="h1") out.push('<h2 class="cn-t">'+escH(b.x)+"</h2>"); else if(b.t==="h2") out.push('<h3 class="cn-s">'+escH(b.x)+"</h3>"); else out.push('<p class="cn-p">'+escH(b.x)+"</p>");
   });
@@ -11483,10 +11564,12 @@ function conPages(texto,pw,ph,firma,meta){
     else if(b.t==="h2"){ sitio(58); y+=12; cur.push(TX(M,y,b.x.toUpperCase(),{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16; }
     else if(b.t==="p"){ partir(b.x,W,"ser",10.5,0).forEach(function(l){ sitio(LH); cur.push(TX(M,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=LH; }); y+=5; }
     else if(b.t==="li"){ partir(b.x,W-16,"ser",10.5,0).forEach(function(l,i){ sitio(LH); if(i===0) cur.push(TX(M+3,y,"·",{size:13,fo:"sansb",a:"start",c:GOLD})); cur.push(TX(M+16,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=LH; }); y+=2; }
-    else if(b.t==="row"){ var amt=b.c[1]||"", fo=b.bold?"sansb":"ser"; partir(b.c[0]||"",W-(amt?120:8),fo,10.5,0).forEach(function(l,i){ sitio(LH+4); cur.push(TX(M+4,y,l,{size:10.5,fo:fo,a:"start",c:INK})); if(i===0&&amt) cur.push(TX(M+W-4,y,amt,{size:10.5,fo:b.bold?"sansb":"sans",a:"end",c:INK})); y+=LH; });
+    else if(b.t==="row"){ var amt=b.c[1]||"", ter=b.c[2]||"", fo=b.bold?"sansb":"ser"; partir(b.c[0]||"",W-(ter?220:amt?120:8),fo,10.5,0).forEach(function(l,i){ sitio(LH+4); cur.push(TX(M+4,y,l,{size:10.5,fo:fo,a:"start",c:INK}));
+        if(i===0&&amt) cur.push(TX(ter?M+W-120:M+W-4,y,amt,{size:10.5,fo:b.bold?"sansb":"sans",a:"end",c:INK})); if(i===0&&ter) cur.push(TX(M+W-4,y,ter,{size:10.5,fo:"sans",a:"end",c:SOFT})); y+=LH; });
       cur.push(LN(M,y-LH+5,M+W,y-LH+5,b.bold?"#C9B182":"#EAE2D0",b.bold?0.8:0.5)); y+=3; }
   });
   /* bloque de firma */
+  if(meta.sinFirma){ pages.push(cur); var tit0=meta.titulo||""; pages.forEach(function(p,i){ p.push(TX(pw/2,ph-30,(meta.marca||"Les Moles Events")+(tit0?" · "+tit0:"")+" · página "+(i+1)+" de "+pages.length,{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1})); }); return pages; }
   sitio(150); y+=16; cur.push(TX(M,y,"FIRMAS",{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16;
   var bw=(W-18)/2, bh=96, x2=M+bw+18;
   cur.push(R(M,y,bw,bh,4,"#FBF8F0","#E3D8BF",0.8));
@@ -12464,13 +12547,44 @@ function renderCompra(){
   var rows=keys.map(function(k){
     return '<tr><td><span class="chk">☐</span>'+esc(agg[k].name)+'</td><td class="q">'+fmtAmount(agg[k].total,agg[k].unit)+'</td></tr>';
   }).join("");
-  var html=printBar("lista de compra")+'<div class="sheet"><div class="frame">'+docHead("Lista de compra",t)+
+  var html=printBar("lista de compra")+'<p class="mnu-note ped-ir"><button type="button" class="btn sm gold" data-ir="pedidos">Hacer los pedidos por proveedor →</button></p><div class="sheet"><div class="frame">'+docHead("Lista de compra",t)+
     (rows?('<table class="mnu-ing-table"><tbody>'+rows+'</tbody></table>'):'<p class="mnu-note">Sin ingredientes con cantidad conocida.</p>')+
     (pend.length?('<p class="mnu-note" style="margin-top:14px">Falta la cantidad de '+pend.slice(0,6).map(esc).join(", ")+(pend.length>6?' y '+(pend.length-6)+' más':'')+'. No están sumados aquí: complétalos en Parámetros → Platos y escandallo.</p>'):'')+
     '<div class="foot">Les Moles Events</div></div></div>';
   $("mnu-body").innerHTML=html;
   wirePrintBtn();
+  var irPed=$("mnu-body").querySelector("[data-ir=pedidos]"); if(irPed) irPed.addEventListener("click",function(){ if(window.irASeccion) window.irASeccion("pedidos"); });
 }
+
+/* ══ lo que hay que COMPRAR en un evento, para «Pedidos a proveedores» ═══════════════════════
+   Las mismas cuentas que la lista de la compra (raciones de cada plato × cantidad del escandallo), más las bebidas del evento y el
+   material que falta según el Montaje (inventario). Cada línea lleva su clave (k, única por artículo y unidad) y la clave de asignación
+   a un proveedor (ak, por nombre del artículo: «Puré de calabacín» y «Puré calabacin» son el mismo). */
+function compraNorm(n){ return String(n||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s*\/\s*/g,"/").replace(/\b(de|del|la|el|los|las)\b/g," ").replace(/\s+/g," ").trim(); }
+function compraLineas(){
+  var out={lineas:[],pend:[]}, sel=selectedDishes();
+  if(sel.length){
+    var t=evTotals(); t.esc=prodCtx(); var agg={};
+    sel.forEach(function(d){
+      var rac=racionesDe(d,t);
+      d.ingredients.forEach(function(ing){
+        if(ing.qty==null){ out.pend.push(ing.name+" (en «"+d.name+"»)"); return; }
+        var k=compraNorm(ing.name)+"|"+(ing.unit||"");
+        if(!agg[k]) agg[k]={name:ing.name,total:0,unit:ing.unit};
+        agg[k].total+=ing.qty*rac;
+      });
+    });
+    Object.keys(agg).sort(function(a,b){ return agg[a].name.localeCompare(agg[b].name,"es")||a.localeCompare(b); }).forEach(function(k){
+      var a=agg[k]; out.lineas.push({k:"ing:"+k,ak:"ing:"+compraNorm(a.name),n:a.name,q:a.total,u:a.unit,t:"ing"}); });
+  }
+  try{ bebidaLineas().forEach(function(l){
+    var q=+l.q||0; if(!(q>0)) return; var nom=l.prod||l.label;
+    out.lineas.push({k:"beb:"+l.key,ak:"beb:"+compraNorm(nom),n:(l.prod&&l.prod!==l.label)?l.label+" · "+l.prod:l.label,q:q,u:udLarga(l.ud),t:"beb",cat:l.cat?l.cat.key:"",marca:l.prod||""}); }); }catch(_){}
+  try{ var M=BR.montaje; if(M&&M.hojaEv){ var P=M.params(), INV=M.inventario();
+    if(INV&&INV.hay){ var H=M.hojaEv(ev(),P,INV); (H.mat||[]).forEach(function(x){ if(x.nec>x.hay) out.lineas.push({k:"mat:"+compraNorm(x.t+" "+(x.sub||"")),ak:"mat:"+compraNorm(x.t),n:x.t+(x.sub?" ("+x.sub+")":""),q:x.nec-x.hay,u:"ud",t:"mat"}); }); } } }catch(_){}
+  return out;
+}
+BR.compra={lineas:function(e){ return BR.conEvento(e,function(){ return compraLineas(); }); }};
 
 /* ══ mobiliario y utensilios para MONTAR cada estación ═══════════════
    Es cosa distinta de la comida que se sirve en ella. La comida se escala
@@ -15489,6 +15603,7 @@ BR.rent={
   calcDe:function(e){ return BR.conEvento(e,rentCalc); },
   params:rentParams, def:RENT_DEF, precios:rentPrecios, clave:rentClave, udArt:rentUdArt, num:rentNum,
   ingredientes:rentIngredientes, precioIng:function(n){ var P=rentPrecios(); return rentPrecioIng(n,P,rentArtMap(P)); },
+  costeLinea:function(n,q,u){ var P=rentPrecios(); return rentCosteLinea({qty:q,unit:u},rentPrecioIng(n,P,rentArtMap(P))); },
   udNombre:rentUdNombre, artKey:rentArtKey,
   /* sugerencia para un ingrediente: solo si va en gramos o ml y el artículo va
      por kg o litro (una «ud» del Maître —un manojo, una caja— no es la «ud»
@@ -16914,7 +17029,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     {k:"cocina",  t:"Cocina",   def:"platos del menú, platos sustitutivos y producción",
      vistas:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc"]},
     {k:"compras", t:"Compras",  def:"lista de la compra, proveedores y pedidos",
-     vistas:["resumen","m-compra","m-prod","prov","presup","inv"]},
+     vistas:["resumen","m-compra","pedidos","m-prod","prov","presup","inv"]},
     {k:"servicio",t:"Servicio", def:"sala, camareros, montaje y escaleta",
      vistas:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje"]}
   ];
@@ -16922,7 +17037,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var DEP_T={eventos:"Eventos",cocina:"Cocina",compras:"Compras",servicio:"Servicio",todos:"Todos",admin:"Administración"};
   /* a qué departamento pertenece cada sección (para repartir las comprobaciones) */
   var SEC_DEPT={crm:"eventos",timeline:"eventos",tareas:"eventos",plan:"eventos",list:"eventos",card:"eventos",presup:"eventos","m-bebida":"eventos","m-card":"eventos",
-    "m-sel":"cocina","m-prod":"cocina","m-aler":"cocina","m-compra":"compras",prov:"compras",inv:"compras",
+    "m-sel":"cocina","m-prod":"cocina","m-aler":"cocina","m-compra":"compras",pedidos:"compras",prov:"compras",inv:"compras",
     "m-serv":"servicio","m-esc":"servicio",cam:"servicio","cam-rep":"servicio",montaje:"servicio"};
 
   /* las cifras compartidas: quién las define y quién las necesita */
@@ -17312,6 +17427,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return '<table class="pr-reg"><thead><tr><th>Tratamiento</th><th>Finalidad</th><th>Personas y datos</th><th>Base jurídica</th><th>Plazo</th><th>Destinatarios y medidas</th></tr></thead><tbody>'+
       fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
       fila("Correos y avisos","Avisar a clientes, camareros y equipo (recordatorios, turnos, resumen semanal)","Correo del destinatario y el texto del mensaje","Relación contractual o laboral (art. 6.1.b)","180 días (bandeja de salida); se borra al anonimizar el evento","Administración y eventos")+
+      fila("Proveedores de compra","Pedir los ingredientes, bebidas y material de cada evento","Nombre, teléfono y correo de contacto de cada proveedor","Relación comercial","Administración y compras","Mientras dure la relación comercial"),
       fila("Personal de sala","Gestionar turnos, disponibilidad, avisos y registro de horas","Camareros (nombre, teléfono, disponibilidad, hora de entrada y de salida)","Relación laboral o de servicio (art. 6.1.b) y obligación legal del registro de jornada (art. 6.1.c)","Mientras dure la relación; el registro de jornada, 4 años","Responsables de sala y administración")+
       fila("Usuarios del programa","Control de accesos y seguridad","Equipo (nombre, correo, rol, accesos)","Interés legítimo en la seguridad (art. 6.1.f)","Mientras tenga acceso; el registro de actividad, 400 días","Administración")+
       '</tbody></table><p class="pr-nota">Responsable: '+esc(resp)+'. Plantilla orientativa del registro de actividades de tratamiento (art. 30 RGPD y art. 31 LOPDGDD): revísala con tu asesor antes de darla por buena.</p>';
@@ -18348,6 +18464,303 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function hoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
   window.LM_renderContratoCfg=function(host){ S.host=host; S.vista=null; pinta(); };
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
+   PEDIDOS A PROVEEDORES (Menú del evento → «Pedidos a proveedores»)
+   De la lista de la compra del evento (ingredientes de los platos, bebidas y el material que falta según el inventario)
+   a un PEDIDO POR PROVEEDOR:
+   · cada artículo se asigna una vez a su proveedor (se acuerda para los eventos siguientes: store.compras);
+   · «Preparar pedido» congela las cantidades (redondeadas hacia arriba: kg, g, unidades, botellas…), con su coste estimado
+     según el «Análisis de compras» del Maître; si el evento cambia después, se ve qué ha cambiado y se actualiza el pedido;
+   · se envía por correo (el servidor lo guarda en la bandeja; si no hay servicio de correo queda «simulado»), por WhatsApp o en PDF;
+   · RECEPCIÓN: se apunta lo que llega, línea a línea (completo / faltan / de más), y el pedido pasa a «recibido».
+   Dentro del evento: e.pedidos[proveedor] (el pedido) y e.recepcion[«proveedor~línea»] (lo recibido, por línea, para que dos
+   personas puedan recibir a la vez sin pisarse). Los proveedores y las asignaciones son del negocio: store.compras. ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function backend(){ return !!(window.LM_backend&&window.LM_backend()); }
+  function yo(){ try{ return (window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user())||{}; }catch(_){ return {}; } }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function nombreEv(e){ return String((e&&e.name)||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim()||"Evento"; }
+  function hoyISO(){ var d=new Date(); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
+  function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
+  function fechaLarga(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return "(fecha por confirmar)"; try{ return new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmy(iso); } }
+  function masDias(iso,n){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); d.setUTCDate(d.getUTCDate()+n); return d.getUTCFullYear()+"-"+z(d.getUTCMonth()+1)+"-"+z(d.getUTCDate()); }
+  function fN(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{maximumFractionDigits:2}); }
+  function eur(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
+  function fHora(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function uid(){ return "pv"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function api(path,method,body){
+    return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
+  }
+  var U={host:null,comp:null,ed:null,man:false,msg:{}};
+
+  /* ── proveedores y asignaciones (del negocio, no de un evento) ── */
+  function C(){ var s=BR.store; s.compras=s.compras||{provs:[],asig:[]}; s.compras.provs=s.compras.provs||[]; s.compras.asig=s.compras.asig||[]; return s.compras; }
+  function provs(){ return C().provs.filter(function(p){ return p&&!p.borrado; }).sort(function(a,b){ return String(a.nombre||"").localeCompare(String(b.nombre||""),"es"); }); }
+  function provDe(id){ var p=C().provs.filter(function(x){ return x&&x.id===id&&!x.borrado; })[0]; return p||null; }
+  function asigDe(ak){ var a=C().asig.filter(function(x){ return x&&x.id===ak; })[0]; return a&&a.prov&&provDe(a.prov)?a.prov:""; }
+  function asignar(ak,n,pid){ var c=C(), a=c.asig.filter(function(x){ return x&&x.id===ak; })[0]; if(!a){ a={id:ak}; c.asig.push(a); } a.n=n; a.prov=pid||""; a.updated=Date.now(); }
+  function guardaNegocio(){ try{ BR.save(); }catch(_){} }
+  function guardaEv(e){ e.updated=Date.now(); try{ BR.save(); }catch(_){} }
+
+  /* ── lo que hay que comprar, en unidades de compra (kg, g, unidades…) y con su coste estimado ── */
+  function qn(l){
+    var q=+l.q||0, u=l.u;
+    if(l.t==="ing"){
+      if(u==="gr"){ if(q>=1000) return {q:Math.ceil(q/10-1e-9)/100,u:"kg"}; return {q:Math.ceil(q-1e-9),u:"g"}; }
+      if(u==="uds") return {q:Math.ceil(q-1e-9),u:"ud"};
+      return {q:Math.ceil(q*100-1e-9)/100,u:u||""};
+    }
+    return {q:Math.ceil(q-1e-9),u:u||"ud"};
+  }
+  function coste(l){
+    try{
+      if(l.t==="ing"&&BR.rent&&BR.rent.costeLinea){ var c=BR.rent.costeLinea(l.n,l.q,l.u); return c==null?null:c; }
+      if(l.t==="beb"&&BR.rent&&BR.rent.precioBeb&&l.cat){ var p=BR.rent.precioBeb(l.cat,l.marca||""); return p&&p.pu!=null?p.pu*(+l.q||0):null; }
+    }catch(_){}
+    return null;
+  }
+  function grupos(e){
+    var R={lineas:[],pend:[]}; try{ R=BR.compra.lineas(e)||R; }catch(_){}
+    var por={}, sin=[];
+    R.lineas.forEach(function(l){ var n=qn(l); l.nq=n.q; l.nu=n.u; l.c=coste(l); var p=asigDe(l.ak); if(p){ (por[p]=por[p]||[]).push(l); } else sin.push(l); });
+    return {por:por,sin:sin,pend:R.pend||[],todas:R.lineas};
+  }
+  function fq(q,u){ return fN(q)+(u?" "+u:""); }
+
+  /* ── el pedido de un proveedor y su recepción ── */
+  function pedido(e,pid){ var P=(e.pedidos||{})[pid]; return P&&Array.isArray(P.lineas)?P:null; }
+  function recDe(e,pid,k){ var r=(e.recepcion||{})[pid+"~"+k]; return r&&r.q!=null&&r.q!==""&&isFinite(+r.q)?+r.q:null; }
+  function estLinea(l,q){
+    if(q==null) return {c:"pend",t:"por llegar"};
+    var d=Math.round((q-l.q)*100)/100;
+    if(Math.abs(d)<0.005) return {c:"ok",t:"✓ completo"};
+    return d<0?{c:"falta",t:"faltan "+fq(-d,l.u)}:{c:"mas",t:"de más: +"+fq(d,l.u)};
+  }
+  function resumenRec(e,pid){
+    var P=pedido(e,pid), o={n:0,ok:0,fal:0,sin:0}; if(!P) return o;
+    P.lineas.forEach(function(l){ o.n++; var q=recDe(e,pid,l.k); if(q==null) o.sin++; else if(q-l.q>-0.005) o.ok++; else o.fal++; });
+    return o;
+  }
+  function estadoPed(e,pid){
+    var P=pedido(e,pid); if(!P) return {c:"",t:"Sin pedir"};
+    var r=resumenRec(e,pid);
+    if(r.n&&r.ok===r.n) return {c:"ok",t:"Recibido completo"};
+    if(r.ok+r.fal>0) return {c:"aviso",t:"Recibido en parte · "+(r.fal+r.sin)+(r.fal+r.sin===1?" línea pendiente":" líneas pendientes")};
+    if(P.env&&P.env.ver===P.ver) return {c:"env",t:"Enviado el "+fHora(P.env.ts).slice(0,5)+(P.env.via?" · "+P.env.via:"")};
+    if(P.env) return {c:"aviso",t:"Cambiado después de enviarlo (la v"+P.env.ver+" ya está en su poder)"};
+    return {c:"borr",t:"Preparado · sin enviar"};
+  }
+  function entregaDef(e){ var f=(e.ficha||{}).fecha; var d=f?masDias(f,-1):masDias(hoyISO(),2); return d<hoyISO()?hoyISO():d; }
+  function diff(e,pid,live){
+    var P=pedido(e,pid); if(!P) return [];
+    var a={}, b={}, o=[];
+    P.lineas.forEach(function(l){ a[l.k]=l; }); (live||[]).forEach(function(l){ b[l.k]=l; });
+    Object.keys(b).forEach(function(k){ if(!a[k]) o.push(b[k].n+": nuevo, "+fq(b[k].nq,b[k].nu)); else if(Math.abs(a[k].q-b[k].nq)>0.004||a[k].u!==b[k].nu) o.push(b[k].n+": "+fq(a[k].q,a[k].u)+" → "+fq(b[k].nq,b[k].nu)); });
+    Object.keys(a).forEach(function(k){ if(!b[k]) o.push(a[k].n+": ya no hace falta ("+fq(a[k].q,a[k].u)+")"); });
+    return o;
+  }
+  function preparar(e,pid,L){
+    var P=(e.pedidos=e.pedidos||{})[pid]; if(!P){ P=e.pedidos[pid]={}; }
+    P.ver=(+P.ver||0)+1; P.ts=Date.now(); P.por=yo().name||""; if(!P.entrega) P.entrega=entregaDef(e);
+    P.lineas=L.map(function(l){ return {k:l.k,n:l.n,q:l.nq,u:l.nu,c:l.c==null?null:Math.round(l.c*100)/100}; });
+    guardaEv(e);
+  }
+  function textoPedido(e,pid){
+    var P=pedido(e,pid), pr=provDe(pid)||{}, F=e.ficha||{}, nom=String(pr.contacto||pr.nombre||"").split(" ")[0]||"buenas";
+    var L=["Hola "+nom+",","","Os hacemos el pedido para "+nombreEv(e)+(F.fecha?" ("+fechaLarga(F.fecha)+")":"")+".","Entrega: "+(P.entrega?fechaLarga(P.entrega):"(por confirmar)")+" en Les Moles, Ulldecona.",""];
+    P.lineas.forEach(function(l){ L.push("- "+l.n+": "+fq(l.q,l.u)); });
+    if(P.notas&&String(P.notas).trim()) L.push("",String(P.notas).trim());
+    L.push("","Por favor, confirmadnos que lo recibís y a qué hora llegará.","","Gracias,",(yo().name||"")+" · Les Moles");
+    return L.join("\n");
+  }
+  function telWA(t){ var d=String(t||"").replace(/[^\d+]/g,""); if(!d) return ""; if(d.charAt(0)==="+") d=d.slice(1); else if(d.indexOf("00")===0) d=d.slice(2); else if(d.length===9) d="34"+d; return /^\d{9,15}$/.test(d)?d:""; }
+  function waLink(tel,txt){ var n=telWA(tel); return n?"https://wa.me/"+n+"?text="+encodeURIComponent(txt):""; }
+  function docPDF(e,pid){
+    var P=pedido(e,pid), pr=provDe(pid)||{}, K=window.LM_CONTRATO; if(!P||!K||!K.pdfTexto) return;
+    var T=["# Pedido a "+pr.nombre,nombreEv(e)+" · "+fechaLarga((e.ficha||{}).fecha),"","## Entrega","- Fecha: "+(P.entrega?fechaLarga(P.entrega):"por confirmar")+" · Les Moles, Ulldecona"];
+    if(P.notas&&String(P.notas).trim()) T.push("- Notas: "+String(P.notas).trim().replace(/\s+/g," "));
+    T.push("","## Artículos","| Artículo | Cantidad | Recibido |");
+    P.lineas.forEach(function(l){ T.push("| "+String(l.n).replace(/\|/g,"/")+" | "+fq(l.q,l.u)+" | ______ |"); });
+    var tot=0, sin=0; P.lineas.forEach(function(l){ if(l.c!=null) tot+=l.c; else sin++; });
+    if(tot>0) T.push("|! Coste estimado (según el Análisis de compras) | "+eur(tot)+" | |");
+    K.pdfTexto(T.join("\n"),null,{marca:"Les Moles Events",titulo:"Pedido a "+pr.nombre,ver:"v"+P.ver,sinFirma:true,fecha:hoyISO()},("pedido_"+String(pr.nombre||"proveedor")+"_"+nombreEv(e)).replace(/\s+/g,"_"));
+  }
+
+  /* ── pantalla ── */
+  function chip(c,t,pid){ return '<span class="pd-chip '+c+'" data-pd-chip="'+esc(pid||"")+'">'+esc(t)+'</span>'; }
+  function lineaHTML(l,opt,chk){
+    return '<div class="pd-l"><span class="pd-n">'+(chk?'<label class="pd-nk"><input type="checkbox" data-pd-k="'+esc(l.ak)+'"> <span>'+esc(l.n)+'</span></label>':esc(l.n))+'</span><span class="pd-q">'+esc(fq(l.nq,l.nu))+'</span><span class="pd-c">'+(l.c!=null?"≈ "+esc(eur(l.c)):'<small>sin precio</small>')+'</span>'+(opt||"")+'</div>';
+  }
+  function selProv(ak,n,val){
+    return '<select class="pd-as" data-pd-as="'+esc(ak)+'" data-n="'+esc(n)+'" aria-label="Proveedor de '+esc(n)+'"><option value="">Elegir proveedor…</option>'+provs().map(function(p){ return '<option value="'+esc(p.id)+'"'+(p.id===val?" selected":"")+'>'+esc(p.nombre)+'</option>'; }).join("")+'<option value="__nuevo">+ Proveedor nuevo…</option></select>';
+  }
+  function cardProv(e,pid,L){
+    var pr=provDe(pid), P=pedido(e,pid), est=estadoPed(e,pid), df=P?diff(e,pid,L):[], tot=0, sinP=0, h;
+    (P?P.lineas:L).forEach(function(l){ var c=P?l.c:l.c; if(c!=null) tot+=c; else sinP++; });
+    h='<section class="pd-card" data-pd-card="'+esc(pid)+'"><header class="pd-ch"><div class="pd-pn"><h2>'+esc(pr.nombre)+'</h2><small>'+esc([pr.contacto,pr.tel,pr.email].filter(Boolean).join(" · ")||"sin datos de contacto")+'</small></div>'+chip(est.c,est.t,pid)+'</header>';
+    if(df.length) h+='<div class="pd-aviso"><b>El evento ha cambiado desde que preparaste el pedido:</b><ul>'+df.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul><button type="button" class="btn sm gold" data-pd="actualizar" data-p="'+esc(pid)+'">Actualizar el pedido'+(P.env?' (hay que avisar al proveedor)':'')+'</button></div>';
+    if(P){
+      h+='<div class="pd-cab"><span>Pedido v'+P.ver+' · '+esc(fHora(P.ts))+(P.por?' · '+esc(P.por):'')+'</span><span class="pd-rcab">Recibido</span></div>';
+      h+=P.lineas.map(function(l){ var q=recDe(e,pid,l.k), es=estLinea(l,q), key=pid+"~"+l.k;
+        return '<div class="pd-l pd-lr" data-pd-line="'+esc(key)+'"><span class="pd-n">'+esc(l.n)+'</span><span class="pd-q">'+esc(fq(l.q,l.u))+'</span><span class="pd-c">'+(l.c!=null?'≈ '+esc(eur(l.c)):'<small>sin precio</small>')+'</span>'+
+          '<span class="pd-r"><input type="number" step="any" min="0" inputmode="decimal" data-pd-rec="'+esc(key)+'" data-q="'+l.q+'" data-u="'+esc(l.u)+'" value="'+(q==null?"":esc(q))+'" aria-label="Recibido de '+esc(l.n)+'" placeholder="—"><em>'+esc(l.u)+'</em></span><span class="pd-e '+es.c+'" data-pd-le="'+esc(key)+'">'+esc(es.t)+'</span></div>'; }).join("");
+    } else {
+      h+=L.map(function(l){ return lineaHTML(l); }).join("");
+    }
+    h+='<div class="pd-tot">'+(tot>0?'Coste estimado <b>'+esc(eur(tot))+'</b>'+(sinP?' <small>(+ '+sinP+(sinP===1?' línea sin precio':' líneas sin precio')+')</small>':''):'<small>Sin precios del «Análisis de compras» para estas líneas.</small>')+'</div>';
+    if(P){
+      h+='<div class="pd-cfg"><label class="fld"><span class="lbl">Entrega</span><input type="date" data-pd-f="entrega" data-p="'+esc(pid)+'" value="'+esc(P.entrega||"")+'"></label>'+
+        '<label class="fld pd-nota"><span class="lbl">Notas para el proveedor</span><input type="text" maxlength="300" data-pd-f="notas" data-p="'+esc(pid)+'" value="'+esc(P.notas||"")+'" placeholder="Ej.: entregar por la puerta de atrás antes de las 9:00"></label></div>';
+    }
+    var tel=pr.tel, mail=pr.email, txt=P?textoPedido(e,pid):"", wa=P?waLink(tel,txt):"";
+    h+='<div class="pd-acc">';
+    if(!P) h+='<button type="button" class="btn gold sm" data-pd="preparar" data-p="'+esc(pid)+'">Preparar el pedido</button>';
+    else {
+      h+='<button type="button" class="btn sm" data-pd="correo" data-p="'+esc(pid)+'"'+((mail&&backend())?'':' disabled title="'+(mail?'Hace falta el servidor':'Falta el correo del proveedor')+'"')+'>Correo</button>'+
+        (wa?'<a class="btn sm pd-wa" href="'+esc(wa)+'" target="_blank" rel="noopener">WhatsApp</a>':'<button type="button" class="btn sm" disabled title="Falta el teléfono del proveedor">WhatsApp</button>')+
+        '<button type="button" class="btn sm" data-pd="pdf" data-p="'+esc(pid)+'">PDF</button>'+
+        (!(P.env&&P.env.ver===P.ver)?'<button type="button" class="btn sm" data-pd="enviado" data-p="'+esc(pid)+'">Ya lo he enviado (WhatsApp o teléfono)</button>':'')+
+        '<button type="button" class="btn sm" data-pd="todo" data-p="'+esc(pid)+'">Todo ha llegado</button>';
+    }
+    h+='</div>';
+    if(U.comp&&U.comp.pid===pid) h+=compHTML();
+    if(U.msg[pid]) h+='<p class="pd-res '+U.msg[pid].c+'" role="status">'+esc(U.msg[pid].t)+'</p>';
+    return h+'</section>';
+  }
+  function compHTML(){
+    var c=U.comp;
+    return '<div class="pd-comp" role="group" aria-label="Redactar correo"><label>Para<input type="email" data-pd-c="to" value="'+esc(c.to)+'"></label><label>Asunto<input type="text" data-pd-c="subject" value="'+esc(c.subject)+'" maxlength="200"></label>'+
+      '<label>Texto<textarea rows="10" data-pd-c="text" maxlength="8000">'+esc(c.text)+'</textarea></label><div class="pd-cb"><button type="button" class="btn gold" data-pd="enviar"'+(c.enviando?" disabled":"")+'>'+(c.enviando?"Enviando…":"Enviar correo")+'</button><button type="button" class="btn" data-pd="cerrar">Cancelar</button></div></div>';
+  }
+  function proveedoresHTML(abierto){
+    var L=provs(), ed=U.ed;
+    var h='<details class="pd-man"'+(abierto||ed||U.man?" open":"")+'><summary>Proveedores de compra <small>'+L.length+(L.length===1?" proveedor":" proveedores")+'</small></summary>';
+    h+=L.map(function(p){
+      if(ed&&ed.id===p.id) return '<div class="pd-edit" data-pd-ed="'+esc(p.id)+'">'+edFields(ed)+'<div class="pd-cb"><button type="button" class="btn gold sm" data-pd="prov-ok">Guardar</button><button type="button" class="btn sm" data-pd="prov-no">Cancelar</button></div></div>';
+      var n=C().asig.filter(function(a){ return a&&a.prov===p.id; }).length;
+      return '<div class="pd-pl"><div><b>'+esc(p.nombre)+'</b><small>'+esc([p.contacto,p.tel,p.email].filter(Boolean).join(" · ")||"sin datos de contacto")+' · '+n+(n===1?" artículo":" artículos")+'</small></div><div class="pd-b"><button type="button" class="btn sm" data-pd="prov-ed" data-p="'+esc(p.id)+'">Editar</button><button type="button" class="btn sm" data-pd="prov-del" data-p="'+esc(p.id)+'">Quitar</button></div></div>'; }).join("");
+    if(ed&&!ed.id) h+='<div class="pd-edit">'+edFields(ed)+'<div class="pd-cb"><button type="button" class="btn gold sm" data-pd="prov-ok">Guardar</button><button type="button" class="btn sm" data-pd="prov-no">Cancelar</button></div></div>';
+    else if(!ed) h+='<div class="pd-b"><button type="button" class="btn sm" data-pd="prov-new">+ Añadir proveedor</button></div>';
+    return h+'</details>';
+  }
+  function edFields(ed){
+    function f(k,t,ph,ty){ return '<label class="fld"><span class="lbl">'+t+'</span><input type="'+(ty||"text")+'" data-pd-ef="'+k+'" value="'+esc(ed[k]||"")+'" placeholder="'+esc(ph||"")+'" maxlength="120"></label>'; }
+    return '<div class="fldset">'+f("nombre","Nombre del proveedor","Ej.: Frutas Pere")+f("contacto","Persona de contacto","")+f("tel","Teléfono","600 11 22 33","tel")+f("email","Correo","pedidos@proveedor.com","email")+'</div>';
+  }
+  function pinta(){
+    var host=U.host; if(!host) return;
+    var e=evActual(), h='<div class="pv-inner pd-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Menú del evento</div><h1 class="pv-title">Pedidos a proveedores</h1>'+
+      '<p class="pv-guide">Lo que hay que comprar para este evento (ingredientes de los platos, bebidas y el material que falta según el inventario), repartido por proveedor. Asigna cada artículo una vez y se recuerda para los demás eventos. Prepara el pedido, envíalo por correo o WhatsApp y apunta lo que va llegando.</p></div></header>';
+    if(!e){ host.innerHTML=h+'<p class="empty">Abre un evento primero.</p></div>'; return; }
+    var G=grupos(e), pids=Object.keys(G.por), conPed=Object.keys(e.pedidos||{}).filter(function(pid){ return pedido(e,pid)&&provDe(pid); });
+    conPed.forEach(function(pid){ if(pids.indexOf(pid)<0) pids.push(pid); });
+    pids.sort(function(a,b){ return String((provDe(a)||{}).nombre||"").localeCompare(String((provDe(b)||{}).nombre||""),"es"); });
+    var totalL=G.todas.length, tot=0; G.todas.forEach(function(l){ if(l.c!=null) tot+=l.c; });
+    var pedidos=pids.filter(function(p){ return pedido(e,p); }).length, recib=pids.filter(function(p){ var r=resumenRec(e,p); return r.n&&r.ok===r.n; }).length;
+    h+='<div class="pd-res-strip"><div><b>'+totalL+'</b><span>artículos</span></div><div><b>'+G.sin.length+'</b><span>sin proveedor</span></div><div><b>'+pedidos+'/'+pids.length+'</b><span>pedidos preparados</span></div><div><b>'+recib+'</b><span>recibidos completos</span></div><div><b>'+(tot>0?eur(tot):"—")+'</b><span>coste estimado</span></div></div>';
+    h+='<p class="pd-ev"><b>'+esc(nombreEv(e))+'</b>'+((e.ficha||{}).fecha?' · '+esc(fechaLarga(e.ficha.fecha)):'')+'</p>';
+    if(!totalL&&!conPed.length) h+='<div class="pd-vacio">Todavía no hay nada que pedir: elige los platos en «Elegir platos» (y las bebidas) y aquí saldrá lo que hay que comprar.</div>';
+    if(G.sin.length){
+      h+='<section class="pd-card pd-sin"><header class="pd-ch"><div class="pd-pn"><h2>Sin proveedor</h2><small>'+G.sin.length+(G.sin.length===1?' artículo':' artículos')+' por asignar</small></div></header>'+
+        (provs().length?'<div class="pd-masivo"><button type="button" class="btn sm" data-pd="marcar">Marcar todos</button><button type="button" class="btn sm" data-pd="desmarcar">Quitar marcas</button><label>Asignar los marcados (o todos) a <select data-pd-masivo aria-label="Proveedor para los marcados"><option value="">Elegir proveedor…</option>'+provs().map(function(p){ return '<option value="'+esc(p.id)+'">'+esc(p.nombre)+'</option>'; }).join("")+'</select></label><button type="button" class="btn sm gold" data-pd="masivo">Asignar</button></div>':'<p class="pd-peq">Primero añade tus proveedores (abajo, «Proveedores de compra»).</p>')+
+        G.sin.map(function(l){ return lineaHTML(l,'<span class="pd-s">'+selProv(l.ak,l.n,"")+'</span>',true); }).join("")+'</section>';
+    }
+    pids.forEach(function(pid){ if(provDe(pid)) h+=cardProv(e,pid,G.por[pid]||[]); });
+    if(G.pend.length) h+='<p class="pd-peq">Falta la cantidad de '+esc(G.pend.slice(0,6).join(", "))+(G.pend.length>6?' y '+(G.pend.length-6)+' más':'')+'. No están en los pedidos: complétalos en Parámetros → Platos y escandallo.</p>';
+    h+=proveedoresHTML(!provs().length);
+    var y=host.scrollTop; host.innerHTML=h+'</div>'; host.scrollTop=y;
+    var root=host.querySelector(".pd-wrap"); root.addEventListener("click",onClick); root.addEventListener("change",onChange); root.addEventListener("input",onInput);
+    root.addEventListener("toggle",function(ev){ if(ev.target&&ev.target.classList&&ev.target.classList.contains("pd-man")) U.man=ev.target.open; },true);
+  }
+  function guardaProv(){
+    var ed=U.ed; if(!ed) return; var n=String(ed.nombre||"").trim(); if(n.length<2){ toast("Escribe el nombre del proveedor.",true); return; }
+    var c=C(), p=ed.id?c.provs.filter(function(x){ return x.id===ed.id; })[0]:null;
+    if(!p){ p={id:uid()}; c.provs.push(p); }
+    p.nombre=n.slice(0,80); p.contacto=String(ed.contacto||"").trim().slice(0,80); p.tel=String(ed.tel||"").trim().slice(0,40); p.email=String(ed.email||"").trim().slice(0,120); p.updated=Date.now(); delete p.borrado;
+    U.ed=null; guardaNegocio(); toast("Proveedor guardado."); return p.id;
+  }
+  function onInput(ev){
+    var t=ev.target, k=t.getAttribute&&t.getAttribute("data-pd-ef"); if(k&&U.ed){ U.ed[k]=t.value; return; }
+    var c=t.getAttribute&&t.getAttribute("data-pd-c"); if(c&&U.comp){ U.comp[c]=t.value; }
+  }
+  function onChange(ev){
+    var t=ev.target, e=evActual(); if(!e) return;
+    var as=t.getAttribute&&t.getAttribute("data-pd-as");
+    if(as){ var n=t.getAttribute("data-n"), v=t.value;
+      if(v==="__nuevo"){ U.ed={id:"",nombre:"",contacto:"",tel:"",email:"",ak:as,an:n}; pinta(); var d=U.host.querySelector(".pd-man"); if(d){ d.open=true; d.scrollIntoView({block:"center"}); } return; }
+      asignar(as,n,v); guardaNegocio(); pinta(); return; }
+    var rk=t.getAttribute&&t.getAttribute("data-pd-rec");
+    if(rk){ var pid=rk.split("~")[0], lk=rk.slice(pid.length+1), v2=t.value===""?null:+t.value;
+      e.recepcion=e.recepcion||{};
+      if(v2==null||!isFinite(v2)||v2<0){ delete e.recepcion[rk]; } else { e.recepcion[rk]={q:v2,ts:Date.now(),por:yo().name||""}; }
+      guardaEv(e); actualizaRec(e,pid,lk,rk); return; }
+    var f=t.getAttribute&&t.getAttribute("data-pd-f");
+    if(f){ var p=pedido(e,t.getAttribute("data-p")); if(!p) return; p[f]=t.value; guardaEv(e); return; }
+    if(t.getAttribute&&t.getAttribute("data-pd-c")&&U.comp){ U.comp[t.getAttribute("data-pd-c")]=t.value; }
+  }
+  /* al apuntar lo recibido no se repinta todo (se perdería el foco al saltar al siguiente): solo la línea y la etiqueta del proveedor */
+  function actualizaRec(e,pid,lk,rk){
+    var P=pedido(e,pid); if(!P) return; var l=P.lineas.filter(function(x){ return x.k===lk; })[0]; if(!l) return;
+    var es=estLinea(l,recDe(e,pid,lk)), sp=U.host.querySelector('[data-pd-le="'+(window.CSS&&CSS.escape?CSS.escape(rk):rk)+'"]'); if(sp){ sp.className="pd-e "+es.c; sp.textContent=es.t; }
+    var st=estadoPed(e,pid), ch=U.host.querySelector('[data-pd-chip="'+(window.CSS&&CSS.escape?CSS.escape(pid):pid)+'"]'); if(ch){ ch.className="pd-chip "+st.c; ch.textContent=st.t; }
+    var strip=U.host.querySelectorAll(".pd-res-strip b"); if(strip[3]){ var c=0; Object.keys(e.pedidos||{}).forEach(function(p2){ if(!provDe(p2)) return; var r=resumenRec(e,p2); if(r.n&&r.ok===r.n) c++; }); strip[3].textContent=c; }
+  }
+  function onClick(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-pd]"); if(!b) return; var a=b.getAttribute("data-pd"), pid=b.getAttribute("data-p"), e=evActual(); if(!e) return;
+    if(a==="prov-new"){ U.ed={id:"",nombre:"",contacto:"",tel:"",email:""}; pinta(); return; }
+    if(a==="prov-ed"){ var p0=provDe(pid); if(!p0) return; U.ed={id:p0.id,nombre:p0.nombre||"",contacto:p0.contacto||"",tel:p0.tel||"",email:p0.email||""}; pinta(); return; }
+    if(a==="prov-no"){ U.ed=null; pinta(); return; }
+    if(a==="prov-ok"){ var ak=U.ed&&U.ed.ak, an=U.ed&&U.ed.an, nid=guardaProv(); if(!nid) return; if(ak){ asignar(ak,an,nid); guardaNegocio(); } pinta(); return; }
+    if(a==="prov-del"){ var p1=provDe(pid); if(!p1) return; var n=C().asig.filter(function(x){ return x&&x.prov===pid; }).length;
+      if(!window.confirm("¿Quitar a «"+p1.nombre+"»? "+(n?"Sus "+n+" artículos volverán a «Sin proveedor». ":"")+"Los pedidos que ya se prepararon se conservan en cada evento.")) return;
+      p1.borrado=true; p1.updated=Date.now(); C().asig.forEach(function(x){ if(x&&x.prov===pid){ x.prov=""; x.updated=Date.now(); } }); guardaNegocio(); pinta(); return; }
+    if(a==="marcar"||a==="desmarcar"){ [].forEach.call(U.host.querySelectorAll("[data-pd-k]"),function(c){ c.checked=(a==="marcar"); }); return; }
+    if(a==="masivo"){ var sel=U.host.querySelector("[data-pd-masivo]"), v=sel&&sel.value; if(!v){ toast("Elige primero el proveedor."); return; }
+      var G=grupos(e), marc={}, hay=false; [].forEach.call(U.host.querySelectorAll("[data-pd-k]"),function(c){ if(c.checked){ marc[c.getAttribute("data-pd-k")]=1; hay=true; } });
+      var L0=G.sin.filter(function(l){ return !hay||marc[l.ak]; }); L0.forEach(function(l){ asignar(l.ak,l.n,v); }); guardaNegocio(); toast(L0.length+(L0.length===1?" artículo asignado.":" artículos asignados.")); pinta(); return; }
+    if(a==="preparar"||a==="actualizar"){ var G2=grupos(e), L=G2.por[pid]||[]; if(!L.length){ toast("No hay nada que pedir a este proveedor."); return; } preparar(e,pid,L); toast(a==="preparar"?"Pedido preparado.":"Pedido actualizado: la v"+pedido(e,pid).ver+"."); pinta(); return; }
+    if(a==="pdf"){ docPDF(e,pid); return; }
+    if(a==="enviado"){ var P2=pedido(e,pid); if(!P2) return; P2.env={ver:P2.ver,ts:Date.now(),via:"a mano",por:yo().name||""}; guardaEv(e); pinta(); return; }
+    if(a==="todo"){ var P3=pedido(e,pid); if(!P3) return; e.recepcion=e.recepcion||{}; var ts=Date.now(), nom=yo().name||"";
+      P3.lineas.forEach(function(l){ var k=pid+"~"+l.k; if(recDe(e,pid,l.k)==null) e.recepcion[k]={q:l.q,ts:ts,por:nom}; }); guardaEv(e); pinta(); toast("Todo apuntado como recibido."); return; }
+    if(a==="correo"){ var P4=pedido(e,pid), pr=provDe(pid); if(!P4||!pr) return;
+      U.comp={pid:pid,to:pr.email||"",subject:"Pedido para "+nombreEv(e)+" · "+dmy((e.ficha||{}).fecha),text:textoPedido(e,pid)}; U.msg[pid]=null; pinta();
+      var cp=U.host.querySelector(".pd-comp"); if(cp&&cp.scrollIntoView) cp.scrollIntoView({block:"nearest"}); return; }
+    if(a==="cerrar"){ U.comp=null; pinta(); return; }
+    if(a==="enviar"){ var c=U.comp; if(!c||c.enviando) return; var P5=pedido(e,c.pid); if(!P5) return;
+      ["to","subject","text"].forEach(function(k){ var el=U.host.querySelector('[data-pd-c="'+k+'"]'); if(el) c[k]=el.value; });
+      c.enviando=true; pinta();
+      api("/api/correo/enviar","POST",{kind:"proveedor",ev:e.id,to:c.to,subject:c.subject,text:c.text,ref:"ped:"+e.id+":"+c.pid+":v"+P5.ver}).then(function(j){
+        c.enviando=false;
+        if(j._status===200&&j.ok){ P5.env={ver:P5.ver,ts:Date.now(),via:j.estado==="simulado"?"correo (simulado)":"correo",por:yo().name||""}; guardaEv(e);
+          U.msg[c.pid]=j.repetido?{c:"sim",t:"Este pedido ya se envió antes (misma versión)."}:j.estado==="simulado"?{c:"sim",t:"Guardado en la bandeja pero NO enviado: el correo todavía no está activado."}:{c:"ok",t:"Enviado a "+c.to+"."}; U.comp=null; }
+        else U.msg[c.pid]={c:"mal",t:j._status===403?"Tu rol no puede enviar correos.":(j.message||"No se ha podido enviar.")};
+        pinta(); }).catch(function(){ c.enviando=false; U.msg[c.pid]={c:"mal",t:"Sin conexión con el servidor."}; pinta(); });
+      return; }
+  }
+  /* se llama al entrar en la sección y cada vez que llegan cambios de otro equipo: en ese caso no se cierra el correo ni la ficha del proveedor
+     que se estén rellenando, ni se pisa lo que alguien está escribiendo */
+  window.LM_renderPedidos=function(host){
+    var viva=U.host===host&&!!host.querySelector(".pd-wrap");
+    if(viva){ var f=document.activeElement; if(host.contains(f)&&/^(INPUT|SELECT|TEXTAREA)$/.test(f.tagName)) return; if(U.comp||U.ed) return; }
+    else { U.comp=null; U.ed=null; }
+    U.host=host; pinta();
+  };
+  window.LM_pedidosEstado=function(e){
+    var o={n:0,enviados:0,recibidos:0,pendRecib:[]}; if(!e||!e.pedidos) return o;
+    Object.keys(e.pedidos).forEach(function(pid){ var P=pedido(e,pid); if(!P) return; o.n++; var r=resumenRec(e,pid); if(P.env) o.enviados++; if(r.n&&r.ok===r.n) o.recibidos++; else if(P.env&&P.entrega&&P.entrega<hoyISO()) o.pendRecib.push((provDe(pid)||{}).nombre||"proveedor"); });
+    return o;
+  };
 })();
 </script>
 
@@ -19484,9 +19897,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
-    compras:{label:"Compras", secciones:["resumen","m-compra","prov","presup","inv","docs"]},
+    compras:{label:"Compras", secciones:["resumen","m-compra","pedidos","prov","presup","inv","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
   };
   var $=function(id){ return document.getElementById(id); };
@@ -19555,7 +19968,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
        administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
-    var NUEVAS=["cam-horas","cierre","avisos","portal"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
+    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
       var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];

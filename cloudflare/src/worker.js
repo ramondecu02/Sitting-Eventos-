@@ -1509,9 +1509,13 @@ async function correoPut(request, env) {
   return json({ ok: true, cfg: nuevo.cfg, plantillas: nuevo.plant });
 }
 async function correoEnviarRoute(request, env) {
-  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  const s0 = await session(request, env);
+  if (!s0) return json({ error: "unauth" }, 401);
   await ensureCorreo(env);
   const b = await body(request), kind = ["cliente", "camarero", "libre", "prueba", "proveedor"].indexOf(b.kind) >= 0 ? b.kind : "libre";
+  /* administración y eventos, cualquier aviso; compras, solo los pedidos a proveedores */
+  if (s0.role !== "admin" && s0.role !== "eventos" && !(s0.role === "compras" && kind === "proveedor")) return json({ error: "forbidden", message: "Tu rol no puede usar el correo." }, 403);
+  const a = { s: s0 };
   /* tope por persona: 40 envíos a la hora */
   const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE by_name=?1 AND ts>?2").bind(String(a.s.name || a.s.email || "").slice(0, 80), Date.now() - 3600e3).first();
   if (n && n.n >= 40) return json({ error: "limit", message: "Demasiados correos en la última hora. Espera un poco." }, 429);
@@ -1790,7 +1794,7 @@ async function bkRestaurar(request, env) {
    Volver a una versión también deja su línea (con lo que había antes), de modo
    que se puede deshacer. */
 const HI_RAFAGA = 10 * 60e3, HI_MAX = 50;
-const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "aprobaciones", "contrato", "portal del cliente", "otros datos"];
+const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "aprobaciones", "contrato", "compras", "portal del cliente", "otros datos"];
 let HI_OK = false;
 async function ensureHistorial(env) {
   if (HI_OK) return;
@@ -1806,6 +1810,7 @@ function hiSeccion(k) {
   if (k === "cierre" || k === "cierreServicio") return "cierre";
   if (k === "aprobaciones") return "aprobaciones";
   if (k === "contrato") return "contrato";
+  if (k === "pedidos" || k === "recepcion") return "compras";
   if (k === "hitos" || k === "agendaHecho") return "agenda";
   if (k === "tareas") return "tareas";
   if (k === "proveedores") return "proveedores";
@@ -2091,6 +2096,8 @@ function mergeDoc(prev, inc, isAdmin, tbs) {
   const ie = prev.invExtra || {}, ii = inc.invExtra || {};
   out.invExtra = { hojas: porId(ii.hojas, ie.hojas, true), categorias: porId(ii.categorias, ie.categorias, true), items: porId(ii.items, ie.items, true) };
   out.camareros = { personas: porId((inc.camareros || {}).personas, (prev.camareros || {}).personas, true) };
+  /* proveedores de compra y a quién se asigna cada artículo: por id, gana el cambio más reciente (quitar = «borrado», desasignar = «prov» vacío) */
+  out.compras = { provs: porId((inc.compras || {}).provs, (prev.compras || {}).provs, true), asig: porId((inc.compras || {}).asig, (prev.compras || {}).asig, true) };
   const pp = prev.prevision || {}, ip = inc.prevision || {}, an = {};
   (pp.anios || []).concat(ip.anios || []).forEach((a) => { an[a] = 1; });
   out.prevision = Object.assign({}, pp, ip, { filas: porId(ip.filas, pp.filas, true), anios: Object.keys(an).map(Number) });
