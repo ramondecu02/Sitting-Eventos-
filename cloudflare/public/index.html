@@ -21,12 +21,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.62 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.63 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.62".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.63".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3644,6 +3644,94 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .hh-row span{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.16em; color:var(--c-mut)}
 .hh-row b{font:600 20px/1.2 var(--font-display,Georgia,serif); overflow-wrap:anywhere}
 .hh-row .btn{min-height:48px; font-size:15px}
+
+/* ══ Turnos y horas de camareros · Cierre del evento ══ */
+.ch-wrap,.ci-wrap{max-width:1040px}
+.ch-tabs{display:inline-flex; gap:4px; padding:4px; border:1px solid var(--c-line); border-radius:99px; background:var(--panel); margin:0 0 14px}
+.ch-tab{border:0; background:transparent; font:600 13px var(--font-text); color:var(--c-mut); padding:9px 18px; border-radius:99px; cursor:pointer; min-height:40px}
+.ch-tab.on{background:var(--c-ink); color:var(--bg)}
+.ch-barra{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin:0 0 12px}
+.ch-barra label{display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px}
+.ch-barra select,.ch-hbar select{min-height:40px; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:0 10px; font-size:14px}
+.ch-peq{font-size:12.5px; color:var(--c-mut)}
+.ch-lista{display:flex; flex-direction:column; gap:10px}
+.ch-fila{display:grid; grid-template-columns:minmax(150px,1.2fr) 66px repeat(2,minmax(176px,1.1fr)) 92px 84px minmax(110px,1fr); gap:10px 12px; align-items:end; background:var(--panel); border:1px solid var(--c-line); border-radius:14px; padding:12px 14px}
+.ch-quien{display:flex; flex-direction:column; gap:2px; min-width:0; align-self:center}
+.ch-quien b{font-size:16px; overflow-wrap:anywhere}
+.ch-quien small{color:var(--c-mut); font-size:12.5px; overflow-wrap:anywhere}
+.ch-sinfn{font-style:italic}
+.ch-prev,.ch-h{display:flex; flex-direction:column; gap:3px; min-width:0}
+.ch-prev span,.ch-h span,.ch-c>span{font:700 10px/1.2 var(--font-text); letter-spacing:.1em; text-transform:uppercase; color:var(--c-mut)}
+.ch-prev b{font-size:15px; font-variant-numeric:tabular-nums}
+.ch-h b{font:600 17px/1.2 var(--font-display,Georgia,serif); font-variant-numeric:tabular-nums}
+.ch-c{display:flex; flex-direction:column; gap:3px; min-width:0}
+.ch-c>div{display:flex; gap:6px; align-items:center}
+.ch-c input{min-height:44px; width:100%; min-width:112px; flex:1; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:0 8px; font-size:16px; font-variant-numeric:tabular-nums}
+.ch-c input:disabled{opacity:.7}
+.ch-c .btn.sm{min-height:44px; padding:0 10px; flex:none}
+.ch-tot{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0}
+.ch-tot>div{background:var(--panel); border:1px solid var(--c-line); border-radius:12px; padding:10px 16px; display:flex; flex-direction:column; gap:2px}
+.ch-tot span{font:700 10px/1.2 var(--font-text); letter-spacing:.1em; text-transform:uppercase; color:var(--c-mut)}
+.ch-tot b{font:600 22px/1.15 var(--font-display,Georgia,serif); font-variant-numeric:tabular-nums}
+.ch-tot .mal{border-color:var(--danger); background:var(--danger-soft)} .ch-tot .mal b{color:var(--danger)}
+.ch-vacio,.ci-vacio{padding:22px 16px; text-align:center; color:var(--c-mut); background:var(--panel); border:1px dashed var(--c-line-2); border-radius:14px}
+.ch-vacio b{display:block; color:var(--c-ink); margin-bottom:6px}
+.ch-aviso{padding:10px 14px; border:1px solid var(--warning); background:var(--warning-soft); border-radius:12px; font-size:14px; margin:0 0 12px}
+.ch-tabla,.ci-tabla{overflow-x:auto; background:var(--panel); border:1px solid var(--c-line); border-radius:14px; margin:0 0 12px}
+.ch-tabla table,.ci-tabla table{width:100%; border-collapse:collapse; font-size:14.5px; font-variant-numeric:tabular-nums}
+.ch-tabla th,.ci-tabla th{text-align:left; font:700 11px/1 var(--font-text); letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut); padding:12px 14px; border-bottom:1px solid var(--c-line)}
+.ch-tabla td,.ci-tabla td{padding:11px 14px; border-bottom:1px solid var(--c-hair); vertical-align:top}
+.ch-tabla tfoot td{font-weight:700; border-bottom:0; background:var(--bg-2)}
+.ch-tabla .n,.ci-tabla .n{text-align:right} .ch-tabla small{color:var(--c-mut)}
+.ch-det{font-size:12.5px; color:var(--c-mut); line-height:1.5}
+.ch-hojas{margin:16px 0; background:var(--panel); border:1px solid var(--c-line); border-radius:14px; padding:12px 14px}
+.ch-hojas summary{cursor:pointer; font:700 13px/1.3 var(--font-text); min-height:32px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.ch-hojas summary small{font-weight:500; color:var(--c-mut)}
+.ch-hbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin:12px 0}
+.ch-hbar label{display:flex; align-items:center; gap:8px; font-weight:600; font-size:14px}
+#ch-sheet-host{overflow-x:auto}
+@media (max-width:900px){
+  .ch-fila{grid-template-columns:1fr 1fr; align-items:stretch}
+  .ch-quien{grid-column:1/-1} .ch-prev{grid-column:1} .ch-h{grid-column:2; align-items:flex-end; text-align:right}
+  .ch-n{grid-column:1/-1}
+}
+@media (max-width:420px){ .ch-fila{grid-template-columns:1fr} .ch-prev,.ch-h{grid-column:1; align-items:flex-start; text-align:left} .ch-tab{padding:9px 14px} }
+/* cierre */
+.ci-estado{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 18px; padding:16px 18px; border-radius:14px; border:2px solid var(--gold); background:var(--panel); margin:0 0 18px}
+.ci-estado.celeb{border-color:var(--success)} .ci-estado.cerrada{border-color:var(--c-line-2); background:var(--bg-2)}
+.ci-estado>div{display:flex; flex-direction:column; gap:3px; min-width:0}
+.ci-estado span{font:700 10.5px/1 var(--font-text); letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut)}
+.ci-estado b{font:600 24px/1.15 var(--font-display,Georgia,serif)}
+.ci-estado small{color:var(--c-mut); font-size:13px}
+.ci-acc{align-items:flex-end} .ci-acc .btn{min-height:46px}
+.ci-h2{margin:22px 0 10px; font:600 19px/1.2 var(--font-display,Georgia,serif); display:flex; align-items:center; gap:10px}
+.ci-h2 em{font:700 11px/1 var(--font-text); font-style:normal; background:var(--bg-2); border-radius:99px; padding:4px 10px; color:var(--c-mut)}
+.ci-h3{margin:16px 0 8px; font:700 12px/1.2 var(--font-text); letter-spacing:.1em; text-transform:uppercase; color:var(--c-mut)}
+.ci-lista{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.ci-lista li{display:flex; gap:12px; align-items:flex-start; background:var(--panel); border:1px solid var(--c-line); border-left:5px solid var(--warning); border-radius:12px; padding:12px 14px}
+.ci-lista li.ok{border-left-color:var(--success)}
+.ci-lista li>i{flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-style:normal; font-weight:800; color:#fff; background:var(--warning)}
+.ci-lista li.ok>i{background:var(--success)}
+.ci-lista li>div{min-width:0; flex:1; display:flex; flex-direction:column; gap:6px}
+.ci-lista b{font-size:15.5px} .ci-lista span{color:var(--c-mut); font-size:14px; line-height:1.4}
+.ci-lista textarea,.ci-nota{width:100%; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:9px 11px; font:inherit; font-size:15px; resize:vertical}
+.ci-pb{display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; font-size:14px}
+.ci-pb a{color:var(--accent-tx,var(--c-ink)); font-weight:600}
+.ci-conf{display:flex; align-items:center; gap:8px; font-weight:600; min-height:36px; cursor:pointer}
+.ci-conf input{width:20px; height:20px}
+.ci-tabla tr.tot td{background:var(--bg-2); font-weight:600}
+.ci-tabla td small{color:var(--c-mut); font-weight:400}
+.ci-mal{color:var(--danger); font-weight:700} .ci-bien{color:var(--success); font-weight:700} .ci-ig{color:var(--c-mut)}
+.ci-peq{font-size:13px; color:var(--c-mut); line-height:1.5; margin:0 0 10px}
+.ci-per{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.ci-per li{background:var(--panel); border:1px solid var(--c-line); border-radius:10px; padding:10px 14px; font-size:15px}
+
+.ch-p input{min-width:70px}
+.ch-n input{min-width:0}
+.ci-lista textarea{min-height:64px; height:64px}
+.ci-nota{min-height:110px}
+.ch-c>div{min-width:0}
+@media (max-width:1380px) and (min-width:901px){ .ch-fila{grid-template-columns:minmax(150px,1fr) 70px repeat(2,minmax(200px,1.2fr))} .ch-p{grid-column:1} .ch-h{grid-column:2} .ch-n{grid-column:3/-1} }
 /*V3-END*/
 </style>
 
@@ -3656,7 +3744,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.62</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.63</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8767,6 +8855,7 @@ var SECCIONES=[
   {k:"coh",      g:"Planificación", t:"Coordinación"},
   /* el día del evento, en el móvil: lo ven todos los roles menos Compras */
   {k:"srv",      g:"Servicio en directo", t:"Modo servicio"},
+  {k:"cierre",   g:"Servicio en directo", t:"Cierre del evento"},
   {k:"plan",     g:"Plano de mesas", t:"Plano de sala"},
   {k:"list",     g:"Plano de mesas", t:"Listado por mesas"},
   {k:"card",     g:"Plano de mesas", t:"Marcasitios"},
@@ -8787,6 +8876,7 @@ var SECCIONES=[
      aparte de Inventario y de Menú */
   {k:"cam",      g:"Camareros", t:"Camareros del evento"},
   {k:"cam-rep",  g:"Camareros", t:"Reparto de camareros"},
+  {k:"cam-horas",g:"Camareros", t:"Turnos y horas"},
   {k:"docs",     g:"Recursos", t:"Documentos"},
   {k:"fotos",    g:"Recursos", t:"Fotografías"},
   /* parámetros del negocio: solo el administrador (los demás roles tienen
@@ -9001,7 +9091,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.62</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.63</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10383,7 +10473,7 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,srv:1,fotos:1,docs:1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
   "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
@@ -10624,6 +10714,8 @@ function renderPlanV(k){
   if(k==="hist"){ if(window.LM_renderHist) window.LM_renderHist(host); return; }
   if(k==="coh"){ if(window.LM_renderCoh) window.LM_renderCoh(host); return; }
   if(k==="srv"){ if(window.LM_renderSrv) window.LM_renderSrv(host); return; }
+  if(k==="cierre"){ if(window.LM_renderCierre) window.LM_renderCierre(host); return; }
+  if(k==="cam-horas"){ if(window.LM_renderHoras) window.LM_renderHoras(host); return; }
   var e=current();
   if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
   var top=host.scrollTop;
@@ -14828,7 +14920,11 @@ function rentCalc(){
   var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
   var nCam=(R.camareros!=null&&R.camareros!=="")?+R.camareros:(camSi||t.camareros), camEst=!(R.camareros!=null&&R.camareros!=="")&&!camSi;
   var horas=(R.horas!=null&&R.horas!=="")?+R.horas:+RP.horasCamarero;
-  var perTotal=nCam*horas*(+RP.horaCamarero||0);
+  var perPrev=nCam*horas*(+RP.horaCamarero||0), perTotal=perPrev, hReal=null, faltanH=0;
+  /* con las horas REALES de los camareros (Camareros → Turnos y horas) el coste es el de verdad; si a alguno le falta, ese va con las horas previstas.
+     Lo que se escriba a mano en «Camareros» u «Horas por camarero» manda sobre todo lo demás. */
+  try{ var HR=window.LM_horasEvento?window.LM_horasEvento(e):null;
+    if(HR&&HR.n>0&&!(R.camareros!=null&&R.camareros!=="")&&!(R.horas!=null&&R.horas!=="")){ hReal=HR; faltanH=Math.max(0,nCam-HR.n); perTotal=(HR.total+faltanH*horas)*(+RP.horaCamarero||0); } }catch(_){}
   /* 4 · extras: lo que se cobra (los extras del presupuesto) frente a lo que
      cuestan (su artículo del catálogo × cantidad, o a mano); los proveedores
      que paga Les Moles y los otros gastos cuestan y no se cobran */
@@ -14857,7 +14953,7 @@ function rentCalc(){
     adultos:c.adultos, ninos:c.ninos, staff:c.staff, comensales:comensales,
     ingresos:ingresos, ingresosIVA:PT.total, iva:iva, menus:PT.menus, extrasVenta:PT.extras,
     mp:mp, elabTotal:elabTotal, mpTotal:mpTotal, merma:merma, mermaPct:+RP.merma||0, beb:beb, bebTotal:bebTotal,
-    per:{n:nCam, estimado:camEst, asignados:camSi, horas:horas, hora:+RP.horaCamarero||0, total:perTotal}, perTotal:perTotal,
+    per:{n:nCam, estimado:camEst, asignados:camSi, horas:horas, hora:+RP.horaCamarero||0, total:perTotal, real:!!hReal, horasReales:hReal?hReal.total:0, nReal:hReal?hReal.n:0, faltanH:faltanH}, perTotal:perTotal, perPrev:perPrev,
     ext:ext, extTotal:extTotal, extCobro:extCobro, costes:costes, margen:margen, pct:ingresos>0?margen/ingresos*100:null,
     faltanIng:faltanIng, avisos:avisos, completo:!avisos.length};
 }
@@ -16685,7 +16781,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     function fila(a,b,c,d,e,f){ return '<tr><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td><td>'+d+'</td><td>'+e+'</td><td>'+f+'</td></tr>'; }
     return '<table class="pr-reg"><thead><tr><th>Tratamiento</th><th>Finalidad</th><th>Personas y datos</th><th>Base jurídica</th><th>Plazo</th><th>Destinatarios y medidas</th></tr></thead><tbody>'+
       fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
-      fila("Personal de sala","Gestionar turnos, disponibilidad y avisos","Camareros (nombre, teléfono, disponibilidad)","Relación laboral o de servicio (art. 6.1.b)","Mientras dure la relación y los plazos laborales","Responsables de sala y administración")+
+      fila("Personal de sala","Gestionar turnos, disponibilidad, avisos y registro de horas","Camareros (nombre, teléfono, disponibilidad, hora de entrada y de salida)","Relación laboral o de servicio (art. 6.1.b) y obligación legal del registro de jornada (art. 6.1.c)","Mientras dure la relación; el registro de jornada, 4 años","Responsables de sala y administración")+
       fila("Usuarios del programa","Control de accesos y seguridad","Equipo (nombre, correo, rol, accesos)","Interés legítimo en la seguridad (art. 6.1.f)","Mientras tenga acceso; el registro de actividad, 400 días","Administración")+
       '</tbody></table><p class="pr-nota">Responsable: '+esc(resp)+'. Plantilla orientativa del registro de actividades de tratamiento (art. 30 RGPD y art. 31 LOPDGDD): revísala con tu asesor antes de darla por buena.</p>';
   }
@@ -17241,6 +17337,412 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 </script>
 
 <script>
+/* ═════════════════════════════════════════════════════════════════
+   TURNOS Y HORAS DE CAMAREROS
+   Quién viene a cada evento ya estaba (Camareros del evento) y qué hace en cada
+   tiempo también (Reparto). Aquí se apunta lo que pasó DE VERDAD: hora de entrada
+   y de salida (y la pausa), para saber cuántas horas ha trabajado cada uno.
+   · «Este evento»: una fila por camarero confirmado, con su función y su hora
+     prevista, y el botón «Ahora» para fichar con un toque. Las horas salen solas.
+   · «Por mes»: total de horas por camarero y por evento; se baja en CSV (con la coma
+     decimal y el punto y coma de Excel en español) para la gestoría.
+   · «Hojas por camarero»: una hoja para imprimir/mandar con su horario y sus funciones.
+   Todo vive DENTRO del evento (e.turnos[idCamarero] = {ent, sal, pausa, nota}), así
+   viaja con el evento, se junta por campos entre quienes lo editan a la vez y entra
+   en las copias de seguridad. Las horas reales alimentan Rentabilidad (coste del
+   personal) y el cierre del evento.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function evs(){ try{ return BR.allEvents?BR.allEvents():(BR.store.events||[]); }catch(_){ return []; } }
+  function nrm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+
+  /* ── las cuentas ── */
+  function mm(t){ var m=/^(\d{1,2}):(\d{2})$/.exec(String(t||"")); return m&&+m[1]<24&&+m[2]<60?(+m[1])*60+(+m[2]):null; }
+  /* minutos trabajados: de la entrada a la salida (si la salida es «antes», es del día siguiente) menos la pausa */
+  function minutos(t){
+    if(!t) return null; var a=mm(t.ent), b=mm(t.sal); if(a==null||b==null) return null;
+    var d=b-a; if(d<0) d+=1440; d-=Math.max(0,+t.pausa||0); return Math.max(0,d);
+  }
+  function horas(t){ var m=minutos(t); return m==null?null:m/60; }
+  function r2(x){ return Math.round(x*100)/100; }
+  function hTxt(h){ if(h==null) return "—"; var s=String(r2(h)).replace(".",","); return s+" h"; }
+  function hm(h){ if(h==null) return ""; var m=Math.round(h*60); return Math.floor(m/60)+":"+z(m%60); }
+  function agenda(){ var c=BR.store&&BR.store.camareros; return (c&&c.personas)||[]; }
+  function persona(id){ for(var i=0;i<agenda().length;i++) if(agenda()[i].id===id) return agenda()[i]; return null; }
+  function nombre(id){ var p=persona(id); return p?p.nombre:"(camarero quitado)"; }
+  function fechaEv(e){ return (e&&e.ficha&&e.ficha.fecha)||""; }
+  function dm(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
+  var FASE_T={aperitivo:"Aperitivo",comida:"Comida",cafesbarra:"Cafés y barra",barralibre:"Barra libre"};
+  /* qué hace cada camarero en el evento (el reparto por tiempos) */
+  function funcionesDe(e,id){
+    var out=[], fs=(e&&e.reparto&&e.reparto.fases)||{};
+    Object.keys(FASE_T).forEach(function(k){ (fs[k]||[]).forEach(function(x){ if(x&&x.id===id&&String(x.fn||"").trim()) out.push({fase:FASE_T[k],fn:String(x.fn).trim()}); }); });
+    return out;
+  }
+  function fnTxt(e,id){ var l=funcionesDe(e,id); return l.map(function(x){ return x.fn; }).filter(function(v,i,a){ return a.indexOf(v)===i; }).join(", "); }
+  /* los camareros de un evento: los confirmados («Disponible») más cualquiera que ya tenga turno apuntado */
+  function idsDe(e){
+    var cam=(e&&e.camareros)||{}, tu=(e&&e.turnos)||{}, ids=[];
+    agenda().forEach(function(p){ if(p.borrado&&!tu[p.id]) return; if(cam[p.id]==="si"||tu[p.id]) ids.push(p.id); });
+    Object.keys(tu).forEach(function(id){ if(ids.indexOf(id)<0) ids.push(id); });
+    return ids.sort(function(a,b){ return nombre(a).localeCompare(nombre(b),"es"); });
+  }
+  function filasDe(e){
+    var tu=(e&&e.turnos)||{};
+    return idsDe(e).map(function(id){ var t=tu[id]||{}; return {id:id,nombre:nombre(id),ent:t.ent||"",sal:t.sal||"",pausa:+t.pausa||0,nota:t.nota||"",prev:(e.camarerosHora&&e.camarerosHora[id])||"",h:horas(t),fn:fnTxt(e,id),
+      tel:(persona(id)||{}).telefono||""}; });
+  }
+  function resumenEvento(e){
+    var f=filasDe(e), total=0, n=0, sinSalida=0;
+    f.forEach(function(x){ if(x.h!=null){ total+=x.h; n++; } else if(x.ent&&!x.sal) sinSalida++; });
+    return {filas:f,total:r2(total),n:n,conf:f.length,sinSalida:sinSalida};
+  }
+  /* para Rentabilidad y el cierre */
+  window.LM_horasEvento=function(e){ var r=resumenEvento(e); return {total:r.total,n:r.n,conf:r.conf,sinSalida:r.sinSalida,filas:r.filas}; };
+  window.LM_horasTxt=hTxt;
+
+  /* ── escribir ── */
+  function guardar(e){ e.updated=Date.now(); BR.save(); }
+  function setCampo(e,id,k,v){
+    e.turnos=e.turnos||{}; var t=e.turnos[id]=e.turnos[id]||{};
+    if(v===""||v==null||(k==="pausa"&&!(+v>0))) delete t[k]; else t[k]=(k==="pausa")?Math.round(+v):v;
+    if(!Object.keys(t).length) delete e.turnos[id];
+    guardar(e);
+  }
+  function ahoraHHMM(){ var d=new Date(); return z(d.getHours())+":"+z(d.getMinutes()); }
+
+  /* ── la pantalla ── */
+  var U={tab:"evento",mes:"",host:null,sig:"",hoja:"todos"};
+  function puedeEscribir(){ return ["admin","eventos","servicio"].indexOf(rol())>=0; }
+  function mesDe(e){ return fechaEv(e).slice(0,7); }
+  function mesTxt(ym){ var m=/^(\d{4})-(\d{2})$/.exec(ym||""); var N=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"]; return m?N[+m[2]-1]+" de "+m[1]:"—"; }
+
+  function cabecera(e){
+    return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Camareros</div><h1 class="pv-title">Turnos y horas</h1>'+
+      '<div class="pv-sub">'+esc((BR.eventLabel?BR.eventLabel(e):e.name)||"Evento")+'</div>'+
+      '<p class="pv-guide">Apunta la hora real de entrada y de salida de cada camarero: las horas salen solas, alimentan el coste de personal de Rentabilidad y se bajan en CSV para la gestoría.</p></div></header>';
+  }
+  function tabsHTML(){
+    return '<div class="ch-tabs" role="tablist">'+[["evento","Este evento"],["mes","Por mes"]].map(function(t){ return '<button type="button" role="tab" class="ch-tab'+(U.tab===t[0]?" on":"")+'" aria-selected="'+(U.tab===t[0])+'" data-ch="tab" data-t="'+t[0]+'">'+t[1]+'</button>'; }).join("")+'</div>';
+  }
+  function filaHTML(x,ed){
+    var dis=ed?"":" disabled";
+    return '<div class="ch-fila" data-id="'+esc(x.id)+'"><div class="ch-quien"><b>'+esc(x.nombre)+'</b>'+(x.fn?'<small>'+esc(x.fn)+'</small>':'<small class="ch-sinfn">sin función en el reparto</small>')+(x.tel?'<small>'+esc(x.tel)+'</small>':'')+'</div>'+
+      '<div class="ch-prev"><span>Previsto</span><b>'+esc(x.prev||"—")+'</b></div>'+
+      '<label class="ch-c"><span>Entrada</span><div><input type="time" data-ch="ent" value="'+esc(x.ent)+'" aria-label="Hora real de entrada de '+esc(x.nombre)+'"'+dis+'><button type="button" class="btn sm" data-ch="ahora-ent" aria-label="Entrada ahora, '+esc(x.nombre)+'"'+dis+'>Ahora</button></div></label>'+
+      '<label class="ch-c"><span>Salida</span><div><input type="time" data-ch="sal" value="'+esc(x.sal)+'" aria-label="Hora real de salida de '+esc(x.nombre)+'"'+dis+'><button type="button" class="btn sm" data-ch="ahora-sal" aria-label="Salida ahora, '+esc(x.nombre)+'"'+dis+'>Ahora</button></div></label>'+
+      '<label class="ch-c ch-p"><span>Pausa (min)</span><div><input type="number" min="0" max="600" step="5" inputmode="numeric" data-ch="pausa" value="'+(x.pausa||"")+'" placeholder="0" aria-label="Minutos de pausa de '+esc(x.nombre)+'"'+dis+'></div></label>'+
+      '<div class="ch-h" data-ch-h><span>Horas</span><b>'+esc(x.h==null?(x.ent&&!x.sal?"falta salida":"—"):hTxt(x.h))+'</b></div>'+
+      '<label class="ch-c ch-n"><span>Nota</span><div><input type="text" maxlength="200" data-ch="nota" value="'+esc(x.nota)+'" placeholder="p. ej. se queda a recoger" aria-label="Nota de '+esc(x.nombre)+'"'+dis+'></div></label></div>';
+  }
+  function eventoHTML(e){
+    var R=resumenEvento(e), ed=puedeEscribir();
+    if(!R.filas.length) return '<div class="ch-vacio"><b>Todavía no hay camareros confirmados en este evento.</b><p>Márcalos como «Disponible» en <a href="#" data-ch="ir" data-s="cam">Camareros del evento</a> y saldrán aquí para apuntar su turno.</p></div>';
+    var prevHay=R.filas.some(function(x){ return x.prev&&!x.ent; });
+    var h='<div class="ch-barra">'+(ed&&prevHay?'<button type="button" class="btn sm" data-ch="prev-todos">Poner la hora prevista de entrada a todos</button>':'')+'<span class="ch-peq">'+(ed?'Cada cambio se guarda solo y lo ven los demás.':'Solo administración, eventos y servicio pueden cambiar las horas.')+'</span></div>'+
+      '<div class="ch-lista">'+R.filas.map(function(x){ return filaHTML(x,ed); }).join("")+'</div>'+
+      '<div class="ch-tot" data-ch-tot>'+totHTML(R)+'</div>'+hojasHTML(e,R);
+    return h;
+  }
+  function totHTML(R){
+    return '<div><span>Total del evento</span><b>'+esc(hTxt(R.total))+'</b></div><div><span>Con horas</span><b>'+R.n+' de '+R.conf+'</b></div>'+(R.sinSalida?'<div class="mal"><span>Sin hora de salida</span><b>'+R.sinSalida+'</b></div>':'');
+  }
+  /* — las hojas por camarero (se descargan en PDF con el mismo motor que las demás) — */
+  function hojasHTML(e,R){
+    var sel=U.hoja, opts='<option value="todos"'+(sel==="todos"?" selected":"")+'>Todo el equipo (una tras otra)</option>'+R.filas.map(function(x){ return '<option value="'+esc(x.id)+'"'+(sel===x.id?" selected":"")+'>'+esc(x.nombre)+'</option>'; }).join("");
+    return '<details class="ch-hojas"'+(U.abierto?" open":"")+' data-ch-det><summary>Hojas por camarero <small>con su horario y sus funciones, para imprimir o mandar</small></summary>'+
+      '<div class="ch-hbar"><label>Hoja de <select data-ch="hoja" aria-label="Para quién es la hoja">'+opts+'</select></label><button type="button" class="btn gold sm" data-ch="pdf">Descargar PDF</button></div>'+
+      '<div id="ch-sheet-host">'+hojaHTML(e,R)+'</div></details>';
+  }
+  function hojaHTML(e,R){
+    var F=e.ficha||{}, lista=U.hoja==="todos"?R.filas:R.filas.filter(function(x){ return x.id===U.hoja; });
+    var horario=[["Briefing del equipo",F.horaBriefing],["Ceremonia",F.ceremoniaHora],["Aperitivo",F.horaAperitivo],["Banquete",F.horaBanquete],["Barra libre",F.horaBarra]].filter(function(x){ return x[1]; });
+    var h='<div class="sheet"><div class="frame"><header class="doc-head"><div class="eyebrow">Les Moles Events'+(e.name?" · "+esc(e.name):"")+'</div><h2>Hoja de servicio</h2><div class="orn"></div><div class="doc-meta">'+esc(dm(fechaEv(e)))+'</div></header>';
+    if(horario.length) h+='<h2>Horario del evento</h2><table class="mnu-ing-table"><tbody>'+horario.map(function(x){ return '<tr><td>'+esc(x[0])+'</td><td class="q">'+esc(x[1])+'</td></tr>'; }).join("")+'</tbody></table>';
+    if(!lista.length) h+='<p class="mnu-note">No hay camareros confirmados en este evento.</p>';
+    lista.forEach(function(x){
+      var fl=funcionesDe(e,x.id);
+      h+='<h2>'+esc(x.nombre)+'</h2><table class="mnu-ing-table"><tbody>'+
+        '<tr><td>Entrada</td><td class="q">'+esc(x.prev?x.prev:"a confirmar")+'</td></tr>'+
+        (x.tel?'<tr><td>Teléfono</td><td class="q">'+esc(x.tel)+'</td></tr>':'')+
+        (fl.length?fl.map(function(f){ return '<tr><td>'+esc(f.fase)+'</td><td class="q">'+esc(f.fn)+'</td></tr>'; }).join(""):'<tr><td>Funciones</td><td class="q">por asignar</td></tr>')+
+        '</tbody></table>';
+    });
+    h+='<div class="foot">Les Moles Events</div></div></div>';
+    return h;
+  }
+
+  /* — por mes — */
+  function eventosDelMes(ym){
+    return evs().filter(function(e){ return e&&!e.anonimizado&&mesDe(e)===ym; }).sort(function(a,b){ return fechaEv(a)<fechaEv(b)?-1:1; });
+  }
+  function mesesConEventos(){ var s={}; evs().forEach(function(e){ var m=mesDe(e); if(m) s[m]=1; }); return Object.keys(s).sort().reverse(); }
+  function datosMes(ym){
+    var porCam={}, det=[], sinHoras=[];
+    eventosDelMes(ym).forEach(function(e){
+      var R=resumenEvento(e);
+      if(R.conf&&!R.n) sinHoras.push(e);
+      R.filas.forEach(function(x){
+        if(x.h==null) return;
+        var c=porCam[x.id]=porCam[x.id]||{id:x.id,nombre:x.nombre,n:0,h:0,ev:[]};
+        c.n++; c.h+=x.h; c.ev.push({e:e,x:x});
+        det.push({fecha:fechaEv(e),evento:e.name||"Evento",camarero:x.nombre,ent:x.ent,sal:x.sal,pausa:x.pausa,h:x.h,fn:x.fn,nota:x.nota});
+      });
+    });
+    var lista=Object.keys(porCam).map(function(k){ return porCam[k]; }).sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+    var total=0; lista.forEach(function(c){ c.h=r2(c.h); total+=c.h; });
+    return {lista:lista,det:det,total:r2(total),sinHoras:sinHoras};
+  }
+  function mesHTML(){
+    var ms=mesesConEventos();
+    if(!U.mes||(ms.indexOf(U.mes)<0&&ms.length)) U.mes=ms.indexOf(new Date().getFullYear()+"-"+z(new Date().getMonth()+1))>=0?new Date().getFullYear()+"-"+z(new Date().getMonth()+1):(ms[0]||"");
+    if(!ms.length) return '<div class="ch-vacio"><b>Todavía no hay eventos con fecha.</b></div>';
+    var D=datosMes(U.mes);
+    var h='<div class="ch-barra"><label>Mes <select data-ch="mes" aria-label="Mes">'+ms.map(function(m){ return '<option value="'+m+'"'+(m===U.mes?" selected":"")+'>'+esc(mesTxt(m))+'</option>'; }).join("")+'</select></label>'+
+      '<span class="ch-peq">'+eventosDelMes(U.mes).length+' evento'+(eventosDelMes(U.mes).length===1?"":"s")+' este mes</span></div>';
+    if(D.sinHoras.length) h+='<div class="ch-aviso"><b>Sin horas apuntadas:</b> '+D.sinHoras.map(function(e){ return '<a href="#" data-ch="ir-ev" data-id="'+esc(e.id)+'">'+esc((e.name||"Evento")+" ("+dm(fechaEv(e)).slice(0,5)+")")+'</a>'; }).join(", ")+'. Su personal no cuenta en este total hasta que se apunten.</div>';
+    if(!D.lista.length) return h+'<div class="ch-vacio"><b>No hay horas apuntadas en '+esc(mesTxt(U.mes))+'.</b><p>Se apuntan en «Este evento» al terminar cada servicio.</p></div>';
+    h+='<div class="ch-tabla"><table><thead><tr><th>Camarero</th><th class="n">Eventos</th><th class="n">Horas</th><th>Detalle</th></tr></thead><tbody>'+D.lista.map(function(c){
+      return '<tr><td><b>'+esc(c.nombre)+'</b></td><td class="n">'+c.n+'</td><td class="n"><b>'+esc(hTxt(c.h))+'</b> <small>('+hm(c.h)+')</small></td><td class="ch-det">'+c.ev.map(function(o){ return esc(dm(fechaEv(o.e)).slice(0,5))+' '+esc((o.e.name||"").slice(0,26))+' · '+esc(hTxt(o.x.h))+(o.x.fn?' · '+esc(o.x.fn):''); }).join('<br>')+'</td></tr>'; }).join("")+
+      '</tbody><tfoot><tr><td>Total</td><td class="n">'+D.det.length+'</td><td class="n"><b>'+esc(hTxt(D.total))+'</b></td><td></td></tr></tfoot></table></div>'+
+      '<div class="ch-barra"><button type="button" class="btn gold sm" data-ch="csv-det">Descargar detalle (CSV)</button><button type="button" class="btn sm" data-ch="csv-res">Descargar resumen por camarero (CSV)</button><span class="ch-peq">Para Excel en español: separado por «;» y con coma decimal.</span></div>';
+    return h;
+  }
+  /* — CSV para la gestoría — */
+  function celda(v){ v=String(v==null?"":v); return /[;"\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+  function dec(h){ return String(r2(h)).replace(".",","); }
+  function bajar(nombre,filas){
+    var txt="﻿"+filas.map(function(r){ return r.map(celda).join(";"); }).join("\r\n")+"\r\n";
+    var blob=new Blob([txt],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=nombre; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
+  }
+  window.LM_horasCSV=function(ym,tipo){
+    var D=datosMes(ym), f=[];
+    if(tipo==="res"){ f.push(["Mes","Camarero","Eventos","Horas","Horas (h:mm)"]); D.lista.forEach(function(c){ f.push([mesTxt(ym),c.nombre,c.n,dec(c.h),hm(c.h)]); }); f.push(["TOTAL","",D.det.length,dec(D.total),hm(D.total)]); }
+    else { f.push(["Fecha","Evento","Camarero","Entrada","Salida","Pausa (min)","Horas","Horas (h:mm)","Funciones","Nota"]);
+      D.det.slice().sort(function(a,b){ return a.camarero.localeCompare(b.camarero,"es")||(a.fecha<b.fecha?-1:1); }).forEach(function(d){ f.push([dm(d.fecha),d.evento,d.camarero,d.ent,d.sal,d.pausa||0,dec(d.h),hm(d.h),d.fn,d.nota]); });
+      f.push(["TOTAL","","","","","",dec(D.total),hm(D.total),"",""]); }
+    return f;
+  };
+
+  /* ── pintar y manejar ── */
+  function pintar(host,e){
+    var y=host.scrollTop;
+    var cuerpo=U.tab==="mes"?mesHTML():eventoHTML(e);
+    host.innerHTML='<div class="pv-inner ch-wrap">'+cabecera(e)+tabsHTML()+'<div class="ch-body">'+cuerpo+'</div></div>';
+    host.scrollTop=y;
+    var root=host.querySelector(".ch-wrap");
+    ["click","input","change"].forEach(function(t){ root.addEventListener(t,manejar); });
+  }
+  function refrescarFila(host,e,id){
+    var R=resumenEvento(e), x=R.filas.filter(function(f){ return f.id===id; })[0];
+    var fila=host.querySelector('.ch-fila[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');
+    if(fila&&x){ var h=fila.querySelector("[data-ch-h] b"); if(h) h.textContent=x.h==null?(x.ent&&!x.sal?"falta salida":"—"):hTxt(x.h); }
+    var t=host.querySelector("[data-ch-tot]"); if(t) t.innerHTML=totHTML(R);
+    var sh=host.querySelector("#ch-sheet-host"); if(sh) sh.innerHTML=hojaHTML(e,R);
+  }
+  function manejar(ev){
+    ev.stopPropagation();
+    var host=U.host, e=evActual(); if(!host||!e) return;
+    var t=ev.target, a=t.getAttribute&&t.getAttribute("data-ch");
+    if(ev.type==="click"){
+      var b=t.closest?t.closest("[data-ch]"):null; if(!b) return; a=b.getAttribute("data-ch");
+      var fila=b.closest(".ch-fila"), id=fila&&fila.getAttribute("data-id");
+      if(a==="tab"){ U.tab=b.getAttribute("data-t"); pintar(host,e); }
+      else if(a==="ahora-ent"||a==="ahora-sal"){ if(!puedeEscribir()||!id) return; var k=a==="ahora-ent"?"ent":"sal", v=ahoraHHMM(); setCampo(e,id,k,v); fila.querySelector('input[data-ch="'+k+'"]').value=v; refrescarFila(host,e,id); }
+      else if(a==="prev-todos"){ if(!puedeEscribir()) return; var n=0; filasDe(e).forEach(function(x){ if(x.prev&&!x.ent){ setCampo(e,x.id,"ent",x.prev); n++; } }); toast(n+(n===1?" entrada puesta":" entradas puestas")+" con la hora prevista."); pintar(host,e); }
+      else if(a==="pdf"){ if(BR.descargarHoja) BR.descargarHoja("#ch-sheet-host .sheet .frame","hoja_servicio_"+String(e.name||"evento").replace(/[^\wÀ-ÿ]+/g,"_").slice(0,40),"A4"); }
+      else if(a==="csv-det"||a==="csv-res"){ var D=window.LM_horasCSV(U.mes,a==="csv-res"?"res":"det"); bajar("horas_camareros_"+U.mes+(a==="csv-res"?"_resumen":"_detalle")+".csv",D); }
+      else if(a==="ir"){ ev.preventDefault(); if(window.irASeccion) window.irASeccion(b.getAttribute("data-s")); }
+      else if(a==="ir-ev"){ ev.preventDefault(); if(BR.switchActiveEvent) BR.switchActiveEvent(b.getAttribute("data-id")); U.tab="evento"; if(window.irASeccion) window.irASeccion("cam-horas"); }
+      return;
+    }
+    if(ev.type==="change"||ev.type==="input"){
+      var el=t, row=el.closest&&el.closest(".ch-fila"), rid=row&&row.getAttribute("data-id"), k2=el.getAttribute&&el.getAttribute("data-ch");
+      if(k2==="mes"&&ev.type==="change"){ U.mes=el.value; pintar(host,e); return; }
+      if(k2==="hoja"&&ev.type==="change"){ U.hoja=el.value; U.abierto=true; var R2=resumenEvento(e), sh=host.querySelector("#ch-sheet-host"); if(sh) sh.innerHTML=hojaHTML(e,R2); return; }
+      if(!rid||!puedeEscribir()) return;
+      if(k2==="ent"||k2==="sal"){ if(ev.type!=="change") return; setCampo(e,rid,k2,el.value); refrescarFila(host,e,rid); }
+      else if(k2==="pausa"){ setCampo(e,rid,"pausa",el.value); refrescarFila(host,e,rid); }
+      else if(k2==="nota"){ if(ev.type!=="change") return; setCampo(e,rid,"nota",el.value.trim()); }
+    }
+  }
+  var det=null;
+  document.addEventListener("toggle",function(ev){ if(ev.target&&ev.target.hasAttribute&&ev.target.hasAttribute("data-ch-det")) U.abierto=ev.target.open; },true);
+
+  window.LM_renderHoras=function(host){
+    var e=evActual();
+    if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; U.host=null; return; }
+    U.host=host;
+    /* si se está escribiendo en una casilla, no se repinta (se perdería el cursor); el resto se actualiza */
+    var ae=document.activeElement; if(ae&&host.contains(ae)&&ae.hasAttribute&&ae.hasAttribute("data-ch")&&host.querySelector(".ch-wrap")&&U.sig===e.id+"|"+U.tab) return;
+    U.sig=e.id+"|"+U.tab;
+    pintar(host,e);
+  };
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
+   CIERRE DEL EVENTO
+   Cuando el evento ya ha pasado: una lista de lo que falta (cobros, material, avisos
+   del servicio, horas del personal), el resumen de lo previsto frente a lo que pasó de
+   verdad, una nota para la próxima vez y los dos pasos del evento: «celebrado» y
+   «cerrado». Casi todo se calcula solo a partir de lo que ya hay (presupuesto y cobros,
+   Rentabilidad, el registro del modo servicio, las horas de los camareros); lo único
+   que se apunta aquí es lo que no está en ningún otro sitio: material devuelto,
+   confirmaciones y la nota. Se guarda dentro del evento (e.cierre).
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function yo(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user(); return (u&&(u.name||u.email))||"Equipo"; }catch(_){ return "Equipo"; } }
+  function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function eur(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
+  function eur0(n){ return Math.round(+n||0).toLocaleString("es-ES")+" €"; }
+  function fechaHora(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function hhmm(ms){ var d=new Date(ms); return z(d.getHours())+":"+z(d.getMinutes()); }
+  function dm(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
+  function puedeCerrar(){ return ["admin","eventos"].indexOf(rol())>=0; }
+  var ESTADOS_CIERRE={celebrada:1,cerrada:1};
+  function estado(e){ return (e.ficha&&e.ficha.estado)||"planificacion"; }
+
+  /* — lo que se sabe del evento — */
+  function datos(e){
+    var D={e:e}, PT=BR.presupTotals?BR.presupTotals(e):{total:0,pagado:0,pend:0};
+    D.pt=PT;
+    D.cs=e.cierreServicio||null;
+    D.hrs=window.LM_horasEvento?window.LM_horasEvento(e):{total:0,n:0,conf:0,sinSalida:0,filas:[]};
+    try{ D.rent=BR.rent&&BR.rent.calcDe?BR.rent.calcDe(e):null; }catch(_){ D.rent=null; }
+    var C=e.cierre||{}; D.c=C; D.ok=C.ok||{};
+    var inc=(D.cs&&D.cs.incidencias)||[]; D.incAbiertas=inc.filter(function(x){ return !x.hecha; });
+    return D;
+  }
+  /* la lista: cada punto tiene su estado automático y, si no cuadra, se puede confirmar a mano ("está acordado") */
+  function puntos(D){
+    var e=D.e, P=[], ok=D.ok;
+    var cobrado=D.pt.total>0&&D.pt.pend<=0.5;
+    P.push({k:"cobros",t:"Cobros",auto:cobrado||D.pt.total<=0,
+      txt:D.pt.total<=0?"El presupuesto está a 0 €.":cobrado?"Todo cobrado: "+eur0(D.pt.pagado)+".":"Faltan por cobrar "+eur0(D.pt.pend)+" de "+eur0(D.pt.total)+".",
+      ir:"presup",irTxt:"Ver presupuesto y pagos",conf:"Lo pendiente está acordado con el cliente"});
+    P.push({k:"material",t:"Material y alquileres",auto:false,manual:true,
+      txt:"Cristalería, mantelería, mobiliario o equipos de proveedores: devueltos o contados.",nota:true,notaK:"material",notaPh:"Qué falta devolver o se ha roto (opcional)"});
+    var nInc=D.incAbiertas.length, totInc=D.cs?(D.cs.incidencias||[]).length:0;
+    P.push({k:"incidencias",t:"Avisos del servicio",auto:D.cs?nInc===0:false,
+      txt:!D.cs?"No se usó el modo servicio: no hay avisos registrados.":nInc?nInc+(nInc===1?" aviso sin resolver":" avisos sin resolver")+" de "+totInc+".":(totInc?"Los "+totInc+" avisos están resueltos.":"No hubo avisos."),
+      ir:"srv",irTxt:"Abrir el modo servicio",conf:"Revisados"});
+    var H=D.hrs;
+    P.push({k:"horas",t:"Horas del personal",auto:H.conf>0&&H.n===H.conf,
+      txt:!H.conf?"No hay camareros confirmados en el evento.":H.n===H.conf?"Horas de los "+H.conf+" camareros apuntadas: "+window.LM_horasTxt(H.total)+".":"Con horas "+H.n+" de "+H.conf+" camareros"+(H.sinSalida?" ("+H.sinSalida+" sin hora de salida)":"")+".",
+      ir:"cam-horas",irTxt:"Apuntar las horas",conf:"No hace falta apuntarlas"});
+    P.forEach(function(p){ p.hecho=p.auto||!!ok[p.k]; });
+    return P;
+  }
+
+  /* — escribir — */
+  function guardar(e){ e.updated=Date.now(); BR.save(); }
+  function cierre(e){ e.cierre=e.cierre||{}; return e.cierre; }
+  function setOk(e,k,v){ var c=cierre(e); c.ok=c.ok||{}; if(v) c.ok[k]=true; else delete c.ok[k]; guardar(e); }
+  function setTxt(e,k,v){ var c=cierre(e); v=String(v||"").slice(0,2000); if(v) c[k]=v; else delete c[k]; guardar(e); }
+  function celebrado(e){ var c=cierre(e); e.ficha=e.ficha||{}; e.ficha.estado="celebrada"; c.celebradoTs=Date.now(); c.celebradoPor=yo(); delete c.cerradoTs; delete c.cerradoPor; guardar(e); }
+  function cerrar(e){ var c=cierre(e); e.ficha.estado="cerrada"; c.cerradoTs=Date.now(); c.cerradoPor=yo(); guardar(e); }
+  function reabrir(e){ var c=cierre(e); e.ficha.estado="celebrada"; delete c.cerradoTs; delete c.cerradoPor; guardar(e); }
+
+  /* — pintar — */
+  function dif(prev,real,sufijo,inv){
+    if(prev==null||real==null) return "";
+    var d=real-prev; if(Math.abs(d)<0.005) return '<span class="ci-ig">igual</span>';
+    var malo=inv?d<0:d>0; return '<span class="'+(malo?"ci-mal":"ci-bien")+'">'+(d>0?"+":"−")+Math.abs(Math.round(d*100)/100).toLocaleString("es-ES")+(sufijo||"")+'</span>';
+  }
+  function resumenHTML(D){
+    var r=D.rent, cs=D.cs, H=D.hrs, F=[], iva=r?r.iva:0;
+    var comensales=r?r.comensales:null, llegaron=cs?cs.presentes:null;
+    var h='<div class="ci-tabla"><table><thead><tr><th>Concepto</th><th class="n">Previsto</th><th class="n">Real</th><th class="n">Diferencia</th></tr></thead><tbody>';
+    h+='<tr><td>Comensales</td><td class="n">'+(comensales!=null?comensales:"—")+'</td><td class="n">'+(llegaron!=null?llegaron:'<small>sin registro</small>')+'</td><td class="n">'+dif(comensales,llegaron,"",true)+'</td></tr>';
+    h+='<tr><td>Presupuestado (con IVA)</td><td class="n">'+eur(D.pt.total)+'</td><td class="n">'+eur(D.pt.pagado)+' <small>cobrado</small></td><td class="n">'+(D.pt.pend>0.5?'<span class="ci-mal">faltan '+eur(D.pt.pend)+'</span>':'<span class="ci-bien">cobrado</span>')+'</td></tr>';
+    if(r){
+      var real=r.per&&r.per.real;
+      h+='<tr><td>Personal de sala</td><td class="n">'+eur(r.perPrev!=null?r.perPrev:r.perTotal)+'</td><td class="n">'+(real?eur(r.perTotal)+' <small>'+window.LM_horasTxt(r.per.horasReales)+' reales</small>':'<small>sin horas reales</small>')+'</td><td class="n">'+(real?dif(r.perPrev,r.perTotal," €"):"")+'</td></tr>';
+      h+='<tr class="tot"><td>Costes del evento <small>(Rentabilidad)</small></td><td class="n" colspan="2">'+eur(r.costes)+'</td><td class="n"></td></tr>';
+      h+='<tr class="tot"><td>Margen <small>(ingresos sin IVA − costes)</small></td><td class="n" colspan="2"><b>'+eur(r.margen)+'</b>'+(r.pct!=null?' <small>'+String(Math.round(r.pct*10)/10).replace(".",",")+' %</small>':'')+'</td><td class="n"></td></tr>';
+    }
+    h+='</tbody></table></div>';
+    if(r) h+='<p class="ci-peq">Los costes de comida y bebida son los de <b>Rentabilidad</b> (calculados con los escandallos y los precios); lo que se mide de verdad aquí son los <b>cobros</b>, las <b>horas del personal</b> y los <b>comensales que llegaron</b>.</p>';
+    /* horas reales del servicio frente a las previstas */
+    if(cs&&cs.pasos&&cs.pasos.length){
+      var filas=cs.pasos.filter(function(p){ return p.prev||p.t; });
+      if(filas.length) h+='<h3 class="ci-h3">El servicio, hora a hora</h3><div class="ci-tabla"><table><thead><tr><th>Tiempo</th><th class="n">Previsto</th><th class="n">Real</th></tr></thead><tbody>'+filas.map(function(p){
+        return '<tr><td>'+esc(p.label)+'</td><td class="n">'+esc(p.prev||"—")+'</td><td class="n">'+(p.t?(p.tipo==="parada"&&p.t2?hhmm(p.t)+"–"+hhmm(p.t2):hhmm(p.t)):"—")+'</td></tr>'; }).join("")+'</tbody></table></div>';
+    }
+    /* personal: «María · 7,5 h · barra» */
+    if(H.filas&&H.filas.length){
+      h+='<h3 class="ci-h3">Personal de sala</h3><ul class="ci-per">'+H.filas.map(function(x){
+        return '<li><b>'+esc(x.nombre)+'</b> · '+(x.h!=null?esc(window.LM_horasTxt(x.h)):'<span class="ci-mal">sin horas</span>')+(x.fn?' · '+esc(x.fn):'')+'</li>'; }).join("")+'</ul>';
+    }
+    return h;
+  }
+  function pintar(host){
+    var e=evActual(); if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
+    var D=datos(e), P=puntos(D), st=estado(e), C=D.c, ed=puedeCerrar();
+    var faltan=P.filter(function(p){ return !p.hecho; }), cerrada=st==="cerrada", celeb=st==="celebrada"||cerrada;
+    var fecha=dm(e.ficha&&e.ficha.fecha), futuro=false; try{ var d=new Date((e.ficha.fecha||"")+"T00:00:00"); futuro=!isNaN(d)&&d>new Date(); }catch(_){}
+    var h='<div class="pv-inner ci-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Servicio en directo</div><h1 class="pv-title">Cierre del evento</h1>'+
+      '<div class="pv-sub">'+esc((BR.eventLabel?BR.eventLabel(e):e.name)||"Evento")+'</div>'+
+      '<p class="pv-guide">Lo que falta por hacer después del evento, lo previsto frente a lo real y una nota para la próxima vez.</p></div></header>';
+    h+='<div class="ci-estado '+(cerrada?"cerrada":celeb?"celeb":"")+'"><div><span>Estado</span><b>'+(cerrada?"Cerrado":celeb?"Celebrado":esc(({contacto:"Contacto",propuesta:"Propuesta",visita:"Visita",reserva:"Reserva",planificacion:"En planificación",confirmada:"Confirmado"})[st]||st))+'</b>'+
+      '<small>'+(cerrada&&C.cerradoTs?"Cerrado el "+fechaHora(C.cerradoTs)+" por "+esc(C.cerradoPor||""):celeb&&C.celebradoTs?"Marcado como celebrado el "+fechaHora(C.celebradoTs)+" por "+esc(C.celebradoPor||""):fecha?"Fecha del evento: "+fecha:"")+'</small></div><div class="ci-acc">'+
+      (!ed?'<small>Solo administración y eventos pueden cambiar el estado.</small>':
+        !celeb?'<button type="button" class="btn gold" data-ci="celebrado"'+(futuro?' title="El evento aún no ha llegado"':'')+'>Marcar como celebrado</button>'+(futuro?'<small>El evento es el '+esc(fecha)+': todavía no ha pasado.</small>':''):
+        cerrada?'<button type="button" class="btn" data-ci="reabrir">Reabrir</button>':
+        '<button type="button" class="btn gold" data-ci="cerrar"'+(faltan.length?' disabled':'')+'>Cerrar el evento</button>'+(faltan.length?'<small>Falta: '+faltan.map(function(p){ return esc(p.t.toLowerCase()); }).join(", ")+'.</small>':''))+'</div></div>';
+    h+='<h2 class="ci-h2">Lista de cierre <em>'+(P.length-faltan.length)+' de '+P.length+'</em></h2><ul class="ci-lista">'+P.map(function(p){
+      var ok=p.hecho;
+      return '<li class="'+(ok?"ok":"falta")+'"><i aria-hidden="true">'+(ok?"✓":"!")+'</i><div><b>'+esc(p.t)+'</b><span>'+esc(p.txt)+'</span>'+
+        (p.nota?'<textarea rows="2" maxlength="600" data-ci="txt" data-k="'+p.notaK+'" placeholder="'+esc(p.notaPh)+'" aria-label="'+esc(p.t)+'"'+(ed?'':' disabled')+'>'+esc(C[p.notaK]||"")+'</textarea>':'')+
+        '<div class="ci-pb">'+(p.ir?'<a href="#" data-ci="ir" data-s="'+p.ir+'">'+esc(p.irTxt)+'</a>':'')+
+        (!p.auto&&ed?'<label class="ci-conf"><input type="checkbox" data-ci="ok" data-k="'+p.k+'"'+(D.ok[p.k]?" checked":"")+'> '+esc(p.manual?"Hecho":p.conf)+'</label>':'')+'</div></div></li>'; }).join("")+'</ul>';
+    h+='<h2 class="ci-h2">Previsto y real</h2>'+resumenHTML(D);
+    h+='<h2 class="ci-h2">Nota para la próxima vez</h2><textarea class="ci-nota" rows="4" maxlength="2000" data-ci="txt" data-k="nota" placeholder="Qué fue bien, qué cambiaríamos, qué pidió el cliente que no estaba previsto…" aria-label="Nota para la próxima vez"'+(ed||rol()!=="compras"?'':' disabled')+'>'+esc(C.nota||"")+'</textarea>';
+    h+='</div>';
+    host.innerHTML=h;
+    var root=host.querySelector(".ci-wrap");
+    root.addEventListener("click",manejar); root.addEventListener("change",manejar);
+  }
+  function manejar(ev){
+    ev.stopPropagation();
+    var e=evActual(), host=document.getElementById("plan-scroll"); if(!e||!host) return;
+    var b=ev.target.closest?ev.target.closest("[data-ci]"):null; if(!b) return; var a=b.getAttribute("data-ci");
+    if(ev.type==="click"){
+      if(a==="celebrado"){ celebrado(e); toast("Evento marcado como celebrado."); pintar(host); }
+      else if(a==="cerrar"){ cerrar(e); toast("Evento cerrado."); pintar(host); }
+      else if(a==="reabrir"){ reabrir(e); toast("Evento reabierto (vuelve a «celebrado»)."); pintar(host); }
+      else if(a==="ir"){ ev.preventDefault(); if(window.irASeccion) window.irASeccion(b.getAttribute("data-s")); }
+    } else if(ev.type==="change"){
+      if(a==="ok"){ setOk(e,b.getAttribute("data-k"),b.checked); pintar(host); }
+      else if(a==="txt"){ setTxt(e,b.getAttribute("data-k"),b.value.trim()); }
+    }
+  }
+  window.LM_renderCierre=function(host){
+    var ae=document.activeElement;
+    if(ae&&host.contains(ae)&&ae.tagName==="TEXTAREA"&&host.querySelector(".ci-wrap")) return;
+    pintar(host);
+  };
+  window.LM_cierreDatos=function(e){ var D=datos(e); return {puntos:puntos(D).map(function(p){ return {k:p.k,hecho:p.hecho,auto:p.auto}; }),pt:D.pt,hrs:D.hrs,cs:D.cs}; };
+})();
+</script>
+
+<script>
 /* ══════════════════════════════════════════════════════════════════════
    PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
    Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
@@ -17680,10 +18182,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","fotos","docs","prev"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","fotos","docs","prev"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","prov","presup","inv","docs"]},
-    servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje","docs"]}
+    servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
   };
   var $=function(id){ return document.getElementById(id); };
   function readLocal(){ try{ var r=localStorage.getItem(AUTHKEY); return r?JSON.parse(r):null; }catch(_){ return null; } }
@@ -17749,10 +18251,14 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!d) return;
     try{ localStorage.setItem("lm_ajustes_v1",JSON.stringify({roles:d.roles||null,idleMin:d.idleMin==null?null:d.idleMin})); }catch(_){}
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
+    /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
+       administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
+    var NUEVAS=["cam-horas","cierre"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
-      var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null;
-      ROLES[k].secciones=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
+      var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
+      if(o) NUEVAS.forEach(function(sx){ if(known.indexOf(sx)<0&&Array.isArray(ROLES_DEF[k])&&ROLES_DEF[k].indexOf(sx)>=0&&lista.indexOf(sx)<0) lista.push(sx); });
+      ROLES[k].secciones=lista;
     });
     idleMin=(d.idleMin==null)?480:+d.idleMin; vigilarInactividad();
     try{ if(window.LM_refreshNav) window.LM_refreshNav(); }catch(_){}
@@ -18040,7 +18546,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       await accion(function(){ return api("/api/users","PATCH",{id:id,active:on}); },on?"Acceso activado.":"Acceso desactivado.",cargarUsers); return; }
     if(a==="borrar"&&u){ if(!window.confirm("¿Eliminar a "+u.name+" del todo? Ya no podrá entrar. (Si solo quieres quitarle el acceso un tiempo, es mejor «Desactivar».)")) return;
       await accion(function(){ return api("/api/users?id="+encodeURIComponent(id),"DELETE"); },"Persona eliminada.",cargarUsers); return; }
-    if(a==="guardar-perm"){ await accion(function(){ return api("/api/roles","PUT",{roles:U.draft}); },"Permisos guardados.",async function(){ U.sucio=false; await refrescarAjustes(); U.draft=null; pintar(); }); return; }
+    if(a==="guardar-perm"){ await accion(function(){ return api("/api/roles","PUT",{roles:U.draft,known:seccionesEditables().reduce(function(a,g){ return a.concat(g.items.map(function(x){ return x.k; })); },[])}); },"Permisos guardados.",async function(){ U.sucio=false; await refrescarAjustes(); U.draft=null; pintar(); }); return; }
     if(a==="perm-fabrica"){ if(!window.confirm("¿Volver a los permisos de fábrica de todos los roles?")) return;
       await accion(function(){ return api("/api/roles","PUT",{roles:null}); },"Permisos de fábrica restaurados.",async function(){ U.sucio=false; U.draft=null; await refrescarAjustes(); pintar(); }); return; }
     if(a==="reg-act"){ cargarReg(false); return; }
@@ -19053,7 +19559,8 @@ function vEvento(){
   h+='<div class="pv-sec">Personal <span class="pv-sec-note">— '+esc(eur(r.perTotal))+'</span></div><div class="pcard"><div class="fldset">'+
     '<label class="fld"><span class="lbl">Camareros <small>'+(p.asignados?p.asignados+" asignados":"previstos: "+p.n)+'</small></span><input type="text" inputmode="numeric" data-rp="ev" data-k="camareros" value="'+esc(numTx(R.camareros))+'" placeholder="'+esc(p.asignados||p.n)+'"></label>'+
     '<label class="fld"><span class="lbl">Horas por camarero</span><input type="text" inputmode="decimal" data-rp="ev" data-k="horas" value="'+esc(numTx(R.horas))+'" placeholder="'+esc(numTx(RP.horasCamarero))+'"></label>'+
-    '<div class="fld"><span class="lbl">Coste</span><div class="fld-val">'+p.n+' × '+esc(numTx(p.horas))+' h × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perTotal))+'</b>'+(p.estimado?' <span class="rt-est">estimado</span>':'')+'</div></div>'+
+    (p.real?'<div class="fld wide" style="grid-column:1/-1"><span class="lbl">Coste con las horas reales</span><div class="fld-val">'+p.nReal+(p.nReal===1?' camarero':' camareros')+' · <b>'+esc(numTx(p.horasReales))+' h</b>'+(p.faltanH?' + '+p.faltanH+' × '+esc(numTx(p.horas))+' h previstas (sin hora apuntada)':'')+' × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perTotal))+'</b> <span class="rt-est">real</span> <small>(previsto: '+esc(eur(r.perPrev))+')</small></div></div>':'')+
+    '<div class="fld"><span class="lbl">Coste previsto</span><div class="fld-val">'+p.n+' × '+esc(numTx(p.horas))+' h × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perPrev!=null?r.perPrev:r.perTotal))+'</b>'+(p.estimado?' <span class="rt-est">estimado</span>':'')+'</div></div>'+
     '</div></div>';
   /* ingresos */
   h+='<div class="pv-sec">Ingresos</div><div class="pcard"><div class="rt-lines">'+

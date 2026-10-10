@@ -181,12 +181,25 @@ se recupera con el código manual por evento.
 - **Permisos:** lo ven administración, eventos, cocina y servicio; **compras no** (ni la pantalla ni la API). En «Equipo y accesos → Roles y permisos» sale como sección fija.
 - **Comprobado** (servidor real, dos móviles + uno de Compras): «Salido» llega al otro móvil en **2,5 s** (el objetivo era 6 s); la parada en curso con su contador; dos pulsaciones a la vez → una sola hora; llegadas, buscador, filtros y «Han llegado todos»; avisos con alerta, resolución y envío con Intro; corte de cobertura y subida al volver; recargar y que todo siga; corregir hora y deshacer; terminar y que el otro móvil lo vea; el registro llega al documento del servidor; claves, horas absurdas, textos largos y tope de datos en la API; permisos (compras 403); anonimización; funciona también sin servidor (vista previa) y sin desbordes en 390 px.
 
-### 2.2 Turnos y horas de camareros — *~2 días* — v01.63
-- **Qué:** asignar personal a cada evento (ya hay disponibilidad, alta/baja y reparto por tiempos); registrar **hora real de entrada y salida**; total de horas por camarero y por mes; exportación a Excel/CSV para la gestoría. Hoja por camarero con sus funciones y su horario.
-- **Hecho cuando:** al cerrar un evento sale el resumen «María · 7,5 h · barra» y el CSV mensual cuadra.
+### 2.2 Turnos y horas de camareros — ✅ **hecho en la v01.63**
+- **Camareros → «Turnos y horas»** (administración, eventos y servicio):
+  - **Este evento:** una fila por camarero confirmado, con su **función del reparto** («Barra, Servir mesas») y su hora prevista de entrada. Se apunta la **entrada y la salida reales** (con un botón **«Ahora»** para fichar de un toque) y la **pausa**; las horas salen solas, también cuando se pasa de medianoche (17:30 → 01:00 con 30 min de pausa = 7 h). Totales del evento, aviso de quién tiene entrada y **no salida**, y «Poner la hora prevista de entrada a todos».
+  - **Por mes:** total de horas por camarero y por evento, con aviso de los eventos del mes **sin horas apuntadas** (para que el total no engañe). **CSV para la gestoría** (detalle y resumen): separado por «;», coma decimal, fechas dd/mm/aaaa y una fila TOTAL; se abre en Excel en español sin tocar nada.
+  - **Hojas por camarero:** hoja en PDF con el horario del evento (briefing, banquete…), la hora de entrada y las **funciones por tiempo** de cada uno; de uno solo o de todo el equipo.
+- **Dos personas a la vez:** las horas viven dentro del evento y se juntan **campo a campo** (una cambia la salida y otra la pausa de la misma persona: se conservan las dos).
+- **Rentabilidad:** el coste del personal pasa a calcularse con las **horas reales × €/hora**; si a algún camarero le falta su hora, ese va con las horas previstas. Lo que se escriba a mano en Rentabilidad manda sobre todo.
+- **Permisos y datos personales:** lo que se apunta (horas y notas) entra en el aviso de privacidad como **registro de jornada (obligación legal, 4 años)**; las notas libres se borran al anonimizar o al «borrar a una persona».
+- **Comprobado:** 7 h con medianoche y pausa, 6 h, 5,5 h y «falta salida»; totales; el servidor recibe las horas y Servicio las ve; dos ediciones a la vez; CSV (BOM, «;», coma decimal, suma de filas = fila TOTAL = 18,75 h); hoja de un camarero y PDF descargado; Rentabilidad = 18,75 h × 15 €/h = 281,25 €; cocina no ve la sección; sin desborde en 390 px.
 
-### 2.3 Cierre del evento — *~1 día* — v01.63
-- Lista de cierre (cobros pendientes, devoluciones de material, incidencias, nota para la próxima vez) y paso del evento a «celebrado» con su resumen económico real frente a lo presupuestado (conecta con Rentabilidad).
+### 2.3 Cierre del evento — ✅ **hecho en la v01.63**
+- **«Servicio en directo → Cierre del evento»** (administración y eventos): para el evento ya celebrado,
+  - **Lista de cierre** con casi todo calculado solo: **cobros** (lo que falta por cobrar del presupuesto), **material y alquileres** (con su nota), **avisos del servicio** (los que quedaron sin resolver en el modo servicio) y **horas del personal**. Si algo no cuadra se puede marcar «acordado/revisado» a mano.
+  - **Previsto y real:** comensales previstos frente a los que llegaron, presupuestado frente a cobrado, **personal previsto frente a real** (con las horas apuntadas), costes y margen de **Rentabilidad**, y la escaleta **hora a hora** (previsto y real). Debajo, el personal: «María · 7 h · Barra, Servir mesas».
+  - **Nota para la próxima vez** (qué fue bien, qué cambiaríamos).
+  - **Estados:** «Marcar como celebrado» → «Cerrar el evento» (solo cuando la lista está completa; queda quién y cuándo) → «Reabrir» si hace falta.
+- **Las cifras coinciden con Rentabilidad:** el personal real que sale en el cierre es el mismo que usa Rentabilidad (281,25 € en la prueba).
+- **Roles:** «Turnos y horas» y «Cierre» llegan solos a quien los tiene de fábrica (eventos/servicio) aunque el administrador ya hubiera guardado los permisos antes; si los quita a propósito, se respeta (el servidor apunta qué secciones conocía).
+- **Comprobado:** lista (3 pendientes + horas que cuadra sola), celebrado → bloqueo de cerrar → confirmar → cerrado, nota y material en el servidor, reabrir, cocina no entra, historial del evento con las secciones «camareros» y «cierre», y que el RGPD (buscar y borrar a una persona) alcanza a las notas nuevas y a los avisos del modo servicio.
 
 ---
 

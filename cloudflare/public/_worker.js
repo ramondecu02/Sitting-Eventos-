@@ -634,6 +634,8 @@ function anonEvento(e, ahora) {
   c.share = { on: false, id: "" };
   delete c.rev; delete c.avisos;
   /* el resumen del servicio conserva las horas, pero no los textos libres de las incidencias ni las notas */
+  if (c.cierre) { delete c.cierre.nota; delete c.cierre.material; }
+  if (c.turnos) Object.keys(c.turnos).forEach((id) => { if (c.turnos[id]) delete c.turnos[id].nota; });
   if (c.cierreServicio) { const cs = c.cierreServicio; cs.notas = ""; if (Array.isArray(cs.incidencias)) cs.incidencias = cs.incidencias.map((x) => ({ mesa: (x && x.mesa) || "", t: x && x.t, hecha: !!(x && x.hecha) })); }
   /* de cada pago solo queda la palabra genérica (Señal, Resto…): lo demás puede llevar un nombre */
   if (c.presupuesto && Array.isArray(c.presupuesto.pagos)) c.presupuesto.pagos.forEach((x) => { if (!x) return; const m = /^(señal|senal|resto|anticipo|reserva)/i.exec(String(x.concepto || "")); x.concepto = m ? m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() : "Pago"; if (x.nota) x.nota = ""; });
@@ -737,6 +739,10 @@ function buscarEnEvento(e, qn, borrar) {
   });
   FICHA_PERS.forEach((k) => { if (F[k] && normTxt(F[k]).indexOf(qn) >= 0) { hit.ficha++; if (borrar) F[k] = ""; } });
   (e.comunicaciones || []).forEach((c) => { if (c && normTxt(JSON.stringify(c)).indexOf(qn) >= 0) { hit.otros++; if (borrar) { c.nota = "(borrado)"; c.texto = "(borrado)"; } } });
+  /* lo que se escribe a mano después del evento: nota y material del cierre, notas de turnos, avisos y notas del servicio */
+  const CS = e.cierre; if (CS) ["nota", "material"].forEach((k) => { if (CS[k] && normTxt(CS[k]).indexOf(qn) >= 0) { hit.otros++; if (borrar) CS[k] = "(borrado)"; } });
+  Object.keys(e.turnos || {}).forEach((id) => { const t = e.turnos[id]; if (t && t.nota && normTxt(t.nota).indexOf(qn) >= 0) { hit.otros++; if (borrar) t.nota = "(borrado)"; } });
+  const SV = e.cierreServicio; if (SV) { (SV.incidencias || []).forEach((x) => { if (x && x.txt && normTxt(x.txt).indexOf(qn) >= 0) { hit.otros++; if (borrar) x.txt = "(borrado)"; } }); if (SV.notas && normTxt(SV.notas).indexOf(qn) >= 0) { hit.otros++; if (borrar) SV.notas = "(borrado)"; } }
   if (borrar && (hit.plano || hit.ficha || hit.otros)) { e.text = lines.join("\n"); if (hit.plano && e.menu) { delete e.menu.aperAdapt; delete e.menu.alerOk; } }
   return hit;
 }
@@ -753,12 +759,18 @@ async function privPersona(request, env) {
     (d.mesas || []).forEach((m) => (m.g || []).forEach((g) => { if (normTxt(g.n || "").indexOf(qn) >= 0) { n++; if (borrar) { g.n = "Persona anonimizada"; g.a = ""; } } }));
     ["parejaA", "parejaB"].forEach((k) => { if (d[k] && normTxt(d[k]).indexOf(qn) >= 0) { n++; if (borrar) d[k] = ""; } });
     if (n) listas[r.token] = { n, ev: r.event_id, data: d }; });
+  /* los avisos y notas del modo servicio (su tabla propia): se cuentan por evento y se borran junto con el resto de datos vivos del evento */
+  await ensureServicio(env);
+  const svHits = {};
+  { const r2 = await env.DB.prepare("SELECT ev, v FROM servicio WHERE del=0 AND (k LIKE 'inc:%' OR k='nota')").all();
+    (r2.results || []).forEach((r) => { let v = null; try { v = JSON.parse(r.v); } catch (_) {} if (v && v.txt && normTxt(v.txt).indexOf(qn) >= 0) svHits[r.ev] = (svHits[r.ev] || 0) + 1; }); }
   let tocados = [];
   const res = await storeEditar(env, (doc) => {
     cuentas.length = 0; tocados = [];
     doc.events = (doc.events || []).map((e) => {
       if (!e || !e.id || e.anonimizado) return e;
       const c = borrar ? JSON.parse(JSON.stringify(e)) : JSON.parse(JSON.stringify(e)), h = buscarEnEvento(c, qn, borrar);
+      h.otros += svHits[e.id] || 0;
       const total = h.plano + h.ficha + h.otros + Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0);
       if (!total) return e;
       cuentas.push({ id: e.id, name: e.name || "", fecha: (e.ficha && e.ficha.fecha) || "", plano: h.plano, ficha: h.ficha, otros: h.otros, lista: Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0) });
@@ -1178,7 +1190,7 @@ async function bkRestaurar(request, env) {
    Volver a una versión también deja su línea (con lo que había antes), de modo
    que se puede deshacer. */
 const HI_RAFAGA = 10 * 60e3, HI_MAX = 50;
-const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "portal del cliente", "otros datos"];
+const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "portal del cliente", "otros datos"];
 let HI_OK = false;
 async function ensureHistorial(env) {
   if (HI_OK) return;
@@ -1190,7 +1202,8 @@ async function ensureHistorial(env) {
 function hiSeccion(k) {
   if (/^(text|name|plans|loc|tpl\w*|userSize|rot\w*|pos|plan\w*)$/.test(k)) return "plano";
   if (k === "ficha") return "ficha";
-  if (/^camareros|^reparto$/.test(k)) return "camareros";
+  if (/^camareros|^reparto$|^turnos$/.test(k)) return "camareros";
+  if (k === "cierre" || k === "cierreServicio") return "cierre";
   if (k === "hitos" || k === "agendaHecho") return "agenda";
   if (k === "tareas") return "tareas";
   if (k === "proveedores") return "proveedores";
@@ -1723,8 +1736,10 @@ async function rolesPut(request, env) {
     /* lo del administrador (parámetros, rentabilidad, copias, usuarios) no se puede dar a otros roles */
     out[r] = b.roles[r].map(String).filter((k) => /^[a-z0-9-]{1,30}$/.test(k) && !/^(p-|r-)/.test(k) && k !== "users" && k !== "copias").slice(0, 80);
   });
+  /* las secciones que existían cuando se guardaron los permisos: las que se añadan después llegan solas a quien las tiene de fábrica */
+  if (Array.isArray(b.known)) out._known = b.known.map(String).filter((k) => /^[a-z0-9-]{1,30}$/.test(k)).slice(0, 200);
   await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('roles', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(out)).run();
-  await logAct(env, a.s, "roles_cambiados", Object.keys(out).map((r) => rolTxt(r) + ": " + out[r].length + " secciones").join(" · "));
+  await logAct(env, a.s, "roles_cambiados", Object.keys(out).filter((r) => r !== "_known").map((r) => rolTxt(r) + ": " + out[r].length + " secciones").join(" · "));
   return json({ ok: true, roles: out });
 }
 async function seguridadPut(request, env) {
