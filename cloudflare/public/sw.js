@@ -5,7 +5,7 @@
    · La API (/api/…) NUNCA pasa por aquí: los datos de trabajo ya se guardan primero en el propio
      dispositivo y se suben cuando vuelve la conexión (lo hace la app).
    La versión (V) la pone el despliegue: al cambiar, se guarda la app nueva y se borra la vieja. */
-const V = "01.61";
+const V = "01.62";
 const SHELL = "lm-app-" + V, EST = "lm-estaticos-1";
 const PRE = ["/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
 

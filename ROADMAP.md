@@ -170,14 +170,16 @@ se recupera con el código manual por evento.
 
 ## 3. Fase 2 — El día del evento (días 4–9)
 
-### 2.1 Modo servicio — *2–3 días* — v01.62
-- **Qué:** una pantalla pensada para móvil, con letra grande, para sala y cocina durante el evento:
-  - escaleta **en directo** (qué toca ahora, qué viene, cuánto dura la parada en curso);
-  - botón por plato/tiempo «**Salido**» con hora real, visible para todos en segundos (reutiliza el latido de 5 s ya existente);
-  - plano con **alergias por mesa** en grande y búsqueda de invitado;
-  - llegada de invitados (marcar presentes) y recuento en vivo;
-  - incidencias rápidas («falta pan en mesa 4») que ve el responsable.
-- **Hecho cuando:** dos móviles ven el mismo estado en menos de 6 s; tras el evento queda el **registro real de horas** (comparado con la escaleta prevista).
+### 2.1 Modo servicio — ✅ **hecho en la v01.62**
+- **Una pantalla para el móvil, con letra grande** (menú → «Servicio en directo → Modo servicio»; y el día del evento el **Inicio** enseña un aviso «HOY» con un botón que la abre). Tres pestañas:
+  - **Ahora:** la escaleta en directo. Lo que toca ahora (aperitivos, estaciones, 1.º, 2.º… postre, tarta, cafés, ressopó y la barra libre si la ficha tiene su hora), con un botón enorme **«Salido»** que apunta la hora real y quién lo pulsó. Las **paradas** de la escaleta (regalos, discursos…) salen en su sitio, con «Empieza / Termina» y un contador de cuánto lleva y cuánto queda. Debajo, **«Con plato sustituto en este tiempo»**: quién lleva sustituto y en qué mesa. «A continuación» (con «Ya salió» por si se salta un orden) y «Ya servido» con **cambiar hora** y **deshacer**.
+  - **Mesas:** todas las mesas con **las alergias en grande** (etiqueta roja), dietas, niños y el plato que le toca a quien lo lleva decidido; **buscador** (nombre, mesa o alergia) y filtros (con alergia, faltan por llegar, ya han llegado); casilla grande por invitado para marcar que **ha llegado** y «Han llegado todos» por mesa; recuento en vivo (adultos, niños, bebés, staff).
+  - **Avisos:** incidencias de un toque («Falta pan», «Falta agua», «Derrame o limpieza», «Duda de alergia»…) con la mesa elegida, o escritas a mano. Al resto del equipo le sale una **alerta** (y vibra el móvil) y la pestaña se marca; se marcan como resueltas y queda quién las resolvió.
+- **Varios móviles a la vez:** el estado del servicio **no va dentro del documento del negocio** (serían muchos cambios pequeños que se pisarían): tiene su propia tabla `servicio` con una versión por dato, y cada móvil pregunta cada 3 s «¿qué ha cambiado desde la versión N?». Si dos personas pulsan «Salido» a la vez, **gana la hora de la primera**.
+- **Sin cobertura (muy típico en un salón):** los cambios se ven al instante en el móvil, se guardan en él y suben solos al volver la señal («Sin conexión · 2 cambios por enviar»). La pantalla del móvil no se apaga mientras está abierto el modo servicio.
+- **Al terminar:** «Terminar servicio» (administración, eventos y servicio) guarda **dentro del evento** el registro real: hora prevista y hora real de cada tiempo y parada, cuántos invitados llegaron de cuántos, y los avisos con su resolución. Se puede reabrir. Los datos «vivos» se borran solos a los 90 días y al anonimizar un evento; en el servidor las llegadas se guardan con una **huella del nombre**, no con el nombre.
+- **Permisos:** lo ven administración, eventos, cocina y servicio; **compras no** (ni la pantalla ni la API). En «Equipo y accesos → Roles y permisos» sale como sección fija.
+- **Comprobado** (servidor real, dos móviles + uno de Compras): «Salido» llega al otro móvil en **2,5 s** (el objetivo era 6 s); la parada en curso con su contador; dos pulsaciones a la vez → una sola hora; llegadas, buscador, filtros y «Han llegado todos»; avisos con alerta, resolución y envío con Intro; corte de cobertura y subida al volver; recargar y que todo siga; corregir hora y deshacer; terminar y que el otro móvil lo vea; el registro llega al documento del servidor; claves, horas absurdas, textos largos y tope de datos en la API; permisos (compras 403); anonimización; funciona también sin servidor (vista previa) y sin desbordes en 390 px.
 
 ### 2.2 Turnos y horas de camareros — *~2 días* — v01.63
 - **Qué:** asignar personal a cada evento (ya hay disponibilidad, alta/baja y reparto por tiempos); registrar **hora real de entrada y salida**; total de horas por camarero y por mes; exportación a Excel/CSV para la gestoría. Hoja por camarero con sus funciones y su horario.

@@ -40,6 +40,8 @@
  *   GET  /api/planos/ver?k=..   un plano de fondo con su imagen (con sesión)
  *   PUT  /api/planos            {k,w,h,src} sube o cambia un plano de fondo (admin, eventos y servicio)
  *   DELETE /api/planos?k=..     quita un plano de fondo (admin, eventos y servicio)
+ *   GET  /api/servicio?ev=..&since=N   modo servicio: lo que ha cambiado en el evento desde la versión N (cualquier rol salvo compras)
+ *   POST /api/servicio          {ev, since?, ops:[{k, v | del, nx?}]}: platos salidos, invitados llegados, incidencias; devuelve lo nuevo
  *   GET  /api/health            ¿vivo? (público, sin datos; para un vigilante externo tipo UptimeRobot)
  *   POST /api/error             {msg,src?,v?} la app avisa de un error que le ha saltado (con sesión)
  *   GET  /api/estado            estado del sistema: último guardado, copias, tamaño del documento, errores (solo admin)
@@ -129,6 +131,8 @@ async function api(request, env, url) {
   if (p === "/api/planos/ver" && m === "GET") return planosVer(request, env, url);
   if (p === "/api/planos" && m === "PUT") return planosPut(request, env);
   if (p === "/api/planos" && m === "DELETE") return planosDel(request, env, url);
+  if (p === "/api/servicio" && m === "GET") return servicioGet(request, env, url);
+  if (p === "/api/servicio" && m === "POST") return servicioPost(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -629,6 +633,8 @@ function anonEvento(e, ahora) {
   if (c.menu) { delete c.menu.minuta; delete c.menu.aperAdapt; delete c.menu.alerOk; delete c.menu.aperitivosPorAlergia; }
   c.share = { on: false, id: "" };
   delete c.rev; delete c.avisos;
+  /* el resumen del servicio conserva las horas, pero no los textos libres de las incidencias ni las notas */
+  if (c.cierreServicio) { const cs = c.cierreServicio; cs.notas = ""; if (Array.isArray(cs.incidencias)) cs.incidencias = cs.incidencias.map((x) => ({ mesa: (x && x.mesa) || "", t: x && x.t, hecha: !!(x && x.hecha) })); }
   /* de cada pago solo queda la palabra genérica (Señal, Resto…): lo demás puede llevar un nombre */
   if (c.presupuesto && Array.isArray(c.presupuesto.pagos)) c.presupuesto.pagos.forEach((x) => { if (!x) return; const m = /^(señal|senal|resto|anticipo|reserva)/i.exec(String(x.concepto || "")); x.concepto = m ? m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() : "Pago"; if (x.nota) x.nota = ""; });
   c.anonimizado = { ts: ahora };
@@ -637,8 +643,9 @@ function anonEvento(e, ahora) {
   return c;
 }
 async function privLimpiarTablas(env, ids, nombres) {
-  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env);
+  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env);
   for (const id of ids) {
+    await env.DB.prepare("DELETE FROM servicio WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM historial WHERE event_id=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM papelera WHERE event_id=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM novios_listas WHERE event_id=?1").bind(String(id)).run();
@@ -841,6 +848,101 @@ async function planosDel(request, env, url) {
     .bind(k, v, s.name || s.email || "").run();
   await logAct(env, s, "plano_quitado", k.replace(/^loc:/, "Plano común: ").replace(/^ev:[^:]+:/, "Plano propio de un evento: "));
   return json({ ok: true, v });
+}
+
+/* ── MODO SERVICIO (el día del evento) ───────────────────────────────────────
+   Varios móviles a la vez (sala, cocina, responsable) ven y cambian el mismo
+   estado del servicio en directo: qué plato ha salido y a qué hora real, qué
+   invitados han llegado y las incidencias («falta pan en la mesa 4»). No va
+   dentro del documento del negocio: son muchos cambios pequeños y seguidos, y
+   si fueran en el documento se pisarían entre sí. Cada dato es una fila
+   (evento + clave) con un número de versión que sube con cada cambio, así cada
+   móvil solo pide «lo que ha cambiado desde la versión N» y llega en segundos.
+     paso:<id>      un tiempo de la escaleta o una parada: {t: hora real de salida, t2: hora de fin (paradas)}
+     pres:<mesa>:<h> un invitado ha llegado: {t}. La clave lleva una huella del nombre, no el nombre
+     inc:<id>       una incidencia: {txt, mesa, estado: abierta|hecha, autor, t, rt, rby}
+     nota / estado  nota libre del servicio · {ini, fin} cuando el responsable empieza o termina
+   Al terminar, la app guarda un resumen (horas reales frente a las previstas)
+   dentro del evento y esto se borra solo a los 90 días. «nx» = solo si no
+   estaba ya (así dos personas que pulsan «Salido» a la vez no se pisan la hora). */
+let SV_OK = false;
+const SV_KEY = /^(paso:[A-Za-z0-9_:.-]{1,70}|pres:[A-Za-z0-9_:-]{1,50}|inc:[A-Za-z0-9_-]{1,30}|nota|estado)$/;
+const SV_EV = /^[A-Za-z0-9_.-]{1,80}$/;
+const SV_MAX_FILAS = 3000, SV_MAX_OPS = 60, SV_PAGINA = 1000;
+async function ensureServicio(env) {
+  if (SV_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS servicio (ev TEXT NOT NULL, k TEXT NOT NULL, v TEXT, t INTEGER NOT NULL, by_name TEXT, del INTEGER NOT NULL DEFAULT 0, seq INTEGER NOT NULL, PRIMARY KEY (ev, k))").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS servicio_seq ON servicio (ev, seq)").run();
+  SV_OK = true;
+}
+/* el servicio lo ven todos los roles salvo Compras (que no está en sala) */
+function servicioPuede(s) { return !!s && s.role !== "compras"; }
+async function servicioDelta(env, ev, since) {
+  const mx = await env.DB.prepare("SELECT COALESCE(MAX(seq), 0) AS m FROM servicio WHERE ev=?1").bind(ev).first();
+  const tope = (mx && +mx.m) || 0;
+  /* si el móvil dice una versión mayor que la que hay (se restauró una copia o se limpió), que empiece de cero */
+  let reset = false; if (since > tope) { since = 0; reset = true; }
+  const { results } = await env.DB.prepare("SELECT k, v, t, by_name, del, seq FROM servicio WHERE ev=?1 AND seq>?2 ORDER BY seq LIMIT " + SV_PAGINA).bind(ev, since).all();
+  const items = (results || []).map((r) => { let v = null; try { v = r.v == null ? null : JSON.parse(r.v); } catch (_) {} return { k: r.k, v, t: +r.t, by: r.by_name || "", del: !!r.del, seq: +r.seq }; });
+  const seq = items.length ? items[items.length - 1].seq : since;
+  return { seq, now: Date.now(), items, more: items.length >= SV_PAGINA, reset };
+}
+async function servicioGet(request, env, url) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  if (!servicioPuede(s)) return json({ error: "forbidden", message: "Tu rol no tiene el modo servicio." }, 403);
+  const ev = String(url.searchParams.get("ev") || ""); if (!SV_EV.test(ev)) return json({ error: "invalid" }, 400);
+  await ensureServicio(env);
+  if (Math.random() < 0.01) { try { await env.DB.prepare("DELETE FROM servicio WHERE t < ?1").bind(Date.now() - 90 * 864e5).run(); } catch (_) {} }
+  return json(await servicioDelta(env, ev, Math.max(0, Math.floor(+url.searchParams.get("since") || 0))));
+}
+/* lo que se guarda de cada cosa, limpio: el móvil no decide nada más que el contenido */
+function svLimpiar(k, v, ahora, previo, nombre) {
+  const num = (x, def) => { x = +x; return isFinite(x) && Math.abs(x - ahora) < 36 * 36e5 ? Math.round(x) : def; };
+  const txt = (x, n) => String(x == null ? "" : x).replace(/[\u0000-\u001f]+/g, " ").trim().slice(0, n);
+  v = v && typeof v === "object" ? v : {};
+  if (k.startsWith("paso:")) { const o = { t: num(v.t, ahora) }; if (v.t2 != null) o.t2 = num(v.t2, ahora); return o; }
+  if (k.startsWith("pres:")) return { t: num(v.t, ahora) };
+  if (k.startsWith("inc:")) {
+    const o = { txt: txt(v.txt, 300), mesa: txt(v.mesa, 40), cat: txt(v.cat, 30), estado: v.estado === "hecha" ? "hecha" : "abierta", t: previo && previo.t ? +previo.t : num(v.t, ahora), autor: previo && previo.autor ? previo.autor : nombre };
+    if (!o.txt && !o.cat) return null;
+    if (o.estado === "hecha") { o.rt = num(v.rt, ahora); o.rby = nombre; }
+    return o;
+  }
+  if (k === "nota") return { txt: txt(v.txt, 2000) };
+  if (k === "estado") { const o = {}; if (v.ini != null) o.ini = num(v.ini, ahora); if (v.fin != null) o.fin = num(v.fin, ahora); return o; }
+  return null;
+}
+async function servicioPost(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  if (!servicioPuede(s)) return json({ error: "forbidden", message: "Tu rol no tiene el modo servicio." }, 403);
+  const b = await body(request), ev = String(b.ev || "");
+  if (!SV_EV.test(ev) || !Array.isArray(b.ops) || b.ops.length > SV_MAX_OPS) return json({ error: "invalid" }, 400);
+  await ensureServicio(env);
+  const nombre = s.name || s.email || "", ahora = Date.now();
+  const cnt = await env.DB.prepare("SELECT COUNT(*) AS n FROM servicio WHERE ev=?1").bind(ev).first();
+  let filas = (cnt && +cnt.n) || 0, hechas = 0, finServicio = false;
+  for (const op of b.ops) {
+    const k = String(op && op.k || ""); if (!SV_KEY.test(k)) continue;
+    const prev = await env.DB.prepare("SELECT v, del FROM servicio WHERE ev=?1 AND k=?2").bind(ev, k).first();
+    let pv = null; try { pv = prev && prev.v ? JSON.parse(prev.v) : null; } catch (_) {}
+    const vivo = !!(prev && !prev.del);
+    if (op.nx && vivo) continue;
+    let val = null, del = 0;
+    if (op.del) del = 1; else { val = svLimpiar(k, op.v, ahora, pv, nombre); if (!val) continue; }
+    if (del && !vivo) continue;
+    if (!prev && filas >= SV_MAX_FILAS) return json({ error: "too-many", message: "Demasiados datos en este servicio." }, 429);
+    if (!prev) filas++;
+    await env.DB.prepare("INSERT INTO servicio (ev, k, v, t, by_name, del, seq) VALUES (?1, ?2, ?3, ?4, ?5, ?6, (SELECT COALESCE(MAX(seq), 0) + 1 FROM servicio WHERE ev=?1)) ON CONFLICT(ev, k) DO UPDATE SET v=?3, t=?4, by_name=?5, del=?6, seq=(SELECT COALESCE(MAX(seq), 0) + 1 FROM servicio WHERE ev=?1)")
+      .bind(ev, k, del ? null : JSON.stringify(val), ahora, nombre, del).run();
+    hechas++;
+    if (k === "estado" && val && val.fin) finServicio = true;
+  }
+  if (finServicio) { try { await logAct(env, s, "servicio_terminado", "Servicio terminado (evento " + ev + ")"); } catch (_) {} }
+  const d = await servicioDelta(env, ev, Math.max(0, Math.floor(+b.since || 0)));
+  d.ok = true; d.hechas = hechas;
+  return json(d);
 }
 
 /* ── COPIAS DE SEGURIDAD, PAPELERA Y RESTAURAR ────────────────────────────
