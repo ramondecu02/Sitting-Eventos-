@@ -21,12 +21,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.63 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.64 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.63".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.64".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3732,6 +3732,66 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .ci-nota{min-height:110px}
 .ch-c>div{min-width:0}
 @media (max-width:1380px) and (min-width:901px){ .ch-fila{grid-template-columns:minmax(150px,1fr) 70px repeat(2,minmax(200px,1.2fr))} .ch-p{grid-column:1} .ch-h{grid-column:2} .ch-n{grid-column:3/-1} }
+
+/* ══ Avisos y correo · WhatsApp ══ */
+.av-wrap{max-width:980px}
+.av-aviso{padding:12px 16px; border:1px solid var(--warning); background:var(--warning-soft); border-radius:12px; font-size:14.5px; line-height:1.45; margin:0 0 16px}
+.av-aviso.mal{border-color:var(--danger); background:var(--danger-soft)}
+.av-aviso a,.av-guia a{color:var(--accent-tx,var(--c-ink)); font-weight:700}
+.av-sec{margin:0 0 20px; background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:16px 18px}
+.av-sec h2{margin:0 0 10px; font:600 19px/1.25 var(--font-display,Georgia,serif); display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px}
+.av-sec h2 small{font:500 13px/1.3 var(--font-text,system-ui); color:var(--c-mut)}
+.av-fila{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 14px; padding:11px 12px; border:1px solid var(--c-line); border-left:5px solid var(--c-line-2); border-radius:12px; margin:0 0 8px; background:var(--bg)}
+.av-fila.pronto{border-left-color:var(--warning)} .av-fila.tarde{border-left-color:var(--danger)} .av-fila.hecha{border-left-color:var(--success); opacity:.82}
+.av-q{min-width:0; flex:1 1 240px; display:flex; flex-direction:column; gap:2px}
+.av-q b{font-size:15.5px; overflow-wrap:anywhere} .av-q small{color:var(--c-mut); font-size:13px; overflow-wrap:anywhere}
+.av-b,.av-b2{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.av-fila .btn.sm,.av-b2 .btn.sm,.av-pie .btn{min-height:42px}
+.av-wa{text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
+a.av-wa{background:#1F8F4E; border-color:#1F8F4E; color:#fff}
+a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
+.av-ok{color:var(--success); font-weight:700; font-size:13px}
+.av-est{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.06em; text-transform:uppercase; padding:5px 9px; border-radius:99px}
+.av-est:empty{display:none} .av-est.avisar{background:var(--warning-soft); color:var(--warning-tx)} .av-est.avisado{background:var(--success-soft); color:var(--success)}
+.av-vacio{margin:4px 0 8px; color:var(--c-mut); font-size:14px}
+.av-pie{margin-top:10px}
+.av-comp{margin:6px 0 4px; padding:14px; border:2px solid var(--gold); border-radius:14px; background:var(--panel); display:flex; flex-direction:column; gap:10px}
+.av-comp label{display:flex; flex-direction:column; gap:4px; font:700 11px/1.2 var(--font-text,system-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut)}
+.av-comp input,.av-comp textarea{font:400 15px/1.45 var(--font-text,system-ui); letter-spacing:0; text-transform:none; color:var(--c-ink); background:var(--field); border:1px solid var(--c-line-2); border-radius:10px; padding:9px 11px; width:100%; resize:vertical}
+.av-comp textarea{min-height:170px}
+.av-cb{display:flex; flex-wrap:wrap; gap:8px}
+.av-res{margin:8px 0 0; padding:9px 12px; border-radius:10px; font-size:14px; line-height:1.4}
+.av-res.ok{background:var(--success-soft); color:var(--success)} .av-res.sim{background:var(--warning-soft); color:var(--warning-tx)} .av-res.mal{background:var(--danger-soft); color:var(--danger)}
+.av-vista{margin:12px 0 0; padding:14px; background:var(--bg-2); border:1px solid var(--c-line); border-radius:12px; font:13.5px/1.55 var(--font-text,system-ui); white-space:pre-wrap; max-height:420px; overflow:auto}
+.av-tog{display:inline-flex; gap:4px; padding:4px; border:1px solid var(--c-line); border-radius:99px; margin:0 0 12px}
+.av-tog button{border:0; background:transparent; font:600 13px var(--font-text); color:var(--c-mut); padding:8px 16px; border-radius:99px; cursor:pointer; min-height:38px}
+.av-tog button.on{background:var(--c-ink); color:var(--bg)}
+.av-tabla{overflow-x:auto}
+.av-tabla table{width:100%; border-collapse:collapse; font-size:14px}
+.av-tabla th{text-align:left; font:700 11px/1 var(--font-text); letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut); padding:10px 10px; border-bottom:1px solid var(--c-line)}
+.av-tabla td{padding:10px; border-bottom:1px solid var(--c-hair); vertical-align:top; overflow-wrap:anywhere}
+.av-badge{font:700 11px/1 var(--font-text); letter-spacing:.05em; text-transform:uppercase; padding:4px 9px; border-radius:99px; background:var(--bg-2); color:var(--c-mut)}
+.av-badge.enviado{background:var(--success-soft); color:var(--success)} .av-badge.simulado{background:var(--warning-soft); color:var(--warning-tx)} .av-badge.error{background:var(--danger-soft); color:var(--danger)}
+.av-err{color:var(--danger)}
+.av-fila-ficha{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0; grid-column:1/-1}
+/* Parámetros → Correo y avisos */
+.av-estado{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin:0 0 14px}
+.av-estado>div{background:var(--panel); border:1px solid var(--c-line); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:3px}
+.av-estado.ok>div:first-child{border-color:var(--success); background:var(--success-soft)} .av-estado.no>div:first-child{border-color:var(--warning); background:var(--warning-soft)}
+.av-estado span{font:700 10px/1.2 var(--font-text); letter-spacing:.12em; text-transform:uppercase; color:var(--c-mut)}
+.av-estado b{font:600 22px/1.15 var(--font-display,Georgia,serif)} .av-estado small{color:var(--c-mut); font-size:12.5px; line-height:1.4}
+.av-guia{margin:0 0 14px; background:var(--panel); border:1px solid var(--c-line); border-radius:12px; padding:10px 16px}
+.av-guia summary{cursor:pointer; font-weight:700; min-height:36px; display:flex; align-items:center}
+.av-guia ol{margin:8px 0 6px; padding-left:20px; display:flex; flex-direction:column; gap:8px; font-size:14px; line-height:1.5}
+.av-guia code{background:var(--bg-2); border-radius:6px; padding:1px 6px; font-size:12.5px; overflow-wrap:anywhere}
+.av-h2{margin:22px 0 8px; font:600 19px/1.2 var(--font-display,Georgia,serif)}
+.av-peq{font-size:13.5px; color:var(--c-mut); line-height:1.5; margin:0 0 10px}
+.av-chk{display:flex; align-items:center; gap:8px; font-weight:600; min-height:38px; cursor:pointer}
+.av-chk input{width:20px; height:20px}
+.av-pl{margin:0 0 10px} .av-pl textarea,.av-pl input{width:100%; font:inherit; font-size:14.5px; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:9px 11px; resize:vertical}
+.av-pl em{font:700 10px/1 var(--font-text); font-style:normal; background:var(--accent-wash,var(--bg-2)); border-radius:99px; padding:3px 8px; margin-left:6px; letter-spacing:.05em; text-transform:uppercase}
+.av-acciones{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 8px}
+@media (max-width:560px){ .av-sec{padding:14px 12px} .av-fila{padding:10px} .av-b .btn.sm,.av-b a.btn{flex:1 1 auto} }
 /*V3-END*/
 </style>
 
@@ -3744,7 +3804,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.63</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.64</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5442,8 +5502,9 @@ function sellarEv(e,ahora){
   if(antes){
     /* una parte que aparece vacía (un valor por defecto que añade la app a un evento antiguo) no es un cambio de nadie: no se sella,
        así nunca puede ganar a lo que otra persona haya escrito en ese mismo sitio */
-    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; tocado=true; } });
-    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)){ e._k[p]=ahora; tocado=true; } });
+    /* los datos derivados («_snap», lo que la app calcula sola para los avisos del servidor) se sellan como todo, pero no cuentan como «cambios sin subir» de nadie */
+    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; if(p.indexOf("_snap")!==0) tocado=true; } });
+    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)){ e._k[p]=ahora; if(p.indexOf("_snap")!==0) tocado=true; } });
   }
   if(tocado){ DIRTY[e.id]=ahora; guardarDirty(); }
   KB[e.id]=nuevo; KU[e.id]=e.updated||0;
@@ -5570,6 +5631,7 @@ function mergePrevision(mio,otro){
 function save(){
   if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
   try{ portalAlDia(current()); }catch(_){}
+  try{ snapAlDia(current()); }catch(_){}
   try{ sellarCambiados(); }catch(_){}
   try{ localStorage.setItem(KEY,JSON.stringify(mergeStore())); if(saveFail){saveFail=false;flagSave();} guardarTXB(); }
   catch(e){
@@ -8853,6 +8915,7 @@ var SECCIONES=[
   {k:"hist",     g:"Planificación", t:"Historial de cambios"},
   /* la ven todos los roles: es donde cada departamento ve lo que ha cambiado para él */
   {k:"coh",      g:"Planificación", t:"Coordinación"},
+  {k:"avisos",   g:"Planificación", t:"Avisos y correo"},
   /* el día del evento, en el móvil: lo ven todos los roles menos Compras */
   {k:"srv",      g:"Servicio en directo", t:"Modo servicio"},
   {k:"cierre",   g:"Servicio en directo", t:"Cierre del evento"},
@@ -8892,6 +8955,7 @@ var SECCIONES=[
   {k:"p-copias",   g:"Parámetros", t:"Copias de seguridad"},
   {k:"p-estado",   g:"Parámetros", t:"Estado del sistema"},
   {k:"p-privacidad",g:"Parámetros", t:"Privacidad y datos"},
+  {k:"p-correo",  g:"Parámetros", t:"Correo y avisos"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
@@ -9091,7 +9155,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.63</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.64</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9442,6 +9506,32 @@ function portalAlDia(e){
   e.share.portal=f; return true;
 }
 var PORTAL_J={};
+/* Datos derivados para los avisos del servidor (resumen semanal, recordatorios al cliente): se calculan aquí, con la misma
+   matemática que el resto de la app (comensales, presupuesto, agenda, camareros, alergias sin plato) y viajan dentro del
+   evento en «_snap». No tocan e.updated ni salen en el historial (las claves con «_» no cuentan). Se recalculan solo cuando el
+   evento o la agenda cambian. */
+var SNAP_J={};
+function snapDe(e){
+  var c, pt; try{ c=planCounts(e); pt=presupTotals(e); }catch(_){ return null; }
+  var cam=e.camareros||{}, av=e.camarerosAvisar||{}, camSi=0, camAv=0, B=window.SITTING_BRIDGE, nec=0, sin=0;
+  Object.keys(cam).forEach(function(k){ if(cam[k]==="si") camSi++; });
+  Object.keys(av).forEach(function(k){ if(av[k]==="avisar") camAv++; });
+  try{ if(B&&B.conEvento) B.conEvento(e,function(){ try{ nec=(B.evTotals&&B.evTotals().camareros)||0; }catch(_){} try{ sin=((B.alerPendientes&&B.alerPendientes())||[]).length; }catch(_){} }); }catch(_){}
+  var hitos=[]; try{ hitos=hitosAuto(e).map(function(h){ return {id:h.id,tipo:h.tipo,t:hitoTxt(h),fecha:h.fecha,importe:h.importe!=null?Math.round(h.importe*100)/100:null,done:!!h.done}; }); }catch(_){}
+  return {u:e.updated||0, adultos:c.adultos||0, ninos:c.ninos||0, staff:c.staff||0, tot:c.pax||0, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100,
+    pend:Math.max(0,Math.round(pt.pend*100)/100), camSi:camSi, camNec:nec, camAvisar:camAv, sinSust:sin, hitos:hitos};
+}
+function snapAlDia(e){
+  if(!e||!e.id||e.anonimizado) return false;
+  var key=(e.updated||0)+"|"+JSON.stringify(paramData("agenda")||0);
+  if(SNAP_J[e.id]===key&&e._snap) return false;
+  var s=snapDe(e); if(!s) return false;
+  SNAP_J[e.id]=key;
+  if(e._snap&&JSON.stringify(e._snap)===JSON.stringify(s)) return false;
+  e._snap=s; return true;
+}
+function snapTodos(){ var n=0; (store.events||[]).forEach(function(e){ try{ if(snapAlDia(e)) n++; }catch(_){ } }); return n; }
+window.LM_snapDe=snapDe;
 function portalTodos(){ var n=0; (store.events||[]).forEach(function(e){ try{ if(portalAlDia(e)) n++; }catch(_){ } }); return n; }
 function tokenNuevo(){ try{ var u=new Uint8Array(18); crypto.getRandomValues(u); return "p"+Array.prototype.map.call(u,function(x){ return ("0"+x.toString(16)).slice(-2); }).join(""); }catch(_){ return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2); } }
 
@@ -9696,7 +9786,7 @@ window.LM_abrirEvento=function(id,sec){ abrirEvento(id,sec); };
 function paxVisible(e,t){ var p=t?t.pax:0; if(p) return {n:p,prev:false}; var pp=e.ficha&&+e.ficha.paxPrev; return pp?{n:pp,prev:true}:{n:0,prev:false}; }
 function renderHome(){
   try{ if(sincronizarPrevision()) fillSelect(); }catch(err){ if(window.console) console.warn(err); }
-  try{ if(portalTodos()) save(); }catch(_){}
+  try{ var nSn=snapTodos(); if(portalTodos()||nSn) save(); }catch(_){}
   /* saludo personalizado según la sesión y la hora del día */
   var u=(window.LM_SESSION&&window.LM_SESSION.user)?window.LM_SESSION.user():null;
   var gEl=$("home-greet");
@@ -10473,8 +10563,8 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -10696,6 +10786,8 @@ function renderPlanV(k){
   var host=$("plan-scroll"); if(!host) return;
   if(k==="p-estado"){ if(window.LM_renderEstado) window.LM_renderEstado(host); return; }
   if(k==="p-privacidad"){ if(window.LM_renderPriv) window.LM_renderPriv(host); return; }
+  if(k==="p-correo"){ if(window.LM_renderCorreoCfg) window.LM_renderCorreoCfg(host); return; }
+  if(k==="avisos"){ if(window.LM_renderAvisos) window.LM_renderAvisos(host); return; }
   if(String(k).indexOf("p-")===0){
     if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
     if(window.LM_renderParam) window.LM_renderParam(k,host); return;
@@ -10857,6 +10949,7 @@ function viewFicha(e){
     fld("Email","ficha.email",F.email,"email")+
     fld("Procedencia","ficha.origen",F.origen)+
     fld("Cómo nos conocieron","ficha.comoNos",F.comoNos)+
+    (window.LM_waFicha?window.LM_waFicha(e):"")+
   '</div></div>'+
   '<div class="pv-sec">Ceremonia</div>'+
   '<div class="pcard"><div class="fldset">'+
@@ -10940,7 +11033,7 @@ function viewProv(e){
       '<td><input data-arr="proveedores" data-i="'+i+'" data-k="telefono" type="tel" value="'+escH(p.telefono||"")+'" placeholder="Teléfono"></td>'+
       '<td class="rnum"><input class="rnum" type="number" min="0" step="0.01" data-arr="proveedores" data-i="'+i+'" data-k="precio" value="'+escH(p.precio||0)+'" style="width:92px"></td>'+
       '<td><select data-arr="proveedores" data-i="'+i+'" data-k="estado">'+estSel+'</select></td>'+
-      '<td><button type="button" class="row-del" data-act="prov-del" data-i="'+i+'" aria-label="Eliminar proveedor '+escH(p.empresa||p.servicio||"")+'">×</button></td></tr>';
+      '<td>'+(window.LM_waProv?window.LM_waProv(e,p):"")+'<button type="button" class="row-del" data-act="prov-del" data-i="'+i+'" aria-label="Eliminar proveedor '+escH(p.empresa||p.servicio||"")+'">×</button></td></tr>';
   }).join("");
   if(!e.proveedores.length) rows='<tr><td colspan="7" style="color:var(--c-mut);font-style:italic;padding:16px 14px">Todavía no hay proveedores. Añade el primero abajo.</td></tr>';
   return '<div class="pv-sec">Proveedores del evento</div>'+
@@ -15898,6 +15991,8 @@ function filaHtml(p){
     '<div class="seg cam-disp" data-id="'+esc(p.id)+'" role="group" aria-label="Disponibilidad de '+esc(p.nombre)+'">'+
       ESTADOS.map(function(es){ return '<button type="button" data-e="'+es[0]+'" aria-pressed="'+(d===es[0]?"true":"false")+'">'+es[1]+'</button>'; }).join("")+
     '</div>'+
+    /* y el aviso de su turno por WhatsApp, con el mensaje ya redactado (hora de entrada y funciones) */
+    (d==="si"&&window.LM_waCam?'<span class="cam-wa">'+window.LM_waCam(BR.current(),p)+'</span>':'')+
     /* ¿hay que avisarle? (llamarle o escribirle para este evento): se marca a quien sí y, al hacerlo, «Avisado» */
     '<div class="seg cam-aviso" data-id="'+esc(p.id)+'" role="group" aria-label="¿Avisar a '+esc(p.nombre)+'?">'+
       [["","No avisar"],["avisar","Avisar"],["avisado","Avisado ✓"]].map(function(a){ return '<button type="button" data-a="'+a[0]+'" aria-pressed="'+(av===a[0]?"true":"false")+'">'+a[1]+'</button>'; }).join("")+
@@ -15920,6 +16015,7 @@ function panelHtml(p){
   return '<div class="inv-panel" data-id="'+esc(p.id)+'">'+
     '<label>Nombre<input class="p-nombre" type="text" value="'+esc(p.nombre)+'"></label>'+
     '<label>Teléfono<input class="p-telefono" type="text" value="'+esc(p.telefono||"")+'"></label>'+
+    '<label>Correo<input class="p-email" type="email" value="'+esc(p.email||"")+'" placeholder="para avisarle por correo"></label>'+
     '<label>Comentario<input class="p-nota" type="text" value="'+esc(p.nota||"")+'"></label>'+
     '<div class="row"><button class="btn sm danger p-quitar">Quitar de la agenda</button>'+
     '<button class="btn sm p-cerrar">Cerrar</button></div></div>';
@@ -16166,7 +16262,7 @@ function engancharBody(){
   });
   Array.prototype.forEach.call(b.querySelectorAll(".inv-panel"),function(pn){
     var id=pn.dataset.id;
-    [["p-nombre","nombre"],["p-telefono","telefono"],["p-nota","nota"]].forEach(function(par){
+    [["p-nombre","nombre"],["p-telefono","telefono"],["p-email","email"],["p-nota","nota"]].forEach(function(par){
       var inp=pn.querySelector("."+par[0]); if(!inp) return;
       inp.addEventListener("change",function(){
         var v=inp.value.trim();
@@ -16781,6 +16877,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     function fila(a,b,c,d,e,f){ return '<tr><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td><td>'+d+'</td><td>'+e+'</td><td>'+f+'</td></tr>'; }
     return '<table class="pr-reg"><thead><tr><th>Tratamiento</th><th>Finalidad</th><th>Personas y datos</th><th>Base jurídica</th><th>Plazo</th><th>Destinatarios y medidas</th></tr></thead><tbody>'+
       fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
+      fila("Correos y avisos","Avisar a clientes, camareros y equipo (recordatorios, turnos, resumen semanal)","Correo del destinatario y el texto del mensaje","Relación contractual o laboral (art. 6.1.b)","180 días (bandeja de salida); se borra al anonimizar el evento","Administración y eventos")+
       fila("Personal de sala","Gestionar turnos, disponibilidad, avisos y registro de horas","Camareros (nombre, teléfono, disponibilidad, hora de entrada y de salida)","Relación laboral o de servicio (art. 6.1.b) y obligación legal del registro de jornada (art. 6.1.c)","Mientras dure la relación; el registro de jornada, 4 años","Responsables de sala y administración")+
       fila("Usuarios del programa","Control de accesos y seguridad","Equipo (nombre, correo, rol, accesos)","Interés legítimo en la seguridad (art. 6.1.f)","Mientras tenga acceso; el registro de actividad, 400 días","Administración")+
       '</tbody></table><p class="pr-nota">Responsable: '+esc(resp)+'. Plantilla orientativa del registro de actividades de tratamiento (art. 30 RGPD y art. 31 LOPDGDD): revísala con tu asesor antes de darla por buena.</p>';
@@ -17743,6 +17840,353 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 </script>
 
 <script>
+/* ═════════════════════════════════════════════════════════════════
+   AVISOS Y CORREO · WHATSAPP CON UN CLIC
+   · «Avisos y correo» (en Planificación): para el evento abierto, a quién hay que
+     escribir y con qué mensaje ya redactado — la clienta (la lista, los pagos, las
+     reuniones, o algo libre), los camareros marcados «Avisar» con los datos de su
+     turno y los proveedores —, por correo o por WhatsApp; el resumen semanal del
+     equipo y la bandeja de salida con lo que se ha enviado.
+   · «Correo y avisos» (en Parámetros, solo administración): el servicio de correo, qué
+     se manda solo (el resumen del lunes, los recordatorios a clientes), la firma y las
+     plantillas editables.
+   El correo sale por el servidor (/api/correo). Si no hay servicio de correo
+   configurado, todo queda en la bandeja como «simulado» y NO sale: se puede probar sin
+   miedo. WhatsApp no necesita nada: abre la conversación con el texto escrito
+   (enlace wa.me); lo envía la persona.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
+  function yo(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user(); return u||{}; }catch(_){ return {}; } }
+  function backend(){ return !!(window.LM_backend&&window.LM_backend()); }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function eur(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{minimumFractionDigits:(+n||0)%1?2:0,maximumFractionDigits:2})+" €"; }
+  function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
+  function fechaLarga(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return "(fecha por confirmar)"; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])), N=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"], D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"]; return D[d.getUTCDay()]+" "+(+m[3])+" de "+N[+m[2]-1]+" de "+m[1]; }
+  function hoyISO(){ var d=new Date(); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
+  function dif(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return null; var a=new Date(hoyISO()+"T00:00:00Z"), b=new Date(iso+"T00:00:00Z"); return Math.round((b-a)/864e5); }
+  function relTxt(n){ if(n==null) return ""; return n<0?"vencido hace "+(-n)+(n===-1?" día":" días"):n===0?"hoy":n===1?"mañana":"en "+n+" días"; }
+  function fechaHora(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function nombreEv(e){ return String((e&&e.name)||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim()||"Evento"; }
+
+  /* ── plantillas (las mismas que usa el servidor; el administrador las cambia en Parámetros) ── */
+  var DEF={
+    cliente_lista_asunto:"La lista de invitados de {evento}",
+    cliente_lista:"Hola {nombre},\n\nPara preparar {evento} ({fecha}) necesitamos la lista definitiva de invitados, con sus alergias o dietas.\nPodéis rellenarla en vuestro enlace privado:\n{enlace}\n\nGracias,\n{firma}",
+    cliente_pago_asunto:"Recordatorio de pago · {evento}",
+    cliente_pago:"Hola {nombre},\n\nOs recordamos el pago de {importe} («{concepto}») de {evento} ({fecha}), con vencimiento el {vence}.\n{datos_pago}\n\nUn saludo,\n{firma}",
+    cliente_reunion_asunto:"Reunión para {evento}",
+    cliente_reunion:"Hola {nombre},\n\nOs recordamos la reunión «{concepto}» de {evento} ({fecha}). Si necesitáis cambiar la hora, contestad a este correo.\n\n{firma}",
+    cliente_libre_asunto:"Sobre {evento}",
+    cliente_libre:"Hola {nombre},\n\n\n\nUn saludo,\n{firma}",
+    camarero_asunto:"Tu turno en {evento} · {fecha}",
+    camarero:"Hola {nombre},\n\nTe confirmamos tu turno en {evento}: {fecha}, entrada a las {hora}.\n{funciones}\nSi no puedes venir, avísanos cuanto antes.\n\n{firma}",
+    proveedor_asunto:"{evento} · {fecha}",
+    proveedor:"Hola {nombre},\n\nTe escribo por {evento} ({fecha}): contamos contigo para {servicio}. Cualquier cambio o duda, avísame.\n\n{firma}"
+  };
+  var T={plant:Object.assign({},DEF), firma:"Les Moles Events", cargado:false, pidiendo:false};
+  function rell(t,v){ return String(t==null?"":t).replace(/\{(\w+)\}/g,function(m,k){ return Object.prototype.hasOwnProperty.call(v,k)&&v[k]!=null?String(v[k]):m; }).replace(/\n{3,}/g,"\n\n").trim(); }
+  function cargarPlantillas(cb){
+    if(T.cargado||!backend()){ if(cb) cb(); return; }
+    if(T.pidiendo) return; T.pidiendo=true;
+    fetch("/api/correo/plantillas",{headers:{"Accept":"application/json"},credentials:"same-origin"}).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+      if(j&&j.plantillas){ T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.firma||T.firma; T.cargado=true; }
+    }).catch(function(){}).finally(function(){ T.pidiendo=false; if(cb) cb(); });
+  }
+  /* ── WhatsApp ── */
+  function telWA(t){
+    var s=String(t||"").trim(), d=s.replace(/\D/g,"");
+    if(/^00/.test(s)) d=d.replace(/^00/,"");
+    else if(!/^\+/.test(s)&&d.length===9&&/^[6789]/.test(d)) d="34"+d;   /* un móvil o fijo español sin prefijo */
+    return d.length>=9&&d.length<=15?d:"";
+  }
+  function waHref(tel,txt){ var d=telWA(tel); return d?"https://wa.me/"+d+"?text="+encodeURIComponent(txt||""):""; }
+  window.LM_waHref=waHref; window.LM_telWA=telWA;
+  function waBtn(tel,txt,etq,aria){
+    var h=waHref(tel,txt);
+    return h?'<a class="btn sm av-wa" href="'+esc(h)+'" target="_blank" rel="noopener" aria-label="'+esc(aria||("Avisar por WhatsApp"))+'">'+esc(etq||"WhatsApp")+'</a>'
+            :'<button type="button" class="btn sm av-wa" disabled title="Falta un teléfono válido" aria-label="'+esc((aria||"WhatsApp")+": falta el teléfono")+'">'+esc(etq||"WhatsApp")+'</button>';
+  }
+  /* ── los mensajes de cada caso ── */
+  function nombreCliente(e){ var F=e.ficha||{}; return (F.parejaA&&F.parejaB)?F.parejaA+" y "+F.parejaB:(F.contacto||F.parejaA||"equipo"); }
+  function enlaceCliente(e){ return e.share&&e.share.on&&e.share.id?location.origin+"/?cliente="+e.share.id:""; }
+  function datosPago(){ try{ var d=BR.param("portal")||{}; return d.iban?"Podéis hacer la transferencia a "+d.iban+" indicando el nombre del evento.":""; }catch(_){ return ""; } }
+  function funcionesDe(e,id){
+    var fs=(e.reparto&&e.reparto.fases)||{}, N={aperitivo:"Aperitivo",comida:"Comida",cafesbarra:"Cafés y barra",barralibre:"Barra libre"}, o=[];
+    Object.keys(N).forEach(function(k){ (fs[k]||[]).forEach(function(x){ if(x&&x.id===id&&String(x.fn||"").trim()) o.push(N[k]+": "+String(x.fn).trim()); }); });
+    return o;
+  }
+  function msgCliente(e,h){
+    var tipo=!h?"libre":h.tipo==="documento"?"lista":h.tipo==="pago"?"pago":h.tipo==="reunion"?"reunion":"libre", F=e.ficha||{};
+    var v={nombre:nombreCliente(e),evento:nombreEv(e),fecha:fechaLarga(F.fecha),vence:fechaLarga((h&&h.fecha)||F.fecha),importe:h&&h.importe!=null?eur(h.importe):"",concepto:h?h.t:"",enlace:enlaceCliente(e),firma:T.firma,datos_pago:datosPago()};
+    return {tipo:tipo,subject:rell(T.plant["cliente_"+tipo+"_asunto"],v),text:rell(T.plant["cliente_"+tipo],v),to:String(F.email||"").trim(),tel:F.telefono||""};
+  }
+  function msgCamarero(e,p){
+    var F=e.ficha||{}, hora=(e.camarerosHora&&e.camarerosHora[p.id])||"", fn=funcionesDe(e,p.id);
+    var v={nombre:String(p.nombre||"").split(" ")[0],evento:nombreEv(e),fecha:fechaLarga(F.fecha),hora:hora||"(por confirmar)",funciones:fn.length?"Tus funciones: "+fn.join(" · ")+".":"",firma:T.firma};
+    return {subject:rell(T.plant.camarero_asunto,v),text:rell(T.plant.camarero,v),to:String(p.email||"").trim(),tel:p.telefono||""};
+  }
+  function msgProveedor(e,pr){
+    var F=e.ficha||{}, v={nombre:String(pr.contacto||pr.empresa||"").split(" ")[0]||"buenas",evento:nombreEv(e),fecha:fechaLarga(F.fecha),servicio:String(pr.servicio||"el servicio").toLowerCase(),firma:T.firma};
+    return {subject:rell(T.plant.proveedor_asunto,v),text:rell(T.plant.proveedor,v),to:"",tel:pr.telefono||""};
+  }
+  /* los botones que se pintan dentro de otras pantallas (camareros, proveedores, ficha) */
+  window.LM_waCam=function(e,p){ if(!e||!p) return ""; cargarPlantillas(); var m=msgCamarero(e,p); return waBtn(m.tel,m.text,"WhatsApp","Avisar a "+p.nombre+" por WhatsApp con los datos de su turno"); };
+  window.LM_waProv=function(e,pr){ if(!e||!pr) return ""; cargarPlantillas(); var m=msgProveedor(e,pr); return waBtn(m.tel,m.text,"WhatsApp","Escribir a "+(pr.empresa||pr.servicio||"proveedor")+" por WhatsApp"); };
+  window.LM_waFicha=function(e){
+    if(!e) return ""; cargarPlantillas(); var m=msgCliente(e,null);
+    return '<div class="av-fila-ficha">'+waBtn(m.tel,m.text,"Escribir por WhatsApp","Escribir al cliente por WhatsApp")+'<a class="btn sm" href="#" data-av-ir="avisos">Más avisos y correo</a></div>';
+  };
+  document.addEventListener("click",function(ev){ var a=ev.target.closest&&ev.target.closest("[data-av-ir]"); if(a){ ev.preventDefault(); if(window.irASeccion) window.irASeccion(a.getAttribute("data-av-ir")); } });
+
+  /* ═══ llamadas al servidor ═══ */
+  function api(path,method,body){
+    return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
+  }
+
+  /* ═══ la sección «Avisos y correo» ═══ */
+  var U={host:null,ev:null,estado:null,cargando:false,err:"",comp:null,vista:null,alcance:"evento",res:{}};
+  function esAdmin(){ return rol()==="admin"; }
+  function snap(e){ try{ return window.LM_snapDe?window.LM_snapDe(e):null; }catch(_){ return null; } }
+  function cargarEstado(cb){
+    if(!backend()){ U.estado=null; if(cb) cb(); return; }
+    var e=evActual(); U.cargando=true;
+    api("/api/correo?n=60"+(U.alcance==="evento"&&e?"&ev="+encodeURIComponent(e.id):""),"GET").then(function(j){
+      if(j._status===200){ U.estado=j; U.err=""; if(j.plantillas){ T.plant=Object.assign({},DEF,j.plantillas); T.firma=(j.cfg&&j.cfg.firma)||T.firma; T.cargado=true; } }
+      else U.err=(j._status===403?"Tu rol no puede ver el correo.":(j.message||"No se ha podido cargar el estado del correo."));
+    }).catch(function(){ U.err="Sin conexión con el servidor."; }).finally(function(){ U.cargando=false; if(cb) cb(); });
+  }
+  function aviso(){
+    if(!backend()) return '<div class="av-aviso"><b>Sin servidor.</b> Aquí el correo no se puede enviar; WhatsApp sí funciona.</div>';
+    var s=U.estado; if(!s) return "";
+    if(!s.proveedor.listo) return '<div class="av-aviso"><b>El correo todavía no está activado:</b> lo que «envíes» se guarda en la bandeja como <i>simulado</i> y <b>no sale</b>. '+(esAdmin()?'<a href="#" data-av-ir="p-correo">Cómo activarlo</a>.':'Avisa al administrador.')+' WhatsApp sí funciona ya.</div>';
+    return "";
+  }
+  function bloqueCliente(e){
+    var F=e.ficha||{}, S=snap(e), hitos=(S&&S.hitos)||[], mail=String(F.email||"").trim();
+    var h='<section class="av-sec"><h2>Cliente <small>'+esc(nombreCliente(e))+(mail?" · "+esc(mail):" · sin correo")+(F.telefono?" · "+esc(F.telefono):" · sin teléfono")+'</small></h2>';
+    var filas=hitos.map(function(x,i){
+      var d=dif(x.fecha), m=msgCliente(e,x);
+      return '<div class="av-fila'+(x.done?" hecha":d!=null&&d<0?" tarde":d!=null&&d<=3?" pronto":"")+'"><div class="av-q"><b>'+esc(x.t)+'</b><small>'+esc(dmy(x.fecha))+(x.done?" · hecho":" · "+esc(relTxt(d)))+(x.importe!=null&&String(x.t).indexOf("€")<0?" · "+esc(eur(x.importe)):"")+'</small></div>'+
+        '<div class="av-b">'+(x.done?'<span class="av-ok">✓ hecho</span>':'')+'<button type="button" class="btn sm" data-av="correo" data-i="'+i+'"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(m.tel,m.text,"WhatsApp","Avisar al cliente por WhatsApp: "+x.t)+'</div></div>'; }).join("");
+    var m0=msgCliente(e,null);
+    h+=(filas||'<p class="av-vacio">Sin fecha del evento no hay pasos de la agenda con el cliente.</p>')+
+      '<div class="av-fila"><div class="av-q"><b>Un mensaje libre</b><small>Para lo que no sea ninguno de los pasos de arriba</small></div><div class="av-b"><button type="button" class="btn sm" data-av="correo" data-i="libre"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(m0.tel,m0.text,"WhatsApp","Escribir al cliente por WhatsApp")+'</div></div>';
+    if(U.comp&&U.comp.bloque==="cliente") h+=compHTML();
+    return h+'</section>';
+  }
+  function bloqueCamareros(e){
+    var P=(BR.store.camareros&&BR.store.camareros.personas)||[], cam=e.camareros||{}, av=e.camarerosAvisar||{};
+    var lista=P.filter(function(p){ return !p.borrado&&cam[p.id]==="si"; }).sort(function(a,b){ return a.nombre.localeCompare(b.nombre,"es"); });
+    var porAvisar=lista.filter(function(p){ return av[p.id]==="avisar"; }), conMail=porAvisar.filter(function(p){ return /@/.test(p.email||""); });
+    var h='<section class="av-sec"><h2>Camareros <small>'+lista.length+' confirmados · '+porAvisar.length+' por avisar</small></h2>';
+    if(!lista.length) return h+'<p class="av-vacio">Todavía no hay camareros confirmados. Márcalos «Disponible» en <a href="#" data-av-ir="cam">Camareros del evento</a>.</p></section>';
+    h+=lista.map(function(p,i){
+      var m=msgCamarero(e,p), st=av[p.id]||"", hay=/@/.test(p.email||"");
+      return '<div class="av-fila'+(st==="avisado"?" hecha":st==="avisar"?" pronto":"")+'"><div class="av-q"><b>'+esc(p.nombre)+'</b><small>'+(e.camarerosHora&&e.camarerosHora[p.id]?"entra "+esc(e.camarerosHora[p.id]):"sin hora de entrada")+' · '+(p.telefono?esc(p.telefono):"sin teléfono")+' · '+(hay?esc(p.email):"sin correo")+'</small></div>'+
+        '<div class="av-b"><span class="av-est '+st+'">'+(st==="avisado"?"Avisado ✓":st==="avisar"?"Por avisar":"")+'</span>'+
+        '<button type="button" class="btn sm" data-av="cam-correo" data-id="'+esc(p.id)+'"'+(hay?'':' disabled title="Añade su correo en la ficha del camarero (lápiz de «Camareros del evento»)"')+'>Correo</button>'+waBtn(m.tel,m.text,"WhatsApp","Avisar a "+p.nombre+" por WhatsApp")+
+        '<button type="button" class="btn sm" data-av="cam-avisado" data-id="'+esc(p.id)+'" aria-pressed="'+(st==="avisado")+'">'+(st==="avisado"?"Quitar «avisado»":"Marcar avisado")+'</button></div></div>'; }).join("");
+    if(conMail.length) h+='<div class="av-pie"><button type="button" class="btn gold sm" data-av="cam-todos">Enviar correo a los '+conMail.length+' por avisar que tienen correo</button></div>';
+    if(U.comp&&U.comp.bloque==="cam") h+=compHTML();
+    return h+'</section>';
+  }
+  function bloqueProv(e){
+    var P=(e.proveedores||[]).filter(function(p){ return p&&(p.empresa||p.servicio); });
+    if(!P.length) return "";
+    return '<section class="av-sec"><h2>Proveedores <small>'+P.length+'</small></h2>'+P.map(function(p){ var m=msgProveedor(e,p);
+      return '<div class="av-fila"><div class="av-q"><b>'+esc(p.servicio||"")+(p.empresa?" · "+esc(p.empresa):"")+'</b><small>'+(p.contacto?esc(p.contacto)+" · ":"")+(p.telefono?esc(p.telefono):"sin teléfono")+' · '+esc(p.estado||"")+'</small></div><div class="av-b">'+waBtn(m.tel,m.text,"WhatsApp","Escribir a "+(p.empresa||p.servicio)+" por WhatsApp")+'</div></div>'; }).join("")+'</section>';
+  }
+  /* el redactado de un correo, antes de enviarlo */
+  function compHTML(){
+    var c=U.comp, r=U.res.comp;
+    return '<div class="av-comp" role="group" aria-label="Redactar correo"><label>Para<input type="email" data-av-c="to" value="'+esc(c.to)+'" autocomplete="off"></label><label>Asunto<input type="text" data-av-c="subject" value="'+esc(c.subject)+'" maxlength="200"></label>'+
+      '<label>Texto<textarea data-av-c="text" rows="9" maxlength="8000">'+esc(c.text)+'</textarea></label>'+
+      (r?'<p class="av-res '+(r.ok?(r.estado==="simulado"?"sim":"ok"):"mal")+'" role="status">'+esc(r.msg)+'</p>':'')+
+      '<div class="av-cb"><button type="button" class="btn gold" data-av="enviar"'+(U.enviando?" disabled":"")+'>'+(U.enviando?"Enviando…":(c.repetido?"Enviarlo otra vez":"Enviar correo"))+'</button><button type="button" class="btn" data-av="cerrar-comp">'+(r&&r.ok?"Cerrar":"Cancelar")+'</button></div></div>';
+  }
+  function bloqueResumen(){
+    if(!backend()) return "";
+    var s=U.estado, cfg=s&&s.cfg&&s.cfg.resumen, adm=esAdmin();
+    var D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+    var cuando=!cfg?"":(!cfg.on||cfg.freq==="off")?"El resumen automático está apagado.":"Sale solo "+(cfg.freq==="diario"?"cada día":"cada "+D[cfg.dia])+" a las "+cfg.hora+":00, al "+(cfg.para==="lista"?"listado de correos que se ha puesto":"equipo (administración y eventos)")+".";
+    return '<section class="av-sec"><h2>Resumen del equipo <small>'+esc(cuando)+'</small></h2>'+
+      '<div class="av-b2"><button type="button" class="btn sm" data-av="resumen-vista">'+(U.vista?"Actualizar la vista previa":"Ver cómo queda ahora")+'</button><button type="button" class="btn sm" data-av="resumen-yo">Enviármelo a mí</button>'+(adm?'<button type="button" class="btn sm" data-av="resumen-equipo">Enviarlo ya al equipo</button>':'')+'</div>'+
+      (U.res.resumen?'<p class="av-res '+(U.res.resumen.ok?(U.res.resumen.estado==="simulado"?"sim":"ok"):"mal")+'" role="status">'+esc(U.res.resumen.msg)+'</p>':'')+
+      (U.vista?'<pre class="av-vista" tabindex="0" aria-label="Vista previa del resumen">'+esc(U.vista.asunto+"\n\n"+U.vista.texto)+'</pre>':'')+'</section>';
+  }
+  var EST_T={enviado:"Enviado",simulado:"Simulado",error:"Con error",pendiente:"Pendiente"};
+  function bloqueBandeja(){
+    if(!backend()||!U.estado) return "";
+    var s=U.estado, rows=s.bandeja||[];
+    return '<section class="av-sec"><h2>Bandeja de salida <small>'+rows.length+' últimos</small></h2><div class="av-tog" role="group" aria-label="Qué enseñar"><button type="button" class="'+(U.alcance==="evento"?"on":"")+'" data-av="alcance" data-v="evento" aria-pressed="'+(U.alcance==="evento")+'">Este evento</button><button type="button" class="'+(U.alcance==="todo"?"on":"")+'" data-av="alcance" data-v="todo" aria-pressed="'+(U.alcance==="todo")+'">Todo</button></div>'+
+      (rows.length?'<div class="av-tabla"><table><thead><tr><th>Cuándo</th><th>Para</th><th>Asunto</th><th>Estado</th><th></th></tr></thead><tbody>'+rows.map(function(r){
+        return '<tr><td>'+esc(fechaHora(r.ts))+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.subject)+(r.error?'<br><small class="av-err">'+esc(r.error)+'</small>':'')+'</td><td><span class="av-badge '+esc(r.estado)+'">'+esc(EST_T[r.estado]||r.estado)+'</span>'+(r.intentos>1?' <small>'+r.intentos+' intentos</small>':'')+'</td><td>'+(r.estado==="error"||r.estado==="simulado"&&s.proveedor.listo?'<button type="button" class="btn sm" data-av="reintentar" data-id="'+r.id+'">'+(r.estado==="error"?"Reintentar":"Enviar ahora")+'</button>':'')+'</td></tr>'; }).join("")+'</tbody></table></div>':'<p class="av-vacio">Todavía no se ha enviado nada'+(U.alcance==="evento"?" de este evento":"")+'.</p>')+'</section>';
+  }
+  function pintar(){
+    var host=U.host, e=evActual(); if(!host) return;
+    if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
+    var ae=document.activeElement, tecleando=ae&&host.contains(ae)&&ae.hasAttribute&&ae.hasAttribute("data-av-c");
+    if(tecleando) return;   // no se repinta mientras se redacta un correo
+    var y=host.scrollTop;
+    host.innerHTML='<div class="pv-inner av-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Planificación</div><h1 class="pv-title">Avisos y correo</h1><div class="pv-sub">'+esc(BR.eventLabel?BR.eventLabel(e):e.name)+'</div>'+
+      '<p class="pv-guide">A quién escribir y con qué mensaje, ya redactado: por correo (sale desde aquí y queda apuntado) o por WhatsApp (se abre la conversación con el texto puesto).</p></div></header>'+
+      aviso()+(U.err?'<div class="av-aviso mal">'+esc(U.err)+'</div>':'')+bloqueCliente(e)+bloqueCamareros(e)+bloqueProv(e)+bloqueResumen()+bloqueBandeja()+'</div>';
+    host.scrollTop=y;
+    var root=host.querySelector(".av-wrap"); ["click","input"].forEach(function(t){ root.addEventListener(t,manejar); });
+  }
+  function abrirComp(bloque,m,extra){
+    U.comp=Object.assign({bloque:bloque,to:m.to,subject:m.subject,text:m.text},extra||{}); U.res.comp=null; pintar();
+    var ta=U.host&&U.host.querySelector(".av-comp"); if(ta&&ta.scrollIntoView) ta.scrollIntoView({block:"nearest"});
+  }
+  function enviarComp(){
+    var c=U.comp, e=evActual(); if(!c||!e||U.enviando) return;
+    var root=U.host; ["to","subject","text"].forEach(function(k){ var el=root.querySelector('[data-av-c="'+k+'"]'); if(el) c[k]=el.value; });
+    U.enviando=true; U.res.comp=null; pintar();
+    api("/api/correo/enviar","POST",{kind:c.kind,ev:e.id,to:c.to,subject:c.subject,text:c.text,ref:c.repetido?null:c.ref||null}).then(function(j){
+      U.enviando=false;
+      if(j._status===200&&j.repetido){ c.repetido=true; U.res.comp={ok:false,msg:"Este aviso ya se envió antes. Si quieres mandarlo otra vez, pulsa «Enviarlo otra vez»."}; }
+      else if(j._status===200) { U.res.comp={ok:true,estado:j.estado,msg:j.estado==="simulado"?"Guardado en la bandeja como SIMULADO: el correo todavía no está activado, no ha salido.":"Enviado a "+c.to+"."}; if(c.alEnviar) c.alEnviar(); }
+      else U.res.comp={ok:false,msg:j.message||"No se ha podido enviar."};
+      cargarEstado(pintar);
+    }).catch(function(){ U.enviando=false; U.res.comp={ok:false,msg:"Sin conexión con el servidor."}; pintar(); });
+  }
+  function guardarAviso(e,id,v){ e.camarerosAvisar=e.camarerosAvisar||{}; if(v) e.camarerosAvisar[id]=v; else delete e.camarerosAvisar[id]; e.updated=Date.now(); BR.save(); }
+  function manejar(ev){
+    ev.stopPropagation();
+    var e=evActual(); if(!e) return;
+    var t=ev.target;
+    if(ev.type==="input"){ var k=t.getAttribute&&t.getAttribute("data-av-c"); if(k&&U.comp) U.comp[k]=t.value; return; }
+    var b=t.closest?t.closest("[data-av]"):null; if(!b) return;
+    var a=b.getAttribute("data-av"), id=b.getAttribute("data-id");
+    if(a==="correo"){
+      var S=snap(e), i=b.getAttribute("data-i"), h=i==="libre"?null:(S&&S.hitos[+i])||null, m=msgCliente(e,h);
+      abrirComp("cliente",m,{kind:"cliente",ref:h?"cli:"+e.id+":"+h.id+":"+h.fecha:null});
+    }
+    else if(a==="cam-correo"){ var p=((BR.store.camareros&&BR.store.camareros.personas)||[]).filter(function(x){ return x.id===id; })[0]; if(!p) return; var m2=msgCamarero(e,p);
+      abrirComp("cam",m2,{kind:"camarero",ref:"cam:"+e.id+":"+p.id,alEnviar:function(){ guardarAviso(e,p.id,"avisado"); }}); }
+    else if(a==="cam-avisado"){ guardarAviso(e,id,(e.camarerosAvisar&&e.camarerosAvisar[id])==="avisado"?"avisar":"avisado"); pintar(); }
+    else if(a==="cam-todos"){
+      var P=((BR.store.camareros&&BR.store.camareros.personas)||[]).filter(function(p){ return !p.borrado&&(e.camareros||{})[p.id]==="si"&&(e.camarerosAvisar||{})[p.id]==="avisar"&&/@/.test(p.email||""); });
+      var n=0, mal=0, sim=0; b.disabled=true;
+      (function sig(i){
+        if(i>=P.length){ toast(n+(n===1?" aviso enviado":" avisos enviados")+(sim?" ("+sim+" simulados: el correo no está activado)":"")+(mal?" · "+mal+" con error":"")+".",!!mal); cargarEstado(pintar); return; }
+        var m=msgCamarero(e,P[i]);
+        api("/api/correo/enviar","POST",{kind:"camarero",ev:e.id,to:m.to,subject:m.subject,text:m.text,ref:"cam:"+e.id+":"+P[i].id}).then(function(j){ if(j._status===200){ n++; if(j.estado==="simulado") sim++; guardarAviso(e,P[i].id,"avisado"); } else mal++; }).catch(function(){ mal++; }).finally(function(){ sig(i+1); });
+      })(0);
+    }
+    else if(a==="enviar") enviarComp();
+    else if(a==="cerrar-comp"){ U.comp=null; U.res.comp=null; pintar(); }
+    else if(a==="resumen-vista"){ api("/api/correo/resumen","POST",{modo:"vista"}).then(function(j){ if(j._status===200) U.vista=j; else U.res.resumen={ok:false,msg:j.message||"No se ha podido preparar."}; pintar(); }); }
+    else if(a==="resumen-yo"||a==="resumen-equipo"){
+      b.disabled=true;
+      api("/api/correo/resumen","POST",{modo:a==="resumen-yo"?"yo":"equipo"}).then(function(j){
+        if(j._status===200) U.res.resumen=a==="resumen-yo"?{ok:true,estado:j.estado,msg:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido.":"Enviado a tu correo."}
+          :{ok:j.ok,estado:j.simulados?"simulado":"enviado",msg:(j.enviados?j.enviados+" enviados":"")+(j.simulados?(j.enviados?" · ":"")+j.simulados+" simulados (el correo no está activado)":"")+(j.errores?" · "+j.errores+" con error":"")+"."};
+        else U.res.resumen={ok:false,msg:j.message||"No se ha podido enviar."};
+        cargarEstado(pintar);
+      });
+    }
+    else if(a==="alcance"){ U.alcance=b.getAttribute("data-v"); cargarEstado(pintar); }
+    else if(a==="reintentar"){ b.disabled=true; api("/api/correo/reintentar","POST",{id:+id}).then(function(j){ toast(j._status===200?(j.estado==="simulado"?"Sigue simulado: el correo no está activado.":"Enviado."):(j.message||"No se ha podido enviar."),j._status!==200); cargarEstado(pintar); }); }
+  }
+  window.LM_renderAvisos=function(host){
+    var e=evActual();
+    if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
+    if(U.host!==host||U.ev!==e.id){ U.host=host; U.ev=e.id; U.comp=null; U.res={}; U.vista=null; U.estado=U.estado||null; }
+    U.host=host; pintar();
+    if(!U.cargando&&backend()&&(!U.estado||U.estadoEv!==e.id+"|"+U.alcance)){ U.estadoEv=e.id+"|"+U.alcance; cargarEstado(pintar); }
+    cargarPlantillas(function(){ if(U.host===host&&!U.comp) pintar(); });
+  };
+  document.addEventListener("click",function(ev){ var a=ev.target.closest&&ev.target.closest(".av-wrap a[data-av-ir]"); if(a){ ev.preventDefault(); } });
+
+  /* ═══ Parámetros → Correo y avisos (solo administración) ═══ */
+  var C={host:null,estado:null,cfg:null,plant:null,msg:null,sim:null,cargando:false,guardando:false};
+  var PL_TXT=[["resumen_asunto","Resumen del equipo · asunto","{periodo}"],["resumen_intro","Resumen del equipo · primera línea",""],
+    ["cliente_lista_asunto","Cliente: la lista · asunto","{evento}"],["cliente_lista","Cliente: la lista · texto","{nombre} {evento} {fecha} {enlace} {firma}"],
+    ["cliente_pago_asunto","Cliente: un pago · asunto","{evento}"],["cliente_pago","Cliente: un pago · texto","{nombre} {evento} {fecha} {vence} {importe} {concepto} {datos_pago} {firma}"],
+    ["cliente_reunion_asunto","Cliente: una reunión · asunto","{evento}"],["cliente_reunion","Cliente: una reunión · texto","{nombre} {evento} {fecha} {concepto} {firma}"],
+    ["cliente_libre_asunto","Cliente: mensaje libre · asunto","{evento}"],["cliente_libre","Cliente: mensaje libre · texto","{nombre} {evento} {firma}"],
+    ["camarero_asunto","Camarero: su turno · asunto","{evento} {fecha}"],["camarero","Camarero: su turno · texto","{nombre} {evento} {fecha} {hora} {funciones} {firma}"],
+    ["proveedor_asunto","Proveedor · asunto","{evento} {fecha}"],["proveedor","Proveedor · texto","{nombre} {evento} {fecha} {servicio} {firma}"]];
+  function cargarCfg(){
+    if(C.cargando) return; C.cargando=true;
+    api("/api/correo?n=30","GET").then(function(j){ if(j._status===200){ C.estado=j; C.cfg=JSON.parse(JSON.stringify(j.cfg)); C.plant=Object.assign({},j.plantillas); C.err=""; } else C.err=j.message||"No se ha podido cargar."; })
+      .catch(function(){ C.err="Sin conexión con el servidor."; }).finally(function(){ C.cargando=false; pintarCfg(); });
+  }
+  function guia(origen){
+    return '<details class="av-guia"><summary>Cómo activar el envío de correos (una sola vez)</summary><ol>'+
+      '<li>Crea una cuenta gratuita en <b>resend.com</b> y en «Domains» añade el dominio desde el que quieras escribir (por ejemplo <i>lesmoles.com</i>); te pedirá poner unos registros en el DNS del dominio. Hasta que esté verificado, los correos no salen.</li>'+
+      '<li>En Resend, «API Keys» → crea una clave y cópiala.</li>'+
+      '<li>En Cloudflare, en cada proyecto de Pages → <i>Settings → Variables and Secrets</i>, añade (como <b>secreto</b>): <code>RESEND_API_KEY</code> (la clave), <code>MAIL_FROM</code> (por ejemplo <code>Les Moles Events &lt;eventos@lesmoles.com&gt;</code>) y <code>CRON_TOKEN</code> (una contraseña larga inventada por ti). Vuelve a desplegar.</li>'+
+      '<li>Para que el resumen y los recordatorios <b>salgan solos</b>: en GitHub, repositorio → <i>Settings → Secrets and variables → Actions</i>: crea el <u>secreto</u> <code>CRON_TOKEN</code> (el mismo) y la <u>variable</u> <code>SITE_URL</code> con <code>'+esc(origen)+'</code>. El archivo <code>.github/workflows/avisos.yml</code> ya está en el proyecto: llama al servidor cada hora y el servidor decide si toca enviar algo (tiene que estar en la rama principal del repositorio).</li>'+
+      '<li>Pulsa «Enviar un correo de prueba» aquí abajo: te debe llegar. Mientras no esté todo, nada se envía de verdad: queda «simulado» en la bandeja.</li></ol></details>';
+  }
+  function pintarCfg(){
+    var host=C.host; if(!host) return;
+    if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
+    if(!C.cfg){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">'+esc(C.err||"Cargando…")+'</p></div>'; return; }
+    var s=C.estado, cfg=C.cfg, rs=cfg.resumen, cl=cfg.cliente, D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+    function chk(id,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+id+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
+    function num(id,v,mi,ma){ return '<input type="number" min="'+mi+'" max="'+ma+'" data-cf="'+id+'" value="'+esc(v)+'" aria-label="'+esc(id)+'">'; }
+    var h='<div class="pv-inner av-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1><p class="pv-guide">El servicio de correo, lo que se envía solo y los textos de los avisos.</p></div></header>';
+    h+='<div class="av-estado '+(s.proveedor.listo?"ok":"no")+'"><div><span>Envío de correo</span><b>'+(s.proveedor.listo?"Activado":"Sin activar")+'</b><small>'+(s.proveedor.listo?"Sale desde "+esc(s.proveedor.from):esc(s.proveedor.motivo)+" Mientras tanto los correos se guardan como «simulado» y no salen.")+'</small></div>'+
+      '<div><span>Envíos automáticos</span><b>'+(s.cron.token?"Con llave":"Sin llave")+'</b><small>'+(s.cron.token?"El servidor acepta la llamada programada (CRON_TOKEN).":"Falta CRON_TOKEN: el resumen y los recordatorios no pueden salir solos.")+'</small></div>'+
+      '<div><span>Errores (24 h)</span><b>'+(s.errores24h||0)+'</b><small>'+(s.errores24h?"Mira la bandeja en «Avisos y correo».":"Sin problemas.")+'</small></div></div>'+guia(location.origin);
+    h+='<h2 class="av-h2">Resumen del equipo</h2><div class="pcard"><div class="fldset">'+chk("resumen.on",rs.on,"Enviar el resumen")+
+      '<label class="fld"><span class="lbl">Cada</span><select data-cf="resumen.freq"><option value="semanal"'+(rs.freq==="semanal"?" selected":"")+'>Semana</option><option value="diario"'+(rs.freq==="diario"?" selected":"")+'>Día</option><option value="off"'+(rs.freq==="off"?" selected":"")+'>(apagado)</option></select></label>'+
+      '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="resumen.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+rs.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("resumen.hora",rs.hora,0,23)+'</label>'+
+      '<label class="fld"><span class="lbl">Para</span><select data-cf="resumen.para"><option value="equipo"'+(rs.para==="equipo"?" selected":"")+'>Administración y eventos (por su correo de acceso)</option><option value="lista"'+(rs.para==="lista"?" selected":"")+'>Una lista de correos</option></select></label>'+
+      '<label class="fld wide"><span class="lbl">Lista de correos <small>(separados por comas; solo si has elegido «una lista»)</small></span><input type="text" data-cf="resumen.lista" value="'+esc(rs.lista)+'" placeholder="jefe@lesmoles.com, sala@lesmoles.com"></label></div></div>';
+    h+='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
+      chk("cliente.on",cl.on,"Enviar recordatorios automáticos a los clientes")+chk("cliente.lista",cl.lista,"La lista de invitados")+chk("cliente.pago",cl.pago,"Los pagos")+chk("cliente.reunion",cl.reunion,"Las reuniones")+
+      '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("cliente.hora",cl.hora,0,23)+'</label></div></div>';
+    h+='<h2 class="av-h2">Firma y respuestas</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Firma de los mensajes</span><input type="text" data-cf="firma" value="'+esc(cfg.firma)+'" maxlength="200"></label>'+
+      '<label class="fld"><span class="lbl">Si contestan al correo, la respuesta va a…</span><input type="email" data-cf="responder" value="'+esc(cfg.responder)+'" placeholder="info@lesmoles.com"></label></div></div>';
+    h+='<h2 class="av-h2">Plantillas</h2><p class="av-peq">Las variables entre llaves se rellenan solas con los datos del evento. WhatsApp usa los mismos textos.</p>'+PL_TXT.map(function(p){
+      var largo=!/asunto|intro/.test(p[0]), mod=C.plant[p[0]]!==(C.estado.plantillasPorDefecto||{})[p[0]];
+      return '<div class="pcard av-pl"><label class="fld wide"><span class="lbl">'+esc(p[1])+(p[2]?' <small>'+esc(p[2])+'</small>':'')+(mod?' <em>personalizada</em>':'')+'</span>'+(largo?'<textarea rows="'+(p[0]==="camarero"||p[0]==="cliente_lista"||p[0]==="cliente_pago"?7:5)+'" data-pl="'+p[0]+'">'+esc(C.plant[p[0]])+'</textarea>':'<input type="text" data-pl="'+p[0]+'" value="'+esc(C.plant[p[0]])+'">')+'</label>'+(mod?'<button type="button" class="btn sm" data-cfa="restaurar" data-k="'+p[0]+'">Volver a la de fábrica</button>':'')+'</div>'; }).join("");
+    h+='<div class="av-acciones"><button type="button" class="btn gold" data-cfa="guardar"'+(C.guardando?" disabled":"")+'>Guardar</button><button type="button" class="btn" data-cfa="prueba">Enviar un correo de prueba a mi correo</button><button type="button" class="btn" data-cfa="simular">Ver qué se enviaría ahora</button></div>'+
+      (C.msg?'<p class="av-res '+(C.msg.ok?(C.msg.sim?"sim":"ok"):"mal")+'" role="status">'+esc(C.msg.txt)+'</p>':'')+
+      (C.sim?'<pre class="av-vista" tabindex="0" aria-label="Qué se enviaría ahora">'+esc(C.sim)+'</pre>':'')+'</div>';
+    var y=host.scrollTop; host.innerHTML=h; host.scrollTop=y;
+    var root=host.querySelector(".av-wrap"); root.addEventListener("change",manejarCfg); root.addEventListener("input",manejarCfg); root.addEventListener("click",manejarCfg);
+  }
+  function setPath(o,p,v){ var s=p.split("."); for(var i=0;i<s.length-1;i++) o=o[s[i]]; o[s[s.length-1]]=v; }
+  function manejarCfg(ev){
+    ev.stopPropagation();
+    var t=ev.target;
+    if(ev.type!=="click"){
+      var k=t.getAttribute&&t.getAttribute("data-cf"), pl=t.getAttribute&&t.getAttribute("data-pl");
+      if(k){ var v=t.type==="checkbox"?t.checked:t.type==="number"?Math.round(+t.value):t.value; if(/\.(dia)$/.test(k)) v=+v; setPath(C.cfg,k,v); }
+      else if(pl){ C.plant[pl]=t.value; }
+      return;
+    }
+    var b=t.closest?t.closest("[data-cfa]"):null; if(!b) return; var a=b.getAttribute("data-cfa");
+    if(a==="guardar"){ C.guardando=true; C.msg=null; pintarCfg();
+      api("/api/correo","PUT",{cfg:C.cfg,plantillas:C.plant}).then(function(j){ C.guardando=false;
+        if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:j.message||"No se ha podido guardar."}; pintarCfg(); } }); }
+    else if(a==="restaurar"){ var k2=b.getAttribute("data-k"); C.plant[k2]=(C.estado.plantillasPorDefecto||{})[k2]; api("/api/correo","PUT",{plantillas:(function(){ var o={}; o[k2]=null; return o; })()}).then(function(){ cargarCfg(); }); }
+    else if(a==="prueba"){ b.disabled=true; C.msg=null;
+      api("/api/correo/enviar","POST",{kind:"prueba",to:(yo().email||""),subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona.\n\n"+(C.cfg.firma||"")}).then(function(j){
+        C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(yo().email||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:j.message||"No se ha podido enviar."}; cargarCfg(); }); }
+    else if(a==="simular"){ b.disabled=true; api("/api/correo/cron","POST",{simular:true}).then(function(j){
+      var l=["Hoy es "+dmy(j.hoy)+"."]; l.push(j.resumen?"Resumen del equipo: se mandaría a "+j.resumen.destinatarios+(j.resumen.destinatarios===1?" persona":" personas")+" («"+j.resumen.asunto+"»)."+(j.resumen.texto?"\n\n"+j.resumen.texto:""):"Resumen del equipo: hoy no toca (o ya se envió).");
+      l.push("","Recordatorios a clientes de hoy: "+(j.clientes&&j.clientes.length?j.clientes.map(function(c){ return "\n· "+c.evento+" ("+c.tipo+") → "+c.a; }).join(""):"ninguno."));
+      C.sim=l.join("\n"); C.msg=null; pintarCfg(); }); }
+  }
+  window.LM_renderCorreoCfg=function(host){ C.host=host; if(!C.cfg&&!C.cargando) cargarCfg(); pintarCfg(); };
+})();
+</script>
+
+<script>
 /* ══════════════════════════════════════════════════════════════════════
    PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
    Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
@@ -18182,7 +18626,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","fotos","docs","prev"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","fotos","docs","prev"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","prov","presup","inv","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
@@ -18253,7 +18697,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
        administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
-    var NUEVAS=["cam-horas","cierre"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
+    var NUEVAS=["cam-horas","cierre","avisos"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
       var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];

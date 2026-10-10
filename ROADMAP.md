@@ -205,13 +205,27 @@ se recupera con el código manual por evento.
 
 ## 4. Fase 3 — Comunicación (días 10–14)
 
-### 3.1 Avisos por correo — *1–2 días* — v01.64
-- **Qué:** resumen diario/semanal al equipo («esta semana: 3 eventos · faltan 2 pagos · 4 camareros por avisar»); recordatorios al cliente (enviar la lista, pagos, reunión); aviso a camareros marcados «Avisar» con los datos de su turno.
-- **Detalle técnico:** envío mediante servicio de correo (punto 1.3); como Pages no ejecuta tareas programadas, el disparo se hace con una acción programada que llama a un endpoint protegido. Tabla `outbox` con intentos y estado; plantillas editables en Parámetros.
-- **Hecho cuando:** llega el resumen del lunes a las 8:00 y un recordatorio de lista a un cliente de prueba; cada envío queda registrado.
+### 3.1 Avisos por correo — ✅ **hecho en la v01.64** (falta tu parte para que salgan de verdad)
+- **Planificación → «Avisos y correo»** (administración y eventos): para el evento abierto, a quién escribir y con qué mensaje **ya redactado**:
+  - **Cliente:** cada paso de la agenda (enviar la lista, primer y último pago con su importe, reuniones) con su fecha («vencido hace 39 días», «mañana»…) y un botón **Correo** que abre el texto redactado —con los nombres, el enlace privado del portal y el IBAN— para repasarlo y enviarlo; más un mensaje libre. Si un paso ya se envió, avisa y ofrece «Enviarlo otra vez».
+  - **Camareros:** los confirmados con su hora de entrada, **a quién avisar** y el estado; correo individual o a todos los marcados «Avisar» **con los datos de su turno** (hora de entrada y funciones del reparto); al enviarlo, queda «avisado ✓». En la ficha de cada camarero hay ahora un campo **Correo**.
+  - **Resumen del equipo:** vista previa, «enviármelo a mí» y (administración) «enviarlo ya al equipo»: eventos de la semana, **lo que queda por cobrar**, **camareros por avisar y los que faltan**, **alergias sin plato sustituto** y los pasos de la agenda que vencen en 3 días.
+  - **Bandeja de salida:** todo lo enviado con su estado (**enviado · simulado · error**), intentos y motivo del fallo, con «Reintentar».
+- **Parámetros → «Correo y avisos»** (solo administración): estado del envío (activado o no), qué se manda **solo** (resumen semanal o diario, día y hora; **recordatorios a clientes: apagados de fábrica**, por tipo), firma, correo de respuesta y **todas las plantillas editables** (asunto y texto, con sus variables y «volver a la de fábrica»). Botones para enviar una prueba a tu correo y para **ver qué se enviaría ahora** sin enviar nada. Lleva la guía paso a paso de la activación.
+- **Cómo sale solo:** Pages no ejecuta tareas programadas, así que hay una acción de GitHub (`.github/workflows/avisos.yml`) que **llama cada hora** al servidor (`/api/correo/cron`, protegido con una clave); es el servidor quien decide si toca (el resumen a su día y hora, los recordatorios del día) y **nunca repite** un envío (referencia única por aviso).
+- **Sin servicio de correo no pasa nada raro:** mientras no esté activado, todo queda en la bandeja como **«simulado»** y NO sale; así se puede probar entero.
+- **Datos y RGPD:** la bandeja se borra sola a los 180 días y al anonimizar un evento; el registro de tratamientos incluye «Correos y avisos». Tope de 40 correos por persona y hora.
+- **Los datos del resumen** (cifras, importes, camareros, alergias sin plato) los calcula la app con la misma matemática de siempre y viajan en cada evento (`_snap`, no cuenta en el historial); el servidor solo los lee.
+- **Comprobado** (servidor real con un servicio de correo de mentira): enviado, simulado y error con su motivo; reintentar; el mismo aviso no se repite; tope por hora; permisos (cocina 403, eventos no cambia ajustes); resumen con cobros, camareros, alergias y agenda; recordatorios de lista y pago con nombres, enlace e IBAN; semanal solo su día; recordatorios apagados no envían; la llamada programada sin clave o con clave mala da 403; limpieza a 180 días y al anonimizar; en pantalla: redactar y enviar, simulado, «enviarlo otra vez», camareros, resumen, bandeja, ajustes, plantillas, prueba y simulación; sin desbordes en 390 px.
+- **Tu parte (no depende de mí):** (1) cuenta gratuita en **Resend** y **verificar el dominio** desde el que escribir (lo que tarda es el DNS); (2) en Cloudflare, en cada proyecto de Pages, los secretos `RESEND_API_KEY`, `MAIL_FROM` y `CRON_TOKEN`; (3) en GitHub, el secreto `CRON_TOKEN` y la variable `SITE_URL`; y que el archivo `avisos.yml` esté en la **rama principal**. Está explicado también en la propia pantalla.
 
-### 3.2 WhatsApp con un clic — *~0,5 día* — v01.64
-- Botones «Avisar por WhatsApp» con el mensaje ya redactado (camareros, clientes, proveedores) mediante enlace directo (`wa.me`), sin necesidad de API de pago.
+### 3.2 WhatsApp con un clic — ✅ **hecho en la v01.64**
+- Botón **WhatsApp** (verde) con el mensaje ya redactado, que abre la conversación con el texto puesto (enlace `wa.me`: no hace falta nada de pago ni configurar nada; lo envía la persona):
+  - **Camareros** (en «Camareros del evento» y en «Avisos y correo»): su hora de entrada, el evento, la fecha y sus **funciones del reparto**.
+  - **Clientes** (en «Ficha y contacto» y en «Avisos y correo»): cada paso de la agenda o un mensaje libre.
+  - **Proveedores** (en la tabla de Proveedores): confirmación del evento y del servicio.
+- Reconoce los teléfonos como se escriban (`600 11 22 33`, `+34 622 333 444`, `0034…`) y les pone el prefijo de España si falta; si no hay teléfono, el botón sale desactivado y lo dice.
+- Los textos son **los mismos que los del correo** (se editan en Parámetros → Correo y avisos).
 
 ### 3.3 Portal del cliente ampliado — *~2 días* — v01.65
 - El cliente puede **aprobar la minuta y el menú** (con su fecha y nombre), subir su logo y fotos, ver el plano y dejar comentarios al equipo. Cada aprobación queda en el historial del evento.

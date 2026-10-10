@@ -42,6 +42,13 @@
  *   DELETE /api/planos?k=..     quita un plano de fondo (admin, eventos y servicio)
  *   GET  /api/servicio?ev=..&since=N   modo servicio: lo que ha cambiado en el evento desde la versión N (cualquier rol salvo compras)
  *   POST /api/servicio          {ev, since?, ops:[{k, v | del, nx?}]}: platos salidos, invitados llegados, incidencias; devuelve lo nuevo
+ *   GET  /api/correo            estado del correo, ajustes y bandeja de salida (admin y eventos)
+ *   PUT  /api/correo            {cfg?, plantillas?} ajustes y plantillas (solo admin)
+ *   GET  /api/correo/plantillas plantillas y firma (cualquier rol: las usan los botones de WhatsApp)
+ *   POST /api/correo/enviar     {kind, ev?, to, subject, text, ref?} envía (o guarda como «simulado» si no hay servicio de correo)
+ *   POST /api/correo/reintentar {id}      vuelve a intentar un envío con error
+ *   POST /api/correo/resumen    {modo: vista|yo|equipo}  el resumen del equipo a mano
+ *   POST /api/correo/cron       lo que se manda solo (resumen y recordatorios); con «Authorization: Bearer CRON_TOKEN» o el administrador
  *   GET  /api/health            ¿vivo? (público, sin datos; para un vigilante externo tipo UptimeRobot)
  *   POST /api/error             {msg,src?,v?} la app avisa de un error que le ha saltado (con sesión)
  *   GET  /api/estado            estado del sistema: último guardado, copias, tamaño del documento, errores (solo admin)
@@ -133,6 +140,13 @@ async function api(request, env, url) {
   if (p === "/api/planos" && m === "DELETE") return planosDel(request, env, url);
   if (p === "/api/servicio" && m === "GET") return servicioGet(request, env, url);
   if (p === "/api/servicio" && m === "POST") return servicioPost(request, env);
+  if (p === "/api/correo" && m === "GET") return correoGet(request, env, url);
+  if (p === "/api/correo" && m === "PUT") return correoPut(request, env);
+  if (p === "/api/correo/plantillas" && m === "GET") return correoPlantillas(request, env);
+  if (p === "/api/correo/enviar" && m === "POST") return correoEnviarRoute(request, env);
+  if (p === "/api/correo/reintentar" && m === "POST") return correoReintentar(request, env);
+  if (p === "/api/correo/resumen" && m === "POST") return correoResumenRoute(request, env);
+  if (p === "/api/correo/cron" && m === "POST") return correoCron(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -517,6 +531,8 @@ async function estadoRoute(request, env) {
   const eh = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 3600e3);
   const ed = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 864e5);
   const et = await q("SELECT COUNT(*) AS n FROM errores");
+  await ensureCorreo(env);
+  const co = await q("SELECT COALESCE(SUM(CASE WHEN estado='error' AND ts>?1 THEN 1 ELSE 0 END),0) AS err, COALESCE(SUM(CASE WHEN estado='enviado' AND ts>?2 THEN 1 ELSE 0 END),0) AS ok7, COALESCE(SUM(CASE WHEN estado='simulado' AND ts>?2 THEN 1 ELSE 0 END),0) AS sim7 FROM outbox", ahora - 864e5, ahora - 7 * 864e5);
   const { results } = await env.DB.prepare("SELECT ts, origen, donde, msg, name FROM errores ORDER BY id DESC LIMIT 25").all();
   const ult = st ? +st.updated : 0, bytes = st ? +st.bytes : 0, pct = Math.round(bytes / DOC_LIMITE * 100);
   const avisos = [];
@@ -527,6 +543,7 @@ async function estadoRoute(request, env) {
   else if (ult && ult - bkAuto.ult > 36 * 3600e3 && ahora - ult < 36 * 3600e3) add("aviso", "La última copia automática tiene más de un día y se ha trabajado desde entonces.", "Haz una copia ahora en Parámetros → Copias de seguridad.");
   if (eh && eh.n > 0) add("mal", eh.n + (eh.n === 1 ? " error en la última hora." : " errores en la última hora."), "Mira el detalle más abajo; si se repite, envíalo a quien lleva la herramienta.");
   else if (ed && ed.n > 0) add("aviso", ed.n + (ed.n === 1 ? " error en las últimas 24 horas." : " errores en las últimas 24 horas."), "");
+  if (co && co.err > 0) add("aviso", co.err + (co.err === 1 ? " correo no ha salido" : " correos no han salido") + " en las últimas 24 horas.", "Míralo en la bandeja de «Avisos y correo»; se puede reintentar desde ahí.");
   if (!avisos.length) add("ok", "Todo en orden: sin errores recientes, con copias al día y espacio de sobra.", "");
   return json({
     ahora,
@@ -536,6 +553,7 @@ async function estadoRoute(request, env) {
     planos: { n: pl ? pl.n : 0, bytes: pl ? pl.b : 0 },
     usuarios: { total: us ? us.n : 0, activos: us ? us.act : 0 },
     listasCliente: { total: nv ? nv.n : 0, pendientes: nv ? nv.pen : 0 },
+    correo: { errores24h: co ? co.err : 0, enviados7d: co ? co.ok7 : 0, simulados7d: co ? co.sim7 : 0, listo: corProveedor(env).listo },
     errores: { ultimaHora: eh ? eh.n : 0, hoy: ed ? ed.n : 0, total: et ? et.n : 0, recientes: (results || []).map((r) => ({ ts: +r.ts, origen: r.origen, donde: r.donde || "", msg: r.msg || "", name: r.name || "" })) },
     avisos
   });
@@ -645,8 +663,9 @@ function anonEvento(e, ahora) {
   return c;
 }
 async function privLimpiarTablas(env, ids, nombres) {
-  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env);
+  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env);
   for (const id of ids) {
+    await env.DB.prepare("DELETE FROM outbox WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM servicio WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM historial WHERE event_id=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM papelera WHERE event_id=?1").bind(String(id)).run();
@@ -955,6 +974,330 @@ async function servicioPost(request, env) {
   const d = await servicioDelta(env, ev, Math.max(0, Math.floor(+b.since || 0)));
   d.ok = true; d.hechas = hechas;
   return json(d);
+}
+
+/* ── CORREO Y AVISOS ──────────────────────────────────────────────────────────
+   Tres usos, el mismo motor:
+   · RESUMEN DEL EQUIPO (semanal o diario): lo que hay esta semana, lo que queda por
+     cobrar, camareros por avisar, alergias sin plato… Sale solo a la hora que se
+     diga (el disparador es una llamada programada a /api/correo/cron, porque Pages no
+     ejecuta tareas: ver .github/workflows/avisos.yml) y también se puede enviar a mano.
+   · RECORDATORIOS AL CLIENTE (la lista de invitados, los pagos, las reuniones): a mano
+     desde la ficha del evento y, si el administrador lo activa, solos el día que toca.
+     Vienen apagados de fábrica.
+   · AVISO A LOS CAMAREROS con los datos de su turno.
+   Todo envío queda apuntado en la bandeja de salida (tabla outbox) con su estado
+   (enviado · simulado · error), cuántos intentos y por qué falló. Un mismo aviso no se
+   manda dos veces (referencia única). Si no hay servicio de correo configurado (clave
+   de Resend + remitente) los correos se guardan como «simulado» y NO salen: así todo
+   se puede probar sin enviar nada. Las plantillas (asunto y texto) las edita el
+   administrador. Las configuraciones van en la tabla meta (clave «correo»).
+   Variables del servidor: RESEND_API_KEY · MAIL_FROM · CRON_TOKEN. */
+let COR_OK = false;
+const COR_PURGA_DIAS = 180;
+const COR_CFG_DEF = {
+  resumen: { on: true, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
+  cliente: { on: false, hora: 9, lista: true, pago: true, reunion: true },
+  firma: "Les Moles Events", responder: ""
+};
+const COR_PLANT = {
+  resumen_asunto: "Resumen de {periodo} · Les Moles Events",
+  resumen_intro: "Buenos días. Esto es lo que hay en Les Moles Events:",
+  cliente_lista_asunto: "La lista de invitados de {evento}",
+  cliente_lista: "Hola {nombre},\n\nPara preparar {evento} ({fecha}) necesitamos la lista definitiva de invitados, con sus alergias o dietas.\nPodéis rellenarla en vuestro enlace privado:\n{enlace}\n\nGracias,\n{firma}",
+  cliente_pago_asunto: "Recordatorio de pago · {evento}",
+  cliente_pago: "Hola {nombre},\n\nOs recordamos el pago de {importe} («{concepto}») de {evento} ({fecha}), con vencimiento el {vence}.\n{datos_pago}\n\nUn saludo,\n{firma}",
+  cliente_reunion_asunto: "Reunión para {evento}",
+  cliente_reunion: "Hola {nombre},\n\nOs recordamos la reunión «{concepto}» de {evento} ({fecha}). Si necesitáis cambiar la hora, contestad a este correo.\n\n{firma}",
+  cliente_libre_asunto: "Sobre {evento}",
+  cliente_libre: "Hola {nombre},\n\n\n\nUn saludo,\n{firma}",
+  camarero_asunto: "Tu turno en {evento} · {fecha}",
+  camarero: "Hola {nombre},\n\nTe confirmamos tu turno en {evento}: {fecha}, entrada a las {hora}.\n{funciones}\nSi no puedes venir, avísanos cuanto antes.\n\n{firma}"
+  ,proveedor_asunto: "{evento} · {fecha}",
+  proveedor: "Hola {nombre},\n\nTe escribo por {evento} ({fecha}): contamos contigo para {servicio}. Cualquier cambio o duda, avísame.\n\n{firma}"
+};
+async function ensureCorreo(env) {
+  if (COR_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS outbox (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, kind TEXT NOT NULL, ev TEXT, to_addr TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL, estado TEXT NOT NULL, intentos INTEGER NOT NULL DEFAULT 0, error TEXT, sent_ts INTEGER, ref TEXT, by_name TEXT, prov_id TEXT)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS outbox_ts ON outbox (ts)").run();
+  await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS outbox_ref ON outbox (ref) WHERE ref IS NOT NULL").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS outbox_ev ON outbox (ev)").run();
+  COR_OK = true;
+}
+function corEmailOk(s) { return typeof s === "string" && s.length <= 160 && /^[^\s@<>",;]+@[^\s@<>",;]+\.[A-Za-z]{2,}$/.test(s.trim()); }
+function corMezcla(base, o) {
+  const out = JSON.parse(JSON.stringify(base));
+  Object.keys(o || {}).forEach((k) => { if (o[k] && typeof o[k] === "object" && !Array.isArray(o[k]) && out[k] && typeof out[k] === "object") Object.assign(out[k], o[k]); else if (o[k] != null) out[k] = o[k]; });
+  return out;
+}
+async function correoCfg(env) {
+  await ensureUsers(env);
+  let c = {}, pl = {};
+  try {
+    const { results } = await env.DB.prepare("SELECT k, v FROM meta WHERE k IN ('correo','correo_plantillas')").all();
+    (results || []).forEach((r) => { try { if (r.k === "correo") c = JSON.parse(r.v) || {}; else pl = JSON.parse(r.v) || {}; } catch (_) {} });
+  } catch (_) {}
+  const cfg = corMezcla(COR_CFG_DEF, c), plant = Object.assign({}, COR_PLANT);
+  Object.keys(pl).forEach((k) => { if (COR_PLANT[k] != null && typeof pl[k] === "string" && pl[k].trim()) plant[k] = pl[k]; });
+  return { cfg, plant, custom: pl };
+}
+function corProveedor(env) {
+  const key = String(env.RESEND_API_KEY || "").trim(), from = String(env.MAIL_FROM || "").trim();
+  if (!key) return { listo: false, from, motivo: "Falta la clave del servicio de correo (RESEND_API_KEY)." };
+  if (!from) return { listo: false, from, motivo: "Falta el remitente (MAIL_FROM), por ejemplo «Les Moles Events <eventos@tudominio.com>»." };
+  return { listo: true, from, motivo: "" };
+}
+function corRellenar(t, v) { return String(t == null ? "" : t).replace(/\{(\w+)\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(v, k) && v[k] != null ? String(v[k]) : m)); }
+function corHtml(texto) {
+  const esc = String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const lk = esc.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>');
+  return '<div style="font:15px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#222;max-width:620px">' + lk.replace(/\n/g, "<br>") + "</div>";
+}
+/* un envío: lo apunta en la bandeja y, si hay servicio de correo, lo manda. ref = clave para no repetir. */
+async function correoEnviar(env, m) {
+  await ensureCorreo(env);
+  const prov = corProveedor(env), { cfg } = await correoCfg(env), ahora = Date.now();
+  const to = String(m.to || "").trim(), subject = String(m.subject || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200), body = String(m.text || "").slice(0, 8000);
+  if (!corEmailOk(to)) return { ok: false, error: "invalid", message: "El correo del destinatario no es válido." };
+  if (!subject || !body.trim()) return { ok: false, error: "invalid", message: "Falta el asunto o el texto." };
+  let row = null;
+  if (m.ref) {
+    row = await env.DB.prepare("SELECT * FROM outbox WHERE ref=?1").bind(String(m.ref).slice(0, 200)).first();
+    if (row && (row.estado === "enviado" || row.estado === "simulado")) return { ok: true, repetido: true, id: row.id, estado: row.estado };
+    if (row && row.intentos >= 3) return { ok: false, error: "max-intentos", message: "Este aviso ya falló 3 veces.", id: row.id, estado: row.estado };
+  }
+  let id;
+  if (row) { id = row.id; await env.DB.prepare("UPDATE outbox SET to_addr=?1, subject=?2, body=?3, estado='pendiente', error=NULL WHERE id=?4").bind(to, subject, body, id).run(); }
+  else {
+    const r = await env.DB.prepare("INSERT INTO outbox (ts, kind, ev, to_addr, subject, body, estado, intentos, ref, by_name) VALUES (?1,?2,?3,?4,?5,?6,'pendiente',0,?7,?8)")
+      .bind(ahora, String(m.kind || "libre").slice(0, 20), m.ev ? String(m.ev).slice(0, 80) : null, to, subject, body, m.ref ? String(m.ref).slice(0, 200) : null, String(m.by || "").slice(0, 80)).run();
+    id = (r.meta && r.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM outbox").first()).id;
+  }
+  if (!prov.listo) {
+    await env.DB.prepare("UPDATE outbox SET estado='simulado', error=?1 WHERE id=?2").bind(prov.motivo, id).run();
+    return { ok: true, id, estado: "simulado", message: "El servicio de correo no está configurado: se ha guardado en la bandeja pero NO se ha enviado." };
+  }
+  try {
+    const payload = { from: prov.from, to: [to], subject, text: body, html: corHtml(body) };
+    if (cfg.responder && corEmailOk(cfg.responder)) payload.reply_to = cfg.responder;
+    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim(), "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    let j = {}; try { j = await r.json(); } catch (_) {}
+    if (r.ok && j && j.id) {
+      await env.DB.prepare("UPDATE outbox SET estado='enviado', intentos=intentos+1, sent_ts=?1, prov_id=?2, error=NULL WHERE id=?3").bind(Date.now(), String(j.id).slice(0, 80), id).run();
+      return { ok: true, id, estado: "enviado" };
+    }
+    const msg = ((j && (j.message || j.error)) || ("HTTP " + r.status)).toString().slice(0, 300);
+    await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+1, error=?1 WHERE id=?2").bind(msg, id).run();
+    return { ok: false, id, estado: "error", error: "proveedor", message: "El servicio de correo lo ha rechazado: " + msg };
+  } catch (err) {
+    const msg = String(err && err.message || err).slice(0, 300);
+    await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+1, error=?1 WHERE id=?2").bind(msg, id).run();
+    return { ok: false, id, estado: "error", error: "red", message: "No se ha podido contactar con el servicio de correo: " + msg };
+  }
+}
+/* ── fechas en hora de Madrid ── */
+function corMadrid(d) {
+  const f = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "short", hourCycle: "h23" }), p = {};
+  f.formatToParts(d).forEach((x) => { p[x.type] = x.value; });
+  return { y: +p.year, m: +p.month, d: +p.day, h: +p.hour, min: +p.minute, wd: { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 0 }[p.weekday], iso: p.year + "-" + p.month + "-" + p.day };
+}
+function corIsoMas(iso, n) { const t = new Date(iso + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+function corDias(a, b) { return Math.round((new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z")) / 864e5); }
+function corSemana(iso) {
+  const t = new Date(iso + "T00:00:00Z"), dn = (t.getUTCDay() + 6) % 7; t.setUTCDate(t.getUTCDate() - dn + 3);
+  const y1 = t.getUTCFullYear(), j4 = new Date(Date.UTC(y1, 0, 4)), w = 1 + Math.round(((t - j4) / 864e5 - 3 + ((j4.getUTCDay() + 6) % 7)) / 7);
+  return y1 + "-W" + (w < 10 ? "0" : "") + w;
+}
+const COR_DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+function corFechaCorta(iso) { const t = new Date(iso + "T00:00:00Z"); return COR_DIAS[t.getUTCDay()] + " " + iso.slice(8, 10) + "/" + iso.slice(5, 7); }
+function corFechaLarga(iso) { const t = new Date(iso + "T00:00:00Z"), N = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"], D = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]; return D[t.getUTCDay()] + " " + (+iso.slice(8, 10)) + " de " + N[+iso.slice(5, 7) - 1] + " de " + iso.slice(0, 4); }
+function corEur(n) { return (Math.round((+n || 0) * 100) / 100).toLocaleString("es-ES", { minimumFractionDigits: (+n || 0) % 1 ? 2 : 0, maximumFractionDigits: 2 }) + " €"; }
+function corNombreEv(e) { return String((e && e.name) || "Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/, "").trim() || "Evento"; }
+const COR_SIN_CONFIRMAR = { contacto: 1, propuesta: 1, visita: 1 };
+const COR_ESTADO_TX = { contacto: "contacto", propuesta: "propuesta", visita: "visita", reserva: "reserva", planificacion: "en planificación", confirmada: "confirmada", celebrada: "celebrada", cerrada: "cerrada" };
+/* el resumen: texto plano, con lo que hay en los próximos días y lo que queda por hacer. Solo lee. */
+function corResumen(doc, hoy, cfg, plant) {
+  const diario = cfg.resumen.freq === "diario", fin = corIsoMas(hoy, diario ? 1 : 6), evs = (doc.events || []).filter((e) => e && e.id && !e.anonimizado && e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || ""));
+  const dias = (e) => corDias(hoy, e.ficha.fecha);
+  const vivos = evs.filter((e) => dias(e) >= 0 && !/^(celebrada|cerrada)$/.test(e.ficha.estado || ""));
+  const semana = vivos.filter((e) => e.ficha.fecha <= fin).sort((a, b) => (a.ficha.fecha < b.ficha.fecha ? -1 : 1));
+  const prox30 = vivos.filter((e) => dias(e) <= 30), prox14 = vivos.filter((e) => dias(e) <= 14);
+  const sn = (e) => e._snap || {};
+  const L = [];
+  L.push(corRellenar(plant.resumen_intro, {}), "");
+  L.push((diario ? "HOY Y MAÑANA" : "ESTA SEMANA") + " (" + semana.length + (semana.length === 1 ? " evento" : " eventos") + ")");
+  if (!semana.length) L.push("· No hay eventos.");
+  semana.forEach((e) => { const s = sn(e), est = e.ficha.estado || "planificacion", tot = s.tot || ((s.adultos || 0) + (s.ninos || 0) + (s.staff || 0));
+    L.push("· " + corFechaCorta(e.ficha.fecha) + " · " + corNombreEv(e) + (tot ? " · " + tot + " comensales" : "") + (COR_SIN_CONFIRMAR[est] ? " · SIN CONFIRMAR (" + COR_ESTADO_TX[est] + ")" : "") + (s.pend > 0.5 ? " · por cobrar " + corEur(s.pend) : "")); });
+  const cola = [];
+  const pagos = prox30.filter((e) => sn(e).pend > 0.5 && !COR_SIN_CONFIRMAR[e.ficha.estado || ""]);
+  if (pagos.length) cola.push("· Por cobrar: " + corEur(pagos.reduce((a, e) => a + sn(e).pend, 0)) + " en " + pagos.length + (pagos.length === 1 ? " evento" : " eventos") + " (" + pagos.slice(0, 4).map((e) => corNombreEv(e) + " " + corEur(sn(e).pend)).join(" · ") + (pagos.length > 4 ? " · …" : "") + ")");
+  const avisar = prox30.reduce((a, e) => a + (sn(e).camAvisar || 0), 0);
+  if (avisar) cola.push("· Camareros por avisar: " + avisar);
+  const faltan = prox14.filter((e) => (sn(e).camNec || 0) > (sn(e).camSi || 0));
+  if (faltan.length) cola.push("· Faltan camareros en: " + faltan.map((e) => corNombreEv(e) + " (" + (sn(e).camSi || 0) + " de " + sn(e).camNec + ")").join(" · "));
+  const sinS = prox14.filter((e) => (sn(e).sinSust || 0) > 0);
+  if (sinS.length) cola.push("· Alergias o dietas sin plato sustituto: " + sinS.map((e) => corNombreEv(e) + " (" + sn(e).sinSust + ")").join(" · "));
+  const hitos = [];
+  prox30.forEach((e) => (sn(e).hitos || []).forEach((h) => { if (!h.done && h.fecha && corDias(hoy, h.fecha) <= 3) hitos.push({ e, h, d: corDias(hoy, h.fecha) }); }));
+  hitos.sort((a, b) => a.d - b.d).slice(0, 8).forEach((x) => cola.push("· " + x.h.t + " — " + corNombreEv(x.e) + (x.d < 0 ? " (vencido hace " + (-x.d) + (x.d === -1 ? " día)" : " días)") : x.d === 0 ? " (hoy)" : x.d === 1 ? " (mañana)" : " (en " + x.d + " días)")));
+  L.push("", "QUEDA POR HACER");
+  if (!cola.length) L.push("· Nada pendiente a la vista."); else cola.forEach((x) => L.push(x));
+  const mas = prox30.length - semana.length;
+  if (mas > 0 && !diario) L.push("", "Después, en los próximos 30 días: " + mas + (mas === 1 ? " evento más." : " eventos más."));
+  L.push("", String(cfg.firma || ""));
+  return { asunto: corRellenar(plant.resumen_asunto, { periodo: diario ? "hoy" : "la semana" }) + " · " + corFechaCorta(hoy), texto: L.join("\n").trim(), eventos: semana.length, pendientes: cola.length };
+}
+/* a quién va el resumen del equipo */
+async function corDestinatarios(env, cfg) {
+  const out = [];
+  if (cfg.resumen.para === "lista") String(cfg.resumen.lista || "").split(/[\s,;]+/).forEach((x) => { if (corEmailOk(x)) out.push(x.trim().toLowerCase()); });
+  else { await ensureUsers(env); const { results } = await env.DB.prepare("SELECT email FROM users WHERE role IN ('admin','eventos') AND COALESCE(active,1)=1").all(); (results || []).forEach((r) => { if (corEmailOk(r.email)) out.push(String(r.email).toLowerCase()); }); }
+  return out.filter((v, i, a) => a.indexOf(v) === i);
+}
+async function corDoc(env) { const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); try { return JSON.parse((row && row.data) || "{}") || {}; } catch (_) { return {}; } }
+/* lo que se manda solo: el resumen a su hora y los recordatorios del día a los clientes. «simular» = decir qué saldría sin enviar nada. */
+async function correoAutomatico(env, ahora, origen, opt) {
+  opt = opt || {};
+  await ensureCorreo(env);
+  const { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(ahora), out = { ahora: ahora.getTime(), hoy: M.iso, resumen: null, clientes: [], errores: 0, enviados: 0, simulados: 0 };
+  const cuenta = (r) => { if (r.repetido) return; if (r.estado === "enviado") out.enviados++; else if (r.estado === "simulado") out.simulados++; else if (!r.ok) out.errores++; };
+  /* 1 · el resumen del equipo */
+  const rs = cfg.resumen;
+  if (rs.on && rs.freq !== "off" && M.h >= (+rs.hora || 0) && (rs.freq === "diario" || M.wd === (+rs.dia || 0) )) {
+    const periodo = rs.freq === "diario" ? M.iso : corSemana(M.iso), R = corResumen(doc, M.iso, cfg, plant), dest = await corDestinatarios(env, cfg);
+    out.resumen = { periodo, destinatarios: dest.length, asunto: R.asunto, eventos: R.eventos, enviados: 0 };
+    if (opt.simular) out.resumen.texto = R.texto;
+    else for (const to of dest) { const r = await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen:" + periodo + ":" + to, by: "automático" }); cuenta(r); if (r.ok && !r.repetido) out.resumen.enviados++; }
+  }
+  /* 2 · recordatorios a los clientes (apagados de fábrica) */
+  if (cfg.cliente.on && M.h >= (+cfg.cliente.hora || 0)) {
+    const portal = (((doc.params || {}).sec || {}).portal || {}).data || {};
+    for (const e of (doc.events || [])) {
+      if (!e || !e.id || e.anonimizado || !e.ficha || !/^(reserva|planificacion|confirmada)$/.test(e.ficha.estado || "")) continue;
+      if (!corEmailOk(e.ficha.email) || !e._snap || !Array.isArray(e._snap.hitos) || !/^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || "") || e.ficha.fecha < M.iso) continue;
+      for (const h of e._snap.hitos) {
+        const tipo = h.tipo === "documento" ? "lista" : h.tipo === "pago" ? "pago" : h.tipo === "reunion" ? "reunion" : "";
+        if (!tipo || !cfg.cliente[tipo] || h.done || h.fecha !== M.iso) continue;
+        const m = corMensajeCliente(e, h, tipo, cfg, plant, portal, origen), ref = "cli:" + e.id + ":" + h.id + ":" + h.fecha;
+        out.clientes.push({ ev: e.id, evento: corNombreEv(e), hito: h.id, tipo, a: m.to });
+        if (!opt.simular) cuenta(await correoEnviar(env, { kind: "cliente", ev: e.id, to: m.to, subject: m.subject, text: m.text, ref, by: "automático" }));
+      }
+    }
+  }
+  /* 3 · limpieza de lo antiguo */
+  if (!opt.simular) { try { await env.DB.prepare("DELETE FROM outbox WHERE ts < ?1").bind(ahora.getTime() - COR_PURGA_DIAS * 864e5).run(); } catch (_) {} }
+  return out;
+}
+function corMensajeCliente(e, h, tipo, cfg, plant, portal, origen) {
+  const F = e.ficha || {}, nombre = (F.parejaA && F.parejaB) ? F.parejaA + " y " + F.parejaB : (F.contacto || F.parejaA || "equipo");
+  const enlace = e.share && e.share.on && e.share.id ? String(origen || "") + "/?cliente=" + e.share.id : "";
+  const v = { nombre, evento: corNombreEv(e), fecha: corFechaLarga(F.fecha), vence: corFechaLarga(h.fecha || F.fecha), importe: h.importe != null ? corEur(h.importe) : "", concepto: h.t || "", enlace, firma: cfg.firma || "",
+    datos_pago: portal.iban ? "Podéis hacer la transferencia a " + portal.iban + " indicando el nombre del evento." : "" };
+  return { to: String(F.email).trim(), subject: corRellenar(plant["cliente_" + tipo + "_asunto"], v), text: corRellenar(plant["cliente_" + tipo], v).replace(/\n{3,}/g, "\n\n").trim() };
+}
+/* ── rutas ── */
+async function correoSesion(request, env, soloAdmin) {
+  const s = await session(request, env);
+  if (!s) return { err: json({ error: "unauth" }, 401) };
+  if (soloAdmin ? s.role !== "admin" : (s.role !== "admin" && s.role !== "eventos")) return { err: json({ error: "forbidden", message: "Tu rol no puede usar el correo." }, 403) };
+  return { s };
+}
+async function correoGet(request, env, url) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const { cfg, plant, custom } = await correoCfg(env), prov = corProveedor(env);
+  const lim = Math.min(200, Math.max(10, +url.searchParams.get("n") || 60)), ev = url.searchParams.get("ev") || "";
+  const { results } = ev
+    ? await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name FROM outbox WHERE ev=?1 ORDER BY id DESC LIMIT ?2").bind(ev.slice(0, 80), lim).all()
+    : await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name FROM outbox ORDER BY id DESC LIMIT ?1").bind(lim).all();
+  const c24 = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE estado='error' AND ts>?1").bind(Date.now() - 864e5).first();
+  return json({ cfg, plantillas: plant, plantillasPorDefecto: COR_PLANT, personalizadas: Object.keys(custom || {}), proveedor: { listo: prov.listo, from: prov.from, motivo: prov.motivo }, cron: { token: !!String(env.CRON_TOKEN || "").trim() },
+    errores24h: (c24 && c24.n) || 0, bandeja: (results || []).map((r) => ({ id: r.id, ts: +r.ts, kind: r.kind, ev: r.ev || "", to: r.to_addr, subject: r.subject, estado: r.estado, intentos: r.intentos, error: r.error || "", sentTs: r.sent_ts ? +r.sent_ts : null, by: r.by_name || "" })) });
+}
+/* las plantillas y la firma las puede leer cualquier rol (para los botones de WhatsApp); no llevan nada privado */
+async function correoPlantillas(request, env) {
+  const s = await session(request, env); if (!s) return json({ error: "unauth" }, 401);
+  const { cfg, plant } = await correoCfg(env);
+  return json({ plantillas: plant, firma: cfg.firma });
+}
+async function correoPut(request, env) {
+  const a = await correoSesion(request, env, true); if (a.err) return a.err;
+  await ensureUsers(env);
+  const b = await body(request), cur = (await correoCfg(env));
+  const out = JSON.parse(JSON.stringify(cur.cfg)), c = b.cfg || {};
+  const num = (x, lo, hi, def) => { x = Math.round(+x); return x >= lo && x <= hi ? x : def; };
+  if (c.resumen) {
+    const r = c.resumen;
+    if (r.on != null) out.resumen.on = !!r.on;
+    if (["semanal", "diario", "off"].indexOf(r.freq) >= 0) out.resumen.freq = r.freq;
+    if (r.dia != null) out.resumen.dia = num(r.dia, 0, 6, out.resumen.dia);
+    if (r.hora != null) out.resumen.hora = num(r.hora, 0, 23, out.resumen.hora);
+    if (r.para === "equipo" || r.para === "lista") out.resumen.para = r.para;
+    if (r.lista != null) out.resumen.lista = String(r.lista).replace(/[^\w@.,;\s+\-]/g, "").slice(0, 600);
+  }
+  if (c.cliente) {
+    const k = c.cliente;
+    ["on", "lista", "pago", "reunion"].forEach((x) => { if (k[x] != null) out.cliente[x] = !!k[x]; });
+    if (k.hora != null) out.cliente.hora = num(k.hora, 0, 23, out.cliente.hora);
+  }
+  if (c.firma != null) out.firma = String(c.firma).slice(0, 200);
+  if (c.responder != null) { const r = String(c.responder).trim(); if (r && !corEmailOk(r)) return json({ error: "invalid", message: "El correo para las respuestas no es válido." }, 400); out.responder = r; }
+  const pl = Object.assign({}, cur.custom || {});
+  if (b.plantillas && typeof b.plantillas === "object") Object.keys(b.plantillas).forEach((k) => { if (COR_PLANT[k] == null) return; const v = b.plantillas[k]; if (v == null || !String(v).trim() || String(v) === COR_PLANT[k]) delete pl[k]; else pl[k] = String(v).slice(0, 4000); });
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('correo', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(out)).run();
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('correo_plantillas', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(pl)).run();
+  await logAct(env, a.s, "correo_config", "Cambió los ajustes de correo y avisos");
+  const nuevo = await correoCfg(env);
+  return json({ ok: true, cfg: nuevo.cfg, plantillas: nuevo.plant });
+}
+async function correoEnviarRoute(request, env) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const b = await body(request), kind = ["cliente", "camarero", "libre", "prueba", "proveedor"].indexOf(b.kind) >= 0 ? b.kind : "libre";
+  /* tope por persona: 40 envíos a la hora */
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE by_name=?1 AND ts>?2").bind(String(a.s.name || a.s.email || "").slice(0, 80), Date.now() - 3600e3).first();
+  if (n && n.n >= 40) return json({ error: "limit", message: "Demasiados correos en la última hora. Espera un poco." }, 429);
+  const r = await correoEnviar(env, { kind, ev: b.ev, to: kind === "prueba" ? (b.to || a.s.email) : b.to, subject: b.subject, text: b.text, ref: b.ref, by: a.s.name || a.s.email });
+  if (r.ok) await logAct(env, a.s, "correo_enviado", (r.estado === "simulado" ? "(simulado) " : "") + kind + " → " + String(b.to || a.s.email).slice(0, 80));
+  return json(r, r.ok ? 200 : (r.error === "invalid" ? 400 : 502));
+}
+async function correoReintentar(request, env) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const b = await body(request), row = await env.DB.prepare("SELECT * FROM outbox WHERE id=?1").bind(Math.floor(+b.id || 0)).first();
+  if (!row) return json({ error: "not-found" }, 404);
+  if (row.estado === "enviado") return json({ ok: true, repetido: true, id: row.id, estado: row.estado });
+  const r = await correoEnviar(env, { kind: row.kind, ev: row.ev, to: row.to_addr, subject: row.subject, text: row.body, ref: row.ref || ("reintento:" + row.id), by: a.s.name || a.s.email });
+  return json(r, r.ok ? 200 : 502);
+}
+/* resumen a mano: vista previa, prueba a uno mismo o envío al equipo ahora */
+async function correoResumenRoute(request, env) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const b = await body(request), { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(new Date()), R = corResumen(doc, M.iso, cfg, plant);
+  if (b.modo === "vista") return json({ ok: true, asunto: R.asunto, texto: R.texto, eventos: R.eventos });
+  if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: R.asunto, text: R.texto, ref: "resumen-prueba:" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email }); return json(r, r.ok ? 200 : 502); }
+  if (b.modo === "equipo") {
+    if (a.s.role !== "admin") return json({ error: "forbidden", message: "Solo el administrador puede enviarlo al equipo." }, 403);
+    const dest = await corDestinatarios(env, cfg), res = [];
+    for (const to of dest) res.push(await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen-manual:" + Date.now() + ":" + to, by: a.s.name || a.s.email }));
+    await logAct(env, a.s, "correo_enviado", "Resumen al equipo (" + dest.length + (dest.length === 1 ? " persona)" : " personas)"));
+    return json({ ok: res.every((r) => r.ok), enviados: res.filter((r) => r.estado === "enviado").length, simulados: res.filter((r) => r.estado === "simulado").length, errores: res.filter((r) => !r.ok).length, destinatarios: dest.length });
+  }
+  return json({ error: "invalid" }, 400);
+}
+/* lo llama una tarea programada (con el token) o el administrador desde la pantalla */
+async function correoCron(request, env) {
+  const tk = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim(), esperado = String(env.CRON_TOKEN || "").trim();
+  let admin = null;
+  if (!(esperado && tk.length === esperado.length && tk.split("").reduce((d, ch, i) => d | (ch.charCodeAt(0) ^ esperado.charCodeAt(i)), 0) === 0)) {
+    const a = await correoSesion(request, env, true); if (a.err) return json({ error: "forbidden" }, 403);
+    admin = a.s;
+  }
+  const b = admin ? await body(request) : {};
+  const r = await correoAutomatico(env, new Date(), new URL(request.url).origin, { simular: !!(admin && b.simular) });
+  return json(r);
 }
 
 /* ── COPIAS DE SEGURIDAD, PAPELERA Y RESTAURAR ────────────────────────────

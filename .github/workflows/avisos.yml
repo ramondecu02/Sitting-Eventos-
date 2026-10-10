@@ -1,0 +1,35 @@
+# Avisos programados de Les Moles Events (resumen del equipo y recordatorios a clientes).
+# Cloudflare Pages no ejecuta tareas programadas: esta acción llama cada hora al servidor y es el SERVIDOR quien decide si toca
+# enviar algo (según lo que se haya puesto en Parámetros → Correo y avisos) y evita repetir envíos.
+#
+# Para activarla (una sola vez), en GitHub → Settings → Secrets and variables → Actions:
+#   · secreto  CRON_TOKEN  → la misma clave larga que pusiste como CRON_TOKEN en Cloudflare
+#   · variable SITE_URL    → la dirección de la web, sin barra final (por ejemplo https://lesmoles-events.pages.dev)
+# Sin esas dos cosas no hace nada. Las acciones programadas solo se ejecutan desde la rama principal del repositorio.
+name: Avisos programados
+
+on:
+  schedule:
+    - cron: "7 * * * *"     # cada hora, y minuto 7
+  workflow_dispatch:         # también se puede lanzar a mano desde la pestaña Actions
+
+permissions: {}
+
+jobs:
+  avisos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Llamar al servidor
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$CRON_TOKEN" ]; then
+            echo "Falta la variable SITE_URL o el secreto CRON_TOKEN: no se hace nada."
+            exit 0
+          fi
+          code=$(curl -sS -o resp.json -w '%{http_code}' --max-time 60 -X POST -H "Authorization: Bearer $CRON_TOKEN" "${SITE_URL%/}/api/correo/cron" || echo 000)
+          echo "Respuesta del servidor: $code"
+          cat resp.json || true
+          [ "$code" = "200" ]
