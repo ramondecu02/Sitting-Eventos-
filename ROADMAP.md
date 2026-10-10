@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.58** (octubre 2026).
+Documento vivo. Última actualización: versión **01.59** (octubre 2026).
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -26,7 +26,11 @@ WhatsApp suelto ni Excel.
 | **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
 | **Historial de cambios por evento** (quién, qué y cuándo; volver a una versión) | ✅ |
 | **Equipo y accesos**: usuarios con ficha, alta por invitación, permisos por rol editables, registro de actividad, contraseña propia y cierre por inactividad | ✅ |
+| **Planos de fondo del salón compartidos** con todo el equipo (servidor, no solo el navegador de quien los sube) | ✅ |
 | **Cambios compartidos y coordinación entre departamentos**: lo que cambian Eventos, Cocina y Compras en un mismo evento se junta (no se pisa), y cada departamento ve qué ha cambiado para él | ✅ |
+
+### Novedad de la versión 01.59
+- **Planos de fondo compartidos** (fase 1.8): la imagen del salón ya no vive solo en un navegador; la ve todo el equipo.
 
 ### Novedad de la versión 01.58
 - **Cambios compartidos y coordinación entre departamentos** (fase 1.7): los cambios de distintas personas en el mismo evento se juntan por secciones, y nueva sección **Coordinación** con las cifras compartidas, los cambios por revisar de cada departamento y los avisos entre departamentos.
@@ -120,10 +124,14 @@ se recupera con el código manual por evento.
 - **Qué sigue sin juntarse:** si dos personas tocan **exactamente lo mismo a la vez** (la misma línea del plano, el mismo campo) se queda lo del último que guarda; y una **lista entera** (tareas, proveedores, pagos) que modifican dos personas a la vez: gana la última.
 - **Comprobado:** en el servidor real y con tres navegadores (Eventos, Cocina, Compras): cambios simultáneos de plano y menú, plano editado a la vez por Eventos y Cocina, Cocina trabajando sin conexión mientras Eventos sigue, Compras viendo el detalle de los cambios, avisos entre departamentos y la versión móvil; con la versión anterior la misma prueba falla.
 
-### 1.8 Planos de fondo compartidos — *~1 día* — v01.59
-- **Qué pasa hoy:** la imagen del salón sobre la que se dibuja el plano de mesas (el «plano de fondo», común o propio de un evento de catering) se guarda **solo en el navegador de quien la sube**. Todo lo demás del evento sí es de todo el equipo; esto no.
-- **Qué hacer:** guardarla en el servidor (comprimida y aparte del documento de eventos, para no pasar el límite de la base de datos), que la vean todos los dispositivos, y pasar a compartida la que ya haya en cada navegador sin perderla.
-- **Hecho cuando:** se sube el plano del salón desde un ordenador y se ve en la tablet de sala.
+### 1.8 Planos de fondo compartidos — ✅ **hecho en la v01.59**
+- **El problema:** la imagen del salón sobre la que se dibuja el plano de mesas (el «plano de fondo», común o propio de un evento de catering) se guardaba **solo en el navegador de quien la subía**: la tablet de sala no la veía.
+- **Ahora:** al subirla (Plano de mesas → «Subir plano») se guarda en el servidor, comprimida y **aparte del documento de eventos** (la base de datos admite 2 MB por registro y el documento ya lleva todo el negocio). Los demás dispositivos la bajan solos (se avisa en el latido de sincronización cada ~15 s) y la etiqueta del panel dice **«compartido con el equipo»**. Quitarla también se quita en todos.
+- **Planos que ya estaban en un navegador:** se suben solos la primera vez que se sincroniza (el primero que sube gana; el resto lo recibe).
+- **Sin conexión:** si no hay red al subir o quitar, queda en una cola del dispositivo y se sube sola al volver, aunque se cierre la página.
+- **Permisos:** pueden subirlo o quitarlo administración, eventos y servicio; cocina y compras solo lo ven. El servidor rechaza lo que no sea una imagen (JPEG/PNG/WebP) o pese más de 1,6 MB; la app reduce la calidad sola para que quepa. Cada subida o baja queda en el registro de actividad.
+- **Detalle técnico:** tabla `planos` (se crea sola) y API `/api/planos` (lista), `/api/planos/ver`, `PUT` y `DELETE`; claves `loc:interior`, `loc:exterior` y `ev:<id>:interior|exterior`; los planos propios de eventos que ya no existen se limpian pasados 45 días.
+- **Comprobado:** Eventos sube y Servicio lo recibe y lo dibuja; migración de un navegador con un plano «de antes»; plano propio del evento; quitar; cocina y compras reciben 403; clave, tipo y tamaño no válidos; subida sin conexión y al volver.
 
 ### 1.5 RGPD y datos de clientes — *~0,5 día* — v01.61
 - Las **alergias son datos de salud** (categoría especial). Aviso de privacidad en el portal del cliente, texto de consentimiento, y política de conservación: anonimizar nombres y alergias de eventos cerrados pasado un plazo que decida el restaurante (p. ej. 12 meses).

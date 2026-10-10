@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.58 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.59 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3450,7 +3450,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.58</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.59</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5298,16 +5298,100 @@ function planoGet(){
   if(planoOwn()){ try{ var r=localStorage.getItem(planoKey()); return r?JSON.parse(r):null; }catch(e){ return null; } }
   return BG[loc()]||null;
 }
+/* ── los planos de fondo se comparten con todo el equipo ─────────────────
+   Antes cada plano vivía solo en el navegador de quien lo subía. Ahora se sube
+   al servidor (aparte del documento de eventos: pesan mucho) y los demás
+   dispositivos lo bajan. En este navegador sigue la copia de siempre (BG y las
+   claves por evento), con su versión «v» (0 = todavía sin subir), y una cola
+   (lm_planos_cola_v1) de lo que falta por subir o quitar, que sobrevive a
+   cerrar la página y a quedarse sin conexión. Los planos que ya había en un
+   navegador se suben solos la primera vez que se sincroniza. */
+var PL_COLA="lm_planos_cola_v1", PL_V=-1, plBusy=false, plSyncBusy=false, plAvisoPerm=false;
+function plCola(){ try{ return JSON.parse(localStorage.getItem(PL_COLA)||"{}")||{}; }catch(e){ return {}; } }
+function plColaSet(o){ try{ if(Object.keys(o).length) localStorage.setItem(PL_COLA,JSON.stringify(o)); else localStorage.removeItem(PL_COLA); }catch(e){} }
+function plClave(loca){ return planoOwn()?"ev:"+current().id+":"+loca:"loc:"+loca; }
+function plLeer(k){
+  var m=/^ev:(.+):(interior|exterior)$/.exec(k);
+  if(m){ try{ var r=localStorage.getItem(PLANOEVKEY+"__"+m[1]+"__"+m[2]); return r?JSON.parse(r):null; }catch(e){ return null; } }
+  var c=/^loc:(interior|exterior)$/.exec(k); return c?(BG[c[1]]||null):null;
+}
+/* obj = null quita el plano. Devuelve false si el navegador no tiene sitio */
+function plEscribir(k,obj){
+  var m=/^ev:(.+):(interior|exterior)$/.exec(k);
+  try{
+    if(m){ var lk=PLANOEVKEY+"__"+m[1]+"__"+m[2]; if(obj) localStorage.setItem(lk,JSON.stringify(obj)); else localStorage.removeItem(lk); return true; }
+    var c=/^loc:(interior|exterior)$/.exec(k); if(!c) return false;
+    if(obj) BG[c[1]]=obj; else delete BG[c[1]];
+    localStorage.setItem(BGKEY,JSON.stringify(BG)); return true;
+  }catch(e){ return false; }
+}
+function plLocales(){
+  var out=[], ids={}; store.events.forEach(function(e){ ids[e.id]=1; });
+  ["interior","exterior"].forEach(function(l){ if(BG[l]&&BG[l].src) out.push("loc:"+l); });
+  try{ var pre=PLANOEVKEY+"__";
+    for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(!k||k.indexOf(pre)!==0) continue;
+      var m=/^(.+)__(interior|exterior)$/.exec(k.slice(pre.length)); if(m&&ids[m[1]]) out.push("ev:"+m[1]+":"+m[2]); } }catch(e){}
+  return out;
+}
+function plAvisarPermiso(){ if(plAvisoPerm) return; plAvisoPerm=true; toast("Tu rol no puede cambiar el plano de fondo: se queda solo en este dispositivo.",true); setTimeout(function(){ plAvisoPerm=false; },30000); }
+/* sube lo pendiente (planos nuevos y planos quitados) */
+function plFlush(){
+  if(plBusy||!hayServidor()) return Promise.resolve();
+  var cola=plCola(), ks=Object.keys(cola); if(!ks.length) return Promise.resolve();
+  plBusy=true;
+  function quitar(k,igual){ var c=plCola(); if(!igual||c[k]===igual) delete c[k]; plColaSet(c); }
+  var seq=Promise.resolve();
+  ks.forEach(function(k){ seq=seq.then(function(){
+    if(cola[k]==="del"){
+      return fetch("/api/planos?k="+encodeURIComponent(k),{method:"DELETE",credentials:"same-origin"}).then(function(r){
+        if(r.status===403) plAvisarPermiso();
+        if(r.ok||r.status===400||r.status===403) quitar(k,"del"); else throw new Error("http "+r.status); });
+    }
+    var o=plLeer(k); if(!o||!o.src){ quitar(k); return; }
+    return fetch("/api/planos",{method:"PUT",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({k:k,w:o.w,h:o.h,src:o.src})}).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){
+        if(r.ok){ var cur=plLeer(k); if(cur&&cur.src===o.src){ cur.v=j.v; plEscribir(k,cur); quitar(k); } }
+        else if(r.status===403){ plAvisarPermiso(); quitar(k); }
+        else if(r.status===400||r.status===413){ toast((j&&j.message)||"El servidor no ha aceptado el plano.",true); quitar(k); }
+        else throw new Error("http "+r.status); }); });
+  }); });
+  return seq.catch(function(){ /* sin conexión: se reintenta con la siguiente sincronización */ }).then(function(){ plBusy=false; });
+}
+function plRefrescar(){ try{ syncLocUI(); }catch(e){} try{ render(); }catch(e){} }
+/* trae los planos nuevos de los demás, quita los que han quitado, sube los que solo estaban aquí */
+function sincronizarPlanos(){
+  if(!hayServidor()||plSyncBusy) return Promise.resolve(false);
+  plSyncBusy=true; var cambio=false;
+  return fetch("/api/planos",{headers:{"Accept":"application/json"},credentials:"same-origin"}).then(function(r){ if(!r.ok) throw new Error("http "+r.status); return r.json(); }).then(function(j){
+    PL_V=j.p||0;
+    var cola=plCola(), porK={}, ids={}, bajar=[];
+    store.events.forEach(function(e){ ids[e.id]=1; });
+    (j.planos||[]).forEach(function(sv){ porK[sv.k]=sv;
+      if(cola[sv.k]) return;                                         /* lo mío está por subir: manda lo mío */
+      var m=/^ev:(.+):(interior|exterior)$/.exec(sv.k); if(m&&!ids[m[1]]) return;   /* de un evento que aquí no está */
+      var loc=plLeer(sv.k), lv=loc?(+loc.v||0):-1;
+      if(sv.del){ if(loc&&lv<sv.v){ plEscribir(sv.k,null); cambio=true; } return; }
+      if(!loc||lv<sv.v) bajar.push(sv); });
+    plLocales().forEach(function(k){ if(!porK[k]&&!cola[k]) cola[k]="put"; });   /* los que ya había en este navegador se suben */
+    plColaSet(cola);
+    return Promise.all(bajar.map(function(sv){
+      return fetch("/api/planos/ver?k="+encodeURIComponent(sv.k),{credentials:"same-origin"}).then(function(r){ return r.ok?r.json():null; }).then(function(o){
+        if(o&&o.src&&plEscribir(sv.k,{src:o.src,w:o.w,h:o.h,v:o.v})) cambio=true; }); }));
+  }).then(function(){ return plFlush(); }).then(function(){ if(cambio) plRefrescar(); try{ syncLocUI(); }catch(e){} })
+  .catch(function(){ /* sin conexión: se sigue con lo de este navegador */ }).then(function(){ plSyncBusy=false; return cambio; });
+}
+window.LM_planos=function(){ return sincronizarPlanos(); };
+window.addEventListener("online",function(){ plFlush(); });
 function planoSet(obj){
-  if(planoOwn()){
-    try{ localStorage.setItem(planoKey(),JSON.stringify(obj)); return true; }
-    catch(e){ toast("El plano ocupa demasiado para guardarlo en el navegador.",true); return false; }
-  }
-  BG[loc()]=obj; return saveBG();
+  var k=plClave(loc()); obj.v=0;
+  if(!plEscribir(k,obj)){ toast("El plano ocupa demasiado para guardarlo en el navegador.",true); return false; }
+  var c=plCola(); c[k]="put"; plColaSet(c); plFlush();
+  return true;
 }
 function planoDel(){
-  if(planoOwn()){ try{ localStorage.removeItem(planoKey()); }catch(e){} return true; }
-  delete BG[loc()]; return saveBG();
+  var k=plClave(loc()); plEscribir(k,null);
+  var c=plCola(); c[k]="del"; plColaSet(c); plFlush();
+  return true;
 }
 /* al borrar un evento, se llevan también sus planos propios (todas las ubicaciones) */
 function borrarPlanosDeEvento(id){
@@ -5325,7 +5409,9 @@ function borrarPlanosDeEvento(id){
 function alCambiarPlanoPropio(){
   if(!planoOwn()) return;
   var propio=null; try{ propio=localStorage.getItem(planoKey()); }catch(e){}
-  if(!propio && BG[loc()]){ try{ localStorage.setItem(planoKey(),JSON.stringify(BG[loc()])); }catch(e){} }
+  if(!propio && BG[loc()]){
+    var cp=JSON.parse(JSON.stringify(BG[loc()])); cp.v=0;
+    try{ localStorage.setItem(planoKey(),JSON.stringify(cp)); var c=plCola(); c[plClave(loc())]="put"; plColaSet(c); plFlush(); }catch(e){} }
 }
 
 /* ══ sincronización con el servidor (equipo compartido) ═══════════════
@@ -5457,6 +5543,7 @@ function hydrateFromServer(){
         if(!current()) store.active=store.events.length?store.events[0].id:null;
       }
       try{ sincronizarPrevision(); }catch(_){}
+      if(PL_V<0) try{ sincronizarPlanos(); }catch(_){}
       try{ portalTodos(); }catch(_){}
       try{ cargarListasNovios(true); }catch(_){}
       var after=sigEventos();
@@ -5509,6 +5596,7 @@ function syncTick(){
       PRES=j.otros||[]; pintarPresencia();
       /* ¿el cliente ha guardado su lista desde la última vez? entonces se mira ya, sin esperar al minuto */
       if(j.l!=null&&j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } }
+      if(j.p!=null&&j.p!==PL_V) sincronizarPlanos();
       if(j.v&&srvV&&j.v!==srvV&&!remoteBusy&&!escribiendo()) hydrateFromServer();
     }).catch(function(){}).finally(function(){ syncBusy=false; });
 }
@@ -7713,7 +7801,8 @@ function syncLocUI(){
   var own=planoOwn(), tienePlano=!!planoGet(), rm=plan().roomM;
   $("planoEv").checked=own;
   var donde=own?"de este evento":(l==="interior"?"salón interior":"zona exterior");
-  var estado=tienePlano?(own?" (propio)":" (común a todos los eventos)"):" (sin plano)";
+  var pObj=tienePlano?planoGet():null, pend=!!plCola()[plClave(l)], srv=hayServidor();
+  var estado=tienePlano?(own?" (propio)":" (común a todos los eventos)")+(!srv?" · solo en este dispositivo":(pend||!(pObj&&pObj.v>0))?" · subiéndolo al equipo…":" · compartido con el equipo"):" (sin plano)";
   $("bglbl").textContent="Plano de fondo — "+donde+estado;
   $("bgDel").disabled=!tienePlano;
   $("bgFit").disabled=!tienePlano;
@@ -8236,7 +8325,9 @@ $("bgFile").addEventListener("change",function(){
         cx2=cv2.getContext("2d"); cx2.fillStyle="#fff"; cx2.fillRect(0,0,r.w,r.h);
         cx2.drawImage(cv,r.x,r.y,r.w,r.h,0,0,r.w,r.h);
       }
-      var obj={src:cv2.toDataURL("image/jpeg",0.72),w:cv2.width,h:cv2.height};
+      var q=0.72, du=cv2.toDataURL("image/jpeg",q);
+      while(du.length>1400000&&q>0.3){ q-=0.1; du=cv2.toDataURL("image/jpeg",q); }   /* el servidor admite hasta 1,6 MB por plano */
+      var obj={src:du,w:cv2.width,h:cv2.height};
       if(planoSet(obj)){
         var yaEscala=plan().roomM&&plan().roomM.w;
         toast("Plano cargado"+(planoOwn()?" en este evento":" en «"+(loc()==="interior"?"Interior":"Exterior")+"»")+".");
@@ -8682,7 +8773,7 @@ function abrirMas(){
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Equipo y accesos</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.58</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.59</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -16928,7 +17019,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return h;
   }
   /* ── Registro de actividad ── */
-  var TIPO_TX={login:"Entró en el programa",login_fallido:"Intento de acceso fallido",logout:"Cerró sesión",usuario_invitado:"Invitó a",invitacion_aceptada:"Aceptó su invitación",usuario_creado:"Creó el acceso de",clave_cambiada:"Cambió su contraseña",clave_restablecida:"Puso una contraseña temporal a",usuario_desactivado:"Desactivó a",usuario_activado:"Activó a",usuario_eliminado:"Eliminó a",usuario_editado:"Cambió los datos de",rol_cambiado:"Cambió el rol de",roles_cambiados:"Cambió qué ve cada rol",seguridad:"Cambió la seguridad",evento_creado:"Creó el evento",evento_borrado:"Borró el evento",copia_manual:"Hizo una copia de seguridad",restauracion:"Restauró",version_restaurada:"Volvió a una versión anterior de",descarga_datos:"Descargó los datos"};
+  var TIPO_TX={plano_subido:"Subió un plano de fondo",plano_quitado:"Quitó un plano de fondo",login:"Entró en el programa",login_fallido:"Intento de acceso fallido",logout:"Cerró sesión",usuario_invitado:"Invitó a",invitacion_aceptada:"Aceptó su invitación",usuario_creado:"Creó el acceso de",clave_cambiada:"Cambió su contraseña",clave_restablecida:"Puso una contraseña temporal a",usuario_desactivado:"Desactivó a",usuario_activado:"Activó a",usuario_eliminado:"Eliminó a",usuario_editado:"Cambió los datos de",rol_cambiado:"Cambió el rol de",roles_cambiados:"Cambió qué ve cada rol",seguridad:"Cambió la seguridad",evento_creado:"Creó el evento",evento_borrado:"Borró el evento",copia_manual:"Hizo una copia de seguridad",restauracion:"Restauró",version_restaurada:"Volvió a una versión anterior de",descarga_datos:"Descargó los datos"};
   var TIPO_AVISO={login_fallido:1,evento_borrado:1,usuario_eliminado:1,usuario_desactivado:1,restauracion:1};
   function htmlRegistro(){
     var us=U.users||[];

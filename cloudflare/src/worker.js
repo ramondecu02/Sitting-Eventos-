@@ -36,6 +36,10 @@
  *   GET  /api/historial?ev=..   quién cambió qué y cuándo en un evento (admin y eventos)
  *   GET  /api/historial/ver?id= qué secciones cambiarían si se vuelve a esa versión (admin y eventos)
  *   POST /api/historial/restaurar {id}  vuelve el evento a como estaba antes de ese cambio (admin y eventos)
+ *   GET  /api/planos            planos de fondo del salón (sin la imagen): clave, medidas, versión (con sesión)
+ *   GET  /api/planos/ver?k=..   un plano de fondo con su imagen (con sesión)
+ *   PUT  /api/planos            {k,w,h,src} sube o cambia un plano de fondo (admin, eventos y servicio)
+ *   DELETE /api/planos?k=..     quita un plano de fondo (admin, eventos y servicio)
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -96,6 +100,10 @@ async function api(request, env, url) {
   if (p === "/api/historial" && m === "GET") return hiList(request, env, url);
   if (p === "/api/historial/ver" && m === "GET") return hiVer(request, env, url);
   if (p === "/api/historial/restaurar" && m === "POST") return hiRestaurar(request, env);
+  if (p === "/api/planos" && m === "GET") return planosList(request, env);
+  if (p === "/api/planos/ver" && m === "GET") return planosVer(request, env, url);
+  if (p === "/api/planos" && m === "PUT") return planosPut(request, env);
+  if (p === "/api/planos" && m === "DELETE") return planosDel(request, env, url);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -409,6 +417,80 @@ async function storePut(request, env) {
     }
   }
   return json({ error: "busy", message: "Muchos guardados a la vez; se reintentará." }, 409);
+}
+
+/* ── PLANOS DE FONDO COMPARTIDOS ───────────────────────────────────────────
+   La imagen del salón sobre la que se dibuja el plano de mesas. Antes vivía solo
+   en el navegador de quien la subía; ahora se guarda aquí, aparte del documento
+   de eventos (la base de datos admite 2 MB por registro y el documento ya lleva
+   todo el negocio). Claves: «loc:interior» / «loc:exterior» (comunes a todos los
+   eventos) y «ev:<id>:interior|exterior» (propios de un evento, p. ej. un catering).
+   Al quitar un plano queda una marca de borrado (del=1) para que los demás
+   dispositivos también lo quiten. */
+let PL_OK = false;
+const PL_MAX = 1600000, PL_KEY = /^(loc:(interior|exterior)|ev:[A-Za-z0-9_.-]{1,80}:(interior|exterior))$/;
+async function ensurePlanos(env) {
+  if (PL_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS planos (k TEXT PRIMARY KEY, w INTEGER, h INTEGER, v INTEGER NOT NULL, by_name TEXT, del INTEGER NOT NULL DEFAULT 0, src TEXT)").run();
+  PL_OK = true;
+}
+async function planosList(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  await ensurePlanos(env);
+  const { results } = await env.DB.prepare("SELECT k, w, h, v, by_name, del, LENGTH(src) AS bytes FROM planos ORDER BY k").all();
+  const lista = (results || []).map((r) => ({ k: r.k, w: r.w, h: r.h, v: +r.v, by: r.by_name || "", del: !!r.del, bytes: r.bytes || 0 }));
+  /* de vez en cuando: fuera los planos propios de eventos que ya no existen (ni en la papelera) tras 45 días */
+  if (Math.random() < 0.02) { try { await planosLimpiar(env); } catch (_) {} }
+  return json({ p: lista.reduce((m, r) => Math.max(m, r.v), 0), planos: lista });
+}
+async function planosLimpiar(env) {
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); if (!row) return;
+  let doc = {}; try { doc = JSON.parse(row.data) || {}; } catch (_) { return; }
+  const vivos = {}; (doc.events || []).forEach((e) => { if (e && e.id) vivos[e.id] = 1; });
+  await ensureBackups(env);
+  const pap = await env.DB.prepare("SELECT event_id FROM papelera").all();
+  (pap.results || []).forEach((r) => { vivos[r.event_id] = 1; });
+  const { results } = await env.DB.prepare("SELECT k, v FROM planos WHERE k LIKE 'ev:%'").all();
+  const lim = Date.now() - 45 * 864e5;
+  for (const r of (results || [])) { const id = String(r.k).split(":")[1]; if (!vivos[id] && +r.v < lim) await env.DB.prepare("DELETE FROM planos WHERE k=?1").bind(r.k).run(); }
+}
+async function planosVer(request, env, url) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  await ensurePlanos(env);
+  const k = String(url.searchParams.get("k") || "");
+  if (!PL_KEY.test(k)) return json({ error: "invalid" }, 400);
+  const r = await env.DB.prepare("SELECT k, w, h, v, del, src FROM planos WHERE k=?1").bind(k).first();
+  if (!r || r.del || !r.src) return json({ error: "not-found" }, 404);
+  return json({ k: r.k, w: r.w, h: r.h, v: +r.v, src: r.src });
+}
+function planosPuede(s) { return s && (s.role === "admin" || s.role === "eventos" || s.role === "servicio"); }
+async function planosPut(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  if (!planosPuede(s)) return json({ error: "forbidden", message: "Tu rol no puede cambiar el plano de fondo." }, 403);
+  await ensurePlanos(env);
+  const b = await body(request), k = String(b.k || ""), src = String(b.src || ""), w = Math.round(+b.w), h = Math.round(+b.h);
+  if (!PL_KEY.test(k) || !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(src) || !(w > 0 && w <= 6000) || !(h > 0 && h <= 6000)) return json({ error: "invalid", message: "Imagen o medidas no válidas." }, 400);
+  if (src.length > PL_MAX) return json({ error: "too-big", message: "La imagen es demasiado grande (máx. 1,6 MB)." }, 413);
+  let v = Date.now(); const prev = await env.DB.prepare("SELECT v FROM planos WHERE k=?1").bind(k).first(); if (prev && v <= +prev.v) v = +prev.v + 1;
+  await env.DB.prepare("INSERT INTO planos (k, w, h, v, by_name, del, src) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6) ON CONFLICT(k) DO UPDATE SET w=?2, h=?3, v=?4, by_name=?5, del=0, src=?6")
+    .bind(k, w, h, v, s.name || s.email || "", src).run();
+  await logAct(env, s, "plano_subido", k.replace(/^loc:/, "Plano común: ").replace(/^ev:[^:]+:/, "Plano propio de un evento: "));
+  return json({ ok: true, v });
+}
+async function planosDel(request, env, url) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  if (!planosPuede(s)) return json({ error: "forbidden", message: "Tu rol no puede cambiar el plano de fondo." }, 403);
+  await ensurePlanos(env);
+  const k = String(url.searchParams.get("k") || ""); if (!PL_KEY.test(k)) return json({ error: "invalid" }, 400);
+  let v = Date.now(); const prev = await env.DB.prepare("SELECT v FROM planos WHERE k=?1").bind(k).first(); if (prev && v <= +prev.v) v = +prev.v + 1;
+  await env.DB.prepare("INSERT INTO planos (k, w, h, v, by_name, del, src) VALUES (?1, 0, 0, ?2, ?3, 1, NULL) ON CONFLICT(k) DO UPDATE SET v=?2, by_name=?3, del=1, src=NULL, w=0, h=0")
+    .bind(k, v, s.name || s.email || "").run();
+  await logAct(env, s, "plano_quitado", k.replace(/^loc:/, "Plano común: ").replace(/^ev:[^:]+:/, "Plano propio de un evento: "));
+  return json({ ok: true, v });
 }
 
 /* ── COPIAS DE SEGURIDAD, PAPELERA Y RESTAURAR ────────────────────────────
@@ -977,7 +1059,9 @@ async function syncRoute(request, env, url) {
   /* «l»: cuándo guardó el cliente por última vez una lista pendiente de pasar al plano. Si cambia, la app del equipo la mira al momento */
   let l = 0;
   try { await ensureNovios(env); const r = await env.DB.prepare("SELECT MAX(updated) AS m FROM novios_listas WHERE estado IN ('borrador','enviada')").first(); l = (r && +r.m) || 0; } catch (_) {}
-  return json({ v: (row && +row.updated) || 0, l, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
+  let pv = 0;
+  try { await ensurePlanos(env); const r = await env.DB.prepare("SELECT MAX(v) AS m FROM planos").first(); pv = (r && +r.m) || 0; } catch (_) {}
+  return json({ v: (row && +row.updated) || 0, l, p: pv, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
 }
 
 function mergeParams(prev, inc, isAdmin) {
