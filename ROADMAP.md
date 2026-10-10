@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.61** (octubre 2026).
+Documento vivo. Última actualización: versión **01.68** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -30,6 +30,16 @@ WhatsApp suelto ni Excel.
 | **App instalable y modo sin conexión** (icono, abrir sin red, cola de cambios con contador) | ✅ |
 | **Planos de fondo del salón compartidos** con todo el equipo (servidor, no solo el navegador de quien los sube) | ✅ |
 | **Cambios compartidos y coordinación entre departamentos**: lo que cambian Eventos, Cocina y Compras en un mismo evento se junta (no se pisa), y cada departamento ve qué ha cambiado para él | ✅ |
+| **Modo servicio** (el día del evento: incidencias, hitos y escaleta en el móvil) · **Turnos y horas** de camareros · **Cierre del evento** | ✅ |
+| **Avisos por correo** (cliente, camareros, resumen del equipo, bandeja de salida) y **WhatsApp con un clic** | ✅ (el correo sale de verdad cuando pongas la cuenta: sección 8) |
+| **Portal del cliente ampliado**: plano, aprobar menú y minuta, mensajes con el equipo, logo y fotos | ✅ |
+| **Propuesta y contrato**: PDF desde el presupuesto, plantilla editable, aceptación online con nombre y NIF | ✅ (falta que tu asesor revise el texto) |
+| **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
+| **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedades de las versiones 01.62 a 01.68
+- **01.62** Modo servicio · **01.63** Turnos de camareros y cierre del evento · **01.64** Avisos por correo y WhatsApp · **01.65** Portal del cliente ampliado · **01.66** Propuesta, contrato y aceptación online · **01.67** Pedidos a proveedores · **01.68** Consultas web y disponibilidad. El detalle de cada una está en su apartado de más abajo.
+- **01.68, además:** revisión de **accesibilidad automática** (axe-core) de todas las pantallas nuevas —contrastes del portal y del menú lateral, idioma de la página, etiqueta del tirador de tamaño del plano, botones verdes de WhatsApp— y arreglo de lo que salió; dos pruebas automáticas que fallaban a veces por una carrera de tiempos (no por la app) quedaron estabilizadas.
 
 ### Novedad de la versión 01.61
 - **RGPD y datos de clientes** (fase 1.5) y **Salud del sistema** (fase 1.6): aviso y consentimiento en el portal, anonimización, derechos de las personas, pantalla de estado, registro de errores y vigilante externo.
@@ -267,14 +277,24 @@ se recupera con el código manual por evento.
 - **Comprobado** (servidor real, dos equipos a la vez): dar de alta proveedores, asignar uno a uno y de golpe, que se queden para los demás eventos, preparar, correo (con su referencia en la bandeja y sin servicio activado queda «simulado»), WhatsApp con el teléfono bien formado, PDF sin bloque de firmas, recepción completa/parcial/de más sin perder el foco al escribir, cambio del evento y actualización, **dos equipos que recibían líneas distintas a la vez**, que quitar un proveedor no lo resucite una copia antigua, coste con precios del Maître, material que falta, permisos del correo (compras solo pedidos; cocina y servicio, nada), alertas, historial y móvil de 390 px sin desbordes.
 - **Tu parte (no depende de mí):** (1) dar de alta tus **proveedores** (nombre, teléfono, correo) y (2) asignarles los **artículos** la primera vez (el informe del Maître no dice a quién se compra cada cosa; después se recuerda). (3) Para que el correo salga de verdad: lo de la sección 3.1 (cuenta de correo).
 
-### 4.3 Consultas y disponibilidad — *~2 días* — v01.68
-- Formulario web (con protección anti-spam) que crea una **consulta** en la app; calendario de disponibilidad por fecha y salón (usa Previsión + eventos); seguimiento hasta confirmar → se convierte en evento con un clic.
+### 4.3 Consultas y disponibilidad — ✅ **hecho en la v01.68** (falta tu parte: activar el formulario y darle el enlace a quien lo vaya a usar)
+- **Formulario público** en `tu-dirección/?consulta` (sin usuario): nombre, correo o teléfono (basta uno), qué se celebra, invitados, fecha o «cuándo, más o menos», salón, mensaje y la **casilla de privacidad** con la información (responsable, para qué, cuánto tiempo y derechos, con los datos de «Privacidad y datos»). Pensado para el móvil. Si está apagado, lo dice y da vuestro teléfono y correo.
+- **Parámetros → «Consultas web»** (solo administración): activarlo o apagarlo, texto de bienvenida, **tipos de celebración** y **salones** (uno por línea), si el formulario dice si **la fecha parece libre**, a quién **avisar** de cada consulta (vacío = administración y eventos), **acuse de recibo** a quien escribe (texto editable) y cuánto **conservar** las consultas (6–36 meses). Con el enlace para copiar y abrir.
+- **Protección contra el spam, sin depender de nadie:** un campo trampa que solo rellenan los robots (a ellos se les dice «gracias» y no se guarda nada), un **tiempo mínimo** desde que se abre el formulario (firmado por el servidor; la página espera sola lo que falte), tope de **4 consultas por hora y 10 al día por persona** (se reconoce por una huella que se borra a los 2 días) y **80 al día en total**, rechazo de mensajes con montones de enlaces. Y, **opcional**, el control **Turnstile de Cloudflare** (si pones las claves `TURNSTILE_SITEKEY` y `TURNSTILE_SECRET`).
+- **Previsión → «Consultas web»** (administración y eventos): la **bandeja** con lo que llega (nuevas arriba, filtros Abiertas · En Previsión · Descartadas · Todas, buscador), un aviso en el **Inicio** («Tienes 2 consultas nuevas de la web») y, en cada una: el mensaje y los datos, **cómo está la fecha que piden en cada local** (Les Moles / Les Vinyes: libre · provisional · ocupada, y con qué celebración), **responder por correo** (redactado; queda en la bandeja del servidor) o **WhatsApp**, estado (Nueva · Contactada · Visita · En Previsión · Descartada), **nota del equipo** y borrar.
+- **De la consulta al evento:** **«Añadir a la Previsión»** crea la celebración pendiente (con fecha, salón, invitados, teléfono y origen «Web») y la consulta muestra su estado real («En Previsión · pendiente», «Confirmada», «Ya es un evento»); cuando se confirma con fecha, **pasa sola a Eventos** como siempre. **«Crear el evento ya»** lo hace todo de un clic (hace falta fecha exacta) y deja botón para abrirlo.
+- **Disponibilidad:** pestaña con el **calendario mes a mes** por local (barra rellena = ocupada, rayas = provisional, vacía = libre; con texto para lector de pantalla) hecho con la Previsión y los eventos (lo descartado no ocupa; el catering o «fuera» no ocupa los salones; si falta el local, se avisa como provisional en los dos), y «Comprobar una fecha» con el detalle de cada día. Si el administrador lo activa, el **formulario público** le dice a quien consulta si la fecha «parece libre» **sin dar nombres ni detalles**.
+- **RGPD:** las consultas se **borran solas** pasado el plazo; al **anonimizar un evento** se borran las consultas que acabaron en él y **su fila de la Previsión** (nombre de la celebración, teléfono, localidad); el **buscador de personas** encuentra y borra a alguien también en las **consultas** y en la **Previsión** *(de paso: antes la Previsión no se limpiaba al anonimizar ni al borrar a una persona)*. Aparece en el registro de tratamientos como «Consultas web».
+- **Comprobado** (servidor real y varios navegadores, el formulario en móvil de 390 px): apagado de fábrica, activar desde Parámetros, campos obligatorios y mensajes de error, **campo trampa**, permiso falso/caducado/demasiado rápido, topes por persona y por día, **Turnstile** (simulado), el aviso y el acuse por correo (simulados), disponibilidad de varios casos, bandeja, leída/estado/nota, correo y WhatsApp, Previsión y evento de un clic, calendario, permisos (eventos sí; cocina no; ajustes solo administración), borrado y caducidad, RGPD, sin desbordes y sin errores en consola.
+- **Tu parte (no depende de mí):** (1) **activar el formulario** en Parámetros → Consultas web y decidir los tipos, los salones y si dice si la fecha está libre; (2) **poner el enlace** `…/?consulta` donde quieras (tu web, Instagram, Google Business…); (3) para que los avisos y el acuse salgan de verdad, lo de la sección 3.1 (cuenta de correo); (4) *opcional:* claves de Turnstile si algún día entra spam.
 
 ---
 
 ## 6. Calidad continua (en paralelo)
 
-- **Auditoría con varios revisores** de toda la app (diseño, coherencia de cifras, accesibilidad, móvil): pendiente; se hace antes de la fase 3.
+- **Accesibilidad:** revisión automática con axe-core de las pantallas de las versiones 01.62–01.68 (equipo, portal del cliente en móvil y formulario público): **0 avisos graves** tras los arreglos de la 01.68. Una sola excepción deliberada: el zoom del móvil está **bloqueado a petición tuya** (v01.5x); los lectores de pantalla y las personas con baja visión lo echan en falta, así que si algún día quieres permitirlo es un cambio de una línea.
+- **Seguridad:** las cookies de sesión son `HttpOnly`, `Secure` y `SameSite=Lax`; los puntos públicos (portal, formulario de consultas, entrada) tienen topes por persona y por día y tamaño máximo de envío; todo lo del portal es solo del evento de su enlace; los permisos se aplican en el **servidor**, no solo en la pantalla.
+- **Auditoría con varios revisores** de toda la app (diseño, coherencia de cifras, móvil): **sigue pendiente** y es opcional; se lanza cuando tú lo pidas (consume mucho trabajo de revisión).
 - **Pruebas automáticas** de los flujos críticos (cliente → plano, guardado, copia/restauración) ejecutadas en cada entrega.
 - **Cada entrega:** versión visible en pantalla («Versión 01.NN»), prueba en navegador y móvil, informe en castellano de qué cambia y cómo se prueba.
 
@@ -289,6 +309,34 @@ se recupera con el código manual por evento.
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
 
+**Estado: todo entregado (01.54 → 01.68).**
+
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,
 **salvo** los de la fase 1, que conviene tener antes de fiarlo todo al programa.
+
+---
+
+## 8. Lo que falta y depende de ti
+
+Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo que queda necesita una cuenta, una decisión o la revisión de una persona del restaurante. De lo más a lo menos urgente:
+
+| # | Qué falta | Quién | Qué desbloquea |
+|---|---|---|---|
+| 1 | **Cuenta de correo** (Resend, gratuita) y **verificar el dominio** del restaurante; en Cloudflare, en cada proyecto de Pages, los secretos `RESEND_API_KEY`, `MAIL_FROM` y `CRON_TOKEN`; en GitHub, el secreto `CRON_TOKEN` y la variable `SITE_URL`; que `avisos.yml` esté en la rama principal | Tú (lo que tarda es el DNS) | Que **salgan de verdad** los avisos a clientes y camareros, el resumen semanal, los pedidos a proveedores y el acuse de las consultas. Hasta entonces todo queda «simulado» en la bandeja y no sale nada |
+| 2 | **Qué proyecto de Cloudflare Pages es el de producción** (hay tres) y desconectar los otros dos | Tú | Que nadie entre en una copia sin datos |
+| 3 | **Quién usa el programa y con qué rol**; invitarles desde «Equipo y accesos»; una **persona de referencia** que apruebe cada entrega | Tú | Empezar a usarlo en serio |
+| 4 | **Contrato:** que tu asesor o abogado lea el texto, escribir las **condiciones de cancelación**, rellenar los **datos de la empresa** (razón social, CIF, domicilio, quién firma) y marcar el texto como «revisado»; decidir si basta la **firma electrónica simple** o quieres un proveedor de firma | Tú + asesor | Poder publicar contratos a los clientes |
+| 5 | **Datos del responsable de privacidad** en Parámetros → Privacidad y datos, y que el asesor revise los textos del aviso y del consentimiento | Tú + asesor | Cumplir RGPD con los textos propios del restaurante |
+| 6 | **Proveedores de compra:** darlos de alta (nombre, teléfono, correo) y asignarles los artículos **la primera vez** (después se recuerda) | Quien compra | Pedidos agrupados por proveedor |
+| 7 | **Consultas web:** activar el formulario en Parámetros → Consultas web, decidir tipos, salones y si dice «fecha libre», y poner el enlace `…/?consulta` en tu web, Instagram y Google Business | Tú | Recibir consultas |
+| 8 | **Vigilante externo:** un monitor gratuito (p. ej. UptimeRobot) que mire `…/api/health` | Tú (5 minutos) | Enterarte si la app se cae |
+| 9 | **Precios del «Análisis de compras»** del Maître: volver a importarlos cuando cambien | Quien compra | Costes estimados al día |
+| 10 | **Un evento piloto de principio a fin** (consulta → contrato → pedidos → servicio → cierre) y apuntar lo que chirríe | Equipo | Pulir con uso real |
+
+**Opcionales (si los quieres, se hacen):**
+- Avisos por correo de «el cliente ha escrito / ha aprobado» (hoy se ven en el Inicio de la app).
+- Proveedor de **firma electrónica avanzada** si el contrato necesita más validez.
+- Claves de **Turnstile** para el formulario si algún día entra spam.
+- **Auditoría con varios revisores** de toda la app.
+- Permitir el **zoom en el móvil** (hoy bloqueado a petición tuya).

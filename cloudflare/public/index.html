@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Les Moles">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
+<script>document.documentElement.setAttribute("lang","es");</script>
 <script>
 /* Si algo falla al cargar (p. ej. en un navegador distinto), en vez de una
    pantalla que no responde se enseña un aviso con el error, para poder
@@ -21,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.67 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.68 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.67".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.68".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -96,7 +97,7 @@
   --warning:var(--p-ochre-500); --warning-soft:var(--p-ochre-50);
   --danger:var(--p-wine-500); --danger-soft:var(--p-wine-50);
   /* navegación: siempre en negro */
-  --nav-bg:var(--p-black); --nav-raise:var(--p-carbon); --nav-ink:var(--p-ivory); --nav-mut:#9C9B92; --nav-faint:#6C6B64; --nav-line:#242422;
+  --nav-bg:var(--p-black); --nav-raise:var(--p-carbon); --nav-ink:var(--p-ivory); --nav-mut:#9C9B92; --nav-faint:#8B8A82; --nav-line:#242422;
   /* heredados del diseño anterior (se usan por todo el código) */
   --gold:var(--p-ochre-500); --gold-p:var(--p-olive-700); --focus:var(--p-olive-600);
   --shadow-xs:0 1px 0 rgba(26,26,26,.04);
@@ -706,7 +707,7 @@ p.imp-warn{padding-left:12px}
 .nav-flat{color:var(--nav-ink)}
 .nav-flat:hover{background:var(--nav-raise)}
 .nav-flat .gh-ic{color:var(--nav-mut)}
-.nav-sec{color:#736F66}
+.nav-sec{color:#8B8A82}
 .nav-gh{color:var(--nav-ink)}
 .nav-gh:hover{background:var(--nav-raise)}
 .nav-gh .gh-ic{color:var(--nav-mut)}
@@ -3742,13 +3743,13 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .av-sec h2{margin:0 0 10px; font:600 19px/1.25 var(--font-display,Georgia,serif); display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px}
 .av-sec h2 small{font:500 13px/1.3 var(--font-text,system-ui); color:var(--c-mut)}
 .av-fila{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 14px; padding:11px 12px; border:1px solid var(--c-line); border-left:5px solid var(--c-line-2); border-radius:12px; margin:0 0 8px; background:var(--bg)}
-.av-fila.pronto{border-left-color:var(--warning)} .av-fila.tarde{border-left-color:var(--danger)} .av-fila.hecha{border-left-color:var(--success); opacity:.82}
+.av-fila.pronto{border-left-color:var(--warning)} .av-fila.tarde{border-left-color:var(--danger)} .av-fila.hecha{border-left-color:var(--success)}
 .av-q{min-width:0; flex:1 1 240px; display:flex; flex-direction:column; gap:2px}
 .av-q b{font-size:15.5px; overflow-wrap:anywhere} .av-q small{color:var(--c-mut); font-size:13px; overflow-wrap:anywhere}
 .av-b,.av-b2{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
 .av-fila .btn.sm,.av-b2 .btn.sm,.av-pie .btn{min-height:42px}
 .av-wa{text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
-a.av-wa{background:#1F8F4E; border-color:#1F8F4E; color:#fff}
+a.av-wa{background:#167A42; border-color:#167A42; color:#fff}
 a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-ok{color:var(--success); font-weight:700; font-size:13px}
 .av-est{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.06em; text-transform:uppercase; padding:5px 9px; border-radius:99px}
@@ -3912,7 +3913,7 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .pd-cfg{display:grid; grid-template-columns:minmax(150px,200px) 1fr; gap:10px 14px}
 .pd-acc{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
 .pd-acc .btn{min-height:42px}
-a.pd-wa{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; background:#1F8F4E; border-color:#1F8F4E; color:#fff}
+a.pd-wa{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; background:#167A42; border-color:#167A42; color:#fff}
 a.pd-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .pd-masivo{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:6px 0 10px}
 .pd-masivo select{min-height:42px}
@@ -3939,6 +3940,95 @@ a.pd-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
   .pd-cfg{grid-template-columns:1fr}
   .pd-cab .pd-rcab{display:none}
 }
+/* ── Consultas web (cs- equipo, cp- formulario público) ── */
+.cs-wrap{max-width:1040px}
+.cs-tabs{display:flex; gap:6px; margin:0 0 14px; border-bottom:1px solid var(--c-line)}
+.cs-tabs button{background:none; border:0; border-bottom:3px solid transparent; padding:10px 14px; min-height:44px; font:600 15px/1 var(--font-text,system-ui); color:var(--c-mut); cursor:pointer}
+.cs-tabs button[aria-selected=true]{color:var(--c-ink); border-bottom-color:var(--gold)}
+.cs-nn{background:var(--danger); color:#fff; border-radius:99px; padding:2px 8px; font-size:12px; margin-left:4px}
+.cs-bar{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin:0 0 12px}
+.cs-seg{display:inline-flex; flex-wrap:wrap; gap:4px; padding:4px; border:1px solid var(--c-line); border-radius:99px; background:var(--panel)}
+.cs-seg button{border:0; background:none; padding:8px 13px; border-radius:99px; min-height:38px; font:600 13.5px/1 var(--font-text,system-ui); color:var(--c-mut); cursor:pointer}
+.cs-seg button[aria-pressed=true]{background:var(--c-ink); color:var(--bg,#fff)}
+.cs-q{flex:1 1 220px; min-height:44px; border:1px solid var(--c-line); border-radius:10px; padding:8px 12px; background:var(--panel); color:var(--c-ink); font:15px/1.3 var(--font-text,system-ui)}
+.cs-aviso{padding:11px 14px; border:1px solid var(--warning); background:var(--warning-soft); border-radius:12px; font-size:14px; margin:0 0 12px}
+.cs-aviso a{color:var(--accent-tx,var(--c-ink)); font-weight:700}
+.cs-vacio2{padding:22px; text-align:center; color:var(--c-mut); border:1px dashed var(--c-line); border-radius:12px}
+.cs-card{background:var(--panel); border:1px solid var(--c-line); border-radius:14px; margin:0 0 10px; overflow:hidden}
+.cs-card.nueva{border-left:4px solid var(--gold)}
+.cs-h{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px 12px; padding:12px 14px; cursor:pointer; min-height:56px}
+.cs-n{min-width:0; display:flex; flex-direction:column; gap:2px; flex:1 1 260px} .cs-n b{font-size:16px; overflow-wrap:anywhere} .cs-n small{color:var(--c-mut); font-size:13.5px; overflow-wrap:anywhere}
+.cs-r{display:flex; align-items:center; gap:8px; flex-wrap:wrap} .cs-r small{color:var(--c-mut); font-size:12.5px}
+.cs-new{background:#85601D; color:#fff; font:700 10.5px/1 var(--font-text,system-ui); letter-spacing:.06em; text-transform:uppercase; padding:5px 8px; border-radius:99px}
+.cs-chip{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.05em; text-transform:uppercase; padding:6px 10px; border-radius:99px; background:var(--bg-2,#eee); color:var(--c-mut)}
+.cs-chip.nueva{background:var(--warning-soft); color:var(--warning-tx)} .cs-chip.contactada,.cs-chip.visita{background:var(--accent-soft,var(--bg-2)); color:var(--c-ink)} .cs-chip.prevision{background:var(--accent-soft,var(--bg-2)); color:var(--c-ink)} .cs-chip.ok{background:var(--success-soft); color:var(--success)} .cs-chip.descartada{opacity:.7}
+.cs-disp{padding:0 14px 10px; display:flex; flex-wrap:wrap; gap:6px 16px; font-size:13.5px}
+.cs-d{display:inline-flex; align-items:center; gap:6px} .cs-d i{width:10px; height:10px; border-radius:50%; flex:0 0 auto}
+.cs-d.libre b{color:var(--success)} .cs-d.provisional b{color:var(--warning-tx)} .cs-d.ocupada b{color:var(--danger)} .cs-d small{color:var(--c-mut)}
+.cs-cuerpo{padding:4px 14px 14px; display:flex; flex-direction:column; gap:10px; border-top:1px solid var(--c-line)}
+.cs-msg{margin:10px 0 0; padding:10px 12px; background:var(--bg-2,#f4f1e8); border-radius:10px; font-size:15px; line-height:1.5; overflow-wrap:anywhere} .cs-vacio{color:var(--c-mut); font-style:italic}
+.cs-con{margin:0; display:flex; flex-wrap:wrap; gap:4px 18px; font-size:14px; color:var(--c-mut)} .cs-con b{color:var(--c-ink); overflow-wrap:anywhere}
+.cs-acc{display:flex; flex-wrap:wrap; gap:8px; align-items:center} .cs-acc .btn{min-height:42px}
+.cs-est{display:inline-flex; align-items:center; gap:8px; font-size:14px; color:var(--c-mut)} .cs-est select{min-height:42px}
+a.cs-wa{text-decoration:none; display:inline-flex; align-items:center; justify-content:center; background:#167A42; border-color:#167A42; color:#fff}
+a.cs-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
+.cs-nota textarea{min-height:60px}
+.cs-res{margin:0; padding:9px 12px; border-radius:10px; font-size:14px} .cs-res.ok{background:var(--success-soft); color:var(--success)} .cs-res.sim{background:var(--warning-soft); color:var(--warning-tx)} .cs-res.mal{background:var(--danger-soft); color:var(--danger)}
+.cs-comp{padding:14px; border:2px solid var(--gold); border-radius:14px; background:var(--panel); display:flex; flex-direction:column; gap:10px}
+.cs-comp label{display:flex; flex-direction:column; gap:4px; font:700 11px/1.2 var(--font-text,system-ui); letter-spacing:.08em; text-transform:uppercase; color:var(--c-mut)}
+.cs-comp input,.cs-comp textarea{font:400 15px/1.45 var(--font-text,system-ui); letter-spacing:0; text-transform:none; color:var(--c-ink); background:var(--field,var(--panel)); border:1px solid var(--c-line); border-radius:10px; padding:10px 12px; min-height:44px; width:100%; box-sizing:border-box}
+.cs-comp textarea{min-height:190px}
+.cs-cb{display:flex; flex-wrap:wrap; gap:8px}
+.cs-h2{margin:22px 0 10px; font:600 19px/1.25 var(--font-display,Georgia,serif)}
+.cs-peq{margin:8px 0 0; font-size:13px; line-height:1.5; color:var(--c-mut)}
+.cs-info{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:0 0 16px}
+.cs-info>div{background:var(--panel); border:1px solid var(--c-line); border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:4px; min-width:0}
+.cs-info.on>div:first-child{border-color:var(--success)} .cs-info.off>div:first-child{border-color:var(--warning)}
+.cs-info span{font-size:12px; color:var(--c-mut); text-transform:uppercase; letter-spacing:.06em} .cs-info b{font-size:17px} .cs-info small{color:var(--c-mut); font-size:13px; line-height:1.45} .cs-info code{font-size:13px; overflow-wrap:anywhere}
+/* calendario de disponibilidad */
+.cs-top{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin:0 0 10px} .cs-top b{font:600 18px/1.2 var(--font-display,Georgia,serif); text-transform:capitalize}
+.cs-comp-f{margin-left:auto; display:flex; align-items:center; gap:8px; font-size:14px; color:var(--c-mut)} .cs-comp-f input{min-height:42px}
+.cs-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px}
+.cs-dw{font:700 11px/1 var(--font-text,system-ui); text-align:center; color:var(--c-mut); padding:6px 0}
+.cs-dd{position:relative; min-height:54px; border:1px solid var(--c-line); border-radius:10px; background:var(--panel); display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:4px; padding:6px 2px 6px; cursor:pointer; font:600 14px/1 var(--font-text,system-ui); color:var(--c-ink)}
+.cs-dd.vacio{border:0; background:none; cursor:default} .cs-dd.pas{opacity:.5} .cs-dd.hoy{outline:2px solid var(--gold)} .cs-dd.sel{background:var(--bg-2,#f1ede2); border-color:var(--c-ink)}
+.cs-bs{display:flex; flex-direction:column; gap:2px; width:78%}
+.cs-b{display:block; height:5px; border-radius:3px; border:1.5px solid var(--c)}
+.cs-b.ocupada{background:var(--c)} .cs-b.provisional{background:repeating-linear-gradient(135deg,var(--c) 0 3px,transparent 3px 6px)} .cs-b.libre{background:transparent; opacity:.35}
+.cs-leg{display:flex; flex-wrap:wrap; gap:6px 18px; margin:12px 0; font-size:13px; color:var(--c-mut)} .cs-leg span{display:inline-flex; align-items:center; gap:6px} .cs-leg .cs-b{width:22px}
+.cs-dia{margin-top:12px} .cs-dia h3{margin:0 0 8px; font:600 17px/1.3 var(--font-display,Georgia,serif); text-transform:capitalize}
+.cs-fila{display:flex; gap:10px; padding:8px 0; border-bottom:1px solid var(--c-line)} .cs-fila:last-child{border-bottom:0} .cs-fila>i{width:10px; height:10px; border-radius:50%; margin-top:6px; flex:0 0 auto} .cs-fila ul{margin:4px 0 0; padding-left:18px; font-size:14px}
+.cs-e.libre{color:var(--success); font-weight:700} .cs-e.provisional{color:var(--warning-tx); font-weight:700} .cs-e.ocupada{color:var(--danger); font-weight:700}
+.hn-cons .hn-ic{font-size:20px; display:inline-flex; align-items:center; justify-content:center}
+@media (max-width:640px){ .cs-dd{min-height:48px} .cs-comp-f{margin-left:0; width:100%} }
+/* formulario público */
+body.cp-on > *:not(#consulta-pub):not(script):not(style){display:none!important}
+html.cp-on,body.cp-on{background:#F3F1EA!important}
+#consulta-pub{position:fixed; inset:0; overflow:auto; background:#F3F1EA; color:#1d1b17; font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; -webkit-text-size-adjust:100%}
+#consulta-pub *{box-sizing:border-box}
+.cp-wrap{max-width:680px; margin:0 auto; padding:0 18px}
+.cp-hero{background:#1A1A1A; color:#F3F1EA; padding:34px 0 40px}
+.cp-brand{font:700 11px/1 system-ui,sans-serif; letter-spacing:.2em; text-transform:uppercase; color:#B8C28F; margin-bottom:14px}
+.cp-hero h1{margin:0 0 8px; font:400 clamp(30px,7vw,42px)/1.15 Georgia,"Times New Roman",serif}
+.cp-hero p{margin:0; color:#cfcbbd; font-size:16.5px}
+.cp-main{padding-top:0; padding-bottom:30px}
+.cp-card{position:relative; margin:-22px 0 20px; background:#FFFEFA; border:1px solid #E3DDCB; border-radius:16px; padding:20px 18px; display:flex; flex-direction:column; gap:14px; box-shadow:0 8px 30px rgba(0,0,0,.08)}
+.cp-card h2{margin:0; font:400 24px/1.25 Georgia,serif}
+.cp-f{display:flex; flex-direction:column; gap:5px; min-width:0} .cp-f>span{font:700 12px/1.2 system-ui,sans-serif; letter-spacing:.06em; text-transform:uppercase; color:#5d584a} .cp-f i{color:#8C2F43; font-style:normal}
+.cp-f input,.cp-f select,.cp-f textarea{width:100%; font:16px/1.4 system-ui,sans-serif; color:#1d1b17; background:#fff; border:1px solid #CFC8B2; border-radius:10px; padding:12px 13px; min-height:48px}
+.cp-f textarea{min-height:120px; resize:vertical}
+.cp-f input:focus,.cp-f select:focus,.cp-f textarea:focus,.cp-btn:focus-visible,.cp-chk input:focus-visible{outline:3px solid #6E7D50; outline-offset:1px}
+.cp-2{display:grid; grid-template-columns:1fr 1fr; gap:14px} @media (max-width:560px){ .cp-2{grid-template-columns:1fr} }
+.cp-peq{margin:-8px 0 0; font-size:13px; color:#6f6a5a}
+.cp-trampa{position:absolute; left:-5000px; width:1px; height:1px; overflow:hidden}
+.cp-chk{display:flex; gap:10px; align-items:flex-start; font-size:14.5px; line-height:1.45} .cp-chk input{width:22px; height:22px; margin-top:1px; flex:0 0 auto} .cp-chk i{color:#8C2F43; font-style:normal}
+.cp-priv{font-size:13.5px; color:#4a463a; border:1px solid #E3DDCB; border-radius:10px; padding:2px 12px; background:#FAF8F0} .cp-priv summary{cursor:pointer; min-height:40px; display:flex; align-items:center; font-weight:600} .cp-priv p{margin:6px 0}
+.cp-err{margin:0; color:#8C2F43; font-weight:600; min-height:0} .cp-err:empty{display:none}
+.cp-btn{background:#1A1A1A; color:#F3F1EA; border:0; border-radius:12px; padding:15px 20px; min-height:52px; font:700 16px/1 system-ui,sans-serif; cursor:pointer} .cp-btn:disabled{opacity:.6; cursor:wait}
+.cp-disp{font-size:14px; border-radius:10px} .cp-disp:empty{display:none} .cp-disp.libre,.cp-disp.prov,.cp-disp.ocupada{padding:10px 12px}
+.cp-disp.libre{background:#E7F0DA; color:#34531a} .cp-disp.prov{background:#FBF1D9; color:#7a5712} .cp-disp.ocupada{background:#F6E1E5; color:#8C2F43}
+.cp-ok h2{color:#34531a} .cp-aviso{padding:16px; text-align:center; color:#6f6a5a}
+.cp-pie{text-align:center; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#6b6757; padding:6px 0 30px}
 /*V3-END*/
 </style>
 
@@ -3951,7 +4041,7 @@ a.pd-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.67</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.68</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6557,7 +6647,7 @@ function renderPlan(){
   boxes.forEach(function(b){ p.pos[b.num]=clampPos(p.pos[b.num],b,effScale(b.num)); });
 
   var defs='<defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" fill="#DCD2BE"/></pattern></defs>';
-  $("canvas").innerHTML='<div class="roomwrap"><div class="room"><svg id="room" viewBox="0 0 '+RW+' '+RH+'" width="'+Math.round(RW*zoom)+'" role="group" aria-label="Plano de la sala, '+doc.tables.length+' mesas">'+defs+toSVG(planPrims(L,full,false))+'</svg></div><div class="rsz" id="rsz-h" title="Arrastra para cambiar el tamaño de la sala" tabindex="0" aria-label="Tamaño de la sala: '+RW+'×'+RH+'. Flechas para cambiarlo."></div></div>';
+  $("canvas").innerHTML='<div class="roomwrap"><div class="room"><svg id="room" viewBox="0 0 '+RW+' '+RH+'" width="'+Math.round(RW*zoom)+'" role="group" aria-label="Plano de la sala, '+doc.tables.length+' mesas">'+defs+toSVG(planPrims(L,full,false))+'</svg></div><div class="rsz" id="rsz-h" role="group" title="Arrastra para cambiar el tamaño de la sala" tabindex="0" aria-label="Tamaño de la sala: '+RW+'×'+RH+'. Flechas para cambiarlo."></div></div>';
   bindRoom(); bindResize();
   var lab=$("rsz"); if(lab) lab.textContent=RW+"×"+RH;
   restoreFocus();   /* este redibujado reemplaza el DOM entero: si la acción venía del teclado, el foco se recupera aquí */
@@ -9124,12 +9214,14 @@ var SECCIONES=[
   {k:"p-privacidad",g:"Parámetros", t:"Privacidad y datos"},
   {k:"p-correo",  g:"Parámetros", t:"Correo y avisos"},
   {k:"p-contrato",g:"Parámetros", t:"Contrato y propuesta"},
+  {k:"p-consultas",g:"Parámetros", t:"Consultas web"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
   {k:"r-precios",  g:"Rentabilidad", t:"Precios del Maître"},
   /* la previsión de banquetes del año (el Excel «PREVISION BANQUETES») */
-  {k:"prev",       g:"Previsión", t:"Previsión de banquetes"}
+  {k:"prev",       g:"Previsión", t:"Previsión de banquetes"},
+  {k:"consultas",  g:"Previsión", t:"Consultas web"}
 ];
 window.LM_SECCIONES=SECCIONES;
 window.LM_seccion=function(){ return seccionActual(); };
@@ -9323,7 +9415,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.67</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.68</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10732,6 +10824,7 @@ function renderHomeNovios(){
     nov.slice(0,4).map(function(e){ return '<span>'+escH(nombreLimpio(e.name))+': '+escH(resumenCambios(e.share.ultNovios))+'</span>'; }).join("")+'</div>'+
     '<div class="hn-acts">'+nov.slice(0,3).map(function(e){ return '<button class="btn sm" type="button" data-nv="'+escH(e.id)+'">Ver'+(nov.length>1?" "+escH(nombreLimpio(e.name).split(/\s+/).slice(-3).join(" ")):" el plano")+'</button>'; }).join("")+
     '<button class="btn sm ghost" type="button" id="hn-visto">Visto</button></div></div>';
+  try{ h+=window.LM_consultasHomeHTML?window.LM_consultasHomeHTML():""; }catch(_){}
   host.innerHTML=h;
   function evDe(id){ var ev=null; store.events.forEach(function(x){ if(x.id===id) ev=x; }); return ev; }
   function visto(ev){ if(ev&&ev.share&&ev.share.ultNovios){ ev.share.ultNovios.visto=true; save(); } }
@@ -10747,8 +10840,8 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,pedidos:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,pedidos:1,consultas:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,"p-consultas":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -10975,6 +11068,8 @@ function renderPlanV(k){
   if(k==="p-privacidad"){ if(window.LM_renderPriv) window.LM_renderPriv(host); return; }
   if(k==="p-correo"){ if(window.LM_renderCorreoCfg) window.LM_renderCorreoCfg(host); return; }
   if(k==="p-contrato"){ if(window.LM_renderContratoCfg) window.LM_renderContratoCfg(host); return; }
+  if(k==="p-consultas"){ if(window.LM_renderConsultasCfg) window.LM_renderConsultasCfg(host); return; }
+  if(k==="consultas"){ if(window.LM_renderConsultas) window.LM_renderConsultas(host); return; }
   if(k==="avisos"){ if(window.LM_renderAvisos) window.LM_renderAvisos(host); return; }
   if(k==="pedidos"){ if(window.LM_renderPedidos) window.LM_renderPedidos(host); return; }
   if(k==="portal"){ if(window.LM_renderPortal) window.LM_renderPortal(host); return; }
@@ -17427,6 +17522,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return '<table class="pr-reg"><thead><tr><th>Tratamiento</th><th>Finalidad</th><th>Personas y datos</th><th>Base jurídica</th><th>Plazo</th><th>Destinatarios y medidas</th></tr></thead><tbody>'+
       fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
       fila("Correos y avisos","Avisar a clientes, camareros y equipo (recordatorios, turnos, resumen semanal)","Correo del destinatario y el texto del mensaje","Relación contractual o laboral (art. 6.1.b)","180 días (bandeja de salida); se borra al anonimizar el evento","Administración y eventos")+
+      fila("Consultas web","Contestar a quien pregunta por una celebración desde el formulario público","Nombre, correo o teléfono, fecha, invitados y mensaje de quien consulta","Consentimiento (casilla del formulario)","Administración y eventos","Hasta 36 meses según lo que elija el administrador (12 de fábrica)"),
       fila("Proveedores de compra","Pedir los ingredientes, bebidas y material de cada evento","Nombre, teléfono y correo de contacto de cada proveedor","Relación comercial","Administración y compras","Mientras dure la relación comercial"),
       fila("Personal de sala","Gestionar turnos, disponibilidad, avisos y registro de horas","Camareros (nombre, teléfono, disponibilidad, hora de entrada y de salida)","Relación laboral o de servicio (art. 6.1.b) y obligación legal del registro de jornada (art. 6.1.c)","Mientras dure la relación; el registro de jornada, 4 años","Responsables de sala y administración")+
       fila("Usuarios del programa","Control de accesos y seguridad","Equipo (nombre, correo, rol, accesos)","Interés legítimo en la seguridad (art. 6.1.f)","Mientras tenga acceso; el registro de actividad, 400 días","Administración")+
@@ -18766,6 +18862,376 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ═════════════════════════════════════════════════════════════════
+   FORMULARIO PÚBLICO DE CONSULTAS (?consulta) — sin sesión.
+   Quien aún no es cliente pregunta por su celebración: nombre, forma de contacto, qué quiere celebrar, fecha, invitados, salón y mensaje.
+   Va por /api/consulta; el servidor lo guarda y avisa al equipo. Protección contra spam: campo trampa, tiempo mínimo, tope por persona y,
+   si hay claves, Turnstile de Cloudflare. Si el administrador lo ha activado, al elegir una fecha dice si parece libre.
+   Siempre lleva la información de privacidad y la casilla de consentimiento. ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  window.consultaPublica=function(){ try{ var u=new URL(location.href); return u.searchParams.has("consulta"); }catch(_){ return false; } };
+  var S={D:null,tok:"",cf:"",enviando:false,hecho:false,msg:"",campos:{},dispT:0};
+  function api(path,opt){ return fetch(path,Object.assign({headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin"},opt||{}))
+    .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._s=r.status; return j; }); }); }
+  function priv(){
+    var p=(S.D&&S.D.priv)||{}, resp=p.responsable||"Les Moles", nif=p.nif?" ("+p.nif+")":"";
+    return '<p><b>Responsable:</b> '+esc(resp)+esc(nif)+(p.direccion?'. '+esc(p.direccion):'')+'.</p>'+
+      '<p><b>Para qué usamos tus datos:</b> solo para contestar a esta consulta y, si llegamos a un acuerdo, preparar tu celebración.</p>'+
+      '<p><b>Por qué:</b> porque nos lo pides tú al enviar el formulario (tu consentimiento).</p>'+
+      '<p><b>Cuánto tiempo:</b> si no llegamos a un acuerdo, los borramos a los '+(p.meses||12)+' meses como mucho.</p>'+
+      '<p><b>Tus derechos:</b> puedes pedirnos ver, corregir o borrar tus datos'+(p.email?' escribiendo a '+esc(p.email):' contactando con nosotros')+'.</p>';
+  }
+  function campo(id,lbl,tipo,extra,req){
+    return '<label class="cp-f" for="cp-'+id+'"><span>'+lbl+(req?' <i aria-hidden="true">*</i>':'')+'</span><input id="cp-'+id+'" name="'+id+'" type="'+tipo+'" value="'+esc(S.campos[id]||"")+'"'+(extra||"")+(req?' aria-required="true"':'')+'></label>';
+  }
+  function pinta(){
+    var host=document.getElementById("consulta-pub"); if(!host) return; var D=S.D;
+    var h='<header class="cp-hero"><div class="cp-wrap"><div class="cp-brand">Les Moles · Ulldecona</div><h1>Cuéntanos tu celebración</h1>'+
+      '<p>'+esc((D&&D.intro)||"Rellena el formulario y te contestamos lo antes posible. Sin compromiso.")+'</p></div></header><main class="cp-wrap cp-main">';
+    if(!D){ h+='<p class="cp-aviso">'+esc(S.msg||"Cargando…")+'</p>'; }
+    else if(!D.on){ h+='<div class="cp-card"><h2>Ahora mismo no recibimos consultas por aquí</h2><p>Escríbenos'+(D.mail?' a <b>'+esc(D.mail)+'</b>':'')+(D.tel?' o llámanos al <b>'+esc(D.tel)+'</b>':'')+' y te atenderemos encantados.</p></div>'; }
+    else if(S.hecho){ h+='<div class="cp-card cp-ok" role="status"><h2>¡Gracias! Ya lo tenemos</h2><p>Hemos recibido tu consulta y te contestaremos lo antes posible'+(S.campos.email?' al correo <b>'+esc(S.campos.email)+'</b>':'')+'.</p>'+(D.tel?'<p>Si es urgente, llámanos al <b>'+esc(D.tel)+'</b>.</p>':'')+'</div>'; }
+    else {
+      h+='<form class="cp-card" id="cp-form" novalidate autocomplete="on">'+
+        campo("nombre","Tu nombre y apellidos","text",' autocomplete="name" maxlength="80"',true)+
+        '<div class="cp-2">'+campo("email","Correo","email",' autocomplete="email" maxlength="120" inputmode="email"')+campo("tel","Teléfono","tel",' autocomplete="tel" maxlength="30" inputmode="tel"')+'</div>'+
+        '<p class="cp-peq">Con uno de los dos nos basta.</p>'+
+        '<div class="cp-2"><label class="cp-f" for="cp-tipo"><span>¿Qué queréis celebrar?</span><select id="cp-tipo" name="tipo"><option value="">Elige…</option>'+D.tipos.map(function(t){ return '<option'+(S.campos.tipo===t?" selected":"")+'>'+esc(t)+'</option>'; }).join("")+'</select></label>'+
+        campo("pax","Invitados (más o menos)","number",' min="1" max="3000" inputmode="numeric"')+'</div>'+
+        '<div class="cp-2">'+campo("fecha","Fecha (si ya la tenéis)","date",' min="'+esc(D.hoy||"")+'"')+campo("fechaTxt","o cuándo, más o menos","text",' maxlength="60" placeholder="Ej.: finales de junio"')+'</div>'+
+        '<div id="cp-disp" class="cp-disp" role="status" aria-live="polite"></div>'+
+        '<label class="cp-f" for="cp-salon"><span>¿Dónde os gustaría?</span><select id="cp-salon" name="salon"><option value="">Elige…</option>'+D.salones.map(function(t){ return '<option'+(S.campos.salon===t?" selected":"")+'>'+esc(t)+'</option>'; }).join("")+'</select></label>'+
+        '<label class="cp-f" for="cp-mensaje"><span>Cuéntanos lo que quieras</span><textarea id="cp-mensaje" name="mensaje" rows="5" maxlength="1500" placeholder="Cómo imagináis el día, dudas, alergias…">'+esc(S.campos.mensaje||"")+'</textarea></label>'+
+        '<div class="cp-trampa" aria-hidden="true"><label>No rellenes esto<input type="text" name="web" id="cp-web" tabindex="-1" autocomplete="off"></label></div>'+
+        (D.turnstile?'<div id="cp-ts" class="cp-ts"></div>':'')+
+        '<label class="cp-chk"><input type="checkbox" id="cp-consent" name="consent"'+(S.campos.consent?" checked":"")+'> <span>He leído la información de privacidad y acepto que usen mis datos para contestar a mi consulta. <i aria-hidden="true">*</i></span></label>'+
+        '<details class="cp-priv"><summary>Información de privacidad</summary>'+priv()+'</details>'+
+        '<p class="cp-err" id="cp-err" role="alert">'+esc(S.msg)+'</p>'+
+        '<button type="submit" class="cp-btn"'+(S.enviando?" disabled":"")+'>'+(S.enviando?"Enviando…":"Enviar la consulta")+'</button></form>';
+    }
+    host.innerHTML=h+'</main><footer class="cp-pie">Les Moles Events · Ulldecona</footer>';
+    var f=document.getElementById("cp-form"); if(f){ f.addEventListener("submit",enviar); f.addEventListener("input",guarda); f.addEventListener("change",guarda); }
+    if(D&&D.on&&D.turnstile&&!S.hecho) turnstile();
+  }
+  function lee(){ var f=document.getElementById("cp-form"); if(!f) return; ["nombre","email","tel","tipo","pax","fecha","fechaTxt","salon","mensaje"].forEach(function(k){ var el=f.elements[k]; if(el) S.campos[k]=el.value; }); var c=document.getElementById("cp-consent"); S.campos.consent=!!(c&&c.checked); }
+  function guarda(ev){ lee(); if(ev&&ev.target&&ev.target.name==="fecha") disponibilidad(); }
+  function turnstile(){
+    function pon(){ try{ var el=document.getElementById("cp-ts"); if(el&&window.turnstile&&!el.getAttribute("data-r")){ el.setAttribute("data-r","1"); window.turnstile.render(el,{sitekey:S.D.turnstile,callback:function(t){ S.cf=t; }}); } }catch(_){} }
+    if(window.turnstile){ pon(); return; }
+    if(!document.getElementById("cp-ts-js")){ var s=document.createElement("script"); s.id="cp-ts-js"; s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"; s.async=true; s.onload=pon; document.head.appendChild(s); }
+  }
+  function disponibilidad(){
+    var D=S.D, el=document.getElementById("cp-disp"), f=S.campos.fecha; if(!el||!D||!D.disp) return;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(f||"")){ el.textContent=""; el.className="cp-disp"; return; }
+    var mi=++S.dispT; el.textContent="Mirando si está libre…"; el.className="cp-disp";
+    api("/api/consulta/disp?fecha="+encodeURIComponent(f)).then(function(j){
+      if(mi!==S.dispT||!document.getElementById("cp-disp")) return;
+      if(!j.locales){ el.textContent=""; return; }
+      var libre=j.locales.filter(function(x){ return x.e==="libre"; }), todos=j.locales.every(function(x){ return x.e==="ocupada"; });
+      if(libre.length){ el.className="cp-disp libre"; el.textContent="Esa fecha parece libre en "+libre.map(function(x){ return x.t; }).join(" y ")+". No es una reserva hasta que hablemos, pero ¡buena señal!"; }
+      else if(todos){ el.className="cp-disp ocupada"; el.textContent="Esa fecha ya no está disponible. Puedes elegir otra o escribirnos igualmente: a veces hay alternativas."; }
+      else { el.className="cp-disp prov"; el.textContent="Esa fecha tiene consultas pendientes. Escríbenos y te decimos cómo está."; }
+    }).catch(function(){ el.textContent=""; });
+  }
+  function err(m){ S.msg=m; var e=document.getElementById("cp-err"); if(e){ e.textContent=m; try{ e.scrollIntoView({block:"nearest"}); }catch(_){} } }
+  function enviar(ev){
+    ev.preventDefault(); if(S.enviando) return; lee(); var c=S.campos;
+    if(String(c.nombre||"").trim().length<2){ err("Escribe tu nombre."); var n=document.getElementById("cp-nombre"); if(n) n.focus(); return; }
+    var mail=String(c.email||"").trim(), tel=String(c.tel||"").replace(/\D/g,"");
+    if(!mail&&tel.length<6){ err("Dinos cómo contactarte: un correo o un teléfono."); var m=document.getElementById("cp-email"); if(m) m.focus(); return; }
+    if(mail&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)){ err("El correo no parece válido."); var m2=document.getElementById("cp-email"); if(m2) m2.focus(); return; }
+    if(!c.consent){ err("Marca la casilla de privacidad para poder enviarlo."); var cc=document.getElementById("cp-consent"); if(cc) cc.focus(); return; }
+    if(S.D.turnstile&&!S.cf){ err("Espera un momento a que se compruebe que eres una persona."); return; }
+    S.web=(document.getElementById("cp-web")||{}).value||"";   /* se lee antes de repintar: el campo trampa tiene que viajar tal como lo dejó quien lo rellenó */
+    err(""); S.enviando=true; pinta(); mandar(false);
+  }
+  function mandar(reintento){
+    /* el servidor exige unos segundos desde que se abre el formulario: si alguien lo rellena a toda velocidad, se espera lo que falte */
+    var falta=Math.max(0,3400-(Date.now()-(S.t0||0)));
+    if(falta>0&&!reintento){ setTimeout(function(){ mandar(false); },falta+50); S.t0=0; return; }
+    var c=S.campos, web=S.web||"";
+    api("/api/consulta",{method:"POST",body:JSON.stringify({t:S.tok,web:web,cf:S.cf,nombre:c.nombre,email:c.email,tel:c.tel,tipo:c.tipo,fecha:c.fecha,fechaTxt:c.fechaTxt,pax:c.pax,salon:c.salon,mensaje:c.mensaje,consent:!!c.consent})}).then(function(j){
+      if(j._s===200&&j.ok){ S.hecho=true; S.enviando=false; S.msg=""; pinta(); try{ window.scrollTo(0,0); document.getElementById("consulta-pub").scrollTop=0; }catch(_){} return; }
+      /* se envió demasiado rápido: se espera lo que falta y se reintenta una vez sola */
+      if(j.error==="rapido"&&!reintento){ setTimeout(function(){ mandar(true); },3200); return; }
+      S.enviando=false;
+      if(j.error==="token"){ cargar(true,"La página había caducado. Vuelve a pulsar «Enviar»."); return; }
+      S.msg=j.message||"No se ha podido enviar. Inténtalo otra vez en un momento."; pinta();
+    }).catch(function(){ S.enviando=false; S.msg="Sin conexión. Inténtalo otra vez en un momento."; pinta(); });
+  }
+  function cargar(mantener,aviso){
+    api("/api/consulta/form").then(function(j){
+      if(j._s!==200){ S.msg="No se ha podido cargar el formulario. Inténtalo más tarde."; pinta(); return; }
+      S.D=j; S.tok=j.token||""; S.t0=Date.now(); S.msg=aviso||""; if(!mantener) S.campos={}; pinta();
+    }).catch(function(){ S.msg="No se ha podido cargar el formulario. Revisa tu conexión."; pinta(); });
+  }
+  window.showConsulta=function(){
+    var host=document.getElementById("consulta-pub");
+    if(!host){ host=document.createElement("div"); host.id="consulta-pub"; document.body.appendChild(host); }
+    document.documentElement.classList.add("cp-on"); document.body.classList.add("cp-on");
+    document.title="Consulta · Les Moles Events";
+    pinta(); cargar(false);
+  };
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
+   CONSULTAS WEB Y DISPONIBILIDAD (el lado del equipo)
+   · Previsión → «Consultas web» (administración y eventos): la bandeja con lo que llega por el formulario público (?consulta), con la
+     disponibilidad de la fecha que piden en cada local, responder por correo o WhatsApp, apuntar notas, pasarla a la Previsión (seguimiento
+     hasta confirmar → pasa sola a Eventos) o crear el evento ya con un clic; y el calendario de DISPONIBILIDAD por día y local, con lo que hay
+     en la Previsión y en los eventos (libre · provisional · ocupada).
+   · Parámetros → «Consultas web» (administración): activar el formulario, textos, tipos de celebración, salones, avisos y conservación.
+   · En el Inicio, un aviso con las consultas nuevas. ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function backend(){ return !!(window.LM_backend&&window.LM_backend()); }
+  function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
+  function puede(){ return ["admin","eventos"].indexOf(rol())>=0; }
+  function yo(){ try{ return (window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user())||{}; }catch(_){ return {}; } }
+  function hoyISO(){ var d=new Date(); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
+  function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
+  function largo(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; try{ return new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmy(iso); } }
+  function hace(ts){ var m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora mismo"; if(m<60) return "hace "+m+" min"; var h=Math.round(m/60); if(h<24) return "hace "+h+(h===1?" hora":" horas"); var d=Math.round(h/24); return "hace "+d+(d===1?" día":" días"); }
+  function api(path,method,body){
+    return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
+  }
+  var MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"], DIAS=["L","M","X","J","V","S","D"];
+  var LOCALES=[{k:"moles",t:"Les Moles",c:"#C9952B"},{k:"vinyes",t:"Les Vinyes del Convent",c:"#8C2F43"},{k:"fuera",t:"Catering / fuera",c:"#2F6DB0"}];
+  var ESTADOS={nueva:"Nueva",contactada:"Contactada",visita:"Visita",prevision:"En Previsión",descartada:"Descartada"};
+  var U={host:null,d:null,err:"",cargando:false,filtro:"abiertas",q:"",abierta:null,tab:"bandeja",mes:null,dia:null,comp:null,msg:{},cfg:null,cfgMsg:null,nuevas:0};
+
+  /* ── disponibilidad: Previsión + eventos ── */
+  function filas(){ return (((BR.store||{}).prevision||{}).filas||[]).filter(function(f){ return f&&!f.borrado; }); }
+  function localDe(esp){ var n=String(esp||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); if(!n) return "sin"; if(/vinyes/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
+  var PESO={libre:0,provisional:1,ocupada:2};
+  function dispDia(iso){
+    var r={moles:{e:"libre",l:[]},vinyes:{e:"libre",l:[]},fuera:{e:"libre",l:[]}}, rows=filas(), enl={};
+    function pon(k,est,nom,ref){ var ks=k==="sin"?["moles","vinyes"]:[k]; ks.forEach(function(x){ var e2=k==="sin"?"provisional":est; r[x].l.push({n:nom,e:e2,sin:k==="sin",ref:ref}); if(PESO[e2]>PESO[r[x].e]) r[x].e=e2; }); }
+    rows.forEach(function(f){ if(f.fecha!==iso||f.estado==="descartado") return; if(f.evento) enl[f.evento]=1; pon(localDe(f.espacio),f.estado==="confirmado"?"ocupada":"provisional",f.nombre||"Celebración",f.id); });
+    ((BR.store||{}).events||[]).forEach(function(e){ var F=e&&e.ficha; if(!F||e.anonimizado||F.fecha!==iso||e.prevId||enl[e.id]) return;
+      pon(localDe(F.ubicacion),["contacto","propuesta","visita"].indexOf(F.estado)>=0?"provisional":"ocupada",String(e.name||"Evento").replace(/\s*[—\-–]\s*\d.*$/,""),e.id); });
+    return r;
+  }
+  function dispTxt(iso){
+    if(!iso) return ""; var D=dispDia(iso);
+    return LOCALES.slice(0,2).map(function(L){ var x=D[L.k], t=x.e==="libre"?"libre":x.e==="provisional"?"provisional":"ocupada";
+      return '<span class="cs-d '+x.e+'" title="'+esc(x.l.map(function(y){ return y.n; }).join(" · "))+'"><i style="background:'+L.c+'"></i>'+esc(L.t)+': <b>'+t+'</b>'+(x.l.length?' <small>('+esc(x.l.map(function(y){ return y.n; }).slice(0,2).join(", "))+')</small>':'')+'</span>'; }).join("");
+  }
+  function espacioDe(salon){ var n=String(salon||"").toLowerCase(); if(/vinyes/.test(n)) return "Les Vinyes del Convent"; if(/moles/.test(n)) return "Les Moles"; if(/catering|otro/.test(n)) return "Catering"; return ""; }
+
+  /* ── datos del servidor ── */
+  function cargar(cb){
+    if(!backend()){ U.err="Esta pantalla necesita el servidor."; if(cb) cb(); return; }
+    U.cargando=true;
+    api("/api/consultas").then(function(j){ U.cargando=false;
+      if(j._status===200){ U.d=j; U.err=""; U.nuevas=j.nuevas||0; window.LM_consNuevas=U.nuevas; }
+      else U.err=j._status===403?"Tu rol no puede ver las consultas.":(j.message||"No se han podido cargar las consultas.");
+      if(cb) cb(); }).catch(function(){ U.cargando=false; U.err="Sin conexión con el servidor."; if(cb) cb(); });
+  }
+  function activa(){ try{ return document.body.classList.contains("mode-plan")&&window.LM_seccion&&window.LM_seccion()==="consultas"&&U.host&&document.body.contains(U.host); }catch(_){ return false; } }
+  function accion(id,b){ b=Object.assign({id:id},b); return api("/api/consultas/accion","POST",b).then(function(j){
+    if(j._status===200){ if(j.borrada){ U.d.consultas=U.d.consultas.filter(function(x){ return x.id!==id; }); } else if(j.consulta){ U.d.consultas=U.d.consultas.map(function(x){ return x.id===id?j.consulta:x; }); } if(j.nuevas!=null){ U.nuevas=j.nuevas; window.LM_consNuevas=j.nuevas; U.d.nuevas=j.nuevas; } }
+    return j; }); }
+  function porId(id){ return ((U.d&&U.d.consultas)||[]).filter(function(x){ return x.id===id; })[0]||null; }
+
+  /* ── pantalla ── */
+  function chipEstado(c){
+    var f=c.prevId?filas().filter(function(x){ return x.id===c.prevId; })[0]:null, t=ESTADOS[c.estado]||c.estado, cls=c.estado;
+    if(f&&c.estado==="prevision"){ t=f.evento?"Ya es un evento":f.estado==="confirmado"?"Confirmada":f.estado==="descartado"?"Descartada en Previsión":"En Previsión · pendiente"; cls=f.evento||f.estado==="confirmado"?"ok":"prevision"; }
+    return '<span class="cs-chip '+cls+'">'+esc(t)+'</span>';
+  }
+  function fechaPedida(c){ return c.fecha?esc(largo(c.fecha)):(c.fechaTxt?esc(c.fechaTxt):'<i>sin fecha</i>'); }
+  function tarjeta(c){
+    var ab=U.abierta===c.id, f=c.prevId?filas().filter(function(x){ return x.id===c.prevId; })[0]:null, wa=waLink(c);
+    var h='<article class="cs-card'+(c.leida?"":" nueva")+(ab?" ab":"")+'" data-cid="'+c.id+'"><header class="cs-h" data-cs="abrir" data-id="'+c.id+'" tabindex="0" role="button" aria-expanded="'+ab+'">'+
+      '<div class="cs-n"><b>'+esc(c.nombre)+'</b><small>'+esc(c.tipo||"Sin tipo")+' · '+fechaPedida(c)+(c.pax?' · '+c.pax+' invitados':'')+'</small></div><div class="cs-r">'+(c.leida?"":'<span class="cs-new">nueva</span>')+chipEstado(c)+'<small>'+esc(hace(c.ts))+'</small></div></header>';
+    if(c.fecha) h+='<div class="cs-disp">'+dispTxt(c.fecha)+'</div>';
+    if(ab){
+      h+='<div class="cs-cuerpo">'+(c.mensaje?'<p class="cs-msg">'+esc(c.mensaje).replace(/\n/g,"<br>")+'</p>':'<p class="cs-msg cs-vacio">(sin mensaje)</p>')+
+        '<p class="cs-con">'+(c.salon?'<span>Salón: <b>'+esc(c.salon)+'</b></span>':'')+(c.email?'<span>Correo: <b>'+esc(c.email)+'</b></span>':'')+(c.tel?'<span>Teléfono: <b>'+esc(c.tel)+'</b></span>':'')+'</p>'+
+        '<div class="cs-acc"><button type="button" class="btn sm" data-cs="correo" data-id="'+c.id+'"'+((c.email&&backend())?'':' disabled title="Esta persona no ha dejado correo"')+'>Responder por correo</button>'+
+        (wa?'<a class="btn sm cs-wa" href="'+esc(wa)+'" target="_blank" rel="noopener">WhatsApp</a>':'<button type="button" class="btn sm" disabled title="No ha dejado teléfono">WhatsApp</button>')+
+        '<label class="cs-est">Estado <select data-cs-estado="'+c.id+'" aria-label="Estado de la consulta">'+Object.keys(ESTADOS).map(function(k){ return '<option value="'+k+'"'+(c.estado===k?" selected":"")+'>'+ESTADOS[k]+'</option>'; }).join("")+'</select></label></div>';
+      h+='<div class="cs-acc">'+(c.prevId&&f?'<button type="button" class="btn sm" data-cs="verprev" data-id="'+c.id+'">Ver en la Previsión</button>':'<button type="button" class="btn sm gold" data-cs="prev" data-id="'+c.id+'">Añadir a la Previsión</button>')+
+        (f&&f.evento?'<button type="button" class="btn sm gold" data-cs="verev" data-id="'+c.id+'">Abrir el evento</button>':'<button type="button" class="btn sm" data-cs="evento" data-id="'+c.id+'"'+(c.fecha?'':' disabled title="Hace falta una fecha exacta"')+'>Crear el evento ya</button>')+
+        '<button type="button" class="btn sm" data-cs="descartar" data-id="'+c.id+'"'+(c.estado==="descartada"?" disabled":"")+'>Descartar</button>'+
+        '<button type="button" class="btn sm" data-cs="borrar" data-id="'+c.id+'">Borrar</button></div>';
+      h+='<label class="fld cs-nota"><span class="lbl">Nota del equipo</span><textarea rows="2" maxlength="800" data-cs-nota="'+c.id+'" placeholder="Qué se habló, qué falta…">'+esc(c.nota||"")+'</textarea></label>';
+      if(U.comp&&U.comp.id===c.id) h+=compHTML();
+      if(U.msg[c.id]) h+='<p class="cs-res '+U.msg[c.id].c+'" role="status">'+esc(U.msg[c.id].t)+'</p>';
+      h+='</div>';
+    }
+    return h+'</article>';
+  }
+  function waLink(c){ var d=String(c.tel||"").replace(/[^\d+]/g,""); if(!d) return ""; if(d.charAt(0)==="+") d=d.slice(1); else if(d.indexOf("00")===0) d=d.slice(2); else if(d.length===9) d="34"+d; if(!/^\d{9,15}$/.test(d)) return "";
+    return "https://wa.me/"+d+"?text="+encodeURIComponent(textoRespuesta(c)); }
+  function textoRespuesta(c){
+    var cuando=c.fecha?" para el "+largo(c.fecha):(c.fechaTxt?" ("+c.fechaTxt+")":"");
+    return "Hola "+String(c.nombre).split(" ")[0]+",\n\nGracias por escribirnos sobre "+String(c.tipo||"tu celebración").toLowerCase()+cuando+". \n\n\n\nUn saludo,\n"+(yo().name||"")+" · Les Moles";
+  }
+  function compHTML(){
+    var c=U.comp;
+    return '<div class="cs-comp" role="group" aria-label="Redactar correo"><label>Para<input type="email" data-cs-c="to" value="'+esc(c.to)+'"></label><label>Asunto<input type="text" data-cs-c="subject" value="'+esc(c.subject)+'" maxlength="200"></label>'+
+      '<label>Texto<textarea rows="9" data-cs-c="text" maxlength="8000">'+esc(c.text)+'</textarea></label><div class="cs-cb"><button type="button" class="btn gold" data-cs="enviar"'+(c.enviando?" disabled":"")+'>'+(c.enviando?"Enviando…":"Enviar correo")+'</button><button type="button" class="btn" data-cs="cerrar">Cancelar</button></div></div>';
+  }
+  function filtradas(){
+    var q=U.q.trim().toLowerCase(), L=(U.d&&U.d.consultas)||[];
+    return L.filter(function(c){ var ok=c.id===U.abierta||U.filtro==="todas"||(U.filtro==="abiertas"&&["nueva","contactada","visita"].indexOf(c.estado)>=0)||(U.filtro==="prevision"&&c.estado==="prevision")||(U.filtro==="descartadas"&&c.estado==="descartada");
+      return ok&&(!q||(c.nombre+" "+c.email+" "+c.tel+" "+c.mensaje+" "+c.tipo).toLowerCase().indexOf(q)>=0); });
+  }
+  function bandeja(){
+    var L=filtradas(), tot=(U.d.consultas||[]).length, ab=U.d.consultas.filter(function(c){ return ["nueva","contactada","visita"].indexOf(c.estado)>=0; }).length;
+    var h='<div class="cs-bar"><div class="cs-seg" role="group" aria-label="Qué consultas ver">'+[["abiertas","Abiertas ("+ab+")"],["prevision","En Previsión"],["descartadas","Descartadas"],["todas","Todas ("+tot+")"]].map(function(x){ return '<button type="button" aria-pressed="'+(U.filtro===x[0])+'" data-cs="filtro" data-k="'+x[0]+'">'+x[1]+'</button>'; }).join("")+'</div>'+
+      '<input type="search" class="cs-q" data-cs-q placeholder="Buscar por nombre, correo, teléfono…" aria-label="Buscar consultas" value="'+esc(U.q)+'"></div>';
+    if(!U.d.on) h+='<div class="cs-aviso">El formulario está <b>apagado</b>: nadie puede enviar consultas.'+(rol()==="admin"?' <a href="#" data-cs="ircfg">Activarlo en Parámetros</a>.':' El administrador lo activa en Parámetros.')+'</div>';
+    h+=L.length?L.map(tarjeta).join(""):'<p class="cs-vacio2">'+(tot?"No hay consultas con ese filtro.":"Todavía no ha llegado ninguna consulta.")+'</p>';
+    return h;
+  }
+  function calendario(){
+    var hoy=new Date(); if(!U.mes) U.mes={y:hoy.getFullYear(),m:hoy.getMonth()};
+    var y=U.mes.y, m=U.mes.m, d0=new Date(y,m,1), off=(d0.getDay()+6)%7, n=new Date(y,m+1,0).getDate(), hi=hoyISO();
+    var h='<div class="cs-cal"><div class="cs-top"><button type="button" class="cal-ico" data-cs="mes" data-k="-1" aria-label="Mes anterior">‹</button><b>'+MESES[m]+' de '+y+'</b><button type="button" class="cal-ico" data-cs="mes" data-k="1" aria-label="Mes siguiente">›</button>'+
+      '<label class="cs-comp-f">Comprobar una fecha <input type="date" data-cs-comprobar value="'+esc(U.dia||"")+'"></label></div><div class="cs-grid">'+DIAS.map(function(x){ return '<span class="cs-dw">'+x+'</span>'; }).join("");
+    for(var i=0;i<off;i++) h+='<span class="cs-dd vacio"></span>';
+    for(var d=1;d<=n;d++){
+      var iso=y+"-"+z(m+1)+"-"+z(d), D=dispDia(iso);
+      var barras=LOCALES.map(function(L){ var x=D[L.k]; return '<i class="cs-b '+x.e+'" style="--c:'+L.c+'" title="'+esc(L.t+": "+x.e)+'"></i>'; }).join("");
+      var lbl=d+" de "+MESES[m]+": "+LOCALES.map(function(L){ return L.t+" "+D[L.k].e; }).join(", ");
+      h+='<button type="button" class="cs-dd'+(iso===hi?" hoy":"")+(iso===U.dia?" sel":"")+(iso<hi?" pas":"")+'" data-cs="dia" data-k="'+iso+'" aria-label="'+esc(lbl)+'"><span>'+d+'</span><span class="cs-bs">'+barras+'</span></button>';
+    }
+    h+='</div><div class="cs-leg">'+LOCALES.map(function(L){ return '<span><i class="cs-b ocupada" style="--c:'+L.c+'"></i>'+esc(L.t)+'</span>'; }).join("")+'<span><i class="cs-b ocupada" style="--c:#555"></i> relleno = ocupada</span><span><i class="cs-b provisional" style="--c:#555"></i> rayas = provisional (sin confirmar)</span><span><i class="cs-b libre" style="--c:#555"></i> vacío = libre</span></div>';
+    if(U.dia){ var D2=dispDia(U.dia);
+      h+='<div class="pcard cs-dia"><h3>'+esc(largo(U.dia))+'</h3>'+LOCALES.map(function(L){ var x=D2[L.k];
+        return '<div class="cs-fila"><i style="background:'+L.c+'"></i><div><b>'+esc(L.t)+'</b> · <span class="cs-e '+x.e+'">'+(x.e==="libre"?"libre":x.e==="provisional"?"provisional":"ocupada")+'</span>'+(x.l.length?'<ul>'+x.l.map(function(y){ return '<li>'+esc(y.n)+(y.e==="provisional"?' <small>(sin confirmar'+(y.sin?'; sin local asignado':'')+')</small>':'')+'</li>'; }).join("")+'</ul>':'')+'</div></div>'; }).join("")+'</div>'; }
+    return h+'</div>';
+  }
+  function pinta(){
+    var host=U.host; if(!host) return;
+    var h='<div class="pv-inner cs-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Previsión</div><h1 class="pv-title">Consultas web</h1>'+
+      '<p class="pv-guide">Lo que llega por el formulario público, con la disponibilidad de la fecha que piden. Contéstalas, pásalas a la Previsión para seguirlas hasta confirmar (entonces pasan solas a Eventos) o crea el evento ya.'+(U.d&&U.d.on?' Enlace del formulario: <b>'+esc(location.origin)+'/?consulta</b> <button type="button" class="btn sm" data-cs="copiar">Copiar</button>':'')+'</p></div></header>';
+    h+='<div class="cs-tabs" role="tablist"><button type="button" role="tab" aria-selected="'+(U.tab==="bandeja")+'" data-cs="tab" data-k="bandeja">Bandeja'+(U.nuevas?' <b class="cs-nn">'+U.nuevas+'</b>':'')+'</button><button type="button" role="tab" aria-selected="'+(U.tab==="disp")+'" data-cs="tab" data-k="disp">Disponibilidad</button></div>';
+    if(U.tab==="disp") h+=calendario();
+    else if(U.err) h+='<p class="empty">'+esc(U.err)+'</p>';
+    else if(!U.d) h+='<p class="empty">Cargando…</p>';
+    else h+=bandeja();
+    var y=host.scrollTop; host.innerHTML=h+'</div>'; host.scrollTop=y;
+    var root=host.querySelector(".cs-wrap"); root.addEventListener("click",onClick); root.addEventListener("keydown",function(ev){ if((ev.key==="Enter"||ev.key===" ")&&ev.target.getAttribute&&ev.target.getAttribute("data-cs")==="abrir"){ ev.preventDefault(); onClick(ev); } });
+    root.addEventListener("change",onChange); root.addEventListener("input",onInput);
+  }
+  function onInput(ev){ var t=ev.target; if(t.hasAttribute&&t.hasAttribute("data-cs-q")){ U.q=t.value; var pos=t.selectionStart; pinta(); var q=U.host.querySelector("[data-cs-q]"); if(q){ q.focus(); try{ q.setSelectionRange(pos,pos); }catch(_){} } return; }
+    var k=t.getAttribute&&t.getAttribute("data-cs-c"); if(k&&U.comp) U.comp[k]=t.value; }
+  function onChange(ev){
+    var t=ev.target, id;
+    if(t.hasAttribute("data-cs-estado")){ id=+t.getAttribute("data-cs-estado"); accion(id,{accion:"estado",estado:t.value}).then(function(j){ if(j._status!==200) toast(j.message||"No se ha podido cambiar el estado.",true); pinta(); }); return; }
+    if(t.hasAttribute("data-cs-nota")){ id=+t.getAttribute("data-cs-nota"); accion(id,{accion:"nota",nota:t.value}).then(function(j){ if(j._status===200) toast("Nota guardada."); else toast("No se ha podido guardar la nota.",true); }); return; }
+    if(t.hasAttribute("data-cs-comprobar")){ U.dia=t.value||null; if(U.dia){ U.mes={y:+U.dia.slice(0,4),m:+U.dia.slice(5,7)-1}; } pinta(); return; }
+    var k=t.getAttribute("data-cs-c"); if(k&&U.comp) U.comp[k]=t.value;
+  }
+  function onClick(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-cs]"); if(!b) return; var a=b.getAttribute("data-cs"), id=+b.getAttribute("data-id");
+    if(a==="tab"){ U.tab=b.getAttribute("data-k"); pinta(); return; }
+    if(a==="filtro"){ U.filtro=b.getAttribute("data-k"); pinta(); return; }
+    if(a==="mes"){ var k=+b.getAttribute("data-k"), m=U.mes.m+k, y=U.mes.y; if(m<0){ m=11; y--; } if(m>11){ m=0; y++; } U.mes={y:y,m:m}; pinta(); return; }
+    if(a==="dia"){ U.dia=b.getAttribute("data-k"); pinta(); return; }
+    if(a==="copiar"){ var u=location.origin+"/?consulta"; try{ navigator.clipboard.writeText(u).then(function(){ toast("Enlace copiado."); },function(){ window.prompt("Copia el enlace:",u); }); }catch(_){ window.prompt("Copia el enlace:",u); } return; }
+    if(a==="ircfg"){ ev.preventDefault(); if(window.irASeccion) window.irASeccion("p-consultas"); return; }
+    if(a==="abrir"){ var c=porId(id); if(!c) return; U.abierta=(U.abierta===id?null:id); U.comp=null; pinta(); if(U.abierta===id&&!c.leida) accion(id,{accion:"leida"}).then(function(){ pinta(); }); return; }
+    if((a==="enviar"||a==="cerrar")&&U.comp) id=U.comp.id;   /* los botones del correo no llevan el número de la consulta: sale del correo abierto */
+    var c2=porId(id); if(!c2) return;
+    if(a==="correo"){ U.comp={id:id,to:c2.email,subject:"Tu consulta en Les Moles",text:textoRespuesta(c2)}; U.msg[id]=null; pinta(); var cp=U.host.querySelector(".cs-comp"); if(cp&&cp.scrollIntoView) cp.scrollIntoView({block:"nearest"}); return; }
+    if(a==="cerrar"){ U.comp=null; pinta(); return; }
+    if(a==="enviar"){ var cm=U.comp; if(!cm||cm.enviando) return; ["to","subject","text"].forEach(function(k2){ var el=U.host.querySelector('[data-cs-c="'+k2+'"]'); if(el) cm[k2]=el.value; }); cm.enviando=true; pinta();
+      api("/api/correo/enviar","POST",{kind:"cliente",to:cm.to,subject:cm.subject,text:cm.text,ref:"cons-man:"+id+":"+Date.now()}).then(function(j){ cm.enviando=false;
+        if(j._status===200&&j.ok){ U.msg[id]=j.estado==="simulado"?{c:"sim",t:"Guardado en la bandeja pero NO enviado: el correo todavía no está activado."}:{c:"ok",t:"Enviado a "+cm.to+"."}; U.comp=null;
+          if(c2.estado==="nueva") accion(id,{accion:"estado",estado:"contactada"}).then(pinta); else pinta(); }
+        else { U.msg[id]={c:"mal",t:j.message||"No se ha podido enviar."}; pinta(); } }).catch(function(){ cm.enviando=false; U.msg[id]={c:"mal",t:"Sin conexión con el servidor."}; pinta(); }); return; }
+    if(a==="descartar"){ accion(id,{accion:"estado",estado:"descartada"}).then(pinta); return; }
+    if(a==="borrar"){ if(!window.confirm("¿Borrar la consulta de "+c2.nombre+"? No se puede deshacer.")) return; accion(id,{accion:"borrar"}).then(function(){ U.abierta=null; pinta(); toast("Consulta borrada."); }); return; }
+    if(a==="prev"){ var f=aPrevision(c2); accion(id,{accion:"prev",prevId:f.id}).then(function(){ toast("Añadida a la Previsión."); pinta(); }); return; }
+    if(a==="evento"){ var f2=aPrevision(c2); if(!f2.fecha){ toast("Hace falta una fecha exacta para crear el evento.",true); return; }
+      var eid=window.LM_prevCrearEvento&&window.LM_prevCrearEvento(f2.id); if(!eid){ return; }
+      accion(id,{accion:"ev",evId:eid,prevId:f2.id}).then(function(){ toast("Evento creado: «"+f2.nombre+"»."); pinta(); }); return; }
+    if(a==="verprev"){ if(window.irASeccion) window.irASeccion("prev"); return; }
+    if(a==="verev"){ var fp=filas().filter(function(x){ return x.id===c2.prevId; })[0]; if(fp&&fp.evento&&window.LM_abrirEvento) window.LM_abrirEvento(fp.evento); return; }
+  }
+  /* una consulta pasa a la Previsión de banquetes como celebración pendiente (con un enlace a ella) */
+  function aPrevision(c){
+    var S=BR.store; S.prevision=S.prevision||{filas:[]}; S.prevision.filas=S.prevision.filas||[];
+    var id="pv-c"+c.id, f=S.prevision.filas.filter(function(x){ return x.id===id; })[0], fe=/^\d{4}-\d{2}-\d{2}$/.test(c.fecha)?c.fecha:"";
+    if(!f){ f={id:id,anio:fe?+fe.slice(0,4):new Date().getFullYear(),mes:fe?+fe.slice(5,7):0,nombre:(c.tipo?c.tipo+" — ":"")+c.nombre,tipo:c.tipo||"",estado:"pendiente",fecha:fe,fechaTxt:fe?"":(c.fechaTxt||""),
+      espacio:espacioDe(c.salon),pax:"",paxPrev:c.pax?String(c.pax):"",origen:"Web (consulta)",telefono:c.tel||"",localidad:"",consultaId:c.id,updated:Date.now()}; S.prevision.filas.push(f); }
+    else { f.borrado=false; f.updated=Date.now(); }
+    try{ BR.save(); }catch(_){}
+    return f;
+  }
+
+  /* ── Parámetros → Consultas web ── */
+  function pintaCfg(){
+    var host=U.cfgHost; if(!host) return;
+    if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Consultas web</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
+    if(!U.cfg){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Consultas web</h1></div></header><p class="empty">'+esc(U.cfgErr||"Cargando…")+'</p></div>'; return; }
+    var c=U.cfg.cfg, link=location.origin+"/?consulta";
+    function chk(k,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+k+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
+    var h='<div class="pv-inner cs-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Consultas web</h1><p class="pv-guide">El formulario público donde quien aún no es cliente os pregunta por su celebración. Las consultas llegan a Previsión → «Consultas web» y os avisan por correo.</p></div></header>';
+    h+='<div class="cs-info '+(c.on?"on":"off")+'"><div><span>Formulario</span><b>'+(c.on?"Activado":"Apagado")+'</b><small>'+(c.on?'Lo puede abrir cualquiera con este enlace:':'Nadie puede enviar consultas mientras esté apagado.')+'</small>'+(c.on?'<code>'+esc(link)+'</code> <button type="button" class="btn sm" data-cf-a="copiar">Copiar</button> <a class="btn sm" href="'+esc(link)+'" target="_blank" rel="noopener">Abrirlo</a>':'')+'</div>'+
+      '<div><span>Protección contra spam</span><b>Activa</b><small>Campo trampa, tiempo mínimo, tope de 4 consultas por hora y persona (10 al día) y 80 al día en total'+(U.cfg.turnstile?'; además <b>Turnstile</b> de Cloudflare.':'. <i>Turnstile</i> (el control de Cloudflare) es opcional: si lo quieres, hacen falta las claves TURNSTILE_SITEKEY y TURNSTILE_SECRET en Cloudflare.')+'</small></div></div>';
+    h+='<div class="pcard"><div class="fldset">'+chk("on",c.on,"Activar el formulario de consultas")+
+      '<label class="fld wide"><span class="lbl">Texto de bienvenida <small>(sale bajo el título)</small></span><textarea rows="2" maxlength="600" data-cf="intro" placeholder="Cuéntanos tu celebración y te contestamos lo antes posible.">'+esc(c.intro)+'</textarea></label>'+
+      '<label class="fld"><span class="lbl">Tipos de celebración <small>(uno por línea)</small></span><textarea rows="6" data-cf="tipos">'+esc(c.tipos.join("\n"))+'</textarea></label>'+
+      '<label class="fld"><span class="lbl">Salones <small>(uno por línea)</small></span><textarea rows="6" data-cf="salones">'+esc(c.salones.join("\n"))+'</textarea></label>'+
+      chk("disp",c.disp,"Decir en el formulario si la fecha parece libre (no se enseñan nombres ni detalles, solo «libre» u «ocupada»)")+'</div></div>';
+    h+='<h2 class="cs-h2">Avisos</h2><div class="pcard"><div class="fldset"><label class="fld wide"><span class="lbl">Avisar de cada consulta a <small>(correos separados por comas; vacío = administración y eventos)</small></span><input type="text" data-cf="avisar" value="'+esc(c.avisar)+'" placeholder="info@lesmoles.com, bodas@lesmoles.com"></label>'+
+      chk("respuesta",c.respuesta,"Mandar un acuse de recibo a quien escribe (si ha dejado correo)")+
+      '<label class="fld wide"><span class="lbl">Texto del acuse <small>({nombre} y {tipo} se rellenan solos)</small></span><textarea rows="5" maxlength="1500" data-cf="respuestaTxt" placeholder="'+esc(U.cfg.defaults.respuestaTxt)+'">'+esc(c.respuestaTxt)+'</textarea></label></div></div>';
+    h+='<h2 class="cs-h2">Privacidad</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Conservar las consultas</span><select data-cf="meses">'+[6,12,18,24,36].map(function(m){ return '<option value="'+m+'"'+(+c.meses===m?" selected":"")+'>'+m+' meses</option>'; }).join("")+'</select></label></div>'+
+      '<p class="cs-peq">El formulario siempre lleva la información de privacidad y una casilla de consentimiento (con los datos de «Privacidad y datos»). Las consultas se borran solas pasado ese plazo, con el evento al anonimizarlo y desde el buscador de personas.</p></div>';
+    h+='<div class="cs-cb"><button type="button" class="btn gold" data-cf-a="guardar"'+(U.cfgBusy?" disabled":"")+'>Guardar</button></div>'+(U.cfgMsg?'<p class="cs-res '+(U.cfgMsg.ok?"ok":"mal")+'" role="status">'+esc(U.cfgMsg.t)+'</p>':'')+'</div>';
+    var y=host.scrollTop; host.innerHTML=h; host.scrollTop=y;
+    host.querySelector(".cs-wrap").addEventListener("click",function(ev){
+      var b=ev.target.closest&&ev.target.closest("[data-cf-a]"); if(!b) return; var a=b.getAttribute("data-cf-a");
+      if(a==="copiar"){ try{ navigator.clipboard.writeText(link).then(function(){ toast("Enlace copiado."); }); }catch(_){ window.prompt("Copia el enlace:",link); } return; }
+      if(a==="guardar"){ var v=function(k){ var el=host.querySelector('[data-cf="'+k+'"]'); return el?(el.type==="checkbox"?el.checked:el.value):null; };
+        var lineas=function(t){ return String(t||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean); };
+        var cuerpo={on:v("on"),intro:v("intro"),tipos:lineas(v("tipos")),salones:lineas(v("salones")),disp:v("disp"),avisar:v("avisar"),respuesta:v("respuesta"),respuestaTxt:v("respuestaTxt"),meses:+v("meses")};
+        U.cfgBusy=true; U.cfgMsg=null; U.cfg.cfg=Object.assign({},U.cfg.cfg,cuerpo); pintaCfg();   /* se lee ANTES de repintar: si no, se pierde lo escrito */
+        api("/api/consulta/cfg","PUT",cuerpo).then(function(j){ U.cfgBusy=false;
+          if(j._status===200){ U.cfg.cfg=j.cfg; U.cfgMsg={ok:true,t:"Guardado."}; } else U.cfgMsg={ok:false,t:j.message||"No se ha podido guardar."}; pintaCfg(); }); } });
+  }
+  function cargarCfg(){ api("/api/consulta/cfg").then(function(j){ if(j._status===200){ U.cfg=j; U.cfgErr=""; } else U.cfgErr=j._status===403?"Solo la administración puede cambiar esto.":(j.message||"No se han podido cargar los ajustes."); pintaCfg(); }).catch(function(){ U.cfgErr="Sin conexión con el servidor."; pintaCfg(); }); }
+
+  /* ── el aviso del Inicio y el pulso de lo nuevo ── */
+  function pulso(){
+    if(!backend()||!puede()||!document.body.classList.contains("authed")) return;
+    api("/api/consultas?resumen=1").then(function(j){ if(j._status!==200) return; var antes=window.LM_consNuevas||0; window.LM_consNuevas=j.nuevas||0; U.nuevas=window.LM_consNuevas;
+      if(window.LM_consNuevas!==antes){ if(activa()&&U.tab==="bandeja"&&!U.comp&&!(U.host.contains(document.activeElement)&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) cargar(pinta);
+        try{ if(document.body.classList.contains("mode-home")&&window.showHome) window.showHome(); }catch(_){} } }).catch(function(){});
+  }
+  setInterval(pulso,60000); setTimeout(pulso,4000);
+  window.LM_consultasHomeHTML=function(){
+    var n=window.LM_consNuevas||0; if(!n||!puede()) return "";
+    return '<div class="hn-box hn-cons"><span class="hn-ic" aria-hidden="true">✉</span><div class="hn-tx"><b>'+(n===1?"Tienes 1 consulta nueva de la web":"Tienes "+n+" consultas nuevas de la web")+'</b></div><div class="hn-acts"><button class="btn sm gold" type="button" data-cons-ir>Ver las consultas</button></div></div>';
+  };
+  document.addEventListener("click",function(ev){ var b=ev.target.closest&&ev.target.closest("[data-cons-ir]"); if(b&&window.irASeccion){ ev.preventDefault(); window.irASeccion("consultas"); } });
+  window.LM_renderConsultas=function(host){
+    var viva=U.host===host&&!!host.querySelector(".cs-wrap");
+    if(viva&&host.contains(document.activeElement)&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+    if(viva&&U.comp) return;
+    U.host=host; pinta(); if(!viva||!U.d) cargar(pinta);
+  };
+  window.LM_renderConsultasCfg=function(host){ U.cfgHost=host; if(!U.cfg) cargarCfg(); pintaCfg(); };
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
    AVISOS Y CORREO · WHATSAPP CON UN CLIC
    · «Avisos y correo» (en Planificación): para el evento abierto, a quién hay que
      escribir y con qué mensaje ya redactado — la clienta (la lista, los pagos, las
@@ -19340,7 +19806,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
   /* ── estilos (propios de esta página, dentro de #novios) ── */
   var CSS=[
-  "#novios.pn{--pb:#EFEFEA;--pb2:#E7E7E0;--pp:#FCFCFA;--pf:#fff;--pi:#1A1A1A;--pm:#65645C;--pfa:#86857B;--pl:#DDDDD4;--pl2:#C8C8BD;--ph:rgba(221,221,212,.75);--ol:#8A9A6B;--ol2:#A2AD7C;--olt:#56613F;--ols:#E6EADA;--olw:#F2F4EC;--oc:#9A722A;--ocs:#F7F0E1;--wi:#8E2C48;--wis:#F8EEF1;--carbon:#1A1A1A;--ivory:#F4F3EC;",
+  "#novios.pn{--pb:#EFEFEA;--pb2:#E7E7E0;--pp:#FCFCFA;--pf:#fff;--pi:#1A1A1A;--pm:#65645C;--pfa:#6B6A61;--pl:#DDDDD4;--pl2:#C8C8BD;--ph:rgba(221,221,212,.75);--ol:#8A9A6B;--ol2:#A2AD7C;--olt:#56613F;--ols:#E6EADA;--olw:#F2F4EC;--oc:#85601D;--ocs:#F7F0E1;--wi:#8E2C48;--wis:#F8EEF1;--carbon:#1A1A1A;--ivory:#F4F3EC;",
   "--dsp:'Bodoni Moda','Cormorant Garamond',Georgia,serif;--txt:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--pb);color:var(--pi);font-family:var(--txt);font-size:14.5px;line-height:1.55}",
   "#novios.pn *{box-sizing:border-box}#novios.pn [hidden]{display:none!important}",
   "#novios .pn-wrap{max-width:820px;margin:0 auto;padding-inline:18px}",
@@ -19897,7 +20363,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev","consultas"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","pedidos","prov","presup","inv","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
@@ -19968,7 +20434,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
        administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
-    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
+    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos","consultas"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
       var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
@@ -20316,6 +20782,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       var nt=window.novioToken&&window.novioToken();
       if(nt){ document.body.classList.remove("authed"); window.showNovios&&window.showNovios(nt); return; }
     }catch(_){}
+    try{ if(window.consultaPublica&&window.consultaPublica()){ document.body.classList.remove("authed"); window.showConsulta&&window.showConsulta(); return; } }catch(_){}
     try{
       var r=await fetch("/api/me",{headers:{"Accept":"application/json"}});
       if(r.ok){

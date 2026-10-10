@@ -61,6 +61,12 @@
  *   PUT  /api/privacidad        {responsable,nif,direccion,email,meses,auto} (solo admin)
  *   POST /api/privacidad/anonimizar {ids:[…],forzar?} quita nombres, contactos y alergias de eventos pasados (solo admin)
  *   POST /api/privacidad/persona    {q, borrar?} busca a una persona en todos los eventos / la quita (solo admin)
+ *   GET  /api/consulta/form     el formulario público de consultas: ajustes, tipos, salones y un permiso firmado con la hora (público)
+ *   GET  /api/consulta/disp?fecha=  ¿está libre esa fecha? por local (público; solo si el administrador lo activa)
+ *   POST /api/consulta          {t, web, nombre, email, tel, tipo, fecha, fechaTxt, pax, salon, mensaje, consent, cf?} una consulta nueva (público, con antispam)
+ *   GET  /api/consultas[?resumen=1]  las consultas recibidas (administración y eventos)
+ *   POST /api/consultas/accion  {id, accion: leida|estado|nota|prev|ev|borrar, …} seguimiento de una consulta
+ *   GET/PUT /api/consulta/cfg   ajustes del formulario (solo administración)
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -159,6 +165,13 @@ async function api(request, env, url) {
   if (p === "/api/correo/reintentar" && m === "POST") return correoReintentar(request, env);
   if (p === "/api/correo/resumen" && m === "POST") return correoResumenRoute(request, env);
   if (p === "/api/correo/cron" && m === "POST") return correoCron(request, env);
+  if (p === "/api/consulta/form" && m === "GET") return consForm(request, env);
+  if (p === "/api/consulta/disp" && m === "GET") return consDispRoute(request, env, url);
+  if (p === "/api/consulta" && m === "POST") return consNueva(request, env);
+  if (p === "/api/consulta/cfg" && m === "GET") return consCfgGet(request, env);
+  if (p === "/api/consulta/cfg" && m === "PUT") return consCfgPut(request, env);
+  if (p === "/api/consultas" && m === "GET") return consLista(request, env, url);
+  if (p === "/api/consultas/accion" && m === "POST") return consAccion(request, env);
   if (p === "/api/users" && m === "GET") return usersList(request, env);
   if (p === "/api/users" && m === "POST") return usersCreate(request, env);
   if (p === "/api/users" && m === "PATCH") return usersPatch(request, env);
@@ -683,8 +696,9 @@ function anonEvento(e, ahora) {
   return c;
 }
 async function privLimpiarTablas(env, ids, nombres) {
-  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env); await ensurePortal(env);
+  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env); await ensurePortal(env); await ensureConsultas(env);
   for (const id of ids) {
+    await env.DB.prepare("DELETE FROM consultas WHERE ev_id=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM portal_msg WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM portal_arch WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM outbox WHERE ev=?1").bind(String(id)).run();
@@ -698,14 +712,19 @@ async function privLimpiarTablas(env, ids, nombres) {
   for (const nm of nombres) { const n = String(nm || "").trim(); if (n.length >= 4) await env.DB.prepare("UPDATE actividad SET detalle='(evento anonimizado)' WHERE detalle LIKE ?1").bind("%" + n.replace(/[%_]/g, "") + "%").run(); }
 }
 async function anonimizarIds(env, ids, ahora, forzar, cfg) {
-  const out = { ids: [], nombres: [] };
+  const out = { ids: [], nombres: [], prev: [] };
   const res = await storeEditar(env, (doc) => {
-    out.ids = []; out.nombres = [];
+    out.ids = []; out.nombres = []; out.prev = [];
     const ok = {}; elegibles(doc, cfg.meses, ahora).forEach((x) => { ok[x.id] = 1; });
     const lista = Array.isArray(doc.events) ? doc.events : [];
     doc.events = lista.map((e) => {
       if (!e || !e.id || e.anonimizado || ids.indexOf(e.id) < 0 || !(ok[e.id] || forzar)) return e;
-      out.ids.push(e.id); out.nombres.push(e.name || ""); return anonEvento(e, ahora);
+      out.ids.push(e.id); out.nombres.push(e.name || ""); out.prev.push(e.prevId || ""); return anonEvento(e, ahora);
+    });
+    /* su fila en la Previsión de banquetes también lleva el nombre de la celebración y un teléfono */
+    if (doc.prevision && Array.isArray(doc.prevision.filas)) doc.prevision.filas.forEach((f) => {
+      if (!f || !(out.ids.indexOf(f.evento) >= 0 || out.prev.indexOf(f.id) >= 0 || out.ids.some((id) => f.id === "pv-ev-" + id))) return;
+      f.nombre = "Evento anonimizado"; f.telefono = ""; f.localidad = ""; f.origen = ""; f.updated = Math.max(ahora, (+f.updated || 0) + 1);
     });
     return { cambios: out.ids.length };
   });
@@ -817,9 +836,15 @@ async function privPersona(request, env) {
   const pmHits = {};
   { const r3 = await env.DB.prepare("SELECT ev, texto, nombre FROM portal_msg").all();
     (r3.results || []).forEach((r) => { if (normTxt((r.texto || "") + " " + (r.nombre || "")).indexOf(qn) >= 0) pmHits[r.ev] = (pmHits[r.ev] || 0) + 1; }); }
-  let tocados = [];
+  await ensureConsultas(env);
+  const coIds = [];
+  { const r4 = await env.DB.prepare("SELECT id, nombre, email, tel, mensaje, nota FROM consultas").all();
+    (r4.results || []).forEach((r) => { if (normTxt([r.nombre, r.email, r.tel, r.mensaje, r.nota].join(" ")).indexOf(qn) >= 0) coIds.push(r.id); }); }
+  let tocados = [], prevHits = 0;
   const res = await storeEditar(env, (doc) => {
-    cuentas.length = 0; tocados = [];
+    cuentas.length = 0; tocados = []; prevHits = 0;
+    /* la Previsión de banquetes (nombre de la celebración, teléfono, localidad) */
+    ((doc.prevision || {}).filas || []).forEach((f) => { if (f && !f.borrado && normTxt([f.nombre, f.telefono, f.localidad, f.origen].join(" ")).indexOf(qn) >= 0) { prevHits++; if (borrar) { f.nombre = "(borrado)"; f.telefono = ""; f.localidad = ""; f.origen = ""; f.updated = Math.max(ahora, (+f.updated || 0) + 1); } } });
     doc.events = (doc.events || []).map((e) => {
       if (!e || !e.id || e.anonimizado) return e;
       const c = borrar ? JSON.parse(JSON.stringify(e)) : JSON.parse(JSON.stringify(e)), h = buscarEnEvento(c, qn, borrar);
@@ -830,15 +855,231 @@ async function privPersona(request, env) {
       if (!borrar) return e;
       c.updated = Math.max(ahora, (+e.updated || 0) + 1); kSellarTodo(c, c.updated, e); tocados.push(e.id); return c;
     });
-    return { cambios: borrar && tocados.length ? 1 : 0 };
+    return { cambios: borrar && (tocados.length || prevHits) ? 1 : 0 };
   });
   if (!res.ok) return json({ error: res.error || "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
+  if (prevHits) cuentas.push({ id: "__prev", name: "Previsión de banquetes", fecha: "", plano: 0, ficha: 0, otros: prevHits, lista: 0 });
+  if (coIds.length) cuentas.push({ id: "__cons", name: "Consultas web", fecha: "", plano: 0, ficha: 0, otros: coIds.length, lista: 0 });
+  if (borrar && coIds.length) for (const cid of coIds) await env.DB.prepare("DELETE FROM consultas WHERE id=?1").bind(cid).run();
   if (borrar) {
     for (const t of Object.keys(listas)) await env.DB.prepare("UPDATE novios_listas SET data=?1, base=NULL WHERE token=?2").bind(JSON.stringify(listas[t].data), t).run();
     await privLimpiarTablas(env, tocados, []);
     await logAct(env, a.s, "supresion_persona", cuentas.length + (cuentas.length === 1 ? " evento" : " eventos") + " (" + cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0) + " datos)");
   } else await logAct(env, a.s, "acceso_persona", "Búsqueda de una persona: " + cuentas.length + (cuentas.length === 1 ? " evento" : " eventos"));
   return json({ ok: true, borrado: borrar, eventos: cuentas, total: cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0) });
+}
+
+
+/* ── CONSULTAS WEB Y DISPONIBILIDAD ───────────────────────────────────────────────
+   Un formulario público (?consulta) para que alguien que no es cliente todavía pregunte por su celebración:
+   · lo que se guarda va a su propia tabla (consultas): nombre, contacto, qué quiere celebrar, fecha, invitados, salón y mensaje, con el
+     consentimiento (fecha y versión del aviso de privacidad). El equipo (administración y eventos) las ve en Previsión → «Consultas web»,
+     las contesta, las pasa a la Previsión (seguimiento hasta confirmar) o directamente a un evento;
+   · protección contra el spam SIN depender de nadie: campo trampa, tiempo mínimo desde que se abre el formulario (firmado por el servidor),
+     tope por persona (4 por hora y 10 al día; la persona se reconoce por una huella que se borra a los 2 días) y por día en total (80);
+     y, si hay claves de Cloudflare Turnstile (TURNSTILE_SITEKEY y TURNSTILE_SECRET), también ese control;
+   · al llegar una consulta se avisa por correo al equipo (a la lista que diga Parámetros o, si no, a administración y eventos) y, si se quiere,
+     se le contesta a quien escribió con un acuse de recibo;
+   · disponibilidad por fecha y por local (Les Moles, Les Vinyes, catering/fuera) a partir de la Previsión y de los eventos: libre, provisional
+     (hay algo sin confirmar) u ocupada. Si el administrador lo activa, el formulario le dice a quien consulta si la fecha parece libre;
+   · RGPD: las consultas se borran solas a los 6–36 meses (12 de fábrica), con el evento al anonimizarlo y a petición de la persona
+     (buscador de personas). El formulario SIEMPRE lleva la información de privacidad y una casilla de consentimiento. */
+let CO_OK = false;
+const CO_ESTADOS = ["nueva", "contactada", "visita", "prevision", "descartada"];
+const CO_DEF = {
+  on: false, intro: "",
+  tipos: ["Boda", "Comunión", "Bautizo", "Celebración familiar", "Evento de empresa", "Otro"],
+  salones: ["Les Moles", "Les Vinyes del Convent", "Otro lugar o catering", "Todavía no lo sé"],
+  disp: false, avisar: "", respuesta: true, respuestaTxt: "", meses: 12
+};
+const CO_RESP_DEF = "Hola {nombre},\n\nGracias por escribirnos. Hemos recibido tu consulta sobre {tipo} y te contestaremos lo antes posible.\n\nUn saludo,\nLes Moles";
+async function ensureConsultas(env) {
+  if (CO_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS consultas (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, nombre TEXT NOT NULL, email TEXT, tel TEXT, tipo TEXT, fecha TEXT, fecha_txt TEXT, pax INTEGER, salon TEXT, mensaje TEXT, estado TEXT NOT NULL DEFAULT 'nueva', nota TEXT, leida INTEGER NOT NULL DEFAULT 0, prev_id TEXT, ev_id TEXT, consent_ts INTEGER, consent_v INTEGER, ip TEXT)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS consultas_ts ON consultas (ts)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS consulta_lim (ip TEXT NOT NULL, kind TEXT NOT NULL, ts INTEGER NOT NULL)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS consulta_lim_ip ON consulta_lim (ip, kind, ts)").run();
+  CO_OK = true;
+}
+function consLista4(a, max, n) { return (Array.isArray(a) ? a : []).map((x) => porTexto(x, n)).filter(Boolean).slice(0, max); }
+async function consCfg(env) {
+  await ensureUsers(env);
+  const r = await env.DB.prepare("SELECT v FROM meta WHERE k='consultas'").first();
+  let c = {}; try { c = r ? JSON.parse(r.v) || {} : {}; } catch (_) {}
+  const o = Object.assign({}, CO_DEF, c);
+  o.on = !!o.on; o.disp = !!o.disp; o.respuesta = o.respuesta !== false;
+  o.tipos = consLista4(o.tipos, 12, 40); if (!o.tipos.length) o.tipos = CO_DEF.tipos.slice();
+  o.salones = consLista4(o.salones, 8, 60); if (!o.salones.length) o.salones = CO_DEF.salones.slice();
+  o.meses = [6, 12, 18, 24, 36].indexOf(+o.meses) >= 0 ? +o.meses : 12;
+  o.intro = porTexto(o.intro, 600); o.avisar = porTexto(o.avisar, 400); o.respuestaTxt = String(o.respuestaTxt || "").slice(0, 1500);
+  return o;
+}
+function consEmails(txt) { const out = []; String(txt || "").split(/[\s,;]+/).forEach((x) => { if (corEmailOk(x)) out.push(x.trim().toLowerCase()); }); return out.filter((v, i, a) => a.indexOf(v) === i); }
+async function consIp(request, env) {
+  const ip = String(request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "local").split(",")[0].trim();
+  return (await hmac(await secret(env), "ip|" + ip)).slice(0, 22);
+}
+async function consLimite(env, ip, kind, max, ventana) {
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM consulta_lim WHERE ip=?1 AND kind=?2 AND ts>?3").bind(ip, kind, Date.now() - ventana).first();
+  return !!(n && n.n >= max);
+}
+async function consTok(env) { const ts = Date.now().toString(36), nonce = randomHex(6); return ts + "." + nonce + "." + (await hmac(await secret(env), "consulta|" + ts + "|" + nonce)).slice(0, 24); }
+async function consTokOk(env, t) {
+  const p = String(t || "").split("."); if (p.length !== 3) return "invalid";
+  const esperado = (await hmac(await secret(env), "consulta|" + p[0] + "|" + p[1])).slice(0, 24); if (esperado !== p[2]) return "invalid";
+  const edad = Date.now() - parseInt(p[0], 36); if (!(edad >= 0)) return "invalid";
+  if (edad < 3000) return "rapido"; if (edad > 3 * 3600e3) return "caducado"; return "ok";
+}
+/* el local de una celebración, igual que en la Previsión de la app */
+function consLocal(esp) { const n = normTxt(esp || ""); if (!n) return "sin"; if (/vinyes/.test(n)) return "vinyes"; if (/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if (/moles/.test(n)) return "moles"; return "fuera"; }
+/* un día en cada local: libre · provisional (hay algo sin confirmar) · ocupada */
+function consDispDoc(doc, iso) {
+  const r = { moles: "libre", vinyes: "libre", fuera: "libre" }, peso = { libre: 0, provisional: 1, ocupada: 2 };
+  const sube = (l, est) => { if (peso[est] > peso[r[l]]) r[l] = est; };
+  const pon = (l, est) => { if (l === "sin") { sube("moles", "provisional"); sube("vinyes", "provisional"); } else sube(l, est); };
+  const filas = ((doc.prevision || {}).filas || []).filter((f) => f && !f.borrado && f.fecha === iso && f.estado !== "descartado");
+  const enl = {}; filas.forEach((f) => { if (f.evento) enl[f.evento] = 1; pon(consLocal(f.espacio), f.estado === "confirmado" ? "ocupada" : "provisional"); });
+  (doc.events || []).forEach((e) => {
+    if (!e || e.anonimizado || !e.ficha || e.ficha.fecha !== iso || enl[e.id] || e.prevId) return;
+    pon(consLocal(e.ficha.ubicacion), ["contacto", "propuesta", "visita"].indexOf(e.ficha.estado) >= 0 ? "provisional" : "ocupada");
+  });
+  return r;
+}
+async function consForm(request, env) {
+  await ensureConsultas(env);
+  const c = await consCfg(env), doc = await corDoc(env), pt = (((doc.params || {}).sec || {}).portal || {}).data || {};
+  const base = { tel: porTexto(pt.tel, 40), mail: porTexto(pt.mail, 120) };
+  if (!c.on) return json(Object.assign({ on: false }, base));
+  let priv = null; try { const p = await privCfg(env); priv = { responsable: p.responsable, nif: p.nif, direccion: p.direccion, email: p.email, meses: c.meses, v: PRIV_V }; } catch (_) {}
+  return json(Object.assign({ on: true, intro: c.intro, tipos: c.tipos, salones: c.salones, disp: c.disp, token: await consTok(env), turnstile: (env.TURNSTILE_SITEKEY && env.TURNSTILE_SECRET) ? String(env.TURNSTILE_SITEKEY) : "", priv, hoy: hoyISO() }, base));
+}
+async function consDispRoute(request, env, url) {
+  await ensureConsultas(env);
+  const c = await consCfg(env); if (!c.on || !c.disp) return json({ error: "off" }, 404);
+  const f = String(url.searchParams.get("fecha") || "");
+  const tope = new Date(Date.now() + 1100 * 864e5).toISOString().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f) || f < hoyISO() || f > tope) return json({ error: "invalid", message: "Elige una fecha futura." }, 400);
+  const ip = await consIp(request, env);
+  if (await consLimite(env, ip, "disp", 60, 3600e3)) return json({ error: "limit" }, 429);
+  await env.DB.prepare("INSERT INTO consulta_lim (ip, kind, ts) VALUES (?1, 'disp', ?2)").bind(ip, Date.now()).run();
+  const D = consDispDoc(await corDoc(env), f);
+  return json({ fecha: f, locales: [{ k: "moles", t: "Les Moles", e: D.moles }, { k: "vinyes", t: "Les Vinyes del Convent", e: D.vinyes }] });
+}
+async function consDestinos(env, c) {
+  const l = consEmails(c.avisar); if (l.length) return l;
+  await ensureUsers(env);
+  const { results } = await env.DB.prepare("SELECT email FROM users WHERE role IN ('admin','eventos') AND COALESCE(active,1)=1").all();
+  return (results || []).map((r) => String(r.email || "").toLowerCase()).filter((x, i, a) => corEmailOk(x) && a.indexOf(x) === i);
+}
+async function consPurga(env) {
+  const c = await consCfg(env), ahora = Date.now();
+  await env.DB.prepare("DELETE FROM consultas WHERE ts<?1").bind(ahora - c.meses * 30.44 * 864e5).run();
+  await env.DB.prepare("UPDATE consultas SET ip=NULL WHERE ts<?1 AND ip IS NOT NULL").bind(ahora - 2 * 864e5).run();
+  await env.DB.prepare("DELETE FROM consulta_lim WHERE ts<?1").bind(ahora - 2 * 864e5).run();
+}
+/* POST /api/consulta — público */
+async function consNueva(request, env) {
+  await ensureConsultas(env);
+  const c = await consCfg(env);
+  if (!c.on) return json({ error: "off", message: "Ahora mismo no recibimos consultas por aquí." }, 403);
+  if ((+request.headers.get("content-length") || 0) > 40000) return json({ error: "too-big", message: "El formulario es demasiado grande." }, 413);
+  const b = await body(request);
+  if (b.web) return json({ ok: true });   /* campo trampa: solo lo rellenan los robots; se hace como si hubiera ido bien */
+  const t = await consTokOk(env, b.t);
+  if (t === "invalid" || t === "caducado") return json({ error: "token", message: "La página ha caducado. Recárgala y vuelve a enviar el formulario." }, 400);
+  if (t === "rapido") return json({ error: "rapido", message: "Lo has enviado demasiado rápido. Espera un momento y vuelve a pulsar «Enviar»." }, 429);
+  const ip = await consIp(request, env);
+  if (await consLimite(env, ip, "envio", 4, 3600e3) || await consLimite(env, ip, "envio", 10, 864e5)) return json({ error: "limit", message: "Has enviado varias consultas seguidas. Si es urgente, llámanos." }, 429);
+  const glob = await env.DB.prepare("SELECT COUNT(*) AS n FROM consultas WHERE ts>?1").bind(Date.now() - 864e5).first();
+  if (glob && glob.n >= 80) return json({ error: "limit", message: "Hoy hemos recibido muchas consultas. Llámanos o escríbenos por correo." }, 429);
+  if (env.TURNSTILE_SECRET) {
+    let okc = false;
+    try {
+      const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "secret=" + encodeURIComponent(String(env.TURNSTILE_SECRET)) + "&response=" + encodeURIComponent(String(b.cf || "")) });
+      const j = await r.json(); okc = !!(j && j.success);
+    } catch (_) { okc = false; }
+    if (!okc) return json({ error: "captcha", message: "No hemos podido comprobar que eres una persona. Recarga la página e inténtalo otra vez." }, 400);
+  }
+  const nombre = porTexto(b.nombre, 80), email = porTexto(b.email, 120).toLowerCase(), tel = porTexto(b.tel, 30), tipo = porTexto(b.tipo, 40), salon = porTexto(b.salon, 60);
+  const mensaje = porTexto(b.mensaje, 1500), fechaTxt = porTexto(b.fechaTxt, 60);
+  let fecha = String(b.fecha || ""); if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || fecha < hoyISO()) fecha = "";
+  let pax = Math.floor(+b.pax || 0); if (!(pax >= 1 && pax <= 3000)) pax = 0;
+  if (nombre.length < 2) return json({ error: "invalid", message: "Escribe tu nombre." }, 400);
+  if (email && !corEmailOk(email)) return json({ error: "invalid", message: "El correo no parece válido." }, 400);
+  if (!email && tel.replace(/\D/g, "").length < 6) return json({ error: "invalid", message: "Dinos cómo contactarte: un correo o un teléfono." }, 400);
+  if (!b.consent) return json({ error: "invalid", message: "Marca la casilla de privacidad para poder enviarlo." }, 400);
+  if ((mensaje.match(/https?:\/\/|www\./gi) || []).length > 2) return json({ error: "spam", message: "El mensaje lleva demasiados enlaces." }, 400);
+  const ahora = Date.now();
+  const r = await env.DB.prepare("INSERT INTO consultas (ts, nombre, email, tel, tipo, fecha, fecha_txt, pax, salon, mensaje, estado, leida, consent_ts, consent_v, ip) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,'nueva',0,?1,?11,?12)")
+    .bind(ahora, nombre, email, tel, tipo, fecha, fechaTxt, pax || null, salon, mensaje, PRIV_V, ip).run();
+  const id = (r.meta && r.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM consultas").first()).id;
+  await env.DB.prepare("INSERT INTO consulta_lim (ip, kind, ts) VALUES (?1, 'envio', ?2)").bind(ip, ahora).run();
+  try { if (Math.random() < 0.1) await consPurga(env); } catch (_) {}
+  /* avisos: al equipo y, si se quiere, acuse de recibo a quien ha escrito (si falla el correo, la consulta ya está guardada) */
+  try {
+    const L = ["Nueva consulta desde la web", "", "Nombre: " + nombre, "Correo: " + (email || "—"), "Teléfono: " + (tel || "—"), "Celebración: " + (tipo || "—"), "Fecha: " + (fecha || fechaTxt || "—"), "Invitados: " + (pax || "—"), "Salón: " + (salon || "—"), "", mensaje || "(sin mensaje)", "", "Contéstala desde la app: Previsión → Consultas web."];
+    for (const d of await consDestinos(env, c)) await correoEnviar(env, { kind: "consulta", to: d, subject: "Nueva consulta: " + nombre + (tipo ? " · " + tipo : ""), text: L.join("\n"), ref: "cons-aviso:" + id + ":" + d, by: "Formulario web" });
+    if (c.respuesta && email) {
+      const txt = (c.respuestaTxt || CO_RESP_DEF).replace(/\{nombre\}/g, nombre.split(" ")[0]).replace(/\{tipo\}/g, (tipo || "tu celebración").toLowerCase());
+      await correoEnviar(env, { kind: "consulta", to: email, subject: "Hemos recibido tu consulta", text: txt, ref: "cons-resp:" + id, by: "Formulario web" });
+    }
+  } catch (_) {}
+  return json({ ok: true });
+}
+/* ── el lado del equipo ── */
+async function consEquipo(request, env) {
+  const s = await session(request, env);
+  if (!s) return { err: json({ error: "unauth" }, 401) };
+  if (s.role !== "admin" && s.role !== "eventos") return { err: json({ error: "forbidden", message: "Tu rol no puede ver las consultas." }, 403) };
+  return { s };
+}
+function consFila(r) { return { id: r.id, ts: +r.ts, nombre: r.nombre, email: r.email || "", tel: r.tel || "", tipo: r.tipo || "", fecha: r.fecha || "", fechaTxt: r.fecha_txt || "", pax: r.pax || 0, salon: r.salon || "", mensaje: r.mensaje || "", estado: r.estado, nota: r.nota || "", leida: !!r.leida, prevId: r.prev_id || "", evId: r.ev_id || "" }; }
+async function consLista(request, env, url) {
+  const a = await consEquipo(request, env); if (a.err) return a.err;
+  await ensureConsultas(env);
+  if (Math.random() < 0.05) { try { await consPurga(env); } catch (_) {} }
+  const nuevas = await env.DB.prepare("SELECT COUNT(*) AS n, MAX(ts) AS ts FROM consultas WHERE leida=0").first();
+  if (url.searchParams.get("resumen")) return json({ nuevas: (nuevas && nuevas.n) || 0, ts: (nuevas && +nuevas.ts) || 0 });
+  const { results } = await env.DB.prepare("SELECT * FROM consultas ORDER BY id DESC LIMIT 300").all();
+  const c = await consCfg(env);
+  return json({ consultas: (results || []).map(consFila), nuevas: (nuevas && nuevas.n) || 0, on: c.on, meses: c.meses });
+}
+async function consAccion(request, env) {
+  const a = await consEquipo(request, env); if (a.err) return a.err;
+  await ensureConsultas(env);
+  const b = await body(request), id = Math.floor(+b.id || 0), fila = await env.DB.prepare("SELECT * FROM consultas WHERE id=?1").bind(id).first();
+  if (!fila) return json({ error: "not-found" }, 404);
+  const ac = String(b.accion || "");
+  if (ac === "leida") await env.DB.prepare("UPDATE consultas SET leida=1 WHERE id=?1").bind(id).run();
+  else if (ac === "estado") { if (CO_ESTADOS.indexOf(b.estado) < 0) return json({ error: "invalid" }, 400); await env.DB.prepare("UPDATE consultas SET estado=?1, leida=1 WHERE id=?2").bind(b.estado, id).run(); }
+  else if (ac === "nota") await env.DB.prepare("UPDATE consultas SET nota=?1 WHERE id=?2").bind(porTexto(b.nota, 800), id).run();
+  else if (ac === "prev") await env.DB.prepare("UPDATE consultas SET prev_id=?1, estado=CASE WHEN estado IN ('nueva','contactada','visita') THEN 'prevision' ELSE estado END, leida=1 WHERE id=?2").bind(porTexto(b.prevId, 80), id).run();
+  else if (ac === "ev") await env.DB.prepare("UPDATE consultas SET ev_id=?1, prev_id=COALESCE(NULLIF(?2,''),prev_id), estado='prevision', leida=1 WHERE id=?3").bind(porTexto(b.evId, 80), porTexto(b.prevId, 80), id).run();
+  else if (ac === "borrar") { await env.DB.prepare("DELETE FROM consultas WHERE id=?1").bind(id).run(); await logAct(env, a.s, "consulta_borrada", "Consulta de " + String(fila.nombre).slice(0, 60)); return json({ ok: true, borrada: true }); }
+  else return json({ error: "invalid" }, 400);
+  const n = await env.DB.prepare("SELECT * FROM consultas WHERE id=?1").bind(id).first();
+  const nuevas = await env.DB.prepare("SELECT COUNT(*) AS n FROM consultas WHERE leida=0").first();
+  return json({ ok: true, consulta: consFila(n), nuevas: (nuevas && nuevas.n) || 0 });
+}
+async function consCfgGet(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureConsultas(env);
+  return json({ cfg: await consCfg(env), turnstile: !!(env.TURNSTILE_SITEKEY && env.TURNSTILE_SECRET), defaults: { respuestaTxt: CO_RESP_DEF } });
+}
+async function consCfgPut(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureConsultas(env);
+  const b = await body(request), ant = await consCfg(env), nv = Object.assign({}, ant);
+  if (b.on !== undefined) nv.on = !!b.on; if (b.disp !== undefined) nv.disp = !!b.disp; if (b.respuesta !== undefined) nv.respuesta = !!b.respuesta;
+  if (b.intro !== undefined) nv.intro = porTexto(b.intro, 600);
+  if (b.tipos !== undefined) { nv.tipos = consLista4(b.tipos, 12, 40); if (!nv.tipos.length) return json({ error: "invalid", message: "Pon al menos un tipo de celebración." }, 400); }
+  if (b.salones !== undefined) { nv.salones = consLista4(b.salones, 8, 60); if (!nv.salones.length) return json({ error: "invalid", message: "Pon al menos una opción de salón." }, 400); }
+  if (b.avisar !== undefined) { const m = String(b.avisar || "").split(/[\s,;]+/).filter(Boolean); if (m.some((x) => !corEmailOk(x))) return json({ error: "invalid", message: "Algún correo de la lista de avisos no es válido." }, 400); nv.avisar = m.join(", "); }
+  if (b.respuestaTxt !== undefined) nv.respuestaTxt = String(b.respuestaTxt || "").slice(0, 1500);
+  if (b.meses !== undefined) { if ([6, 12, 18, 24, 36].indexOf(+b.meses) < 0) return json({ error: "invalid", message: "Plazo no válido." }, 400); nv.meses = +b.meses; }
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('consultas', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(nv)).run();
+  await logAct(env, a.s, "consultas_ajustes", "Consultas web: " + (nv.on ? "activadas" : "apagadas") + (nv.disp ? " · con disponibilidad" : ""));
+  return json({ ok: true, cfg: await consCfg(env) });
 }
 
 /* ── PLANOS DE FONDO COMPARTIDOS ───────────────────────────────────────────
