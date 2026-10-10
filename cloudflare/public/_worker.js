@@ -40,6 +40,14 @@
  *   GET  /api/planos/ver?k=..   un plano de fondo con su imagen (con sesión)
  *   PUT  /api/planos            {k,w,h,src} sube o cambia un plano de fondo (admin, eventos y servicio)
  *   DELETE /api/planos?k=..     quita un plano de fondo (admin, eventos y servicio)
+ *   GET  /api/health            ¿vivo? (público, sin datos; para un vigilante externo tipo UptimeRobot)
+ *   POST /api/error             {msg,src?,v?} la app avisa de un error que le ha saltado (con sesión)
+ *   GET  /api/estado            estado del sistema: último guardado, copias, tamaño del documento, errores (solo admin)
+ *   DELETE /api/estado?errores=1 vacía el registro de errores (solo admin)
+ *   GET  /api/privacidad        responsable, plazo de conservación y eventos que ya lo han pasado (solo admin)
+ *   PUT  /api/privacidad        {responsable,nif,direccion,email,meses,auto} (solo admin)
+ *   POST /api/privacidad/anonimizar {ids:[…],forzar?} quita nombres, contactos y alergias de eventos pasados (solo admin)
+ *   POST /api/privacidad/persona    {q, borrar?} busca a una persona en todos los eventos / la quita (solo admin)
  *
  * Todo lo demás se sirve como asset estático (la app).
  */
@@ -57,6 +65,7 @@ export default {
       try {
         return await api(request, env, url);
       } catch (err) {
+        await logError(env, "servidor", url.pathname + " (" + request.method + ")", String(err && err.message || err), null);
         return json({ error: "server", detail: String(err && err.message || err) }, 500);
       }
     }
@@ -65,6 +74,14 @@ export default {
     // quedarse con copias) sigue usando una versión vieja tras publicar.
     const res = await env.ASSETS.fetch(request);
     const ct = res.headers.get("Content-Type") || "";
+    /* la app instalable: el service worker y el manifiesto se revisan siempre (si no, una versión vieja se queda pegada) */
+    if (url.pathname === "/sw.js" || url.pathname === "/manifest.webmanifest") {
+      const o = new Response(res.body, res);
+      o.headers.set("Cache-Control", "no-cache");
+      if (url.pathname === "/sw.js") { o.headers.set("Content-Type", "application/javascript; charset=utf-8"); o.headers.set("Service-Worker-Allowed", "/"); }
+      else o.headers.set("Content-Type", "application/manifest+json; charset=utf-8");
+      return o;
+    }
     if (ct.indexOf("text/html") === -1) return res;
     const out = new Response(res.body, res);
     out.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -100,6 +117,14 @@ async function api(request, env, url) {
   if (p === "/api/historial" && m === "GET") return hiList(request, env, url);
   if (p === "/api/historial/ver" && m === "GET") return hiVer(request, env, url);
   if (p === "/api/historial/restaurar" && m === "POST") return hiRestaurar(request, env);
+  if (p === "/api/health" && m === "GET") return healthRoute(env);
+  if (p === "/api/error" && m === "POST") return errorPost(request, env);
+  if (p === "/api/estado" && m === "GET") return estadoRoute(request, env);
+  if (p === "/api/estado" && m === "DELETE") return estadoLimpiar(request, env);
+  if (p === "/api/privacidad" && m === "GET") return privGet(request, env);
+  if (p === "/api/privacidad" && m === "PUT") return privPut(request, env);
+  if (p === "/api/privacidad/anonimizar" && m === "POST") return privAnonimizar(request, env);
+  if (p === "/api/privacidad/persona" && m === "POST") return privPersona(request, env);
   if (p === "/api/planos" && m === "GET") return planosList(request, env);
   if (p === "/api/planos/ver" && m === "GET") return planosVer(request, env, url);
   if (p === "/api/planos" && m === "PUT") return planosPut(request, env);
@@ -241,7 +266,9 @@ async function shareRoute(request, env, url) {
     const r = await env.DB.prepare("SELECT data, estado, enviada, updated, revisada FROM novios_listas WHERE token=?").bind(token).first();
     if (r) { let d = null; try { d = JSON.parse(r.data); } catch (_) {} lista = { data: d, estado: r.estado, enviada: r.enviada, updated: r.updated, revisada: r.revisada }; }
   } catch (_) {}
-  return json({ event: pub, portal: (ev.share && ev.share.portal) || null, lista, editable: tokenFuerte(token), hoy: hoyISO() });
+  let priv = null;
+  try { const c = await privCfg(env); priv = { responsable: c.responsable, nif: c.nif, direccion: c.direccion, email: c.email, meses: c.meses, v: PRIV_V }; } catch (_) {}
+  return json({ event: pub, portal: (ev.share && ev.share.portal) || null, lista, editable: tokenFuerte(token), hoy: hoyISO(), priv });
 }
 
 /* limpieza de lo que escriben: sin saltos de línea ni los signos que usa el
@@ -279,7 +306,14 @@ async function sharePost(request, env, url) {
   if (!data) return json({ error: "too-big", message: "Demasiadas personas en la lista." }, 413);
   const enviar = !!(b && b.enviar), now = Date.now();
   await ensureNovios(env);
-  const prev = await env.DB.prepare("SELECT estado, enviada, base FROM novios_listas WHERE token=?").bind(token).first();
+  const prev = await env.DB.prepare("SELECT estado, enviada, base, data FROM novios_listas WHERE token=?").bind(token).first();
+  /* las alergias son datos de salud: solo se guardan si quien rellena la lista ha aceptado el tratamiento (queda apuntado cuándo y con qué versión del aviso) */
+  let consent = null;
+  try { const pd = prev && prev.data ? JSON.parse(prev.data) : null; if (pd && pd.consent && pd.consent.v === PRIV_V) consent = pd.consent; } catch (_) {}
+  if (b && b.consent === true && !consent) consent = { ts: now, v: PRIV_V };
+  const conAlergias = data.mesas.some((m) => m.g.some((x) => x.a));
+  if (PRIV_EXIGIR && conAlergias && !consent) return json({ error: "consent", message: "Para guardar alergias o dietas hay que aceptar el tratamiento de esos datos (casilla de privacidad)." }, 400);
+  if (consent) data.consent = consent;
   /* la base es de lo que partieron: mientras editan (borrador/enviada) se
      conserva; si el equipo ya la pasó al plano, es lo aplicado, salvo que
      acaben de abrir el portal (nuevo): entonces es lo que vieron al abrirlo */
@@ -411,12 +445,324 @@ async function storePut(request, env) {
     const ch = r && r.meta && r.meta.changes != null ? r.meta.changes : 1;
     /* otros = alguien había guardado algo que este navegador aún no tenía */
     if (ch > 0) {
-      try { await hiTrasGuardar(env, s, prev, merged); } catch (_) {}
-      try { await bkTrasGuardar(env, s, row, prev, merged); } catch (_) {}
+      try { await hiTrasGuardar(env, s, prev, merged); } catch (e1) { await logError(env, "servidor", "historial al guardar", String(e1 && e1.message || e1), s); }
+      try { await bkTrasGuardar(env, s, row, prev, merged); } catch (e2) { await logError(env, "servidor", "copia automática al guardar", String(e2 && e2.message || e2), s); }
       return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes) });
     }
   }
   return json({ error: "busy", message: "Muchos guardados a la vez; se reintentará." }, 409);
+}
+
+/* ── ERRORES Y SALUD DEL SISTEMA ────────────────────────────────────────────
+   Todo error del servidor (y los que avisa la propia app) se apunta aquí para
+   enterarse antes de que lo note un camarero. /api/health es para un vigilante
+   externo; /api/estado, la pantalla del administrador. */
+let ER_OK = false;
+async function ensureErrores(env) {
+  if (ER_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS errores (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, origen TEXT NOT NULL, donde TEXT, msg TEXT, uid TEXT, name TEXT)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS errores_ts ON errores (ts)").run();
+  ER_OK = true;
+}
+/* nunca debe hacer fallar lo que se estaba haciendo */
+async function logError(env, origen, donde, msg, s) {
+  try {
+    await ensureErrores(env);
+    const ahora = Date.now();
+    await env.DB.prepare("INSERT INTO errores (ts, origen, donde, msg, uid, name) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")
+      .bind(ahora, origen, String(donde || "").slice(0, 160), String(msg || "").slice(0, 400), (s && s.uid) || "", (s && (s.name || s.email)) || "").run();
+    if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM errores WHERE ts < ?1 OR id NOT IN (SELECT id FROM errores ORDER BY id DESC LIMIT 500)").bind(ahora - 60 * 864e5).run();
+  } catch (_) {}
+}
+async function healthRoute(env) {
+  let dbOk = false;
+  try { const r = await env.DB.prepare("SELECT 1 AS x").first(); dbOk = !!(r && r.x === 1); } catch (_) {}
+  return json({ ok: dbOk, ts: Date.now() }, dbOk ? 200 : 503, { "Cache-Control": "no-store" });
+}
+async function errorPost(request, env) {
+  const s = await session(request, env);
+  if (!s) return json({ error: "unauth" }, 401);
+  await ensureErrores(env);
+  const b = await body(request), msg = String(b.msg || "").slice(0, 400);
+  if (!msg) return json({ error: "invalid" }, 400);
+  /* como mucho 30 avisos por minuto en total: un fallo en bucle no llena la base de datos */
+  const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM errores WHERE origen='app' AND ts>?1").bind(Date.now() - 60e3).first();
+  if (r && r.n >= 30) return json({ ok: true, limitado: true });
+  await logError(env, "app", String(b.src || "").slice(0, 80) + (b.v ? " · v" + String(b.v).slice(0, 10) : ""), msg, s);
+  return json({ ok: true });
+}
+const DOC_LIMITE = 2000000;
+async function estadoRoute(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureUsers(env); await ensureBackups(env); await ensureHistorial(env); await ensurePlanos(env); await ensureErrores(env); await ensureNovios(env);
+  const ahora = Date.now(), q = async (sql, ...p) => { try { return await env.DB.prepare(sql).bind(...p).first(); } catch (_) { return null; } };
+  const st = await q("SELECT updated, LENGTH(CAST(data AS BLOB)) AS bytes FROM store WHERE id=1");
+  let eventos = 0, anon = 0;
+  try { const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); const d = JSON.parse((row && row.data) || "{}"); (d.events || []).forEach((e) => { eventos++; if (e && e.anonimizado) anon++; }); } catch (_) {}
+  const bk = await q("SELECT COUNT(*) AS n, MAX(ts) AS ult, COALESCE(SUM(bytes),0) AS b FROM backups");
+  const bkAuto = await q("SELECT MAX(ts) AS ult FROM backups WHERE kind='auto'");
+  const hi = await q("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(gz)),0) AS b FROM historial");
+  const pa = await q("SELECT COUNT(*) AS n FROM papelera");
+  const pl = await q("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(src)),0) AS b FROM planos WHERE del=0");
+  const us = await q("SELECT COUNT(*) AS n, SUM(CASE WHEN COALESCE(active,1)=1 THEN 1 ELSE 0 END) AS act FROM users");
+  const nv = await q("SELECT COUNT(*) AS n, SUM(CASE WHEN estado IN ('borrador','enviada') THEN 1 ELSE 0 END) AS pen FROM novios_listas");
+  const eh = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 3600e3);
+  const ed = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 864e5);
+  const et = await q("SELECT COUNT(*) AS n FROM errores");
+  const { results } = await env.DB.prepare("SELECT ts, origen, donde, msg, name FROM errores ORDER BY id DESC LIMIT 25").all();
+  const ult = st ? +st.updated : 0, bytes = st ? +st.bytes : 0, pct = Math.round(bytes / DOC_LIMITE * 100);
+  const avisos = [];
+  const add = (nivel, txt, ayuda) => avisos.push({ nivel, txt, ayuda: ayuda || "" });
+  if (pct >= 90) add("mal", "El documento de eventos ocupa el " + pct + " % del límite de la base de datos.", "Hay que pasar a guardar cada evento por separado antes de que deje de guardar. Avisa a quien lleva la herramienta.");
+  else if (pct >= 70) add("aviso", "El documento de eventos ocupa el " + pct + " % del límite de la base de datos (" + Math.round(bytes / 1024) + " KB de " + Math.round(DOC_LIMITE / 1024) + " KB).", "Aún hay margen. Conviene anonimizar eventos antiguos (Parámetros → Privacidad) y planificar guardar cada evento por separado.");
+  if (!bkAuto || !bkAuto.ult) add("aviso", "Todavía no hay ninguna copia automática.", "Se hace sola al guardar cambios; si sigue sin salir, avisa.");
+  else if (ult && ult - bkAuto.ult > 36 * 3600e3 && ahora - ult < 36 * 3600e3) add("aviso", "La última copia automática tiene más de un día y se ha trabajado desde entonces.", "Haz una copia ahora en Parámetros → Copias de seguridad.");
+  if (eh && eh.n > 0) add("mal", eh.n + (eh.n === 1 ? " error en la última hora." : " errores en la última hora."), "Mira el detalle más abajo; si se repite, envíalo a quien lleva la herramienta.");
+  else if (ed && ed.n > 0) add("aviso", ed.n + (ed.n === 1 ? " error en las últimas 24 horas." : " errores en las últimas 24 horas."), "");
+  if (!avisos.length) add("ok", "Todo en orden: sin errores recientes, con copias al día y espacio de sobra.", "");
+  return json({
+    ahora,
+    doc: { bytes, limite: DOC_LIMITE, pct, eventos, anonimizados: anon, ultimoGuardado: ult },
+    copias: { n: bk ? bk.n : 0, ultima: bk ? bk.ult : null, ultimaAuto: bkAuto ? bkAuto.ult : null, bytes: bk ? bk.b : 0 },
+    historial: { filas: hi ? hi.n : 0, bytes: hi ? hi.b : 0 }, papelera: pa ? pa.n : 0,
+    planos: { n: pl ? pl.n : 0, bytes: pl ? pl.b : 0 },
+    usuarios: { total: us ? us.n : 0, activos: us ? us.act : 0 },
+    listasCliente: { total: nv ? nv.n : 0, pendientes: nv ? nv.pen : 0 },
+    errores: { ultimaHora: eh ? eh.n : 0, hoy: ed ? ed.n : 0, total: et ? et.n : 0, recientes: (results || []).map((r) => ({ ts: +r.ts, origen: r.origen, donde: r.donde || "", msg: r.msg || "", name: r.name || "" })) },
+    avisos
+  });
+}
+async function estadoLimpiar(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureErrores(env);
+  await env.DB.prepare("DELETE FROM errores").run();
+  await logAct(env, a.s, "errores_vaciados", "Se vació el registro de errores");
+  return json({ ok: true });
+}
+
+/* ── PRIVACIDAD Y DATOS PERSONALES (RGPD) ────────────────────────────────────
+   · Responsable del tratamiento y plazo de conservación (los pone el administrador).
+   · Anonimizar eventos pasados el plazo: fuera nombres de invitados y del cliente,
+     contactos, alergias y comunicaciones; quedan cifras (mesas, personas por tipo,
+     importes) para estadísticas. También se borran su historial, papelera, listas
+     del cliente y planos propios. Las copias de seguridad automáticas se renuevan
+     solas (como mucho ~3 meses); las manuales las borra el administrador.
+   · Derecho de acceso/supresión: buscar a una persona en todos los eventos y quitarla. */
+const PRIV_V = 1;
+/* se exige la casilla de consentimiento para guardar alergias en el portal del cliente (la app del portal ya la trae) */
+const PRIV_EXIGIR = false;
+const PRIV_DEF = { responsable: "", nif: "", direccion: "", email: "", meses: 12, auto: false };
+const PRIV_MESES = [6, 12, 18, 24, 36, 60];
+async function privCfg(env) {
+  await ensureUsers(env);
+  const r = await env.DB.prepare("SELECT v FROM meta WHERE k='privacidad'").first();
+  let c = {}; try { c = r ? JSON.parse(r.v) || {} : {}; } catch (_) {}
+  const o = Object.assign({}, PRIV_DEF, c);
+  if (PRIV_MESES.indexOf(+o.meses) < 0) o.meses = PRIV_DEF.meses;
+  o.meses = +o.meses; o.auto = !!o.auto;
+  return o;
+}
+function mesesDesde(fechaISO, ahora) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fechaISO || ""); if (!m) return null;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])), n = new Date(ahora);
+  return (n.getUTCFullYear() - d.getUTCFullYear()) * 12 + (n.getUTCMonth() - d.getUTCMonth()) - (n.getUTCDate() < d.getUTCDate() ? 1 : 0);
+}
+function elegibles(doc, meses, ahora) {
+  return (doc.events || []).filter((e) => e && e.id && !e.anonimizado && e.ficha && e.ficha.fecha && mesesDesde(e.ficha.fecha, ahora) >= meses)
+    .map((e) => ({ id: e.id, name: e.name || "", fecha: e.ficha.fecha, meses: mesesDesde(e.ficha.fecha, ahora) }))
+    .sort((a, b) => (a.fecha < b.fecha ? -1 : 1));
+}
+async function privGet(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  const cfg = await privCfg(env), ahora = Date.now();
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
+  let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {}
+  const u = await env.DB.prepare("SELECT v FROM meta WHERE k='priv_ultima'").first(); let ultima = null; try { ultima = u ? JSON.parse(u.v) : null; } catch (_) {}
+  return json({ cfg, v: PRIV_V, elegibles: elegibles(doc, cfg.meses, ahora), anonimizados: (doc.events || []).filter((e) => e && e.anonimizado).length, eventos: (doc.events || []).length, ultima });
+}
+async function privPut(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  await ensureUsers(env);
+  const b = await body(request), t = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+  const meses = +b.meses;
+  if (PRIV_MESES.indexOf(meses) < 0) return json({ error: "invalid", message: "Plazo no válido." }, 400);
+  const email = t(b.email, 120);
+  if (email && !validEmail(email.toLowerCase())) return json({ error: "invalid", message: "El correo de privacidad no es válido." }, 400);
+  const cfg = { responsable: t(b.responsable, 140), nif: t(b.nif, 30), direccion: t(b.direccion, 200), email, meses, auto: !!b.auto };
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('privacidad', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(cfg)).run();
+  await logAct(env, a.s, "privacidad", "Plazo de conservación: " + meses + " meses" + (cfg.auto ? " · anonimizar sola" : ""));
+  return json({ ok: true, cfg });
+}
+/* fuera datos personales de un evento (el resto de cifras se queda) */
+function anonTexto(text) {
+  let mesas = 0, n = 0;
+  return String(text || "").split(/\r?\n/).map((ln) => {
+    const t = ln.trim();
+    if (!t) return "";
+    if (/^#/.test(t)) return "# EVENTO ANONIMIZADO";
+    if (/^@/.test(t)) return ln;
+    if (/^\/\//.test(t)) return "";
+    const h = isHeader(t);
+    if (h) {
+      mesas++; const r = normTxt(h.rest || ""), f = r.match(SHAPE_RX);
+      return "MESA " + mesas + (/(\bstaff\b|personal)/.test(r) ? " | Staff" : f ? " | " + f[1] : "");
+    }
+    const tags = [...t.matchAll(/[\(\[]([^\)\]]*)[\)\]]/g)].map((m) => normTxt(m[1])).join(" ");
+    const kind = /(trona|bebe|baby)/.test(tags) ? "(trona)" : /(nin[oa]|nen[ao]?|child|kid|infantil)/.test(tags) ? "(niño)" : /(staff|personal)/.test(tags) ? "(staff)" : "";
+    const k = peopleIn(t.replace(/^\s*[-–•]\s+/, "")), pers = [];
+    for (let i = 0; i < k; i++) { n++; pers.push("Invitado " + n + (kind && (k === 1 || i === k - 1) ? " " + kind : "")); }
+    return pers.join(" + ");
+  }).join("\n");
+}
+function anonEvento(e, ahora) {
+  const c = JSON.parse(JSON.stringify(e)), F = c.ficha = c.ficha || {};
+  const f = F.fecha ? F.fecha.split("-").reverse().join("/") : "";
+  c.name = "Evento anonimizado" + (f ? " · " + f : "");
+  c.text = anonTexto(c.text);
+  ["parejaA", "parejaB", "contacto", "telefono", "email", "origen", "comoNos", "notas", "foto"].forEach((k) => { if (F[k]) F[k] = ""; });
+  F.estado = "cerrada";
+  c.comunicaciones = []; c.docs = [];
+  if (c.menu) { delete c.menu.minuta; delete c.menu.aperAdapt; delete c.menu.alerOk; delete c.menu.aperitivosPorAlergia; }
+  c.share = { on: false, id: "" };
+  delete c.rev; delete c.avisos;
+  /* de cada pago solo queda la palabra genérica (Señal, Resto…): lo demás puede llevar un nombre */
+  if (c.presupuesto && Array.isArray(c.presupuesto.pagos)) c.presupuesto.pagos.forEach((x) => { if (!x) return; const m = /^(señal|senal|resto|anticipo|reserva)/i.exec(String(x.concepto || "")); x.concepto = m ? m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() : "Pago"; if (x.nota) x.nota = ""; });
+  c.anonimizado = { ts: ahora };
+  c.updated = Math.max(ahora, (+e.updated || 0) + 1);
+  kSellarTodo(c, c.updated, e);
+  return c;
+}
+async function privLimpiarTablas(env, ids, nombres) {
+  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env);
+  for (const id of ids) {
+    await env.DB.prepare("DELETE FROM historial WHERE event_id=?1").bind(String(id)).run();
+    await env.DB.prepare("DELETE FROM papelera WHERE event_id=?1").bind(String(id)).run();
+    await env.DB.prepare("DELETE FROM novios_listas WHERE event_id=?1").bind(String(id)).run();
+    await env.DB.prepare("DELETE FROM planos WHERE k LIKE ?1").bind("ev:" + String(id).replace(/[%_]/g, "") + ":%").run();
+  }
+  await ensureUsers(env);
+  for (const nm of nombres) { const n = String(nm || "").trim(); if (n.length >= 4) await env.DB.prepare("UPDATE actividad SET detalle='(evento anonimizado)' WHERE detalle LIKE ?1").bind("%" + n.replace(/[%_]/g, "") + "%").run(); }
+}
+async function anonimizarIds(env, ids, ahora, forzar, cfg) {
+  const out = { ids: [], nombres: [] };
+  const res = await storeEditar(env, (doc) => {
+    out.ids = []; out.nombres = [];
+    const ok = {}; elegibles(doc, cfg.meses, ahora).forEach((x) => { ok[x.id] = 1; });
+    const lista = Array.isArray(doc.events) ? doc.events : [];
+    doc.events = lista.map((e) => {
+      if (!e || !e.id || e.anonimizado || ids.indexOf(e.id) < 0 || !(ok[e.id] || forzar)) return e;
+      out.ids.push(e.id); out.nombres.push(e.name || ""); return anonEvento(e, ahora);
+    });
+    return { cambios: out.ids.length };
+  });
+  if (!res.ok) return { error: res.error || "busy" };
+  if (out.ids.length) await privLimpiarTablas(env, out.ids, out.nombres);
+  return out;
+}
+async function privAnonimizar(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  const b = await body(request), cfg = await privCfg(env), ahora = Date.now();
+  let ids = Array.isArray(b.ids) ? b.ids.map(String).slice(0, 500) : [];
+  if (b.todos) { const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {} ids = elegibles(doc, cfg.meses, ahora).map((x) => x.id); }
+  if (!ids.length) return json({ error: "invalid", message: "No hay eventos que anonimizar." }, 400);
+  const r = await anonimizarIds(env, ids, ahora, !!b.forzar, cfg);
+  if (r.error) return json({ error: r.error, message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
+  if (r.ids.length) {
+    await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('priv_ultima', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify({ ts: ahora, n: r.ids.length, auto: false })).run();
+    await logAct(env, a.s, "anonimizacion", r.ids.length + (r.ids.length === 1 ? " evento anonimizado" : " eventos anonimizados"));
+  }
+  return json({ ok: true, n: r.ids.length, ids: r.ids });
+}
+/* anonimización automática: como mucho una vez al día, solo si el administrador la ha activado */
+let PRIV_AUTO_T = 0;
+async function privAuto(env) {
+  const ahora = Date.now();
+  if (ahora - PRIV_AUTO_T < 3600e3) return; PRIV_AUTO_T = ahora;
+  const cfg = await privCfg(env); if (!cfg.auto) return;
+  const u = await env.DB.prepare("SELECT v FROM meta WHERE k='priv_ultima'").first(); let ult = null; try { ult = u ? JSON.parse(u.v) : null; } catch (_) {}
+  if (ult && ahora - ult.ts < 864e5) return;
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { return; }
+  const ids = elegibles(doc, cfg.meses, ahora).map((x) => x.id);
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('priv_ultima', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify({ ts: ahora, n: 0, auto: true })).run();
+  if (!ids.length) return;
+  const r = await anonimizarIds(env, ids, ahora, false, cfg);
+  if (r.ids && r.ids.length) {
+    await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('priv_ultima', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify({ ts: ahora, n: r.ids.length, auto: true })).run();
+    await logAct(env, { uid: "", name: "Automático" }, "anonimizacion", r.ids.length + " eventos anonimizados (plazo de " + cfg.meses + " meses)");
+  }
+}
+/* editar el documento con control de versión (como storePut, pero para cambios que hace el servidor) */
+async function storeEditar(env, fn) {
+  for (let i = 0; i < 6; i++) {
+    const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
+    if (!row) return { ok: true, r: null };
+    let doc = {}; try { doc = JSON.parse(row.data) || {}; } catch (_) { return { ok: false, error: "bad-doc" }; }
+    const antes = +row.updated || 0, r = fn(doc);
+    if (!r || !r.cambios) return { ok: true, r };
+    let v = Date.now(); if (v <= antes) v = antes + 1;
+    const ch = await env.DB.prepare("UPDATE store SET data=?1, updated=?2 WHERE id=1 AND updated=?3").bind(JSON.stringify(doc), v, antes).run();
+    const n = ch && ch.meta && ch.meta.changes != null ? ch.meta.changes : 1;
+    if (n > 0) return { ok: true, r, v };
+  }
+  return { ok: false, error: "busy" };
+}
+/* ── buscar y quitar a una persona (derechos de acceso y supresión) ── */
+function lineaPersonas(t) {
+  const out = []; let d = 0, cur = "";
+  for (const ch of t) { if (ch === "(" || ch === "[") d++; else if (ch === ")" || ch === "]") d--; if (d === 0 && (ch === "+" || ch === "&")) { out.push(cur); cur = ""; } else cur += ch; }
+  out.push(cur); return out;
+}
+function nombreDe(seg) { return seg.replace(/[\(\[][^\)\]]*[\)\]]/g, " ").replace(/^\s*[-–•]\s+/, "").replace(/\s+/g, " ").trim(); }
+const FICHA_PERS = ["parejaA", "parejaB", "contacto", "telefono", "email"];
+function buscarEnEvento(e, qn, borrar) {
+  const hit = { plano: 0, ficha: 0, otros: 0 };
+  const F = e.ficha || {};
+  const lines = String(e.text || "").split(/\r?\n/).map((ln) => {
+    const t = ln.trim();
+    if (!t || /^[#@]/.test(t) || /^\/\//.test(t) || isHeader(t)) return ln;
+    const segs = lineaPersonas(t); let tocado = false;
+    const nuevo = segs.map((sg) => { if (normTxt(nombreDe(sg)).indexOf(qn) >= 0) { hit.plano++; tocado = true; return " Persona anonimizada "; } return sg; });
+    return borrar && tocado ? nuevo.join("+").replace(/\s*\+\s*/g, " + ").trim() : ln;
+  });
+  FICHA_PERS.forEach((k) => { if (F[k] && normTxt(F[k]).indexOf(qn) >= 0) { hit.ficha++; if (borrar) F[k] = ""; } });
+  (e.comunicaciones || []).forEach((c) => { if (c && normTxt(JSON.stringify(c)).indexOf(qn) >= 0) { hit.otros++; if (borrar) { c.nota = "(borrado)"; c.texto = "(borrado)"; } } });
+  if (borrar && (hit.plano || hit.ficha || hit.otros)) { e.text = lines.join("\n"); if (hit.plano && e.menu) { delete e.menu.aperAdapt; delete e.menu.alerOk; } }
+  return hit;
+}
+async function privPersona(request, env) {
+  const a = await usersAdmin(request, env); if (a.err) return a.err;
+  const b = await body(request), q = String(b.q || "").trim(), qn = normTxt(q).replace(/\s+/g, " ");
+  if (qn.length < 3) return json({ error: "invalid", message: "Escribe al menos 3 letras del nombre." }, 400);
+  await ensureNovios(env);
+  const borrar = !!b.borrar, ahora = Date.now(), cuentas = [];
+  /* listas que han enviado los clientes */
+  const { results } = await env.DB.prepare("SELECT token, event_id, data FROM novios_listas").all();
+  const listas = {};
+  (results || []).forEach((r) => { let d = null; try { d = JSON.parse(r.data); } catch (_) {} if (!d) return; let n = 0;
+    (d.mesas || []).forEach((m) => (m.g || []).forEach((g) => { if (normTxt(g.n || "").indexOf(qn) >= 0) { n++; if (borrar) { g.n = "Persona anonimizada"; g.a = ""; } } }));
+    ["parejaA", "parejaB"].forEach((k) => { if (d[k] && normTxt(d[k]).indexOf(qn) >= 0) { n++; if (borrar) d[k] = ""; } });
+    if (n) listas[r.token] = { n, ev: r.event_id, data: d }; });
+  let tocados = [];
+  const res = await storeEditar(env, (doc) => {
+    cuentas.length = 0; tocados = [];
+    doc.events = (doc.events || []).map((e) => {
+      if (!e || !e.id || e.anonimizado) return e;
+      const c = borrar ? JSON.parse(JSON.stringify(e)) : JSON.parse(JSON.stringify(e)), h = buscarEnEvento(c, qn, borrar);
+      const total = h.plano + h.ficha + h.otros + Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0);
+      if (!total) return e;
+      cuentas.push({ id: e.id, name: e.name || "", fecha: (e.ficha && e.ficha.fecha) || "", plano: h.plano, ficha: h.ficha, otros: h.otros, lista: Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0) });
+      if (!borrar) return e;
+      c.updated = Math.max(ahora, (+e.updated || 0) + 1); kSellarTodo(c, c.updated, e); tocados.push(e.id); return c;
+    });
+    return { cambios: borrar && tocados.length ? 1 : 0 };
+  });
+  if (!res.ok) return json({ error: res.error || "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
+  if (borrar) {
+    for (const t of Object.keys(listas)) await env.DB.prepare("UPDATE novios_listas SET data=?1, base=NULL WHERE token=?2").bind(JSON.stringify(listas[t].data), t).run();
+    await privLimpiarTablas(env, tocados, []);
+    await logAct(env, a.s, "supresion_persona", cuentas.length + (cuentas.length === 1 ? " evento" : " eventos") + " (" + cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0) + " datos)");
+  } else await logAct(env, a.s, "acceso_persona", "Búsqueda de una persona: " + cuentas.length + (cuentas.length === 1 ? " evento" : " eventos"));
+  return json({ ok: true, borrado: borrar, eventos: cuentas, total: cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0) });
 }
 
 /* ── PLANOS DE FONDO COMPARTIDOS ───────────────────────────────────────────
@@ -1059,6 +1405,7 @@ async function syncRoute(request, env, url) {
   /* «l»: cuándo guardó el cliente por última vez una lista pendiente de pasar al plano. Si cambia, la app del equipo la mira al momento */
   let l = 0;
   try { await ensureNovios(env); const r = await env.DB.prepare("SELECT MAX(updated) AS m FROM novios_listas WHERE estado IN ('borrador','enviada')").first(); l = (r && +r.m) || 0; } catch (_) {}
+  try { await privAuto(env); } catch (e0) { await logError(env, "servidor", "anonimización automática", String(e0 && e0.message || e0), null); }
   let pv = 0;
   try { await ensurePlanos(env); const r = await env.DB.prepare("SELECT MAX(v) AS m FROM planos").first(); pv = (r && +r.m) || 0; } catch (_) {}
   return json({ v: (row && +row.updated) || 0, l, p: pv, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });

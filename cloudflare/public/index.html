@@ -1,5 +1,13 @@
 <meta charset="utf-8">
 <title>Les Moles Events</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#3C3C3A">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Les Moles">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <script>
 /* Si algo falla al cargar (p. ej. en un navegador distinto), en vez de una
    pantalla que no responde se enseña un aviso con el error, para poder
@@ -13,7 +21,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.59 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.60 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3450,7 +3458,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.59</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.60</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5133,18 +5141,24 @@ function kSellarTodo(e, t, antes) {
 
 /* ── sellos: al guardar se mira qué partes del evento han cambiado desde la última vez y se les pone la hora ── */
 var KB={}, KU={}, TXB={}, TXB_KEY="lm_base_txt_v1", txbCache="";
+/* eventos con cambios míos que aún no están en el servidor (sobrevive a cerrar la página: se enseña «N sin subir») */
+var DIRTY={}, DIRTY_KEY="lm_pend_v1";
+try{ DIRTY=JSON.parse(localStorage.getItem(DIRTY_KEY)||"{}")||{}; }catch(_){ DIRTY={}; }
+function guardarDirty(){ try{ if(Object.keys(DIRTY).length) localStorage.setItem(DIRTY_KEY,JSON.stringify(DIRTY)); else localStorage.removeItem(DIRTY_KEY); }catch(_){} }
 function kVacio(v){ return v===undefined||v===null||v===""||v===false||v===0||(Array.isArray(v)&&!v.length)||(kObj(v)&&!Object.keys(v).length); }
 function hashesDe(e){ var h={}; kCaminos(e).forEach(function(p){ h[p]=kHash(kGet(e,p)); }); return h; }
 function sellarEv(e,ahora){
   if(!e||!e.id) return;
   var antes=KB[e.id], nuevo=hashesDe(e);
   if(!e._k||typeof e._k!=="object") e._k={};
+  var tocado=false;
   if(antes){
     /* una parte que aparece vacía (un valor por defecto que añade la app a un evento antiguo) no es un cambio de nadie: no se sella,
        así nunca puede ganar a lo que otra persona haya escrito en ese mismo sitio */
-    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; } });
-    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)) e._k[p]=ahora; });
+    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; tocado=true; } });
+    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)){ e._k[p]=ahora; tocado=true; } });
   }
+  if(tocado){ DIRTY[e.id]=ahora; guardarDirty(); }
   KB[e.id]=nuevo; KU[e.id]=e.updated||0;
 }
 /* en cada guardado: el evento abierto y los que han cambiado de «updated» */
@@ -5426,10 +5440,18 @@ function hayServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); 
 /* indicador de la barra lateral: «Guardado», «Guardando…», «Guardado en este
    dispositivo» (sin servidor, p. ej. el Artifact) o «Sin conexión» (se guarda
    aquí y se sube solo al volver la conexión) */
+function nSinSubir(){ var n=Object.keys(DIRTY).length, p=0; try{ p=Object.keys(plCola()).length; }catch(_){} return {ev:n,pl:p}; }
+function textoSinConexion(){
+  var n=nSinSubir(), t=[]; if(n.ev) t.push(n.ev===1?"1 evento con cambios":n.ev+" eventos con cambios"); if(n.pl) t.push(n.pl===1?"1 plano":n.pl+" planos");
+  return t.length?"Sin conexión · "+t.join(" y ")+" sin subir (se subirán solos)":"Sin conexión · todo está guardado en este dispositivo";
+}
 var SAVE_TXT={ok:"Guardado",saving:"Guardando…",local:"Guardado en este dispositivo",off:"Sin conexión · guardado aquí, se subirá solo"};
-function setSaveState(st){ var el=$("saveind"); if(!el) return; el.setAttribute("data-st",st); var sp=el.querySelector("span"); if(sp) sp.textContent=SAVE_TXT[st]||"";
+function setSaveState(st){ var el=$("saveind"); if(!el) return; el.setAttribute("data-st",st); var sp=el.querySelector("span"); if(sp) sp.textContent=st==="off"?textoSinConexion():(SAVE_TXT[st]||"");
   el.title=st==="ok"?"Los cambios están guardados en el servidor de Les Moles y los ve todo el equipo.":st==="local"?"Sin servidor: los cambios se guardan en este navegador.":st==="off"?"No hay conexión con el servidor. Los cambios están a salvo en este navegador y se subirán solos.":""; }
 window.addEventListener("online",function(){ if(remoteFail) pushRemote(); });
+window.addEventListener("offline",function(){ if(hayServidor()){ remoteFail=true; setSaveState("off"); } });
+/* abrir la app sin conexión: se avisa y se reintenta cada 20 s (y al volver la red) */
+window.LM_sinConexion=function(){ remoteFail=true; setSaveState("off"); clearTimeout(retryTimer); retryTimer=setTimeout(pushRemote,20000); };
 function flagRemote(msg){
   var el=$("syncwarn"); if(!el) return;
   if(msg){ el.textContent=msg; el.style.display="block"; } else { el.style.display="none"; }
@@ -5437,7 +5459,7 @@ function flagRemote(msg){
 function queueRemoteSave(){
   clearTimeout(remoteTimer);
   if(!hayServidor()){ setSaveState("local"); return; }   /* sin servidor no se intenta subir nada */
-  if(!remoteFail) setSaveState("saving");
+  if(!remoteFail) setSaveState("saving"); else setSaveState("off");   /* sin conexión: el contador de «sin subir» se actualiza */
   remoteTimer=setTimeout(pushRemote,900);
 }
 function pushRemote(){
@@ -5453,7 +5475,7 @@ function pushRemote(){
   }
   /* cada evento va con sus sellos y, si he tocado el plano, con el texto que tenía antes de tocarlo (para juntar línea a línea con lo de otra persona) */
   try{ sellarTodos(); }catch(_){}
-  var enviado={};
+  var subiendo=Object.assign({},DIRTY), enviado={};
   toSend=Object.assign({},toSend,{events:toSend.events.map(function(e){
     if(typeof e.text==="string") enviado[e.id]=e.text;
     var tb=TXB[e.id];
@@ -5465,7 +5487,9 @@ function pushRemote(){
       if(!r.ok) throw new Error("http "+r.status);
       if(remoteFail){ remoteFail=false; flagRemote(null); }
       setSaveState("ok");
-      /* lo enviado ya está en el servidor: ese texto es ahora la base para la próxima vez */
+      /* lo enviado ya está en el servidor (salvo lo que se haya vuelto a tocar mientras tanto) */
+      Object.keys(subiendo).forEach(function(id){ if(DIRTY[id]===subiendo[id]) delete DIRTY[id]; }); guardarDirty();
+      /* ese texto es ahora la base para la próxima vez */
       Object.keys(enviado).forEach(function(id){ TXB[id]=enviado[id]; });
       try{ guardarTXB(); }catch(_){}
       return r.json().catch(function(){ return null; });
@@ -5597,7 +5621,7 @@ function syncTick(){
       /* ¿el cliente ha guardado su lista desde la última vez? entonces se mira ya, sin esperar al minuto */
       if(j.l!=null&&j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } }
       if(j.p!=null&&j.p!==PL_V) sincronizarPlanos();
-      if(j.v&&srvV&&j.v!==srvV&&!remoteBusy&&!escribiendo()) hydrateFromServer();
+      if(j.v&&(!srvV||j.v!==srvV)&&!remoteBusy&&!escribiendo()) hydrateFromServer();
     }).catch(function(){}).finally(function(){ syncBusy=false; });
 }
 setInterval(syncTick,15000);
@@ -8771,9 +8795,10 @@ function abrirMas(){
     '<div class="ovl-body" style="flex-direction:column;align-items:stretch;gap:10px">'+
     (gTxt?'<p class="pay-hint" style="margin:0">'+escH(gTxt)+'</p>':'')+
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Equipo y accesos</button>':'')+
+    (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.59</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.60</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8781,6 +8806,7 @@ function abrirMas(){
   ovl.addEventListener("click",function(e){ if(e.target===ovl) close(); });
   $("mas-x").addEventListener("click",close);
   var mu=$("mas-users"); if(mu) mu.addEventListener("click",function(){ close(); us.click(); });
+  var mi=$("mas-install"); if(mi) mi.addEventListener("click",function(){ close(); if(window.LM_instalar) window.LM_instalar(); });
   $("mas-pass").addEventListener("click",function(){ close(); $("side-pass").click(); });
   $("mas-out").addEventListener("click",function(){ close(); $("side-out").click(); });
   setTimeout(function(){ var f=$("mas-out"); if(f) f.focus(); },40);
@@ -16785,9 +16811,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(cambio) ["login-pass","login-pass0","login-pass2"].forEach(function(id){ var e=$(id); if(e) e.value=""; });
   }
   /* ajustes que manda el servidor a todo el equipo: qué ve cada rol y cuándo se cierra la sesión por inactividad */
-  var ROLES_DEF=null, idleMin=480;
+  var ROLES_DEF=null, idleMin=480, sinRed=false;
   function aplicarAjustes(d){
     if(!d) return;
+    try{ localStorage.setItem("lm_ajustes_v1",JSON.stringify({roles:d.roles||null,idleMin:d.idleMin==null?null:d.idleMin})); }catch(_){}
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
@@ -16798,7 +16825,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     try{ if(window.LM_refreshNav) window.LM_refreshNav(); }catch(_){}
   }
   async function refrescarAjustes(){
-    try{ var r=await fetch("/api/me",{headers:{"Accept":"application/json"}}); if(!r.ok) return; var d=await r.json(); if(d.authed){ if(d.user){ setUser(Object.assign({},curUser||{},d.user)); } aplicarAjustes(d); if(d.user&&d.user.mustChange) abrirCambio(true); } }catch(_){}
+    try{ var r=await fetch("/api/me",{headers:{"Accept":"application/json"}}); if(!r.ok) return; var d=await r.json();
+      if(sinRed){ sinRed=false; if(!d.authed){ SESSION.logout(); showGate(); setMode("login"); showErr("Tu sesión había caducado mientras no había conexión. Vuelve a entrar; lo que hiciste sin conexión sigue guardado en este dispositivo y se subirá.",true); openLogin(); return; }
+        try{ if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.toast) window.SITTING_BRIDGE.toast("Conexión recuperada: subiendo lo que hiciste sin conexión."); }catch(_){} } if(d.authed){ if(d.user){ setUser(Object.assign({},curUser||{},d.user)); } aplicarAjustes(d); if(d.user&&d.user.mustChange) abrirCambio(true); } }catch(_){}
   }
   /* cierre de sesión por inactividad (sin tocar el ratón, el teclado ni la pantalla) */
   var ultAct=Date.now(), vigiliaPuesta=false, vigiliaTm=null;
@@ -16823,7 +16852,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     /* la gestión de usuarios solo para administradores con backend real */
     var su=$("side-users"); if(su) su.hidden=!(backend && curUser && curUser.role==="admin");
     var sp=$("side-pass"); if(sp) sp.hidden=!backend;
-    if(backend) refrescarAjustes();
+    pintarInstalar();
+    if(backend&&!sinRed) refrescarAjustes();
   }
   function showGate(){ document.body.classList.remove("authed"); }
 
@@ -17102,6 +17132,28 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
   /* Arranque: preguntamos al servidor por la sesión. Si no hay backend
      (Artifact), caemos a modo demostración con la sesión local. */
+  /* ── app instalable: service worker (abrir sin conexión) y botón «Instalar la app» ── */
+  var diferido=null;
+  function esStandalone(){ try{ return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true; }catch(_){ return false; } }
+  function esIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1); }
+  function pintarInstalar(){ var b=$("side-install"); if(b) b.hidden=!(window.LM_instalable&&window.LM_instalable()&&document.body.classList.contains("authed")); }
+  window.LM_instalable=function(){ return !esStandalone()&&(!!diferido||esIOS()); };
+  window.LM_instalar=function(){
+    if(diferido){ var d=diferido; d.prompt(); (d.userChoice||Promise.resolve()).then(function(){ diferido=null; pintarInstalar(); }); return; }
+    if(!esIOS()) return;
+    var ov=document.createElement("div"); ov.className="ovl";
+    ov.innerHTML='<div class="ovl-box" role="dialog" aria-modal="true" aria-label="Instalar la app"><div class="ovl-head"><h3>Instalar la app</h3><div class="spacer"></div><button class="btn" id="ins-x" type="button">Cerrar</button></div><div class="ovl-body" style="flex-direction:column;align-items:stretch;gap:10px"><p style="margin:0">En el iPhone o iPad (con Safari):</p><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>Pulsa el botón <b>Compartir</b> (el cuadrado con la flecha hacia arriba).</li><li>Elige <b>«Añadir a pantalla de inicio»</b>.</li><li>Pulsa <b>Añadir</b>. Tendrás el icono de Les Moles y se abrirá a pantalla completa.</li></ol></div></div>';
+    document.body.appendChild(ov); function cerrar(){ ov.remove(); } ov.addEventListener("click",function(e){ if(e.target===ov) cerrar(); }); ov.querySelector("#ins-x").addEventListener("click",cerrar);
+  };
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); diferido=e; pintarInstalar(); });
+  window.addEventListener("appinstalled",function(){ diferido=null; pintarInstalar(); try{ window.SITTING_BRIDGE.toast("App instalada."); }catch(_){} });
+  var si=$("side-install"); if(si) si.addEventListener("click",function(){ window.LM_instalar(); });
+  try{ if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")&&!window.claude){
+    var teniaSW=!!navigator.serviceWorker.controller;
+    /* una versión nueva de la app se ha guardado en el dispositivo: se avisa para recargar cuando convenga (no se recarga sola: podría haber algo a medias) */
+    navigator.serviceWorker.addEventListener("controllerchange",function(){ if(!teniaSW){ teniaSW=true; return; }
+      try{ window.SITTING_BRIDGE.toast("Hay una versión nueva de la app.",false,"Recargar",function(){ location.reload(); }); }catch(_){} });
+    window.addEventListener("load",function(){ navigator.serviceWorker.register("/sw.js").catch(function(){}); }); } }catch(_){}
   (async function boot(){
     /* enlace de los novios: página pública, sin login. Si la URL trae el token
        lo mostramos y no seguimos con la sesión. */
@@ -17136,6 +17188,19 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       }
       throw new Error("error "+r.status);
     }catch(err){
+      /* sin red (no un error del servidor): si este dispositivo ya había entrado y guarda los datos, se abre igual y se sube todo al volver */
+      var sinRedAhora=err&&(err.name==="TypeError"||/failed to fetch|network|load failed|fetch/i.test(String(err.message||"")));
+      var hayDatos=false; try{ hayDatos=!!localStorage.getItem("cv_sitting_v3"); }catch(_){}
+      if((WEB_REAL||location.hostname==="localhost")&&sinRedAhora&&SESSION.isAuthed()&&hayDatos){
+        backend=true; sinRed=true;
+        try{ var aj=JSON.parse(localStorage.getItem("lm_ajustes_v1")||"null"); if(aj) aplicarAjustes(aj); }catch(_){}
+        enterApp();
+        try{ if(window.LM_sinConexion) window.LM_sinConexion(); }catch(_){}
+        try{ if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.toast) window.SITTING_BRIDGE.toast("Sin conexión: puedes seguir trabajando. Los cambios se guardan aquí y se suben solos al volver."); }catch(_){}
+        setInterval(function(){ if(sinRed) refrescarAjustes(); },30000);
+        window.addEventListener("online",function(){ if(sinRed) refrescarAjustes(); });
+        return;
+      }
       if(WEB_REAL){ backend=true; sinServidor((err&&err.message)||""); return; }
       backend=false;
       var demo2=$("login-demo"); if(demo2) demo2.hidden=false;

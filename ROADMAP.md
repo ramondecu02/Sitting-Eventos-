@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.59** (octubre 2026).
+Documento vivo. Última actualización: versión **01.60** (octubre 2026).
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -26,8 +26,12 @@ WhatsApp suelto ni Excel.
 | **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
 | **Historial de cambios por evento** (quién, qué y cuándo; volver a una versión) | ✅ |
 | **Equipo y accesos**: usuarios con ficha, alta por invitación, permisos por rol editables, registro de actividad, contraseña propia y cierre por inactividad | ✅ |
+| **App instalable y modo sin conexión** (icono, abrir sin red, cola de cambios con contador) | ✅ |
 | **Planos de fondo del salón compartidos** con todo el equipo (servidor, no solo el navegador de quien los sube) | ✅ |
 | **Cambios compartidos y coordinación entre departamentos**: lo que cambian Eventos, Cocina y Compras en un mismo evento se junta (no se pisa), y cada departamento ve qué ha cambiado para él | ✅ |
+
+### Novedad de la versión 01.60
+- **App instalable y modo sin conexión** (fase 1.3): se instala como app y se abre sin red; los cambios se suben solos al volver.
 
 ### Novedad de la versión 01.59
 - **Planos de fondo compartidos** (fase 1.8): la imagen del salón ya no vive solo en un navegador; la ve todo el equipo.
@@ -91,10 +95,14 @@ se recupera con el código manual por evento.
 - **Detalle técnico:** tabla `historial` en D1 (se crea sola); API `/api/historial` (lista), `/api/historial/ver`, `/api/historial/restaurar`.
 - **Comprobado:** «Ana · plano · ficha · menú · hace 5 min»; deshacer el último cambio devuelve el plano, la ficha y el menú sin recargar la página; la base de datos no engorda (máx. 50 líneas por evento, ~3 KB cada versión en las pruebas).
 
-### 1.3 App instalable y con modo sin conexión — *~1 día* — v01.60
-- **Qué:** icono en la pantalla del móvil/tablet; los eventos del día quedan guardados para **consultar** aunque falle el wifi del salón; los cambios hechos sin conexión se guardan y **se sincronizan al volver**, con aviso claro («sin conexión · 3 cambios pendientes»).
-- **Detalle técnico:** `manifest.webmanifest`, `sw.js` (caché de la app y del último documento), iconos; el guardado ya es local primero («Guardado en este dispositivo»), solo falta la cola de subida.
-- **Hecho cuando:** con el avión activado se abre la escaleta del día, se marca algo, y al recuperar la red aparece en otro dispositivo.
+### 1.3 App instalable y con modo sin conexión — ✅ **hecho en la v01.60**
+- **Instalar la app:** el programa tiene manifiesto e iconos (logo de Les Moles). En el móvil, la tablet y el ordenador (Chrome, Edge, Android) sale el botón **«Instalar la app»** en el menú; en iPhone/iPad el mismo botón explica los pasos (Compartir → Añadir a pantalla de inicio). Se abre a pantalla completa, con su icono.
+- **Abrir sin conexión:** un *service worker* guarda la app en el dispositivo; si no hay red (o tarda más de 6 s) se abre la última versión guardada, con los eventos que había en el dispositivo y la sesión de siempre. Sin haber entrado nunca en ese dispositivo y sin red, no se entra (hace falta una primera vez con conexión).
+- **Trabajar sin conexión:** todo se guarda primero en el dispositivo. El indicador del menú dice **«Sin conexión · 3 eventos con cambios sin subir (se subirán solos)»** (y cuenta también los planos de fondo pendientes); al volver la red se suben solos, se trae lo de los compañeros y el indicador vuelve a «Guardado». El contador sobrevive a cerrar la página.
+- **Si la sesión caducó mientras tanto:** al volver la red pide entrar de nuevo, y avisa de que lo hecho sin conexión sigue guardado y se subirá.
+- **Versión nueva:** cuando hay una versión nueva guardada, sale un aviso «Hay una versión nueva de la app · Recargar» (no se recarga sola para no cortar nada a medias).
+- **Detalle técnico:** `manifest.webmanifest`, `sw.js` (versión puesta por el despliegue; nunca toca `/api`), iconos en `/icons`, cabeceras sin caché para el service worker y el manifiesto; nuevo `deploy.sh` que copia todo.
+- **Comprobado:** servidor HTTP real + Chromium sin red: se instala el service worker, la app queda guardada, se recarga sin conexión y abre; se edita un evento sin red y se ve «1 evento con cambios sin subir»; se abre la escaleta; al volver la red se sube y otro dispositivo lo recibe; botón de instalar en Chrome y pasos en iPhone.
 
 ### 1.4 Usuarios, roles y registro de cada persona — ✅ **hecho en la v01.57**
 - **Dónde:** menú lateral → **Equipo y accesos** (solo administrador), con tres apartados: *Personas*, *Roles y permisos* y *Registro de actividad*.
