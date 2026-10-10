@@ -21,9 +21,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.60 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.61 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
+      /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
+      try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.61".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3446,6 +3449,63 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 @media (max-width:700px){ .co-bar{bottom:calc(64px + env(safe-area-inset-bottom,0px)); width:auto; gap:8px; padding:8px 10px} .co-bar-ic,.co-bar-tx small{display:none} .co-bar-tx{flex:1 1 auto} .co-bar-tx b{font-size:12.5px; line-height:1.25} .co-bar .btn{padding:6px 10px; font-size:12px} }
 /* pastilla en la tarjeta del evento (Inicio) */
 .ev-co{margin-top:8px; font:700 10.5px/1.2 var(--font-text,system-ui); letter-spacing:.04em; color:#8A5A0B; background:#FBE9C2; border:1px solid #E8C77F; border-radius:8px; padding:5px 8px}
+
+/* ══ Estado del sistema y Privacidad y datos (Parámetros) ══ */
+.es-root .pcard,.pr-root .pcard{margin:0 0 14px}
+.es-root h2,.pr-root h2{margin:0 0 6px; font:600 18px/1.2 var(--font-display,Georgia,serif)}
+.es-root h2 em,.pr-root h2 em{font:700 11px/1 var(--font-text,system-ui); font-style:normal; margin-left:8px; background:var(--bg-2,#F4F1E8); color:var(--c-mut); border-radius:99px; padding:3px 8px}
+.es-peq{font-size:13px; color:var(--c-mut); line-height:1.5; margin:4px 0 8px}
+.es-err{border-color:#8E2C48; background:#F8EEF1}
+.es-avisos{display:flex; flex-direction:column; gap:8px; margin:0 0 14px}
+.es-av{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border-radius:12px; border:1px solid var(--c-line,#E4DCCB); background:var(--bg-1,#fff)}
+.es-av i{flex:none; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-style:normal; font-weight:800; color:#fff; background:#65645C}
+.es-av b{display:block}
+.es-av small{display:block; color:var(--c-mut); margin-top:2px; font-size:12.5px}
+.es-av.ok{background:#EEF3E4; border-color:#B7C98F} .es-av.ok i{background:#56613F}
+.es-av.aviso{background:#FFF8E8; border-color:#D9A441} .es-av.aviso i{background:#C58A1C}
+.es-av.mal{background:#F8EEF1; border-color:#8E2C48} .es-av.mal i{background:#8E2C48}
+.es-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin:0 0 14px}
+.es-k{background:var(--bg-1,#fff); border:1px solid var(--c-line,#E4DCCB); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:3px; min-width:0}
+.es-k span{font:700 10px/1.2 var(--font-text,system-ui); letter-spacing:.12em; text-transform:uppercase; color:var(--c-mut)}
+.es-k b{font:600 22px/1.15 var(--font-display,Georgia,serif); overflow-wrap:anywhere}
+.es-k small{font-size:12px; color:var(--c-mut)}
+.es-bar{height:12px; border-radius:99px; background:var(--bg-2,#F4F1E8); overflow:hidden; margin:8px 0}
+.es-bar i{display:block; height:100%; background:#56613F; border-radius:99px}
+.es-bar.aviso i{background:#C58A1C} .es-bar.mal i{background:#8E2C48}
+.es-lnk{background:none; border:0; padding:0; color:#56613F; text-decoration:underline; cursor:pointer; font:inherit}
+.es-copy{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.es-copy code{background:var(--bg-2,#F4F1E8); padding:7px 10px; border-radius:8px; overflow-wrap:anywhere}
+.es-h{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.es-tab{border:1px solid var(--c-line,#E4DCCB); border-radius:10px; overflow:hidden; margin-top:8px}
+.es-tr{display:grid; grid-template-columns:110px 80px 1.1fr 2.4fr 1fr; gap:10px; padding:8px 12px; border-top:1px solid var(--c-line,#E4DCCB); font-size:13px; align-items:start}
+.es-tr:first-child{border-top:0}
+.es-th{background:var(--bg-2,#F4F1E8); font:700 10px/1 var(--font-text,system-ui); letter-spacing:.1em; text-transform:uppercase; color:var(--c-mut)}
+.es-tr.pr-tr{grid-template-columns:2fr 100px 90px 90px 1.6fr}
+.es-msg{overflow-wrap:anywhere; font-family:ui-monospace,Menlo,monospace; font-size:12px}
+.es-or{font:700 9.5px/1 var(--font-text,system-ui); font-style:normal; letter-spacing:.1em; text-transform:uppercase; padding:3px 7px; border-radius:99px; background:#F0EEE6; color:#65645C}
+.es-or.app{background:#E6ECEF; color:#4A5A63}
+@media (max-width:760px){ .es-tr,.es-tr.pr-tr{grid-template-columns:1fr; gap:2px} .es-th{display:none} }
+.pr-form{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:8px 0}
+.pr-form .fld.wide{grid-column:1/-1}
+.pr-chk{grid-column:1/-1; display:flex; gap:8px; align-items:center; font-size:13.5px}
+.pr-btns{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px}
+.pr-lista{display:flex; flex-direction:column; gap:4px; margin:8px 0; max-height:320px; overflow:auto; border:1px solid var(--c-line,#E4DCCB); border-radius:10px; padding:6px}
+.pr-ev{display:flex; gap:10px; align-items:center; padding:6px 8px; border-radius:8px; font-size:13.5px}
+.pr-ev:hover{background:var(--bg-2,#F4F1E8)}
+.pr-evn{flex:1; min-width:0; overflow-wrap:anywhere; font-weight:600}
+.pr-evf{color:var(--c-mut); font-size:12.5px; white-space:nowrap}
+.pr-ok{background:#EEF3E4; border:1px solid #B7C98F; border-radius:10px; padding:9px 12px; margin:8px 0; color:#3E5B2A; font-weight:600}
+.pr-busca{display:flex; gap:10px; margin:8px 0; flex-wrap:wrap}
+.pr-busca input{flex:1; min-width:220px}
+.pr-det{margin:8px 0; border-top:1px solid var(--c-line,#E4DCCB); padding-top:8px}
+.pr-det summary{cursor:pointer; font-weight:600; color:#56613F}
+.pr-txt{font-size:13.5px; line-height:1.55; padding:8px 2px; overflow-x:auto}
+.pr-txt p{margin:0 0 8px}
+.pr-reg{border-collapse:collapse; width:100%; font-size:12.5px}
+.pr-reg th,.pr-reg td{border:1px solid var(--c-line,#D8D2C0); padding:6px 8px; text-align:left; vertical-align:top}
+.pr-reg th{background:var(--bg-2,#F4F1E8)}
+.pr-nota{font-size:12px; color:var(--c-mut)}
+.pr-pasos{margin:8px 0; padding-left:20px; display:flex; flex-direction:column; gap:6px; font-size:13.5px}
 /*V3-END*/
 </style>
 
@@ -3458,7 +3518,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.60</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.61</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8599,6 +8659,8 @@ var SECCIONES=[
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
   {k:"p-agenda",   g:"Parámetros", t:"Agenda con el cliente"},
   {k:"p-copias",   g:"Parámetros", t:"Copias de seguridad"},
+  {k:"p-estado",   g:"Parámetros", t:"Estado del sistema"},
+  {k:"p-privacidad",g:"Parámetros", t:"Privacidad y datos"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
@@ -8798,7 +8860,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.60</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.61</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10173,7 +10235,7 @@ function renderHomeNovios(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -10393,6 +10455,8 @@ function showPlan(k){
 window.showPlan=showPlan;
 function renderPlanV(k){
   var host=$("plan-scroll"); if(!host) return;
+  if(k==="p-estado"){ if(window.LM_renderEstado) window.LM_renderEstado(host); return; }
+  if(k==="p-privacidad"){ if(window.LM_renderPriv) window.LM_renderPriv(host); return; }
   if(String(k).indexOf("p-")===0){
     if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
     if(window.LM_renderParam) window.LM_renderParam(k,host); return;
@@ -16336,6 +16400,195 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 </script>
 
 <script>
+/* ═════════════════════════════════════════════════════════════════
+   ESTADO DEL SISTEMA y PRIVACIDAD Y DATOS (Parámetros · solo administrador)
+   · Estado: de un vistazo, ¿va todo bien? Último guardado, espacio del documento,
+     copias, errores recientes (los del servidor y los que avisa la propia app).
+   · Privacidad: responsable y plazo de conservación (RGPD), anonimizar eventos
+     que ya han pasado el plazo, buscar o quitar a una persona de todos los
+     eventos (derechos de acceso y supresión) y los textos listos (aviso del
+     portal, registro de tratamientos).
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function fh(ms){ if(!ms) return "—"; var d=new Date(+ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+"/"+d.getFullYear()+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function hace(ms){ if(!ms) return "nunca"; var m=Math.round((Date.now()-ms)/60000); if(m<1) return "ahora mismo"; if(m<60) return "hace "+m+" min"; var h=Math.round(m/60); if(h<24) return "hace "+h+" h"; var d=Math.round(h/24); return "hace "+d+(d===1?" día":" días"); }
+  function kb(b){ b=+b||0; return b>=1048576?(b/1048576).toFixed(2).replace(".",",")+" MB":Math.round(b/1024)+" KB"; }
+  function fechaEs(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:(iso||"—"); }
+  function toast(m,mal){ try{ if(BR&&BR.toast) BR.toast(m,mal); }catch(_){} }
+  function api(path,opt){
+    opt=opt||{}; var h={"Accept":"application/json"}; if(opt.body) h["Content-Type"]="application/json";
+    return fetch(path,{method:opt.method||(opt.body?"POST":"GET"),headers:h,credentials:"same-origin",body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){
+        if(!r.ok) throw new Error(j&&j.message?j.message:(r.status===403?"Esto solo lo puede hacer el administrador.":r.status===401?"La sesión ha caducado: recarga la página.":"No se ha podido (error "+r.status+")."));
+        return j; }); });
+  }
+  /* pulsar dos veces para confirmar (sin diálogos del navegador) */
+  function armar(b,txt){ if(b.getAttribute("data-armado")==="1"){ b.removeAttribute("data-armado"); return true; } var t0=b.textContent; b.setAttribute("data-armado","1"); b.textContent=txt||"¿Seguro? Pulsa otra vez";
+    setTimeout(function(){ if(b.getAttribute("data-armado")==="1"){ b.removeAttribute("data-armado"); b.textContent=t0; } },5000); return false; }
+
+  /* ── el aviso de privacidad (lo usa también el portal del cliente) ── */
+  window.LM_avisoPrivHTML=function(p,mailAlt){
+    p=p||{}; var resp=p.responsable||"Les Moles Events", mail=p.email||mailAlt||"", meses=p.meses||12;
+    function li(t,b){ return '<p><b>'+t+'</b> '+b+'</p>'; }
+    return li("Responsable:",esc(resp)+(p.nif?" · NIF "+esc(p.nif):"")+(p.direccion?" · "+esc(p.direccion):"")+(mail?". Contacto de privacidad: "+esc(mail):"")+".")+
+      li("Para qué:","organizar el evento (reserva, mesas, menús, servicio y pagos) y atender las alergias e intolerancias de los invitados para su seguridad.")+
+      li("Por qué podemos:","para los nombres y datos del evento, el contrato del evento; para las alergias y dietas —que son datos de salud—, el consentimiento explícito de quien rellena la lista (casilla de abajo), que puede retirarse cuando se quiera.")+
+      li("Quién los ve:","solo el equipo de Les Moles que prepara el evento. No se ceden a nadie; los proveedores técnicos (alojamiento de la aplicación, Cloudflare) los tratan por encargo nuestro y con garantías.")+
+      li("Cuánto tiempo:","hasta "+meses+" meses después del evento; después se anonimizan (se quitan nombres, contactos y alergias). Las copias de seguridad automáticas se renuevan solas en unos 3 meses.")+
+      li("Tus derechos:","acceder a tus datos, rectificarlos, suprimirlos, limitar su tratamiento, oponerte, pedir su portabilidad y retirar el consentimiento"+(mail?" escribiendo a "+esc(mail):" dirigiéndote al restaurante")+". Si no estás conforme, puedes reclamar ante la Agencia Española de Protección de Datos (www.aepd.es).")+
+      li("Importante:","al incluir a otras personas en la lista, informadles de que sus datos se tratan para organizar el evento.");
+  };
+
+  /* ════════ ESTADO DEL SISTEMA ════════ */
+  var E={d:null,err:"",cargando:false}, hostE=null;
+  function activoE(){ return hostE&&hostE.querySelector&&hostE.querySelector(".es-root")&&document.body.classList.contains("mode-plan"); }
+  function cargarE(){
+    if(E.cargando) return; E.cargando=true;
+    api("/api/estado").then(function(j){ E.d=j; E.err=""; }).catch(function(x){ E.err=x.message; }).then(function(){ E.cargando=false; if(activoE()) pintarE(); });
+  }
+  function tarjeta(t,v,sub,cls){ return '<div class="es-k'+(cls?" "+cls:"")+'"><span>'+esc(t)+'</span><b>'+v+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'; }
+  function pintarE(){
+    if(!hostE) return; var top=hostE.scrollTop, d=E.d, h='';
+    h+='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Estado del sistema</h1><p class="pv-guide">De un vistazo: si algo falla o se está quedando sin espacio, aquí se ve antes de que lo note nadie en sala. Se actualiza solo cada 30 segundos.</p></div><div class="pv-actions"><button type="button" class="btn sm" data-es="act">Actualizar</button></div></header>';
+    if(E.err) h+='<div class="pcard es-err" role="alert"><p>'+esc(E.err)+'</p></div>';
+    if(!d&&!E.err) h+='<div class="pcard"><p class="pp-empty">Cargando el estado…</p></div>';
+    if(d){
+      h+='<div class="es-avisos">'+d.avisos.map(function(a){ return '<div class="es-av '+a.nivel+'" role="'+(a.nivel==="mal"?"alert":"status")+'"><i aria-hidden="true">'+(a.nivel==="ok"?"✓":"!")+'</i><div><b>'+esc(a.txt)+'</b>'+(a.ayuda?'<small>'+esc(a.ayuda)+'</small>':'')+'</div></div>'; }).join("")+'</div>';
+      var pct=d.doc.pct, cl=pct>=90?"mal":pct>=70?"aviso":"ok";
+      h+='<div class="es-grid">'+
+        tarjeta("Último guardado",hace(d.doc.ultimoGuardado),esc(fh(d.doc.ultimoGuardado)))+
+        tarjeta("Eventos",String(d.doc.eventos),d.doc.anonimizados?d.doc.anonimizados+" anonimizados":"")+
+        tarjeta("Copias de seguridad",String(d.copias.n),"la última automática: "+esc(hace(d.copias.ultimaAuto)))+
+        tarjeta("Papelera",String(d.papelera),"eventos borrados (30 días)")+
+        tarjeta("Historial de cambios",String(d.historial.filas),kb(d.historial.bytes))+
+        tarjeta("Planos de fondo",String(d.planos.n),kb(d.planos.bytes))+
+        tarjeta("Personas con acceso",String(d.usuarios.activos),"de "+d.usuarios.total+" fichas")+
+        tarjeta("Listas del cliente",String(d.listasCliente.pendientes),"pendientes de revisar (de "+d.listasCliente.total+")")+
+        tarjeta("Esta app",esc((document.getElementById("side-ver")||{}).textContent||"—"),"la versión cargada en este navegador")+'</div>';
+      h+='<section class="pcard es-doc" aria-label="Espacio del documento"><h2>Espacio del documento de eventos</h2>'+
+        '<p class="es-peq">Todo el negocio vive en un solo registro de la base de datos, que admite hasta '+kb(d.doc.limite)+'. Ahora ocupa <b>'+kb(d.doc.bytes)+'</b> ('+pct+' %).</p>'+
+        '<div class="es-bar '+cl+'" role="img" aria-label="'+pct+' % del límite"><i style="width:'+Math.min(100,pct)+'%"></i></div>'+
+        '<p class="es-peq">Se libera espacio anonimizando eventos antiguos (<button type="button" class="es-lnk" data-es="ir-priv">Privacidad y datos</button>).</p></section>';
+      h+='<section class="pcard es-vig" aria-label="Vigilante externo"><h2>Vigilante externo</h2><p class="es-peq">Para enterarte aunque nadie tenga la app abierta, apunta un servicio gratuito de vigilancia (por ejemplo UptimeRobot) a esta dirección: contesta «ok» si el servidor y la base de datos funcionan.</p>'+
+        '<div class="es-copy"><code id="es-health">'+esc(location.origin)+'/api/health</code><button type="button" class="btn sm" data-es="copiar">Copiar</button></div></section>';
+      var er=d.errores;
+      h+='<section class="pcard es-err-l" aria-label="Errores recientes"><div class="es-h"><h2>Errores recientes <em>'+er.total+'</em></h2>'+(er.total?'<button type="button" class="btn sm" data-es="vaciar">Vaciar el registro</button>':'')+'</div>'+
+        (er.recientes.length?'<div class="es-tab" role="table"><div class="es-tr es-th" role="row"><span>Cuándo</span><span>Origen</span><span>Dónde</span><span>Qué ha pasado</span><span>Quién</span></div>'+
+          er.recientes.map(function(x){ return '<div class="es-tr" role="row"><span title="'+esc(fh(x.ts))+'">'+esc(hace(x.ts))+'</span><span><i class="es-or '+esc(x.origen)+'">'+(x.origen==="app"?"App":"Servidor")+'</i></span><span>'+esc(x.donde)+'</span><span class="es-msg">'+esc(x.msg)+'</span><span>'+esc(x.name||"—")+'</span></div>'; }).join("")+'</div>':'<p class="es-peq">No hay errores apuntados. ✓</p>')+
+        '</section>';
+    }
+    hostE.innerHTML='<div class="pv-inner es-root">'+h+'</div>'; hostE.scrollTop=top;
+  }
+  window.LM_renderEstado=function(h){
+    hostE=h; if(!hostE.__esB){ hostE.__esB=true; hostE.addEventListener("click",function(ev){
+      var b=ev.target.closest&&ev.target.closest("[data-es]"); if(!b||!activoE()) return; var a=b.getAttribute("data-es");
+      if(a==="act"){ E.err=""; cargarE(); pintarE(); }
+      else if(a==="vaciar"){ if(!armar(b,"¿Vaciar? Pulsa otra vez")) return; api("/api/estado",{method:"DELETE"}).then(function(){ toast("Registro de errores vaciado."); cargarE(); }).catch(function(x){ toast(x.message,true); }); }
+      else if(a==="ir-priv"){ if(window.irASeccion) window.irASeccion("p-privacidad"); }
+      else if(a==="copiar"){ var t=(document.getElementById("es-health")||{}).textContent||""; try{ navigator.clipboard.writeText(t).then(function(){ toast("Copiado."); },function(){ toast("Selecciónalo y copia con Ctrl+C."); }); }catch(_){ toast("Selecciónalo y copia con Ctrl+C."); } }
+    }); }
+    pintarE(); cargarE();
+  };
+  setInterval(function(){ try{ if(activoE()&&document.visibilityState==="visible") cargarE(); }catch(_){} },30000);
+  /* al entrar el administrador: si hay algo importante, se avisa sin que tenga que abrir la pantalla */
+  window.LM_estadoAlEntrar=function(){
+    api("/api/estado").then(function(j){ var mal=(j.avisos||[]).filter(function(a){ return a.nivel==="mal"; });
+      if(mal.length) toast("Estado del sistema: "+mal[0].txt+" (Parámetros → Estado del sistema)",true); }).catch(function(){});
+  };
+
+  /* ════════ PRIVACIDAD Y DATOS ════════ */
+  var P={d:null,err:"",cargando:false,sel:{},msg:"",q:"",pers:null,buscando:false,ocupado:false}, hostP=null;
+  function activoP(){ return hostP&&hostP.querySelector&&hostP.querySelector(".pr-root")&&document.body.classList.contains("mode-plan"); }
+  function cargarP(){ if(P.cargando) return; P.cargando=true; api("/api/privacidad").then(function(j){ P.d=j; P.err=""; if(!Object.keys(P.sel).length) j.elegibles.forEach(function(x){ P.sel[x.id]=true; }); }).catch(function(x){ P.err=x.message; }).then(function(){ P.cargando=false; if(activoP()) pintarP(); }); }
+  function mailContacto(){ try{ var e=BR.current(); var c=e&&e.share&&e.share.portal&&e.share.portal.contacto; return (c&&c.mail)||""; }catch(_){ return ""; } }
+  function registroHTML(cfg){
+    var meses=(cfg&&cfg.meses)||12, resp=(cfg&&cfg.responsable)||"Les Moles Events";
+    function fila(a,b,c,d,e,f){ return '<tr><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td><td>'+d+'</td><td>'+e+'</td><td>'+f+'</td></tr>'; }
+    return '<table class="pr-reg"><thead><tr><th>Tratamiento</th><th>Finalidad</th><th>Personas y datos</th><th>Base jurídica</th><th>Plazo</th><th>Destinatarios y medidas</th></tr></thead><tbody>'+
+      fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
+      fila("Personal de sala","Gestionar turnos, disponibilidad y avisos","Camareros (nombre, teléfono, disponibilidad)","Relación laboral o de servicio (art. 6.1.b)","Mientras dure la relación y los plazos laborales","Responsables de sala y administración")+
+      fila("Usuarios del programa","Control de accesos y seguridad","Equipo (nombre, correo, rol, accesos)","Interés legítimo en la seguridad (art. 6.1.f)","Mientras tenga acceso; el registro de actividad, 400 días","Administración")+
+      '</tbody></table><p class="pr-nota">Responsable: '+esc(resp)+'. Plantilla orientativa del registro de actividades de tratamiento (art. 30 RGPD y art. 31 LOPDGDD): revísala con tu asesor antes de darla por buena.</p>';
+  }
+  function pintarP(){
+    if(!hostP) return; var top=hostP.scrollTop, d=P.d, h='';
+    h+='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Privacidad y datos</h1><p class="pv-guide">Las alergias son datos de salud y los nombres de clientes e invitados son datos personales: aquí se decide cuánto tiempo se guardan, se anonimiza lo que ya no hace falta y se atienden las peticiones de las personas (acceso y supresión).</p></div></header>';
+    if(P.err) h+='<div class="pcard es-err" role="alert"><p>'+esc(P.err)+'</p></div>';
+    if(!d&&!P.err) h+='<div class="pcard"><p class="pp-empty">Cargando…</p></div>';
+    if(d){
+      var c=d.cfg;
+      h+='<section class="pcard" aria-label="Responsable y plazo"><h2>Responsable y plazo de conservación</h2><div class="pr-form">'+
+        '<label class="fld"><span class="lbl">Nombre o razón social</span><input id="pr-resp" type="text" maxlength="140" value="'+esc(c.responsable)+'" placeholder="Les Moles …"></label>'+
+        '<label class="fld"><span class="lbl">NIF / CIF</span><input id="pr-nif" type="text" maxlength="30" value="'+esc(c.nif)+'"></label>'+
+        '<label class="fld wide"><span class="lbl">Dirección</span><input id="pr-dir" type="text" maxlength="200" value="'+esc(c.direccion)+'" placeholder="Calle, localidad"></label>'+
+        '<label class="fld"><span class="lbl">Correo de privacidad</span><input id="pr-mail" type="email" maxlength="120" value="'+esc(c.email)+'" placeholder="'+esc(mailContacto()||"correo@…")+'"></label>'+
+        '<label class="fld"><span class="lbl">Conservar los datos de un evento</span><select id="pr-meses">'+[6,12,18,24,36,60].map(function(m){ return '<option value="'+m+'"'+(m===c.meses?" selected":"")+'>'+m+' meses después</option>'; }).join("")+'</select></label>'+
+        '<label class="pr-chk"><input id="pr-auto" type="checkbox"'+(c.auto?" checked":"")+'> Anonimizar sola, una vez al día, los eventos que pasen el plazo</label></div>'+
+        '<div class="pr-btns"><button type="button" class="btn gold sm" data-pr="guardar"'+(P.ocupado?" disabled":"")+'>Guardar</button>'+(d.ultima?'<span class="es-peq">Última anonimización: '+esc(fh(d.ultima.ts))+(d.ultima.auto?" (automática)":"")+(d.ultima.n?" · "+d.ultima.n+(d.ultima.n===1?" evento":" eventos"):"")+'</span>':'')+'</div></section>';
+      var n=d.elegibles.length, nsel=d.elegibles.filter(function(x){ return P.sel[x.id]; }).length;
+      h+='<section class="pcard" aria-label="Eventos que han pasado el plazo"><h2>Eventos que ya han pasado el plazo <em>'+n+'</em></h2>'+
+        (P.msg?'<div class="pr-ok" role="status">'+esc(P.msg)+'</div>':'')+
+        (n?'<p class="es-peq">Al anonimizar se quitan los nombres de invitados y del cliente, los contactos, las alergias, las comunicaciones y el enlace del portal; se conservan las cifras (mesas, personas por tipo, importes). También se borran su historial de cambios, su papelera, la lista que envió el cliente y su plano propio. <b>No se puede deshacer.</b></p>'+
+          '<div class="pr-lista">'+d.elegibles.map(function(x){ return '<label class="pr-ev"><input type="checkbox" data-pr-sel="'+esc(x.id)+'"'+(P.sel[x.id]?" checked":"")+'><span class="pr-evn">'+esc(x.name||"Sin título")+'</span><span class="pr-evf">'+esc(fechaEs(x.fecha))+' · hace '+x.meses+' meses</span></label>'; }).join("")+'</div>'+
+          '<div class="pr-btns"><button type="button" class="btn danger sm" data-pr="anon"'+(nsel&&!P.ocupado?"":" disabled")+'>Anonimizar los seleccionados ('+nsel+')</button></div>':
+          '<p class="es-peq">Ahora mismo no hay ninguno. ✓ ('+d.anonimizados+' ya anonimizados de '+d.eventos+' eventos.)</p>')+
+        '<p class="es-peq">Las copias de seguridad automáticas se renuevan solas y dejan de contener estos datos en unos 3 meses. Las copias manuales (Parámetros → Copias de seguridad) bórralas tú si guardan eventos antiguos.</p></section>';
+      h+='<section class="pcard" aria-label="Buscar a una persona"><h2>Buscar o quitar a una persona</h2><p class="es-peq">Para atender una petición de acceso o de supresión: busca el nombre (o el teléfono o correo) en todos los eventos. Quitarla sustituye su nombre por «Persona anonimizada» y borra sus contactos y alergias en esos eventos.</p>'+
+        '<div class="pr-busca"><input id="pr-q" type="search" placeholder="Nombre, teléfono o correo (mín. 3 letras)" value="'+esc(P.q)+'" aria-label="Persona a buscar"><button type="button" class="btn sm" data-pr="buscar"'+(P.buscando?" disabled":"")+'>Buscar</button></div>';
+      if(P.pers){
+        var pe=P.pers;
+        h+=pe.eventos.length?'<p class="es-peq"><b>'+pe.total+'</b> '+(pe.total===1?"dato":"datos")+' en <b>'+pe.eventos.length+'</b> '+(pe.eventos.length===1?"evento":"eventos")+':</p><div class="es-tab"><div class="es-tr es-th pr-tr"><span>Evento</span><span>Fecha</span><span>En el plano</span><span>En la ficha</span><span>Lista del cliente / otros</span></div>'+
+          pe.eventos.map(function(x){ return '<div class="es-tr pr-tr"><span>'+esc(x.name||"Sin título")+'</span><span>'+esc(fechaEs(x.fecha))+'</span><span>'+x.plano+'</span><span>'+x.ficha+'</span><span>'+(x.lista+x.otros)+'</span></div>'; }).join("")+'</div>'+
+          '<div class="pr-btns"><button type="button" class="btn danger sm" data-pr="quitar"'+(P.ocupado?" disabled":"")+'>Quitar a esta persona de todos los eventos</button><button type="button" class="btn sm" data-pr="copiar-res">Copiar resumen para responderle</button></div>':
+          '<p class="es-peq">No aparece en ningún evento. ✓</p>';
+      }
+      h+='</section>';
+      h+='<section class="pcard" aria-label="Textos"><h2>Textos listos</h2><details class="pr-det"><summary>Aviso de privacidad que ve el cliente en su portal</summary><div class="pr-txt">'+window.LM_avisoPrivHTML(c,mailContacto())+'</div></details>'+
+        '<details class="pr-det"><summary>Registro de actividades de tratamiento (art. 30 RGPD)</summary><div class="pr-txt">'+registroHTML(c)+'</div><div class="pr-btns"><button type="button" class="btn sm" data-pr="imprimir">Imprimir / guardar en PDF</button></div></details>'+
+        '<details class="pr-det"><summary>Cómo atender una petición de una persona</summary><ol class="pr-pasos"><li><b>Anótala</b> con fecha: tienes <b>un mes</b> para contestar (ampliable en casos complejos, avisando).</li><li><b>Comprueba quién es</b> (que escribe desde el correo o teléfono que dio).</li><li><b>Acceso:</b> búscala arriba y envíale el resumen (qué eventos y qué datos).</li><li><b>Supresión:</b> «Quitar a esta persona de todos los eventos»; guarda el resumen como prueba (sin su nombre).</li><li><b>Rectificación:</b> corrige el dato en el plano o la ficha del evento.</li><li><b>Reclamaciones:</b> Agencia Española de Protección de Datos, www.aepd.es.</li></ol></details></section>';
+    }
+    hostP.innerHTML='<div class="pv-inner pr-root">'+h+'</div>'; hostP.scrollTop=top;
+  }
+  function leerCfg(){
+    var g=function(id){ var e=document.getElementById(id); return e?e.value:""; };
+    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),auto:!!(document.getElementById("pr-auto")||{}).checked};
+  }
+  function resumenPers(){
+    var pe=P.pers; if(!pe) return ""; var t="Resultado de la búsqueda de datos personales ("+fh(Date.now())+"):\n";
+    if(!pe.eventos.length) t+="No aparece en ningún evento.";
+    pe.eventos.forEach(function(x){ t+="\n· "+(x.name||"Evento")+" ("+fechaEs(x.fecha)+"): "+(x.plano?x.plano+" en el plano de mesas; ":"")+(x.ficha?x.ficha+" en la ficha de contacto; ":"")+(x.lista+x.otros?(x.lista+x.otros)+" en listas o comunicaciones; ":""); });
+    return t;
+  }
+  window.LM_renderPriv=function(h){
+    hostP=h; if(!hostP.__prB){ hostP.__prB=true;
+      hostP.addEventListener("change",function(ev){ var s=ev.target.getAttribute&&ev.target.getAttribute("data-pr-sel"); if(s){ P.sel[s]=ev.target.checked; pintarP(); } });
+      hostP.addEventListener("keydown",function(ev){ if(ev.key==="Enter"&&ev.target.id==="pr-q"){ ev.preventDefault(); var b=hostP.querySelector('[data-pr="buscar"]'); if(b) b.click(); } });
+      hostP.addEventListener("click",function(ev){
+        var b=ev.target.closest&&ev.target.closest("[data-pr]"); if(!b||!activoP()) return; var a=b.getAttribute("data-pr");
+        if(a==="guardar"){ P.ocupado=true; api("/api/privacidad",{method:"PUT",body:leerCfg()}).then(function(j){ P.d.cfg=j.cfg; toast("Guardado."); }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; pintarP(); cargarP(); }); }
+        else if(a==="anon"){ if(!armar(b,"¿Seguro? No se puede deshacer")) return; var ids=P.d.elegibles.filter(function(x){ return P.sel[x.id]; }).map(function(x){ return x.id; });
+          P.ocupado=true; api("/api/privacidad/anonimizar",{body:{ids:ids}}).then(function(j){ P.msg=j.n+(j.n===1?" evento anonimizado.":" eventos anonimizados."); P.sel={}; toast(P.msg); try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; cargarP(); pintarP(); }); }
+        else if(a==="buscar"||a==="quitar"){
+          var q=(document.getElementById("pr-q")||{}).value||P.q; P.q=q;
+          if(a==="quitar"&&!armar(b,"¿Seguro? No se puede deshacer")) return;
+          if(a==="buscar"){ P.buscando=true; P.pers=null; pintarP(); }
+          if(a==="quitar") P.ocupado=true;
+          api("/api/privacidad/persona",{body:{q:q,borrar:a==="quitar"}}).then(function(j){ if(a==="quitar"){ toast("Persona quitada de "+j.eventos.length+(j.eventos.length===1?" evento.":" eventos.")); P.pers=null; try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} } else P.pers=j; })
+            .catch(function(x){ toast(x.message,true); }).then(function(){ P.buscando=false; P.ocupado=false; pintarP(); }); }
+        else if(a==="copiar-res"){ var t=resumenPers(); try{ navigator.clipboard.writeText(t).then(function(){ toast("Resumen copiado."); },function(){ toast("No se ha podido copiar.",true); }); }catch(_){ toast("No se ha podido copiar.",true); } }
+        else if(a==="imprimir"){ var w=window.open("","_blank"); if(!w){ toast("El navegador ha bloqueado la ventana: permítela e inténtalo otra vez.",true); return; }
+          w.document.write('<!doctype html><meta charset="utf-8"><title>Registro de actividades de tratamiento</title><style>body{font:13px/1.45 Arial,sans-serif;margin:24px;color:#1c1b18}h1{font:600 20px Georgia,serif}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbb;padding:6px 8px;vertical-align:top;text-align:left}th{background:#eee}p{margin-top:14px;color:#555}</style><h1>Registro de actividades de tratamiento</h1>'+registroHTML(P.d.cfg)+'<script>setTimeout(function(){print()},300)<\/script>'); w.document.close(); }
+      }); }
+    pintarP(); cargarP();
+  };
+})();
+</script>
+
+<script>
 /* ══════════════════════════════════════════════════════════════════════
    PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
    Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
@@ -16348,7 +16601,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "use strict";
   /* ── datos: del servidor (/api/share) o, sin servidor, del propio navegador ── */
   var BR=window.SITTING_BRIDGE;
-  var D=null, S=null, BASE0=null, NUEVO=true, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio";
+  var D=null, S=null, BASE0=null, NUEVO=true, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio", PRIV=null, CONSENT=null, CONSENT_CHK=false, PRIV_OPEN=false;
   var MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
   var TIPOS=[["adulto","Adulto"],["nino","Niño/a"],["bebe","Bebé (trona)"]];
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -16467,6 +16720,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-send .st{flex:1 1 220px;font-size:12.5px;color:var(--pm)}#novios .pn-send .st b{color:var(--pi)}",
   "#novios .pn-aviso{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:var(--ocs);font-size:13px}#novios .pn-aviso svg{flex:none;width:18px;height:18px;color:var(--oc);margin-top:1px}",
   "#novios .pn-aviso.ok{background:var(--ols)}#novios .pn-aviso.ok svg{color:var(--olt)}",
+  "#novios .pn-priv{display:grid;gap:10px}#novios .pn-privp{margin:0;font-size:14px;color:var(--pm);line-height:1.55}",
+  "#novios .pn-priv summary{cursor:pointer;font-weight:600;color:var(--olt)}#novios .pn-privt{font-size:13px;line-height:1.55;color:var(--pm);padding-top:8px}#novios .pn-privt p{margin:0 0 8px}",
+  "#novios .pn-chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;padding:10px 12px;border-radius:10px;background:var(--ocs)}#novios .pn-chk input{margin-top:3px;width:18px;height:18px;flex:none}#novios .pn-priv.falta .pn-chk{outline:2px solid var(--oc)}",
+  "#novios .pn-flnk{background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;text-decoration:underline;cursor:pointer}",
   "#novios .pn-menu{text-align:center;padding:30px 22px}#novios .pn-menu h4{display:flex;align-items:center;gap:14px;margin:24px 0 10px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;font-weight:650;color:var(--olt)}",
   "#novios .pn-menu h4:before,#novios .pn-menu h4:after{content:'';flex:1;height:1px;background:var(--pl)}#novios .pn-menu h4:first-child{margin-top:0}#novios .pn-menu p{margin:4px 0;font-family:var(--dsp);font-size:18px}",
   "#novios .pn-horas{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));background:var(--pp);border:1px solid var(--pl);border-radius:12px;overflow:hidden}",
@@ -16558,10 +16815,24 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:12px">'+esc(PAL().org)+'</div><div class="pn-pair">'+
       '<label class="pn-fld"><span class="pn-lbl">Nombre</span><input type="text" id="pn-n1" autocomplete="off" value="'+esc(S.parejaA||"")+'"'+dis+'></label>'+
       '<label class="pn-fld"><span class="pn-lbl">'+(PAL().k==="boda"?"Nombre":"Nombre (opcional)")+'</span><input type="text" id="pn-n2" autocomplete="off" value="'+esc(S.parejaB||"")+'"'+dis+'></label></div></div>';
+    h+=vPriv(ed);
     h+='<div class="pn-tally" id="pn-tally">'+vTally(c)+'</div><div id="pn-mesas" style="display:grid;gap:14px">'+vMesas(ed)+'</div>';
     if(ed) h+='<div><button class="pn-btn" type="button" data-pn-act="add-mesa">+ Añadir mesa</button></div>'+
       '<div class="pn-send"><div class="st" id="pn-send-st">'+vSendSt()+'</div><button class="pn-btn pri" type="button" data-pn-act="enviar">Enviar a Les Moles</button></div>';
     return h;
+  }
+  /* las alergias son datos de salud: para guardarlas, quien rellena la lista acepta el tratamiento (y queda apuntado cuándo) */
+  /* solo cuentan las alergias que escribe el cliente: las que ya venían en la lista de partida del equipo no piden nada */
+  function alergiasDe(L){ var o={}; ((L&&L.mesas)||[]).forEach(function(m){ (m.g||[]).forEach(function(g){ var a=String(g.a||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); if(a) o[a]=1; }); }); return o; }
+  function hayAlergias(){ var base=alergiasDe(BASE0), ya=alergiasDe(S); return Object.keys(ya).some(function(a){ return !base[a]; }); }
+  function consentido(){ return !!(CONSENT||CONSENT_CHK); }
+  function vPriv(ed){
+    var av=window.LM_avisoPrivHTML?window.LM_avisoPrivHTML(PRIV||{},(P().contacto||{}).mail):"";
+    var fecha=CONSENT&&CONSENT.ts?new Date(CONSENT.ts).toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"}):"";
+    return '<div class="pn-card pn-priv'+(hayAlergias()&&!consentido()?" falta":"")+'" id="pn-priv"><div class="pn-eb">Privacidad de vuestros invitados</div>'+
+      '<p class="pn-privp">Usamos los nombres para preparar el plano y las alergias o dietas para que nadie tenga un susto. Solo lo ve el equipo de Les Moles y se borra '+((PRIV&&PRIV.meses)||12)+' meses después del evento.</p>'+
+      '<details'+(PRIV_OPEN?" open":"")+'><summary>Leer el aviso completo</summary><div class="pn-privt">'+av+'</div></details>'+
+      (ed?'<label class="pn-chk"><input type="checkbox" id="pn-consent"'+(consentido()?" checked":"")+(CONSENT?" disabled":"")+'><span>Acepto que Les Moles trate las alergias y dietas que escriba (datos de salud) para adaptar el menú, y me comprometo a informar a mis invitados.'+(fecha?' <i>Aceptado el '+esc(fecha)+'.</i>':'')+'</span></label>':'')+'</div>';
   }
   function vTally(c){ return '<div><b class="pn-n">'+c.total+'</b><span>Personas</span></div><div><b class="pn-n">'+c.adulto+'</b><span>Adultos</span></div><div><b class="pn-n">'+c.nino+'</b><span>Niños</span></div><div><b class="pn-n">'+c.bebe+'</b><span>Bebés</span></div><div><b class="pn-n">'+c.staff+'</b><span>Staff</span></div><div class="al"><b class="pn-n">'+c.al+'</b><span>Alergias o dietas</span></div>'; }
   function conServidor(){ try{ return !!(window.LM_backend&&window.LM_backend()); }catch(_){ return false; } }
@@ -16604,7 +16875,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     host.className="pn on";
     var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():vInicio();
     host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ve el cliente'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
-      vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona</footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
+      vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona · <button type="button" class="pn-flnk" data-pn-act="priv">Privacidad</button></footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
     host.scrollTop=y;
     try{ var n=nombres(); document.title=(n.solo?n.a:n.a+" & "+n.b)+" · Les Moles"; }catch(_){}
   }
@@ -16614,11 +16885,17 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var tm=null;
   function aviso(msg,deshacer){ var t=document.getElementById("pn-toast"); if(!t) return; t.innerHTML=esc(msg)+(deshacer?'<button type="button">Deshacer</button>':''); t.classList.add("on"); clearTimeout(tm); tm=setTimeout(function(){ t.classList.remove("on"); },4200);
     var b=t.querySelector("button"); if(b) b.onclick=function(){ deshacer(); t.classList.remove("on"); }; }
-  function payload(enviar){ return {parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; }),enviar:!!enviar,base:BASE0,nuevo:NUEVO}; }
+  function payload(enviar){ return {consent:consentido(),parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; }),enviar:!!enviar,base:BASE0,nuevo:NUEVO}; }
   function guardar(enviar){
     if(soloMirar()){ if(enviar) aviso("En la vista del equipo no se envía nada."); return Promise.resolve(); }
     if(!puedeEditar()) return Promise.resolve();
     var body=payload(enviar);
+    if(!D.local&&hayAlergias()&&!consentido()){
+      var pc=document.getElementById("pn-priv"); if(pc) pc.classList.add("falta");
+      var ss=document.getElementById("pn-send-st"); if(ss) ss.innerHTML='<b>Falta aceptar la privacidad.</b> Marca la casilla de «Privacidad de vuestros invitados» para que se guarden las alergias.';
+      if(enviar){ aviso("Para enviar las alergias, marcad la casilla de privacidad."); try{ if(pc) pc.scrollIntoView({block:"center",behavior:"smooth"}); }catch(_){} }
+      return Promise.resolve();
+    }
     if(D.local){ try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"), now=Date.now(), prev=loc[TOKEN];
         var est=enviar?"enviada":(prev&&prev.estado==="enviada"?"enviada":"borrador");
         loc[TOKEN]={token:TOKEN,event_id:D.local,data:{parejaA:body.parejaA,parejaB:body.parejaB,mesas:body.mesas},base:(prev&&prev.base&&(prev.estado==="borrador"||prev.estado==="enviada"||(prev.estado==="aplicada"&&!NUEVO)))?prev.base:BASE0,estado:est,enviada:enviar?now:(prev?prev.enviada:null),updated:now,revisada:null};
@@ -16626,7 +16903,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       return Promise.resolve(); }
     return fetch("/api/share?t="+encodeURIComponent(TOKEN),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
       .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw j; return j; }); })
-      .then(function(j){ estado=j.estado; NUEVO=false; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
+      .then(function(j){ estado=j.estado; NUEVO=false; if(CONSENT_CHK&&!CONSENT) CONSENT={ts:Date.now(),v:(PRIV&&PRIV.v)||1}; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
       .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar. Revisad la conexión e intentadlo otra vez."); });
   }
   function programar(){ clearTimeout(saveTm); saveTm=setTimeout(function(){ saveTm=null; guardar(false); },900); }
@@ -16641,6 +16918,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       try{ navigator.clipboard.writeText(el.textContent).then(function(){ aviso("Copiado."); },sel); }catch(_){ sel(); } return; }
     var b=t.closest&&t.closest("[data-pn-act]"); if(!b) return; var a=b.getAttribute("data-pn-act");
     if(a==="salir"){ cerrarVista(); return; }
+    if(a==="priv"){ PRIV_OPEN=true; tab="inv"; pintar(); var pv=document.getElementById("pn-priv"); if(pv) pv.scrollIntoView({block:"start"}); return; }
     if(a==="add-mesa"){ S.mesas.push({k:null,nombre:"",g:[{n:"",t:"adulto",a:""}]}); pintar(); var i=document.getElementById("pn-mesa-"+(S.mesas.length-1)); if(i) i.focus(); programar(); return; }
     if(a==="enviar"){ var c=cuenta(); if(!c.total){ aviso("La lista está vacía. Añadid al menos una persona."); return; } guardar(true).then(function(){ if(soloMirar()) return; pintar(); aviso(P().auto!==false?"Lista enviada. Ya le llega al equipo de Les Moles.":"Lista enviada. El equipo de Les Moles la revisará."); }); return; }
     var mEl=b.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
@@ -16667,6 +16945,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var P0=d.portal||{};
     var L=d.lista, usarPropia=L&&L.data&&(L.estado==="borrador"||L.estado==="enviada");
     estado=(L&&L.estado)||"borrador"; enviadaTs=L&&L.enviada;
+    PRIV=d.priv||null; CONSENT=null; var cs=L&&L.data&&L.data.consent; if(cs&&(!PRIV||cs.v===PRIV.v)) CONSENT=cs; CONSENT_CHK=!!CONSENT;
     var base=usarPropia?L.data:{parejaA:(P0.nombres&&P0.nombres.a)||(d.event&&d.event.parejaA)||"",parejaB:(P0.nombres&&P0.nombres.b)||(d.event&&d.event.parejaB)||"",mesas:((P0.lista&&P0.lista.mesas)||[])};
     S=JSON.parse(JSON.stringify(base));
     S.mesas=(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; });
@@ -16676,7 +16955,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     tab="inicio"; var h=(location.hash||"").replace("#","");
     if(["inicio","pagos","presu","inv","dia"].indexOf(h)>-1) tab=h;
     pintar();
-    if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("change",function(ev){ if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev); }); }
+    if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("change",function(ev){ if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
+      else if(ev.target&&ev.target.id==="pn-consent"){ CONSENT_CHK=ev.target.checked; var pc=document.getElementById("pn-priv"); if(pc) pc.classList.toggle("falta",hayAlergias()&&!consentido()); programar(); } }); }
     host.removeAttribute("aria-hidden");
   }
   function fromLocal(token){
@@ -16697,6 +16977,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       var antes=JSON.stringify([D.portal,D.event,estado]);
       D.portal=j.portal||D.portal; D.event=j.event; D.hoy=j.hoy; D.editable=j.editable;
       if(j.lista&&j.lista.estado) estado=j.lista.estado;
+      if(j.priv) PRIV=j.priv; var cs2=j.lista&&j.lista.data&&j.lista.data.consent; if(cs2&&!CONSENT&&(!PRIV||cs2.v===PRIV.v)){ CONSENT=cs2; CONSENT_CHK=true; }
       /* si el equipo ya tiene su lista en el plano y ella no está tocando nada, se le enseña el plano tal como está ahora */
       var ocupado=!!saveTm||(host.contains(document.activeElement)&&/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName));
       if(estado==="aplicada"&&!ocupado&&D.portal&&D.portal.lista&&D.portal.lista.mesas){
@@ -16851,6 +17132,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     try{ if(backend && window.hydrateFromServer) window.hydrateFromServer(); }catch(_){}
     /* la gestión de usuarios solo para administradores con backend real */
     var su=$("side-users"); if(su) su.hidden=!(backend && curUser && curUser.role==="admin");
+    if(backend&&curUser&&curUser.role==="admin"&&!sinRed) setTimeout(function(){ try{ if(window.LM_estadoAlEntrar) window.LM_estadoAlEntrar(); }catch(_){} },5000);
     var sp=$("side-pass"); if(sp) sp.hidden=!backend;
     pintarInstalar();
     if(backend&&!sinRed) refrescarAjustes();
@@ -17049,7 +17331,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return h;
   }
   /* ── Registro de actividad ── */
-  var TIPO_TX={plano_subido:"Subió un plano de fondo",plano_quitado:"Quitó un plano de fondo",login:"Entró en el programa",login_fallido:"Intento de acceso fallido",logout:"Cerró sesión",usuario_invitado:"Invitó a",invitacion_aceptada:"Aceptó su invitación",usuario_creado:"Creó el acceso de",clave_cambiada:"Cambió su contraseña",clave_restablecida:"Puso una contraseña temporal a",usuario_desactivado:"Desactivó a",usuario_activado:"Activó a",usuario_eliminado:"Eliminó a",usuario_editado:"Cambió los datos de",rol_cambiado:"Cambió el rol de",roles_cambiados:"Cambió qué ve cada rol",seguridad:"Cambió la seguridad",evento_creado:"Creó el evento",evento_borrado:"Borró el evento",copia_manual:"Hizo una copia de seguridad",restauracion:"Restauró",version_restaurada:"Volvió a una versión anterior de",descarga_datos:"Descargó los datos"};
+  var TIPO_TX={privacidad:"Cambió los ajustes de privacidad",anonimizacion:"Anonimizó eventos",supresion_persona:"Quitó a una persona de los eventos",acceso_persona:"Buscó a una persona (derecho de acceso)",errores_vaciados:"Vació el registro de errores",plano_subido:"Subió un plano de fondo",plano_quitado:"Quitó un plano de fondo",login:"Entró en el programa",login_fallido:"Intento de acceso fallido",logout:"Cerró sesión",usuario_invitado:"Invitó a",invitacion_aceptada:"Aceptó su invitación",usuario_creado:"Creó el acceso de",clave_cambiada:"Cambió su contraseña",clave_restablecida:"Puso una contraseña temporal a",usuario_desactivado:"Desactivó a",usuario_activado:"Activó a",usuario_eliminado:"Eliminó a",usuario_editado:"Cambió los datos de",rol_cambiado:"Cambió el rol de",roles_cambiados:"Cambió qué ve cada rol",seguridad:"Cambió la seguridad",evento_creado:"Creó el evento",evento_borrado:"Borró el evento",copia_manual:"Hizo una copia de seguridad",restauracion:"Restauró",version_restaurada:"Volvió a una versión anterior de",descarga_datos:"Descargó los datos"};
   var TIPO_AVISO={login_fallido:1,evento_borrado:1,usuario_eliminado:1,usuario_desactivado:1,restauracion:1};
   function htmlRegistro(){
     var us=U.users||[];

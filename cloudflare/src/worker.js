@@ -307,19 +307,23 @@ async function sharePost(request, env, url) {
   const enviar = !!(b && b.enviar), now = Date.now();
   await ensureNovios(env);
   const prev = await env.DB.prepare("SELECT estado, enviada, base, data FROM novios_listas WHERE token=?").bind(token).first();
-  /* las alergias son datos de salud: solo se guardan si quien rellena la lista ha aceptado el tratamiento (queda apuntado cuándo y con qué versión del aviso) */
-  let consent = null;
-  try { const pd = prev && prev.data ? JSON.parse(prev.data) : null; if (pd && pd.consent && pd.consent.v === PRIV_V) consent = pd.consent; } catch (_) {}
-  if (b && b.consent === true && !consent) consent = { ts: now, v: PRIV_V };
-  const conAlergias = data.mesas.some((m) => m.g.some((x) => x.a));
-  if (PRIV_EXIGIR && conAlergias && !consent) return json({ error: "consent", message: "Para guardar alergias o dietas hay que aceptar el tratamiento de esos datos (casilla de privacidad)." }, 400);
-  if (consent) data.consent = consent;
+
   /* la base es de lo que partieron: mientras editan (borrador/enviada) se
      conserva; si el equipo ya la pasó al plano, es lo aplicado, salvo que
      acaben de abrir el portal (nuevo): entonces es lo que vieron al abrirlo */
   const sigue = prev && prev.base && (prev.estado === "borrador" || prev.estado === "enviada" || (prev.estado === "aplicada" && !(b && b.nuevo)));
   let base = sigue ? prev.base : null;
   if (!base) { const bb = listaLimpia(b && b.base); base = JSON.stringify(bb || data); }
+  /* las alergias son datos de salud: las que escribe el cliente (las que no estaban ya en la lista de partida del equipo) solo se guardan si ha aceptado
+     el tratamiento; queda apuntado cuándo y con qué versión del aviso */
+  let consent = null;
+  try { const pd = prev && prev.data ? JSON.parse(prev.data) : null; if (pd && pd.consent && pd.consent.v === PRIV_V) consent = pd.consent; } catch (_) {}
+  if (b && b.consent === true && !consent) consent = { ts: now, v: PRIV_V };
+  const alergiasDe = (l) => { const o = {}; ((l && l.mesas) || []).forEach((m) => (m.g || []).forEach((x) => { const a = normTxt(x.a || "").trim(); if (a) o[a] = 1; })); return o; };
+  let baseL = null; try { baseL = JSON.parse(base); } catch (_) {}
+  const baseA = alergiasDe(baseL), nuevasA = Object.keys(alergiasDe(data)).filter((a) => !baseA[a]);
+  if (PRIV_EXIGIR && nuevasA.length && !consent) return json({ error: "consent", message: "Para guardar alergias o dietas hay que aceptar el tratamiento de esos datos (casilla de privacidad)." }, 400);
+  if (consent) data.consent = consent;
   const estado = enviar ? "enviada" : (prev && prev.estado === "enviada" ? "enviada" : "borrador");
   const enviada = enviar ? now : (prev ? prev.enviada : null);
   await env.DB.prepare("INSERT INTO novios_listas (token, event_id, data, estado, enviada, updated, revisada, base) VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL, ?7) ON CONFLICT(token) DO UPDATE SET event_id=?2, data=?3, estado=?4, enviada=?5, updated=?6, base=?7")
@@ -504,8 +508,8 @@ async function estadoRoute(request, env) {
   const hi = await q("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(gz)),0) AS b FROM historial");
   const pa = await q("SELECT COUNT(*) AS n FROM papelera");
   const pl = await q("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(src)),0) AS b FROM planos WHERE del=0");
-  const us = await q("SELECT COUNT(*) AS n, SUM(CASE WHEN COALESCE(active,1)=1 THEN 1 ELSE 0 END) AS act FROM users");
-  const nv = await q("SELECT COUNT(*) AS n, SUM(CASE WHEN estado IN ('borrador','enviada') THEN 1 ELSE 0 END) AS pen FROM novios_listas");
+  const us = await q("SELECT COUNT(*) AS n, COALESCE(SUM(CASE WHEN COALESCE(active,1)=1 THEN 1 ELSE 0 END),0) AS act FROM users");
+  const nv = await q("SELECT COUNT(*) AS n, COALESCE(SUM(CASE WHEN estado IN ('borrador','enviada') THEN 1 ELSE 0 END),0) AS pen FROM novios_listas");
   const eh = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 3600e3);
   const ed = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 864e5);
   const et = await q("SELECT COUNT(*) AS n FROM errores");
@@ -550,7 +554,7 @@ async function estadoLimpiar(request, env) {
    · Derecho de acceso/supresión: buscar a una persona en todos los eventos y quitarla. */
 const PRIV_V = 1;
 /* se exige la casilla de consentimiento para guardar alergias en el portal del cliente (la app del portal ya la trae) */
-const PRIV_EXIGIR = false;
+const PRIV_EXIGIR = true;
 const PRIV_DEF = { responsable: "", nif: "", direccion: "", email: "", meses: 12, auto: false };
 const PRIV_MESES = [6, 12, 18, 24, 36, 60];
 async function privCfg(env) {

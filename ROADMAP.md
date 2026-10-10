@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.60** (octubre 2026).
+Documento vivo. Última actualización: versión **01.61** (octubre 2026).
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -26,9 +26,13 @@ WhatsApp suelto ni Excel.
 | **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
 | **Historial de cambios por evento** (quién, qué y cuándo; volver a una versión) | ✅ |
 | **Equipo y accesos**: usuarios con ficha, alta por invitación, permisos por rol editables, registro de actividad, contraseña propia y cierre por inactividad | ✅ |
+| **RGPD**: aviso y consentimiento en el portal, plazo de conservación, anonimizar eventos y atender derechos de las personas · **Estado del sistema** con errores y vigilante externo | ✅ |
 | **App instalable y modo sin conexión** (icono, abrir sin red, cola de cambios con contador) | ✅ |
 | **Planos de fondo del salón compartidos** con todo el equipo (servidor, no solo el navegador de quien los sube) | ✅ |
 | **Cambios compartidos y coordinación entre departamentos**: lo que cambian Eventos, Cocina y Compras en un mismo evento se junta (no se pisa), y cada departamento ve qué ha cambiado para él | ✅ |
+
+### Novedad de la versión 01.61
+- **RGPD y datos de clientes** (fase 1.5) y **Salud del sistema** (fase 1.6): aviso y consentimiento en el portal, anonimización, derechos de las personas, pantalla de estado, registro de errores y vigilante externo.
 
 ### Novedad de la versión 01.60
 - **App instalable y modo sin conexión** (fase 1.3): se instala como app y se abre sin red; los cambios se suben solos al volver.
@@ -141,12 +145,26 @@ se recupera con el código manual por evento.
 - **Detalle técnico:** tabla `planos` (se crea sola) y API `/api/planos` (lista), `/api/planos/ver`, `PUT` y `DELETE`; claves `loc:interior`, `loc:exterior` y `ev:<id>:interior|exterior`; los planos propios de eventos que ya no existen se limpian pasados 45 días.
 - **Comprobado:** Eventos sube y Servicio lo recibe y lo dibuja; migración de un navegador con un plano «de antes»; plano propio del evento; quitar; cocina y compras reciben 403; clave, tipo y tamaño no válidos; subida sin conexión y al volver.
 
-### 1.5 RGPD y datos de clientes — *~0,5 día* — v01.61
-- Las **alergias son datos de salud** (categoría especial). Aviso de privacidad en el portal del cliente, texto de consentimiento, y política de conservación: anonimizar nombres y alergias de eventos cerrados pasado un plazo que decida el restaurante (p. ej. 12 meses).
+### 1.5 RGPD y datos de clientes — ✅ **hecho en la v01.61**
+- **Aviso de privacidad en el portal del cliente** (pestaña Invitados): resumen visible y «Leer el aviso completo» con responsable, para qué, base jurídica, quién lo ve, cuánto se guarda, derechos y reclamación ante la AEPD; también desde el enlace «Privacidad» del pie.
+- **Consentimiento para las alergias** (son datos de salud): si el cliente escribe una alergia o dieta nueva, hay que marcar la casilla «Acepto que Les Moles trate las alergias…»; sin ella **no se guarda** y la pantalla explica por qué. Queda apuntado **cuándo** y **con qué versión del aviso** (el servidor lo exige, no solo la pantalla). Las alergias que ya venían en la lista de partida del equipo no piden nada.
+- **Parámetros → Privacidad y datos** (solo administrador):
+  - **Responsable y plazo:** nombre/razón social, NIF, dirección y correo de privacidad (salen en el aviso) y cuánto se conservan los datos de un evento (6, 12, 18, 24, 36 o 60 meses; por defecto 12).
+  - **Anonimizar eventos que pasan el plazo:** lista de los que ya lo han pasado y botón «Anonimizar los seleccionados» (doble pulsación). Se quitan nombres de invitados y del cliente, contactos, alergias, comunicaciones, minuta personalizada y enlace del portal; **quedan las cifras** (mesas, personas por tipo, importes) para las estadísticas. También se borran su historial, papelera, lista del cliente y plano propio. Opción de hacerlo **sola, una vez al día**. Las copias de seguridad automáticas se renuevan solas (~3 meses); las manuales las borra el administrador.
+  - **Buscar o quitar a una persona** (derechos de acceso y supresión): busca un nombre, teléfono o correo en todos los eventos, muestra dónde aparece, copia un resumen para contestarle y «Quitar a esta persona de todos los eventos» (solo esa persona; el resto de la línea sigue). Queda en el registro de actividad **sin guardar el nombre**.
+  - **Textos listos:** el aviso de privacidad, el registro de actividades de tratamiento (art. 30 RGPD; imprimible/PDF) y los pasos para atender una petición (plazo de un mes).
+- **Detalle técnico:** `meta.privacidad` (configuración), API `/api/privacidad`, `/api/privacidad/anonimizar` y `/api/privacidad/persona`; el consentimiento va dentro de la lista del cliente (`consent: {ts, v}`).
+- **Comprobado:** el servidor real con eventos de prueba (anonimizar, búsqueda con tildes de más, quitar a una persona que comparte línea, copia vieja de un navegador que no «des-anonimiza», permisos 403/401), y el portal en un navegador: sin casilla no se guarda, con casilla sí, queda «Aceptado el…».
+- **Tu parte (no depende de mí):** rellenar el responsable, NIF, dirección y correo de privacidad; elegir el plazo; y revisar los textos con tu asesor (son plantillas orientativas).
 
-### 1.6 Salud del sistema — *~0,5 día* — v01.61
-- Pantalla «Estado» para admin (último guardado, último backup, errores recientes) y registro de errores del servidor, para enterarse antes de que lo note un camarero.
-- **Tamaño del documento:** todo el negocio vive en un solo registro de la base de datos (límite de 2 MB por registro en D1). Medirlo, avisar al administrador cuando pase de ~1,5 MB y, si hace falta, pasar a un registro por evento.
+### 1.6 Salud del sistema — ✅ **hecho en la v01.61**
+- **Parámetros → Estado del sistema** (solo administrador): aviso general («Todo en orden» / avisos / problemas), último guardado, nº de eventos, copias de seguridad (y cuándo fue la última automática), papelera, historial, planos de fondo, personas con acceso, listas de clientes pendientes y la versión de la app. Se actualiza solo cada 30 s.
+- **Espacio del documento:** todo el negocio vive en un registro de la base de datos con límite de 2 MB; una barra dice cuánto ocupa y avisa al llegar al 70 % y al 90 %.
+- **Errores:** todo error del servidor y todo error que le salta a la app en un móvil o tablet se apunta (con quién y dónde) en «Errores recientes», con límite para que un fallo en bucle no llene la base de datos. Se puede vaciar el registro.
+- **Al entrar el administrador**, si hay un problema importante sale un aviso sin abrir la pantalla.
+- **Vigilante externo:** `/api/health` (público, sin datos) contesta «ok» si el servidor y la base de datos funcionan; la pantalla da la dirección para apuntar un servicio gratuito como UptimeRobot, que avisa aunque nadie tenga la app abierta.
+- **Comprobado:** health, permisos (solo admin), registro y límite de avisos de la app, avisos «mal» por errores recientes, vaciar el registro y el flujo en pantalla (un error provocado aparece en menos de 1 s).
+- **Tu parte (no depende de mí):** dar de alta el vigilante gratuito con esa dirección y elegir a qué correo/móvil avisa.
 
 ---
 
