@@ -668,6 +668,9 @@ function anonEvento(e, ahora) {
   if (c.menu) { delete c.menu.minuta; delete c.menu.aperAdapt; delete c.menu.alerOk; delete c.menu.aperitivosPorAlergia; }
   c.share = { on: false, id: "" };
   delete c.rev; delete c.avisos;
+  /* el contrato (con el nombre y el NIF de quien lo aceptó) y quién aprobó el menú o la minuta */
+  delete c.contrato;
+  if (c.aprobaciones) Object.keys(c.aprobaciones).forEach((k) => { if (c.aprobaciones[k]) c.aprobaciones[k].nombre = ""; });
   /* el resumen del servicio conserva las horas, pero no los textos libres de las incidencias ni las notas */
   if (c.cierre) { delete c.cierre.nota; delete c.cierre.material; }
   if (c.turnos) Object.keys(c.turnos).forEach((id) => { if (c.turnos[id]) delete c.turnos[id].nota; });
@@ -777,6 +780,14 @@ function buscarEnEvento(e, qn, borrar) {
   });
   FICHA_PERS.forEach((k) => { if (F[k] && normTxt(F[k]).indexOf(qn) >= 0) { hit.ficha++; if (borrar) F[k] = ""; } });
   (e.comunicaciones || []).forEach((c) => { if (c && normTxt(JSON.stringify(c)).indexOf(qn) >= 0) { hit.otros++; if (borrar) { c.nota = "(borrado)"; c.texto = "(borrado)"; } } });
+  /* quién aprobó o aceptó algo en el portal, y el contrato aceptado (nombre, NIF y el texto, que lleva el nombre del cliente) */
+  Object.keys(e.aprobaciones || {}).forEach((k) => { const a = e.aprobaciones[k]; if (a && a.nombre && normTxt(a.nombre).indexOf(qn) >= 0) { hit.otros++; if (borrar) a.nombre = "(borrado)"; } });
+  const CO = e.contrato;
+  if (CO) {
+    const fi = CO.firmado;
+    if (fi && normTxt((fi.nombre || "") + " " + (fi.nif || "") + " " + (fi.texto || "")).indexOf(qn) >= 0) { hit.otros++; if (borrar) { fi.nombre = "(borrado)"; fi.nif = ""; fi.texto = "(borrado)"; } }
+    if (CO.texto && normTxt(CO.texto).indexOf(qn) >= 0) { hit.otros++; if (borrar) { CO.texto = ""; if (e.share && e.share.portal) e.share.portal.contrato = null; } }
+  }
   /* lo que se escribe a mano después del evento: nota y material del cierre, notas de turnos, avisos y notas del servicio */
   const CS = e.cierre; if (CS) ["nota", "material"].forEach((k) => { if (CS[k] && normTxt(CS[k]).indexOf(qn) >= 0) { hit.otros++; if (borrar) CS[k] = "(borrado)"; } });
   Object.keys(e.turnos || {}).forEach((id) => { const t = e.turnos[id]; if (t && t.nota && normTxt(t.nota).indexOf(qn) >= 0) { hit.otros++; if (borrar) t.nota = "(borrado)"; } });
@@ -1001,6 +1012,7 @@ async function servicioPost(request, env) {
 
 /* ── PORTAL DEL CLIENTE AMPLIADO ──────────────────────────────────────────────
    Lo que el cliente puede hacer en su página privada (enlace ?cliente=<clave>), además de rellenar su lista:
+   · ACEPTAR el contrato o la propuesta que el equipo publica (nombre, NIF, fecha, hora y huella del texto; queda guardado entero en e.contrato.firmado).
    · APROBAR el menú y la minuta, con su nombre y la fecha. Queda en el propio evento (e.aprobaciones), así que sale en
      su historial. Si el equipo cambia el menú o publica otra minuta después, la aprobación deja de valer y se vuelve a pedir
      (cada aprobación apunta a «la huella» de lo que se aprobó).
@@ -1021,6 +1033,8 @@ async function ensurePortal(env) {
   POR_OK = true;
 }
 function porHash(s) { let h = 5381; s = String(s); for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+/* el documento (propuesta o contrato) que el equipo ha publicado: lo que el cliente ve es la «foto» del portal (share.portal.contrato) */
+function porContratoDe(ev) { const c = ev.share && ev.share.portal && ev.share.portal.contrato; return c && typeof c.texto === "string" && c.texto ? c : null; }
 function porMenuHash(ev) { const p = (ev.share && ev.share.portal) || {}; return porHash(JSON.stringify(p.menu || [])); }
 function porTexto(v, n) { return String(v == null ? "" : v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f<>]/g, " ").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, n); }
 /* una imagen en data URL: de verdad JPEG, PNG o WebP (se mira la cabecera, no lo que diga el nombre) y no demasiado grande */
@@ -1040,6 +1054,9 @@ function porEstado(ev, minuta) {
   o.menu = fila(ap.menu, ap.menu && ap.menu.h === mh);
   o.minuta = minuta ? fila(ap.minuta, ap.minuta && ap.minuta.h === minuta.hash) : { ok: false, ts: 0, nombre: "", desactualizada: false, sin: true };
   o.menuHash = mh;
+  const co = porContratoDe(ev), ch = co ? porHash(co.texto) : "";
+  o.contrato = co ? fila(ap.contrato, ap.contrato && ap.contrato.h === ch) : { ok: false, ts: 0, nombre: "", desactualizada: false, sin: true };
+  o.contratoHash = ch;
   return o;
 }
 async function porDatos(env, ev, limiteMsgs) {
@@ -1051,15 +1068,18 @@ async function porDatos(env, ev, limiteMsgs) {
   return { msgs: (msgs.results || []).reverse().map((r) => ({ id: r.id, ts: +r.ts, de: r.de, nombre: r.nombre || "", texto: r.texto, leido: !!r.leido })), arch: A, minuta, estado: porEstado(ev, minuta) };
 }
 /* escribe una aprobación en el evento sin pisar nada más: solo se sellan las rutas de «aprobaciones» */
-function porAprobar(doc, evId, item, nombre, h, ahora) {
+function porAprobar(doc, evId, item, nombre, h, ahora, firmado) {
   const lista = doc.events || [], i = lista.findIndex((e) => e && e.id === evId);
   if (i < 0) return { cambios: 0 };
   const e = lista[i];
   e.aprobaciones = e.aprobaciones || {};
   e.aprobaciones[item] = { ts: ahora, nombre, h };
+  /* el contrato aceptado queda guardado ENTERO (texto, quién, NIF, cuándo y huella) en el propio evento, aparte de lo que se publique después */
+  if (item === "contrato" && firmado) { e.contrato = e.contrato || {}; e.contrato.firmado = firmado; }
   e.updated = Math.max(ahora, (+e.updated || 0) + 1);
   e._k = e._k || {};
-  kCaminos(e).filter((p) => p.indexOf("aprobaciones") === 0).forEach((p) => { e._k[p] = e.updated; });
+  const K_CON = "contrato" + K_SEP + "firmado";
+  kCaminos(e).filter((p) => p.indexOf("aprobaciones") === 0 || p.indexOf(K_CON) === 0).forEach((p) => { e._k[p] = e.updated; });
   return { cambios: 1 };
 }
 async function porClienteSesion(request, env, url, soloLectura) {
@@ -1096,18 +1116,29 @@ async function porAccion(request, env, url) {
     return json({ ok: true, ...(await porDatos(env, ev)) });
   }
   if (b.tipo === "aprobar") {
-    const item = b.item === "menu" || b.item === "minuta" ? b.item : "", nombre = porTexto(b.nombre, 80);
+    const item = b.item === "menu" || b.item === "minuta" || b.item === "contrato" ? b.item : "", nombre = porTexto(b.nombre, 80);
     if (!item) return json({ error: "invalid" }, 400);
     if (nombre.length < 2) return json({ error: "invalid", message: "Escribid vuestro nombre para aprobar." }, 400);
-    const d = await porDatos(env, ev); let h;
+    const d = await porDatos(env, ev); let h, firmado = null;
     if (item === "menu") { h = d.estado.menuHash; if (!((ev.share.portal || {}).menu || []).length) return json({ error: "invalid", message: "Todavía no hay menú que aprobar." }, 400); }
+    else if (item === "contrato") {
+      const co = porContratoDe(ev); if (!co) return json({ error: "invalid", message: "Ahora mismo no hay nada que aceptar." }, 400);
+      const nif = String(b.nif || "").replace(/[\s.\-]/g, "").toUpperCase();
+      if (!/^[A-Z0-9]{6,12}$/.test(nif)) return json({ error: "invalid", message: "Escribid vuestro NIF, DNI o NIE (sin espacios)." }, 400);
+      /* lo que el cliente ve y lo que el equipo tiene publicado tienen que ser lo mismo (si no, la «foto» va por detrás) */
+      if (!(ev.contrato && ev.contrato.texto === co.texto)) return json({ error: "cambio", message: "El documento acaba de cambiar: leedlo otra vez." }, 409);
+      h = porHash(co.texto);
+      if (b.h !== h) return json({ error: "cambio", message: "El documento acaba de cambiar: leedlo otra vez." }, 409);
+      const em = co.emp && typeof co.emp === "object" ? { marca: porTexto(co.emp.marca, 80), razon: porTexto(co.emp.razon, 120), rep: porTexto(co.emp.rep, 120) } : null;
+      firmado = { tipo: co.tipo === "propuesta" ? "propuesta" : "contrato", ver: Math.max(1, Math.floor(+co.ver) || 1), fecha: porTexto(co.fecha, 10), texto: co.texto, emp: em, h, ts: ahora, nombre, nif };
+    }
     else { if (!d.minuta) return json({ error: "invalid", message: "Todavía no hay minuta que aprobar." }, 400); h = d.minuta.hash; }
-    if (b.h && b.h !== h) return json({ error: "cambio", message: item === "menu" ? "El menú acaba de cambiar: revisadlo otra vez." : "La minuta acaba de cambiar: revisadla otra vez." }, 409);
-    const r = await storeEditar(env, (doc) => porAprobar(doc, ev.id, item, nombre, h, ahora));
+    if (item !== "contrato" && b.h && b.h !== h) return json({ error: "cambio", message: item === "menu" ? "El menú acaba de cambiar: revisadlo otra vez." : "La minuta acaba de cambiar: revisadla otra vez." }, 409);
+    const r = await storeEditar(env, (doc) => porAprobar(doc, ev.id, item, nombre, h, ahora, firmado));
     if (!r.ok) return json({ error: "busy", message: "Había muchos cambios a la vez. Probad otra vez." }, 409);
     const ev2 = await eventoCompartido(env, a.token) || ev;
     /* queda en el historial del evento, con el nombre de quien aprobó */
-    try { await ensureHistorial(env); await hiAnotar(env, ev2, ev, ["aprobaciones"], "", nombre + " (cliente)", "Aprobó " + (item === "menu" ? "el menú" : "la minuta"), ahora, false); } catch (_) {}
+    try { await ensureHistorial(env); await hiAnotar(env, ev2, ev, item === "contrato" ? ["aprobaciones", "contrato"] : ["aprobaciones"], "", nombre + " (cliente)", item === "contrato" ? ("Aceptó " + (firmado.tipo === "propuesta" ? "la propuesta" : "el contrato") + " (versión " + firmado.ver + ")") : "Aprobó " + (item === "menu" ? "el menú" : "la minuta"), ahora, false); } catch (_) {}
     return json({ ok: true, ...(await porDatos(env, ev2)) });
   }
   if (b.tipo === "archivo") {
@@ -1235,6 +1266,8 @@ const COR_PLANT = {
   cliente_reunion: "Hola {nombre},\n\nOs recordamos la reunión «{concepto}» de {evento} ({fecha}). Si necesitáis cambiar la hora, contestad a este correo.\n\n{firma}",
   cliente_libre_asunto: "Sobre {evento}",
   cliente_libre: "Hola {nombre},\n\n\n\nUn saludo,\n{firma}",
+  cliente_contrato_asunto: "{doc_titulo} de {evento}",
+  cliente_contrato: "Hola {nombre},\n\nYa tenéis {documento} de {evento} ({fecha}) esperando en vuestro enlace privado:\n{enlace}\n\nLeedlo con calma y, si todo está bien, podéis aceptarlo desde ahí mismo. Si tenéis cualquier duda, escribidnos.\n\n{firma}",
   camarero_asunto: "Tu turno en {evento} · {fecha}",
   camarero: "Hola {nombre},\n\nTe confirmamos tu turno en {evento}: {fecha}, entrada a las {hora}.\n{funciones}\nSi no puedes venir, avísanos cuanto antes.\n\n{firma}"
   ,proveedor_asunto: "{evento} · {fecha}",
@@ -1757,7 +1790,7 @@ async function bkRestaurar(request, env) {
    Volver a una versión también deja su línea (con lo que había antes), de modo
    que se puede deshacer. */
 const HI_RAFAGA = 10 * 60e3, HI_MAX = 50;
-const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "aprobaciones", "portal del cliente", "otros datos"];
+const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "aprobaciones", "contrato", "portal del cliente", "otros datos"];
 let HI_OK = false;
 async function ensureHistorial(env) {
   if (HI_OK) return;
@@ -1772,6 +1805,7 @@ function hiSeccion(k) {
   if (/^camareros|^reparto$|^turnos$/.test(k)) return "camareros";
   if (k === "cierre" || k === "cierreServicio") return "cierre";
   if (k === "aprobaciones") return "aprobaciones";
+  if (k === "contrato") return "contrato";
   if (k === "hitos" || k === "agendaHecho") return "agenda";
   if (k === "tareas") return "tareas";
   if (k === "proveedores") return "proveedores";

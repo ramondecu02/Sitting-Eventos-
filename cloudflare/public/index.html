@@ -21,12 +21,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.65 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.66 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.65".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.66".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3833,6 +3833,52 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 :root[data-theme="dark"] .ev-portal{background:#1E3A28; border-color:#3E7A53; color:#A9DDB9}
 .portal-act{margin-top:8px}
 @media (max-width:560px){ .pq-sec{padding:14px 12px} .pq-min img{max-width:100%; width:100%} .pq-b{max-width:94%} }
+/* ── Propuesta y contrato (cn-) ── */
+.cn-card{display:flex; flex-direction:column; gap:14px}
+.cn-steps{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0}
+.cn-st{display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--c-line)}
+.cn-st:last-child{border-bottom:0}
+.cn-dot{flex:0 0 auto; width:24px; height:24px; border-radius:50%; border:2px solid var(--c-line); display:inline-flex; align-items:center; justify-content:center; font:700 13px/1 var(--font-text,system-ui); color:#fff; margin-top:1px}
+.cn-st.ok .cn-dot{background:var(--success); border-color:var(--success)}
+.cn-st.aviso .cn-dot{border-color:var(--warning); background:var(--warning-soft)}
+.cn-st>div{min-width:0; display:flex; flex-direction:column; gap:2px; align-items:flex-start}
+.cn-st b{font-size:15px}
+.cn-st span:not(.cn-dot){font-size:13.5px; color:var(--c-mut); overflow-wrap:anywhere}
+.cn-mini{margin-top:6px}
+.cn-acc{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.cn-acc .btn.sm{min-height:42px}
+.cn-sel{display:inline-flex; align-items:center; gap:8px; font-size:14px}
+.cn-sel span{color:var(--c-mut); font-weight:600}
+.cn-sel select{min-height:42px}
+.cn-aviso{padding:11px 14px; border:1px solid var(--warning); background:var(--warning-soft); border-radius:12px; font-size:14px; line-height:1.45}
+.cn-aviso.mal{border-color:var(--danger); background:var(--danger-soft)}
+.cn-aviso.ok{border-color:var(--success); background:var(--success-soft)}
+.cn-aviso a{color:var(--accent-tx,var(--c-ink)); font-weight:700}
+.cn-nota,.cn-peq{margin:0; font-size:13px; line-height:1.5; color:var(--c-mut)}
+.cn-peq code{font:12.5px/1.4 ui-monospace,Menlo,monospace; background:var(--bg-2,transparent); padding:1px 5px; border-radius:5px}
+.cn-ver summary{cursor:pointer; font-weight:700; font-size:14px; min-height:36px; display:flex; align-items:center}
+.cn-wrap{max-width:980px}
+.cn-h2{margin:22px 0 10px; font:600 19px/1.25 var(--font-display,Georgia,serif)}
+.cn-b{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+.cn-chip{font:600 12.5px/1 ui-monospace,Menlo,monospace; padding:9px 11px; border-radius:99px; border:1px solid var(--c-line); background:var(--panel); color:var(--c-ink); cursor:pointer; min-height:36px; margin:0 2px 4px 0}
+@media (pointer:coarse){ .cn-chip{min-height:42px} }
+.cn-chip:hover{border-color:var(--gold)}
+.cn-vars{display:flex; flex-direction:column; gap:8px}
+.cn-tpl{width:100%; font:13.5px/1.55 ui-monospace,Menlo,monospace; min-height:240px; resize:vertical}
+.cn-rev{display:flex; gap:10px; align-items:flex-start; font-size:15px; line-height:1.45}
+/* el documento tal como lo ve el cliente */
+.cn-doc{background:#fff; color:#1d1b17; border:1px solid color-mix(in srgb,currentColor 18%,transparent); border-radius:8px; padding:22px 24px; font:15px/1.6 Georgia,"Times New Roman",serif; max-width:760px; overflow-wrap:anywhere}
+.cn-doc .cn-t{margin:0 0 6px; font:400 24px/1.25 Georgia,serif; color:#1d1b17}
+.cn-doc .cn-s{margin:20px 0 8px; padding-bottom:5px; border-bottom:1px solid #C9B182; font:700 11px/1.3 system-ui,sans-serif; letter-spacing:.14em; text-transform:uppercase; color:#8A6A2A}
+.cn-doc .cn-p{margin:0 0 8px}
+.cn-doc .cn-ul{margin:0 0 8px; padding-left:20px}
+.cn-doc .cn-ul li{margin:2px 0}
+.cn-doc .cn-tw{overflow-x:auto; margin:4px 0 10px}
+.cn-doc .cn-tab{width:100%; border-collapse:collapse; font-size:14.5px}
+.cn-doc .cn-tab td{padding:6px 4px; border-bottom:1px solid #EAE2D0; vertical-align:top}
+.cn-doc .cn-tab td.r{text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; font-family:system-ui,sans-serif}
+.cn-doc .cn-tab tr.tot td{font-weight:700; border-bottom:1px solid #C9B182}
+@media (max-width:560px){ .cn-doc{padding:16px 14px; font-size:14.5px} .cn-doc .cn-t{font-size:21px} }
 /*V3-END*/
 </style>
 
@@ -3845,7 +3891,7 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.65</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.66</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8999,6 +9045,7 @@ var SECCIONES=[
   {k:"p-estado",   g:"Parámetros", t:"Estado del sistema"},
   {k:"p-privacidad",g:"Parámetros", t:"Privacidad y datos"},
   {k:"p-correo",  g:"Parámetros", t:"Correo y avisos"},
+  {k:"p-contrato",g:"Parámetros", t:"Contrato y propuesta"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
@@ -9198,7 +9245,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.65</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.66</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9551,7 +9598,8 @@ function portalFoto(e){
     nombres:{a:F.parejaA||"",b:F.parejaB||""}, horas:horas, menu:menu,
     presupuesto:{lineas:lineas, extras:extras, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100, pend:Math.round(Math.max(0,pt.pend)*100)/100, pct:pct, senal:senal},
     pagos:pagos, pasos:pasos, cierre:cierre, plano:(function(){ try{ return planoEsquema(e); }catch(_){ return null; } })(), lista:{mesas:mesas}, auto:(e.share&&e.share.auto===false)?false:true,
-    contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""}};
+    contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""},
+    contrato:(e.contrato&&e.contrato.texto)?{tipo:e.contrato.tipo||"contrato",ver:e.contrato.ver||1,texto:e.contrato.texto,fecha:e.contrato.fecha||"",emp:e.contrato.emp||null}:null};
 }
 /* pone al día la foto de un evento compartido (sin tocar e.updated: es un dato derivado) */
 function portalAlDia(e){
@@ -10622,7 +10670,7 @@ function renderHomeNovios(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,
+  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -10773,6 +10821,7 @@ function eventoAlertas(e){
   /* la señal fija (1.000 €) es lo primero que se cobra, al reservar */
   var _cfg=agendaCfg();
   if(+_cfg.senal>0&&pt.pagado<+_cfg.senal-0.5&&(dr==null||dr>=0)) a.push({t:"Señal de "+fmtEur(+_cfg.senal)+" sin cobrar (se cobra al reservar).",k:"presup",sev:"urgent"});
+  try{ var _cs=conEstado(e); if(_cs.pub&&!_cs.ok&&_cs.ts){ var _dd=Math.floor((Date.now()-_cs.ts)/864e5); if(_dd>=7) a.push({t:(_cs.tipo==="propuesta"?"La propuesta":"El contrato")+" lleva "+_dd+" días publicado y el cliente no lo ha aceptado.",k:"presup",sev:"warn"}); } }catch(_){}
   /* agenda automática: lo vencido, urgente; lo de las próximas 2 semanas, aviso */
   if(dr==null||dr>=0) hitosAuto(e).forEach(function(h){
     if(h.done) return;
@@ -10845,6 +10894,7 @@ function renderPlanV(k){
   if(k==="p-estado"){ if(window.LM_renderEstado) window.LM_renderEstado(host); return; }
   if(k==="p-privacidad"){ if(window.LM_renderPriv) window.LM_renderPriv(host); return; }
   if(k==="p-correo"){ if(window.LM_renderCorreoCfg) window.LM_renderCorreoCfg(host); return; }
+  if(k==="p-contrato"){ if(window.LM_renderContratoCfg) window.LM_renderContratoCfg(host); return; }
   if(k==="avisos"){ if(window.LM_renderAvisos) window.LM_renderAvisos(host); return; }
   if(k==="portal"){ if(window.LM_renderPortal) window.LM_renderPortal(host); return; }
   if(String(k).indexOf("p-")===0){
@@ -10972,6 +11022,10 @@ function onPlanClick(ev){
   else if(act==="ag-pago"){ var _h=hitosAuto(e).filter(function(x){ return x.id===b.getAttribute("data-k"); })[0];
     if(_h){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:_h.t,importe:Math.round((_h.importe||0)*100)/100}); toast("Pago registrado: "+_h.t+" · "+fmtEur(_h.importe||0)+". Revisa la fecha y el importe en Presupuesto."); } }
   else if(act==="presu-pdf"){ descargarPresupuesto(e,($("paper")&&$("paper").value)||"A4"); return; }
+  else if(act==="con-pdf"){ conDescargar(e,b.getAttribute("data-t")); return; }
+  else if(act==="con-ir"){ var _cc2=$("cn-card"); if(_cc2) _cc2.scrollIntoView({behavior:"smooth",block:"start"}); return; }
+  else if(act==="con-pub"){ var _ct=$("con-tipo"); if(conPublicar(e,_ct&&_ct.value)===false) return; }
+  else if(act==="con-quitar"){ if(!conRetirar(e)) return; }
   else if(act==="pvp-aplicar"){ pvpAplicar(e); }
   else if(act==="pvp-copiar"){ var _r=window.SITTING_BRIDGE.precioMenu(e), _tx=pvpTexto(e,_r);
     try{ navigator.clipboard.writeText(_tx).then(function(){ toast("Copiado: pégalo donde quieras."); },function(){ window.prompt("Copia el texto:",_tx); }); }catch(_){ window.prompt("Copia el texto:",_tx); } return; }
@@ -11206,7 +11260,7 @@ function viewPresup(e){
     '<td><button type="button" class="row-del" data-act="pago-del" data-i="'+i+'" aria-label="Quitar este pago">×</button></td></tr>'; }).join("");
   if(!e.presupuesto.pagos.length) pagosHTML='<tr><td colspan="4" style="color:var(--c-mut);font-style:italic;padding:14px">Sin pagos registrados. Sugerencia: la señal al reservar, el primer pago ('+pctSenal()+'%) y el último con lo que quede.</td></tr>';
   return ''+
-  '<div class="pp-presu-bar"><button type="button" class="btn gold sm" data-act="presu-pdf">Descargar presupuesto en PDF</button><span class="pv-sec-note">menús, extras, pagos realizados e importe pendiente — listo para imprimir o enviar</span></div>'+
+  '<div class="pp-presu-bar"><button type="button" class="btn gold sm" data-act="presu-pdf">Descargar presupuesto en PDF</button><span class="pv-sec-note">menús, extras, pagos realizados e importe pendiente — listo para imprimir o enviar</span><button type="button" class="btn sm" data-act="con-ir">Propuesta y contrato'+conPill(e)+'</button></div>'+
   pvpCard(e)+
   '<div class="pv-sec">Precios por menú <span class="pv-sec-note">— las cantidades salen del plano de mesas</span></div>'+
   '<div class="pcard"><div class="fldset">'+
@@ -11227,8 +11281,329 @@ function viewPresup(e){
   '</div>'+
   '<div class="pv-sec">Seguimiento de pagos <span class="pv-sec-note">— cada pago registrado aparece en el calendario en su fecha</span></div>'+
   '<div class="dtable-wrap"><table class="dtable" style="min-width:480px"><thead><tr><th>Fecha</th><th>Concepto</th><th class="rnum">Importe</th><th></th></tr></thead><tbody>'+pagosHTML+'</tbody></table>'+
-    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap">'+(+agendaCfg().senal>0?'<button type="button" class="btn sm" data-act="pago-reserva">+ Señal ('+fmtEur(+agendaCfg().senal)+')</button>':'')+'<button type="button" class="btn sm gold" data-act="pago-senal">+ Primer pago ('+pctSenal()+'%)</button><button type="button" class="btn sm" data-act="pago-2">+ Último pago (lo que falta)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button></div></div>';
+    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap">'+(+agendaCfg().senal>0?'<button type="button" class="btn sm" data-act="pago-reserva">+ Señal ('+fmtEur(+agendaCfg().senal)+')</button>':'')+'<button type="button" class="btn sm gold" data-act="pago-senal">+ Primer pago ('+pctSenal()+'%)</button><button type="button" class="btn sm" data-act="pago-2">+ Último pago (lo que falta)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button></div></div>'+
+  contratoCard(e);
 }
+/* ══ PROPUESTA Y CONTRATO ═══════════════════════════════════════════════════════
+   Del presupuesto del evento salen dos documentos: la PROPUESTA (lo que se ofrece) y el CONTRATO (lo que se firma).
+   · El texto sale de una PLANTILLA editable (Parámetros → «Contrato y propuesta»), con variables entre llaves
+     ({cliente}, {fecha_evento}, {total}…) y tres bloques que se rellenan solos con los datos del evento:
+     {menu_resumen}, {tabla_importes} y {plan_pagos}. Si falta algún dato, no se puede publicar y dice cuál.
+   · Un texto sencillo y el mismo para todo: «# título», «## apartado», «- punto», «| concepto | importe |» (con «|!» en la fila
+     de total) y párrafos. De ahí salen el PDF (impreso o para firmar a mano) y la página que ve el cliente en su portal.
+   · «Publicar en el portal» FIJA el texto tal como está en ese momento (e.contrato.texto) y lo copia a la «foto» del portal.
+     El cliente lo acepta online con su nombre y su NIF; el servidor guarda quién, cuándo y una huella del texto aceptado
+     (e.contrato.firmado). Si el presupuesto o la plantilla cambian y se publica otra versión, la aceptación anterior deja de
+     valer y se vuelve a pedir. Firma electrónica simple (no cualificada): ver la nota de Parámetros.
+   · Para publicar un CONTRATO, el administrador tiene que haber marcado el texto como revisado (por su asesor) y haber
+     escrito las condiciones de cancelación y los datos de la empresa. Nada de esto se inventa aquí. */
+var CON_PROP_DEF=[
+ "# Propuesta de {tipo}",
+ "{restaurante} · {fecha_hoy}",
+ "",
+ "## Para",
+ "{cliente}",
+ "",
+ "## El evento",
+ "- Fecha: {fecha_evento}",
+ "- Lugar: {lugar}",
+ "- Comensales: {personas} ({desglose})",
+ "",
+ "## El menú",
+ "{menu_resumen}",
+ "",
+ "## Presupuesto",
+ "{tabla_importes}",
+ "Los importes incluyen el IVA.",
+ "",
+ "## Cómo se paga",
+ "{plan_pagos}",
+ "Los pagos se hacen por transferencia al IBAN {iban}.",
+ "",
+ "## Condiciones",
+ "- Esta propuesta es válida hasta el {valida_hasta}.",
+ "- La fecha queda reservada cuando recibimos la señal.",
+ "- El número definitivo de comensales se confirma hasta {dias_cierre} días antes del evento."
+].join("\n");
+var CON_CONT_DEF=[
+ "# Contrato de servicio de {tipo}",
+ "En {poblacion}, a {fecha_hoy}.",
+ "",
+ "## Partes",
+ "- {razon}, con CIF {cif} y domicilio en {domicilio}, representada por {rep}{cargo_txt} (en adelante, el restaurante).",
+ "- {cliente}{contacto_txt} (en adelante, el cliente), que se identifica con su NIF al aceptar este contrato.",
+ "",
+ "## 1. Objeto",
+ "El restaurante prestará al cliente el servicio de restauración de {tipo} el {fecha_evento} en {lugar}, para {personas} comensales previstos ({desglose}).",
+ "",
+ "## 2. Menú y servicios",
+ "{menu_resumen}",
+ "",
+ "## 3. Precio",
+ "{tabla_importes}",
+ "Los importes incluyen el IVA. Cualquier servicio que no figure aquí se presupuestará aparte y por escrito.",
+ "",
+ "## 4. Forma de pago",
+ "{plan_pagos}",
+ "Los pagos se hacen por transferencia al IBAN {iban}, indicando el nombre del evento. La fecha queda reservada cuando el restaurante recibe la señal.",
+ "",
+ "## 5. Número de comensales y cambios",
+ "El cliente comunicará el número definitivo de comensales, la distribución de las mesas y las alergias o intolerancias hasta {dias_cierre} días antes del evento. Pasada esa fecha, los cambios solo se admiten si el restaurante puede asumirlos. Se facturará el número definitivo de comensales confirmado.",
+ "",
+ "## 6. Cancelación",
+ "{cancelacion}",
+ "{condiciones_extra}",
+ "",
+ "## 7. Protección de datos",
+ "Los datos personales del cliente se tratan para preparar y prestar el servicio contratado, con base en este contrato. El responsable es {razon} (CIF {cif}, {domicilio}). Se conservan durante el tiempo necesario para el servicio y para cumplir las obligaciones legales. El cliente puede ejercer sus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a {mail_contacto}.",
+ "",
+ "## 8. Aceptación",
+ "El cliente acepta este contrato mediante firma electrónica simple en su portal privado, escribiendo su nombre y su NIF. Quedan registrados la fecha y la hora de la aceptación y una huella del texto aceptado, de modo que cualquier cambio posterior del texto se detecta. Cualquier modificación del contrato requiere una nueva aceptación."
+].join("\n");
+/* lo que se enseña cuando falta un dato */
+var CON_LAB={cliente:"el nombre del cliente",fecha_evento:"la fecha del evento",lugar:"el lugar",razon:"la razón social del restaurante",cif:"el CIF del restaurante",
+  domicilio:"el domicilio del restaurante",rep:"el representante del restaurante",iban:"el IBAN para los pagos (Resumen → portal del cliente)",
+  menu_resumen:"el menú del evento (platos elegidos)",desglose:"los comensales (plano de mesas)",tabla_importes:"los precios del menú (Presupuesto)",plan_pagos:"el importe total",
+  cancelacion:"las condiciones de cancelación (Parámetros → Contrato y propuesta)",mail_contacto:"el correo de contacto (Resumen → portal del cliente)",
+  restaurante:"el nombre del restaurante",poblacion:"la población",tipo:"el tipo de evento",valida_hasta:"la validez de la propuesta"};
+/* cuántos días son: la agenda lo sabe (el cierre de cambios) */
+var CON_VARS_AYUDA=[["cliente","el nombre del cliente (de la ficha)"],["tipo","boda, comunión…"],["fecha_evento","fecha completa del evento"],["lugar","lugar del evento"],
+  ["personas","comensales en total"],["desglose","«155 adultos, 4 niños y 8 de staff»"],["adultos","adultos"],["ninos","niños"],["bebes","bebés"],["staff","staff"],["total","importe total"],["senal","importe de la señal"],["iban","IBAN de los pagos"],
+  ["fecha_hoy","fecha del documento"],["valida_hasta","fin de la validez de la propuesta"],["dias_cierre","días antes en que se cierran los cambios"],
+  ["restaurante","nombre comercial"],["razon","razón social"],["cif","CIF"],["domicilio","domicilio"],["poblacion","población"],["rep","representante"],["mail_contacto","correo de contacto"],
+  ["cancelacion","bloque: condiciones de cancelación"],["condiciones_extra","bloque: condiciones adicionales (opcional)"],
+  ["menu_resumen","bloque: platos por apartado"],["tabla_importes","bloque: menús, extras y total"],["plan_pagos","bloque: señal y pagos con sus fechas"]];
+function conHashTxt(s){ var h=5381; s=String(s==null?"":s); for(var i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
+function conCfg(){
+  var d=paramData("contrato")||{}, em=d.empresa||{}, pt=paramData("portal")||{};
+  return {empresa:{nombre:em.nombre||"Les Moles",razon:em.razon||"",cif:em.cif||"",domicilio:em.domicilio||"",poblacion:em.poblacion||"Ulldecona",rep:em.rep||"",cargo:em.cargo||""},
+    validez:(+d.validez>0?+d.validez:30), cancelacion:d.cancelacion||"", extra:d.extra||"",
+    propuesta:d.propuesta||CON_PROP_DEF, contrato:d.contrato||CON_CONT_DEF, revisado:d.revisado||null, iban:pt.iban||"", mail:pt.mail||"", tel:pt.tel||""};
+}
+/* la «huella» de la plantilla del contrato: si cambia algo, hay que volver a marcarla como revisada */
+function conTplHash(cfg){ return conHashTxt([cfg.contrato,cfg.cancelacion,cfg.extra].join("\u0001")); }
+function conRevisado(cfg){ return !!(cfg.revisado&&cfg.revisado.h&&cfg.revisado.h===conTplHash(cfg)); }
+function conFechaLarga(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); try{ return d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmyFromISO(iso); } }
+function conFechaCorta(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); try{ return d.toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmyFromISO(iso); } }
+function conSumaDias(iso,n){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); d.setUTCDate(d.getUTCDate()+n); return d.getUTCFullYear()+"-"+("0"+(d.getUTCMonth()+1)).slice(-2)+"-"+("0"+d.getUTCDate()).slice(-2); }
+function conLimpia(s){ return String(s==null?"":s).replace(/\|/g,"/").replace(/\s+/g," ").trim(); }
+/* todos los valores del documento, sacados del evento (nada se escribe a mano aquí) */
+function conVars(e,cfg,fechaISO){
+  var F=e.ficha||{}, c=planCounts(e), staff=staffMenus(e,c), ad=Math.max(0,c.adultos-(c.staff||0)), P=e.presupuesto||{}, pt=presupTotals(e), ag=agendaCfg(), EM=cfg.empresa;
+  var v={}, opc={}, bl={}, bopc={};
+  var cli=[F.parejaA,F.parejaB].filter(function(x){ return x&&String(x).trim(); }).map(function(x){ return String(x).trim(); }).join(" y ")||String(F.contacto||"").trim();
+  var tipo=String(F.tipo||eventoTipo(e)||"evento").toLowerCase();
+  v.cliente=cli; v.tipo=tipo; v.fecha_evento=conFechaLarga(F.fecha); v.lugar=String(F.ubicacion||"").trim()||"Les Moles";
+  v.personas=String(c.pax||0); v.adultos=String(ad); v.ninos=String(c.ninos||0); v.staff=String(staff||0); v.bebes=String(c.bebes||0);
+  var dp=[]; function pl(q,s1,s2){ return q+" "+(q===1?s1:s2); }
+  if(ad) dp.push(pl(ad,"adulto","adultos")); if(c.ninos) dp.push(pl(c.ninos,"niño","niños")); if(c.bebes) dp.push(pl(c.bebes,"bebé","bebés")); if(staff) dp.push(staff+" de staff");
+  v.desglose=dp.length>1?dp.slice(0,-1).join(", ")+" y "+dp[dp.length-1]:(dp[0]||"");
+  v.total=fmtEur(pt.total); v.senal=fmtEur(Math.max(0,+ag.senal||0)); v.iban=cfg.iban||""; v.mail_contacto=cfg.mail||"";
+  v.fecha_hoy=conFechaCorta(fechaISO); v.valida_hasta=conFechaCorta(conSumaDias(fechaISO,cfg.validez));
+  var cierre=(ag.hitos||[]).filter(function(h){ return h.cierre; })[0]; v.dias_cierre=String(cierre?(+cierre.dias||2):2);
+  v.restaurante=EM.nombre; v.razon=EM.razon; v.cif=EM.cif; v.domicilio=EM.domicilio; v.poblacion=EM.poblacion; v.rep=EM.rep;
+  v.cargo_txt=EM.cargo?", "+EM.cargo:""; opc.cargo_txt=1;
+  var ct=[]; if(F.telefono) ct.push("teléfono "+F.telefono); if(F.email) ct.push("correo "+F.email); v.contacto_txt=ct.length?", con "+ct.join(" y "):""; opc.contacto_txt=1;
+  /* bloques (varias líneas) */
+  var fam=[]; try{ menuPorFamilias(e).forEach(function(f){ fam.push("- "+capFirst(String(f.fam).toLowerCase())+": "+f.platos.map(conLimpia).join("; ")); }); }catch(_){}
+  if(fam.length){ if(c.ninos>0) fam.push("- Menú infantil para "+c.ninos+(c.ninos===1?" niño":" niños")); if(staff>0) fam.push("- Menú de staff para "+staff+" personas"); }
+  bl.menu_resumen=fam;
+  var lineas=[{n:"Menú adulto",q:ad,p:+P.precioAdulto||0},{n:"Menú infantil",q:c.ninos||0,p:+P.precioInfantil||0},{n:"Menú staff",q:staff||0,p:+P.precioStaff||0}].filter(function(l){ return l.q>0&&l.p>0; });
+  var tb=[]; lineas.forEach(function(l){ tb.push("| "+l.n+" · "+l.q+" × "+fmtEur(l.p)+" | "+fmtEur(l.q*l.p)+" |"); });
+  (P.extras||[]).forEach(function(x){ if(conLimpia(x.concepto)&&(+x.importe||0)) tb.push("| "+conLimpia(x.concepto)+" | "+fmtEur(+x.importe||0)+" |"); });
+  if(tb.length&&pt.total>0) tb.push("|! Total | "+fmtEur(pt.total)+" |"); else tb=[];
+  bl.tabla_importes=tb;
+  var pp=[];
+  if(pt.total>0){
+    var sen=Math.max(0,+ag.senal||0), pct=pctSenal(), hs=[]; try{ hs=hitosAuto(e).filter(function(h){ return h.tipo==="pago"; }); }catch(_){}
+    if(sen>0) pp.push("| Señal de reserva · al reservar la fecha | "+fmtEur(sen)+" |");
+    var hc={}; (ag.hitos||[]).forEach(function(x){ hc[x.id]=x; });
+    if(hs.length) hs.forEach(function(h){ var cf=hc[h.id]||{}; pp.push("| "+(cf.resto?"Último pago (lo que queda)":("Primer pago ("+pct+" %)"))+(h.fecha?" · a más tardar el "+dmyFromISO(h.fecha):"")+" | "+fmtEur(h.importe||0)+" |"); });
+    else { var p1=Math.round(pt.total*pct)/100; pp.push("| Primer pago ("+pct+" %) | "+fmtEur(p1)+" |"); pp.push("| Último pago (lo que queda) | "+fmtEur(Math.max(0,Math.round((pt.total-sen-p1)*100)/100))+" |"); }
+    pp.push("|! Total | "+fmtEur(pt.total)+" |");
+  }
+  bl.plan_pagos=pp;
+  bl.cancelacion=String(cfg.cancelacion||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean);
+  bl.condiciones_extra=String(cfg.extra||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean); bopc.condiciones_extra=1;
+  return {v:v,opc:opc,bl:bl,bopc:bopc};
+}
+/* el documento ya relleno: {texto, faltan:[…lo que hay que completar], desconocidas:[variables que no existen]} */
+function conRender(e,tipo,fechaISO){
+  var cfg=conCfg(), tpl=tipo==="propuesta"?cfg.propuesta:cfg.contrato, V=conVars(e,cfg,fechaISO||hoyISO()), faltan=[], desc=[], out=[];
+  function falta(k){ var l=CON_LAB[k]||k; if(faltan.indexOf(l)<0) faltan.push(l); }
+  String(tpl).replace(/\r/g,"").split("\n").forEach(function(ln){
+    var m=/^\s*\{(\w+)\}\s*$/.exec(ln);
+    if(m&&V.bl[m[1]]!==undefined){ if(!V.bl[m[1]].length){ if(!V.bopc[m[1]]) falta(m[1]); return; } V.bl[m[1]].forEach(function(x){ out.push(x); }); return; }
+    ln=ln.replace(/\{(\w+)\}/g,function(x,k){
+      if(V.bl[k]!==undefined){ if(desc.indexOf(k)<0) desc.push(k+" (va sola en su línea)"); return x; }
+      if(V.v[k]===undefined){ if(desc.indexOf(k)<0) desc.push(k); return x; }
+      if(V.v[k]===""&&!V.opc[k]){ falta(k); return "[falta]"; }
+      return V.v[k]; });
+    out.push(ln.replace(/\s+$/,""));
+  });
+  return {texto:out.join("\n").replace(/\n{3,}/g,"\n\n").trim(), faltan:faltan, desconocidas:desc};
+}
+/* el texto sencillo → bloques (los usan el PDF y la página del portal) */
+function conBloques(texto){
+  var out=[];
+  String(texto||"").split("\n").forEach(function(t){
+    t=t.replace(/\s+$/,""); if(!t.trim()) return; var m;
+    if((m=/^#\s+(.*)$/.exec(t))) out.push({t:"h1",x:m[1]});
+    else if((m=/^##\s+(.*)$/.exec(t))) out.push({t:"h2",x:m[1]});
+    else if((m=/^-\s+(.*)$/.exec(t))) out.push({t:"li",x:m[1]});
+    else if(t.charAt(0)==="|"){ var tot=t.charAt(1)==="!", c=t.replace(/^\|!?\s*/,"").replace(/\s*\|\s*$/,"").split(/\s*\|\s*/); out.push({t:"row",bold:tot,c:[c[0]||"",c.slice(1).join(" ")]}); }
+    else out.push({t:"p",x:t});
+  });
+  return out;
+}
+function conHtml(texto){
+  var out=[], ul=false, tb=false;
+  function cierra(){ if(ul){ out.push("</ul>"); ul=false; } if(tb){ out.push("</tbody></table></div>"); tb=false; } }
+  conBloques(texto).forEach(function(b){
+    if(b.t==="li"){ if(tb){ cierra(); } if(!ul){ out.push('<ul class="cn-ul">'); ul=true; } out.push("<li>"+escH(b.x)+"</li>"); return; }
+    if(b.t==="row"){ if(ul){ cierra(); } if(!tb){ out.push('<div class="cn-tw"><table class="cn-tab"><tbody>'); tb=true; } out.push('<tr'+(b.bold?' class="tot"':"")+"><td>"+escH(b.c[0])+'</td><td class="r">'+escH(b.c[1])+"</td></tr>"); return; }
+    cierra();
+    if(b.t==="h1") out.push('<h2 class="cn-t">'+escH(b.x)+"</h2>"); else if(b.t==="h2") out.push('<h3 class="cn-s">'+escH(b.x)+"</h3>"); else out.push('<p class="cn-p">'+escH(b.x)+"</p>");
+  });
+  cierra(); return out.join("");
+}
+/* el PDF: A4, con el bloque de firma al final (a mano o la aceptación online) y pie con la página */
+function conFechaHora(ts){ try{ var d=new Date(ts); return d.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric",timeZone:"Europe/Madrid"})+" a las "+d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Madrid"}); }catch(_){ return ""; } }
+function conPages(texto,pw,ph,firma,meta){
+  meta=meta||{};
+  var M=58, W=pw-2*M, pages=[], cur=[], y=0, LH=14.5;
+  function nueva(){ if(cur.length) pages.push(cur); cur=[]; y=M;
+    cur.push(TX(M,y,String(meta.marca||"Les Moles Events").toUpperCase(),{size:8,fo:"sans",a:"start",c:GOLD,ls:3}));
+    var der=[meta.borrador?"BORRADOR":"",meta.ver||""].filter(Boolean).join(" · "); if(der) cur.push(TX(M+W,y,der,{size:8,fo:"sansb",a:"end",c:meta.borrador?RUBY:FADE,ls:1}));
+    y+=30; }
+  function sitio(h){ if(y+h>ph-M-18) nueva(); }
+  nueva();
+  conBloques(texto).forEach(function(b){
+    if(b.t==="h1"){ sitio(70); partir(b.x,W,"ser",21,0).forEach(function(l){ cur.push(TX(M,y+14,l,{size:21,fo:"ser",a:"start",c:INK})); y+=26; }); y+=8; }
+    else if(b.t==="h2"){ sitio(58); y+=12; cur.push(TX(M,y,b.x.toUpperCase(),{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16; }
+    else if(b.t==="p"){ partir(b.x,W,"ser",10.5,0).forEach(function(l){ sitio(LH); cur.push(TX(M,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=LH; }); y+=5; }
+    else if(b.t==="li"){ partir(b.x,W-16,"ser",10.5,0).forEach(function(l,i){ sitio(LH); if(i===0) cur.push(TX(M+3,y,"·",{size:13,fo:"sansb",a:"start",c:GOLD})); cur.push(TX(M+16,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=LH; }); y+=2; }
+    else if(b.t==="row"){ var amt=b.c[1]||"", fo=b.bold?"sansb":"ser"; partir(b.c[0]||"",W-(amt?120:8),fo,10.5,0).forEach(function(l,i){ sitio(LH+4); cur.push(TX(M+4,y,l,{size:10.5,fo:fo,a:"start",c:INK})); if(i===0&&amt) cur.push(TX(M+W-4,y,amt,{size:10.5,fo:b.bold?"sansb":"sans",a:"end",c:INK})); y+=LH; });
+      cur.push(LN(M,y-LH+5,M+W,y-LH+5,b.bold?"#C9B182":"#EAE2D0",b.bold?0.8:0.5)); y+=3; }
+  });
+  /* bloque de firma */
+  sitio(150); y+=16; cur.push(TX(M,y,"FIRMAS",{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16;
+  var bw=(W-18)/2, bh=96, x2=M+bw+18;
+  cur.push(R(M,y,bw,bh,4,"#FBF8F0","#E3D8BF",0.8));
+  cur.push(TX(M+12,y+18,"POR EL RESTAURANTE",{size:7.5,fo:"sansb",a:"start",c:GOLD,ls:1.4}));
+  cur.push(TX(M+12,y+40,meta.rep||meta.marca||"",{size:11.5,fo:"ser",a:"start",c:INK}));
+  if(meta.razon) cur.push(TX(M+12,y+56,meta.razon,{size:8.5,fo:"sans",a:"start",c:SOFT}));
+  if(meta.fecha) cur.push(TX(M+12,y+bh-14,"Emitido el "+dmyFromISO(meta.fecha),{size:8,fo:"sans",a:"start",c:FADE}));
+  if(firma){
+    cur.push(R(x2,y,bw,bh,4,"#EEF3E4","#C9D6B0",0.8));
+    cur.push(TX(x2+12,y+18,"ACEPTADO ELECTRÓNICAMENTE",{size:7.5,fo:"sansb",a:"start",c:"#4C6A2A",ls:1.4}));
+    cur.push(TX(x2+12,y+40,firma.nombre||"",{size:11.5,fo:"ser",a:"start",c:INK}));
+    if(firma.nif) cur.push(TX(x2+12,y+55,"NIF "+firma.nif,{size:8.5,fo:"sans",a:"start",c:SOFT}));
+    cur.push(TX(x2+12,y+70,conFechaHora(firma.ts),{size:8.5,fo:"sans",a:"start",c:SOFT}));
+    cur.push(TX(x2+12,y+bh-10,"Huella del texto aceptado: "+(firma.h||""),{size:7,fo:"sans",a:"start",c:FADE}));
+  } else {
+    cur.push(R(x2,y,bw,bh,4,"#FFFFFF","#D9CFB5",0.8));
+    cur.push(TX(x2+12,y+18,"EL CLIENTE",{size:7.5,fo:"sansb",a:"start",c:GOLD,ls:1.4}));
+    cur.push(TX(x2+12,y+34,meta.cliente||"",{size:10.5,fo:"ser",a:"start",c:INK}));
+    cur.push(LN(x2+12,y+bh-22,x2+bw-12,y+bh-22,"#8E8470",0.6)); cur.push(TX(x2+12,y+bh-10,"Firma y fecha",{size:7.5,fo:"sans",a:"start",c:FADE}));
+  }
+  pages.push(cur);
+  var tit=meta.titulo||"";
+  pages.forEach(function(p,i){ p.push(TX(pw/2,ph-30,(meta.marca||"Les Moles Events")+(tit?" · "+tit:"")+" · página "+(i+1)+" de "+pages.length,{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1})); });
+  return pages;
+}
+/* PDF de un texto (lo usa también el portal del cliente) */
+function conPdfDeTexto(texto,firma,meta,nombreArchivo){
+  var P=PAPERS.A4, pages=conPages(texto,P.w,P.h,firma,meta).map(function(x){ return pageOf(x,P.w,P.h,null); });
+  return deliver(nombreArchivo+".pdf",buildPDF(pages)).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
+}
+function conMeta(e,cfg,extra,emp){ var EM=cfg.empresa, F=e.ficha||{}; var o={marca:EM.nombre,razon:EM.razon,rep:EM.rep+(EM.cargo?" · "+EM.cargo:""),
+  cliente:[F.parejaA,F.parejaB].filter(Boolean).join(" y ")||F.contacto||""}; if(emp){ if(emp.marca) o.marca=emp.marca; if(emp.razon!=null) o.razon=emp.razon; if(emp.rep!=null) o.rep=emp.rep; }
+  Object.keys(extra||{}).forEach(function(k){ o[k]=extra[k]; }); return o; }
+/* que = propuesta | contrato (borrador con los datos de ahora) · publicado · firmado */
+function conDescargar(e,que){
+  var cfg=conCfg(), C=e.contrato||{}, base=(nombreLimpio(e.name)||"evento").replace(/\s+/g,"_"), tx, firma=null, meta, nombre;
+  if(que==="publicado"||que==="firmado"){
+    var f=C.firmado||null;
+    if(que==="firmado"){ if(!f||!f.texto){ toast("Todavía no hay nada firmado.",true); return; } tx=f.texto; firma={nombre:f.nombre,nif:f.nif,ts:f.ts,h:f.h}; meta=conMeta(e,cfg,{ver:"versión "+(f.ver||1),fecha:f.fecha,titulo:f.tipo==="propuesta"?"Propuesta":"Contrato"},f.emp); nombre=base+"_"+(f.tipo||"contrato")+"_firmado"; }
+    else { if(!C.texto){ toast("Todavía no hay nada publicado.",true); return; } tx=C.texto; if(f&&f.h===conHashTxt(C.texto)) firma={nombre:f.nombre,nif:f.nif,ts:f.ts,h:f.h};
+      meta=conMeta(e,cfg,{ver:"versión "+(C.ver||1),fecha:C.fecha,titulo:C.tipo==="propuesta"?"Propuesta":"Contrato"},C.emp); nombre=base+"_"+(C.tipo||"contrato")+(firma?"_firmado":""); }
+  } else {
+    que=que==="propuesta"?"propuesta":"contrato"; var r=conRender(e,que,hoyISO()); tx=r.texto;
+    if(r.faltan.length) toast("Es un borrador: falta "+r.faltan.slice(0,3).join(", ")+(r.faltan.length>3?"…":"")+".");
+    meta=conMeta(e,cfg,{borrador:true,fecha:hoyISO(),titulo:que==="propuesta"?"Propuesta":"Contrato"}); nombre=base+"_"+que+"_borrador";
+  }
+  return conPdfDeTexto(tx,firma,meta,nombre).then(function(){ toast("PDF descargado."); });
+}
+/* en qué punto está el contrato de un evento */
+function conEstado(e){
+  var C=e.contrato||{}, ap=(e.aprobaciones||{}).contrato||null, h=C.texto?conHashTxt(C.texto):"";
+  return {pub:!!C.texto, tipo:C.tipo||"contrato", ver:C.ver||0, ts:C.ts||0, por:C.por||"", fecha:C.fecha||"", hash:h,
+    ok:!!(h&&ap&&ap.ts&&ap.h===h), viejo:!!(ap&&ap.ts&&(!h||ap.h!==h)), ap:ap, firmado:C.firmado||null};
+}
+function conSenalOk(e){
+  var sen=Math.max(0,+agendaCfg().senal||0), pagos=((e.presupuesto||{}).pagos||[]).filter(function(p){ return +p.importe>0; });
+  if(!pagos.length) return false;
+  if(pagos.some(function(p){ return /se[ñn]al|reserva/i.test(p.concepto||""); })) return true;
+  var s=0; pagos.forEach(function(p){ s+=+p.importe||0; }); return sen>0&&s>=sen-0.5;
+}
+function conPublicar(e,tipo){
+  tipo=tipo==="propuesta"?"propuesta":"contrato";
+  if(!(e.share&&e.share.on&&e.share.id&&e.share.id.length>=24)){ toast("Primero activa el portal del cliente (en Resumen) para poder publicar aquí.",true); return false; }
+  var C=e.contrato=e.contrato||{}, hoy=hoyISO();
+  /* si ya está publicado y nada ha cambiado, no se hace otra versión */
+  if(C.texto&&C.tipo===tipo&&C.fecha){ var igual=conRender(e,tipo,C.fecha); if(!igual.faltan.length&&igual.texto===C.texto){ toast("Ya está publicado y no ha cambiado nada."); return false; } }
+  var r=conRender(e,tipo,hoy);
+  if(r.desconocidas.length){ toast("La plantilla usa variables que no existen: "+r.desconocidas.join(", ")+".",true); return false; }
+  if(r.faltan.length){ toast("No se puede publicar: falta "+r.faltan.join(", ")+".",true); return false; }
+  if(tipo==="contrato"){ var cfg=conCfg(); if(!conRevisado(cfg)){ toast("Antes de publicar un contrato, el administrador tiene que marcar el texto como revisado (Parámetros → Contrato y propuesta).",true); return false; } }
+  var u=null; try{ u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
+  /* se cambian los campos EN SU SITIO: así no se pisa lo que el servidor guarda aparte (la aceptación) */
+  var cf2=conCfg(), EM=cf2.empresa;
+  C.tipo=tipo; C.ver=(+C.ver||0)+1; C.texto=r.texto; C.fecha=hoy; C.ts=Date.now(); C.por=(u&&(u.name||u.email))||"";
+  C.emp={marca:EM.nombre,razon:EM.razon,rep:EM.rep+(EM.cargo?" · "+EM.cargo:"")};
+  e.updated=Date.now(); try{ portalAlDia(e); }catch(_){}
+  toast((tipo==="contrato"?"Contrato":"Propuesta")+" publicado en el portal del cliente (versión "+C.ver+").");
+  return true;
+}
+function conRetirar(e){ var C=e.contrato; if(!C||!C.texto) return false; C.texto=""; e.updated=Date.now(); try{ portalAlDia(e); }catch(_){} toast("Retirado del portal del cliente."); return true; }
+/* ── la tarjeta de Presupuesto ── */
+function conPill(e){ var st=conEstado(e); return st.ok?" · aceptado":(st.pub?" · publicado":(st.viejo?" · cambió":"")); }
+function conPuede(){ try{ return window.LM_SESSION?window.LM_SESSION.can("portal"):true; }catch(_){ return true; } }
+function conEsAdmin(){ try{ return window.LM_SESSION?window.LM_SESSION.role()==="admin":true; }catch(_){ return true; } }
+function contratoCard(e){
+  var st=conEstado(e), cfg=conCfg(), pt=presupTotals(e), puede=conPuede(), sen=Math.max(0,+agendaCfg().senal||0), senOk=conSenalOk(e);
+  var tipoSel=st.pub?st.tipo:"contrato", cambios=false;
+  if(st.pub&&st.fecha){ var rr=conRender(e,st.tipo,st.fecha); cambios=!rr.faltan.length&&rr.texto!==e.contrato.texto; }
+  var rP=conRender(e,tipoSel,hoyISO());
+  function paso(cls,t,d,btn){ return '<li class="cn-st '+cls+'"><span class="cn-dot" aria-hidden="true">'+(cls==="ok"?"✓":"")+'</span><div><b>'+t+'</b>'+(d?'<span>'+d+'</span>':"")+(btn||"")+'</div></li>'; }
+  var f=st.firmado;
+  var s1=paso(pt.total>0?"ok":"",'Presupuesto',pt.total>0?'Total '+escH(fmtEur(pt.total)):'Faltan precios o comensales');
+  var s2=paso(st.pub?"ok":"",'Documento en el portal del cliente',st.pub?escH((st.tipo==="propuesta"?"Propuesta":"Contrato")+' · versión '+st.ver+' · '+conFechaHora(st.ts)+(st.por?' · '+st.por:"")):'Todavía no se ha publicado');
+  var s3=paso(st.ok?"ok":(st.viejo?"aviso":""),'Aceptado por el cliente',
+    st.ok?escH((f&&f.nombre||st.ap.nombre)+(f&&f.nif?' · NIF '+f.nif:"")+' · '+conFechaHora(st.ap.ts)):(st.viejo?'Aceptó una versión anterior ('+escH(st.ap.nombre||"")+', '+escH(conFechaHora(st.ap.ts))+'): hay que pedirle que acepte la nueva':(st.pub?'Pendiente: el cliente lo ve en su portal':'')));
+  var s4=paso(senOk?"ok":"",'Señal recibida',senOk?'Registrada en los pagos':(sen>0?'Se registra a mano cuando llega la transferencia':'No hay señal definida en la agenda'),
+    (!senOk&&sen>0&&puede&&st.ok)?'<button type="button" class="btn sm gold cn-mini" data-act="pago-reserva">Registrar señal recibida ('+escH(fmtEur(sen))+')</button>':"");
+  var av="";
+  if(cambios) av+='<div class="cn-aviso">El presupuesto o la plantilla han cambiado desde que se publicó: <b>el cliente sigue viendo la versión '+st.ver+'</b>. Publica la versión nueva para que la vea (tendrá que volver a aceptar).</div>';
+  if(rP.faltan.length) av+='<div class="cn-aviso mal">Para publicar '+(tipoSel==="propuesta"?"la propuesta":"el contrato")+' falta: '+escH(rP.faltan.join(", "))+'.</div>';
+  if(rP.desconocidas.length) av+='<div class="cn-aviso mal">La plantilla usa variables que no existen: '+escH(rP.desconocidas.join(", "))+'.</div>';
+  if(tipoSel==="contrato"&&!conRevisado(cfg)) av+='<div class="cn-aviso">El texto del contrato todavía no está marcado como revisado'+(conEsAdmin()?' (<a href="#" data-act="goto" data-k="p-contrato">Parámetros → Contrato y propuesta</a>)':': lo hace el administrador')+'. Mientras tanto se puede ver y descargar como borrador, pero no publicarlo.</div>';
+  var botones='<div class="cn-acc"><button type="button" class="btn sm" data-act="con-pdf" data-t="propuesta">Propuesta · PDF</button><button type="button" class="btn sm" data-act="con-pdf" data-t="contrato">Contrato · PDF</button>'+
+    (st.pub?'<button type="button" class="btn sm" data-act="con-pdf" data-t="publicado">Lo publicado · PDF</button>':"")+
+    (f&&f.texto&&!st.ok?'<button type="button" class="btn sm" data-act="con-pdf" data-t="firmado">Lo firmado antes · PDF</button>':"")+'</div>';
+  var pub='<div class="cn-acc cn-pub"><label class="cn-sel"><span>Publicar</span><select id="con-tipo" aria-label="Qué publicar en el portal"><option value="contrato"'+(tipoSel==="contrato"?" selected":"")+'>El contrato</option><option value="propuesta"'+(tipoSel==="propuesta"?" selected":"")+'>La propuesta</option></select></label>'+
+    '<button type="button" class="btn gold sm" data-act="con-pub"'+(puede?"":" disabled")+'>'+(st.pub?(cambios?'Publicar la versión nueva':'Volver a publicar'):'Publicar en el portal del cliente')+'</button>'+
+    (st.pub?'<button type="button" class="btn sm" data-act="con-quitar"'+(puede?"":" disabled")+'>Retirar del portal</button>':"")+'</div>'+
+    (puede?"":'<p class="cn-nota">Publicar lo hace administración o eventos.</p>');
+  var ver=st.pub?'<details class="cn-ver"><summary>Lo que ve el cliente · versión '+st.ver+(st.ok?' · aceptada':"")+'</summary><div class="cn-doc">'+conHtml(e.contrato.texto)+'</div></details>':"";
+  return '<div class="pv-sec">Propuesta y contrato <span class="pv-sec-note">— del presupuesto a la firma del cliente</span></div>'+
+    '<div class="pcard cn-card" id="cn-card"><ol class="cn-steps">'+s1+s2+s3+s4+'</ol>'+av+botones+pub+ver+
+    '<p class="cn-nota">Firma electrónica simple: nombre, NIF, fecha y hora, y una huella del texto aceptado. El PDF firmado se puede descargar siempre.</p></div>';
+}
+window.LM_CONTRATO={defs:{propuesta:CON_PROP_DEF,contrato:CON_CONT_DEF},ayuda:CON_VARS_AYUDA,cfg:conCfg,tplHash:conTplHash,revisado:conRevisado,render:conRender,html:conHtml,hash:conHashTxt,
+  pdfTexto:conPdfDeTexto,fechaHora:conFechaHora,estado:conEstado};
+
 function viewComm(e){
   var iconT={Llamada:"mail",WhatsApp:"mail",Email:"mail","Reunión":"guests",Visita:"pin",Nota:"doc"};
   var tipoSel=COMM_TIPOS.map(function(t){return '<option>'+escH(t)+'</option>';}).join("");
@@ -17900,6 +18275,84 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ═════════════════════════════════════════════════════════════════
+   PARÁMETROS · CONTRATO Y PROPUESTA (solo administración)
+   Los datos de la empresa que salen en el contrato, las condiciones de cancelación, la validez de la propuesta y los dos
+   textos (propuesta y contrato), con sus variables. El contrato no se puede publicar hasta que el administrador marca su
+   texto como revisado; si después cambia algo del texto, hay que volver a marcarlo. Vista previa con el evento abierto.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR||!window.LM_CONTRATO) return;
+  var K=window.LM_CONTRATO, S={host:null,vista:null,tipoV:"contrato",ta:null};
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function toast(m,mal){ try{ BR.toast(m,mal); }catch(_){} }
+  function quien(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); return (u&&(u.name||u.email))||""; }catch(_){ return ""; } }
+  function datos(){ return JSON.parse(JSON.stringify(BR.param("contrato")||{})); }
+  function setPath(o,p,v){ var s=p.split("."); for(var i=0;i<s.length-1;i++){ o[s[i]]=o[s[i]]||{}; o=o[s[i]]; } o[s[s.length-1]]=v; }
+  function guarda(fn,msg){ var d=datos(); fn(d); BR.setParam("contrato",d); if(msg) toast(msg); }
+  function fh(ms){ return K.fechaHora(ms); }
+  function fld(id,t,v,ph,wide){ return '<label class="fld'+(wide?" wide":"")+'"><span class="lbl">'+esc(t)+'</span><input type="text" data-cn="'+id+'" value="'+esc(v)+'" placeholder="'+esc(ph||"")+'"></label>'; }
+  function estadoHTML(c){
+    var rev=K.revisado(c), r=c.revisado, cambio=!!(r&&r.h&&!rev);
+    return '<div class="cn-aviso'+(rev?" ok":"")+'" id="cn-estado"><b>'+(rev?'Contrato revisado':'Contrato sin revisar')+'</b> · '+(rev?'Marcado como revisado por '+esc(r.por||"")+' el '+esc(fh(r.ts))+'. Ya se puede publicar.':
+      (cambio?'El texto ha cambiado desde la última revisión ('+esc(r.por||"")+', '+esc(fh(r.ts))+'): hay que volver a marcarlo.':'Los textos de fábrica son un <b>modelo orientativo</b>, no asesoramiento legal. Que los lea vuestro asesor o abogado, ajustadlos y después marcad «revisado». Hasta entonces el contrato solo se puede ver y descargar como borrador.'))+'</div>';
+  }
+  function pinta(){
+    var host=S.host; if(!host) return;
+    var c=K.cfg(), E=c.empresa, rev=K.revisado(c), r=c.revisado, cambio=!!(r&&r.h&&!rev), ev=null; try{ ev=BR.current(); }catch(_){}
+    var h='<div class="pv-inner cn-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Contrato y propuesta</h1>'+
+      '<p class="pv-guide">Los textos que salen en el PDF y en el portal del cliente cuando se publica una propuesta o un contrato desde «Presupuesto». Las variables entre llaves se rellenan solas con los datos de cada evento.</p></div></header>';
+    h+=estadoHTML(c);
+    h+='<h2 class="cn-h2">La empresa</h2><div class="pcard"><div class="fldset">'+
+      fld("empresa.nombre","Nombre comercial",E.nombre,"Les Moles")+fld("empresa.razon","Razón social",E.razon,"Nombre legal de la empresa")+fld("empresa.cif","CIF",E.cif,"B12345678")+
+      fld("empresa.domicilio","Domicilio",E.domicilio,"Calle, número, código postal y población",true)+fld("empresa.poblacion","Población (para «En …, a …»)",E.poblacion,"Ulldecona")+
+      fld("empresa.rep","Quién firma en nombre de la empresa",E.rep,"Nombre y apellidos")+fld("empresa.cargo","Cargo (opcional)",E.cargo,"Administrador")+'</div></div>';
+    h+='<h2 class="cn-h2">Condiciones</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Validez de la propuesta (días)</span><input type="number" min="1" max="365" data-cn="validez" value="'+esc(c.validez)+'"></label>'+
+      '<label class="fld wide"><span class="lbl">Condiciones de cancelación <small>(obligatorio para publicar un contrato; salen en el apartado «Cancelación»)</small></span><textarea rows="5" data-cn="cancelacion" placeholder="Escribid aquí cómo funciona la cancelación: qué pasa con la señal, plazos, porcentajes…">'+esc(c.cancelacion)+'</textarea></label>'+
+      '<label class="fld wide"><span class="lbl">Condiciones adicionales <small>(opcional; salen justo debajo)</small></span><textarea rows="3" data-cn="extra" placeholder="Ej.: horario máximo del servicio, música, decoración propia…">'+esc(c.extra)+'</textarea></label></div></div>';
+    h+='<h2 class="cn-h2">Los textos</h2><div class="pcard cn-vars"><p class="cn-peq">Variables (toca una para ponerla donde esté el cursor): '+K.ayuda.map(function(v){ return '<button type="button" class="cn-chip" data-cna="var" data-v="'+v[0]+'" title="'+esc(v[1])+'">{'+v[0]+'}</button>'; }).join(" ")+'</p>'+
+      '<p class="cn-peq">Formato: <code># Título</code> · <code>## Apartado</code> · <code>- punto</code> · <code>| concepto | importe |</code> · el resto, párrafos. Los bloques <code>{menu_resumen}</code>, <code>{tabla_importes}</code>, <code>{plan_pagos}</code>, <code>{cancelacion}</code> y <code>{condiciones_extra}</code> van solos en su línea.</p></div>';
+    [["propuesta","Plantilla de la propuesta",c.propuesta],["contrato","Plantilla del contrato",c.contrato]].forEach(function(p){
+      var mod=p[2]!==K.defs[p[0]];
+      h+='<div class="pcard"><label class="fld wide"><span class="lbl">'+esc(p[1])+(mod?' <em>personalizada</em>':'')+'</span><textarea class="cn-tpl" rows="'+(p[0]==="contrato"?22:14)+'" data-cn="'+p[0]+'" spellcheck="true">'+esc(p[2])+'</textarea></label>'+
+        (mod?'<div class="cn-b"><button type="button" class="btn sm" data-cna="restablecer" data-k="'+p[0]+'">Volver al texto de fábrica</button></div>':'')+'</div>';
+    });
+    h+='<h2 class="cn-h2">Revisión</h2><div class="pcard"><label class="av-chk cn-rev"><input type="checkbox" id="cn-rev" data-cna="revisado"'+(rev?" checked":"")+'> He revisado el texto del contrato (y las condiciones de cancelación) con quien corresponda y se puede usar.</label>'+
+      '<p class="cn-peq">Es una <b>firma electrónica simple</b>: el cliente escribe su nombre y su NIF, y se guardan la fecha, la hora y una huella del texto aceptado. Sirve como prueba de la aceptación, pero no es una firma electrónica avanzada ni cualificada; si queréis esas garantías hace falta un proveedor de firma externo. Consultadlo con vuestro asesor.</p></div>';
+    h+='<h2 class="cn-h2">Vista previa</h2><div class="pcard"><p class="cn-peq">Con el evento que tienes abierto'+(ev?': <b>'+esc(String(ev.name||"").slice(0,60))+'</b>':' (abre uno primero)')+'.</p><div class="cn-b"><button type="button" class="btn sm" data-cna="ver" data-t="propuesta"'+(ev?"":" disabled")+'>Ver la propuesta</button><button type="button" class="btn sm" data-cna="ver" data-t="contrato"'+(ev?"":" disabled")+'>Ver el contrato</button>'+(S.vista?'<button type="button" class="btn sm gold" data-cna="pdf">Descargar este PDF de prueba</button>':"")+'</div>';
+    if(S.vista){ var v=S.vista; h+=(v.faltan.length?'<div class="cn-aviso mal">Para publicarlo falta: '+esc(v.faltan.join(", "))+'.</div>':'<div class="cn-aviso ok">Con los datos de este evento no falta nada.</div>')+(v.desconocidas.length?'<div class="cn-aviso mal">Variables que no existen: '+esc(v.desconocidas.join(", "))+'.</div>':"")+'<div class="cn-doc">'+K.html(v.texto)+'</div>'; }
+    h+='</div></div>';
+    var y=host.scrollTop; host.innerHTML=h; host.scrollTop=y;
+    var root=host.querySelector(".cn-wrap"); root.addEventListener("change",onChange); root.addEventListener("click",onClick); root.addEventListener("focusin",function(ev2){ if(ev2.target.tagName==="TEXTAREA") S.ta=ev2.target; });
+    root.addEventListener("mousedown",function(ev3){ if(ev3.target.closest&&ev3.target.closest("[data-cna=var]")) ev3.preventDefault(); });
+  }
+  function onChange(ev){
+    var t=ev.target, k=t.getAttribute&&t.getAttribute("data-cn");
+    if(k){ var v=t.type==="number"?Math.max(1,Math.min(365,Math.round(+t.value)||30)):t.value;
+      guarda(function(d){ setPath(d,k,v); },null); toast("Guardado."); refresca(); return; }
+    if(t.getAttribute&&t.getAttribute("data-cna")==="revisado"){
+      guarda(function(d){ d.revisado=t.checked?{ts:Date.now(),por:quien(),h:K.tplHash(K.cfg())}:null; },t.checked?"Texto marcado como revisado. Ya se pueden publicar contratos.":"Revisión quitada."); pinta(); }
+  }
+  /* al cambiar un texto no se repinta la pantalla (se perdería el clic siguiente): solo se pone al día el estado de la revisión */
+  function refresca(){ var host=S.host; if(!host) return; var c=K.cfg(), el=host.querySelector("#cn-estado"); if(el) el.outerHTML=estadoHTML(c); var cb=host.querySelector("#cn-rev"); if(cb) cb.checked=K.revisado(c); }
+  function onClick(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-cna]"); if(!b) return; var a=b.getAttribute("data-cna");
+    if(a==="var"){ var ta=S.ta; if(!ta||!document.body.contains(ta)){ toast("Pon antes el cursor dentro de una de las plantillas."); return; }
+      var s=ta.selectionStart==null?ta.value.length:ta.selectionStart, e2=ta.selectionEnd==null?s:ta.selectionEnd, ins="{"+b.getAttribute("data-v")+"}";
+      ta.value=ta.value.slice(0,s)+ins+ta.value.slice(e2); ta.selectionStart=ta.selectionEnd=s+ins.length; ta.focus();
+      var k=ta.getAttribute("data-cn"), val=ta.value; guarda(function(d){ setPath(d,k,val); },null); refresca(); return; }
+    if(a==="restablecer"){ var k2=b.getAttribute("data-k"); guarda(function(d){ delete d[k2]; },"Vuelto al texto de fábrica."); pinta(); return; }
+    if(a==="ver"){ var e=null; try{ e=BR.current(); }catch(_){} if(!e) return; var t2=b.getAttribute("data-t"), r=K.render(e,t2,hoy());
+      S.vista={tipo:t2,texto:r.texto,faltan:r.faltan,desconocidas:r.desconocidas}; pinta(); return; }
+    if(a==="pdf"&&S.vista){ var c=K.cfg(); K.pdfTexto(S.vista.texto,null,{marca:c.empresa.nombre,razon:c.empresa.razon,rep:c.empresa.rep+(c.empresa.cargo?" · "+c.empresa.cargo:""),borrador:true,fecha:hoy(),titulo:S.vista.tipo==="propuesta"?"Propuesta":"Contrato"},"prueba_"+S.vista.tipo); return; }
+  }
+  function hoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
+  window.LM_renderContratoCfg=function(host){ S.host=host; S.vista=null; pinta(); };
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
    AVISOS Y CORREO · WHATSAPP CON UN CLIC
    · «Avisos y correo» (en Planificación): para el evento abierto, a quién hay que
      escribir y con qué mensaje ya redactado — la clienta (la lista, los pagos, las
@@ -17943,6 +18396,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     cliente_reunion:"Hola {nombre},\n\nOs recordamos la reunión «{concepto}» de {evento} ({fecha}). Si necesitáis cambiar la hora, contestad a este correo.\n\n{firma}",
     cliente_libre_asunto:"Sobre {evento}",
     cliente_libre:"Hola {nombre},\n\n\n\nUn saludo,\n{firma}",
+    cliente_contrato_asunto:"{doc_titulo} de {evento}",
+    cliente_contrato:"Hola {nombre},\n\nYa tenéis {documento} de {evento} ({fecha}) esperando en vuestro enlace privado:\n{enlace}\n\nLeedlo con calma y, si todo está bien, podéis aceptarlo desde ahí mismo. Si tenéis cualquier duda, escribidnos.\n\n{firma}",
     camarero_asunto:"Tu turno en {evento} · {fecha}",
     camarero:"Hola {nombre},\n\nTe confirmamos tu turno en {evento}: {fecha}, entrada a las {hora}.\n{funciones}\nSi no puedes venir, avísanos cuanto antes.\n\n{firma}",
     proveedor_asunto:"{evento} · {fecha}",
@@ -17981,8 +18436,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return o;
   }
   function msgCliente(e,h){
-    var tipo=!h?"libre":h.tipo==="documento"?"lista":h.tipo==="pago"?"pago":h.tipo==="reunion"?"reunion":"libre", F=e.ficha||{};
-    var v={nombre:nombreCliente(e),evento:nombreEv(e),fecha:fechaLarga(F.fecha),vence:fechaLarga((h&&h.fecha)||F.fecha),importe:h&&h.importe!=null?eur(h.importe):"",concepto:h?h.t:"",enlace:enlaceCliente(e),firma:T.firma,datos_pago:datosPago()};
+    var tipo=!h?"libre":h.tipo==="contrato"?"contrato":h.tipo==="documento"?"lista":h.tipo==="pago"?"pago":h.tipo==="reunion"?"reunion":"libre", F=e.ficha||{}, prop=!!(e.contrato&&e.contrato.tipo==="propuesta");
+    var v={documento:prop?"la propuesta":"el contrato",doc_titulo:prop?"Propuesta":"Contrato",nombre:nombreCliente(e),evento:nombreEv(e),fecha:fechaLarga(F.fecha),vence:fechaLarga((h&&h.fecha)||F.fecha),importe:h&&h.importe!=null?eur(h.importe):"",concepto:h?h.t:"",enlace:enlaceCliente(e),firma:T.firma,datos_pago:datosPago()};
     return {tipo:tipo,subject:rell(T.plant["cliente_"+tipo+"_asunto"],v),text:rell(T.plant["cliente_"+tipo],v),to:String(F.email||"").trim(),tel:F.telefono||""};
   }
   function msgCamarero(e,p){
@@ -18034,7 +18489,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       var d=dif(x.fecha), m=msgCliente(e,x);
       return '<div class="av-fila'+(x.done?" hecha":d!=null&&d<0?" tarde":d!=null&&d<=3?" pronto":"")+'"><div class="av-q"><b>'+esc(x.t)+'</b><small>'+esc(dmy(x.fecha))+(x.done?" · hecho":" · "+esc(relTxt(d)))+(x.importe!=null&&String(x.t).indexOf("€")<0?" · "+esc(eur(x.importe)):"")+'</small></div>'+
         '<div class="av-b">'+(x.done?'<span class="av-ok">✓ hecho</span>':'')+'<button type="button" class="btn sm" data-av="correo" data-i="'+i+'"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(m.tel,m.text,"WhatsApp","Avisar al cliente por WhatsApp: "+x.t)+'</div></div>'; }).join("");
-    var m0=msgCliente(e,null);
+    var m0=msgCliente(e,null), CT=(e.contrato&&e.contrato.texto)?e.contrato:null;
+    if(CT){ var hc={tipo:"contrato",id:"contrato",fecha:"v"+(CT.ver||1),t:"contrato"}, mc=msgCliente(e,hc), pr=CT.tipo==="propuesta", ap=(e.aprobaciones||{}).contrato, ok=!!(ap&&ap.ts&&window.LM_CONTRATO&&ap.h===window.LM_CONTRATO.hash(CT.texto));
+      filas+='<div class="av-fila'+(ok?" hecha":"")+'"><div class="av-q"><b>'+(pr?"La propuesta":"El contrato")+' para aceptar</b><small>Versión '+(CT.ver||1)+' · '+(ok?"ya aceptado":"avisarle de que lo tiene en su portal")+'</small></div>'+
+        '<div class="av-b">'+(ok?'<span class="av-ok">✓ aceptado</span>':'')+'<button type="button" class="btn sm" data-av="correo" data-i="contrato"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(mc.tel,mc.text,"WhatsApp","Avisar al cliente por WhatsApp de que tiene "+(pr?"la propuesta":"el contrato"))+'</div></div>'; }
     h+=(filas||'<p class="av-vacio">Sin fecha del evento no hay pasos de la agenda con el cliente.</p>')+
       '<div class="av-fila"><div class="av-q"><b>Un mensaje libre</b><small>Para lo que no sea ninguno de los pasos de arriba</small></div><div class="av-b"><button type="button" class="btn sm" data-av="correo" data-i="libre"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(m0.tel,m0.text,"WhatsApp","Escribir al cliente por WhatsApp")+'</div></div>';
     if(U.comp&&U.comp.bloque==="cliente") h+=compHTML();
@@ -18125,7 +18583,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var b=t.closest?t.closest("[data-av]"):null; if(!b) return;
     var a=b.getAttribute("data-av"), id=b.getAttribute("data-id");
     if(a==="correo"){
-      var S=snap(e), i=b.getAttribute("data-i"), h=i==="libre"?null:(S&&S.hitos[+i])||null, m=msgCliente(e,h);
+      var S=snap(e), i=b.getAttribute("data-i"), h=i==="libre"?null:i==="contrato"?{tipo:"contrato",id:"contrato",fecha:"v"+((e.contrato&&e.contrato.ver)||1),t:"contrato"}:(S&&S.hitos[+i])||null, m=msgCliente(e,h);
       abrirComp("cliente",m,{kind:"cliente",ref:h?"cli:"+e.id+":"+h.id+":"+h.fecha:null});
     }
     else if(a==="cam-correo"){ var p=((BR.store.camareros&&BR.store.camareros.personas)||[]).filter(function(x){ return x.id===id; })[0]; if(!p) return; var m2=msgCamarero(e,p);
@@ -18171,6 +18629,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     ["cliente_lista_asunto","Cliente: la lista · asunto","{evento}"],["cliente_lista","Cliente: la lista · texto","{nombre} {evento} {fecha} {enlace} {firma}"],
     ["cliente_pago_asunto","Cliente: un pago · asunto","{evento}"],["cliente_pago","Cliente: un pago · texto","{nombre} {evento} {fecha} {vence} {importe} {concepto} {datos_pago} {firma}"],
     ["cliente_reunion_asunto","Cliente: una reunión · asunto","{evento}"],["cliente_reunion","Cliente: una reunión · texto","{nombre} {evento} {fecha} {concepto} {firma}"],
+    ["cliente_contrato_asunto","Cliente: contrato o propuesta · asunto","{doc_titulo} {evento}"],["cliente_contrato","Cliente: contrato o propuesta · texto","{nombre} {evento} {fecha} {documento} {enlace} {firma}"],
     ["cliente_libre_asunto","Cliente: mensaje libre · asunto","{evento}"],["cliente_libre","Cliente: mensaje libre · texto","{nombre} {evento} {firma}"],
     ["camarero_asunto","Camarero: su turno · asunto","{evento} {fecha}"],["camarero","Camarero: su turno · texto","{nombre} {evento} {fecha} {hora} {funciones} {firma}"],
     ["proveedor_asunto","Proveedor · asunto","{evento} {fecha}"],["proveedor","Proveedor · texto","{nombre} {evento} {fecha} {servicio} {firma}"]];
@@ -18313,6 +18772,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var r=Q.res[e.id], ap=e.aprobaciones||{}, t=[];
     t.push("Menú: "+(ap.menu&&ap.menu.ts?"aprobado ("+esc(ap.menu.nombre||"")+")":"sin aprobar"));
     t.push("Minuta: "+(ap.minuta&&ap.minuta.ts?"aprobada ("+esc(ap.minuta.nombre||"")+")":"sin aprobar"));
+    if(e.contrato&&e.contrato.texto) t.push((e.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+": "+(ap.contrato&&ap.contrato.ts&&ap.contrato.h===window.LM_CONTRATO.hash(e.contrato.texto)?"aceptado ("+esc(ap.contrato.nombre||"")+")":"sin aceptar"));
     if(r&&r.msgs) t.push('<b>'+r.msgs+(r.msgs===1?" mensaje sin leer":" mensajes sin leer")+'</b>');
     if(r&&r.arch) t.push('<b>'+r.arch+(r.arch===1?" archivo nuevo":" archivos nuevos")+'</b>');
     return '<div class="portal-st portal-act"><span>'+t.join(" · ")+'</span><button class="btn sm" type="button" data-pt-ir="portal">Abrir lo del cliente</button></div>';
@@ -18353,6 +18813,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     /* aprobaciones */
     h+='<section class="pq-sec"><h2>Aprobaciones</h2>'+
       estadoFila("El menú",st.menu,hayMenu?"Todavía no lo ha aprobado.":"Todavía no hay menú elegido: no hay nada que aprobar.")+
+      ((sh.portal||{}).contrato&&(sh.portal.contrato.texto)?estadoFila(sh.portal.contrato.tipo==="propuesta"?"La propuesta":"El contrato",st.contrato,"El cliente todavía no lo ha aceptado (lo ve en su pestaña «"+(sh.portal.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+"»)."):"")+
       estadoFila("La minuta",st.minuta,minu?"Todavía no la ha aprobado.":"Todavía no has publicado ninguna minuta para el cliente.",
         '<div class="pq-min">'+(minu?'<img src="/api/portal/img?id='+minu.id+'" alt="La minuta publicada" loading="lazy">':'')+
         '<div class="pq-acc"><button type="button" class="btn sm gold" data-pq="publicar"'+(Q.publicando?" disabled":"")+'>'+(Q.publicando?"Preparando…":minu?"Publicar la minuta actual":"Publicar la minuta para el cliente")+'</button>'+
@@ -18605,7 +19066,28 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<div class="pn-count"><div><b class="pn-n">'+(dd!=null&&dd>=0?dd:"—")+'</b><span>'+(dd===1?"día":"días")+'</span></div><div><b class="pn-n" id="pn-c-inv">'+c.total+'</b><span>invitados en vuestra lista</span></div>'+
       (pr.total>0?'<div><b class="pn-n">'+esc(eur(pr.pend).replace(",00",""))+'</b><span>pendiente de pagar</span></div>':'')+'</div></div></header>';
   }
-  function vTabs(){ var T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["plano","Plano"],["dia","El día"],["aprob","Aprobar"+(porAprobar()?" ·":"")],["msg","Mensajes"+(msgNuevos()?" ·":"")]];
+  function conDoc(){ var C=P().contrato; return (C&&C.texto)?C:null; }
+  function conPend(){ return !!(conDoc()&&AP&&AP.contrato&&!AP.contrato.ok&&D&&D.editable); }
+  var CNOM="", CNIF="", CCHK=false;
+  function vContrato(){
+    var C=conDoc(), act=puedeActuar(), s=(AP&&AP.contrato)||{}, esC=C.tipo!=="propuesta", K=window.LM_CONTRATO;
+    var h='<div class="pn-head"><div><h2 class="pn-h2">'+(esC?"El contrato":"La propuesta")+'</h2><p class="pn-lead">'+(esC?"Leedlo con calma. Si todo está bien, podéis aceptarlo aquí mismo con vuestro nombre y vuestro NIF. Si algo no cuadra, escribidnos desde «Mensajes».":"Esta es la propuesta que os hacemos. Si os encaja, podéis aceptarla aquí mismo. Si queréis cambiar algo, escribidnos desde «Mensajes».")+'</p></div></div>';
+    h+='<div class="pn-card"><div class="cn-doc">'+(K?K.html(C.texto):esc(C.texto))+'</div><div class="pn-acciones"><button type="button" class="pn-btn" data-pn-act="pdf-contrato">Descargar en PDF</button></div></div>';
+    if(s.ok) h+='<div class="pn-aprob ok">'+IC.check+'<div><b>'+(esC?"Contrato aceptado":"Propuesta aceptada")+' por '+esc(s.nombre)+'</b><span>el '+esc(fch(s.ts))+'. Guardamos una huella del texto que habéis aceptado.</span></div></div>';
+    else {
+      if(s.desactualizada) h+='<div class="pn-aprob viejo">'+IC.info+'<div><b>Ha cambiado desde que lo aceptasteis</b><span>Aceptasteis una versión anterior ('+esc(s.nombre)+', '+esc(fch(s.ts))+'). Leed la nueva y aceptadla de nuevo.</span></div></div>';
+      if(!act) h+='<p class="pn-lead">'+(soloMirar()?"(Vista del equipo: aquí el cliente podría aceptar.)":(D&&D.local?"Esto funciona en la página real, no en la vista previa.":"Para aceptar hace falta el enlace nuevo de Les Moles."))+'</p>';
+      else h+='<div class="pn-card pn-acepta"><div class="pn-eb">'+(esC?"Aceptar y firmar el contrato":"Aceptar la propuesta")+'</div>'+
+        '<label class="pn-fld"><span class="pn-lbl">Nombre y apellidos</span><input type="text" id="pn-cn-nom" maxlength="80" autocomplete="name" value="'+esc(CNOM||APN||nombres().a||"")+'"></label>'+
+        '<label class="pn-fld"><span class="pn-lbl">NIF, DNI o NIE</span><input type="text" id="pn-cn-nif" maxlength="16" autocomplete="off" autocapitalize="characters" value="'+esc(CNIF)+'"></label>'+
+        '<label class="pn-chk"><input type="checkbox" id="pn-cn-chk"'+(CCHK?" checked":"")+'> <span>He leído el texto y lo acepto.</span></label>'+
+        '<button type="button" class="pn-btn pri" data-pn-act="aceptar-contrato">'+(esC?"Aceptar y firmar":"Aceptar la propuesta")+'</button>'+
+        '<p class="pn-lead pn-peq">Queda guardado con vuestro nombre, la fecha y la hora del momento en que lo aceptáis.</p></div>';
+    }
+    return h;
+  }
+  function vTabs(){ var CT=conDoc(), T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["plano","Plano"],["dia","El día"],["aprob","Aprobar"+(porAprobar()?" ·":"")],["msg","Mensajes"+(msgNuevos()?" ·":"")]];
+    if(CT) T.splice(3,0,["contrato",(CT.tipo==="propuesta"?"Propuesta":"Contrato")+(conPend()?" ·":"")]);
     return '<nav class="pn-tabs" aria-label="Apartados"><div class="pn-wrap" role="tablist">'+T.map(function(t){ return '<button class="pn-tab" role="tab" type="button" aria-selected="'+(tab===t[0])+'" data-pn-tab="'+t[0]+'">'+t[1]+'</button>'; }).join("")+'</div></nav>'; }
   function vInicio(){
     var L=pasos(), sig=L.filter(function(p){ return !p.done&&p.id!=="boda"; })[0], h='';
@@ -18617,6 +19099,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }
     var pa=[]; if(AP&&D.editable){ if(((P().menu)||[]).length&&!AP.menu.ok) pa.push("el menú"); if(MIN&&!AP.minuta.ok) pa.push("la minuta"); }
     if(pa.length) h+='<div class="pn-next"><span class="ic">'+IC.edit+'</span><div><span>Para revisar</span><b>Aprobad '+pa.join(" y ")+'</b><span>Cuando estén como queréis, aprobadlos desde aquí con vuestro nombre.</span></div><button class="pn-btn pri go" type="button" data-pn-go="aprob">Revisar</button></div>';
+    if(conPend()){ var _C=conDoc(); h+='<div class="pn-next"><span class="ic">'+IC.edit+'</span><div><span>Para aceptar</span><b>'+(_C.tipo==="propuesta"?"Tenéis una propuesta":"Tenéis el contrato")+' esperando</b><span>Leedlo y, si todo está bien, aceptadlo desde aquí.</span></div><button class="pn-btn pri go" type="button" data-pn-go="contrato">Verlo</button></div>'; }
     if(msgNuevos()) h+='<div class="pn-next"><span class="ic">'+IC.info+'</span><div><span>Mensajes</span><b>Les Moles os ha escrito</b><span>'+esc(MSGS.filter(function(m){ return m.de==="equipo"; }).pop().texto.slice(0,90))+'…</span></div><button class="pn-btn go" type="button" data-pn-go="msg">Leer</button></div>';
     if(L.length){ var primero=true;
       h+='<div class="pn-card"><div class="pn-head" style="margin-bottom:18px"><div class="pn-eb">Qué toca y cuándo</div><span class="pn-perm lock">'+IC.lock+'Lo marca Les Moles</span></div><ol class="pn-steps">'+
@@ -18796,6 +19279,20 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       accion({tipo:"aprobar",item:item,nombre:nom,h:item==="menu"?(AP&&AP.menuHash):(MIN&&MIN.hash)}).then(function(j){ aplicar(j); pintar(); aviso("Aprobado. ¡Gracias, "+nom.split(" ")[0]+"!"); })
         .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar."); if(j&&j._s===409) refrescar(); b.disabled=false; });
       return true; }
+    if(a==="aceptar-contrato"){
+      var cn=document.getElementById("pn-cn-nom"), cf=document.getElementById("pn-cn-nif"), cc=document.getElementById("pn-cn-chk"), nom2=(cn&&cn.value||"").trim(), nif=(cf&&cf.value||"").replace(/[\s.\-]/g,"").toUpperCase();
+      if(nom2.length<2){ aviso("Escribid vuestro nombre."); if(cn) cn.focus(); return true; }
+      if(!/^[A-Z0-9]{6,12}$/.test(nif)){ aviso("Escribid vuestro NIF, DNI o NIE (sin espacios)."); if(cf) cf.focus(); return true; }
+      if(!(cc&&cc.checked)){ aviso("Marcad que habéis leído el texto y lo aceptáis."); if(cc) cc.focus(); return true; }
+      CNOM=nom2; CNIF=nif; b.disabled=true;
+      accion({tipo:"aprobar",item:"contrato",nombre:nom2,nif:nif,h:AP&&AP.contratoHash}).then(function(j){ aplicar(j); pintar(); aviso("Aceptado. ¡Gracias, "+nom2.split(" ")[0]+"!"); })
+        .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar."); if(j&&j._s===409) refrescar(); b.disabled=false; });
+      return true; }
+    if(a==="pdf-contrato"){
+      var C2=conDoc(), K2=window.LM_CONTRATO, s2=(AP&&AP.contrato)||{}; if(!C2||!K2) return true;
+      var em=C2.emp||{}, firma=s2.ok?{nombre:s2.nombre,nif:CNIF||"",ts:s2.ts,h:K2.hash(C2.texto)}:null;
+      K2.pdfTexto(C2.texto,firma,{marca:em.marca||"Les Moles",razon:em.razon||"",rep:em.rep||"",fecha:C2.fecha,ver:"versión "+(C2.ver||1),titulo:C2.tipo==="propuesta"?"Propuesta":"Contrato",cliente:nombres().a||""},(C2.tipo==="propuesta"?"propuesta":"contrato")+(firma?"_aceptado":""));
+      return true; }
     if(a==="enviar-msg"){
       var ta=document.getElementById("pn-msg"), tx=(ta&&ta.value||"").trim(); if(!tx){ aviso("Escribid el mensaje."); return true; }
       b.disabled=true; accion({tipo:"comentario",nombre:nombres().a||"",texto:tx}).then(function(j){ MSGTXT=""; aplicar(j); pintar(); var c=document.getElementById("pn-chat"); if(c) c.scrollTop=c.scrollHeight; aviso("Mensaje enviado. Os contestaremos aquí."); })
@@ -18822,7 +19319,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     host=document.getElementById("novios"); if(!host) return; css();
     var y=host.scrollTop;
     host.className="pn on";
-    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():tab==="plano"?vPlano():tab==="aprob"?vAprob():tab==="msg"?vMsg():vInicio();
+    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():tab==="plano"?vPlano():tab==="aprob"?vAprob():tab==="msg"?vMsg():(tab==="contrato"&&conDoc())?vContrato():vInicio();
     host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ve el cliente'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
       vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona · <button type="button" class="pn-flnk" data-pn-act="priv">Privacidad</button></footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
     host.scrollTop=y;
@@ -18880,6 +19377,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function onInput(ev){
     var el=ev.target; if(!el||!host.contains(el)) return;
     if(el.id==="pn-msg"){ MSGTXT=el.value; return; }
+    if(el.id==="pn-cn-nom"){ CNOM=el.value; return; }
+    if(el.id==="pn-cn-nif"){ CNIF=el.value; return; }
+    if(el.id==="pn-cn-chk"){ CCHK=el.checked; return; }
     if(el.id&&el.id.indexOf("pn-apn-")===0){ APN=el.value; return; }
     if(el.id==="pn-n1"||el.id==="pn-n2"){ S[el.id==="pn-n1"?"parejaA":"parejaB"]=el.value; var hn=host.querySelector(".pn-names"); if(hn){ var n=nombres(); hn.innerHTML=n.solo?esc(n.a):esc(n.a)+' <i>&amp;</i> '+esc(n.b); } programar(); return; }
     var f=el.getAttribute("data-f"); if(!f) return; var mEl=el.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
@@ -18906,7 +19406,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!S.mesas.length) S.mesas=[{k:null,nombre:"Presidencial",g:[{n:S.parejaA||"",t:"adulto",a:""},{n:S.parejaB||"",t:"adulto",a:""}]}];
     if(!D.portal) D.portal={titulo:d.event.title,fecha:d.event.fecha,ubicacion:d.event.ubicacion,tipo:d.event.tipo,pasos:[],presupuesto:{},horas:[],menu:[]};
     tab="inicio"; var h=(location.hash||"").replace("#","");
-    if(["inicio","pagos","presu","inv","dia","plano","aprob","msg"].indexOf(h)>-1) tab=h;
+    if(["inicio","pagos","presu","inv","dia","plano","aprob","msg","contrato"].indexOf(h)>-1) tab=h;
     pintar();
     if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("keydown",function(ev){ var m=ev.target.closest&&ev.target.closest("[data-pn-mesa]"); if(m&&(ev.key==="Enter"||ev.key===" ")){ ev.preventDefault(); onExtra(ev); } });
       host.addEventListener("change",function(ev){ if(ev.target&&(ev.target.id==="pn-file-logo"||ev.target.id==="pn-file-foto")){ var kd=ev.target.id==="pn-file-logo"?"logo":"foto", fl=ev.target.files; subirArchivos(fl,kd); ev.target.value=""; return; } if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
@@ -18943,7 +19443,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }).catch(function(){});
   }
   setInterval(refrescar,45000);
-  setInterval(function(){ if(tab==="msg"||tab==="aprob") refrescar(); },15000);   /* con la conversación abierta, la respuesta del equipo llega enseguida */
+  setInterval(function(){ if(tab==="msg"||tab==="aprob"||tab==="contrato") refrescar(); },15000);   /* con la conversación abierta, la respuesta del equipo llega enseguida */
   document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") setTimeout(refrescar,400); });
   window.LM_portalRefrescar=refrescar;
   /* opts.vista: el equipo la abre desde la app para ver lo que ve el cliente */
