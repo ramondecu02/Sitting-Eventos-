@@ -13,7 +13,7 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.57 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.58 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       (document.body||document.documentElement).appendChild(d);
@@ -3364,6 +3364,80 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 @media (max-width:700px){ .ut-reg-row{grid-template-columns:1fr; gap:2px} .ut-acts,.ut-edit{margin-left:0} }
 .login-scrim{position:fixed; z-index:1100}
 .ut-main .u-role,.ut-main .u-role-sel{flex:0 0 auto; width:auto; min-width:120px}
+
+/* ══ Coordinación entre departamentos ══ */
+.co-root .co-ayuda{color:var(--c-mut); font-size:13px; line-height:1.45; margin:0 0 10px}
+.co-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin:0 0 14px}
+.co-card{background:var(--bg-1,#fff); border:1px solid var(--c-line,#E4DCCB); border-radius:14px; padding:14px 15px; display:flex; flex-direction:column; gap:8px; min-width:0}
+.co-card.mio{border-color:#56613F; box-shadow:0 0 0 1px #56613F inset}
+.co-card.pend{background:#FFF8E8; border-color:#D9A441}
+.co-card header{display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.co-card h3{margin:0; font:600 17px/1.2 var(--font-display,Georgia,serif)}
+.co-card h3 em{font:700 9px/1 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; color:#56613F; margin-left:8px; font-style:normal}
+.co-st{font:700 10px/1 var(--font-text,system-ui); letter-spacing:.08em; text-transform:uppercase; padding:5px 9px; border-radius:99px; white-space:nowrap}
+.co-st.ok{color:#3E5B2A; background:#E7EFDC; border:1px solid #B7C98F}
+.co-st.pend{color:#8A5A0B; background:#FBE9C2; border:1px solid #D9A441}
+.co-st.nuevo{color:#65645C; background:#F0EEE6; border:1px solid #D8D4C6}
+.co-def{font-size:12.5px; line-height:1.5; color:var(--c-mut); margin:0}
+.co-def b{color:var(--c-ink,#1A1A1A)}
+.co-dif{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; font-size:13px}
+.co-dif li{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; padding:6px 9px; background:rgba(255,255,255,.7); border-radius:8px; border:1px solid rgba(0,0,0,.06)}
+.co-dif li>b{font-weight:700}
+.co-dif ins{text-decoration:none; color:#3E5B2A; background:#E7EFDC; border-radius:5px; padding:1px 6px}
+.co-dif del{color:#8E2C48; background:#F8E4EA; border-radius:5px; padding:1px 6px}
+.co-dif .co-de{color:var(--c-mut); text-decoration:line-through}
+.co-dif .co-a{font-weight:700}
+.co-dif .co-mas,.co-av-mini .co-mas{color:var(--c-mut); font-size:12px; background:none; border:0; padding:0}
+.co-rev{font-size:12px; color:var(--c-mut); margin:0}
+.co-btns{display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; padding-top:2px}
+.co-av-mini{list-style:none; margin:0; padding:0; font-size:12.5px; display:flex; flex-direction:column; gap:3px}
+.co-av-mini li{background:#FFF; border-left:3px solid #9A722A; padding:4px 8px; border-radius:0 6px 6px 0}
+.co-root .pcard{margin:0 0 14px}
+.co-root .pcard h2{margin:0 0 6px; font:600 18px/1.2 var(--font-display,Georgia,serif)}
+.co-nuevo{display:grid; grid-template-columns:150px minmax(0,1fr) auto; gap:10px; align-items:end; margin:6px 0 12px}
+.co-nuevo .fld{margin:0}
+@media (max-width:700px){ .co-nuevo{grid-template-columns:1fr} }
+.co-avlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
+.co-av{border:1px solid var(--c-line,#E4DCCB); border-left:4px solid #9A722A; border-radius:10px; padding:9px 12px; background:var(--bg-1,#fff)}
+.co-av.hecho{opacity:.7; border-left-color:#B7C98F}
+.co-av p{margin:4px 0 2px}
+.co-av small{color:var(--c-mut)}
+.co-av-t{display:flex; align-items:center; gap:6px}
+.co-dp{font:700 9.5px/1 var(--font-text,system-ui); letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:99px; background:#F0EEE6; color:#65645C; border:1px solid #D8D4C6; white-space:nowrap; display:inline-block; margin:0 4px 3px 0}
+.co-dp.eventos{background:#EFE9F2; color:#6A4F77; border-color:#D5C6DD}
+.co-dp.cocina{background:#F8E4EA; color:#8E2C48; border-color:#E5B8C5}
+.co-dp.compras{background:#FBE9C2; color:#8A5A0B; border-color:#E8C77F}
+.co-dp.servicio,.co-dp.admin{background:#E7EFDC; color:#3E5B2A; border-color:#B7C98F}
+.co-dp.todos{background:#E6ECEF; color:#4A5A63; border-color:#C2CFD6}
+.co-tabla{display:flex; flex-direction:column; border:1px solid var(--c-line,#E4DCCB); border-radius:10px; overflow:hidden}
+.co-tr{display:grid; grid-template-columns:minmax(120px,.9fr) minmax(0,2.4fr) minmax(70px,.6fr) minmax(130px,1.1fr); gap:10px; padding:9px 12px; border-top:1px solid var(--c-line,#E4DCCB); align-items:start; font-size:13px}
+.co-tr:first-child{border-top:0}
+.co-th{background:var(--bg-2,#F4F1E8); font:700 10px/1 var(--font-text,system-ui); letter-spacing:.1em; text-transform:uppercase; color:var(--c-mut)}
+.co-k{font-weight:600}
+.co-v{min-width:0}
+@media (max-width:760px){ .co-tr{grid-template-columns:1fr; gap:3px} .co-th{display:none} .co-k{font-size:12px; color:var(--c-mut); text-transform:uppercase; letter-spacing:.06em} }
+.co-det summary{cursor:pointer; color:#56613F; font-weight:600}
+.co-det ul{margin:6px 0 2px; padding-left:18px; display:flex; flex-direction:column; gap:2px}
+.co-vacio{color:var(--c-mut)}
+.co-warn{display:inline-block; margin-left:8px; color:#8A5A0B; background:#FBE9C2; border-radius:6px; padding:1px 7px; font-weight:600; font-size:12px}
+.co-chk{margin:8px 0 0}
+.co-chk h3{margin:0 0 4px; font:600 15px/1.2 var(--font-display,Georgia,serif)}
+.co-chk h3 em{font:700 11px/1 var(--font-text,system-ui); font-style:normal; margin-left:6px; background:#FBE9C2; color:#8A5A0B; border-radius:99px; padding:2px 7px}
+.co-chk ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px}
+.co-chk li{display:flex; align-items:center; gap:10px; justify-content:space-between; padding:7px 10px; background:var(--bg-2,#F4F1E8); border-radius:8px; border-left:3px solid #D9A441; font-size:13px}
+.co-chk li.urg{border-left-color:#8E2C48; background:#F8EEF1}
+.co-ok{color:#3E5B2A; font-weight:600; margin:4px 0 0}
+/* aviso flotante en las pantallas de tu departamento */
+.co-bar{position:fixed; left:12px; right:12px; margin:0 auto; width:max-content; bottom:18px; z-index:90; display:flex; align-items:center; gap:12px; max-width:min(760px,calc(100vw - 24px)); background:#2A2820; color:#FFF; border-radius:14px; padding:10px 14px; box-shadow:0 10px 30px rgba(0,0,0,.28); border:1px solid #D9A441}
+.co-bar[hidden]{display:none}
+.co-bar-ic{flex:none; width:26px; height:26px; border-radius:50%; background:#D9A441; color:#2A2820; font-weight:800; display:grid; place-items:center}
+.co-bar-tx{min-width:0; display:flex; flex-direction:column; gap:2px}
+.co-bar-tx b{font-size:13.5px}
+.co-bar-tx small{color:#D8D5C8; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.co-bar .btn{flex:none}
+@media (max-width:700px){ .co-bar{bottom:calc(64px + env(safe-area-inset-bottom,0px)); width:auto; gap:8px; padding:8px 10px} .co-bar-ic,.co-bar-tx small{display:none} .co-bar-tx{flex:1 1 auto} .co-bar-tx b{font-size:12.5px; line-height:1.25} .co-bar .btn{padding:6px 10px; font-size:12px} }
+/* pastilla en la tarjeta del evento (Inicio) */
+.ev-co{margin-top:8px; font:700 10.5px/1.2 var(--font-text,system-ui); letter-spacing:.04em; color:#8A5A0B; background:#FBE9C2; border:1px solid #E8C77F; border-radius:8px; padding:5px 8px}
 /*V3-END*/
 </style>
 
@@ -3376,7 +3450,7 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.57</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.58</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4931,6 +5005,170 @@ var deletedIds={};
 /* los borrados viajan con el documento (store.borrados = {id: cuándo}): así un
    evento que borra una persona no lo resucita la copia vieja de otra. Si el
    evento se vuelve a tocar después (deshacer), gana el evento. */
+/* ══ FUSIÓN DE UN EVENTO POR SECCIONES ═══════════════════════════════════
+   Antes, al juntar dos copias de un evento ganaba la más reciente ENTERA: si
+   Eventos cambiaba el plano y, a la vez, Cocina cambiaba el menú del mismo
+   evento, el que guardaba después borraba lo del otro. Ahora cada evento lleva
+   e._k = { camino: milisegundos } con el momento en que alguien cambió ESA
+   parte (el camino baja hasta 3 niveles: «menu», «menu\u001fdishes»,
+   «menu\u001fdishes\u001fAPERITIVOS#3»). Al juntar dos copias, cada parte la
+   gana la copia que la cambió más tarde; lo que nadie ha tocado se queda como
+   está. Lo único que se escribe entre varias personas a la vez —el texto del
+   plano, que también lleva los platos sustitutivos de Cocina— se junta línea a
+   línea tomando como base la versión que la persona tenía antes de editar.
+   Sin sellos (copias de antes de esta versión), vale la regla de siempre: gana
+   el evento entero más reciente. */
+var K_SEP = "\u001f", K_NIVELES = 3, K_FUERA = { id: 1, updated: 1, _k: 1, _tb: 1 };
+function kObj(v) { return !!v && typeof v === "object" && !Array.isArray(v); }
+/* caminos «hoja» de un evento */
+function kCaminos(e) {
+  var out = [];
+  (function rec(o, pre, nivel) {
+    Object.keys(o).forEach(function (k) {
+      if (nivel === 0 && K_FUERA[k]) return;
+      var v = o[k], p = pre ? pre + K_SEP + k : k;
+      if (kObj(v) && nivel + 1 < K_NIVELES && Object.keys(v).length) rec(v, p, nivel + 1);
+      else out.push(p);
+    });
+  })(e || {}, "", 0);
+  return out;
+}
+function kGet(e, p) {
+  var seg = p.split(K_SEP), v = e;
+  for (var i = 0; i < seg.length; i++) { if (!kObj(v) && i > 0) return undefined; if (v == null) return undefined; v = v[seg[i]]; }
+  return v;
+}
+function kPon(out, p, v) {
+  var seg = p.split(K_SEP), o = out;
+  for (var i = 0; i < seg.length - 1; i++) { if (!kObj(o[seg[i]])) o[seg[i]] = {}; o = o[seg[i]]; }
+  o[seg[seg.length - 1]] = v;
+}
+function kHash(v) {
+  var s = JSON.stringify(v); if (s === undefined) return "u";
+  var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h + ":" + s.length;
+}
+/* el sello de una parte; una copia sin sellos (de antes) cuenta como si TODO se hubiera tocado cuando se guardó */
+function kSello(e, p) { return e._k ? (+e._k[p] || 0) : (+e.updated || 0); }
+/* ¿lo de «a» gana o iguala a lo de «b» en todo? (entonces no hay nada que juntar) */
+function kDomina(a, b) {
+  if ((+b.updated || 0) > (+a.updated || 0)) return false;
+  if (!b._k) return !!a._k ? false : true;
+  var ka = a._k, kb = b._k; if (!ka) return (+a.updated || 0) >= Math.max.apply(null, [0].concat(Object.keys(kb).map(function (k) { return +kb[k] || 0; })));
+  for (var k in kb) if ((+kb[k] || 0) > (+ka[k] || 0)) return false;
+  return true;
+}
+/* ── fusión de líneas a tres bandas (base = lo que se tenía antes de editar) ── */
+function m3Mapa(B, X) {
+  var n = B.length, m = X.length, map = new Array(n), i;
+  for (i = 0; i < n; i++) map[i] = -1;
+  var s = 0; while (s < n && s < m && B[s] === X[s]) { map[s] = s; s++; }
+  var f = 0; while (f < n - s && f < m - s && B[n - 1 - f] === X[m - 1 - f]) { map[n - 1 - f] = m - 1 - f; f++; }
+  var N = n - s - f, M = m - s - f;
+  if (N > 0 && M > 0) {
+    if (N * M > 3e6) return null;
+    var w = M + 1, t = new Uint16Array((N + 1) * w), j;
+    for (i = N - 1; i >= 0; i--) for (j = M - 1; j >= 0; j--)
+      t[i * w + j] = B[s + i] === X[s + j] ? t[(i + 1) * w + j + 1] + 1 : Math.max(t[(i + 1) * w + j], t[i * w + j + 1]);
+    i = 0; j = 0;
+    while (i < N && j < M) {
+      if (B[s + i] === X[s + j]) { map[s + i] = s + j; i++; j++; }
+      else if (t[(i + 1) * w + j] >= t[i * w + j + 1]) i++; else j++;
+    }
+  }
+  return map;
+}
+function m3Igual(x, y) { if (x.length !== y.length) return false; for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) return false; return true; }
+/* a = lo que hay, b = lo que llega; si los dos cambian lo mismo, gana «b» cuando preferB.
+   Dos inserciones en el mismo sitio se quedan las dos (no se pierde ningún invitado). */
+function m3(base, a, b, preferB) {
+  if (a === b) return a; if (a === base) return b; if (b === base) return a;
+  var B = base.split("\n"), A = a.split("\n"), C = b.split("\n");
+  var ma = m3Mapa(B, A), mc = ma && m3Mapa(B, C); if (!ma || !mc) return null;
+  var out = [], ib = 0, ia = 0, ic = 0, k;
+  function trozo(fb, fa, fc) {
+    var tb = B.slice(ib, fb), ta = A.slice(ia, fa), tc = C.slice(ic, fc);
+    var r = m3Igual(ta, tb) ? tc : m3Igual(tc, tb) ? ta : m3Igual(ta, tc) ? ta : !tb.length ? ta.concat(tc) : (preferB ? tc : ta);
+    for (var q = 0; q < r.length; q++) out.push(r[q]);
+  }
+  for (k = 0; k < B.length; k++) {
+    if (ma[k] >= 0 && mc[k] >= 0) { trozo(k, ma[k], mc[k]); out.push(B[k]); ib = k + 1; ia = ma[k] + 1; ic = mc[k] + 1; }
+  }
+  trozo(B.length, A.length, C.length);
+  return out.join("\n");
+}
+/* p = el evento que hay; i = el que llega; tb = el texto del plano que tenía quien lo envía antes de editarlo (si lo sabe).
+   Devuelve «p» o «i» tal cual cuando uno de los dos lo trae todo. */
+function mergeEv(p, i, tb) {
+  if (!p) return i; if (!i) return p;
+  var gana = (+p.updated || 0) > (+i.updated || 0) ? p : i;
+  if (!p._k && !i._k) return gana;
+  /* si uno de los dos ya lo tiene todo, se devuelve ese mismo (a igualdad, el que llega: así no se cambia el objeto que la pantalla tiene en la mano) */
+  if (kDomina(i, p) && (typeof tb !== "string" || tb === p.text || tb === i.text)) return i;
+  if (kDomina(p, i) && (typeof tb !== "string" || tb === p.text || tb === i.text)) return p;
+  var ps = {}, out = {}, sellos = {};
+  kCaminos(p).concat(kCaminos(i)).forEach(function (k) { ps[k] = 1; });
+  Object.keys(p._k || {}).concat(Object.keys(i._k || {})).forEach(function (k) { ps[k] = 1; });
+  Object.keys(ps).forEach(function (k) {
+    var a = kSello(p, k), b = kSello(i, k), src = a > b ? p : b > a ? i : gana, v = kGet(src, k);
+    if (k === "text" && typeof tb === "string" && typeof p.text === "string" && typeof i.text === "string" && p.text !== i.text && tb !== p.text && tb !== i.text) {
+      var f = m3(tb, p.text, i.text, b >= a); if (f != null) v = f;
+    } else if (k === "text" && typeof tb === "string" && typeof p.text === "string" && typeof i.text === "string" && p.text !== i.text) {
+      v = tb === p.text ? i.text : p.text;   /* uno de los dos no ha tocado el texto: vale el del otro */
+    }
+    if (v !== undefined) kPon(out, k, v);
+    var s = Math.max(a, b); if (s) sellos[k] = s;
+  });
+  out.id = i.id != null ? i.id : p.id;
+  out.updated = Math.max(+p.updated || 0, +i.updated || 0);
+  out._k = sellos;
+  return out;
+}
+/* sella TODO un evento con un instante (restaurar una copia: tiene que ganar a lo anterior, también lo que la copia ya no tiene) */
+function kSellarTodo(e, t, antes) {
+  var s = {}; kCaminos(e).forEach(function (k) { s[k] = t; });
+  if (antes) { kCaminos(antes).forEach(function (k) { s[k] = t; }); Object.keys(antes._k || {}).forEach(function (k) { s[k] = t; }); }
+  e._k = s; return e;
+}
+
+/* ── sellos: al guardar se mira qué partes del evento han cambiado desde la última vez y se les pone la hora ── */
+var KB={}, KU={}, TXB={}, TXB_KEY="lm_base_txt_v1", txbCache="";
+function kVacio(v){ return v===undefined||v===null||v===""||v===false||v===0||(Array.isArray(v)&&!v.length)||(kObj(v)&&!Object.keys(v).length); }
+function hashesDe(e){ var h={}; kCaminos(e).forEach(function(p){ h[p]=kHash(kGet(e,p)); }); return h; }
+function sellarEv(e,ahora){
+  if(!e||!e.id) return;
+  var antes=KB[e.id], nuevo=hashesDe(e);
+  if(!e._k||typeof e._k!=="object") e._k={};
+  if(antes){
+    /* una parte que aparece vacía (un valor por defecto que añade la app a un evento antiguo) no es un cambio de nadie: no se sella,
+       así nunca puede ganar a lo que otra persona haya escrito en ese mismo sitio */
+    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; } });
+    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)) e._k[p]=ahora; });
+  }
+  KB[e.id]=nuevo; KU[e.id]=e.updated||0;
+}
+/* en cada guardado: el evento abierto y los que han cambiado de «updated» */
+function sellarCambiados(){
+  var ahora=Date.now(), c=null; try{ c=current(); }catch(_){}
+  store.events.forEach(function(e){ if(!e) return; if(e===c||!KB[e.id]||KU[e.id]!==(e.updated||0)) sellarEv(e,ahora); });
+}
+function sellarTodos(){ var ahora=Date.now(); store.events.forEach(function(e){ sellarEv(e,ahora); }); }
+function sumSellos(e){ var n=0, k=e&&e._k; if(k) for(var x in k) n+=(+k[x]||0); return n; }
+function sigEventos(){ return store.events.map(function(e){ return e.id+":"+(e.updated||0)+":"+sumSellos(e); }).join(","); }
+/* texto del plano tal como estaba la última vez que se sincronizó (sirve para juntar líneas con las de otra persona);
+   solo se guarda en el navegador lo que está sin subir, para que sobreviva a recargar la página sin conexión */
+function iniciarSellos(){
+  var guardado={}; try{ guardado=JSON.parse(localStorage.getItem(TXB_KEY)||"{}")||{}; }catch(_){ guardado={}; }
+  store.events.forEach(function(e){ KB[e.id]=hashesDe(e); KU[e.id]=e.updated||0; if(!e._k) e._k={};
+    TXB[e.id]=(typeof guardado[e.id]==="string")?guardado[e.id]:e.text; });
+  txbCache=JSON.stringify(guardado);
+}
+function guardarTXB(){
+  var o={}; store.events.forEach(function(e){ if(typeof TXB[e.id]==="string"&&typeof e.text==="string"&&TXB[e.id]!==e.text) o[e.id]=TXB[e.id]; });
+  var j=JSON.stringify(o); if(j===txbCache) return; txbCache=j;
+  try{ if(j==="{}") localStorage.removeItem(TXB_KEY); else localStorage.setItem(TXB_KEY,j); }catch(_){}
+}
+window.LM_MERGE={mergeEv:mergeEv,m3:m3,KB:KB,TXB:TXB,sellarTodos:sellarTodos,sig:function(e){ return (e.updated||0)+":"+sumSellos(e); }};
 function unirBorrados(a,b){ var o=Object.assign({},a||{}); Object.keys(b||{}).forEach(function(k){ if((+b[k]||0)>(+o[k]||0)) o[k]=+b[k]; }); return o; }
 function vivo(e,bor){ var t=bor&&+bor[e.id]; return !t||(e.updated||0)>t; }
 /* Antes de escribir se relee lo que hay: si otra pestaña ha creado o tocado un evento,
@@ -4945,7 +5183,8 @@ function mergeStore(){
   disk.events.forEach(function(d){
     var m=mine[d.id];
     if(!m){ if(!deletedIds[d.id]) out.push(migrate(d)); return; }  /* evento de la otra pestaña (si no lo he borrado yo) */
-    out.push((d.updated||0)>(m.updated||0)?migrate(d):m);        /* gana el más reciente */
+    var rr=mergeEv(migrate(d),m);                                 /* se junta por secciones; a igualdad, lo mío */
+    out.push(rr); if(rr!==m){ KB[rr.id]=hashesDe(rr); KU[rr.id]=rr.updated||0; }
     delete mine[d.id];
   });
   store.events.forEach(function(e){ if(mine[e.id]) out.unshift(e); });   /* los míos nuevos */
@@ -5030,7 +5269,8 @@ function mergePrevision(mio,otro){
 function save(){
   if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
   try{ portalAlDia(current()); }catch(_){}
-  try{ localStorage.setItem(KEY,JSON.stringify(mergeStore())); if(saveFail){saveFail=false;flagSave();} }
+  try{ sellarCambiados(); }catch(_){}
+  try{ localStorage.setItem(KEY,JSON.stringify(mergeStore())); if(saveFail){saveFail=false;flagSave();} guardarTXB(); }
   catch(e){
     if(!saveFail){ saveFail=true; flagSave();
       toast("Los cambios han dejado de guardarse: el navegador se ha quedado sin espacio. Pulsa Compartir y guarda el código de este evento para no perderlo; después borra un evento antiguo o quita un plano de fondo.",true);
@@ -5125,12 +5365,23 @@ function pushRemote(){
   if(store.events.some(function(e){return e.text===EX_BODA;})){
     toSend=Object.assign({},store,{events:store.events.filter(function(e){return e.text!==EX_BODA;})});
   }
+  /* cada evento va con sus sellos y, si he tocado el plano, con el texto que tenía antes de tocarlo (para juntar línea a línea con lo de otra persona) */
+  try{ sellarTodos(); }catch(_){}
+  var enviado={};
+  toSend=Object.assign({},toSend,{events:toSend.events.map(function(e){
+    if(typeof e.text==="string") enviado[e.id]=e.text;
+    var tb=TXB[e.id];
+    return (typeof tb==="string"&&typeof e.text==="string"&&tb!==e.text)?Object.assign({},e,{_tb:tb}):e;
+  })});
   fetch("/api/store",{method:"PUT",headers:{"Content-Type":"application/json","X-Store-Base":String(srvV||0)},body:JSON.stringify(toSend)})
     .then(function(r){
       if(r.status===401){ var e401=new Error("401"); e401.auth=true; throw e401; }
       if(!r.ok) throw new Error("http "+r.status);
       if(remoteFail){ remoteFail=false; flagRemote(null); }
       setSaveState("ok");
+      /* lo enviado ya está en el servidor: ese texto es ahora la base para la próxima vez */
+      Object.keys(enviado).forEach(function(id){ TXB[id]=enviado[id]; });
+      try{ guardarTXB(); }catch(_){}
       return r.json().catch(function(){ return null; });
     })
     .then(function(j){
@@ -5154,12 +5405,16 @@ function pushRemote(){
    MISMA regla que mergeStore(): por evento, gana el más reciente según
    "updated"; lo borrado en este navegador (deletedIds) no resucita. */
 function mergeRemote(remote){
+  try{ sellarTodos(); }catch(_){}                      /* primero se sella lo que yo haya tocado y aún no se haya subido */
   var mine={}, out=[], bor=store.borrados=unirBorrados(store.borrados,remote.borrados);
   store.events.forEach(function(e){ mine[e.id]=e; });
   remote.events.forEach(function(d){
     var m=mine[d.id];
-    if(!m){ if(!deletedIds[d.id]) out.push(migrate(d)); return; }
-    out.push((d.updated||0)>(m.updated||0)?migrate(d):m);
+    if(!m){ if(!deletedIds[d.id]){ var nu=migrate(d); out.push(nu); KB[nu.id]=hashesDe(nu); KU[nu.id]=nu.updated||0; TXB[nu.id]=nu.text; } return; }
+    var rt=d.text, r=mergeEv(migrate(d),m,TXB[d.id]);   /* lo del servidor + lo mío, por secciones; el plano línea a línea */
+    out.push(r);
+    if(r!==m){ KB[r.id]=hashesDe(r); KU[r.id]=r.updated||0; }
+    if(typeof rt==="string") TXB[d.id]=rt;
     delete mine[d.id];
   });
   store.events.forEach(function(e){ if(mine[e.id]) out.unshift(e); });
@@ -5174,7 +5429,7 @@ function hydrateFromServer(){
     return r.json();
   }).then(function(remote){
       if(!remote) return;
-      var before=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
+      var before=sigEventos();
       var invBefore=JSON.stringify([store.inventario||{},store.invExtra||{}]);
       var camBefore=JSON.stringify(store.camareros||{});
       var parBefore=JSON.stringify(store.params||{});
@@ -5204,7 +5459,7 @@ function hydrateFromServer(){
       try{ sincronizarPrevision(); }catch(_){}
       try{ portalTodos(); }catch(_){}
       try{ cargarListasNovios(true); }catch(_){}
-      var after=store.events.map(function(e){return e.id+":"+(e.updated||0);}).join(",");
+      var after=sigEventos();
       var invCambia=JSON.stringify([store.inventario||{},store.invExtra||{}])!==invBefore;
       var camCambia=JSON.stringify(store.camareros||{})!==camBefore;
       if(after!==before||invCambia||camCambia){
@@ -5231,7 +5486,7 @@ function hydrateFromServer(){
          cambio de agenda en sí no toca ningún evento) */
       if((camCambia||after!==before)&&window.camRefrescar) window.camRefrescar();
     })
-    .catch(function(){ /* sin conexión con el servidor: se sigue trabajando en local */ });
+    .catch(function(err){ /* sin conexión con el servidor: se sigue trabajando en local */ try{ if(window.console&&err&&!/Failed to fetch|NetworkError|Load failed/i.test(String(err))) console.warn("sincronización:",err); }catch(_){} });
 }
 
 /* ══ trabajo a la vez: traer lo de los demás y ver quién está ══════════
@@ -5278,10 +5533,10 @@ function pintarPresencia(){
     if(c&&p.ev===c.id){ if(mismos.indexOf(n)<0) mismos.push(n); } else if(!vistos[n]){ vistos[n]=1; otros.push(n); } });
   if(host){
     if(!mismos.length&&!otros.length){ host.hidden=true; host.innerHTML=""; }
-    else { host.hidden=false; host.innerHTML=(mismos.length?'<span class="pres-mismo" title="Los cambios se juntan solos. Si los dos tocáis lo mismo del evento a la vez, se queda el último que guarda.">'+escH(mismos.join(", "))+(mismos.length===1?" también tiene":" también tienen")+' abierto este evento</span>':'')+
+    else { host.hidden=false; host.innerHTML=(mismos.length?'<span class="pres-mismo" title="Los cambios se juntan solos, cada parte del evento por su lado. Solo si tocáis exactamente lo mismo a la vez se queda el último que guarda.">'+escH(mismos.join(", "))+(mismos.length===1?" también tiene":" también tienen")+' abierto este evento</span>':'')+
       (otros.length?'<span class="pres-otros">Conectados: '+escH(otros.join(", "))+'</span>':''); }
   }
-  mismos.forEach(function(n){ var k=(c&&c.id)+"|"+n; if(!presAvisados[k]){ presAvisados[k]=1; toast(n+" ha abierto este mismo evento. Los cambios de los dos se juntan solos; si tocáis lo mismo a la vez, se queda el último."); } });
+  mismos.forEach(function(n){ var k=(c&&c.id)+"|"+n; if(!presAvisados[k]){ presAvisados[k]=1; toast(n+" ha abierto este mismo evento. Los cambios de los dos se juntan solos."); } });
 }
 
 var view="plan", doc=null, boxes=[], sel=null, zoom=1, userSize=1, editing=null;
@@ -7827,6 +8082,7 @@ var EX_BODA="# Boda de Marta i Jordi — 12/09/2026\n@ Les Moles Events\n\n"+
 /* ══ init ═══════════════════════════════════════════════════════════ */
 var ps=document.createElement("style"); ps.id="pagestyle"; document.head.appendChild(ps);
 load(); loadBG();
+try{ iniciarSellos(); }catch(err){ if(window.console) console.warn(err); }
 if(!store.events.length){ var e0=migrate({id:"e"+Date.now()+Math.floor(Math.random()*999),text:EX_BODA,name:eventName(EX_BODA),updated:Date.now()}); store.events=[e0]; store.active=e0.id; }
 if(!current()) store.active=store.events[0].id;
 $("src").value=current().text; prevText=current().text;
@@ -8193,6 +8449,8 @@ var SECCIONES=[
   {k:"presup",   g:"Planificación", t:"Presupuesto"},
   {k:"comm",     g:"Planificación", t:"Comunicación"},
   {k:"hist",     g:"Planificación", t:"Historial de cambios"},
+  /* la ven todos los roles: es donde cada departamento ve lo que ha cambiado para él */
+  {k:"coh",      g:"Planificación", t:"Coordinación"},
   {k:"plan",     g:"Plano de mesas", t:"Plano de sala"},
   {k:"list",     g:"Plano de mesas", t:"Listado por mesas"},
   {k:"card",     g:"Plano de mesas", t:"Marcasitios"},
@@ -8234,6 +8492,7 @@ var SECCIONES=[
   {k:"prev",       g:"Previsión", t:"Previsión de banquetes"}
 ];
 window.LM_SECCIONES=SECCIONES;
+window.LM_seccion=function(){ return seccionActual(); };
 function seccionActual(){
   if(document.body.classList.contains("mode-resumen")) return "resumen";
   if(document.body.classList.contains("mode-plan")) return planView;
@@ -8286,6 +8545,7 @@ function syncAppbar(){
   secSel.value=seccionActual();
   if(typeof syncSidenav==="function"){ try{ syncSidenav(); }catch(_){ } }
   try{ syncPanelHead(); }catch(_){ }
+  try{ if(window.LM_cohBar) window.LM_cohBar(); }catch(_){ }
 }
 /* cabecera de Menú, Inventario y Camareros: dónde estás (sección), de qué
    grupo y —si la sección es de un evento— de qué evento. Mismo estilo que el
@@ -8422,7 +8682,7 @@ function abrirMas(){
     (us&&!us.hidden?'<button class="btn big" id="mas-users" type="button">Equipo y accesos</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.57</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.58</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -8628,7 +8888,8 @@ function evCardEl(e){
       (function(){ var pv=paxVisible(e,t); return '<span class="evpill"><b>'+(pv.prev?"~":"")+pv.n+'</b><span>'+(pv.prev?"previstos":"invitados")+'</span></span>'; })()+
       '<span class="evpill"><b>'+mesas+'</b><span>'+(mesas===1?"mesa":"mesas")+'</span></span>'+
     '</div>'+
-    '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>';
+    '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>'+
+    (window.LM_cohChip?window.LM_cohChip(e):"");
   card.addEventListener("click",function(){ abrirEvento(e.id); });
   var w=document.createElement("div"); w.className="evcard-w"; w.appendChild(card);
   var dup=document.createElement("button"); dup.type="button"; dup.className="ev-dup"; dup.title="Duplicar evento";
@@ -8648,6 +8909,7 @@ function duplicarEvento(id,quedarse){
   var c=JSON.parse(JSON.stringify(src)), DRX=/\s*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\s*\d{4}-\d{1,2}-\d{1,2}/g;
   c.id="e"+Date.now()+Math.floor(Math.random()*999);
   delete c.prevId; delete c.prevNo; delete c.alta;   /* la copia no es la celebración de la Previsión */
+  delete c.rev; delete c.avisos; delete c._k;        /* ni hereda las revisiones y avisos entre departamentos, ni los sellos del original */
   /* la fecha también se quita del título y de la línea «@» (si no, volvería sola a la ficha) */
   var titulado=false;
   c.text=String(c.text||"").split("\n").map(function(l){
@@ -9793,7 +10055,7 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,fotos:1,docs:1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,fotos:1,docs:1,
   "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
@@ -9969,6 +10231,7 @@ function eventoAlertas(e){
   a.sort(function(x,y){ return (y.sev==="urgent"?1:0)-(x.sev==="urgent"?1:0); });
   return a;
 }
+window.LM_alertas=eventoAlertas;
 function seedTareas(e){
   if(e.tareas) return;
   var arr=[]; FASES.forEach(function(f){ f.items.forEach(function(it){ arr.push({id:uid(),fase:f.k,texto:it,estado:"pendiente"}); }); });
@@ -10029,6 +10292,7 @@ function renderPlanV(k){
     if(window.LM_renderRent) window.LM_renderRent(k,host); return;
   }
   if(k==="hist"){ if(window.LM_renderHist) window.LM_renderHist(host); return; }
+  if(k==="coh"){ if(window.LM_renderCoh) window.LM_renderCoh(host); return; }
   var e=current();
   if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
   var top=host.scrollTop;
@@ -10566,8 +10830,8 @@ window.SITTING_BRIDGE={
   planDoc:function(){ return parse(current()?current().text:""); },
   mesaLbl:function(t){ return mesaTxt(t,I18N.es); },
   alergias:function(){
-    if(!doc) doc=parse(current()?current().text:"");
-    var out=[], dd=__evForzado?parse(__evForzado.text||""):doc;
+    /* con un evento «forzado» (el de otra tarjeta, no el abierto) no se toca la caché del plano abierto */
+    var out=[], dd=__evForzado?parse(__evForzado.text||""):(doc||(doc=parse(current()?current().text:"")));
     dd.tables.forEach(function(m){
       m.guests.forEach(function(g,i){
         /* no es solo alergias: vegetarianos, veganos y embarazadas también
@@ -13780,6 +14044,28 @@ function alerPendientes(){
     return !(!fal&&((g.sustitutos&&g.sustitutos.length)||okM[aaKey(g)])); });
 }
 BR.alerPendientes=function(){ try{ return alerPendientes().map(function(g){ return aaKey(g); }); }catch(_){ return null; } };
+/* Las cifras que comparten los departamentos, del evento activo (o del que se fuerce con BR.conEvento). Solo LEE: no crea nada en el evento. */
+BR.hechos=function(){
+  var e=ev(); if(!e) return null;
+  var F=e.ficha||{}, t=evTotals(), cam=e.camareros||{}, m=e.menu||{};
+  var al=[], su=[];
+  try{ (BR.alergias?BR.alergias():[]).forEach(function(g){
+    var quien=g.nombre+" ("+(g.mesaLbl||("Mesa "+g.mesa))+")", mot=aaMotivos(g).join(", ");
+    al.push(quien+(mot?" · "+mot:""));
+    var sp=(g.sustitutos||[]).filter(Boolean); if(sp.length) su.push(quien+" → "+sp.join(" + "));
+  }); }catch(_){}
+  var pend=0; try{ pend=(BR.alerPendientes()||[]).length; }catch(_){}
+  var pl=[]; try{ selectedDishes().forEach(function(d){ pl.push((d._famLabel||"")+" · "+d.name); }); }catch(_){}
+  var be=[]; try{
+    var bc=((BR.menuParams&&BR.menuParams.actual&&BR.menuParams.actual().bebidas)||{}).cats||{}, bb=m.bebidas||{};
+    Object.keys(bc).forEach(function(k){ var r=bb[k]; if(r&&r.prod&&!r.off) be.push((bc[k].label||k)+": "+r.prod); });
+    (m.bebidasExtra||[]).forEach(function(x){ if(x&&(x.label||x.prod)) be.push((x.label||"Bebida")+": "+(x.prod||"")+(x.q!=null&&x.q!==""?" × "+x.q:"")); });
+  }catch(_){}
+  function ord(a){ return a.sort(function(x,y){ return x.localeCompare(y,"es"); }); }
+  return {fecha:F.fecha||"", adultos:t.adultos||0, ninos:t.ninos||0, bebes:t.tronas||0, staff:t.staff||0, mesas:t.mesasBanq||0,
+          alergias:ord(al), sustitutos:ord(su), sinSustituto:pend, platos:ord(pl), bebidas:ord(be),
+          camareros:Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length};
+};
 function alerCifras(lista,sel){
   var cur=algCursos(sel), okM=(menu()&&menu().alerOk)||{}, no=0, dec=0;
   lista.forEach(function(g){
@@ -15548,7 +15834,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       .then(function(){ H.cargando=false; if(activo()&&(JSON.stringify(H.datos&&H.datos.cambios)!==antes||H.err!==errAntes)) pintar(); });
   }
   function activo(){ return host&&host.querySelector&&host.querySelector(".hi-root")&&document.body.classList.contains("mode-plan"); }
-  var CH={plano:"#6E7D50",ficha:"#8A5A0B",menú:"#9A722A",bebidas:"#8E2C48",escaleta:"#5E6E78",minuta:"#7D6A83",alergias:"#8E2C48",camareros:"#56613F",montaje:"#5E6E78",agenda:"#8A5A0B",tareas:"#56613F",proveedores:"#9A722A",presupuesto:"#8A5A0B",comunicación:"#5E6E78",documentos:"#7D6A83","portal del cliente":"#6E7D50"};
+  var CH={avisos:"#9A722A",plano:"#6E7D50",ficha:"#8A5A0B",menú:"#9A722A",bebidas:"#8E2C48",escaleta:"#5E6E78",minuta:"#7D6A83",alergias:"#8E2C48",camareros:"#56613F",montaje:"#5E6E78",agenda:"#8A5A0B",tareas:"#56613F",proveedores:"#9A722A",presupuesto:"#8A5A0B",comunicación:"#5E6E78",documentos:"#7D6A83","portal del cliente":"#6E7D50"};
   function chip(t){ return '<span class="hi-chip" style="--hc:'+(CH[t]||"#65645C")+'">'+esc(t)+'</span>'; }
   function fila(c,i){
     var ab=H.abierto===c.id;
@@ -15610,6 +15896,325 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   };
   /* mientras está abierta, se mira cada 20 s si hay cambios nuevos (de otros compañeros) */
   setInterval(function(){ try{ if(activo()&&!H.ocupado&&!H.cargando&&!H.err&&!H.abierto&&document.visibilityState==="visible"){ var e=evActual(); if(e&&e.id===H.ev) cargar(); } }catch(_){} },20000);
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════
+   COORDINACIÓN ENTRE DEPARTAMENTOS
+   Todo el equipo trabaja sobre el MISMO evento: lo que apunta Eventos en el
+   plano lo ve Cocina, lo que decide Cocina (platos sustitutivos) llega a
+   Compras y a Servicio. Aquí se hace visible esa relación:
+   · las cifras compartidas del evento (comensales, alergias, platos, bebidas…)
+     y quién las define y quién las necesita;
+   · por departamento, qué ha cambiado desde la última vez que lo REVISÓ
+     (cada departamento guarda en e.rev[dep] una foto de las cifras al revisar);
+   · avisos de un departamento a otro (e.avisos), que se quedan pendientes
+     hasta que alguien los marca como hechos;
+   · las comprobaciones del evento (las mismas alertas del resumen) repartidas
+     por departamento.
+   Nada de esto es «del usuario»: vive dentro del evento, se sincroniza con el
+   equipo y se junta por secciones como todo lo demás.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function fmtF(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function hace(ts){ var m=Math.round((Date.now()-ts)/60000); if(m<1) return "ahora mismo"; if(m<60) return "hace "+m+" min"; var h=Math.round(m/60); if(h<24) return "hace "+h+" h"; var d=Math.round(h/24); return "hace "+d+(d===1?" día":" días"); }
+  function fechaTxt(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:(iso||"sin fecha"); }
+  function toast(m,mal){ try{ if(BR&&BR.toast) BR.toast(m,mal); }catch(_){} }
+
+  var DEPTS=[
+    {k:"eventos", t:"Eventos",  def:"ficha del cliente, plano de mesas y alergias, bebidas",
+     vistas:["resumen","crm","plan","list","m-sel","m-aler","m-bebida","cam"]},
+    {k:"cocina",  t:"Cocina",   def:"platos del menú, platos sustitutivos y producción",
+     vistas:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc"]},
+    {k:"compras", t:"Compras",  def:"lista de la compra, proveedores y pedidos",
+     vistas:["resumen","m-compra","m-prod","prov","presup","inv"]},
+    {k:"servicio",t:"Servicio", def:"sala, camareros, montaje y escaleta",
+     vistas:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje"]}
+  ];
+  function dep(k){ for(var i=0;i<DEPTS.length;i++) if(DEPTS[i].k===k) return DEPTS[i]; return null; }
+  var DEP_T={eventos:"Eventos",cocina:"Cocina",compras:"Compras",servicio:"Servicio",todos:"Todos",admin:"Administración"};
+  /* a qué departamento pertenece cada sección (para repartir las comprobaciones) */
+  var SEC_DEPT={crm:"eventos",timeline:"eventos",tareas:"eventos",plan:"eventos",list:"eventos",card:"eventos",presup:"eventos","m-bebida":"eventos","m-card":"eventos",
+    "m-sel":"cocina","m-prod":"cocina","m-aler":"cocina","m-compra":"compras",prov:"compras",inv:"compras",
+    "m-serv":"servicio","m-esc":"servicio",cam:"servicio","cam-rep":"servicio",montaje:"servicio"};
+
+  /* las cifras compartidas: quién las define y quién las necesita */
+  var HECHOS=[
+    {k:"fecha",     t:"Fecha del evento",     de:"eventos", para:["cocina","compras","servicio"]},
+    {k:"adultos",   t:"Adultos",              de:"eventos", para:["cocina","compras","servicio"]},
+    {k:"ninos",     t:"Niños",                de:"eventos", para:["cocina","compras","servicio"]},
+    {k:"bebes",     t:"Bebés (trona)",        de:"eventos", para:["cocina","compras","servicio"]},
+    {k:"staff",     t:"Staff",                de:"eventos", para:["cocina","compras","servicio"]},
+    {k:"mesas",     t:"Mesas de banquete",    de:"eventos", para:["compras","servicio"]},
+    {k:"alergias",  t:"Alergias y dietas",    de:"eventos", para:["cocina","compras","servicio"], lista:true},
+    {k:"sustitutos",t:"Platos sustitutivos",  de:"cocina",  para:["eventos","compras","servicio"], lista:true},
+    {k:"platos",    t:"Platos del menú",      de:"cocina",  para:["eventos","compras","servicio"], lista:true},
+    {k:"bebidas",   t:"Bebidas",              de:"eventos", para:["compras","servicio"], lista:true},
+    {k:"camareros", t:"Camareros asignados",  de:"servicio",para:["eventos"]}
+  ];
+
+  /* ── el usuario ── */
+  function usuario(){ try{ return (window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user())||{}; }catch(_){ return {}; } }
+  function rol(){ return usuario().role||""; }
+  function nombre(){ var u=usuario(); return u.name||u.email||""; }
+  function puedeRevisar(d){ var r=rol(); return r==="admin"||r===d; }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+
+  /* ── las cifras de un evento (con memoria: solo se recalculan si el evento cambia) ── */
+  var cache={};
+  function sig(e){ try{ return window.LM_MERGE.sig(e); }catch(_){ return String(e.updated||0); } }
+  function hechos(e){
+    if(!e) return null;
+    var s=sig(e), c=cache[e.id];
+    if(c&&c.s===s) return c.f;
+    var f=null; try{ f=BR.conEvento(e,BR.hechos); }catch(_){ f=null; }
+    if(f) cache[e.id]={s:s,f:f};
+    return f;
+  }
+  /* ── diferencias entre la foto de la última revisión y lo de ahora, solo de lo que le importa a ese departamento ── */
+  function dif(antes,ahora,d){
+    var out=[];
+    HECHOS.forEach(function(h){
+      if(h.para.indexOf(d)<0) return;
+      var a=antes?antes[h.k]:undefined, b=ahora[h.k];
+      if(h.lista){
+        var A=a||[], B=b||[], add=B.filter(function(x){ return A.indexOf(x)<0; }), del=A.filter(function(x){ return B.indexOf(x)<0; });
+        if(add.length||del.length) out.push({k:h.k,t:h.t,add:add,del:del});
+      }else{
+        var va=a==null?"":String(a), vb=b==null?"":String(b);
+        if(va!==vb) out.push({k:h.k,t:h.t,de:h.k==="fecha"?fechaTxt(va):(va||"0"),a:h.k==="fecha"?fechaTxt(vb):(vb||"0")});
+      }
+    });
+    return out;
+  }
+  function cuenta(l){ var n=0; l.forEach(function(x){ n+=x.add?x.add.length+x.del.length:1; }); return n; }
+  /* null = este departamento nunca ha revisado el evento */
+  function cambios(e,d){
+    var r=e&&e.rev&&e.rev[d]; if(!r||!r.f) return null;
+    var ahora=hechos(e); if(!ahora) return null;
+    return dif(r.f,ahora,d);
+  }
+  function avisosDe(e){ var a=(e&&e.avisos)||{}; return Object.keys(a).map(function(k){ return a[k]; }).filter(function(x){ return x&&x.txt&&!x.anulado; }).sort(function(p,q){ return (q.ts||0)-(p.ts||0); }); }
+  function avisosPara(e,d){ return avisosDe(e).filter(function(x){ return !x.hecho&&(x.para===d||x.para==="todos"); }); }
+  function resumenDe(e,d){
+    var l=cambios(e,d), n=l?cuenta(l):0, av=avisosPara(e,d).length;
+    return {lista:l,n:n,av:av,estado:!(e.rev&&e.rev[d]&&e.rev[d].f)?"nuevo":(n||av?"pend":"ok")};
+  }
+
+  /* ── escribir en el evento ── */
+  function guardar(e){ e.updated=Date.now(); BR.save(); }
+  function revisar(d){
+    var e=evActual(); if(!e||!puedeRevisar(d)) return;
+    var f=hechos(e); if(!f) return;
+    e.rev=e.rev||{}; e.rev[d]={ts:Date.now(),por:nombre(),f:JSON.parse(JSON.stringify(f))};
+    guardar(e); delete cache[e.id];
+    toast(dep(d).t+": revisado. A partir de ahora se avisará de lo que cambie.");
+  }
+  function nuevoAviso(para,txt){
+    var e=evActual(); txt=String(txt||"").replace(/\s+/g," ").trim(); if(!e||!txt) return false;
+    var id="a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    e.avisos=e.avisos||{}; e.avisos[id]={id:id,de:rol()||"admin",para:para,txt:txt.slice(0,400),ts:Date.now(),por:nombre()};
+    guardar(e); return true;
+  }
+  function avisoHecho(id,v){
+    var e=evActual(); if(!e||!e.avisos||!e.avisos[id]) return;
+    if(v) e.avisos[id].hecho={ts:Date.now(),por:nombre()}; else delete e.avisos[id].hecho;
+    guardar(e);
+  }
+  function avisoAnular(id){ var e=evActual(); if(!e||!e.avisos||!e.avisos[id]) return; e.avisos[id].anulado=true; guardar(e); }
+
+  /* ═══ la sección «Coordinación» ═══ */
+  var host=null, ultSig="", abiertos={};
+  function difHTML(l,max){
+    var items=[], n=0;
+    l.forEach(function(x){
+      if(x.add){
+        var s='<li><b>'+esc(x.t)+'</b>'+x.add.map(function(a){ return '<ins>+ '+esc(a)+'</ins>'; }).join("")+x.del.map(function(a){ return '<del>− '+esc(a)+'</del>'; }).join("")+'</li>';
+        items.push(s);
+      }else items.push('<li><b>'+esc(x.t)+'</b><span class="co-de">'+esc(x.de)+'</span><span class="co-fl" aria-hidden="true">→</span><span class="co-a">'+esc(x.a)+'</span></li>');
+    });
+    var extra=max&&items.length>max?items.length-max:0;
+    return '<ul class="co-dif">'+items.slice(0,max||items.length).join("")+(extra?'<li class="co-mas">y '+extra+(extra===1?" cambio más":" cambios más")+' (en «Coordinación»)</li>':"")+'</ul>';
+  }
+  function tarjeta(e,d){
+    var r=resumenDe(e,d.k), rv=e.rev&&e.rev[d.k], mio=rol()===d.k;
+    var st=r.estado==="nuevo"?'<span class="co-st nuevo">Sin revisar todavía</span>':r.estado==="ok"?'<span class="co-st ok">Al día ✓</span>':
+      '<span class="co-st pend">'+(r.n?r.n+(r.n===1?" cambio":" cambios")+" por revisar":"")+(r.n&&r.av?" · ":"")+(r.av?r.av+(r.av===1?" aviso":" avisos"):"")+'</span>';
+    var necesita=HECHOS.filter(function(h){ return h.para.indexOf(d.k)>=0; }).map(function(h){ return h.t.toLowerCase(); });
+    var define=HECHOS.filter(function(h){ return h.de===d.k; }).map(function(h){ return h.t.toLowerCase(); });
+    var cuerpo=r.estado==="nuevo"?'<p class="co-ayuda">Nadie de '+esc(d.t)+' ha revisado este evento. Al marcarlo como revisado se guarda una foto de las cifras y, desde entonces, aquí saldrá lo que vaya cambiando.</p>':
+      (r.lista&&r.lista.length?difHTML(r.lista,8):'<p class="co-ayuda">Nada ha cambiado en lo que necesita '+esc(d.t)+' desde la última revisión.</p>');
+    var av=avisosPara(e,d.k);
+    var avH=av.length?'<ul class="co-av-mini">'+av.slice(0,3).map(function(a){ return '<li><b>'+esc(DEP_T[a.de]||a.de)+':</b> '+esc(a.txt)+'</li>'; }).join("")+(av.length>3?'<li class="co-mas">y '+(av.length-3)+' más</li>':"")+'</ul>':"";
+    var btn=puedeRevisar(d.k)?'<button type="button" class="btn sm'+(r.estado==="ok"?"":" gold")+'" data-co="rev" data-d="'+d.k+'">'+(r.estado==="nuevo"?"Empezar a seguir los cambios":r.estado==="ok"?"Volver a marcar como revisado":"He revisado estos cambios")+'</button>':"";
+    return '<article class="co-card '+r.estado+(mio?" mio":"")+'" aria-label="'+esc(d.t)+'">'+
+      '<header><h3>'+esc(d.t)+(mio?'<em>tu departamento</em>':'')+'</h3>'+st+'</header>'+
+      '<p class="co-def"><b>Define:</b> '+esc(define.join(", ")||d.def)+'.<br><b>Necesita del resto:</b> '+esc(necesita.join(", ")||"—")+'.</p>'+
+      cuerpo+avH+
+      (rv&&rv.ts?'<p class="co-rev">Última revisión: '+esc(fmtF(rv.ts))+(rv.por?' · '+esc(rv.por):'')+'</p>':'')+
+      (btn?'<div class="co-btns">'+btn+'</div>':'')+'</article>';
+  }
+  function lista(titulo,arr,clave){
+    var ab=abiertos[clave];
+    return arr&&arr.length?'<details class="co-det" data-det="'+clave+'"'+(ab?' open':'')+'><summary>'+esc(titulo)+' <b>'+arr.length+'</b></summary><ul>'+arr.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join("")+'</ul></details>':
+      '<span class="co-vacio">ninguno</span>';
+  }
+  function tablaHechos(f){
+    var pax=(f.adultos||0)+(f.ninos||0)+(f.bebes||0);
+    function chips(l){ return l.map(function(k){ return '<span class="co-dp '+k+'">'+esc(DEP_T[k])+'</span>'; }).join(""); }
+    var filas=[
+      ["Fecha del evento", f.fecha?fechaTxt(f.fecha):'<span class="co-vacio">sin fecha</span>',"eventos",["cocina","compras","servicio"]],
+      ["Comensales", '<b>'+pax+'</b> en total · '+f.adultos+' adultos · '+f.ninos+' niños · '+f.bebes+' bebés'+(f.staff?' · '+f.staff+' de staff (incluidos en adultos)':''),"eventos",["cocina","compras","servicio"]],
+      ["Mesas de banquete", String(f.mesas||0),"eventos",["compras","servicio"]],
+      ["Alergias y dietas", lista("Personas",f.alergias,"al")+(f.sinSustituto?'<span class="co-warn">'+f.sinSustituto+(f.sinSustituto===1?" sin plato sustitutivo decidido":" sin plato sustitutivo decidido")+'</span>':''),"eventos",["cocina","compras","servicio"]],
+      ["Platos sustitutivos", lista("Decididos",f.sustitutos,"su"),"cocina",["eventos","compras","servicio"]],
+      ["Platos del menú", lista("Platos",f.platos,"pl"),"cocina",["eventos","compras","servicio"]],
+      ["Bebidas", lista("Bebidas",f.bebidas,"be"),"eventos",["compras","servicio"]],
+      ["Camareros asignados", '<b>'+(f.camareros||0)+'</b>',"servicio",["eventos"]]
+    ];
+    return '<div class="co-tabla" role="table">'+'<div class="co-tr co-th" role="row"><span role="columnheader">Dato</span><span role="columnheader">Ahora</span><span role="columnheader">Lo define</span><span role="columnheader">Lo necesitan</span></div>'+
+      filas.map(function(r){ return '<div class="co-tr" role="row"><span class="co-k" role="cell">'+esc(r[0])+'</span><span class="co-v" role="cell">'+r[1]+'</span><span role="cell">'+chips([r[2]])+'</span><span role="cell">'+chips(r[3])+'</span></div>'; }).join("")+'</div>';
+  }
+  function avisoHTML(a,e){
+    var yo=rol(), puede=yo==="admin"||a.para==="todos"||a.para===yo||a.de===yo;
+    return '<li class="co-av'+(a.hecho?' hecho':'')+'"><div class="co-av-t"><span class="co-dp '+esc(a.de)+'">'+esc(DEP_T[a.de]||a.de)+'</span><span class="co-fl" aria-hidden="true">→</span><span class="co-dp '+esc(a.para)+'">'+esc(DEP_T[a.para]||a.para)+'</span></div>'+
+      '<p>'+esc(a.txt)+'</p><small>'+esc(a.por||"")+' · '+esc(hace(a.ts||0))+(a.hecho?' · hecho por '+esc(a.hecho.por||"")+' '+esc(hace(a.hecho.ts||0)):'')+'</small>'+
+      (puede?'<div class="co-btns">'+(a.hecho?'<button type="button" class="btn sm" data-co="av-reabrir" data-id="'+esc(a.id)+'">Reabrir</button>':
+        '<button type="button" class="btn sm gold" data-co="av-hecho" data-id="'+esc(a.id)+'">Hecho ✓</button>')+
+        (!a.hecho&&(a.de===yo||yo==="admin")?'<button type="button" class="btn sm" data-co="av-anular" data-id="'+esc(a.id)+'">Quitar</button>':'')+'</div>':'')+'</li>';
+  }
+  function avisosCard(e){
+    var todos=avisosDe(e), pend=todos.filter(function(a){ return !a.hecho; }), hechos2=todos.filter(function(a){ return a.hecho; }).slice(0,12);
+    var yo=rol(), opts=["cocina","compras","servicio","eventos","todos"].filter(function(k){ return k!==yo; });
+    return '<section class="pcard co-avisos" aria-label="Avisos entre departamentos"><h2>Avisos entre departamentos</h2>'+
+      '<p class="co-ayuda">Para lo que no se ve solo con los datos: «han llamado y suben 10 comensales», «el cliente quiere el postre sin nata». El aviso queda en este evento hasta que alguien lo marque como hecho.</p>'+
+      '<div class="co-nuevo"><label class="fld"><span class="lbl">Para</span><select id="co-para" aria-label="Para quién">'+opts.map(function(k){ return '<option value="'+k+'">'+esc(DEP_T[k])+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">Aviso</span><input type="text" id="co-txt" maxlength="400" placeholder="Qué tiene que saber o hacer" autocomplete="off"></label>'+
+      '<button type="button" class="btn gold sm" data-co="aviso">Enviar aviso</button></div>'+
+      (pend.length?'<ul class="co-avlist">'+pend.map(function(a){ return avisoHTML(a,e); }).join("")+'</ul>':'<p class="co-vacio">No hay avisos pendientes.</p>')+
+      (hechos2.length?'<details class="co-det" data-det="avh"'+(abiertos.avh?' open':'')+'><summary>Resueltos <b>'+hechos2.length+'</b></summary><ul class="co-avlist">'+hechos2.map(function(a){ return avisoHTML(a,e); }).join("")+'</ul></details>':'')+'</section>';
+  }
+  function comprobaciones(e){
+    var al=[]; try{ al=(window.LM_alertas&&window.LM_alertas(e))||[]; }catch(_){ al=[]; }
+    var por={}; al.forEach(function(a){ var d=SEC_DEPT[a.k]||"eventos"; (por[d]=por[d]||[]).push(a); });
+    var hay=Object.keys(por).length;
+    return '<section class="pcard co-checks" aria-label="Comprobaciones"><h2>Comprobaciones del evento</h2>'+
+      '<p class="co-ayuda">Lo que todavía no cuadra, repartido por departamento. Cada punto lleva a la pantalla donde se arregla.</p>'+
+      (hay?DEPTS.filter(function(d){ return por[d.k]; }).map(function(d){
+        return '<div class="co-chk"><h3>'+esc(d.t)+'<em>'+por[d.k].length+'</em></h3><ul>'+por[d.k].map(function(a){
+          return '<li class="'+(a.sev==="urgent"?"urg":"")+'"><span>'+esc(a.t)+'</span><button type="button" class="btn sm" data-co="ir" data-k="'+esc(a.k)+'">Ir</button></li>'; }).join("")+'</ul></div>'; }).join(""):
+        '<p class="co-ok">✓ Todo cuadra: no hay nada pendiente.</p>')+'</section>';
+  }
+  function pintar(){
+    if(!host) return;
+    var e=evActual(), top=host.scrollTop;
+    var cab='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Planificación</div><h1 class="pv-title">Coordinación entre departamentos</h1>'+
+      '<div class="pv-sub">'+esc(e?(e.name||"Sin título"):"")+'</div>'+
+      '<p class="pv-guide">Eventos, Cocina, Compras y Servicio trabajan sobre el mismo evento. Aquí ves qué ha cambiado para cada departamento desde la última vez que lo revisó, qué datos se comparten y qué falta por cuadrar.</p></div></header>';
+    if(!e){ host.innerHTML='<div class="pv-inner co-root">'+cab+'<div class="pcard"><p>Selecciona un evento.</p></div></div>'; return; }
+    var f=hechos(e);
+    if(!f){ host.innerHTML='<div class="pv-inner co-root">'+cab+'<div class="pcard"><p>No se han podido calcular las cifras de este evento.</p></div></div>'; return; }
+    ultSig=firma(e);
+    host.innerHTML='<div class="pv-inner co-root">'+cab+
+      '<div class="co-grid">'+DEPTS.map(function(d){ return tarjeta(e,d); }).join("")+'</div>'+
+      avisosCard(e)+
+      '<section class="pcard co-datos" aria-label="Datos compartidos"><h2>Datos compartidos del evento</h2>'+
+        '<p class="co-ayuda">Son los mismos para todos: se calculan del plano, del menú y de las bebidas. Si alguien los cambia, cambian para todo el equipo.</p>'+tablaHechos(f)+'</section>'+
+      comprobaciones(e)+'</div>';
+    host.scrollTop=top;
+    if(window.etiquetarCampos) try{ window.etiquetarCampos(host); }catch(_){}
+  }
+  function firma(e){ return (e?e.id+"|"+sig(e):"")+"|"+rol()+"|"+Object.keys(abiertos).join(","); }
+  function activo(){ return host&&host.querySelector&&host.querySelector(".co-root")&&document.body.classList.contains("mode-plan"); }
+
+  function onClick(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-co]"); if(!b) return;
+    var a=b.getAttribute("data-co");
+    if(a==="rev"){ revisar(b.getAttribute("data-d")); pintar(); barra(); return; }
+    if(a==="aviso"){
+      var t=host.querySelector("#co-txt"), p=host.querySelector("#co-para");
+      if(!t||!t.value.trim()){ toast("Escribe el aviso.",true); if(t) t.focus(); return; }
+      if(nuevoAviso(p.value,t.value)){ toast("Aviso enviado a "+DEP_T[p.value]+"."); pintar(); barra(); } return; }
+    if(a==="av-hecho"){ avisoHecho(b.getAttribute("data-id"),true); pintar(); barra(); return; }
+    if(a==="av-reabrir"){ avisoHecho(b.getAttribute("data-id"),false); pintar(); barra(); return; }
+    if(a==="av-anular"){ avisoAnular(b.getAttribute("data-id")); pintar(); barra(); return; }
+    if(a==="ir"){ var k=b.getAttribute("data-k"); if(k&&window.irASeccion) window.irASeccion(k); return; }
+  }
+  window.LM_renderCoh=function(h){
+    host=h;
+    if(!host.__coBound){
+      host.__coBound=true; host.addEventListener("click",onClick);
+      host.addEventListener("toggle",function(ev){ var d=ev.target; if(d&&d.getAttribute){ var k=d.getAttribute("data-det"); if(k){ if(d.open) abiertos[k]=1; else delete abiertos[k]; } } },true);
+    }
+    pintar();
+  };
+  /* mientras está abierta, se repinta sola si el evento cambia (otro compañero) y no se está escribiendo un aviso */
+  setInterval(function(){
+    try{
+      if(!activo()||document.visibilityState!=="visible") return;
+      var a=document.activeElement; if(a&&host.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+      var e=evActual(); if(e&&firma(e)!==ultSig) pintar();
+    }catch(_){}
+  },3000);
+
+  /* ═══ el aviso flotante: en las pantallas de TU departamento, si algo ha cambiado desde que lo revisaste ═══ */
+  var bar=null;
+  function asegurarBarra(){
+    if(bar&&document.body.contains(bar)) return bar;
+    bar=document.createElement("div"); bar.id="co-bar"; bar.className="co-bar"; bar.setAttribute("role","status"); bar.hidden=true;
+    bar.addEventListener("click",function(ev){
+      var b=ev.target.closest&&ev.target.closest("[data-cob]"); if(!b) return;
+      var a=b.getAttribute("data-cob");
+      if(a==="ver"){ if(window.irASeccion) window.irASeccion("coh"); }
+      else if(a==="rev"){ revisar(b.getAttribute("data-d")); barra(); if(host&&activo()) pintar(); }
+    });
+    document.body.appendChild(bar); return bar;
+  }
+  var ultBar="";
+  function barra(){
+    try{
+      var el=asegurarBarra(), d=rol(), e=evActual(), sec=window.LM_seccion?window.LM_seccion():"";
+      var enApp=document.body.classList.contains("authed")&&!document.body.classList.contains("mode-home");
+      var dd=dep(d);
+      if(!enApp||!e||!dd||sec==="coh"||dd.vistas.indexOf(sec)<0){ if(!el.hidden){ el.hidden=true; ultBar=""; } return; }
+      var r=resumenDe(e,d);
+      if(r.estado!=="pend"){ if(!el.hidden){ el.hidden=true; ultBar=""; } return; }
+      var l=r.lista||[], partes=[];
+      l.slice(0,3).forEach(function(x){ partes.push(x.add?(x.add.length?"+"+x.add.length:"")+(x.add.length&&x.del.length?" / ":"")+(x.del.length?"−"+x.del.length:"")+" "+x.t.toLowerCase():x.t+": "+x.de+" → "+x.a); });
+      if(l.length>3) partes.push("y "+(l.length-3)+" más");
+      if(r.av) partes.push(r.av+(r.av===1?" aviso":" avisos")+" para "+dd.t);
+      var html='<span class="co-bar-ic" aria-hidden="true">!</span><div class="co-bar-tx"><b>'+esc(dd.t)+': '+(r.n?r.n+(r.n===1?" cambio":" cambios")+" desde tu última revisión":(r.av+(r.av===1?" aviso pendiente":" avisos pendientes")))+'</b><small>'+esc(partes.join(" · "))+'</small></div>'+
+        '<button type="button" class="btn sm" data-cob="ver">Ver detalle</button>'+(r.n?'<button type="button" class="btn sm gold" data-cob="rev" data-d="'+d+'">He revisado</button>':'');
+      if(html!==ultBar){ el.innerHTML=html; ultBar=html; }
+      el.hidden=false;
+    }catch(_){}
+  }
+  window.LM_cohBar=barra;
+  setInterval(barra,4000);
+  /* al cambiar de pantalla (Inicio ↔ evento) la barra se pone o se quita al instante */
+  try{ new MutationObserver(function(){ barra(); }).observe(document.body,{attributes:true,attributeFilter:["class"]}); }catch(_){}
+
+  /* ═══ una pastilla en la tarjeta del evento del Inicio: cuántos cambios tiene pendientes TU departamento ═══ */
+  window.LM_cohChip=function(e){
+    try{
+      if(!e||(!e.rev&&!e.avisos)) return "";
+      var d=rol(), out=[];
+      if(d&&d!=="admin"&&dep(d)){
+        var r=resumenDe(e,d); if(r.estado==="pend") out.push(dep(d).t+": "+(r.n?r.n+(r.n===1?" cambio":" cambios"):"")+(r.n&&r.av?" · ":"")+(r.av?r.av+(r.av===1?" aviso":" avisos"):""));
+      }
+      /* Eventos y la administración coordinan: ven también qué departamentos tienen cambios sin revisar */
+      if(d==="admin"||d==="eventos"){
+        var otros=[]; DEPTS.forEach(function(x){ if(x.k===d) return; var r2=resumenDe(e,x.k); if(r2.estado==="pend") otros.push(x.t); });
+        if(otros.length) out.push("Por revisar: "+otros.join(", "));
+      }
+      return out.length?'<div class="ev-co" title="Cambios en este evento que aún no ha revisado el departamento">'+esc(out.join(" · "))+'</div>':"";
+    }catch(_){ return ""; }
+  };
 })();
 </script>
 
@@ -16054,7 +16659,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     isAuthed:function(){ return !!(curUser&&curUser.email); },
     role:function(){ return (curUser&&curUser.role)||"admin"; },
     hasBackend:function(){ return backend; },
-    can:function(sec){ var u=curUser; if(!u) return false; var r=ROLES[u.role]; if(!r||r.secciones==="*") return true; return r.secciones.indexOf(sec)>=0; },
+    can:function(sec){ var u=curUser; if(!u) return false; if(sec==="coh") return true; var r=ROLES[u.role]; if(!r||r.secciones==="*") return true; return r.secciones.indexOf(sec)>=0; },
     logout:function(){ try{ fetch("/api/logout",{method:"POST"}).catch(function(){}); }catch(_){ } setUser(null); }
   };
   window.LM_SESSION=SESSION;
@@ -16300,7 +16905,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var ROLES_EDIT=["eventos","cocina","compras","servicio"];
   function seccionesEditables(){
     var out=[{g:"Inicio",items:[{k:"resumen",t:"Resumen del evento",fijo:true}]}], por={}, orden=[];
-    (window.LM_SECCIONES||[]).forEach(function(x){ if(/^(p-|r-)/.test(x.k)) return; if(!por[x.g]){ por[x.g]=[]; orden.push(x.g); } por[x.g].push({k:x.k,t:x.t}); });
+    (window.LM_SECCIONES||[]).forEach(function(x){ if(/^(p-|r-)/.test(x.k)) return; if(!por[x.g]){ por[x.g]=[]; orden.push(x.g); } por[x.g].push({k:x.k,t:x.t,fijo:x.k==="coh"}); });
     orden.forEach(function(g){ out.push({g:g,items:por[g]}); });
     return out;
   }

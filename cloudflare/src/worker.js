@@ -380,11 +380,21 @@ async function storePut(request, env) {
   const base = +(request.headers.get("X-Store-Base") || 0);
   /* borrar eventos: solo administración y eventos (cocina, compras y servicio no pueden borrar nada, ni por error) */
   if (s.role !== "admin" && s.role !== "eventos") incoming.borrados = {};
+  /* _tb = el texto del plano que tenía quien envía antes de editarlo (sirve para juntar líneas; no se guarda) y sellos con hora razonable */
+  const tbs = {}, ya = Date.now();
+  (Array.isArray(incoming.events) ? incoming.events : []).forEach((e) => {
+    if (!e || typeof e !== "object") return;
+    if (typeof e._tb === "string") tbs[e.id] = e._tb;
+    delete e._tb;
+    if (e._k && typeof e._k === "object") Object.keys(e._k).forEach((k) => { const t = +e._k[k]; if (!(t > 0)) delete e._k[k]; else if (t > ya + 600e3) e._k[k] = ya; });
+    else if (e._k !== undefined) delete e._k;
+  });
   for (let intento = 0; intento < 6; intento++) {
     const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
     let prev = {}; try { prev = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { prev = {}; }
     const antes = row ? (+row.updated || 0) : 0;
-    const merged = mergeDoc(prev, incoming, s.role === "admin");
+    const merged = mergeDoc(prev, incoming, s.role === "admin", tbs);
+    kPoda(merged, Date.now());
     const out = JSON.stringify(merged);
     let v = Date.now(); if (v <= antes) v = antes + 1;
     let r;
@@ -557,6 +567,7 @@ function bkPonerEvento(doc, ev, ahora) {
   const e = JSON.parse(JSON.stringify(ev)); doc.events = Array.isArray(doc.events) ? doc.events : [];
   const i = doc.events.findIndex((x) => x && x.id === e.id);
   e.updated = Math.max(ahora, i >= 0 ? ((doc.events[i].updated || 0) + 1) : 0);
+  kSellarTodo(e, e.updated, i >= 0 ? doc.events[i] : null);
   if (i >= 0) doc.events[i] = e; else doc.events.push(e);
   if (doc.borrados) delete doc.borrados[e.id];
   return e;
@@ -633,7 +644,7 @@ async function bkRestaurar(request, env) {
    Volver a una versión también deja su línea (con lo que había antes), de modo
    que se puede deshacer. */
 const HI_RAFAGA = 10 * 60e3, HI_MAX = 50;
-const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "portal del cliente", "otros datos"];
+const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "portal del cliente", "otros datos"];
 let HI_OK = false;
 async function ensureHistorial(env) {
   if (HI_OK) return;
@@ -652,6 +663,7 @@ function hiSeccion(k) {
   if (k === "presupuesto") return "presupuesto";
   if (k === "comunicaciones") return "comunicación";
   if (k === "fotos" || k === "docs") return "documentos";
+  if (k === "avisos") return "avisos";
   if (k === "montaje") return "montaje";
   return "otros datos";
 }
@@ -665,7 +677,7 @@ function hiLimpia(v) {
 function hiHuella(e) {
   const o = {}, add = (sec, k, v) => { v = hiLimpia(v); if (v !== undefined) o[sec] = (o[sec] || "") + k + "=" + JSON.stringify(v) + "|"; };
   Object.keys(e || {}).forEach((k) => {
-    if (k === "id" || k === "updated") return;
+    if (k === "id" || k === "updated" || k === "rev" || k.charAt(0) === "_") return;   /* «rev» = las revisiones de cada departamento: no son un cambio del evento */
     if (/^(fitV\d+|numV\d+|marcasLM|prevId|tplFixed\d*)$/.test(k)) return;   /* marcas internas de las migraciones de la app */
     if (k === "reparto" && JSON.stringify(hiLimpia(e.reparto)) === '{"tipo":"comida"}') return;   /* el reparto «de fábrica» */
     if (k === "menu") {
@@ -767,22 +779,153 @@ async function hiRestaurar(request, env) {
   return json({ error: "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
 }
 
+/* ══ FUSIÓN DE UN EVENTO POR SECCIONES ═══════════════════════════════════
+   Antes, al juntar dos copias de un evento ganaba la más reciente ENTERA: si
+   Eventos cambiaba el plano y, a la vez, Cocina cambiaba el menú del mismo
+   evento, el que guardaba después borraba lo del otro. Ahora cada evento lleva
+   e._k = { camino: milisegundos } con el momento en que alguien cambió ESA
+   parte (el camino baja hasta 3 niveles: «menu», «menu\u001fdishes»,
+   «menu\u001fdishes\u001fAPERITIVOS#3»). Al juntar dos copias, cada parte la
+   gana la copia que la cambió más tarde; lo que nadie ha tocado se queda como
+   está. Lo único que se escribe entre varias personas a la vez —el texto del
+   plano, que también lleva los platos sustitutivos de Cocina— se junta línea a
+   línea tomando como base la versión que la persona tenía antes de editar.
+   Sin sellos (copias de antes de esta versión), vale la regla de siempre: gana
+   el evento entero más reciente. */
+var K_SEP = "\u001f", K_NIVELES = 3, K_FUERA = { id: 1, updated: 1, _k: 1, _tb: 1 };
+function kObj(v) { return !!v && typeof v === "object" && !Array.isArray(v); }
+/* caminos «hoja» de un evento */
+function kCaminos(e) {
+  var out = [];
+  (function rec(o, pre, nivel) {
+    Object.keys(o).forEach(function (k) {
+      if (nivel === 0 && K_FUERA[k]) return;
+      var v = o[k], p = pre ? pre + K_SEP + k : k;
+      if (kObj(v) && nivel + 1 < K_NIVELES && Object.keys(v).length) rec(v, p, nivel + 1);
+      else out.push(p);
+    });
+  })(e || {}, "", 0);
+  return out;
+}
+function kGet(e, p) {
+  var seg = p.split(K_SEP), v = e;
+  for (var i = 0; i < seg.length; i++) { if (!kObj(v) && i > 0) return undefined; if (v == null) return undefined; v = v[seg[i]]; }
+  return v;
+}
+function kPon(out, p, v) {
+  var seg = p.split(K_SEP), o = out;
+  for (var i = 0; i < seg.length - 1; i++) { if (!kObj(o[seg[i]])) o[seg[i]] = {}; o = o[seg[i]]; }
+  o[seg[seg.length - 1]] = v;
+}
+function kHash(v) {
+  var s = JSON.stringify(v); if (s === undefined) return "u";
+  var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h + ":" + s.length;
+}
+/* el sello de una parte; una copia sin sellos (de antes) cuenta como si TODO se hubiera tocado cuando se guardó */
+function kSello(e, p) { return e._k ? (+e._k[p] || 0) : (+e.updated || 0); }
+/* ¿lo de «a» gana o iguala a lo de «b» en todo? (entonces no hay nada que juntar) */
+function kDomina(a, b) {
+  if ((+b.updated || 0) > (+a.updated || 0)) return false;
+  if (!b._k) return !!a._k ? false : true;
+  var ka = a._k, kb = b._k; if (!ka) return (+a.updated || 0) >= Math.max.apply(null, [0].concat(Object.keys(kb).map(function (k) { return +kb[k] || 0; })));
+  for (var k in kb) if ((+kb[k] || 0) > (+ka[k] || 0)) return false;
+  return true;
+}
+/* ── fusión de líneas a tres bandas (base = lo que se tenía antes de editar) ── */
+function m3Mapa(B, X) {
+  var n = B.length, m = X.length, map = new Array(n), i;
+  for (i = 0; i < n; i++) map[i] = -1;
+  var s = 0; while (s < n && s < m && B[s] === X[s]) { map[s] = s; s++; }
+  var f = 0; while (f < n - s && f < m - s && B[n - 1 - f] === X[m - 1 - f]) { map[n - 1 - f] = m - 1 - f; f++; }
+  var N = n - s - f, M = m - s - f;
+  if (N > 0 && M > 0) {
+    if (N * M > 3e6) return null;
+    var w = M + 1, t = new Uint16Array((N + 1) * w), j;
+    for (i = N - 1; i >= 0; i--) for (j = M - 1; j >= 0; j--)
+      t[i * w + j] = B[s + i] === X[s + j] ? t[(i + 1) * w + j + 1] + 1 : Math.max(t[(i + 1) * w + j], t[i * w + j + 1]);
+    i = 0; j = 0;
+    while (i < N && j < M) {
+      if (B[s + i] === X[s + j]) { map[s + i] = s + j; i++; j++; }
+      else if (t[(i + 1) * w + j] >= t[i * w + j + 1]) i++; else j++;
+    }
+  }
+  return map;
+}
+function m3Igual(x, y) { if (x.length !== y.length) return false; for (var i = 0; i < x.length; i++) if (x[i] !== y[i]) return false; return true; }
+/* a = lo que hay, b = lo que llega; si los dos cambian lo mismo, gana «b» cuando preferB.
+   Dos inserciones en el mismo sitio se quedan las dos (no se pierde ningún invitado). */
+function m3(base, a, b, preferB) {
+  if (a === b) return a; if (a === base) return b; if (b === base) return a;
+  var B = base.split("\n"), A = a.split("\n"), C = b.split("\n");
+  var ma = m3Mapa(B, A), mc = ma && m3Mapa(B, C); if (!ma || !mc) return null;
+  var out = [], ib = 0, ia = 0, ic = 0, k;
+  function trozo(fb, fa, fc) {
+    var tb = B.slice(ib, fb), ta = A.slice(ia, fa), tc = C.slice(ic, fc);
+    var r = m3Igual(ta, tb) ? tc : m3Igual(tc, tb) ? ta : m3Igual(ta, tc) ? ta : !tb.length ? ta.concat(tc) : (preferB ? tc : ta);
+    for (var q = 0; q < r.length; q++) out.push(r[q]);
+  }
+  for (k = 0; k < B.length; k++) {
+    if (ma[k] >= 0 && mc[k] >= 0) { trozo(k, ma[k], mc[k]); out.push(B[k]); ib = k + 1; ia = ma[k] + 1; ic = mc[k] + 1; }
+  }
+  trozo(B.length, A.length, C.length);
+  return out.join("\n");
+}
+/* p = el evento que hay; i = el que llega; tb = el texto del plano que tenía quien lo envía antes de editarlo (si lo sabe).
+   Devuelve «p» o «i» tal cual cuando uno de los dos lo trae todo. */
+function mergeEv(p, i, tb) {
+  if (!p) return i; if (!i) return p;
+  var gana = (+p.updated || 0) > (+i.updated || 0) ? p : i;
+  if (!p._k && !i._k) return gana;
+  /* si uno de los dos ya lo tiene todo, se devuelve ese mismo (a igualdad, el que llega: así no se cambia el objeto que la pantalla tiene en la mano) */
+  if (kDomina(i, p) && (typeof tb !== "string" || tb === p.text || tb === i.text)) return i;
+  if (kDomina(p, i) && (typeof tb !== "string" || tb === p.text || tb === i.text)) return p;
+  var ps = {}, out = {}, sellos = {};
+  kCaminos(p).concat(kCaminos(i)).forEach(function (k) { ps[k] = 1; });
+  Object.keys(p._k || {}).concat(Object.keys(i._k || {})).forEach(function (k) { ps[k] = 1; });
+  Object.keys(ps).forEach(function (k) {
+    var a = kSello(p, k), b = kSello(i, k), src = a > b ? p : b > a ? i : gana, v = kGet(src, k);
+    if (k === "text" && typeof tb === "string" && typeof p.text === "string" && typeof i.text === "string" && p.text !== i.text && tb !== p.text && tb !== i.text) {
+      var f = m3(tb, p.text, i.text, b >= a); if (f != null) v = f;
+    } else if (k === "text" && typeof tb === "string" && typeof p.text === "string" && typeof i.text === "string" && p.text !== i.text) {
+      v = tb === p.text ? i.text : p.text;   /* uno de los dos no ha tocado el texto: vale el del otro */
+    }
+    if (v !== undefined) kPon(out, k, v);
+    var s = Math.max(a, b); if (s) sellos[k] = s;
+  });
+  out.id = i.id != null ? i.id : p.id;
+  out.updated = Math.max(+p.updated || 0, +i.updated || 0);
+  out._k = sellos;
+  return out;
+}
+/* sella TODO un evento con un instante (restaurar una copia: tiene que ganar a lo anterior, también lo que la copia ya no tiene) */
+function kSellarTodo(e, t, antes) {
+  var s = {}; kCaminos(e).forEach(function (k) { s[k] = t; });
+  if (antes) { kCaminos(antes).forEach(function (k) { s[k] = t; }); Object.keys(antes._k || {}).forEach(function (k) { s[k] = t; }); }
+  e._k = s; return e;
+}
+
 function porId(a, b, preferA) {
   const por = {};
   (b || []).forEach((x) => { if (x && x.id) por[x.id] = x; });
   (a || []).forEach((x) => { if (!x || !x.id) return; const y = por[x.id]; if (!y || (preferA ? (x.updated || 0) >= (y.updated || 0) : (x.updated || 0) > (y.updated || 0))) por[x.id] = x; });
   return Object.keys(por).map((k) => por[k]);
 }
-function mergeDoc(prev, inc, isAdmin) {
+/* los sellos de más de 30 días ya no hacen falta (nadie sigue con una copia tan vieja) */
+function kPoda(doc, ahora) {
+  const lim = ahora - 30 * 864e5;
+  (doc.events || []).forEach((e) => { if (e && e._k) Object.keys(e._k).forEach((k) => { if ((+e._k[k] || 0) < lim) delete e._k[k]; }); });
+}
+function mergeDoc(prev, inc, isAdmin, tbs) {
   prev = prev || {}; inc = inc || {};
   const out = Object.assign({}, prev, inc);
   /* borrados: de los dos lados, el más reciente */
   const bor = Object.assign({}, prev.borrados || {});
   Object.keys(inc.borrados || {}).forEach((k) => { const t = +inc.borrados[k] || 0; if (t > (+bor[k] || 0)) bor[k] = t; });
-  /* eventos: uno a uno, gana el más reciente (a igualdad, el que llega) */
+  /* eventos: uno a uno y, dentro de cada uno, sección a sección (ver mergeEv): lo que cambian dos departamentos a la vez en el mismo evento se junta */
   const pe = {}; (prev.events || []).forEach((e) => { if (e && e.id) pe[e.id] = e; });
   const orden = [], vis = {}, evs = {};
-  (inc.events || []).forEach((e) => { if (!e || !e.id || vis[e.id]) return; vis[e.id] = 1; orden.push(e.id); const p = pe[e.id]; evs[e.id] = (p && (p.updated || 0) > (e.updated || 0)) ? p : e; });
+  (inc.events || []).forEach((e) => { if (!e || !e.id || vis[e.id]) return; vis[e.id] = 1; orden.push(e.id); const p = pe[e.id]; evs[e.id] = p ? mergeEv(p, e, tbs && tbs[e.id]) : e; });
   (prev.events || []).forEach((e) => { if (!e || !e.id || vis[e.id]) return; vis[e.id] = 1; orden.push(e.id); evs[e.id] = e; });
   out.events = orden.map((id) => evs[id]).filter((e) => {
     const t = +bor[e.id] || 0; if (!t) return true;
