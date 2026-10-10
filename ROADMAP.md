@@ -227,8 +227,17 @@ se recupera con el código manual por evento.
 - Reconoce los teléfonos como se escriban (`600 11 22 33`, `+34 622 333 444`, `0034…`) y les pone el prefijo de España si falta; si no hay teléfono, el botón sale desactivado y lo dice.
 - Los textos son **los mismos que los del correo** (se editan en Parámetros → Correo y avisos).
 
-### 3.3 Portal del cliente ampliado — *~2 días* — v01.65
-- El cliente puede **aprobar la minuta y el menú** (con su fecha y nombre), subir su logo y fotos, ver el plano y dejar comentarios al equipo. Cada aprobación queda en el historial del evento.
+### 3.3 Portal del cliente ampliado — ✅ **hecho en la v01.65**
+- **El cliente (sin usuario, con su enlace privado) tiene ahora 8 pestañas:** Inicio · Pagos · Presupuesto · Invitados · **Plano** · El día · **Aprobar** · **Mensajes**.
+  - **Plano:** ve el esquema de su salón con las mesas colocadas (solo lectura: «lo marca Les Moles») y, al tocar una mesa, quién se sienta en ella según su lista. La «foto» del evento que ya viajaba al portal lleva ahora ese esquema.
+  - **Aprobar:** el **menú** y la **minuta** (la imagen tal como saldrá en las mesas). Escribe su nombre y pulsa «Aprobar»: queda **«Aprobado por … el 10/10 a las 16:55»**. Si el equipo cambia después el menú o la minuta, la aprobación se marca como **«Ha cambiado desde que lo aprobasteis»** y puede volver a aprobar (cada aprobación guarda una huella de lo que se aprobó, así no se confunde una versión con otra).
+  - **Mensajes:** escribe al equipo desde su portal y ve **la respuesta sin recargar**; en el **Inicio** de la app cada evento muestra «Portal: 2 mensajes sin leer · 1 archivo nuevo» y los mensajes quedan «leídos» al abrirlos.
+  - **Su logo y sus fotos:** sube **1 logo y hasta 8 fotos** (en el móvil se reducen solas a un tamaño razonable; cada archivo pesa menos de 500 KB) y puede quitar las que no quiera.
+- **El equipo, en Planificación → «Portal del cliente»** (administración y eventos): enlace para copiar, **estado de las aprobaciones** (quién, cuándo y si han caducado), botón **«Publicar la minuta para el cliente»** (convierte la minuta diseñada en imagen y la sube al portal; si aún no hay diseño, dice qué hacer), **conversación** con el cliente (contestar desde la app) y **archivos recibidos** con «Bajar» para usar el logo y las fotos en la minuta (con «Logo o imagen» del diseñador de minutas).
+- **Historial del evento:** cada aprobación queda en «Historial de cambios» (sección «aprobaciones», «Aprobó el menú», con el nombre que escribió el cliente y «(cliente)»).
+- **Límites y datos:** tope de 30 mensajes y 40 archivos al día por evento (con mensaje claro al cliente); las imágenes se validan en el servidor (tipo y tamaño); los mensajes y archivos viven en tablas aparte (no engordan el documento del evento), **se borran al anonimizar el evento** y los **encuentra el buscador de personas del RGPD**. Todo el portal es **solo del evento de su enlace**: sin sesión, el servidor solo entrega lo que corresponde a ese enlace.
+- **Comprobado** (servidor real + dos navegadores: el equipo y el cliente en móvil de 390 px): las 8 pestañas, el plano con sus mesas, aprobar menú y minuta, **que un cambio del equipo invalide la aprobación**, mensajes en los dos sentidos con lectura, subida real de imágenes (la grande se reduce, el límite de 8, quitar), publicar la minuta (48 KB, vertical), permisos (eventos sí, cocina no), enlace de otro evento sin acceso, límites diarios, fusión de cambios (el equipo y el cliente tocan el mismo evento sin pisarse), borrado RGPD, **sin desbordes en móvil** y sin errores en consola.
+- **Tu parte:** ninguna; funciona con lo que ya hay. (Los avisos por correo de «el cliente ha escrito / ha aprobado» no están: hoy se ven en el Inicio de la app. Si los quieres, se añaden a las plantillas de 3.1.)
 
 ---
 

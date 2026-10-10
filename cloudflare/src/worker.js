@@ -42,6 +42,10 @@
  *   DELETE /api/planos?k=..     quita un plano de fondo (admin, eventos y servicio)
  *   GET  /api/servicio?ev=..&since=N   modo servicio: lo que ha cambiado en el evento desde la versión N (cualquier rol salvo compras)
  *   POST /api/servicio          {ev, since?, ops:[{k, v | del, nx?}]}: platos salidos, invitados llegados, incidencias; devuelve lo nuevo
+ *   POST /api/share/accion?t=..  {tipo: aprobar|comentario|archivo|quitar} lo que el cliente hace en su portal (solo con enlace largo)
+ *   GET  /api/share/img?t=..&id=..   una imagen de su portal (su logo, sus fotos, la minuta publicada)
+ *   GET  /api/portal?ev=..       lo del portal de un evento (mensajes, archivos, aprobaciones); sin «ev»: lo que hay sin leer por evento (admin y eventos)
+ *   POST /api/portal/msg {ev,texto} · POST /api/portal/leido {ev} · PUT /api/portal/minuta {ev,src} · DELETE /api/portal/arch?id=  · GET /api/portal/img?id=
  *   GET  /api/correo            estado del correo, ajustes y bandeja de salida (admin y eventos)
  *   PUT  /api/correo            {cfg?, plantillas?} ajustes y plantillas (solo admin)
  *   GET  /api/correo/plantillas plantillas y firma (cualquier rol: las usan los botones de WhatsApp)
@@ -113,6 +117,14 @@ async function api(request, env, url) {
   if (p === "/api/seguridad" && m === "PUT") return seguridadPut(request, env);
   if (p === "/api/share" && m === "GET") return shareRoute(request, env, url);
   if (p === "/api/share" && m === "POST") return sharePost(request, env, url);
+  if (p === "/api/share/accion" && m === "POST") return porAccion(request, env, url);
+  if (p === "/api/share/img" && m === "GET") return porImgCliente(request, env, url);
+  if (p === "/api/portal" && m === "GET") return portalGet(request, env, url);
+  if (p === "/api/portal/img" && m === "GET") return portalImg(request, env, url);
+  if (p === "/api/portal/msg" && m === "POST") return portalMsg(request, env);
+  if (p === "/api/portal/leido" && m === "POST") return portalLeido(request, env);
+  if (p === "/api/portal/minuta" && m === "PUT") return portalMinuta(request, env);
+  if (p === "/api/portal/arch" && m === "DELETE") return portalQuitar(request, env, url);
   if (p === "/api/propuestas" && m === "GET") return propuestasList(request, env);
   if (p === "/api/propuestas" && m === "PATCH") return propuestasPatch(request, env);
   if (p === "/api/store" && m === "GET") return storeGet(request, env);
@@ -286,7 +298,8 @@ async function shareRoute(request, env, url) {
   } catch (_) {}
   let priv = null;
   try { const c = await privCfg(env); priv = { responsable: c.responsable, nif: c.nif, direccion: c.direccion, email: c.email, meses: c.meses, v: PRIV_V }; } catch (_) {}
-  return json({ event: pub, portal: (ev.share && ev.share.portal) || null, lista, editable: tokenFuerte(token), hoy: hoyISO(), priv });
+  let ext = {}; try { ext = await porDatos(env, ev); } catch (_) {}
+  return json({ event: pub, portal: (ev.share && ev.share.portal) || null, lista, editable: tokenFuerte(token), hoy: hoyISO(), priv, aprob: ext.estado || null, msgs: ext.msgs || [], arch: ext.arch || [], minuta: ext.minuta || null });
 }
 
 /* limpieza de lo que escriben: sin saltos de línea ni los signos que usa el
@@ -532,6 +545,8 @@ async function estadoRoute(request, env) {
   const ed = await q("SELECT COUNT(*) AS n FROM errores WHERE ts>?1", ahora - 864e5);
   const et = await q("SELECT COUNT(*) AS n FROM errores");
   await ensureCorreo(env);
+  await ensurePortal(env);
+  const po = await q("SELECT COUNT(*) AS n, COALESCE(SUM(bytes),0) AS b FROM portal_arch");
   const co = await q("SELECT COALESCE(SUM(CASE WHEN estado='error' AND ts>?1 THEN 1 ELSE 0 END),0) AS err, COALESCE(SUM(CASE WHEN estado='enviado' AND ts>?2 THEN 1 ELSE 0 END),0) AS ok7, COALESCE(SUM(CASE WHEN estado='simulado' AND ts>?2 THEN 1 ELSE 0 END),0) AS sim7 FROM outbox", ahora - 864e5, ahora - 7 * 864e5);
   const { results } = await env.DB.prepare("SELECT ts, origen, donde, msg, name FROM errores ORDER BY id DESC LIMIT 25").all();
   const ult = st ? +st.updated : 0, bytes = st ? +st.bytes : 0, pct = Math.round(bytes / DOC_LIMITE * 100);
@@ -543,6 +558,7 @@ async function estadoRoute(request, env) {
   else if (ult && ult - bkAuto.ult > 36 * 3600e3 && ahora - ult < 36 * 3600e3) add("aviso", "La última copia automática tiene más de un día y se ha trabajado desde entonces.", "Haz una copia ahora en Parámetros → Copias de seguridad.");
   if (eh && eh.n > 0) add("mal", eh.n + (eh.n === 1 ? " error en la última hora." : " errores en la última hora."), "Mira el detalle más abajo; si se repite, envíalo a quien lleva la herramienta.");
   else if (ed && ed.n > 0) add("aviso", ed.n + (ed.n === 1 ? " error en las últimas 24 horas." : " errores en las últimas 24 horas."), "");
+  if (po && po.b > 250e6) add("aviso", "Las fotos y logos que mandan los clientes ocupan " + Math.round(po.b / 1e6) + " MB.", "La base de datos gratuita admite 500 MB en total. Anonimiza eventos antiguos (Parámetros → Privacidad) para liberar espacio.");
   if (co && co.err > 0) add("aviso", co.err + (co.err === 1 ? " correo no ha salido" : " correos no han salido") + " en las últimas 24 horas.", "Míralo en la bandeja de «Avisos y correo»; se puede reintentar desde ahí.");
   if (!avisos.length) add("ok", "Todo en orden: sin errores recientes, con copias al día y espacio de sobra.", "");
   return json({
@@ -553,6 +569,7 @@ async function estadoRoute(request, env) {
     planos: { n: pl ? pl.n : 0, bytes: pl ? pl.b : 0 },
     usuarios: { total: us ? us.n : 0, activos: us ? us.act : 0 },
     listasCliente: { total: nv ? nv.n : 0, pendientes: nv ? nv.pen : 0 },
+    portal: { archivos: po ? po.n : 0, bytes: po ? po.b : 0 },
     correo: { errores24h: co ? co.err : 0, enviados7d: co ? co.ok7 : 0, simulados7d: co ? co.sim7 : 0, listo: corProveedor(env).listo },
     errores: { ultimaHora: eh ? eh.n : 0, hoy: ed ? ed.n : 0, total: et ? et.n : 0, recientes: (results || []).map((r) => ({ ts: +r.ts, origen: r.origen, donde: r.donde || "", msg: r.msg || "", name: r.name || "" })) },
     avisos
@@ -663,8 +680,10 @@ function anonEvento(e, ahora) {
   return c;
 }
 async function privLimpiarTablas(env, ids, nombres) {
-  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env);
+  await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env); await ensurePortal(env);
   for (const id of ids) {
+    await env.DB.prepare("DELETE FROM portal_msg WHERE ev=?1").bind(String(id)).run();
+    await env.DB.prepare("DELETE FROM portal_arch WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM outbox WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM servicio WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM historial WHERE event_id=?1").bind(String(id)).run();
@@ -783,13 +802,17 @@ async function privPersona(request, env) {
   const svHits = {};
   { const r2 = await env.DB.prepare("SELECT ev, v FROM servicio WHERE del=0 AND (k LIKE 'inc:%' OR k='nota')").all();
     (r2.results || []).forEach((r) => { let v = null; try { v = JSON.parse(r.v); } catch (_) {} if (v && v.txt && normTxt(v.txt).indexOf(qn) >= 0) svHits[r.ev] = (svHits[r.ev] || 0) + 1; }); }
+  await ensurePortal(env);
+  const pmHits = {};
+  { const r3 = await env.DB.prepare("SELECT ev, texto, nombre FROM portal_msg").all();
+    (r3.results || []).forEach((r) => { if (normTxt((r.texto || "") + " " + (r.nombre || "")).indexOf(qn) >= 0) pmHits[r.ev] = (pmHits[r.ev] || 0) + 1; }); }
   let tocados = [];
   const res = await storeEditar(env, (doc) => {
     cuentas.length = 0; tocados = [];
     doc.events = (doc.events || []).map((e) => {
       if (!e || !e.id || e.anonimizado) return e;
       const c = borrar ? JSON.parse(JSON.stringify(e)) : JSON.parse(JSON.stringify(e)), h = buscarEnEvento(c, qn, borrar);
-      h.otros += svHits[e.id] || 0;
+      h.otros += (svHits[e.id] || 0) + (pmHits[e.id] || 0);
       const total = h.plano + h.ficha + h.otros + Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0);
       if (!total) return e;
       cuentas.push({ id: e.id, name: e.name || "", fecha: (e.ficha && e.ficha.fecha) || "", plano: h.plano, ficha: h.ficha, otros: h.otros, lista: Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0) });
@@ -974,6 +997,207 @@ async function servicioPost(request, env) {
   const d = await servicioDelta(env, ev, Math.max(0, Math.floor(+b.since || 0)));
   d.ok = true; d.hechas = hechas;
   return json(d);
+}
+
+/* ── PORTAL DEL CLIENTE AMPLIADO ──────────────────────────────────────────────
+   Lo que el cliente puede hacer en su página privada (enlace ?cliente=<clave>), además de rellenar su lista:
+   · APROBAR el menú y la minuta, con su nombre y la fecha. Queda en el propio evento (e.aprobaciones), así que sale en
+     su historial. Si el equipo cambia el menú o publica otra minuta después, la aprobación deja de valer y se vuelve a pedir
+     (cada aprobación apunta a «la huella» de lo que se aprobó).
+   · MANDAR su logo y fotos de inspiración (se guardan aparte, en portal_arch: no caben en el documento de eventos).
+   · VER el plano de la sala (viene en la «foto» del evento que ya calcula la app) y ESCRIBIR AL EQUIPO (portal_msg); el
+     equipo contesta desde la app y el cliente lo ve en su página.
+   La minuta que ve el cliente es una imagen que el equipo «publica» desde la app (kind «minuta» en portal_arch).
+   Solo con enlace largo («fuerte»): los enlaces antiguos, cortos, siguen siendo de solo lectura. Límites: 8 fotos y 1 logo
+   por evento, 500 KB por imagen, 30 mensajes por día. Todo se borra al anonimizar el evento. */
+let POR_OK = false;
+const POR_IMG_MAX = 500000, POR_FOTOS_MAX = 8, POR_MSG_DIA = 30, POR_ARCH_DIA = 40;
+async function ensurePortal(env) {
+  if (POR_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS portal_msg (id INTEGER PRIMARY KEY AUTOINCREMENT, ev TEXT NOT NULL, ts INTEGER NOT NULL, de TEXT NOT NULL, nombre TEXT, texto TEXT NOT NULL, leido INTEGER NOT NULL DEFAULT 0)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS portal_msg_ev ON portal_msg (ev, id)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS portal_arch (id INTEGER PRIMARY KEY AUTOINCREMENT, ev TEXT NOT NULL, kind TEXT NOT NULL, de TEXT NOT NULL, nombre TEXT, mime TEXT NOT NULL, w INTEGER, h INTEGER, bytes INTEGER NOT NULL, hash TEXT, src TEXT NOT NULL, ts INTEGER NOT NULL, leido INTEGER NOT NULL DEFAULT 0)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS portal_arch_ev ON portal_arch (ev, kind)").run();
+  POR_OK = true;
+}
+function porHash(s) { let h = 5381; s = String(s); for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function porMenuHash(ev) { const p = (ev.share && ev.share.portal) || {}; return porHash(JSON.stringify(p.menu || [])); }
+function porTexto(v, n) { return String(v == null ? "" : v).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f<>]/g, " ").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim().slice(0, n); }
+/* una imagen en data URL: de verdad JPEG, PNG o WebP (se mira la cabecera, no lo que diga el nombre) y no demasiado grande */
+function porImagen(src) {
+  const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(src || ""));
+  if (!m) return null;
+  const bytes = Math.floor(m[2].length * 3 / 4) - (m[2].endsWith("==") ? 2 : m[2].endsWith("=") ? 1 : 0);
+  if (bytes < 40 || bytes > POR_IMG_MAX) return { error: bytes < 40 ? "invalid" : "too-big" };
+  let cab = ""; try { cab = atob(m[2].slice(0, 24)); } catch (_) { return null; }
+  const ok = (m[1] === "image/jpeg" && cab.charCodeAt(0) === 0xFF && cab.charCodeAt(1) === 0xD8) || (m[1] === "image/png" && cab.slice(1, 4) === "PNG") || (m[1] === "image/webp" && cab.slice(0, 4) === "RIFF" && cab.slice(8, 12) === "WEBP");
+  return ok ? { mime: m[1], bytes } : null;
+}
+/* en qué punto está cada aprobación: vale solo si apunta a lo que hay ahora */
+function porEstado(ev, minuta) {
+  const ap = ev.aprobaciones || {}, mh = porMenuHash(ev), o = {};
+  const fila = (a, vigente) => (a && a.ts ? { ok: !!vigente, ts: a.ts, nombre: a.nombre || "", desactualizada: !vigente } : { ok: false, ts: 0, nombre: "", desactualizada: false });
+  o.menu = fila(ap.menu, ap.menu && ap.menu.h === mh);
+  o.minuta = minuta ? fila(ap.minuta, ap.minuta && ap.minuta.h === minuta.hash) : { ok: false, ts: 0, nombre: "", desactualizada: false, sin: true };
+  o.menuHash = mh;
+  return o;
+}
+async function porDatos(env, ev, limiteMsgs) {
+  await ensurePortal(env);
+  const msgs = await env.DB.prepare("SELECT id, ts, de, nombre, texto, leido FROM portal_msg WHERE ev=?1 ORDER BY id DESC LIMIT ?2").bind(ev.id, limiteMsgs || 100).all();
+  const arch = await env.DB.prepare("SELECT id, kind, de, nombre, mime, w, h, bytes, hash, ts, leido FROM portal_arch WHERE ev=?1 ORDER BY id").bind(ev.id).all();
+  const A = (arch.results || []).map((r) => ({ id: r.id, kind: r.kind, de: r.de, nombre: r.nombre || "", mime: r.mime, w: r.w, h: r.h, bytes: r.bytes, hash: r.hash, ts: +r.ts, leido: !!r.leido }));
+  const minuta = A.filter((x) => x.kind === "minuta").pop() || null;
+  return { msgs: (msgs.results || []).reverse().map((r) => ({ id: r.id, ts: +r.ts, de: r.de, nombre: r.nombre || "", texto: r.texto, leido: !!r.leido })), arch: A, minuta, estado: porEstado(ev, minuta) };
+}
+/* escribe una aprobación en el evento sin pisar nada más: solo se sellan las rutas de «aprobaciones» */
+function porAprobar(doc, evId, item, nombre, h, ahora) {
+  const lista = doc.events || [], i = lista.findIndex((e) => e && e.id === evId);
+  if (i < 0) return { cambios: 0 };
+  const e = lista[i];
+  e.aprobaciones = e.aprobaciones || {};
+  e.aprobaciones[item] = { ts: ahora, nombre, h };
+  e.updated = Math.max(ahora, (+e.updated || 0) + 1);
+  e._k = e._k || {};
+  kCaminos(e).filter((p) => p.indexOf("aprobaciones") === 0).forEach((p) => { e._k[p] = e.updated; });
+  return { cambios: 1 };
+}
+async function porClienteSesion(request, env, url, soloLectura) {
+  const token = (url.searchParams.get("t") || "").trim();
+  const ev = await eventoCompartido(env, token);
+  if (!ev) return { err: json({ error: "not-found", message: "Este enlace ya no está activo." }, 404) };
+  if (!soloLectura && !tokenFuerte(token)) return { err: json({ error: "old-link", message: "Este enlace es antiguo. Pedid a Les Moles uno nuevo para poder usar esto." }, 403) };
+  return { ev, token };
+}
+/* GET /api/share/img?t=..&id=.. — la imagen de una de SUS cosas (o la minuta que el equipo le ha publicado) */
+async function porImgCliente(request, env, url) {
+  const a = await porClienteSesion(request, env, url, true); if (a.err) return a.err;
+  await ensurePortal(env);
+  const r = await env.DB.prepare("SELECT mime, src FROM portal_arch WHERE id=?1 AND ev=?2").bind(Math.floor(+url.searchParams.get("id") || 0), a.ev.id).first();
+  return porSirve(r);
+}
+function porSirve(r) {
+  if (!r) return json({ error: "not-found" }, 404);
+  const m = /^data:([^;]+);base64,(.*)$/.exec(r.src || ""); if (!m) return json({ error: "not-found" }, 404);
+  const bin = atob(m[2]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return new Response(u, { headers: { "Content-Type": r.mime || m[1], "Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff" } });
+}
+/* POST /api/share/accion?t=..  {tipo: aprobar | comentario | archivo | quitar} */
+async function porAccion(request, env, url) {
+  const a = await porClienteSesion(request, env, url, false); if (a.err) return a.err;
+  const { ev } = a, b = await body(request), ahora = Date.now();
+  await ensurePortal(env);
+  if (b.tipo === "comentario") {
+    const texto = porTexto(b.texto, 1500); if (!texto) return json({ error: "invalid", message: "Escribid el mensaje." }, 400);
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM portal_msg WHERE ev=?1 AND de='cliente' AND ts>?2").bind(ev.id, ahora - 864e5).first();
+    if (n && n.n >= POR_MSG_DIA) return json({ error: "limit", message: "Habéis mandado muchos mensajes hoy. Llamad a Les Moles si es urgente." }, 429);
+    const nombre = porTexto(b.nombre, 60);
+    await env.DB.prepare("INSERT INTO portal_msg (ev, ts, de, nombre, texto, leido) VALUES (?1, ?2, 'cliente', ?3, ?4, 0)").bind(ev.id, ahora, nombre, texto).run();
+    return json({ ok: true, ...(await porDatos(env, ev)) });
+  }
+  if (b.tipo === "aprobar") {
+    const item = b.item === "menu" || b.item === "minuta" ? b.item : "", nombre = porTexto(b.nombre, 80);
+    if (!item) return json({ error: "invalid" }, 400);
+    if (nombre.length < 2) return json({ error: "invalid", message: "Escribid vuestro nombre para aprobar." }, 400);
+    const d = await porDatos(env, ev); let h;
+    if (item === "menu") { h = d.estado.menuHash; if (!((ev.share.portal || {}).menu || []).length) return json({ error: "invalid", message: "Todavía no hay menú que aprobar." }, 400); }
+    else { if (!d.minuta) return json({ error: "invalid", message: "Todavía no hay minuta que aprobar." }, 400); h = d.minuta.hash; }
+    if (b.h && b.h !== h) return json({ error: "cambio", message: item === "menu" ? "El menú acaba de cambiar: revisadlo otra vez." : "La minuta acaba de cambiar: revisadla otra vez." }, 409);
+    const r = await storeEditar(env, (doc) => porAprobar(doc, ev.id, item, nombre, h, ahora));
+    if (!r.ok) return json({ error: "busy", message: "Había muchos cambios a la vez. Probad otra vez." }, 409);
+    const ev2 = await eventoCompartido(env, a.token) || ev;
+    /* queda en el historial del evento, con el nombre de quien aprobó */
+    try { await ensureHistorial(env); await hiAnotar(env, ev2, ev, ["aprobaciones"], "", nombre + " (cliente)", "Aprobó " + (item === "menu" ? "el menú" : "la minuta"), ahora, false); } catch (_) {}
+    return json({ ok: true, ...(await porDatos(env, ev2)) });
+  }
+  if (b.tipo === "archivo") {
+    const kind = b.kind === "logo" ? "logo" : b.kind === "foto" ? "foto" : ""; if (!kind) return json({ error: "invalid" }, 400);
+    const im = porImagen(b.src); if (!im) return json({ error: "invalid", message: "Solo se pueden enviar imágenes JPG, PNG o WebP." }, 400);
+    if (im.error === "too-big") return json({ error: "too-big", message: "La imagen es demasiado grande (máx. 500 KB). Probad con una más pequeña." }, 413);
+    if (im.error) return json({ error: "invalid", message: "La imagen no es válida." }, 400);
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM portal_arch WHERE ev=?1 AND de='cliente' AND ts>?2").bind(ev.id, ahora - 864e5).first();
+    if (n && n.n >= POR_ARCH_DIA) return json({ error: "limit", message: "Habéis subido muchos archivos hoy." }, 429);
+    if (kind === "logo") await env.DB.prepare("DELETE FROM portal_arch WHERE ev=?1 AND kind='logo'").bind(ev.id).run();
+    else { const f = await env.DB.prepare("SELECT COUNT(*) AS n FROM portal_arch WHERE ev=?1 AND kind='foto'").bind(ev.id).first(); if (f && f.n >= POR_FOTOS_MAX) return json({ error: "limit", message: "Ya hay " + POR_FOTOS_MAX + " fotos. Quitad alguna para subir otra." }, 429); }
+    await env.DB.prepare("INSERT INTO portal_arch (ev, kind, de, nombre, mime, w, h, bytes, hash, src, ts, leido) VALUES (?1,?2,'cliente',?3,?4,?5,?6,?7,?8,?9,?10,0)")
+      .bind(ev.id, kind, porTexto(b.nombre, 80), im.mime, Math.min(9999, Math.max(0, Math.round(+b.w) || 0)), Math.min(9999, Math.max(0, Math.round(+b.h) || 0)), im.bytes, porHash(b.src), b.src, ahora).run();
+    return json({ ok: true, ...(await porDatos(env, ev)) });
+  }
+  if (b.tipo === "quitar") {
+    const r = await env.DB.prepare("SELECT id FROM portal_arch WHERE id=?1 AND ev=?2 AND de='cliente'").bind(Math.floor(+b.id || 0), ev.id).first();
+    if (!r) return json({ error: "not-found" }, 404);
+    await env.DB.prepare("DELETE FROM portal_arch WHERE id=?1").bind(r.id).run();
+    return json({ ok: true, ...(await porDatos(env, ev)) });
+  }
+  return json({ error: "invalid" }, 400);
+}
+/* ── el lado del equipo ── */
+async function porEquipo(request, env) {
+  const s = await session(request, env);
+  if (!s) return { err: json({ error: "unauth" }, 401) };
+  if (s.role !== "admin" && s.role !== "eventos") return { err: json({ error: "forbidden", message: "Tu rol no puede ver lo que mandan los clientes." }, 403) };
+  return { s };
+}
+async function porEventoPorId(env, id) {
+  const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {}
+  return (doc.events || []).find((e) => e && e.id === String(id)) || null;
+}
+async function portalGet(request, env, url) {
+  const a = await porEquipo(request, env); if (a.err) return a.err;
+  await ensurePortal(env);
+  const evId = (url.searchParams.get("ev") || "").slice(0, 80);
+  if (!evId) {
+    /* resumen para los avisos: lo que cada cliente ha mandado y aún nadie ha leído */
+    const m = await env.DB.prepare("SELECT ev, COUNT(*) AS n, MAX(ts) AS ts FROM portal_msg WHERE de='cliente' AND leido=0 GROUP BY ev").all();
+    const f = await env.DB.prepare("SELECT ev, COUNT(*) AS n, MAX(ts) AS ts FROM portal_arch WHERE de='cliente' AND leido=0 GROUP BY ev").all();
+    const o = {};
+    (m.results || []).forEach((r) => { o[r.ev] = { msgs: r.n, arch: 0, ts: +r.ts }; });
+    (f.results || []).forEach((r) => { const x = o[r.ev] || (o[r.ev] = { msgs: 0, arch: 0, ts: 0 }); x.arch = r.n; x.ts = Math.max(x.ts, +r.ts); });
+    return json({ eventos: o });
+  }
+  const ev = await porEventoPorId(env, evId); if (!ev) return json({ error: "not-found" }, 404);
+  return json({ ev: ev.id, aprobaciones: ev.aprobaciones || {}, ...(await porDatos(env, ev, 200)) });
+}
+async function portalImg(request, env, url) {
+  const a = await porEquipo(request, env); if (a.err) return a.err;
+  await ensurePortal(env);
+  return porSirve(await env.DB.prepare("SELECT mime, src FROM portal_arch WHERE id=?1").bind(Math.floor(+url.searchParams.get("id") || 0)).first());
+}
+async function portalMsg(request, env) {
+  const a = await porEquipo(request, env); if (a.err) return a.err;
+  await ensurePortal(env);
+  const b = await body(request), ev = await porEventoPorId(env, b.ev); if (!ev) return json({ error: "not-found" }, 404);
+  const texto = porTexto(b.texto, 1500); if (!texto) return json({ error: "invalid", message: "Escribe el mensaje." }, 400);
+  await env.DB.prepare("INSERT INTO portal_msg (ev, ts, de, nombre, texto, leido) VALUES (?1, ?2, 'equipo', ?3, ?4, 1)").bind(ev.id, Date.now(), porTexto(a.s.name || "Les Moles", 60), texto).run();
+  return json({ ok: true, ...(await porDatos(env, ev, 200)) });
+}
+async function portalLeido(request, env) {
+  const a = await porEquipo(request, env); if (a.err) return a.err;
+  await ensurePortal(env);
+  const b = await body(request), id = String(b.ev || "").slice(0, 80);
+  await env.DB.prepare("UPDATE portal_msg SET leido=1 WHERE ev=?1 AND de='cliente'").bind(id).run();
+  await env.DB.prepare("UPDATE portal_arch SET leido=1 WHERE ev=?1 AND de='cliente'").bind(id).run();
+  return json({ ok: true });
+}
+/* el equipo publica la minuta (una imagen) para que el cliente la vea y la apruebe; publicar otra deja sin valor la aprobación anterior */
+async function portalMinuta(request, env) {
+  const a = await porEquipo(request, env); if (a.err) return a.err;
+  await ensurePortal(env);
+  const b = await body(request), ev = await porEventoPorId(env, b.ev); if (!ev) return json({ error: "not-found" }, 404);
+  const im = porImagen(b.src); if (!im || im.error) return json({ error: im && im.error === "too-big" ? "too-big" : "invalid", message: im && im.error === "too-big" ? "La imagen de la minuta pesa demasiado (máx. 500 KB)." : "La imagen de la minuta no es válida." }, im && im.error === "too-big" ? 413 : 400);
+  const h = porHash(b.src), prev = await env.DB.prepare("SELECT hash FROM portal_arch WHERE ev=?1 AND kind='minuta'").bind(ev.id).first();
+  if (prev && prev.hash === h) return json({ ok: true, igual: true, ...(await porDatos(env, ev, 200)) });
+  await env.DB.prepare("DELETE FROM portal_arch WHERE ev=?1 AND kind='minuta'").bind(ev.id).run();
+  await env.DB.prepare("INSERT INTO portal_arch (ev, kind, de, nombre, mime, w, h, bytes, hash, src, ts, leido) VALUES (?1,'minuta','equipo','Minuta',?2,?3,?4,?5,?6,?7,?8,1)")
+    .bind(ev.id, im.mime, Math.min(9999, Math.round(+b.w) || 0), Math.min(9999, Math.round(+b.h) || 0), im.bytes, h, b.src, Date.now()).run();
+  await logAct(env, a.s, "minuta_publicada", "Minuta publicada para que el cliente la apruebe: " + String(ev.name || "").slice(0, 60));
+  return json({ ok: true, ...(await porDatos(env, ev, 200)) });
+}
+async function portalQuitar(request, env, url) {
+  const a = await porEquipo(request, env); if (a.err) return a.err;
+  await ensurePortal(env);
+  await env.DB.prepare("DELETE FROM portal_arch WHERE id=?1").bind(Math.floor(+url.searchParams.get("id") || 0)).run();
+  return json({ ok: true });
 }
 
 /* ── CORREO Y AVISOS ──────────────────────────────────────────────────────────
@@ -1533,7 +1757,7 @@ async function bkRestaurar(request, env) {
    Volver a una versión también deja su línea (con lo que había antes), de modo
    que se puede deshacer. */
 const HI_RAFAGA = 10 * 60e3, HI_MAX = 50;
-const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "portal del cliente", "otros datos"];
+const HI_ORDEN = ["plano", "ficha", "menú", "bebidas", "escaleta", "minuta", "alergias", "camareros", "montaje", "agenda", "tareas", "proveedores", "presupuesto", "comunicación", "documentos", "avisos", "cierre", "aprobaciones", "portal del cliente", "otros datos"];
 let HI_OK = false;
 async function ensureHistorial(env) {
   if (HI_OK) return;
@@ -1547,6 +1771,7 @@ function hiSeccion(k) {
   if (k === "ficha") return "ficha";
   if (/^camareros|^reparto$|^turnos$/.test(k)) return "camareros";
   if (k === "cierre" || k === "cierreServicio") return "cierre";
+  if (k === "aprobaciones") return "aprobaciones";
   if (k === "hitos" || k === "agendaHecho") return "agenda";
   if (k === "tareas") return "tareas";
   if (k === "proveedores") return "proveedores";
@@ -1848,6 +2073,10 @@ async function ensurePresencia(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS presencia (tab TEXT PRIMARY KEY, uid TEXT, name TEXT, ev TEXT, ts INTEGER NOT NULL)").run();
   PRES_OK = true;
 }
+/* cuándo mandó el cliente lo último (un mensaje o un archivo): si cambia, la app del equipo lo mira al momento */
+async function porUltimo(env) {
+  try { await ensurePortal(env); const a = await env.DB.prepare("SELECT MAX(ts) AS m FROM portal_msg WHERE de='cliente'").first(), b = await env.DB.prepare("SELECT MAX(ts) AS m FROM portal_arch WHERE de='cliente'").first(); return Math.max((a && +a.m) || 0, (b && +b.m) || 0); } catch (_) { return 0; }
+}
 async function syncRoute(request, env, url) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
@@ -1855,7 +2084,7 @@ async function syncRoute(request, env, url) {
   if (url.searchParams.get("l") === "1") {
     let l = 0;
     try { await ensureNovios(env); const r = await env.DB.prepare("SELECT MAX(updated) AS m FROM novios_listas WHERE estado IN ('borrador','enviada')").first(); l = (r && +r.m) || 0; } catch (_) {}
-    return json({ l });
+    return json({ l, c: await porUltimo(env) });
   }
   await ensurePresencia(env);
   const tab = String(url.searchParams.get("tab") || "").slice(0, 40), ev = String(url.searchParams.get("ev") || "").slice(0, 80), now = Date.now();
@@ -1870,7 +2099,7 @@ async function syncRoute(request, env, url) {
   try { await privAuto(env); } catch (e0) { await logError(env, "servidor", "anonimización automática", String(e0 && e0.message || e0), null); }
   let pv = 0;
   try { await ensurePlanos(env); const r = await env.DB.prepare("SELECT MAX(v) AS m FROM planos").first(); pv = (r && +r.m) || 0; } catch (_) {}
-  return json({ v: (row && +row.updated) || 0, l, p: pv, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
+  return json({ v: (row && +row.updated) || 0, l, c: await porUltimo(env), p: pv, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
 }
 
 function mergeParams(prev, inc, isAdmin) {

@@ -21,12 +21,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.64 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.65 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.64".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.65".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3792,6 +3792,47 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-pl em{font:700 10px/1 var(--font-text); font-style:normal; background:var(--accent-wash,var(--bg-2)); border-radius:99px; padding:3px 8px; margin-left:6px; letter-spacing:.05em; text-transform:uppercase}
 .av-acciones{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 8px}
 @media (max-width:560px){ .av-sec{padding:14px 12px} .av-fila{padding:10px} .av-b .btn.sm,.av-b a.btn{flex:1 1 auto} }
+
+/* ══ Portal del cliente · lado del equipo ══ */
+.pq-wrap{max-width:980px}
+.pq-aviso{padding:14px 18px; border:1px solid var(--warning); background:var(--warning-soft); border-radius:12px; line-height:1.5}
+.pq-aviso a{color:var(--accent-tx,var(--c-ink)); font-weight:700}
+.pq-link{display:flex; gap:8px; margin:0 0 16px}
+.pq-link input{flex:1; min-width:0; min-height:40px; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:0 12px; font:13px ui-monospace,Menlo,Consolas,monospace}
+.pq-sec{margin:0 0 20px; background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:16px 18px}
+.pq-sec h2{margin:0 0 12px; font:600 19px/1.25 var(--font-display,Georgia,serif); display:flex; align-items:baseline; gap:4px 12px; flex-wrap:wrap}
+.pq-sec h2 small{font:500 13px var(--font-text,system-ui); color:var(--c-mut)}
+.pq-ap{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--c-line); border-left:5px solid var(--c-line-2); border-radius:12px; margin:0 0 10px; background:var(--bg)}
+.pq-ap.ok{border-left-color:var(--success)} .pq-ap.viejo{border-left-color:var(--warning); background:var(--warning-soft)}
+.pq-ap>i{flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-style:normal; font-weight:800; color:#fff; background:var(--c-line-2)}
+.pq-ap.ok>i{background:var(--success)} .pq-ap.viejo>i{background:var(--warning)}
+.pq-ap>div{min-width:0; flex:1; display:flex; flex-direction:column; gap:4px}
+.pq-ap b{font-size:15.5px} .pq-ap span{color:var(--c-mut); font-size:14px; line-height:1.45}
+.pq-min{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start; margin-top:8px}
+.pq-min img{width:150px; max-width:40%; border:1px solid var(--c-line); border-radius:6px; background:#fff; box-shadow:0 8px 20px -14px rgba(0,0,0,.4)}
+.pq-acc{display:flex; flex-direction:column; gap:8px; flex:1 1 220px; align-items:flex-start}
+.pq-acc .btn{min-height:42px}
+.pq-peq{font-size:13px; color:var(--c-mut); line-height:1.45}
+.pq-chat{display:flex; flex-direction:column; gap:10px; max-height:440px; overflow-y:auto; padding:2px}
+.pq-b{max-width:86%; padding:10px 14px; border-radius:14px; background:var(--bg-2)}
+.pq-b.cl{align-self:flex-start; border-bottom-left-radius:4px; border:1px solid var(--c-line-2)}
+.pq-b.eq{align-self:flex-end; background:var(--c-ink); color:var(--bg); border-bottom-right-radius:4px}
+.pq-b.nuevo{border-color:var(--warning); box-shadow:0 0 0 2px color-mix(in srgb,var(--warning) 35%,transparent)}
+.pq-b .q{display:block; font-size:11px; letter-spacing:.04em; opacity:.7; margin-bottom:2px}
+.pq-b p{margin:0; overflow-wrap:anywhere; line-height:1.45}
+.pq-resp{display:flex; flex-direction:column; gap:8px; margin-top:12px}
+.pq-resp textarea{width:100%; min-height:84px; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:10px 12px; font:inherit; font-size:15px; resize:vertical}
+.pq-resp .btn{align-self:flex-end; min-height:44px}
+.pq-fotos{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px}
+.pq-th{margin:0; border:1px solid var(--c-line); border-radius:12px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column}
+.pq-th.nuevo{border-color:var(--warning)}
+.pq-th a:first-child{display:block; aspect-ratio:1/1; background:var(--bg-2)} .pq-th img{width:100%; height:100%; object-fit:cover; display:block}
+.pq-th figcaption{padding:6px 10px 0; font-size:12px; color:var(--c-mut); overflow-wrap:anywhere}
+.pq-thb{display:flex; gap:6px; padding:8px 10px 10px} .pq-thb .btn{min-height:36px; flex:1; text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
+.ev-portal{background:#E4F0E6; border-color:#8DBB96; color:#1F6B35}
+:root[data-theme="dark"] .ev-portal{background:#1E3A28; border-color:#3E7A53; color:#A9DDB9}
+.portal-act{margin-top:8px}
+@media (max-width:560px){ .pq-sec{padding:14px 12px} .pq-min img{max-width:100%; width:100%} .pq-b{max-width:94%} }
 /*V3-END*/
 </style>
 
@@ -3804,7 +3845,7 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.64</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.65</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5967,6 +6008,7 @@ function syncTick(){
     .then(function(r){ return r.ok?r.json():null; })
     .then(function(j){ if(!j) return;
       PRES=j.otros||[]; pintarPresencia();
+      if(j.c!=null&&window.LM_portalC) window.LM_portalC(j.c);   /* lo que el cliente ha mandado desde su portal */
       /* ¿el cliente ha guardado su lista desde la última vez? entonces se mira ya, sin esperar al minuto */
       if(j.l!=null&&j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } }
       if(j.p!=null&&j.p!==PL_V) sincronizarPlanos();
@@ -5980,7 +6022,7 @@ function listaTick(){
   if(listaBusy||!hayServidor()||document.visibilityState!=="visible"||!document.body.classList.contains("authed")) return;
   listaBusy=true;
   fetch("/api/sync?l=1",{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
-    .then(function(j){ if(!j||j.l==null) return; if(j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } } })
+    .then(function(j){ if(j&&j.c!=null&&window.LM_portalC) window.LM_portalC(j.c); if(!j||j.l==null) return; if(j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } } })
     .catch(function(){}).finally(function(){ listaBusy=false; });
 }
 setInterval(listaTick,5000);
@@ -8916,6 +8958,7 @@ var SECCIONES=[
   /* la ven todos los roles: es donde cada departamento ve lo que ha cambiado para él */
   {k:"coh",      g:"Planificación", t:"Coordinación"},
   {k:"avisos",   g:"Planificación", t:"Avisos y correo"},
+  {k:"portal",   g:"Planificación", t:"Portal del cliente"},
   /* el día del evento, en el móvil: lo ven todos los roles menos Compras */
   {k:"srv",      g:"Servicio en directo", t:"Modo servicio"},
   {k:"cierre",   g:"Servicio en directo", t:"Cierre del evento"},
@@ -9155,7 +9198,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.64</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.65</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9371,7 +9414,7 @@ function evCardEl(e){
       '<span class="evpill"><b>'+mesas+'</b><span>'+(mesas===1?"mesa":"mesas")+'</span></span>'+
     '</div>'+
     '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>'+
-    (window.LM_cohChip?window.LM_cohChip(e):"");
+    (window.LM_cohChip?window.LM_cohChip(e):"")+(window.LM_portalChip?window.LM_portalChip(e):"");
   card.addEventListener("click",function(){ abrirEvento(e.id); });
   var w=document.createElement("div"); w.className="evcard-w"; w.appendChild(card);
   var dup=document.createElement("button"); dup.type="button"; dup.className="ev-dup"; dup.title="Duplicar evento";
@@ -9459,6 +9502,20 @@ function portalGuest(g,t){
   var tipo=g.kind==="child"?"nino":g.kind==="baby"?"bebe":(t.staff||g.kind==="staff")?"staff":"adulto";
   return {n:g.name, t:tipo, a:a.join(", ")};
 }
+/* el plano de la sala, en esquema, para que el cliente lo vea: dónde está cada mesa (con la posición del plano del equipo) y cuántos se sientan.
+   No lleva fondo ni nombres: eso lo ve en su lista. */
+function planoEsquema(e){
+  var d, L=(e.plans&&e.plans[e.loc||"interior"])||null; try{ d=parse(e.text||""); }catch(_){ return null; }
+  if(!L||!L.pos||!d.tables.length) return null;
+  var w=Math.round(L.rw||1400), h=Math.round(L.rh||960), sc=L.scale||1, mesas=[];
+  d.tables.forEach(function(t){
+    var p=L.pos[t.num]; if(!p) return;
+    var pax=t.guests.length, k=sc*((L.size&&L.size[t.num])||1), rect=(t.shape==="rect"||t.shape==="presid");
+    var bw=Math.round((rect?150+26*pax:190+12*pax)*k), bh=rect?Math.round(150*k):bw;
+    mesas.push({k:t.num,num:mesaMark(t),n:mesaTxt(t,I18N.es),x:Math.round(p.x),y:Math.round(p.y),w:Math.max(46,bw),h:Math.max(40,bh),f:rect?"rect":"round",pax:pax,st:!!t.staff});
+  });
+  return mesas.length?{w:w,h:h,mesas:mesas}:null;
+}
 function portalFoto(e){
   var F=e.ficha||{}, P=e.presupuesto||{}, d=null;
   try{ d=parse(e.text||""); }catch(_){ d={tables:[]}; }
@@ -9493,7 +9550,7 @@ function portalFoto(e){
   return {v:1, titulo:nombreLimpio(e.name)||"", tipo:F.tipo||eventoTipo(e), fecha:F.fecha||"", ubicacion:F.ubicacion||"",
     nombres:{a:F.parejaA||"",b:F.parejaB||""}, horas:horas, menu:menu,
     presupuesto:{lineas:lineas, extras:extras, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100, pend:Math.round(Math.max(0,pt.pend)*100)/100, pct:pct, senal:senal},
-    pagos:pagos, pasos:pasos, cierre:cierre, lista:{mesas:mesas}, auto:(e.share&&e.share.auto===false)?false:true,
+    pagos:pagos, pasos:pasos, cierre:cierre, plano:(function(){ try{ return planoEsquema(e); }catch(_){ return null; } })(), lista:{mesas:mesas}, auto:(e.share&&e.share.auto===false)?false:true,
     contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""}};
 }
 /* pone al día la foto de un evento compartido (sin tocar e.updated: es un dato derivado) */
@@ -10427,6 +10484,7 @@ function renderResumen(){
         '<button class="btn" id="rsm-share-ver" type="button">Ver como el cliente</button></div>'+
         (!fuerte?'<p class="portal-warn">Este enlace es de antes y solo permite ver. Crea uno nuevo para que puedan rellenar su lista; el anterior dejará de funcionar.</p>':'')+
         '<div class="portal-st'+(lr&&lr.estado==="enviada"&&!auto?" nueva":"")+'"><span>'+estLista+'</span>'+(e.share.antes&&un?'<button class="btn sm" id="rsm-nov-undo" type="button">Deshacer ese cambio</button>':'')+(!auto&&lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
+        (window.LM_portalResumenHTML?window.LM_portalResumenHTML(e):'')+
         '<label class="portal-auto"><input type="checkbox" id="rsm-nov-auto"'+(auto?' checked':'')+'><span><b>Pasar sus cambios al plano automáticamente</b><small>'+(auto?'Cuando el cliente añade, quita o cambia a alguien de mesa, el plano se actualiza solo (sin deshacer lo que hayáis tocado vosotros) y os avisa aquí y en el panel de inicio.':'Desactivado: cuando el cliente envíe su lista, la revisáis y la pasáis al plano con un clic.')+'</small></span></label>'+
         '<div class="portal-links"><button class="share-off" id="rsm-share-new" type="button">Crear enlace nuevo</button><button class="share-off" id="rsm-share-off" type="button">Desactivar el portal</button></div>'
       : '<p class="share-p">Activa el portal y envía el enlace al cliente: verá su evento, qué toca y cuándo, los pagos y el presupuesto (solo lectura), y podrá rellenar la lista de invitados por mesas. Lo que cambie pasa solo al plano.</p>'+
@@ -10563,7 +10621,7 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
   "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
@@ -10788,6 +10846,7 @@ function renderPlanV(k){
   if(k==="p-privacidad"){ if(window.LM_renderPriv) window.LM_renderPriv(host); return; }
   if(k==="p-correo"){ if(window.LM_renderCorreoCfg) window.LM_renderCorreoCfg(host); return; }
   if(k==="avisos"){ if(window.LM_renderAvisos) window.LM_renderAvisos(host); return; }
+  if(k==="portal"){ if(window.LM_renderPortal) window.LM_renderPortal(host); return; }
   if(String(k).indexOf("p-")===0){
     if(!planBound){ planBound=true; host.addEventListener("input",onPlanEdit); host.addEventListener("change",onPlanEdit); host.addEventListener("click",onPlanClick); }
     if(window.LM_renderParam) window.LM_renderParam(k,host); return;
@@ -18187,6 +18246,179 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 </script>
 
 <script>
+/* ═════════════════════════════════════════════════════════════════
+   PORTAL DEL CLIENTE · el lado del equipo
+   Lo que el cliente hace en su página privada y el equipo tiene que ver y contestar:
+   · APROBACIONES del menú y de la minuta (quién, cuándo y si siguen vigentes: si el menú
+     o la minuta cambian después, la aprobación se queda «desactualizada» y se vuelve a pedir);
+   · la MINUTA que se le enseña: se «publica» desde aquí (la imagen de la minuta tal como está
+     diseñada) y el cliente la ve y la aprueba en su portal;
+   · los MENSAJES del cliente y la respuesta del equipo (en el mismo hilo que ve el cliente);
+   · su LOGO y sus FOTOS de inspiración (se ven, se bajan, se quitan).
+   Los datos viven en el servidor (/api/portal); las aprobaciones, además, dentro del evento
+   (e.aprobaciones), así que salen en su historial. En el Inicio, cada evento con algo sin leer
+   lo dice en su tarjeta.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function z(n){ return (n<10?"0":"")+n; }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function backend(){ return !!(window.LM_backend&&window.LM_backend()); }
+  function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
+  function puede(){ return ["admin","eventos"].indexOf(rol())>=0; }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function fch(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function nombreEv(e){ return String((e&&e.name)||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim()||"Evento"; }
+  function api(path,method,body){
+    return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
+  }
+  var Q={host:null,ev:null,data:null,cargando:false,err:"",res:{},resOk:false,publicando:false,txt:"",c:null,vistaImg:null};
+
+  /* ═══ lo que hay sin leer, por evento (para las tarjetas del Inicio y el aviso) ═══ */
+  function cargarResumen(cb){
+    if(!backend()||!puede()||document.visibilityState!=="visible"){ if(cb) cb(); return; }
+    api("/api/portal","GET").then(function(j){ if(j._status===200){ Q.res=j.eventos||{}; Q.resOk=true; } }).catch(function(){}).finally(function(){ if(cb) cb(); });
+  }
+  /* el latido de la app avisa de que el cliente ha mandado algo (c = cuándo): se mira al momento */
+  window.LM_portalC=function(c){
+    if(!puede()||c==null) return;
+    if(Q.c===null){ Q.c=c; cargarResumen(function(){ try{ if(window.renderHome&&document.body.classList.contains("mode-home")) window.renderHome(); }catch(_){} }); return; }
+    if(c===Q.c) return;
+    Q.c=c;
+    var antes=JSON.stringify(Q.res);
+    cargarResumen(function(){
+      var e=evActual(), mio=e&&Q.res[e.id];
+      if(JSON.stringify(Q.res)!==antes){
+        var ids=Object.keys(Q.res), quien=null; ids.forEach(function(id){ if(!quien||Q.res[id].ts>Q.res[quien].ts) quien=id; });
+        var ev=null; try{ ev=(BR.store.events||[]).filter(function(x){ return x.id===quien; })[0]; }catch(_){}
+        if(ev&&!(activo()&&e&&e.id===quien)) toast((nombreEv(ev))+": el cliente ha escrito o enviado algo desde su portal.");
+      }
+      if(activo()&&mio!==undefined||activo()) cargarEv(true);
+      try{ if(document.body.classList.contains("mode-home")&&window.renderHome) window.renderHome(); }catch(_){}
+    });
+  };
+  window.LM_portalChip=function(e){
+    try{
+      var r=Q.res[e.id]; if(!r||!(r.msgs||r.arch)||!puede()) return "";
+      var t=[]; if(r.msgs) t.push(r.msgs+(r.msgs===1?" mensaje":" mensajes")); if(r.arch) t.push(r.arch+(r.arch===1?" archivo":" archivos"));
+      return '<div class="ev-co ev-portal" title="Lo que ha mandado el cliente desde su portal y nadie ha leído">Portal: '+esc(t.join(" · "))+' sin leer</div>';
+    }catch(_){ return ""; }
+  };
+  /* una línea en la tarjeta del portal del Resumen */
+  window.LM_portalResumenHTML=function(e){
+    if(!e||!e.share||!e.share.on||!puede()) return "";
+    var r=Q.res[e.id], ap=e.aprobaciones||{}, t=[];
+    t.push("Menú: "+(ap.menu&&ap.menu.ts?"aprobado ("+esc(ap.menu.nombre||"")+")":"sin aprobar"));
+    t.push("Minuta: "+(ap.minuta&&ap.minuta.ts?"aprobada ("+esc(ap.minuta.nombre||"")+")":"sin aprobar"));
+    if(r&&r.msgs) t.push('<b>'+r.msgs+(r.msgs===1?" mensaje sin leer":" mensajes sin leer")+'</b>');
+    if(r&&r.arch) t.push('<b>'+r.arch+(r.arch===1?" archivo nuevo":" archivos nuevos")+'</b>');
+    return '<div class="portal-st portal-act"><span>'+t.join(" · ")+'</span><button class="btn sm" type="button" data-pt-ir="portal">Abrir lo del cliente</button></div>';
+  };
+  document.addEventListener("click",function(ev){ var b=ev.target.closest&&ev.target.closest("[data-pt-ir]"); if(b&&window.irASeccion){ ev.preventDefault(); window.irASeccion(b.getAttribute("data-pt-ir")); } });
+  setInterval(function(){ if(backend()&&puede()&&document.body.classList.contains("authed")) cargarResumen(function(){ try{ if(document.body.classList.contains("mode-home")&&window.renderHome) window.renderHome(); }catch(_){} }); },60000);
+
+  /* ═══ la sección «Portal del cliente» ═══ */
+  function activo(){ try{ return document.body.classList.contains("mode-plan")&&window.LM_seccion&&window.LM_seccion()==="portal"&&Q.host&&document.body.contains(Q.host); }catch(_){ return false; } }
+  function cargarEv(callado){
+    var e=evActual(); if(!e||!backend()||!puede()) return;
+    if(!callado) Q.cargando=true;
+    api("/api/portal?ev="+encodeURIComponent(e.id),"GET").then(function(j){
+      if(j._status===200){ Q.data=j; Q.err=""; Q.ev=e.id; if(activo()&&(j.msgs.some(function(m){ return m.de==="cliente"&&!m.leido; })||j.arch.some(function(a){ return a.de==="cliente"&&!a.leido; }))) marcarLeido(e.id); }
+      else Q.err=j.message||"No se ha podido cargar lo del portal.";
+    }).catch(function(){ Q.err="Sin conexión con el servidor."; }).finally(function(){ Q.cargando=false; if(activo()) pintar(); });
+  }
+  function marcarLeido(id){ api("/api/portal/leido","POST",{ev:id}).then(function(){ delete Q.res[id]; }); }
+  function estadoFila(titulo,s,sinTxt,extra){
+    var cls=s&&s.ok?"ok":s&&s.desactualizada?"viejo":"pend", txt;
+    if(s&&s.ok) txt='Aprobado por <b>'+esc(s.nombre)+'</b> el '+esc(fch(s.ts));
+    else if(s&&s.desactualizada) txt='La aprobó <b>'+esc(s.nombre)+'</b> el '+esc(fch(s.ts))+', pero <b>ha cambiado después</b>: el cliente tiene que volver a aprobarla';
+    else txt=sinTxt;
+    return '<div class="pq-ap '+cls+'"><i aria-hidden="true">'+(s&&s.ok?"✓":s&&s.desactualizada?"!":"·")+'</i><div><b>'+esc(titulo)+'</b><span>'+txt+'</span>'+(extra||"")+'</div></div>';
+  }
+  function pintar(){
+    var host=Q.host, e=evActual(); if(!host) return;
+    if(!e){ host.innerHTML='<div class="pv-inner"><p class="empty">Selecciona un evento.</p></div>'; return; }
+    var ae=document.activeElement; if(ae&&host.contains(ae)&&ae.id==="pq-msg") return;   // no se repinta mientras se escribe la respuesta
+    var y=host.scrollTop, D=Q.data, F=e.ficha||{}, sh=e.share||{}, link=sh.id?location.origin+location.pathname+"?cliente="+sh.id:"";
+    var h='<div class="pv-inner pq-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Planificación</div><h1 class="pv-title">Portal del cliente</h1><div class="pv-sub">'+esc(BR.eventLabel?BR.eventLabel(e):e.name)+'</div>'+
+      '<p class="pv-guide">Lo que el cliente aprueba, escribe y envía desde su página privada. Se contesta aquí y lo ve en su portal.</p></div></header>';
+    if(!backend()) return void(host.innerHTML=h+'<p class="empty">Esto necesita el servidor.</p></div>');
+    if(!sh.on) return void(host.innerHTML=h+'<div class="pq-aviso">El portal de este cliente <b>no está activado</b>. Actívalo desde el <a href="#" data-pt-ir="resumen">Resumen</a> y mándale el enlace.</div></div>');
+    if(!D) { host.innerHTML=h+'<p class="empty">'+esc(Q.err||"Cargando…")+'</p></div>'; return; }
+    var st=D.estado, hayMenu=((sh.portal||{}).menu||[]).length>0, minu=D.minuta;
+    h+='<div class="pq-link"><input readonly value="'+esc(link)+'" aria-label="Enlace del portal"><button type="button" class="btn sm" data-pq="copiar">Copiar el enlace</button></div>';
+    /* aprobaciones */
+    h+='<section class="pq-sec"><h2>Aprobaciones</h2>'+
+      estadoFila("El menú",st.menu,hayMenu?"Todavía no lo ha aprobado.":"Todavía no hay menú elegido: no hay nada que aprobar.")+
+      estadoFila("La minuta",st.minuta,minu?"Todavía no la ha aprobado.":"Todavía no has publicado ninguna minuta para el cliente.",
+        '<div class="pq-min">'+(minu?'<img src="/api/portal/img?id='+minu.id+'" alt="La minuta publicada" loading="lazy">':'')+
+        '<div class="pq-acc"><button type="button" class="btn sm gold" data-pq="publicar"'+(Q.publicando?" disabled":"")+'>'+(Q.publicando?"Preparando…":minu?"Publicar la minuta actual":"Publicar la minuta para el cliente")+'</button>'+
+        '<span class="pq-peq">'+(minu?"Publicada el "+esc(fch(minu.ts))+". Si cambias la minuta y la vuelves a publicar, el cliente tendrá que aprobarla otra vez.":"Se publica la minuta tal como la tienes diseñada en «Minuta».")+'</span></div></div>')+'</section>';
+    /* mensajes */
+    var sinLeer=D.msgs.filter(function(m){ return m.de==="cliente"&&!m.leido; }).length;
+    h+='<section class="pq-sec"><h2>Mensajes <small>'+D.msgs.length+(sinLeer?' · '+sinLeer+' sin leer':'')+'</small></h2><div class="pq-chat" id="pq-chat">'+(D.msgs.length?D.msgs.map(function(m){ var mio=m.de==="equipo";
+      return '<div class="pq-b '+(mio?"eq":"cl")+(m.de==="cliente"&&!m.leido?" nuevo":"")+'"><span class="q">'+esc(mio?(m.nombre||"Equipo"):(m.nombre||"Cliente"))+' · '+esc(fch(m.ts))+'</span><p>'+esc(m.texto).replace(/\n/g,"<br>")+'</p></div>'; }).join(""):'<p class="pq-peq">El cliente todavía no ha escrito.</p>')+'</div>'+
+      '<div class="pq-resp"><textarea id="pq-msg" rows="3" maxlength="1500" placeholder="Contesta al cliente (lo verá en su portal)…" aria-label="Respuesta al cliente">'+esc(Q.txt)+'</textarea><button type="button" class="btn gold" data-pq="enviar">Enviar la respuesta</button></div></section>';
+    /* archivos */
+    var logo=D.arch.filter(function(a){ return a.kind==="logo"; })[0], fotos=D.arch.filter(function(a){ return a.kind==="foto"; });
+    h+='<section class="pq-sec"><h2>Lo que ha enviado <small>'+(logo?1:0)+(logo?" logo":" logos")+' · '+fotos.length+(fotos.length===1?" foto":" fotos")+'</small></h2>'+
+      ((logo||fotos.length)?'<div class="pq-fotos">'+[logo].concat(fotos).filter(Boolean).map(function(a){
+        return '<figure class="pq-th'+(a.leido?"":" nuevo")+'"><a href="/api/portal/img?id='+a.id+'" target="_blank" rel="noopener"><img src="/api/portal/img?id='+a.id+'" alt="'+esc(a.kind==="logo"?"Logo del cliente":(a.nombre||"Foto del cliente"))+'" loading="lazy"></a><figcaption>'+esc(a.kind==="logo"?"Logo":(a.nombre||"Foto"))+' · '+esc(fch(a.ts))+'</figcaption>'+
+          '<div class="pq-thb"><a class="btn sm" href="/api/portal/img?id='+a.id+'" download="'+esc((a.kind==="logo"?"logo":"foto")+"_"+a.id+(a.mime==="image/png"?".png":a.mime==="image/webp"?".webp":".jpg"))+'">Bajar</a><button type="button" class="btn sm" data-pq="quitar" data-id="'+a.id+'">Quitar</button></div></figure>'; }).join("")+'</div>'
+        :'<p class="pq-peq">El cliente todavía no ha enviado ni logo ni fotos.</p>')+'</section></div>';
+    host.innerHTML=h; host.scrollTop=y;
+    var root=host.querySelector(".pq-wrap"); root.addEventListener("click",manejar); root.addEventListener("input",function(ev){ if(ev.target.id==="pq-msg") Q.txt=ev.target.value; });
+    var ch=host.querySelector("#pq-chat"); if(ch&&!Q.yaBajado) { ch.scrollTop=ch.scrollHeight; }
+  }
+  /* la minuta tal como está diseñada, en una imagen ligera (JPEG) para el portal */
+  function imagenMinuta(e){
+    var L=window.LM_lienzo, sc=e&&e.menu&&e.menu.minuta&&e.menu.minuta.lienzo;
+    if(!L||!sc||!sc.items||!sc.items.length) return Promise.reject({message:"Todavía no hay una minuta diseñada en este evento: abre «Minuta» en el Menú, elige un diseño y vuelve."});
+    return L.aseguraEscena(sc).then(function(){
+      var esc=1.5, c=L.dibujaHoja(sc,esc), w=Math.round(c.width/2)-Math.round(6*esc), o=document.createElement("canvas"); o.width=w; o.height=c.height;
+      var g=o.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,o.width,o.height); g.drawImage(c,0,0,w,c.height,0,0,w,c.height);
+      var q=0.88, src=o.toDataURL("image/jpeg",q); while(src.length*0.75>470000&&q>0.4){ q-=0.08; src=o.toDataURL("image/jpeg",q); }
+      return {src:src,w:o.width,h:o.height};
+    });
+  }
+  function manejar(ev){
+    ev.stopPropagation();
+    var e=evActual(); if(!e) return;
+    var b=ev.target.closest&&ev.target.closest("[data-pq],[data-pt-ir]"); if(!b) return;
+    if(b.hasAttribute("data-pt-ir")){ ev.preventDefault(); if(window.irASeccion) window.irASeccion(b.getAttribute("data-pt-ir")); return; }
+    var a=b.getAttribute("data-pq");
+    if(a==="copiar"){ var inp=Q.host.querySelector(".pq-link input"); try{ navigator.clipboard.writeText(inp.value).then(function(){ toast("Enlace copiado."); },function(){ inp.select(); }); }catch(_){ inp.select(); } }
+    else if(a==="publicar"){
+      Q.publicando=true; pintar();
+      imagenMinuta(e).then(function(o){ return api("/api/portal/minuta","PUT",{ev:e.id,src:o.src,w:o.w,h:o.h}); }).then(function(j){
+        Q.publicando=false;
+        if(j._status===200){ Q.data=Object.assign({},Q.data,j); toast(j.igual?"La minuta ya estaba publicada tal cual.":"Minuta publicada: el cliente ya puede verla y aprobarla."); }
+        else toast(j.message||"No se ha podido publicar la minuta.",true);
+        cargarEv(true); pintar();
+      }).catch(function(err){ Q.publicando=false; toast((err&&err.message)||"No se ha podido preparar la minuta.",true); pintar(); });
+    }
+    else if(a==="enviar"){
+      var ta=Q.host.querySelector("#pq-msg"), t=(ta&&ta.value||"").trim(); if(!t){ toast("Escribe la respuesta.",true); return; }
+      b.disabled=true; api("/api/portal/msg","POST",{ev:e.id,texto:t}).then(function(j){ if(j._status===200){ Q.txt=""; Q.data=Object.assign({},Q.data,j); toast("Respuesta enviada: el cliente la verá en su portal."); } else toast(j.message||"No se ha podido enviar.",true); pintar(); var ch=Q.host.querySelector("#pq-chat"); if(ch) ch.scrollTop=ch.scrollHeight; });
+    }
+    else if(a==="quitar"){ api("/api/portal/arch?id="+b.getAttribute("data-id"),"DELETE").then(function(){ toast("Quitado."); cargarEv(true); }); }
+  }
+  window.LM_renderPortal=function(host){
+    var e=evActual();
+    Q.host=host;
+    if(e&&Q.ev!==e.id){ Q.data=null; Q.ev=null; Q.txt=""; }
+    pintar();
+    if(e&&backend()&&puede()&&(!Q.data||Q.ev!==e.id)&&!Q.cargando) cargarEv(false);
+  };
+  /* con la sección abierta, lo que llega se ve enseguida (además del latido de la app) */
+  setInterval(function(){ if(activo()&&!Q.cargando) cargarEv(true); },12000);
+})();
+</script>
+
+<script>
 /* ══════════════════════════════════════════════════════════════════════
    PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
    Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
@@ -18200,6 +18432,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* ── datos: del servidor (/api/share) o, sin servidor, del propio navegador ── */
   var BR=window.SITTING_BRIDGE;
   var D=null, S=null, BASE0=null, NUEVO=true, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio", PRIV=null, CONSENT=null, CONSENT_CHK=false, PRIV_OPEN=false;
+  /* aprobar, plano, mensajes y archivos (v01.65) */
+  var AP=null, MSGS=[], ARCH=[], MIN=null, APN="", MSGTXT="", PLSEL=null, SUBIENDO=false;
   var MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
   var TIPOS=[["adulto","Adulto"],["nino","Niño/a"],["bebe","Bebé (trona)"]];
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -18334,6 +18568,26 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-pay{grid-template-columns:50px 1fr}#novios .pay-a{grid-column:2;text-align:left}#novios .pn-pair{grid-template-columns:1fr}",
   "#novios .pn-g{grid-template-columns:minmax(0,1fr) 34px;gap:6px 8px;padding:10px 12px}#novios .pn-g .nm{grid-column:1}#novios .pn-g .pn-x{grid-column:2;grid-row:1}#novios .pn-g .tp,#novios .pn-g .al{grid-column:1/-1}",
   "#novios .pn-doc{padding:22px 18px 20px}#novios .pn-next{flex-wrap:wrap}#novios .pn-next .go{margin-left:0;width:100%}#novios .pn-step{grid-template-columns:26px 1fr}#novios .st-w{grid-column:2;text-align:left}}",
+  "#novios .pn-peq{font-size:10px;letter-spacing:.1em;font-weight:600;color:var(--pfa);margin-left:8px;text-transform:none}",
+  "#novios .pn-ap{display:flex;flex-direction:column;gap:14px}#novios .pn-menu-ap{padding:6px 4px;text-align:center}",
+  "#novios .pn-min{display:block;max-width:100%;max-height:640px;margin:0 auto;border:1px solid var(--pl);border-radius:6px;box-shadow:0 14px 34px -20px rgba(0,0,0,.35);background:#fff}",
+  "#novios .pn-aprob{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--ols);color:var(--olt)}#novios .pn-aprob svg{flex:none;width:20px;height:20px;margin-top:2px}#novios .pn-aprob b{display:block;color:var(--pi)}#novios .pn-aprob span{font-size:12.5px;color:var(--pm)}",
+  "#novios .pn-aprob.viejo{background:var(--ocs);color:var(--oc)}",
+  "#novios .pn-aprobar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}#novios .pn-aprobar .pn-fld{flex:1 1 220px}#novios .pn-aprobar .pn-btn{min-height:42px}",
+  "#novios .pn-plano-c{padding:10px}#novios .pn-plano{display:block;width:100%;height:auto;max-height:70vh}#novios .pn-plano .sala{fill:var(--pf);stroke:var(--pl2);stroke-width:3}",
+  "#novios .pn-plano .mesa{cursor:pointer;outline:none}#novios .pn-plano .mesa rect,#novios .pn-plano .mesa circle{fill:var(--olw);stroke:var(--olt);stroke-width:3;transition:fill .15s}#novios .pn-plano .mesa text{fill:var(--olt);font-weight:700;font-family:var(--txt);pointer-events:none}",
+  "#novios .pn-plano .mesa.st rect,#novios .pn-plano .mesa.st circle{fill:var(--pb2);stroke:var(--pm)}#novios .pn-plano .mesa:hover rect,#novios .pn-plano .mesa:hover circle{fill:var(--ols)}",
+  "#novios .pn-plano .mesa.sel rect,#novios .pn-plano .mesa.sel circle{fill:var(--carbon);stroke:var(--carbon)}#novios .pn-plano .mesa.sel text{fill:var(--ivory)}#novios .pn-plano .mesa:focus-visible rect,#novios .pn-plano .mesa:focus-visible circle{stroke:var(--oc);stroke-width:6}",
+  "#novios .pn-mesa-d ul{margin:8px 0 0;padding-left:18px;columns:2;column-gap:28px}#novios .pn-mesa-d li{break-inside:avoid;padding:2px 0}#novios .pn-hint{text-align:center}",
+  "#novios .pn-chat{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;padding:4px 2px;margin-top:10px}",
+  "#novios .pn-b{max-width:88%;padding:10px 14px;border-radius:14px;background:var(--pb2)}#novios .pn-b.yo{align-self:flex-end;background:var(--carbon);color:var(--ivory);border-bottom-right-radius:4px}#novios .pn-b.eq{align-self:flex-start;border-bottom-left-radius:4px}",
+  "#novios .pn-b .q{display:block;font-size:10.5px;letter-spacing:.06em;opacity:.7;margin-bottom:2px}#novios .pn-b p{margin:0;overflow-wrap:anywhere}",
+  "#novios .pn-msgbox{display:flex;flex-direction:column;gap:8px;margin-top:12px}#novios .pn-msgbox textarea{width:100%;min-height:84px;background:var(--pf);border:1px solid var(--pl2);border-radius:7px;padding:10px 12px;font:inherit;color:inherit;resize:vertical}",
+  "#novios .pn-msgbox .pn-btn{align-self:flex-end;min-height:40px}",
+  "#novios .pn-fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:10px 0 14px}",
+  "#novios .pn-th{position:relative;margin:10px 0;border:1px solid var(--pl);border-radius:8px;overflow:hidden;background:var(--pf);aspect-ratio:1/1;display:grid;place-items:center}#novios .pn-fotos .pn-th{margin:0}#novios .pn-th img{width:100%;height:100%;object-fit:cover}#novios .pn-th.logo{max-width:200px}#novios .pn-th.logo img{object-fit:contain;padding:10px}",
+  "#novios .pn-th .pn-x{position:absolute;top:4px;right:4px;width:30px;height:30px;border-radius:50%;background:rgba(26,26,26,.78);color:#fff;border:0;font-size:18px;line-height:1;cursor:pointer}",
+  "@media (max-width:560px){#novios .pn-mesa-d ul{columns:1}#novios .pn-b{max-width:94%}}",
   "@media (prefers-reduced-motion:reduce){#novios .pn-panel{animation:none}}"
   ].join("\n");
   function css(){ if(document.getElementById("pn-css")) return; var st=document.createElement("style"); st.id="pn-css"; st.textContent=CSS; document.head.appendChild(st); }
@@ -18351,7 +18605,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<div class="pn-count"><div><b class="pn-n">'+(dd!=null&&dd>=0?dd:"—")+'</b><span>'+(dd===1?"día":"días")+'</span></div><div><b class="pn-n" id="pn-c-inv">'+c.total+'</b><span>invitados en vuestra lista</span></div>'+
       (pr.total>0?'<div><b class="pn-n">'+esc(eur(pr.pend).replace(",00",""))+'</b><span>pendiente de pagar</span></div>':'')+'</div></div></header>';
   }
-  function vTabs(){ var T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["dia","El día"]];
+  function vTabs(){ var T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["plano","Plano"],["dia","El día"],["aprob","Aprobar"+(porAprobar()?" ·":"")],["msg","Mensajes"+(msgNuevos()?" ·":"")]];
     return '<nav class="pn-tabs" aria-label="Apartados"><div class="pn-wrap" role="tablist">'+T.map(function(t){ return '<button class="pn-tab" role="tab" type="button" aria-selected="'+(tab===t[0])+'" data-pn-tab="'+t[0]+'">'+t[1]+'</button>'; }).join("")+'</div></nav>'; }
   function vInicio(){
     var L=pasos(), sig=L.filter(function(p){ return !p.done&&p.id!=="boda"; })[0], h='';
@@ -18361,6 +18615,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       h+='<div class="pn-next"><span class="ic">'+(IC[sig.tipo]||IC.reunion)+'</span><div><span>Lo siguiente'+(k!=null?" · "+esc(cuando(k)):"")+'</span><b>'+esc(sig.t)+(sig.importe?" · "+eur(sig.importe):"")+'</b><span>'+esc(corto(sig.f))+(sig.d?" · "+esc(sig.d):"")+'</span></div>'+
         (sig.id==="doc"?'<button class="pn-btn pri go" type="button" data-pn-go="inv">Rellenar la lista</button>':sig.tipo==="pago"?'<button class="pn-btn go" type="button" data-pn-go="pagos">Ver cómo pagar</button>':'')+'</div>';
     }
+    var pa=[]; if(AP&&D.editable){ if(((P().menu)||[]).length&&!AP.menu.ok) pa.push("el menú"); if(MIN&&!AP.minuta.ok) pa.push("la minuta"); }
+    if(pa.length) h+='<div class="pn-next"><span class="ic">'+IC.edit+'</span><div><span>Para revisar</span><b>Aprobad '+pa.join(" y ")+'</b><span>Cuando estén como queréis, aprobadlos desde aquí con vuestro nombre.</span></div><button class="pn-btn pri go" type="button" data-pn-go="aprob">Revisar</button></div>';
+    if(msgNuevos()) h+='<div class="pn-next"><span class="ic">'+IC.info+'</span><div><span>Mensajes</span><b>Les Moles os ha escrito</b><span>'+esc(MSGS.filter(function(m){ return m.de==="equipo"; }).pop().texto.slice(0,90))+'…</span></div><button class="pn-btn go" type="button" data-pn-go="msg">Leer</button></div>';
     if(L.length){ var primero=true;
       h+='<div class="pn-card"><div class="pn-head" style="margin-bottom:18px"><div class="pn-eb">Qué toca y cuándo</div><span class="pn-perm lock">'+IC.lock+'Lo marca Les Moles</span></div><ol class="pn-steps">'+
         L.map(function(p){ var k=dias(p.f), cls=p.done?"done":(k!=null&&k<0?"late":(primero?"now":"")); if(!p.done) primero=false; if(p.id==="boda") cls+=" big";
@@ -18454,6 +18711,100 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         (ed?'<div class="mesa-f"><button class="pn-btn gh" type="button" data-pn-act="add-g">+ Añadir persona</button></div>':'')+'</div>';
     }).join("")+'<datalist id="pn-dietas"><option value="Celíaca / sin gluten"><option value="Sin lactosa"><option value="Vegetariana"><option value="Vegana"><option value="Pescetariana"><option value="Embarazada"><option value="Marisco"><option value="Frutos secos"><option value="Huevo"></datalist>';
   }
+
+  /* ── 3.3 · lo que el cliente puede hacer además de la lista ── */
+  function puedeActuar(){ return !!(D&&D.editable)&&!D.local&&!soloMirar(); }
+  function imgUrl(id){ return "/api/share/img?t="+encodeURIComponent(TOKEN)+"&id="+id; }
+  function fch(ms){ var d=new Date(ms); return d.toLocaleDateString("es-ES",{day:"numeric",month:"long"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
+  function accion(b){ return fetch("/api/share/accion?t="+encodeURIComponent(TOKEN),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ if(!r.ok){ j._s=r.status; throw j; } return j; }); }); }
+  function aplicar(j){ if(j.estado) AP=j.estado; if(j.msgs) MSGS=j.msgs; if(j.arch) ARCH=j.arch; if(j.minuta!==undefined) MIN=j.minuta; }
+  function porAprobar(){ return !!(AP&&D&&D.editable&&((((P().menu)||[]).length&&!AP.menu.ok)||(MIN&&!AP.minuta.ok))); }
+  function vistoMsg(){ try{ return +localStorage.getItem("lm_pn_msg_"+TOKEN)||0; }catch(_){ return 0; } }
+  function msgNuevos(){ var v=vistoMsg(); return MSGS.some(function(m){ return m.de==="equipo"&&m.ts>v; }); }
+  function marcaVistos(){ try{ var u=MSGS.filter(function(m){ return m.de==="equipo"; }).pop(); if(u) localStorage.setItem("lm_pn_msg_"+TOKEN,String(u.ts)); }catch(_){} }
+  function aprobBloque(item,s,hay,act){
+    if(!hay) return "";
+    if(s&&s.ok) return '<div class="pn-aprob ok">'+IC.check+'<div><b>Aprobado por '+esc(s.nombre)+'</b><span>el '+esc(fch(s.ts))+'</span></div></div>';
+    var h=""; if(s&&s.desactualizada) h+='<div class="pn-aprob viejo">'+IC.info+'<div><b>Ha cambiado desde que lo aprobasteis</b><span>Aprobasteis una versión anterior ('+esc(s.nombre)+', '+esc(fch(s.ts))+'). Revisadlo y volved a aprobar.</span></div></div>';
+    if(!act) return h+'<p class="pn-lead">'+(soloMirar()?"(Vista del equipo: aquí el cliente podría aprobar.)":(D&&D.local?"Esto funciona en la página real, no en la vista previa.":"Para aprobar hace falta el enlace nuevo de Les Moles."))+'</p>';
+    return h+'<div class="pn-aprobar"><label class="pn-fld"><span class="pn-lbl">Vuestro nombre</span><input type="text" id="pn-apn-'+item+'" value="'+esc(APN||nombres().a||"")+'" maxlength="80" autocomplete="name"></label>'+
+      '<button type="button" class="pn-btn pri" data-pn-act="aprobar" data-item="'+item+'">Aprobar '+(item==="menu"?"el menú":"la minuta")+'</button></div>';
+  }
+  function vAprob(){
+    var act=puedeActuar(), st=AP||{menu:{},minuta:{}}, mn=P().menu||[];
+    var h='<div class="pn-head"><div><h2 class="pn-h2">Revisad y aprobad</h2><p class="pn-lead">Cuando el menú o la minuta estén como queréis, aprobadlos con vuestro nombre: queda apuntado con la fecha. Si después cambiamos algo, os lo volveremos a pedir.</p></div></div>';
+    h+='<div class="pn-card pn-ap"><div class="pn-eb">El menú</div>'+(mn.length?'<div class="pn-menu pn-menu-ap">'+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>':'<p class="pn-lead">Todavía estamos preparando el menú.</p>')+aprobBloque("menu",st.menu,mn.length>0,act)+'</div>';
+    h+='<div class="pn-card pn-ap"><div class="pn-eb">La minuta <span class="pn-peq">la carta que irá en las mesas</span></div>'+(MIN?'<img class="pn-min" src="'+imgUrl(MIN.id)+'" alt="La minuta que os proponemos">':'<p class="pn-lead">Todavía no hay una minuta preparada. Os avisaremos cuando esté.</p>')+aprobBloque("minuta",st.minuta,!!MIN,act)+'</div>';
+    return h;
+  }
+  function vPlano(){
+    var pl=P().plano, h='<div class="pn-head"><div><h2 class="pn-h2">El plano de la sala</h2><p class="pn-lead">Así tenemos colocadas las mesas. Tocad una mesa para ver quién se sienta en ella.</p></div><span class="pn-perm lock">'+IC.lock+'Lo marca Les Moles</span></div>';
+    if(!pl||!pl.mesas||!pl.mesas.length) return h+'<div class="pn-aviso">'+IC.info+'<span>Todavía estamos colocando las mesas. Lo veréis aquí en cuanto esté listo.</span></div>';
+    h+='<div class="pn-card pn-plano-c"><svg class="pn-plano" viewBox="0 0 '+pl.w+' '+pl.h+'" role="group" aria-label="Plano de la sala con '+pl.mesas.length+' mesas"><rect class="sala" x="8" y="8" width="'+(pl.w-16)+'" height="'+(pl.h-16)+'" rx="22"/>'+
+      pl.mesas.map(function(m){ var sel=PLSEL===m.k, fs=Math.round(Math.max(26,Math.min(m.w,m.h)*0.34));
+        var forma=m.f==="rect"?'<rect x="'+Math.round(m.x-m.w/2)+'" y="'+Math.round(m.y-m.h/2)+'" width="'+m.w+'" height="'+m.h+'" rx="'+Math.round(Math.min(18,m.h/4))+'"/>':'<circle cx="'+m.x+'" cy="'+m.y+'" r="'+Math.round(m.w/2)+'"/>';
+        return '<g class="mesa'+(sel?" sel":"")+(m.st?" st":"")+'" data-pn-mesa="'+m.k+'" tabindex="0" role="button" aria-pressed="'+sel+'" aria-label="'+esc(m.n)+', '+m.pax+(m.pax===1?" persona":" personas")+'">'+forma+'<text x="'+m.x+'" y="'+Math.round(m.y+fs*0.35)+'" text-anchor="middle" style="font-size:'+fs+'px">'+esc(m.num)+'</text></g>'; }).join("")+'</svg></div>';
+    var sel=PLSEL!=null?pl.mesas.filter(function(m){ return m.k===PLSEL; })[0]:null;
+    if(sel){ var lm=((P().lista||{}).mesas||[]).filter(function(m){ return m.k===sel.k; })[0], gs=((lm&&lm.g)||[]).filter(function(g){ return (g.n||"").trim(); });
+      h+='<div class="pn-card pn-mesa-d"><div class="pn-eb">'+esc(sel.n)+' · '+sel.pax+(sel.pax===1?" persona":" personas")+'</div>'+(gs.length?'<ul>'+gs.map(function(g){ return '<li>'+esc(g.n)+'</li>'; }).join("")+'</ul>':'<p class="pn-lead">Todavía no hay nombres en esta mesa.</p>')+'</div>'; }
+    else h+='<p class="pn-lead pn-hint">Tocad una mesa del plano.</p>';
+    return h;
+  }
+  function burbuja(m){ var mio=m.de==="cliente"; return '<div class="pn-b '+(mio?"yo":"eq")+'"><span class="q">'+esc(mio?(m.nombre||"Vosotros"):"Les Moles"+(m.nombre?" · "+m.nombre:""))+' · '+esc(fch(m.ts))+'</span><p>'+esc(m.texto).replace(/\n/g,"<br>")+'</p></div>'; }
+  function vMsg(){
+    var act=puedeActuar(), logo=ARCH.filter(function(a){ return a.kind==="logo"; })[0], fotos=ARCH.filter(function(a){ return a.kind==="foto"; });
+    var h='<div class="pn-head"><div><h2 class="pn-h2">Mensajes y archivos</h2><p class="pn-lead">Escribid al equipo lo que necesitéis y mandadnos vuestro logo o fotos de inspiración. Lo vemos desde Les Moles y os contestamos aquí.</p></div></div>';
+    h+='<div class="pn-card"><div class="pn-eb">Conversación con el equipo</div><div class="pn-chat" id="pn-chat">'+(MSGS.length?MSGS.map(burbuja).join(""):'<p class="pn-lead">Todavía no hay mensajes.</p>')+'</div>'+
+      (act?'<div class="pn-msgbox"><textarea id="pn-msg" rows="3" maxlength="1500" placeholder="Escribid aquí lo que queráis decirnos…" aria-label="Mensaje para el equipo de Les Moles">'+esc(MSGTXT)+'</textarea><button type="button" class="pn-btn pri" data-pn-act="enviar-msg">Enviar</button></div>':'<p class="pn-lead">'+(soloMirar()?"(Vista del equipo.)":D&&D.local?"Esto funciona en la página real.":"Para escribirnos desde aquí hace falta el enlace nuevo de Les Moles.")+'</p>')+'</div>';
+    h+='<div class="pn-card"><div class="pn-eb">Vuestro logo</div><p class="pn-lead">Si tenéis un logo, monograma o dibujo para la minuta, subidlo aquí (JPG, PNG o WebP).</p>'+
+      (logo?'<figure class="pn-th logo"><img src="'+imgUrl(logo.id)+'" alt="Vuestro logo">'+(act?'<button type="button" class="pn-x" data-pn-act="quitar-arch" data-id="'+logo.id+'" aria-label="Quitar el logo">×</button>':'')+'</figure>':'')+
+      (act?'<div><button type="button" class="pn-btn" data-pn-act="subir-logo"'+(SUBIENDO?" disabled":"")+'>'+(logo?"Cambiar el logo":"Subir un logo")+'</button><input type="file" id="pn-file-logo" accept="image/*" hidden></div>':"")+'</div>';
+    h+='<div class="pn-card"><div class="pn-eb">Fotos de inspiración <span class="pn-peq">'+fotos.length+' de 8</span></div><p class="pn-lead">Flores, decoración, ambiente, un detalle que os guste: lo que nos ayude a entender lo que imagináis.</p>'+
+      (fotos.length?'<div class="pn-fotos">'+fotos.map(function(f){ return '<figure class="pn-th"><img src="'+imgUrl(f.id)+'" alt="'+esc(f.nombre||"Foto de inspiración")+'" loading="lazy">'+(act?'<button type="button" class="pn-x" data-pn-act="quitar-arch" data-id="'+f.id+'" aria-label="Quitar esta foto">×</button>':'')+'</figure>'; }).join("")+'</div>':'')+
+      (act&&fotos.length<8?'<div><button type="button" class="pn-btn" data-pn-act="subir-foto"'+(SUBIENDO?" disabled":"")+'>'+(SUBIENDO?"Subiendo…":"Subir fotos")+'</button><input type="file" id="pn-file-foto" accept="image/*" multiple hidden></div>':"")+'</div>';
+    marcaVistos();
+    return h;
+  }
+  /* una imagen del móvil o del ordenador, reducida y comprimida hasta que quepa (el servidor admite 500 KB) */
+  function imgComp(file,maxPx,logo){
+    return new Promise(function(res,rej){
+      var fr=new FileReader(); fr.onerror=function(){ rej({message:"No se ha podido leer la imagen."}); };
+      fr.onload=function(){ var im=new Image(); im.onerror=function(){ rej({message:"Esa imagen no se puede abrir. Probad con un JPG o PNG."}); };
+        im.onload=function(){
+          var k=Math.min(1,maxPx/Math.max(im.naturalWidth,im.naturalHeight)), w=Math.max(1,Math.round(im.naturalWidth*k)), h=Math.max(1,Math.round(im.naturalHeight*k)), q=0.86, n=0, src;
+          var png=logo&&/png|svg|gif/i.test(file.type);
+          function dibuja(){ var c=document.createElement("canvas"); c.width=w; c.height=h; var g=c.getContext("2d"); if(!png){ g.fillStyle="#fff"; g.fillRect(0,0,w,h); } g.drawImage(im,0,0,w,h); return png?c.toDataURL("image/png"):c.toDataURL("image/jpeg",q); }
+          src=dibuja();
+          while(src.length*0.75>470000&&n<10){ n++; w=Math.max(120,Math.round(w*0.84)); h=Math.max(120,Math.round(h*0.84)); if(!png) q=Math.max(0.5,q-0.07); src=dibuja(); }
+          if(src.length*0.75>490000) rej({message:"La imagen es demasiado grande. Probad con una más pequeña."}); else res({src:src,w:w,h:h,nombre:String(file.name||"").slice(0,80)}); };
+        im.src=fr.result; };
+      fr.readAsDataURL(file); });
+  }
+  function subirArchivos(files,kind){
+    var lista=Array.prototype.slice.call(files||[]); if(!lista.length) return;
+    SUBIENDO=true; pintar();
+    lista.reduce(function(p,f){ return p.then(function(){ return imgComp(f,kind==="logo"?1000:1600,kind==="logo").then(function(o){ return accion({tipo:"archivo",kind:kind,nombre:o.nombre,src:o.src,w:o.w,h:o.h}); }).then(aplicar).catch(function(j){ aviso((j&&j.message)||"No se ha podido subir esa imagen."); }); }); },Promise.resolve())
+      .then(function(){ SUBIENDO=false; pintar(); aviso(lista.length===1?"Recibido. Gracias.":"Recibidas. Gracias."); });
+  }
+  function onExtra(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-pn-act]"), a=b&&b.getAttribute("data-pn-act");
+    if(!a){ var m=ev.target.closest&&ev.target.closest("[data-pn-mesa]"); if(m){ var k=+m.getAttribute("data-pn-mesa"); PLSEL=(PLSEL===k?null:k); pintar(); return true; } return false; }
+    if(a==="aprobar"){
+      var item=b.getAttribute("data-item"), inp=document.getElementById("pn-apn-"+item), nom=(inp&&inp.value||"").trim();
+      if(nom.length<2){ aviso("Escribid vuestro nombre para aprobar."); if(inp) inp.focus(); return true; }
+      APN=nom; b.disabled=true;
+      accion({tipo:"aprobar",item:item,nombre:nom,h:item==="menu"?(AP&&AP.menuHash):(MIN&&MIN.hash)}).then(function(j){ aplicar(j); pintar(); aviso("Aprobado. ¡Gracias, "+nom.split(" ")[0]+"!"); })
+        .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar."); if(j&&j._s===409) refrescar(); b.disabled=false; });
+      return true; }
+    if(a==="enviar-msg"){
+      var ta=document.getElementById("pn-msg"), tx=(ta&&ta.value||"").trim(); if(!tx){ aviso("Escribid el mensaje."); return true; }
+      b.disabled=true; accion({tipo:"comentario",nombre:nombres().a||"",texto:tx}).then(function(j){ MSGTXT=""; aplicar(j); pintar(); var c=document.getElementById("pn-chat"); if(c) c.scrollTop=c.scrollHeight; aviso("Mensaje enviado. Os contestaremos aquí."); })
+        .catch(function(j){ aviso((j&&j.message)||"No se ha podido enviar."); b.disabled=false; });
+      return true; }
+    if(a==="subir-logo"||a==="subir-foto"){ var fi=document.getElementById(a==="subir-logo"?"pn-file-logo":"pn-file-foto"); if(fi) fi.click(); return true; }
+    if(a==="quitar-arch"){ accion({tipo:"quitar",id:+b.getAttribute("data-id")}).then(function(j){ aplicar(j); pintar(); aviso("Quitado."); }).catch(function(j){ aviso((j&&j.message)||"No se ha podido quitar."); }); return true; }
+    return false;
+  }
   function vDia(){
     var h='<div class="pn-head"><div><h2 class="pn-h2">'+esc(PAL().dia)+'</h2><p class="pn-lead">Horarios y menú tal como los tenemos preparados. Si queréis cambiar algo, habladlo con nosotros en la reunión.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
     var hs=P().horas||[];
@@ -18471,7 +18822,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     host=document.getElementById("novios"); if(!host) return; css();
     var y=host.scrollTop;
     host.className="pn on";
-    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():vInicio();
+    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():tab==="plano"?vPlano():tab==="aprob"?vAprob():tab==="msg"?vMsg():vInicio();
     host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ve el cliente'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
       vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona · <button type="button" class="pn-flnk" data-pn-act="priv">Privacidad</button></footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
     host.scrollTop=y;
@@ -18514,6 +18865,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var cp=t.closest&&t.closest("[data-pn-copy]"); if(cp){ var el=document.getElementById(cp.getAttribute("data-pn-copy")); if(!el) return;
       var sel=function(){ var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); aviso("Seleccionado: cópialo con Ctrl+C o mantén pulsado."); };
       try{ navigator.clipboard.writeText(el.textContent).then(function(){ aviso("Copiado."); },sel); }catch(_){ sel(); } return; }
+    if(onExtra(ev)) return;
     var b=t.closest&&t.closest("[data-pn-act]"); if(!b) return; var a=b.getAttribute("data-pn-act");
     if(a==="salir"){ cerrarVista(); return; }
     if(a==="priv"){ PRIV_OPEN=true; tab="inv"; pintar(); var pv=document.getElementById("pn-priv"); if(pv) pv.scrollIntoView({block:"start"}); return; }
@@ -18527,6 +18879,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function onInput(ev){
     var el=ev.target; if(!el||!host.contains(el)) return;
+    if(el.id==="pn-msg"){ MSGTXT=el.value; return; }
+    if(el.id&&el.id.indexOf("pn-apn-")===0){ APN=el.value; return; }
     if(el.id==="pn-n1"||el.id==="pn-n2"){ S[el.id==="pn-n1"?"parejaA":"parejaB"]=el.value; var hn=host.querySelector(".pn-names"); if(hn){ var n=nombres(); hn.innerHTML=n.solo?esc(n.a):esc(n.a)+' <i>&amp;</i> '+esc(n.b); } programar(); return; }
     var f=el.getAttribute("data-f"); if(!f) return; var mEl=el.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
     if(f==="nombre"){ S.mesas[mi].nombre=el.value; }
@@ -18547,13 +18901,15 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var base=usarPropia?L.data:{parejaA:(P0.nombres&&P0.nombres.a)||(d.event&&d.event.parejaA)||"",parejaB:(P0.nombres&&P0.nombres.b)||(d.event&&d.event.parejaB)||"",mesas:((P0.lista&&P0.lista.mesas)||[])};
     S=JSON.parse(JSON.stringify(base));
     S.mesas=(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; });
+    AP=d.aprob||null; MSGS=d.msgs||[]; ARCH=d.arch||[]; MIN=d.minuta||null;
     NUEVO=true; BASE0=JSON.parse(JSON.stringify({parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:S.mesas}));
     if(!S.mesas.length) S.mesas=[{k:null,nombre:"Presidencial",g:[{n:S.parejaA||"",t:"adulto",a:""},{n:S.parejaB||"",t:"adulto",a:""}]}];
     if(!D.portal) D.portal={titulo:d.event.title,fecha:d.event.fecha,ubicacion:d.event.ubicacion,tipo:d.event.tipo,pasos:[],presupuesto:{},horas:[],menu:[]};
     tab="inicio"; var h=(location.hash||"").replace("#","");
-    if(["inicio","pagos","presu","inv","dia"].indexOf(h)>-1) tab=h;
+    if(["inicio","pagos","presu","inv","dia","plano","aprob","msg"].indexOf(h)>-1) tab=h;
     pintar();
-    if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("change",function(ev){ if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
+    if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("keydown",function(ev){ var m=ev.target.closest&&ev.target.closest("[data-pn-mesa]"); if(m&&(ev.key==="Enter"||ev.key===" ")){ ev.preventDefault(); onExtra(ev); } });
+      host.addEventListener("change",function(ev){ if(ev.target&&(ev.target.id==="pn-file-logo"||ev.target.id==="pn-file-foto")){ var kd=ev.target.id==="pn-file-logo"?"logo":"foto", fl=ev.target.files; subirArchivos(fl,kd); ev.target.value=""; return; } if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
       else if(ev.target&&ev.target.id==="pn-consent"){ CONSENT_CHK=ev.target.checked; var pc=document.getElementById("pn-priv"); if(pc) pc.classList.toggle("falta",hayAlergias()&&!consentido()); programar(); } }); }
     host.removeAttribute("aria-hidden");
   }
@@ -18572,8 +18928,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!D||D.local||VISTA||!host||!host.classList.contains("on")||document.visibilityState!=="visible"||!TOKEN) return;
     fetch("/api/share?t="+encodeURIComponent(TOKEN),{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; }).then(function(j){
       if(!j||!j.event) return;
-      var antes=JSON.stringify([D.portal,D.event,estado]);
+      var antes=JSON.stringify([D.portal,D.event,estado,AP,MSGS,ARCH,MIN]);
       D.portal=j.portal||D.portal; D.event=j.event; D.hoy=j.hoy; D.editable=j.editable;
+      if(j.aprob) AP=j.aprob; MSGS=j.msgs||MSGS; ARCH=j.arch||ARCH; MIN=(j.minuta===undefined?MIN:j.minuta);
       if(j.lista&&j.lista.estado) estado=j.lista.estado;
       if(j.priv) PRIV=j.priv; var cs2=j.lista&&j.lista.data&&j.lista.data.consent; if(cs2&&!CONSENT&&(!PRIV||cs2.v===PRIV.v)){ CONSENT=cs2; CONSENT_CHK=true; }
       /* si el equipo ya tiene su lista en el plano y ella no está tocando nada, se le enseña el plano tal como está ahora */
@@ -18582,10 +18939,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         var nuevo=JSON.stringify(D.portal.lista.mesas.map(function(m){ return {nombre:m.nombre||"",g:(m.g||[]).map(function(g){ return [g.n||"",g.t||"adulto",g.a||""]; })}; })), actual=JSON.stringify((S.mesas||[]).map(function(m){ return {nombre:m.nombre||"",g:(m.g||[]).map(function(g){ return [g.n||"",g.t||"adulto",g.a||""]; })}; }));
         if(nuevo!==actual){ var nu=(D.portal.nombres||{}); S={parejaA:nu.a||S.parejaA||"",parejaB:nu.b||S.parejaB||"",mesas:D.portal.lista.mesas.map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; })};
           BASE0=JSON.parse(JSON.stringify(S)); NUEVO=true; antes+="x"; } }
-      if(JSON.stringify([D.portal,D.event,estado])!==antes.replace(/x$/,"")||/x$/.test(antes)){ if(!ocupado) pintar(); }
+      if(JSON.stringify([D.portal,D.event,estado,AP,MSGS,ARCH,MIN])!==antes.replace(/x$/,"")||/x$/.test(antes)){ if(!ocupado) pintar(); }
     }).catch(function(){});
   }
   setInterval(refrescar,45000);
+  setInterval(function(){ if(tab==="msg"||tab==="aprob") refrescar(); },15000);   /* con la conversación abierta, la respuesta del equipo llega enseguida */
   document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") setTimeout(refrescar,400); });
   window.LM_portalRefrescar=refrescar;
   /* opts.vista: el equipo la abre desde la app para ver lo que ve el cliente */
@@ -18626,7 +18984,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","fotos","docs","prev"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","prov","presup","inv","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
@@ -18697,7 +19055,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
        administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
-    var NUEVAS=["cam-horas","cierre","avisos"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
+    var NUEVAS=["cam-horas","cierre","avisos","portal"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
       var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
