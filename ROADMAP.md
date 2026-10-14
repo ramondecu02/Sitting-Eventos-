@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.72** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.73** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.73
+- **Alergias y sustituciones: copiar los platos de un comensal a otros.** Si a un vegetariano le marcas unos platos, en su fila sale **«Copiar a otros…»**: se abre la lista de comensales con **el mismo caso** (mismas alergias o misma dieta, p. ej. «Pescetariano · 4») ya marcados, y también los de otros casos para elegirlos a mano. Se copian los platos **con su tiempo** (primero, segundo…) y, si el comensal estaba como «Sin cambios con este menú», también eso. Lo que ya tenga otro comensal se avisa («Ya tiene: … · se reemplaza»), al que ya tiene exactamente lo mismo no hace falta tocarlo, y queda un aviso con **«Deshacer»**. En las filas que aún no tienen platos sale **«Copiar de otro…»**, que trae los de alguien que ya los tenga (el del mismo caso, marcado de entrada). Se copia lo que se ve, aunque lo acabes de teclear. Los platos viajan en el plano, como siempre.
+- **Pequeños arreglos en esa pantalla:** salir de la caja de un comensal sin haber cambiado nada ya no redibuja la pantalla (se perdía el primer clic), y dos textos con poco contraste (la pestaña «Para cocina» y la etiqueta del tiempo del plato) pasan al mínimo AA.
+- **«Qué preparar» sigue el orden de la escaleta.** Las secciones salen como en la escaleta —**Aperitivos, Estaciones, Menú** (con «1º plato», «2º plato»… y «Sorbete»), **Postres, Tarta, Cafés, Ressopó y Menú infantil**— y, dentro de cada una, en el orden que se haya dado allí (el que se arrastra en «Datos de la escaleta», con «El clásico» primero). Las estaciones y el ressopó van por estación. Lo que la escaleta no recoge (el pan) va al final. Producción no cambia: sigue por familias del catálogo.
 
 ### Novedad de la versión 01.72
 - **«Lista de la compra» pasa a llamarse «Qué preparar»** (Menú del evento, y su pestaña) y **ya no es un listado total**: cada plato sale con **lo que hay que preparar**, como en su escandallo de Parámetros. Por ejemplo, «Arroz de pato del Delta del Ebro y alcachofas · 155 raciones»: sofrito de alcachofa, pimiento cortado, ajo picado, salsa de tomate, arroz carneroli, caldo de pollo, magret cortado y española, cada uno con su **cantidad por ración** y la **cantidad para el evento** (por ración × raciones). Va ordenado por tiempos del menú, igual que Producción; un plato sin escandallo lo avisa en vez de quedar vacío, y si falta alguna medida sale «pendiente».
@@ -350,9 +355,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato | 01.69–01.72 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales | 01.69–01.73 |
 
-**Estado: todo entregado (01.54 → 01.72).**
+**Estado: todo entregado (01.54 → 01.73).**
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,

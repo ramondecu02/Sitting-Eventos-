@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.72 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.73 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.72".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.73".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -1325,6 +1325,26 @@ body.mode-plan .planv{display:flex}
 .aler-plato-curso{flex:0 0 132px; width:132px; padding:6px 7px; font-size:12px; font-weight:600; letter-spacing:0;
   text-transform:none; border:1px solid var(--c-line-2); border-radius:6px; background:var(--field)}
 .aler-row.hecho .aler-plato{color:var(--gold-p)}
+.aler-plato{flex-wrap:wrap}
+.aler-cp-wrap{flex:0 0 100%; display:flex; justify-content:flex-end}
+.aler-cp{text-transform:none; letter-spacing:.01em; font-size:12px}
+.cp-box{max-width:620px}
+.cp-body{align-items:stretch; gap:10px; text-align:left}
+.cp-res{margin:0; font-size:13.5px; line-height:1.5; color:var(--c-mut)}
+.cp-res b{color:var(--c-ink)}
+.cp-grupo{display:flex; flex-direction:column}
+.cp-gh{font:700 10.5px/1.2 var(--font-text,sans-serif); letter-spacing:.12em; text-transform:uppercase; color:var(--c-mut); padding:4px 2px 7px; border-bottom:1px solid var(--c-line)}
+.cp-row{display:flex; align-items:center; flex-wrap:wrap; gap:3px 10px; padding:9px 4px; min-height:44px; border-bottom:1px solid var(--c-line); cursor:pointer; font-size:14px}
+.cp-row input{flex:0 0 auto; width:18px; height:18px; margin:0; accent-color:var(--gold-p,#8A6A2A)}
+.cp-nm{font-weight:650; color:var(--c-ink)}
+.cp-row small{color:var(--c-mut); font-size:12px}
+.cp-mot{font-size:12px; color:var(--c-mut); margin-left:auto}
+.cp-ya{flex:1 1 100%; margin-left:28px; font-size:12.5px; color:var(--c-mut)}
+.cp-ya.cambia{color:var(--gold-p,#8A6A2A)}
+.cp-vacio{margin:6px 0; font-size:14px; color:var(--c-mut)}
+.aler-cp,.cp-box .btn{min-height:36px}
+.cp-box .imp-foot .btn{min-height:42px}
+@media (max-width:640px){ .aler-cp,.cp-box .btn{min-height:40px} }
 .aler-aperis{max-width:820px; margin:8px auto 24px; padding-top:18px; border-top:1px dashed var(--c-line)}
 .aler-aperis-row{display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px solid var(--c-line)}
 .aler-aperis-row:last-child{border-bottom:0}
@@ -4138,6 +4158,9 @@ html.cne-abierto{overflow:hidden}
 .cne-doc .cne-xt{font-weight:700}
 .cne-doc p[data-ph]:has(> br:only-child)::before{content:attr(data-ph); color:#767676}
 @media (max-width:560px){ .cne-ov{padding:0} .cne-box{max-height:100vh; border-radius:0; min-height:100vh} .cne-bar{padding:8px 10px} .cne-scroll{padding:8px} .cne-foot .btn{flex:1} }
+/* contraste mínimo AA en la pantalla de alergias (v01.73) */
+.ak-tabs button small{opacity:1}
+.nc-cur{background:color-mix(in srgb,var(--cc) 84%,#000)}
 /*V3-END*/
 </style>
 
@@ -4150,7 +4173,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.72</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.73</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9524,7 +9547,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.72</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.73</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -13665,7 +13688,7 @@ function renderProduccion(){
 
 /* ══ Qué preparar: cada plato con lo que lleva, igual que su escandallo en Parámetros ═══
    Sin listado total: los totales por proveedor están en «Pedidos a proveedores». */
-function prepDishBlock(d,t){
+function prepDishBlock(d,t,tag){
   var rac=racionesDe(d,t), fu=t.esc&&t.esc.fuera[d._uid]||0;
   var rows=d.ingredients.map(function(ing){
     var val=ing.qty==null?'<span title="Cantidad pendiente: complétala en Parámetros, en «Platos y escandallo»">pendiente</span>':fmtAmount(ing.qty*rac,ing.unit);
@@ -13673,18 +13696,55 @@ function prepDishBlock(d,t){
     return '<tr><td>'+esc(ing.name)+por+'</td><td class="q">'+val+'</td></tr>';
   }).join("");
   return '<div class="mnu-prep-dish">'+
-    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+(rac===1?' ración':' raciones')+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
+    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+(tag?esc(tag)+' · ':'')+rac+(rac===1?' ración':' raciones')+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
     (fu?'<p class="mnu-note mnu-prep-nota">'+fu+(fu===1?' lleva':' llevan')+' plato sustitutivo (ver Producción)</p>':'')+
     (rows?('<table class="mnu-ing-table sm"><tbody>'+rows+'</tbody></table>'):'<p class="mnu-note mnu-prep-nota">Sin escandallo: añade lo que lleva en Parámetros, en «Platos y escandallo».</p>')+
     '</div>';
+}
+/* los platos del evento en el ORDEN DE LA ESCALETA: aperitivos y estaciones (en el orden que se les haya dado allí),
+   los platos del menú (1º, 2º… y sorbete), postres, tarta, cafés, ressopó y, al final, el menú infantil. Lo que la
+   escaleta no recoge (el pan, por ejemplo) va detrás, por familias. */
+function prepSecciones(sel){
+  var cfg=escCfg(), c=escCuentas(), ban=escBanquete(c,cfg), AE=escAperYEst(cfg), vistos={}, secs=[];
+  var esCafe=function(d){ return !!d.station&&/caf[eé]/i.test(escEtqStation(d.station)); };
+  function add(t,ds,o){ ds=ds.filter(function(d){ return d&&!vistos[d._uid]; }); ds.forEach(function(d){ vistos[d._uid]=1; });
+    if(ds.length){ var x={t:t,ds:ds}; if(o) Object.keys(o).forEach(function(k){ x[k]=o[k]; }); secs.push(x); } }
+  add("Aperitivos",AE.aper);
+  add("Estaciones",AE.est.filter(function(d){ return !esCafe(d); }),{est:true});
+  var tags={}, n=0, men=[];
+  [ban[0],ban[1]].forEach(function(ti){ ti.platos.forEach(function(x){ if(!x.d) return;
+    tags[x.d._uid]=x.sorbete?"Sorbete":(++n)+"º plato"; men.push(x.d); }); });
+  add("Menú",men,{tag:tags});
+  add("Postres",ban[2].platos.filter(function(x){ return x.d&&!x.tarta; }).map(function(x){ return x.d; }));
+  add("Tarta",ban[2].platos.filter(function(x){ return x.d&&x.tarta; }).map(function(x){ return x.d; }));
+  add("Cafés",AE.est.filter(esCafe),{est:true});
+  add("Ressopó",escOrdenar(sel.filter(function(d){ return d._famKey==="RECENA"; }),cfg),{est:true});
+  add("Menú infantil",sel.filter(function(d){ return d._famKey==="NIÑOS"; }));
+  /* lo que no está en la escaleta: por familia, como en el catálogo */
+  var otras=sel.filter(function(d){ return !vistos[d._uid]; }), fo=[], fg={};
+  otras.forEach(function(d){ var k=d._famLabel||d._famKey||"Otros"; if(!fg[k]){ fg[k]=[]; fo.push(k); } fg[k].push(d); });
+  fo.forEach(function(k){ add(k,fg[k]); });
+  return secs;
+}
+function prepHtml(sel,t){
+  var html="";
+  prepSecciones(sel).forEach(function(s){
+    html+='<h3 class="mnu-sheet-fam">'+esc(s.t)+'</h3>';
+    if(!s.est){ s.ds.forEach(function(d){ html+=prepDishBlock(d,t,s.tag&&s.tag[d._uid]); }); return; }
+    /* estaciones y ressopó: por estación, como en la escaleta */
+    var ord=[], gr={};
+    s.ds.forEach(function(d){ var k=d.station?escEtqStation(d.station):""; if(!gr[k]){ gr[k]=[]; ord.push(k); } gr[k].push(d); });
+    ord.forEach(function(k){ if(k) html+='<div class="mnu-sheet-station">'+esc(k)+'</div>'; gr[k].forEach(function(d){ html+=prepDishBlock(d,t); }); });
+  });
+  return html;
 }
 function renderCompra(){
   var sel=selectedDishes();
   if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
   var t=evTotals(); t.esc=prodCtx();
   var pend=0; sel.forEach(function(d){ d.ingredients.forEach(function(i){ if(i.qty==null) pend++; }); });
-  var html=printBar("preparación")+'<p class="mnu-note ped-ir">Cada plato con lo que hay que preparar para este evento (cantidad por ración × raciones). El total por proveedor está en los pedidos. <button type="button" class="btn sm gold" data-ir="pedidos">Hacer los pedidos por proveedor →</button></p><div class="sheet"><div class="frame">'+docHead("Qué preparar",t)+
-    platosPorTiempo(sel,t,prepDishBlock)+
+  var html=printBar("preparación")+'<p class="mnu-note ped-ir">Cada plato con lo que hay que preparar para este evento (cantidad por ración × raciones), en el orden de la escaleta. El total por proveedor está en los pedidos. <button type="button" class="btn sm gold" data-ir="pedidos">Hacer los pedidos por proveedor →</button></p><div class="sheet"><div class="frame">'+docHead("Qué preparar",t)+
+    prepHtml(sel,t)+
     (pend?('<p class="mnu-note" style="margin-top:14px">'+(pend===1?'Falta la cantidad de 1 ingrediente: complétala':'Faltan las cantidades de '+pend+' ingredientes: complétalas')+' en Parámetros, en «Platos y escandallo».</p>'):'')+
     '<div class="foot">Les Moles Events</div></div></div>';
   $("mnu-body").innerHTML=html;
@@ -14209,6 +14269,8 @@ function renderAlergias(){
   var porMesa={};
   lista.forEach(function(g){ (porMesa[g.mesa]=porMesa[g.mesa]||[]).push(g); });
   var mesas=Object.keys(porMesa).map(Number).sort(function(a,b){ return a-b; });
+  /* ¿hay alguien con platos ya decididos de los que copiar? */
+  var hayDonantes=lista.some(function(g){ return (g.sustitutos&&g.sustitutos.length)||okM[aaKey(g)]; });
 
   /* un comensal puede necesitar más de un plato sustitutivo (primero y segundo,
      por ejemplo): se enseña una fila de campo por cada uno que ya tenga, y como
@@ -14247,6 +14309,9 @@ function renderAlergias(){
           }).join("")+
           '</div>'+
           '<button type="button" class="btn ico aler-plato-add" aria-label="Añadir otro plato para '+esc(g.nombre)+'" title="Añadir otro plato">+</button>'+
+          (((g.sustitutos&&g.sustitutos.length)||ok)
+            ?'<div class="aler-cp-wrap"><button type="button" class="btn sm aler-cp" data-aler-cp="a" aria-label="Copiar lo de '+esc(g.nombre)+' a otros comensales">Copiar a otros…</button></div>'
+            :(hayDonantes?'<div class="aler-cp-wrap"><button type="button" class="btn sm aler-cp" data-aler-cp="de" aria-label="Copiar a '+esc(g.nombre)+' lo de otro comensal">Copiar de otro…</button></div>':''))+
           '</div>'+
 
           '</div>';
@@ -14269,7 +14334,8 @@ function renderAlergias(){
       conPlato+(conPlato===1?' decidido':' decididos')+' (con plato o sin cambios) · '+(lista.length-conPlato)+' por decidir. '+
       'Lo que escribas aquí sale marcado en el plano de sala y en el listado por mesas, '+
       'para que el equipo sepa qué llevarle a cada uno. Si hace falta más de un plato '+
-      'para la misma persona, «+» añade otro.</p>'+(selAlg.length?algResumen(lista,selAlg):'')+cuerpo+'</div>'+
+      'para la misma persona, «+» añade otro. Si dos comensales llevan lo mismo (dos vegetarianos, por ejemplo), '+
+      '«Copiar a otros…» pasa los platos de uno a los demás sin escribirlos otra vez.</p>'+(selAlg.length?algResumen(lista,selAlg):'')+cuerpo+'</div>'+
     renderAperitivosAdaptados(lista);
 
   wirePlatos();
@@ -14348,12 +14414,18 @@ function nuevaFilaPlato(nombre){
   row.appendChild(inp); row.appendChild(sel); row.appendChild(rm);
   return row;
 }
-function commitPlatoBox(box){
-  var mesa=+box.dataset.mesa, i=+box.dataset.i;
-  var platos=Array.prototype.map.call(box.querySelectorAll(".aler-plato-row"),function(row){
+function leerPlatoBox(box){
+  return Array.prototype.map.call(box.querySelectorAll(".aler-plato-row"),function(row){
     var inp=row.querySelector("input"), sel=row.querySelector(".aler-plato-curso");
     return {n:(inp?inp.value:"").trim(), c:sel?sel.value:""};
   }).filter(function(p){ return p.n; });
+}
+function commitPlatoBox(box){
+  var mesa=+box.dataset.mesa, i=+box.dataset.i, platos=leerPlatoBox(box);
+  /* si la caja está tal como está guardada (y sin filas vacías de sobra) no hay nada que guardar ni que repintar:
+     así salir de ella o abrir «Copiar…» no tira abajo la pantalla ni el clic que se acaba de hacer */
+  var g=null; (BR.alergias?BR.alergias():[]).forEach(function(x){ if(x.mesa===mesa&&x.i===i) g=x; });
+  if(g&&alerPlatosTxt(platos)===alerPlatosTxt(alerPlatosDe(g))&&box.querySelectorAll(".aler-plato-row").length===Math.max(1,platos.length)) return;
   if(BR.setSustitutos) BR.setSustitutos(mesa,i,platos);
   renderAlergias();
 }
@@ -14372,6 +14444,7 @@ function commitPlatoBox(box){
    «salir» que detectar) se guarda directamente al vuelo de esa tecla. */
 function wirePlatoBox(box){
   box.addEventListener("click",function(e){
+    var cp=e.target.closest(".aler-cp"); if(cp){ alerCopiar(box,cp.getAttribute("data-aler-cp"),cp); return; }
     if(e.target.closest(".aler-plato-add")){
       var nombre=box.closest(".aler-row").querySelector(".aler-nm").textContent;
       var row=nuevaFilaPlato(nombre);
@@ -14397,6 +14470,87 @@ function wirePlatoBox(box){
     if(box.contains(e.relatedTarget)) return;
     commitPlatoBox(box);
   });
+}
+/* ══ copiar los platos de un comensal a otros con el mismo caso ═══════════
+   Dos vegetarianos (o dos celíacos…) suelen llevar lo mismo: en vez de escribirlo dos
+   veces, «Copiar a otros…» pasa los platos (con su tiempo) de un comensal a los que se
+   marquen, y «Copiar de otro…» los trae de uno que ya los tenga. Salen primero los del
+   MISMO caso (mismas alergias o dieta). Lo que se copia sustituye lo que hubiera, se
+   avisa de ello en cada línea, y se puede deshacer. */
+function alerNorm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim(); }
+function alerPerfil(g){ return (g.aler||[]).map(alerNorm).sort().join("+")+"|"+((g.kind==="veg"||g.kind==="vegan")?g.kind:"")+"|"+(g.preg?"1":""); }
+function alerMotivosTxt(g){ var m=(g.aler||[]).slice(); if(g.kind==="veg") m.push("Vegetariano"); if(g.kind==="vegan") m.push("Vegano"); if(g.preg) m.push("Embarazada"); return m.join(" · "); }
+function alerPlatosDe(g){ return (g.sustitutos||[]).map(function(n,k){ return {n:String(n||"").trim(),c:(g.sustitutosC||[])[k]||""}; }).filter(function(p){ return p.n; }); }
+function alerPlatosTxt(ps){ var inf=cursoInfo(); return ps.map(function(p){ return (p.c&&inf[p.c]?inf[p.c].lab+": ":"")+p.n; }).join(" + "); }
+function alerPoner(d,ps,ok){
+  if(BR.setSustitutos) BR.setSustitutos(d.mesa,d.i,ps.map(function(p){ return {n:p.n,c:p.c}; }));
+  var m=menu(); if(!m) return; m.alerOk=m.alerOk||{};
+  if(ok) m.alerOk[d.k]=true; else delete m.alerOk[d.k];
+}
+function alerCopiar(box,modo,opener){
+  var mesa=+box.dataset.mesa, i=+box.dataset.i, aOtros=(modo==="a");
+  function buscar(l){ var r=null; l.forEach(function(x){ if(x.mesa===mesa&&x.i===i) r=x; }); return r; }
+  var lista=BR.alergias?BR.alergias():[], yo=buscar(lista); if(!yo) return;
+  /* lo que se haya tecleado en esa caja sin salir de ella se guarda antes: se copia lo que se ve */
+  var tecleado=leerPlatoBox(box);
+  if(alerPlatosTxt(tecleado)!==alerPlatosTxt(alerPlatosDe(yo))&&BR.setSustitutos){ BR.setSustitutos(mesa,i,tecleado); lista=BR.alergias(); yo=buscar(lista)||yo; }
+  var m=menu()||{}, okM=m.alerOk||{}, miPerfil=alerPerfil(yo), mis=alerPlatosDe(yo), miOk=!!okM[aaKey(yo)];
+  var cand=lista.filter(function(x){ return !(x.mesa===mesa&&x.i===i); }).map(function(x){
+    var ps=alerPlatosDe(x), ok=!!okM[aaKey(x)];
+    return {g:x,ps:ps,ok:ok,tiene:ps.length>0||ok,mismo:alerPerfil(x)===miPerfil,k:aaKey(x),mesa:x.mesa,i:x.i}; });
+  if(!aOtros) cand=cand.filter(function(c){ return c.tiene; });
+  cand.sort(function(a,b){ return (b.mismo-a.mismo)||(a.mesa-b.mesa)||(a.i-b.i); });
+  function descr(ps,ok){ return ps.length?alerPlatosTxt(ps):(ok?"Sin cambios con este menú":""); }
+  function igual(c){ return alerPlatosTxt(c.ps)===alerPlatosTxt(mis)&&c.ok===miOk; }
+  var ovl=document.createElement("div"); ovl.className="ovl cp-ovl";
+  var mism=cand.filter(function(c){ return c.mismo; }), otros=cand.filter(function(c){ return !c.mismo; });
+  var tipo=aOtros?"checkbox":"radio", pre={};
+  if(aOtros) cand.forEach(function(c){ if(c.mismo&&!c.tiene) pre[c.k]=true; }); else if(mism.length) pre[mism[0].k]=true;
+  function fila(c){
+    var nota="", dis=false;
+    if(aOtros){ if(c.tiene){ if(igual(c)){ nota='<span class="cp-ya">Ya tiene lo mismo.</span>'; dis=true; } else nota='<span class="cp-ya cambia">Ya tiene: '+esc(descr(c.ps,c.ok))+' · se reemplaza.</span>'; } }
+    else nota='<span class="cp-ya">'+esc(descr(c.ps,c.ok))+'</span>';
+    return '<label class="cp-row"><input type="'+tipo+'" name="cp" value="'+esc(c.k)+'"'+(pre[c.k]&&!dis?" checked":"")+(dis?" disabled":"")+'>'+
+      '<span class="cp-nm">'+esc(c.g.nombre)+'</span> <small>'+esc(c.g.mesaLbl||("Mesa "+c.mesa))+'</small>'+
+      '<span class="cp-mot">'+esc(alerMotivosTxt(c.g))+'</span>'+nota+'</label>'; }
+  function grupo(tit,l){ return l.length?'<div class="cp-grupo"><div class="cp-gh">'+tit+' · '+l.length+'</div>'+l.map(fila).join("")+'</div>':""; }
+  var motivo=alerMotivosTxt(yo);
+  var res=aOtros?('<p class="cp-res"><b>'+esc(yo.nombre)+'</b> · '+esc(motivo)+'<br>'+(descr(mis,miOk)?'Se le sirve: <b>'+esc(descr(mis,miOk))+'</b>':'Todavía no tiene platos.')+'</p>')
+                 :('<p class="cp-res"><b>'+esc(yo.nombre)+'</b> · '+esc(motivo)+'<br>'+(descr(mis,miOk)?'Ahora: '+esc(descr(mis,miOk))+' (se reemplazará).':'Todavía no tiene platos.')+'</p>');
+  var cuerpo=cand.length?(grupo('Mismo caso ('+esc(motivo||"—")+')',mism)+grupo(mism.length?'Otros casos':'Otros comensales',otros))
+    :'<p class="cp-vacio">'+(aOtros?'No hay otros comensales con alergia, dieta o embarazo en el plano.':'Ningún otro comensal tiene platos decididos todavía.')+'</p>';
+  ovl.innerHTML='<div class="ovl-box mp-box cp-box" role="dialog" aria-modal="true" aria-labelledby="cp-h">'+
+    '<div class="ovl-head"><h3 id="cp-h">'+(aOtros?'Copiar lo de «'+esc(yo.nombre)+'» a otros':'Copiar a «'+esc(yo.nombre)+'» lo de otro comensal')+'</h3><div class="spacer"></div><button class="btn sm" type="button" data-cp="x">Cancelar</button></div>'+
+    '<div class="ovl-body cp-body" tabindex="0" role="region" aria-label="Comensales">'+res+cuerpo+'</div>'+
+    '<div class="imp-foot"><button class="btn gold" type="button" data-cp="ok" disabled>Copiar</button></div></div>';
+  document.body.appendChild(ovl);
+  var okB=ovl.querySelector('[data-cp="ok"]');
+  function marcados(){ return cand.filter(function(c){ var inp=ovl.querySelector('input[value="'+c.k.replace(/"/g,'\\"')+'"]'); return inp&&inp.checked&&!inp.disabled; }); }
+  function pinta(){ var n=marcados().length; okB.disabled=!n; okB.textContent=!n?"Copiar":aOtros?("Copiar a "+n+(n===1?" comensal":" comensales")):"Copiar"; }
+  function close(){ ovl.remove(); }
+  function volver(){ var sit='#mnu-body .aler-plato[data-mesa="'+mesa+'"][data-i="'+i+'"]', x=document.querySelector(sit+' .aler-cp')||document.querySelector(sit+' input'); if(x) x.focus(); }
+  function aplicar(){
+    var sel=marcados(); if(!sel.length) return;
+    var fuente=aOtros?{ps:mis,ok:miOk}:{ps:sel[0].ps,ok:sel[0].ok};
+    var destinos=aOtros?sel:[{k:aaKey(yo),mesa:mesa,i:i,ps:mis,ok:miOk,g:yo}];
+    var prev=destinos.map(function(d){ return {k:d.k,mesa:d.mesa,i:d.i,ps:alerPlatosDe(d.g),ok:!!okM[d.k]}; });
+    destinos.forEach(function(d){ alerPoner({k:d.k,mesa:d.mesa,i:d.i},fuente.ps,fuente.ok); });
+    touchSave(); close(); if(mnuView==="aler") renderAlergias();
+    volver();
+    if(BR.toast) BR.toast(aOtros?("Platos copiados a "+destinos.length+(destinos.length===1?" comensal.":" comensales.")):("Platos copiados a «"+yo.nombre+"»."),false,"Deshacer",function(){
+      prev.forEach(function(p){ alerPoner(p,p.ps,p.ok); }); touchSave(); if(mnuView==="aler") renderAlergias(); });
+  }
+  ovl.addEventListener("click",function(e){ if(e.target===ovl){ close(); volver(); return; } var b=e.target.closest("[data-cp]"); if(!b) return;
+    if(b.getAttribute("data-cp")==="x"){ close(); volver(); } else if(b.getAttribute("data-cp")==="ok") aplicar(); });
+  ovl.addEventListener("change",pinta);
+  ovl.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){ e.preventDefault(); close(); volver(); return; }
+    if(e.key!=="Tab") return;
+    var f=Array.prototype.filter.call(ovl.querySelectorAll('button:not([disabled]),input:not([disabled]),[tabindex="0"]'),function(x){ return x.offsetParent!==null; });
+    if(!f.length) return; var k=f.indexOf(document.activeElement);
+    if(e.shiftKey){ if(k<=0){ e.preventDefault(); f[f.length-1].focus(); } } else if(k===f.length-1){ e.preventDefault(); f[0].focus(); } });
+  pinta();
+  var pri=ovl.querySelector("input:checked")||ovl.querySelector("input:not([disabled])")||ovl.querySelector('[data-cp="x"]'); if(pri) pri.focus();
 }
 function wirePlatos(){
   Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato"),function(box){ wirePlatoBox(box); });
