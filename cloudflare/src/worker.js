@@ -1556,7 +1556,7 @@ async function porAccion(request, env, url) {
       if (!(ev.contrato && ev.contrato.texto === co.texto)) return json({ error: "cambio", message: "El documento acaba de cambiar: leedlo otra vez." }, 409);
       h = porHash(co.texto);
       if (b.h !== h) return json({ error: "cambio", message: "El documento acaba de cambiar: leedlo otra vez." }, 409);
-      const em = co.emp && typeof co.emp === "object" ? { marca: porTexto(co.emp.marca, 80), razon: porTexto(co.emp.razon, 120), rep: porTexto(co.emp.rep, 120) } : null;
+      const em = co.emp && typeof co.emp === "object" ? { marca: porTexto(co.emp.marca, 80), razon: porTexto(co.emp.razon, 120), rep: porTexto(co.emp.rep, 120), pie: Array.isArray(co.emp.pie) ? co.emp.pie.slice(0, 8).map((x) => porTexto(x, 90)) : [] } : null;
       firmado = { tipo: co.tipo === "propuesta" ? "propuesta" : "contrato", ver: Math.max(1, Math.floor(+co.ver) || 1), fecha: porTexto(co.fecha, 10), texto: co.texto, emp: em, h, ts: ahora, nombre, nif, firmante };
     }
     else { if (!d.minuta) return json({ error: "invalid", message: "Todavía no hay minuta que aprobar." }, 400); h = d.minuta.hash; }
