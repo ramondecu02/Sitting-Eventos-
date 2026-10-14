@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.68** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.69** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -20,7 +20,7 @@ WhatsApp suelto ni Excel.
 | Minutas: editor tipo Canva, **60 modelos** por evento y estilo, ES/CA | ✅ |
 | Camareros: agenda, disponibilidad, alta/baja, reparto por tiempos, **avisar** (01.52) | ✅ |
 | **Portal del cliente** (`?cliente=`), texto según tipo de evento, lista → plano en ~5 s | ✅ |
-| Usuarios y roles (admin, eventos, cocina, compras, servicio) | ✅ |
+| Usuarios y roles (administrador, eventos, cocina, compras, **contabilidad**, servicio) | ✅ |
 | Previsión de banquetes, rentabilidad, inventario, presupuesto imprimible | ✅ |
 | Despliegue automático: cada `git push` a la rama de producción publica en Cloudflare Pages | ✅ |
 | **Copias de seguridad automáticas, papelera 30 días y restaurar** (Parámetros → Copias de seguridad) | ✅ |
@@ -36,6 +36,13 @@ WhatsApp suelto ni Excel.
 | **Propuesta y contrato**: PDF desde el presupuesto, plantilla editable, aceptación online con nombre y NIF | ✅ (falta que tu asesor revise el texto) |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.69
+- **Nuevo rol «Contabilidad»** (además de Administrador, Eventos, Cocina, Compras y Servicio). Ve: Resumen, **Ficha y contacto** (para registrar cobros), **Presupuesto**, **Proveedores**, **Pedidos a proveedores**, **Turnos y horas** (solo lectura), **Cierre del evento**, **Previsión** y Documentos, más Coordinación (que la ven todos). **No** ve el plano, el menú, los camareros, el inventario, los avisos, el portal del cliente, las consultas, el Modo servicio, Parámetros ni Rentabilidad; el servidor le cierra el Modo servicio, el correo, las consultas, los usuarios y las copias. En **Coordinación** hay un quinto departamento, «Contabilidad», que recibe los cambios de fecha y de comensales (la base de las facturas) y al que se pueden mandar avisos. Los permisos se pueden ajustar en Equipo y accesos → Roles y permisos (Parámetros y Rentabilidad siguen siendo solo del administrador).
+- **El rol Eventos ahora ve «Presupuesto»** (su descripción ya lo decía, pero no lo tenía): es donde se publican las propuestas y los contratos.
+- **Previsión → «Importar Excel» ahora FUSIONA** en vez de reemplazar el año: compara el Excel con lo que ya hay y enseña una pantalla de revisión con **lo nuevo** (marcado), **lo que ha cambiado** (campo a campo: viene marcado solo lo que estaba en blanco o mal escrito en la app; lo que ya tenía otro dato lo eliges tú) y **lo repetido en la app** (se ofrece quitar la fila que sobra). Lo que está en la app y no en el Excel no se toca, y un campo en blanco del Excel nunca borra nada. Avisa de las fechas con el año equivocado (las corrige si quieres), de las que solo traen el mes («Sin día fijo») y de las que pasarán solas a Eventos. *(El importador de antes borraba el año entero y dejaba sin enlazar los eventos ya creados.)*
+- **Los Excel de 2027 y 2028 de octubre** se han comparado con los anteriores: 5 celebraciones nuevas y 2 cambios en 2027 (y «Boda Laia i Albert», que el Excel viejo traía repetida, pasa al 12/06/2027), y 4 en 2028. Con este importador se cargan sin perder nada. De ahora en adelante **todo se introduce desde el programa**.
+- Un local escrito mal en el Excel («LES VIYES DEL CONVENT») ya se reconoce como Les Vinyes (colores de la Previsión y disponibilidad de las consultas).
 
 ### Novedades de las versiones 01.62 a 01.68
 - **01.62** Modo servicio · **01.63** Turnos de camareros y cierre del evento · **01.64** Avisos por correo y WhatsApp · **01.65** Portal del cliente ampliado · **01.66** Propuesta, contrato y aceptación online · **01.67** Pedidos a proveedores · **01.68** Consultas web y disponibilidad. El detalle de cada una está en su apartado de más abajo.
@@ -124,7 +131,7 @@ se recupera con el código manual por evento.
 - **Registro de cada persona (alta por invitación):** el administrador pulsa «Invitar a una persona»; el programa crea el acceso y da un **enlace de un solo uso (7 días)** — con botones para copiar el enlace, copiar un mensaje ya redactado y abrir WhatsApp con su teléfono. La persona lo abre, **elige su propia contraseña** (8 caracteres o más) y entra: nadie más sabe su contraseña. Alternativa: poner una contraseña inicial; entonces tiene que cambiarla al entrar.
 - **Cambiar la propia contraseña:** botón «Mi contraseña» en el menú. Si la contraseña es temporal, el programa obliga a cambiarla antes de seguir.
 - **Quitar el acceso sin perder el historial:** «Desactivar» (y «Activar» cuando vuelva). Las sesiones abiertas de esa persona dejan de valer al momento. También: invitación nueva, contraseña temporal y eliminar. Siempre queda al menos un administrador activo.
-- **Roles y permisos editables:** una tabla con qué secciones ve cada rol (Eventos, Cocina, Compras, Servicio); el administrador lo ve todo. Parámetros, Rentabilidad, Copias de seguridad y Equipo y accesos son solo del administrador y no se pueden dar a otros roles. Se puede volver a los permisos de fábrica.
+- **Roles y permisos editables:** una tabla con qué secciones ve cada rol (Eventos, Cocina, Compras, Contabilidad, Servicio); el administrador lo ve todo. Parámetros, Rentabilidad, Copias de seguridad y Equipo y accesos son solo del administrador y no se pueden dar a otros roles. Se puede volver a los permisos de fábrica.
 - **Registro de actividad:** quién entró, intentos fallidos, quién invitó/desactivó/cambió el rol de quién, quién cambió permisos, quién creó o **borró un evento**, copias, restauraciones y descargas de datos. Filtrable por persona (se guardan 400 días).
 - **Seguridad:** tras 5 contraseñas incorrectas seguidas con el mismo correo, bloqueo de 10 minutos; **cierre de sesión por inactividad** configurable (nunca, 15 min … 12 h; por defecto 8 h); y solo el administrador y el equipo de eventos pueden **borrar eventos** (cocina, compras y servicio no, ni por error).
 - **Detalle técnico:** columnas nuevas en `users` y tabla `actividad` (se crean solas; los usuarios de antes siguen entrando); API `/api/users`, `/api/invitacion`, `/api/me/password`, `/api/actividad`, `/api/roles`, `/api/seguridad`.
@@ -308,6 +315,7 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
+| Después | Rol Contabilidad · Previsión por fusión | 01.69 |
 
 **Estado: todo entregado (01.54 → 01.68).**
 
@@ -325,7 +333,8 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 |---|---|---|---|
 | 1 | **Cuenta de correo** (Resend, gratuita) y **verificar el dominio** del restaurante; en Cloudflare, en cada proyecto de Pages, los secretos `RESEND_API_KEY`, `MAIL_FROM` y `CRON_TOKEN`; en GitHub, el secreto `CRON_TOKEN` y la variable `SITE_URL`; que `avisos.yml` esté en la rama principal | Tú (lo que tarda es el DNS) | Que **salgan de verdad** los avisos a clientes y camareros, el resumen semanal, los pedidos a proveedores y el acuse de las consultas. Hasta entonces todo queda «simulado» en la bandeja y no sale nada |
 | 2 | **Qué proyecto de Cloudflare Pages es el de producción** (hay tres) y desconectar los otros dos | Tú | Que nadie entre en una copia sin datos |
-| 3 | **Quién usa el programa y con qué rol**; invitarles desde «Equipo y accesos»; una **persona de referencia** que apruebe cada entrega | Tú | Empezar a usarlo en serio |
+| 3 | **Definir las personas.** Los perfiles ya existen (Administrador —Jeroni—, Eventos, Cocina, Compras, Contabilidad y Servicio): falta decir **quién** es cada uno (nombre, correo, teléfono) e invitarles desde «Equipo y accesos»; una **persona de referencia** que apruebe cada entrega; **dos administradores como mínimo**. Decidir también si Eventos debe ver **Proveedores** y **Comunicación** (hoy no) | Tú | Empezar a usarlo en serio |
+| 3b | **Cargar los Excel de Previsión 2027 y 2028** con el nuevo «Importar Excel» y revisar los casos dudosos: «Boda Laia i Albert» (¿12/06/2027?), «Comida Jordi Aleu» (la hoja decía 2026), «Boda Núria i Victor» (solo «octubre» y un teléfono raro), «Boda Zaida» (1/1/2028) y «Laura y Sergi» (solo el nombre). Si «Laia i Albert» se creó dos veces como evento, borrar la repetida en Eventos | Tú | Previsión al día |
 | 4 | **Contrato:** que tu asesor o abogado lea el texto, escribir las **condiciones de cancelación**, rellenar los **datos de la empresa** (razón social, CIF, domicilio, quién firma) y marcar el texto como «revisado»; decidir si basta la **firma electrónica simple** o quieres un proveedor de firma | Tú + asesor | Poder publicar contratos a los clientes |
 | 5 | **Datos del responsable de privacidad** en Parámetros → Privacidad y datos, y que el asesor revise los textos del aviso y del consentimiento | Tú + asesor | Cumplir RGPD con los textos propios del restaurante |
 | 6 | **Proveedores de compra:** darlos de alta (nombre, teléfono, correo) y asignarles los artículos **la primera vez** (después se recuerda) | Quien compra | Pedidos agrupados por proveedor |

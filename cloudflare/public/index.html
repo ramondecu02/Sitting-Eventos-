@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.68 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.69 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.68".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.69".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3991,7 +3991,7 @@ a.cs-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .cs-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px}
 .cs-dw{font:700 11px/1 var(--font-text,system-ui); text-align:center; color:var(--c-mut); padding:6px 0}
 .cs-dd{position:relative; min-height:54px; border:1px solid var(--c-line); border-radius:10px; background:var(--panel); display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:4px; padding:6px 2px 6px; cursor:pointer; font:600 14px/1 var(--font-text,system-ui); color:var(--c-ink)}
-.cs-dd.vacio{border:0; background:none; cursor:default} .cs-dd.pas{opacity:.5} .cs-dd.hoy{outline:2px solid var(--gold)} .cs-dd.sel{background:var(--bg-2,#f1ede2); border-color:var(--c-ink)}
+.cs-dd.vacio{border:0; background:none; cursor:default} .cs-dd.pas{border-style:dashed; color:var(--c-mut)} .cs-dd.pas .cs-bs{opacity:.55} .cs-dd.hoy{outline:2px solid var(--gold)} .cs-dd.sel{background:var(--bg-2,#f1ede2); border-color:var(--c-ink)}
 .cs-bs{display:flex; flex-direction:column; gap:2px; width:78%}
 .cs-b{display:block; height:5px; border-radius:3px; border:1.5px solid var(--c)}
 .cs-b.ocupada{background:var(--c)} .cs-b.provisional{background:repeating-linear-gradient(135deg,var(--c) 0 3px,transparent 3px 6px)} .cs-b.libre{background:transparent; opacity:.35}
@@ -4029,6 +4029,37 @@ html.cp-on,body.cp-on{background:#F3F1EA!important}
 .cp-disp.libre{background:#E7F0DA; color:#34531a} .cp-disp.prov{background:#FBF1D9; color:#7a5712} .cp-disp.ocupada{background:#F6E1E5; color:#8C2F43}
 .cp-ok h2{color:#34531a} .cp-aviso{padding:16px; text-align:center; color:#6f6a5a}
 .cp-pie{text-align:center; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:#6b6757; padding:6px 0 30px}
+/* ── Importar la previsión desde el Excel: revisión antes de aplicar (pvm-) ── */
+.pvm-ov{position:fixed; inset:0; z-index:300; background:rgba(20,18,14,.72); display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:24px 16px}
+.pvm-box{background:var(--panel); color:var(--c-ink); border-radius:12px; width:100%; max-width:760px; box-shadow:0 24px 60px rgba(0,0,0,.4); display:flex; flex-direction:column; max-height:calc(100vh - 48px); overflow:hidden}
+.pvm-head{display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--c-line)}
+.pvm-head h2{margin:0; flex:1; font:600 19px/1.25 var(--font-display,Georgia,serif)}
+.pvm-head h2:focus{outline:none}
+.pvm-body{padding:16px 18px; overflow:auto; display:flex; flex-direction:column; gap:12px; background:var(--bg)}
+.pvm-res{margin:0; font-size:15px; line-height:1.5; overflow-wrap:anywhere}
+.pvm-nota{margin:0; font-size:13.5px; line-height:1.5; color:var(--c-mut)}
+.pvm-fix{display:flex; gap:10px; align-items:center; font-size:14px; min-height:36px}
+.pvm-vacio{padding:14px 16px; border:1px solid var(--success); background:var(--success-soft); border-radius:10px; font-size:15px}
+.pvm-sec h3{margin:0 0 8px; font:700 12px/1.2 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut); display:flex; gap:8px; align-items:center}
+.pvm-sec h3 em{font-style:normal; background:var(--panel); border:1px solid var(--c-line); border-radius:99px; padding:2px 8px; letter-spacing:0; color:var(--c-ink)}
+.pvm-l{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.pvm-l>li{background:var(--panel); border:1px solid var(--c-line); border-radius:10px; padding:8px 12px}
+.pvm-f{display:flex; gap:10px; align-items:flex-start; cursor:pointer; min-height:36px; padding:4px 0}
+.pvm-f input{width:20px; height:20px; flex:0 0 auto; margin-top:2px}
+.pvm-t{display:flex; flex-direction:column; gap:2px; min-width:0; font-size:14.5px; line-height:1.4; overflow-wrap:anywhere}
+.pvm-t b{font-weight:650}
+.pvm-m{font-size:13px; color:var(--c-mut)}
+.pvm-av{font-size:13px; color:var(--c-ink); background:var(--warning-soft); border-left:3px solid var(--warning); padding:3px 8px; border-radius:4px; margin-top:2px}
+.pvm-ch{display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding-bottom:2px}
+.pvm-ev{font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px; background:var(--success-soft); border:1px solid var(--success); color:var(--c-ink)}
+.pvm-c s{color:var(--c-mut)}
+.pvm-solo summary{cursor:pointer; font-size:14px; min-height:36px; display:flex; align-items:center}
+.pvm-solo ul{margin:4px 0 0; padding-left:20px; font-size:13.5px; color:var(--c-mut)}
+.pvm-foot{display:flex; justify-content:flex-end; gap:10px; padding:12px 18px; border-top:1px solid var(--c-line); flex-wrap:wrap}
+.pvm-foot .btn{min-height:42px}
+.pvm-head .btn{min-height:36px}
+@media (max-width:560px){ .pvm-ov{padding:0} .pvm-box{max-height:100vh; border-radius:0; min-height:100vh} .pvm-foot .btn{flex:1} }
+.co-dp.contabilidad{background:#E3EEF4; color:#2F5E75; border-color:#B4CEDC}
 /*V3-END*/
 </style>
 
@@ -4041,7 +4072,7 @@ html.cp-on,body.cp-on{background:#F3F1EA!important}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.68</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.69</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9415,7 +9446,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.68</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.69</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9950,8 +9981,8 @@ function pvTipoEvento(f){ var t=pvNorm((f.tipo||"")+" "+(f.nombre||"")+" "+(f.es
   if(/catering|foodtruck|fodtruck/.test(t)) return "Catering"; if(/comuni/.test(t)) return "Comunión"; if(/bautiz|bateig/.test(t)) return "Bautizo";
   if(/boda|casament|wedding/.test(t)) return "Boda"; if(/aniversar/.test(t)) return "Aniversario";
   if(/empresa|corporat|gala|congres|jornada|cena de empresa/.test(t)) return "Evento corporativo"; return "Celebración"; }
-function pvEspacio(e){ var n=pvNorm(e); if(/vinyes/.test(n)) return "Les Vinyes del Convent"; if(/foodtruck|fodtruck/.test(n)) return "Foodtruck"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return String(e||"").trim(); }
-function localClave(t){ var n=pvNorm(t); if(!n) return "sin"; if(/vinyes/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
+function pvEspacio(e){ var n=pvNorm(e); if(/vinyes|viyes|vinyas/.test(n)) return "Les Vinyes del Convent"; if(/foodtruck|fodtruck/.test(n)) return "Foodtruck"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return String(e||"").trim(); }
+function localClave(t){ var n=pvNorm(t); if(!n) return "sin"; if(/vinyes|viyes|vinyas/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
 var PV_EV_CONF={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
 function pvHoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function pvISO(s){ return /^\d{4}-\d\d-\d\d$/.test(s||""); }
@@ -17126,10 +17157,12 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     {k:"compras", t:"Compras",  def:"lista de la compra, proveedores y pedidos",
      vistas:["resumen","m-compra","pedidos","m-prod","prov","presup","inv"]},
     {k:"servicio",t:"Servicio", def:"sala, camareros, montaje y escaleta",
-     vistas:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje"]}
+     vistas:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje"]},
+    {k:"contabilidad",t:"Contabilidad", def:"presupuesto y cobros, facturas de proveedores y horas del personal",
+     vistas:["resumen","crm","presup","prov","pedidos","cam-horas","cierre","prev"]}
   ];
   function dep(k){ for(var i=0;i<DEPTS.length;i++) if(DEPTS[i].k===k) return DEPTS[i]; return null; }
-  var DEP_T={eventos:"Eventos",cocina:"Cocina",compras:"Compras",servicio:"Servicio",todos:"Todos",admin:"Administración"};
+  var DEP_T={eventos:"Eventos",cocina:"Cocina",compras:"Compras",servicio:"Servicio",contabilidad:"Contabilidad",todos:"Todos",admin:"Administración"};
   /* a qué departamento pertenece cada sección (para repartir las comprobaciones) */
   var SEC_DEPT={crm:"eventos",timeline:"eventos",tareas:"eventos",plan:"eventos",list:"eventos",card:"eventos",presup:"eventos","m-bebida":"eventos","m-card":"eventos",
     "m-sel":"cocina","m-prod":"cocina","m-aler":"cocina","m-compra":"compras",pedidos:"compras",prov:"compras",inv:"compras",
@@ -17137,10 +17170,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
   /* las cifras compartidas: quién las define y quién las necesita */
   var HECHOS=[
-    {k:"fecha",     t:"Fecha del evento",     de:"eventos", para:["cocina","compras","servicio"]},
-    {k:"adultos",   t:"Adultos",              de:"eventos", para:["cocina","compras","servicio"]},
-    {k:"ninos",     t:"Niños",                de:"eventos", para:["cocina","compras","servicio"]},
-    {k:"bebes",     t:"Bebés (trona)",        de:"eventos", para:["cocina","compras","servicio"]},
+    {k:"fecha",     t:"Fecha del evento",     de:"eventos", para:["cocina","compras","servicio","contabilidad"]},
+    {k:"adultos",   t:"Adultos",              de:"eventos", para:["cocina","compras","servicio","contabilidad"]},
+    {k:"ninos",     t:"Niños",                de:"eventos", para:["cocina","compras","servicio","contabilidad"]},
+    {k:"bebes",     t:"Bebés (trona)",        de:"eventos", para:["cocina","compras","servicio","contabilidad"]},
     {k:"staff",     t:"Staff",                de:"eventos", para:["cocina","compras","servicio"]},
     {k:"mesas",     t:"Mesas de banquete",    de:"eventos", para:["compras","servicio"]},
     {k:"alergias",  t:"Alergias y dietas",    de:"eventos", para:["cocina","compras","servicio"], lista:true},
@@ -17260,8 +17293,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var pax=(f.adultos||0)+(f.ninos||0)+(f.bebes||0);
     function chips(l){ return l.map(function(k){ return '<span class="co-dp '+k+'">'+esc(DEP_T[k])+'</span>'; }).join(""); }
     var filas=[
-      ["Fecha del evento", f.fecha?fechaTxt(f.fecha):'<span class="co-vacio">sin fecha</span>',"eventos",["cocina","compras","servicio"]],
-      ["Comensales", '<b>'+pax+'</b> en total · '+f.adultos+' adultos · '+f.ninos+' niños · '+f.bebes+' bebés'+(f.staff?' · '+f.staff+' de staff (incluidos en adultos)':''),"eventos",["cocina","compras","servicio"]],
+      ["Fecha del evento", f.fecha?fechaTxt(f.fecha):'<span class="co-vacio">sin fecha</span>',"eventos",["cocina","compras","servicio","contabilidad"]],
+      ["Comensales", '<b>'+pax+'</b> en total · '+f.adultos+' adultos · '+f.ninos+' niños · '+f.bebes+' bebés'+(f.staff?' · '+f.staff+' de staff (incluidos en adultos)':''),"eventos",["cocina","compras","servicio","contabilidad"]],
       ["Mesas de banquete", String(f.mesas||0),"eventos",["compras","servicio"]],
       ["Alergias y dietas", lista("Personas",f.alergias,"al")+(f.sinSustituto?'<span class="co-warn">'+f.sinSustituto+(f.sinSustituto===1?" sin plato sustitutivo decidido":" sin plato sustitutivo decidido")+'</span>':''),"eventos",["cocina","compras","servicio"]],
       ["Platos sustitutivos", lista("Decididos",f.sustitutos,"su"),"cocina",["eventos","compras","servicio"]],
@@ -17282,7 +17315,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function avisosCard(e){
     var todos=avisosDe(e), pend=todos.filter(function(a){ return !a.hecho; }), hechos2=todos.filter(function(a){ return a.hecho; }).slice(0,12);
-    var yo=rol(), opts=["cocina","compras","servicio","eventos","todos"].filter(function(k){ return k!==yo; });
+    var yo=rol(), opts=["cocina","compras","servicio","contabilidad","eventos","todos"].filter(function(k){ return k!==yo; });
     return '<section class="pcard co-avisos" aria-label="Avisos entre departamentos"><h2>Avisos entre departamentos</h2>'+
       '<p class="co-ayuda">Para lo que no se ve solo con los datos: «han llamado y suben 10 comensales», «el cliente quiere el postre sin nata». El aviso queda en este evento hasta que alguien lo marque como hecho.</p>'+
       '<div class="co-nuevo"><label class="fld"><span class="lbl">Para</span><select id="co-para" aria-label="Para quién">'+opts.map(function(k){ return '<option value="'+k+'">'+esc(DEP_T[k])+'</option>'; }).join("")+'</select></label>'+
@@ -17307,7 +17340,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var e=evActual(), top=host.scrollTop;
     var cab='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Planificación</div><h1 class="pv-title">Coordinación entre departamentos</h1>'+
       '<div class="pv-sub">'+esc(e?(e.name||"Sin título"):"")+'</div>'+
-      '<p class="pv-guide">Eventos, Cocina, Compras y Servicio trabajan sobre el mismo evento. Aquí ves qué ha cambiado para cada departamento desde la última vez que lo revisó, qué datos se comparten y qué falta por cuadrar.</p></div></header>';
+      '<p class="pv-guide">Eventos, Cocina, Compras, Servicio y Contabilidad trabajan sobre el mismo evento. Aquí ves qué ha cambiado para cada departamento desde la última vez que lo revisó, qué datos se comparten y qué falta por cuadrar.</p></div></header>';
     if(!e){ host.innerHTML='<div class="pv-inner co-root">'+cab+'<div class="pcard"><p>Selecciona un evento.</p></div></div>'; return; }
     var f=hechos(e);
     if(!f){ host.innerHTML='<div class="pv-inner co-root">'+cab+'<div class="pcard"><p>No se han podido calcular las cifras de este evento.</p></div></div>'; return; }
@@ -19010,7 +19043,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
   /* ── disponibilidad: Previsión + eventos ── */
   function filas(){ return (((BR.store||{}).prevision||{}).filas||[]).filter(function(f){ return f&&!f.borrado; }); }
-  function localDe(esp){ var n=String(esp||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); if(!n) return "sin"; if(/vinyes/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
+  function localDe(esp){ var n=String(esp||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); if(!n) return "sin"; if(/vinyes|viyes|vinyas/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
   var PESO={libre:0,provisional:1,ocupada:2};
   function dispDia(iso){
     var r={moles:{e:"libre",l:[]},vinyes:{e:"libre",l:[]},fuera:{e:"libre",l:[]}}, rows=filas(), enl={};
@@ -19025,7 +19058,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return LOCALES.slice(0,2).map(function(L){ var x=D[L.k], t=x.e==="libre"?"libre":x.e==="provisional"?"provisional":"ocupada";
       return '<span class="cs-d '+x.e+'" title="'+esc(x.l.map(function(y){ return y.n; }).join(" · "))+'"><i style="background:'+L.c+'"></i>'+esc(L.t)+': <b>'+t+'</b>'+(x.l.length?' <small>('+esc(x.l.map(function(y){ return y.n; }).slice(0,2).join(", "))+')</small>':'')+'</span>'; }).join("");
   }
-  function espacioDe(salon){ var n=String(salon||"").toLowerCase(); if(/vinyes/.test(n)) return "Les Vinyes del Convent"; if(/moles/.test(n)) return "Les Moles"; if(/catering|otro/.test(n)) return "Catering"; return ""; }
+  function espacioDe(salon){ var n=String(salon||"").toLowerCase(); if(/vinyes|viyes|vinyas/.test(n)) return "Les Vinyes del Convent"; if(/moles/.test(n)) return "Les Moles"; if(/catering|otro/.test(n)) return "Catering"; return ""; }
 
   /* ── datos del servidor ── */
   function cargar(cb){
@@ -20363,9 +20396,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev","consultas"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","presup","hist","plan","list","card","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev","consultas"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","pedidos","prov","presup","inv","docs"]},
+    contabilidad:{label:"Contabilidad", secciones:["resumen","crm","presup","prov","pedidos","cam-horas","cierre","prev","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
   };
   var $=function(id){ return document.getElementById(id); };
@@ -20392,7 +20426,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     isAuthed:function(){ return !!(curUser&&curUser.email); },
     role:function(){ return (curUser&&curUser.role)||"admin"; },
     hasBackend:function(){ return backend; },
-    can:function(sec){ var u=curUser; if(!u) return false; if(sec==="coh") return true; if(sec==="srv") return u.role!=="compras"; var r=ROLES[u.role]; if(!r||r.secciones==="*") return true; return r.secciones.indexOf(sec)>=0; },
+    can:function(sec){ var u=curUser; if(!u) return false; if(sec==="coh") return true; if(sec==="srv") return u.role!=="compras"&&u.role!=="contabilidad"; var r=ROLES[u.role]; if(!r||r.secciones==="*") return true; return r.secciones.indexOf(sec)>=0; },
     logout:function(){ try{ fetch("/api/logout",{method:"POST"}).catch(function(){}); }catch(_){ } setUser(null); }
   };
   window.LM_SESSION=SESSION;
@@ -20434,7 +20468,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
        administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
-    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos","consultas"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
+    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos","consultas","presup"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
       var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
@@ -20556,6 +20590,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     eventos:"Organiza los eventos: ficha, plano, menú, camareros y presupuesto.",
     cocina:"Cocina: menú, producción, alergias, escaleta e inventario.",
     compras:"Compras: lista de la compra, proveedores, presupuesto e inventario.",
+    contabilidad:"Contabilidad: presupuesto y cobros, proveedores y pedidos, horas del personal, cierre del evento y previsión.",
     servicio:"Sala: camareros, check list, escaleta, plano y montaje."};
   var uScrim=$("users-scrim");
   var U={tab:"personas",users:null,cargando:false,invitar:false,editar:"",enlace:null,draft:null,sucio:false,reg:[],regUid:"",regFin:false,regCargando:false};
@@ -20644,7 +20679,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       (yo?'':'<button type="button" class="u-pass" data-u="activar" data-id="'+esc(u.id)+'" data-v="'+(u.active?"0":"1")+'">'+(u.active?"Desactivar":"Activar")+'</button><button type="button" class="u-del" data-u="borrar" data-id="'+esc(u.id)+'" data-nm="'+esc(u.name)+'" aria-label="Eliminar a '+esc(u.name)+'">×</button>')+'</div>'+panel+'</div>';
   }
   /* ── Roles y permisos ── */
-  var ROLES_EDIT=["eventos","cocina","compras","servicio"];
+  var ROLES_EDIT=["eventos","cocina","compras","contabilidad","servicio"];
   function seccionesEditables(){
     var out=[{g:"Inicio",items:[{k:"resumen",t:"Resumen del evento",fijo:true}]}], por={}, orden=[];
     (window.LM_SECCIONES||[]).forEach(function(x){ if(/^(p-|r-)/.test(x.k)) return; if(!por[x.g]){ por[x.g]=[]; orden.push(x.g); } por[x.g].push({k:x.k,t:x.t,fijo:x.k==="coh"||x.k==="srv"}); });
@@ -20660,7 +20695,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       h+='<tr class="ut-g"><td colspan="'+(2+ROLES_EDIT.length)+'">'+esc(gr.g)+'</td></tr>';
       gr.items.forEach(function(it){
         h+='<tr><td>'+esc(it.t)+'</td><td class="ut-c"><i class="ut-ok" aria-label="Sí">✓</i></td>'+ROLES_EDIT.map(function(r){
-          var on=(it.fijo&&!(it.k==="srv"&&r==="compras"))||D[r].indexOf(it.k)>=0;
+          var on=(it.fijo&&!(it.k==="srv"&&(r==="compras"||r==="contabilidad")))||D[r].indexOf(it.k)>=0;
           return '<td class="ut-c"><input type="checkbox" data-u="perm" data-r="'+r+'" data-k="'+esc(it.k)+'"'+(on?" checked":"")+(it.fijo?" disabled":"")+' aria-label="'+esc(roleLabel(r))+': '+esc(it.t)+'"></td>'; }).join("")+'</tr>';
       });
     });
@@ -22343,7 +22378,7 @@ function categoria(f){
   if(/experiencia|singulars|taula|aniversari/.test(t)) return "evento";
   return "otros";
 }
-function espacioCorto(e){ var n=norm(e); if(/vinyes/.test(n)) return "Les Vinyes"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return e||""; }
+function espacioCorto(e){ var n=norm(e); if(/vinyes|viyes|vinyas/.test(n)) return "Les Vinyes"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return e||""; }
 function fechaTxt(iso){ if(!/^\d{4}-\d\d-\d\d$/.test(iso||"")) return iso||""; var p=iso.split("-"); return p[2]+"/"+p[1]; }
 function mesDe(f){ if(f.fecha){ var m=+f.fecha.slice(5,7); if(m) return m; } return +f.mes||0; }
 function avisoFecha(f){ return f.fecha&&+f.fecha.slice(0,4)!==+f.anio?"La fecha es de "+f.fecha.slice(0,4)+", no de "+f.anio+": revísala":""; }
@@ -22446,7 +22481,7 @@ var LOC={}; LOCALES.forEach(function(l){ LOC[l.k]=l; });
 /* el local sale del «espacio» de la celebración (que va y viene con el lugar
    del evento): Les Moles, Les Vinyes o, si es otro sitio (catering, foodtruck,
    Cornudella, el Observatori…), fuera. Vacío = sin asignar. */
-function localDe(f){ var n=norm(f&&f.espacio||""); if(!n) return "sin"; if(/vinyes/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
+function localDe(f){ var n=norm(f&&f.espacio||""); if(!n) return "sin"; if(/vinyes|viyes|vinyas/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
 function franjas(cs){ if(cs.length<2) return cs[0];
   var p=100/cs.length; return "linear-gradient(135deg,"+cs.map(function(c,i){ return c+" "+(i*p)+"% "+((i+1)*p)+"%"; }).join(",")+")"; }
 function tinte(c,a){ var r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16); return "rgba("+r+","+g+","+b+","+a+")"; }
@@ -22577,18 +22612,153 @@ function leerHoja(rows,nombreHoja){
   });
   return {anio:anio, filas:out};
 }
+/* ── importar el Excel «PREVISION BANQUETES»: se FUSIONA con lo que ya hay (nunca se reemplaza el año) ──
+   · lo que el Excel trae y la app no tiene → celebraciones nuevas (se marcan todas)
+   · lo que ya está pero el Excel dice otra cosa → se enseña campo a campo y se elige (lo que la app tenía en blanco se rellena solo)
+   · lo que está en la app y no en el Excel NO se toca (es lo que se ha apuntado ya desde el programa) */
+var PVM_STOP={boda:1,comida:1,cena:1,catering:1,celebracio:1,celebracion:1,del:1,les:1,los:1,las:1,amb:1,con:1,familiar:1,empresa:1,sopar:1,aniversari:1,aniversario:1};
+function claveNom(s){ return norm(s).replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim(); }
+function palabras(s){ return claveNom(s).split(" ").filter(function(w){ return w.length>=3&&!PVM_STOP[w]; }); }
+function parecidos(a,b){ var pa=palabras(a), pb=palabras(b); if(!pa.length||!pb.length) return claveNom(a)===claveNom(b); return pa.some(function(w){ return pb.indexOf(w)>=0; }); }
+function esISO(v){ return /^\d{4}-\d\d-\d\d$/.test(String(v||"")); }
+function fmtFecha(v){ v=String(v||""); if(esISO(v)){ var p=v.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; } return v; }
+function isoValido(s){ if(!esISO(s)) return false; var d=new Date(s+"T00:00:00Z"); return !isNaN(d)&&d.toISOString().slice(0,10)===s; }
+var PVM_CAMPOS=[{k:"fecha",t:"Fecha"},{k:"tipo",t:"Tipo"},{k:"espacio",t:"Espacio"},{k:"visita1",t:"1ª visita",d:1},{k:"visita2",t:"2ª visita",d:1},{k:"fechaConf",t:"Confirmación",d:1},
+  {k:"pax",t:"Comensales"},{k:"paxPrev",t:"Previstos"},{k:"telefono",t:"Teléfono",tel:1},{k:"localidad",t:"Localidad"},{k:"origen",t:"Cómo nos conocen"},{k:"decision",t:"Decisión"}];
+function valFila(o,k){ return k==="fecha"?String(o.fecha||o.fechaTxt||"").trim():String(o[k]==null?"":o[k]).trim(); }
+function mismoValor(c,a,b){ if(c.tel) return a.replace(/\D/g,"")===b.replace(/\D/g,""); if(c.k==="pax"||c.k==="paxPrev") return num(a)===num(b); return norm(a)===norm(b); }
+/* los cambios que trae el Excel para una celebración que ya está */
+function difsFila(x,f){
+  var out=[];
+  PVM_CAMPOS.forEach(function(c){
+    var vx=valFila(x,c.k), vf=valFila(f,c.k); if(!vx) return;                         /* el Excel en blanco nunca borra lo que hay */
+    if(c.k==="fecha"&&!esISO(vx)&&esISO(vf)) return;                                  /* «OCTUBRE» no sustituye a un día concreto */
+    if(mismoValor(c,vx,vf)) return;
+    out.push({k:c.k,t:c.t,de:vf,a:vx,marca:!vf||!!(c.d&&!esISO(vf)&&esISO(vx))});     /* en blanco o mal escrito en la app → se rellena/arregla solo */
+  });
+  if(x.estado==="confirmado"&&f.estado==="pendiente") out.push({k:"estado",t:"Estado",de:"Pendiente",a:"Confirmada",marca:out.some(function(d){ return (d.k==="fechaConf"||d.k==="pax")&&d.marca; })});
+  return out;
+}
+/* qué se hace con cada fila del Excel */
+function planFusion(res,opts){
+  var xs=res.filas.map(function(x){
+    var o=Object.assign({},x);
+    if(esISO(o.fecha)&&+o.fecha.slice(0,4)!==+res.anio){
+      o.fechaExcel=o.fecha; var fx=res.anio+o.fecha.slice(4);
+      if(opts.fixAnio&&isoValido(fx)){ o.fecha=fx; o.corregida=true; } else o.otroAnio=true;
+    }
+    return o; });
+  var libres=filas().filter(function(f){ return +f.anio===+res.anio; }), pares=[], nuevas=[], resto=[];
+  xs.forEach(function(x){
+    var k=claveNom(x.nombre), cand=libres.filter(function(f){ return claveNom(f.nombre)===k; });
+    var m=cand.filter(function(f){ return f.fecha&&f.fecha===x.fecha; })[0]||cand[0];
+    if(m){ libres.splice(libres.indexOf(m),1); pares.push({x:x,f:m}); } else resto.push(x); });
+  resto.forEach(function(x){                                                          /* mismo día y nombre parecido (p. ej. una fila que viene de un evento) */
+    var m=esISO(x.fecha)?libres.filter(function(f){ return f.fecha===x.fecha&&parecidos(f.nombre,x.nombre); })[0]:null;
+    if(m){ libres.splice(libres.indexOf(m),1); pares.push({x:x,f:m}); } else nuevas.push({x:x}); });
+  var cambios=[], iguales=0;
+  pares.forEach(function(p){ var d=difsFila(p.x,p.f); if(d.length) cambios.push({x:p.x,f:p.f,difs:d}); else iguales++; });
+  /* la misma celebración repetida en la app (mismo nombre y mismo día): se ofrece quitar la que sobra */
+  var vistos={}, dups=[], clave=function(f){ return claveNom(f.nombre)+"|"+(f.fecha||f.fechaTxt||""); };
+  pares.forEach(function(p){ vistos[clave(p.f)]=1; });
+  libres=libres.filter(function(f){ var k=clave(f); if(vistos[k]){ dups.push(f); return false; } vistos[k]=1; return true; });
+  return {anio:res.anio, nuevas:nuevas, cambios:cambios, iguales:iguales, soloApp:libres, dups:dups, nCorr:xs.filter(function(o){ return o.corregida||o.otroAnio; }).length};
+}
+function filaNueva(x,anio,ahora){
+  return {id:uid(), anio:anio, mes:esISO(x.fecha)?+x.fecha.slice(5,7):(+x.mes||0), nombre:x.nombre, tipo:x.tipo||"", visita1:x.visita1||"", visita2:x.visita2||"", fechaConf:x.fechaConf||"",
+    pax:x.pax||"", paxPrev:x.paxPrev||"", espacio:x.espacio||"", fecha:esISO(x.fecha)?x.fecha:"", fechaTxt:esISO(x.fecha)?"":(x.fechaTxt||""), origen:x.origen||"", telefono:x.telefono||"",
+    localidad:x.localidad||"", decision:x.decision||"", estado:x.estado||"pendiente", updated:ahora};
+}
+function aplicarCampo(f,x,d){
+  if(d.k==="fecha"){ if(esISO(x.fecha)){ f.fecha=x.fecha; f.fechaTxt=""; f.mes=+x.fecha.slice(5,7); } else { f.fecha=""; f.fechaTxt=x.fechaTxt||x.fecha||""; } }
+  else if(d.k==="estado") f.estado="confirmado";
+  else f[d.k]=x[d.k];
+}
+function aplicarFusion(pl,sel){
+  var P=prev(), ahora=Date.now(), nN=0, nC=0, nD=0;
+  pl.dups.forEach(function(f,i){ if(sel.d[i]){ f.borrado=true; f.updated=ahora; nD++; } });
+  pl.nuevas.forEach(function(n,i){ if(!sel.n[i]) return; P.filas.push(filaNueva(n.x,pl.anio,ahora)); nN++; });
+  pl.cambios.forEach(function(c,i){ var cs=sel.c[i]||{}, algo=false; c.difs.forEach(function(d){ if(cs[d.k]){ aplicarCampo(c.f,c.x,d); algo=true; } }); if(algo){ c.f.updated=ahora; nC++; } });
+  P.anios=P.anios||[]; if(P.anios.indexOf(+pl.anio)<0) P.anios.push(+pl.anio);
+  return {nuevas:nN, cambios:nC, repetidas:nD};
+}
+/* la pantalla de revisión */
+function abrirFusion(res,nombreArchivo){
+  var antes=document.activeElement, opts={fixAnio:true}, pl, sel;
+  var hoy=new Date().toISOString().slice(0,10);
+  function marcar(){ sel={d:pl.dups.map(function(){ return true; }), n:pl.nuevas.map(function(){ return true; }), c:pl.cambios.map(function(c){ var o={}; c.difs.forEach(function(d){ o[d.k]=!!d.marca; }); return o; })}; }
+  function cuenta(){ var n=0; sel.d.forEach(function(v){ if(v) n++; }); sel.n.forEach(function(v){ if(v) n++; }); sel.c.forEach(function(o){ Object.keys(o).forEach(function(k){ if(o[k]) n++; }); }); return n; }
+  function avisos(n){
+    var x=n.x, a=[];
+    if(x.corregida) a.push("En el Excel la fecha es "+fmtFecha(x.fechaExcel)+" (en la hoja de "+pl.anio+"): se importa como "+fmtFecha(x.fecha)+".");
+    if(x.otroAnio) a.push("La fecha ("+fmtFecha(x.fechaExcel)+") es de otro año que la hoja: revísala después.");
+    if(!esISO(x.fecha)&&!x.otroAnio) a.push(x.fechaTxt?"Sin día fijo («"+x.fechaTxt+"»): saldrá en «Sin día fijo».":"Sin fecha: saldrá en «Sin día fijo».");
+    if(!x.tipo&&!x.espacio&&!x.telefono&&!x.paxPrev&&!x.pax) a.push("Solo tiene el nombre: complétala después.");
+    if(x.estado==="confirmado"&&esISO(x.fecha)&&x.fecha>=hoy) a.push("Está confirmada y con fecha: pasará sola a Eventos.");
+    return a; }
+  function html(){
+    var h='<div class="pvm-box" role="dialog" aria-modal="true" aria-labelledby="pvm-t"><div class="pvm-head"><h2 id="pvm-t" tabindex="-1">Importar la previsión de '+esc(pl.anio)+'</h2><button type="button" class="btn sm" data-pvm="x">Cerrar</button></div><div class="pvm-body">';
+    h+='<p class="pvm-res">'+(nombreArchivo?'<b>'+esc(nombreArchivo)+'</b> · ':'')+'<b>'+(pl.nuevas.length+pl.cambios.length+pl.iguales)+'</b> celebraciones en el Excel: <b>'+pl.nuevas.length+'</b> nuevas, <b>'+pl.cambios.length+'</b> con cambios y <b>'+pl.iguales+'</b> iguales a las de la app.</p>';
+    h+='<p class="pvm-nota">No se borra ni se cambia nada que no marques'+(pl.soloApp.length?'. Hay <b>'+pl.soloApp.length+'</b> celebraciones en la app que no están en el Excel (por ejemplo las apuntadas desde el programa): no se tocan.':'.')+'</p>';
+    if(pl.nCorr||opts.fixAnio===false) h+='<label class="pvm-fix"><input type="checkbox" data-pvm="fix"'+(opts.fixAnio?' checked':'')+'> Corregir el año de las fechas que no son de la hoja de '+esc(pl.anio)+'</label>';
+    if(pl.dups.length){
+      h+='<section class="pvm-sec"><h3>Repetidas en la app <em>'+pl.dups.length+'</em></h3><p class="pvm-nota">La misma celebración (mismo nombre y mismo día) está dos veces en la app. Marcada, se quita la fila que sobra (la otra se queda).</p><ul class="pvm-l">';
+      pl.dups.forEach(function(f,i){
+        h+='<li><label class="pvm-f"><input type="checkbox" data-pvm="d" data-i="'+i+'"'+(sel.d[i]?' checked':'')+'><span class="pvm-t"><span><b>'+esc(f.nombre)+'</b> · '+esc(fmtFecha(f.fecha||f.fechaTxt)||"sin fecha")+'</span><span class="pvm-m">Quitar esta fila repetida</span>'+
+          (f.evento?'<span class="pvm-av">Tiene un evento creado: si sobra, bórralo también desde Eventos.</span>':'')+'</span></label></li>'; });
+      h+='</ul></section>'; }
+    if(!pl.nuevas.length&&!pl.cambios.length&&!pl.dups.length) h+='<div class="pvm-vacio">El Excel y la app ya coinciden: no hay nada que importar.</div>';
+    if(pl.nuevas.length){
+      h+='<section class="pvm-sec"><h3>Celebraciones nuevas <em>'+pl.nuevas.length+'</em></h3><ul class="pvm-l">';
+      pl.nuevas.forEach(function(n,i){ var x=n.x, av=avisos(n);
+        h+='<li><label class="pvm-f"><input type="checkbox" data-pvm="n" data-i="'+i+'"'+(sel.n[i]?' checked':'')+'><span class="pvm-t"><b>'+esc(x.nombre)+'</b><span class="pvm-m">'+
+          esc([fmtFecha(x.fecha||x.fechaTxt),x.tipo,espacioCorto(x.espacio),(x.pax||x.paxPrev)?((x.pax||x.paxPrev)+" pax"):""].filter(Boolean).join(" · "))+'</span>'+
+          av.map(function(t){ return '<span class="pvm-av">'+esc(t)+'</span>'; }).join('')+'</span></label></li>'; });
+      h+='</ul></section>'; }
+    if(pl.cambios.length){
+      h+='<section class="pvm-sec"><h3>Con cambios en el Excel <em>'+pl.cambios.length+'</em></h3><p class="pvm-nota">Lo que ya tenía un dato distinto viene sin marcar: marca el del Excel si es el bueno. Lo que estaba en blanco o mal escrito en la app viene marcado.</p><ul class="pvm-l">';
+      pl.cambios.forEach(function(c,i){
+        h+='<li class="pvm-c"><div class="pvm-ch"><b>'+esc(c.f.nombre)+'</b>'+(c.f.evento?'<span class="pvm-ev">Ya es un evento</span>':'')+'</div>';
+        c.difs.forEach(function(d){
+          var ev=(d.k==="fecha"&&c.f.evento)?'<span class="pvm-av">Al cambiarla se mueve también la fecha del evento.</span>':'';
+          h+='<label class="pvm-f"><input type="checkbox" data-pvm="c" data-i="'+i+'" data-k="'+esc(d.k)+'"'+(sel.c[i][d.k]?' checked':'')+'><span class="pvm-t"><span><b>'+esc(d.t)+':</b> '+(d.de?'<s>'+esc(fmtFecha(d.de))+'</s>':'<i>(en blanco)</i>')+' → <b>'+esc(fmtFecha(d.a))+'</b></span>'+ev+'</span></label>'; });
+        h+='</li>'; });
+      h+='</ul></section>'; }
+    if(pl.soloApp.length) h+='<details class="pvm-solo"><summary>Solo en la app ('+pl.soloApp.length+')</summary><ul>'+pl.soloApp.map(function(f){ return '<li>'+esc(f.nombre)+(f.fecha?' · '+esc(fmtFecha(f.fecha)):'')+'</li>'; }).join('')+'</ul></details>';
+    h+='</div><div class="pvm-foot"><button type="button" class="btn" data-pvm="x">Cancelar</button><button type="button" class="btn gold" data-pvm="ok"></button></div></div>';
+    return h; }
+  var ov=document.createElement("div"); ov.className="pvm-ov"; ov.id="pvm";
+  function pintar(){ ov.innerHTML=html(); pie(); }
+  function pie(){ var b=ov.querySelector('[data-pvm="ok"]'), n=cuenta(); if(!b) return; b.textContent=n?("Importar lo marcado ("+n+")"):"Nada marcado"; b.disabled=!n; }
+  function cerrar(){ document.removeEventListener("keydown",tecla,true); if(ov.parentNode) ov.parentNode.removeChild(ov); var t=(antes&&document.body.contains(antes))?antes:(host&&host.querySelector('[for="pv-file"]')); if(t&&t.focus) try{ t.focus(); }catch(_){} }
+  function tecla(e){
+    if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); cerrar(); return; }
+    if(e.key!=="Tab") return;
+    var f=[].slice.call(ov.querySelectorAll('button:not([disabled]),input,summary,[tabindex="0"]')).filter(function(x){ return x.offsetParent!==null; }); if(!f.length) return;
+    var a=f[0], z=f[f.length-1]; if(e.shiftKey&&(document.activeElement===a||!ov.contains(document.activeElement))){ e.preventDefault(); z.focus(); } else if(!e.shiftKey&&document.activeElement===z){ e.preventDefault(); a.focus(); } }
+  ov.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("[data-pvm]"); if(!b){ if(e.target===ov) cerrar(); return; }
+    var a=b.getAttribute("data-pvm");
+    if(a==="x"){ cerrar(); return; }
+    if(a==="ok"){ var r=aplicarFusion(pl,sel); ui.anio=pl.anio; cerrar(); guardar(); render();
+      toast([r.nuevas?r.nuevas+" nuevas":"",r.cambios?r.cambios+" con cambios":"",r.repetidas?r.repetidas+" repetidas quitadas":""].filter(Boolean).join(", ")+" en "+pl.anio+"."); return; } });
+  ov.addEventListener("change",function(e){
+    var el=e.target, a=el.getAttribute&&el.getAttribute("data-pvm"); if(!a) return;
+    if(a==="d") sel.d[+el.getAttribute("data-i")]=el.checked;
+    else if(a==="n") sel.n[+el.getAttribute("data-i")]=el.checked;
+    else if(a==="c") sel.c[+el.getAttribute("data-i")][el.getAttribute("data-k")]=el.checked;
+    else if(a==="fix"){ opts.fixAnio=el.checked; pl=planFusion(res,opts); marcar(); pintar(); var f=ov.querySelector('[data-pvm="fix"]'); if(f) f.focus(); return; }
+    pie(); });
+  pl=planFusion(res,opts); marcar(); pintar(); document.body.appendChild(ov); document.addEventListener("keydown",tecla,true);
+  var t=ov.querySelector("#pvm-t"); if(t) t.focus();
+}
 function importar(file){
   if(!file) return;
   var r=new FileReader();
   r.onload=function(){ BR.impXlsx(r.result).then(function(hs){
     var res=null; hs.some(function(h){ res=leerHoja(h.rows,h.nombre); return res&&res.filas.length; });
     if(!res||!res.filas.length||!res.anio){ toast("No he encontrado la hoja de previsión (con «NOMBRE» y el año) en este Excel."); return; }
-    var ya=filas().filter(function(f){ return +f.anio===+res.anio; }).length;
-    if(ya&&!window.confirm("Ya hay "+ya+" celebraciones en "+res.anio+". ¿Cambiarlas por las "+res.filas.length+" del Excel?")) return;
-    var P=prev(), ahora=Date.now();
-    P.filas.forEach(function(f){ if(+f.anio===+res.anio&&!f.borrado){ f.borrado=true; f.updated=ahora; } });
-    res.filas.forEach(function(f){ P.filas.push(f); });
-    ui.anio=res.anio; guardar(); render(); toast(res.filas.length+" celebraciones de "+res.anio+" importadas.");
+    abrirFusion(res,file.name);
   }).catch(function(){ toast("No se ha podido leer el Excel."); }); };
   r.readAsArrayBuffer(file);
 }

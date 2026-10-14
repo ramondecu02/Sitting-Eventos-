@@ -71,7 +71,7 @@
  * Todo lo demás se sirve como asset estático (la app).
  */
 
-const ROLES = ["admin", "eventos", "cocina", "compras", "servicio"];
+const ROLES = ["admin", "eventos", "cocina", "compras", "contabilidad", "servicio"];
 const COOKIE = "lm_sess";
 const SESSION_DAYS = 14;
 const enc = new TextEncoder();
@@ -931,7 +931,7 @@ async function consTokOk(env, t) {
   if (edad < 3000) return "rapido"; if (edad > 3 * 3600e3) return "caducado"; return "ok";
 }
 /* el local de una celebración, igual que en la Previsión de la app */
-function consLocal(esp) { const n = normTxt(esp || ""); if (!n) return "sin"; if (/vinyes/.test(n)) return "vinyes"; if (/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if (/moles/.test(n)) return "moles"; return "fuera"; }
+function consLocal(esp) { const n = normTxt(esp || ""); if (!n) return "sin"; if (/vinyes|viyes|vinyas/.test(n)) return "vinyes"; if (/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if (/moles/.test(n)) return "moles"; return "fuera"; }
 /* un día en cada local: libre · provisional (hay algo sin confirmar) · ocupada */
 function consDispDoc(doc, iso) {
   const r = { moles: "libre", vinyes: "libre", fuera: "libre" }, peso = { libre: 0, provisional: 1, ocupada: 2 };
@@ -1181,8 +1181,8 @@ async function ensureServicio(env) {
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS servicio_seq ON servicio (ev, seq)").run();
   SV_OK = true;
 }
-/* el servicio lo ven todos los roles salvo Compras (que no está en sala) */
-function servicioPuede(s) { return !!s && s.role !== "compras"; }
+/* el servicio lo ven todos los roles salvo Compras y Contabilidad (que no están en sala) */
+function servicioPuede(s) { return !!s && s.role !== "compras" && s.role !== "contabilidad"; }
 async function servicioDelta(env, ev, since) {
   const mx = await env.DB.prepare("SELECT COALESCE(MAX(seq), 0) AS m FROM servicio WHERE ev=?1").bind(ev).first();
   const tope = (mx && +mx.m) || 0;
@@ -2462,7 +2462,7 @@ async function usersCreate(request, env) {
   const row = await env.DB.prepare("SELECT " + COLS_USER + " FROM users WHERE id=?1").bind(user.id).first();
   return json({ ok: true, user: fichaUsuario(row, Date.now()) });
 }
-function rolTxt(r) { return { admin: "administrador", eventos: "eventos", cocina: "cocina", compras: "compras", servicio: "servicio" }[r] || r; }
+function rolTxt(r) { return { admin: "administrador", eventos: "eventos", cocina: "cocina", compras: "compras", contabilidad: "contabilidad", servicio: "servicio" }[r] || r; }
 
 async function usersPatch(request, env) {
   const a = await usersAdmin(request, env); if (a.err) return a.err;
