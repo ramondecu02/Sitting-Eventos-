@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.69 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.70 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.69".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.70".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4060,6 +4060,45 @@ html.cp-on,body.cp-on{background:#F3F1EA!important}
 .pvm-head .btn{min-height:36px}
 @media (max-width:560px){ .pvm-ov{padding:0} .pvm-box{max-height:100vh; border-radius:0; min-height:100vh} .pvm-foot .btn{flex:1} }
 .co-dp.contabilidad{background:#E3EEF4; color:#2F5E75; border-color:#B4CEDC}
+/* datos y cláusulas de cada contrato */
+.cn-aj{border:1px solid var(--c-line); border-radius:12px; background:var(--panel)}
+.cn-aj>summary{cursor:pointer; padding:10px 14px; font-weight:700; font-size:14.5px; min-height:44px; display:flex; align-items:center}
+.cn-aj-b{padding:2px 14px 14px; display:flex; flex-direction:column; gap:12px}
+.cn-aj .cn-sel{display:flex; flex-direction:column; align-items:stretch; gap:4px; font-size:14px}
+.cn-aj .cn-sel span{font-size:12px; letter-spacing:.04em}
+.cn-aj .cn-sel input[type=text], .cn-aj .cn-sel select{min-height:42px; min-width:0}
+.cn-row{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end}
+.cn-parte{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; padding:10px 12px; border:1px solid var(--c-line); border-radius:10px; background:var(--bg)}
+.cn-parte>b{flex:1 1 100%; font-size:14.5px; overflow-wrap:anywhere}
+.cn-extra{display:flex; flex-direction:column; gap:8px; padding:10px 12px; border:1px solid var(--c-line); border-radius:10px; background:var(--bg)}
+.cn-ta textarea{width:100%; min-height:84px; resize:vertical}
+.cn-h4{margin:6px 0 0; font:700 12px/1.2 var(--font-text,system-ui); letter-spacing:.12em; text-transform:uppercase; color:var(--c-mut)}
+.cn-fm{font-weight:650}
+.cn-aviso code,.cn-nota code{font:12.5px/1.4 ui-monospace,Menlo,monospace}
+/* ── Documentos del evento (dc-) ── */
+.dc-t{margin:0 0 10px; font-size:14.5px; line-height:1.55}
+.dc-acc{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px}
+.dc-acc .btn.sm,.dc-acc a.btn.sm{min-height:40px; display:inline-flex; align-items:center; text-decoration:none}
+.dc-vacio{margin:6px 2px; color:var(--c-mut); font-style:italic; font-size:14px}
+.dc-nota{margin:8px 0 0; font-size:13px; line-height:1.5; color:var(--c-mut)}
+.dc-aviso{padding:10px 12px; border-left:3px solid var(--warning); background:var(--warning-soft); border-radius:6px; margin:0 0 12px; color:var(--c-ink)}
+.dc-it{padding:12px 0; border-top:1px solid var(--c-line)}
+.dc-it:first-of-type{border-top:0}
+.dc-it-t{display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:15px}
+.dc-it-m{margin-top:3px; font-size:13px; color:var(--c-mut); overflow-wrap:anywhere}
+.dc-st{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.06em; text-transform:uppercase; padding:4px 8px; border-radius:99px; border:1px solid var(--c-line)}
+.dc-st.ok{background:var(--success-soft); border-color:var(--success); color:var(--c-ink)}
+.dc-st.pen{background:var(--warning-soft); border-color:var(--warning); color:var(--c-ink)}
+.dc-st.nuevo{background:var(--c-ink); color:var(--bg); border-color:var(--c-ink)}
+.dc-ed{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; align-items:end; margin:10px 0}
+.dc-ed .wide{grid-column:1/-1}
+.dc-ed input{min-height:42px; width:100%}
+.dc-as{display:inline-flex; align-items:center; gap:6px; font-size:13px}
+.dc-as select{min-height:40px; max-width:260px}
+.dc-up{margin-top:14px; padding-top:12px; border-top:1px dashed var(--c-line)}
+.dc-up-t,.dc-pers>b{display:block; font:700 12px/1.2 var(--font-text,system-ui); letter-spacing:.12em; text-transform:uppercase; color:var(--c-mut); margin-bottom:6px}
+.dc-pers{padding:10px 0; border-top:1px solid var(--c-line)}
+.dc-pers>b{font-size:15px; letter-spacing:0; text-transform:none; color:var(--c-ink); margin-bottom:2px}
 /*V3-END*/
 </style>
 
@@ -4072,7 +4111,7 @@ html.cp-on,body.cp-on{background:#F3F1EA!important}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.69</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.70</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4423,7 +4462,7 @@ Lluc (trona)</div>
   <div class="home-novios" id="home-novios"></div>
   <div class="home-agenda" id="home-agenda"></div>
   <div class="home-viewbar">
-    <div class="home-viewseg" id="home-viewseg" role="tablist" aria-label="Ver eventos como">
+    <div class="home-viewseg" id="home-viewseg" role="group" aria-label="Ver eventos como">
       <button class="hv-btn" data-hv="lista" type="button" aria-pressed="true">Lista por meses</button>
       <button class="hv-btn" data-hv="calendario" type="button" aria-pressed="false">Calendario</button>
     </div>
@@ -9446,7 +9485,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.69</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.70</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9800,7 +9839,8 @@ function portalFoto(e){
     presupuesto:{lineas:lineas, extras:extras, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100, pend:Math.round(Math.max(0,pt.pend)*100)/100, pct:pct, senal:senal},
     pagos:pagos, pasos:pasos, cierre:cierre, plano:(function(){ try{ return planoEsquema(e); }catch(_){ return null; } })(), lista:{mesas:mesas}, auto:(e.share&&e.share.auto===false)?false:true,
     contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""},
-    contrato:(e.contrato&&e.contrato.texto)?{tipo:e.contrato.tipo||"contrato",ver:e.contrato.ver||1,texto:e.contrato.texto,fecha:e.contrato.fecha||"",emp:e.contrato.emp||null}:null};
+    contrato:(e.contrato&&e.contrato.texto)?{tipo:e.contrato.tipo||"contrato",ver:e.contrato.ver||1,texto:e.contrato.texto,fecha:e.contrato.fecha||"",emp:e.contrato.emp||null,
+      firmantes:+e.contrato.firmantes===2?2:1,idioma:e.contrato.pubIdioma==="ca"?"ca":"es",nombres:(e.contrato.nombres||[]).filter(Boolean)}:null};
 }
 /* pone al día la foto de un evento compartido (sin tocar e.updated: es un dato derivado) */
 function portalAlDia(e){
@@ -11233,6 +11273,11 @@ function onPlanClick(ev){
   else if(act==="con-ir"){ var _cc2=$("cn-card"); if(_cc2) _cc2.scrollIntoView({behavior:"smooth",block:"start"}); return; }
   else if(act==="con-pub"){ var _ct=$("con-tipo"); if(conPublicar(e,_ct&&_ct.value)===false) return; }
   else if(act==="con-quitar"){ if(!conRetirar(e)) return; }
+  else if(act==="con-ref"){ e.contrato=e.contrato||{}; e.contrato.ref=conSugerirRef(e); }
+  else if(act==="con-extra-add"){ e.contrato=e.contrato||{}; (e.contrato.extras=e.contrato.extras||[]).push({id:uid(),t:"",x:""}); }
+  else if(act==="con-extra-del"){ if(e.contrato&&e.contrato.extras) e.contrato.extras.splice(i,1); }
+  else if(act==="con-tpl-edit"){ var _cf=conCfg(); e.contrato=e.contrato||{}; e.contrato.tpl=(e.contrato.idioma==="ca"?_cf.contratoCa:_cf.contrato); }
+  else if(act==="con-tpl-reset"){ if(e.contrato) e.contrato.tpl=""; }
   else if(act==="pvp-aplicar"){ pvpAplicar(e); }
   else if(act==="pvp-copiar"){ var _r=window.SITTING_BRIDGE.precioMenu(e), _tx=pvpTexto(e,_r);
     try{ navigator.clipboard.writeText(_tx).then(function(){ toast("Copiado: pégalo donde quieras."); },function(){ window.prompt("Copia el texto:",_tx); }); }catch(_){ window.prompt("Copia el texto:",_tx); } return; }
@@ -11488,7 +11533,7 @@ function viewPresup(e){
   '</div>'+
   '<div class="pv-sec">Seguimiento de pagos <span class="pv-sec-note">— cada pago registrado aparece en el calendario en su fecha</span></div>'+
   '<div class="dtable-wrap"><table class="dtable" style="min-width:480px"><thead><tr><th>Fecha</th><th>Concepto</th><th class="rnum">Importe</th><th></th></tr></thead><tbody>'+pagosHTML+'</tbody></table>'+
-    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap">'+(+agendaCfg().senal>0?'<button type="button" class="btn sm" data-act="pago-reserva">+ Señal ('+fmtEur(+agendaCfg().senal)+')</button>':'')+'<button type="button" class="btn sm gold" data-act="pago-senal">+ Primer pago ('+pctSenal()+'%)</button><button type="button" class="btn sm" data-act="pago-2">+ Último pago (lo que falta)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button></div></div>'+
+    '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap">'+(+agendaCfg().senal>0?'<button type="button" class="btn sm" data-act="pago-reserva">+ Señal ('+fmtEur(+agendaCfg().senal)+')</button>':'')+'<button type="button" class="btn sm gold" data-act="pago-senal">+ Primer pago ('+pctSenal()+'%)</button><button type="button" class="btn sm" data-act="pago-2">+ Último pago (lo que falta)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button><button type="button" class="btn sm" data-act="goto" data-k="docs">Justificantes de pago</button></div></div>'+
   contratoCard(e);
 }
 /* ══ PROPUESTA Y CONTRATO ═══════════════════════════════════════════════════════
@@ -11532,70 +11577,280 @@ var CON_PROP_DEF=[
  "- La fecha queda reservada cuando recibimos la señal.",
  "- El número definitivo de comensales se confirma hasta {dias_cierre} días antes del evento."
 ].join("\n");
+/* el contrato habitual de Les Moles (castellano y catalán); las cláusulas se numeran solas */
 var CON_CONT_DEF=[
- "# Contrato de servicio de {tipo}",
- "En {poblacion}, a {fecha_hoy}.",
+ "# Contrato de prestación de servicios (zona eventos)",
+ "Ref. {referencia}",
+ "{poblacion}, {fecha_hoy}",
  "",
- "## Partes",
- "- {razon}, con CIF {cif} y domicilio en {domicilio}, representada por {rep}{cargo_txt} (en adelante, el restaurante).",
- "- {cliente}{contacto_txt} (en adelante, el cliente), que se identifica con su NIF al aceptar este contrato.",
+ "## Reunidos",
+ "Por un lado, {rep_trato}{rep} con {rep_doc} en calidad de {cargo} de {razon} con CIF {cif} y Chef del restaurante {restaurante}, en adelante Les Moles, es una empresa dedicada a la restauración galardonada con una ESTRELLA MICHELIN y dos Soles REPSOL y mediante el departamento Les Moles Events está especializada en la organización y celebración de ceremonias, bodas, banquetes y caterings, entre otros.",
+ "Por otra parte, {partes_clientes}, en lo sucesivo LOS CLIENTES.",
+ "Ambas partes se reconocen mutuamente la capacidad legal para suscribir el presente contrato con las siguientes",
  "",
- "## 1. Objeto",
- "El restaurante prestará al cliente el servicio de restauración de {tipo} el {fecha_evento} en {lugar}, para {personas} comensales previstos ({desglose}).",
+ "## Cláusulas",
  "",
- "## 2. Menú y servicios",
- "{menu_resumen}",
+ "## Primera. Objeto",
+ "Mediante este contrato ambas partes acuerdan la celebración {celebracion} {lugar_txt} que tendrá lugar el día {fecha_evento_corta}. Y por tanto comporta la exclusividad del día en la zona de eventos del restaurante.",
  "",
- "## 3. Precio",
- "{tabla_importes}",
- "Los importes incluyen el IVA. Cualquier servicio que no figure aquí se presupuestará aparte y por escrito.",
+ "## Segunda. Efectividad de la reserva",
+ "La reserva de fecha mencionada en la cláusula anterior queda condicionada al abono de un importe de {reserva} mediante transferencia bancaria por parte de LOS CLIENTES a nombre de {razon} y número de cuenta:",
+ "{banco}",
+ "IBAN {iban}",
+ "En el orden de transferencia habrá que indicar el concepto: {concepto_reserva}",
  "",
- "## 4. Forma de pago",
- "{plan_pagos}",
- "Los pagos se hacen por transferencia al IBAN {iban}, indicando el nombre del evento. La fecha queda reservada cuando el restaurante recibe la señal.",
+ "## Tercera. Número de asistentes",
+ "Los clientes informarán a Les Moles del número de asistentes mediante una hoja de cálculo compartida.",
+ "El número de asistentes definitivos podrá ser informado hasta {dias_cierre} días antes de la celebración del evento.",
+ "Cualquier variación que pueda haber respecto al número total anteriormente mencionado deberá comunicarse a LES MOLES hasta {dias_cierre} días naturales antes de la fecha reservada para la celebración del evento; transcurrido este plazo LES MOLES, por motivos de producción, no podrá aceptar ninguna modificación respecto al número de menús.",
  "",
- "## 5. Número de comensales y cambios",
- "El cliente comunicará el número definitivo de comensales, la distribución de las mesas y las alergias o intolerancias hasta {dias_cierre} días antes del evento. Pasada esa fecha, los cambios solo se admiten si el restaurante puede asumirlos. Se facturará el número definitivo de comensales confirmado.",
+ "## Cuarta. Oferta gastronómica e intolerancias alimentarias",
+ "LES MOLES ofrecerá a LOS CLIENTES su diversidad de aperitivos, entrantes, marisco, sopas y cremas, pescado, carne y postre para que éstos, con el asesoramiento del Chef {rep}, puedan elaborar su menú y adaptarlo a su presupuesto.",
+ "La elección de la oferta gastronómica será de carácter cerrado de acuerdo con la propuesta escogida.",
+ "Sin embargo, LOS CLIENTES podrán comunicar e informar a LES MOLES con UN MES de antelación a la fecha reservada para la celebración del evento, de la asistencia de comensales con alguna tipología de alergia y/o intolerancias alimentarias, vegetarianos, veganos, ovolactovegetarianos o cualquier otra necesidad especificada, definiendo el número de menús que se verían afectados; esta propuesta no afecta a los aperitivos.",
  "",
- "## 6. Cancelación",
- "{cancelacion}",
- "{condiciones_extra}",
+ "## Quinta. Precios y menú",
+ "El precio del menú escogido quedará definido el día de la prueba del menú; cualquier modificación será aceptada hasta 1 mes antes de la fecha del evento.",
  "",
- "## 7. Protección de datos",
- "Los datos personales del cliente se tratan para preparar y prestar el servicio contratado, con base en este contrato. El responsable es {razon} (CIF {cif}, {domicilio}). Se conservan durante el tiempo necesario para el servicio y para cumplir las obligaciones legales. El cliente puede ejercer sus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a {mail_contacto}.",
+ "## Sexta. Prueba del menú",
+ "LES MOLES ofrece a LOS CLIENTES una prueba del menú gratuita para dos personas. En caso de que LOS CLIENTES quisieran asistir acompañados a esta prueba, el coste será del 50% sobre el precio del menú contratado; este precio se podrá aplicar hasta un máximo de cuatro personas y se abonará el mismo día de la prueba.",
+ "LOS CLIENTES podrán escoger cualquier día en servicio de cena para realizar la PRUEBA DEL MENÚ.",
+ "Este día se entregará a LOS CLIENTES la HOJA DE RUTA, donde se especificará y detallará el calendario a seguir durante las últimas 4 semanas antes de la celebración.",
  "",
- "## 8. Aceptación",
- "El cliente acepta este contrato mediante firma electrónica simple en su portal privado, escribiendo su nombre y su NIF. Quedan registrados la fecha y la hora de la aceptación y una huella del texto aceptado, de modo que cualquier cambio posterior del texto se detecta. Cualquier modificación del contrato requiere una nueva aceptación."
+ "## Séptima. Servicios extra",
+ "Son considerados servicios extra todos aquellos servicios que no estén directamente vinculados a la restauración ni al menú estipulado en la cláusula cuarta, pero que desde LES MOLES se ofrecen para dar un mejor servicio y a requerimiento de LOS CLIENTES. Los servicios ofertados quedan sujetos a la disponibilidad de la empresa subcontratada por LES MOLES.",
+ "- Ceremonia civil",
+ "- Grupo de jazz en directo (acompañamiento de ceremonia o aperitivos)",
+ "- DJ's",
+ "- Monitor infantil en sala",
+ "- Monitor de actividades infantiles",
+ "- Hinchables con monitor",
+ "- Fotomatón",
+ "- Servicio de autobús",
+ "- Otros que puedan requerirse",
+ "El coste de los servicios que no se encuentren incluidos en el precio del menú requerirá la aceptación expresa por parte de LOS CLIENTES y se incorporará al coste total de la factura.",
+ "En caso de que LOS CLIENTES se encarguen directamente de suministrar los servicios extra, LES MOLES queda exenta de cualquier quiebra técnica o de otra índole que pueda acontecer; asimismo, LOS CLIENTES deben tener en cuenta que no se permite la entrada en las instalaciones de LES MOLES de servicios externos ligados con la restauración.",
+ "",
+ "## Octava. Condiciones de pago",
+ "El coste total del evento se facturará a LOS CLIENTES y éstos deberán abonarlo mediante transferencia bancaria al número de cuenta:",
+ "{banco}",
+ "IBAN {iban}",
+ "En el orden de transferencia habrá que indicar el concepto: contrato Ref. {referencia}",
+ "LOS CLIENTES tendrán que hacer efectivo el pago de la factura en dos tramos:",
+ "- El {pct1} % del total de la factura, {plazo1}.",
+ "- El {pct2} % (el resto del importe de la factura), {plazo2}.",
+ "Habrá que hacer llegar el justificante de la transferencia bancaria al contacto facilitado por LES MOLES.",
+ "",
+ "## Novena. Protocolo del evento",
+ "Con el objeto de preparar y organizar el evento, LOS CLIENTES, mediante mensaje a la dirección de correo electrónico {mail_eventos}, tendrán que facilitar a LES MOLES la siguiente información:",
+ "a) Para una mejor fluidez de la información, Les Moles y LOS CLIENTES tendrán un Drive compartido, de manera que se podrá hacer un seguimiento de los asistentes, de la formalidad de las mesas y de los pagos.",
+ "b) Si así se desea, se deberá entregar un plano detallado de las mesas con el nombre de todas las personas.",
+ "c) Foto o logotipo que quieran utilizar para personalizar las minutas. En caso de no disponer de ello o no facilitarlo a tiempo, las minutas serán impresas con imágenes predeterminadas por Les Moles Events.",
+ "d) Música seleccionada para acompañar la ceremonia o el convite; deberá especificarse el título de la canción y el momento concreto en el que se debe reproducir.",
+ "LOS CLIENTES tendrán que informar a los asistentes de que, para cualquier acto que quieran preparar, desarrollar u organizar, será necesario que antes se pongan en contacto con Les Moles Events mediante la dirección de correo electrónico {mail_eventos} o por WhatsApp en el {whatsapp}.",
+ "LES MOLES informa de que la legislación vigente prohíbe el uso de cohetes, tracas o fuegos de cualquier tipo en todo el recinto del restaurante.",
+ "",
+ "## Décima. Seguimiento del contrato",
+ "LES MOLES pone a disposición de LOS CLIENTES a la persona responsable del departamento Les Moles Events, con quien podrán reunirse para resolver cualquier duda o consulta relacionada con el evento que quieran celebrar; asimismo, las personas responsables del departamento Les Moles Events les asesorarán y guiarán en todo lo que crean oportuno para ir perfilando los detalles de la celebración.",
+ "",
+ "## Undécima. Suspensión del evento",
+ "En caso de suspensión del evento y/o de la reserva de fecha:",
+ "Por circunstancias ajenas a LES MOLES. LOS CLIENTES no tendrán derecho a la devolución de la fianza abonada, estipulada como reserva de fecha del contrato Ref. {referencia}, que será considerada una contraprestación de honorarios y gastos de cancelación, considerándose con ello ambas partes totalmente saldadas y liquidadas y con el compromiso de no reclamar en causa de este contrato, quedando totalmente liberadas de cualquier compromiso actual o futuro.",
+ "Por desistimiento por parte de LOS CLIENTES. En este caso no tendrán derecho a la devolución de la fianza abonada, estipulada en la cláusula segunda de este contrato, que será considerada una contraprestación de honorarios y gastos de cancelación, considerándose con ello ambas partes totalmente saldadas y liquidadas y con el compromiso de no reclamar en causa de este contrato, quedando totalmente liberadas las partes de cualquier compromiso actual o futuro.",
+ "Por circunstancias que puedan ser imputadas a LES MOLES. LOS CLIENTES y LES MOLES buscarán una nueva fecha; si esto no fuera posible, LES MOLES devolverá la fianza estipulada en la cláusula segunda del contrato de reserva de fecha a LOS CLIENTES, considerándose con ello ambas partes totalmente saldadas y liquidadas y con el compromiso de no reclamar en causa de este contrato, quedando totalmente liberadas de cualquier compromiso actual o futuro.",
+ "",
+ "## Duodécima. Política de protección de datos",
+ "LES MOLES informa a LOS CLIENTES de que, en cumplimiento de la normativa vigente en materia de protección de datos personales (RGPD 2016/679 de 27 de abril de 2016 y la Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales), los datos facilitados en este contrato serán incorporados a nuestra base de datos, donde serán objeto de tratamiento con la finalidad de ofrecerles una mejor prestación de servicios y atender los compromisos derivados de la relación comercial establecida en este contrato, mediante el envío periódico de información relacionada con productos, servicios o novedades de {razon} o de otras empresas pertenecientes al grupo que puedan ser del interés de LOS CLIENTES y que buscan fomentar ventajas y beneficios.",
+ "LOS CLIENTES pueden ejercer sus derechos de acceso, rectificación, oposición, limitación y, en su caso, portabilidad o cancelación comunicándolo a {mail_eventos} e indicando sus datos personales.",
+ "Si se considerase que el tratamiento de sus datos no se ajusta a la normativa vigente, podrán presentar una reclamación ante la autoridad de control (www.agpd.es).",
+ "Asimismo, se informa del derecho a retirar su consentimiento en cualquier momento del tratamiento. Sus datos se mantendrán mientras exista un interés mutuo y mientras no se ejerza ninguno de los derechos que lo ampare. Por otra parte, no se realizarán transferencias internacionales con sus datos.",
+ "En caso de producirse alguna modificación de los datos de LOS CLIENTES, deberá comunicarse a LES MOLES con el objeto de subsanarlo y mantener así los datos actualizados en todo momento, de acuerdo con lo establecido en la normativa legal vigente en materia de protección de datos.",
+ "Para una información más detallada sobre la protección de datos personales y conocer las empresas del grupo, LOS CLIENTES pueden acceder a nuestra política de privacidad.",
+ "",
+ "{clausulas_extra}",
+ "",
+ "Y en prueba de conformidad, se firma el presente contrato en el lugar y fecha indicados en el encabezamiento."
 ].join("\n");
+var CON_CONT_CA=[
+ "# Contracte de prestació de serveis (zona esdeveniments)",
+ "Ref. {referencia}",
+ "{poblacion}, {fecha_hoy}",
+ "",
+ "## Reunits",
+ "D'una banda, {rep_trato}{rep} amb {rep_doc} en qualitat {de_cargo} de {razon} amb CIF {cif} i Xef del restaurant {restaurante}, en endavant Les Moles, és una empresa dedicada a la restauració guardonada amb una ESTRELLA MICHELIN i dos Sols REPSOL i mitjançant el departament Les Moles Events està especialitzada en l'organització i celebració de cerimònies, bodes, banquets i càterings, entre d'altres.",
+ "De l'altra part, {partes_clientes}, en endavant ELS CLIENTS.",
+ "Ambdues parts es reconeixen mútuament la capacitat legal per subscriure el present contracte amb les següents",
+ "",
+ "## Clàusules",
+ "",
+ "## Primera. Objecte",
+ "Mitjançant aquest contracte ambdues parts acorden la celebració {celebracion} {lugar_txt} que tindrà lloc el dia {fecha_evento_corta}. I per tant comporta l'exclusivitat del dia a la zona d'esdeveniments del restaurant.",
+ "",
+ "## Segona. Efectivitat de la reserva",
+ "La reserva de data esmentada en la clàusula anterior queda condicionada a l'abonament d'un import de {reserva} mitjançant transferència bancària per part dels CLIENTS a nom de {razon} i número de compte:",
+ "{banco}",
+ "IBAN {iban}",
+ "A l'ordre de transferència caldrà indicar el concepte: {concepto_reserva}",
+ "",
+ "## Tercera. Nombre d'assistents",
+ "Els clients informaran Les Moles del nombre d'assistents mitjançant un full de càlcul compartit.",
+ "El nombre d'assistents definitius podrà ser informat fins a {dias_cierre} dies abans de la celebració de l'esdeveniment.",
+ "Qualsevol variació que pugui haver-hi respecte al nombre total anteriorment esmentat s'haurà de comunicar a LES MOLES fins a {dias_cierre} dies naturals abans de la data reservada per a la celebració de l'esdeveniment; transcorregut aquest termini LES MOLES, per motius de producció, no podrà acceptar cap modificació respecte al nombre de menús.",
+ "",
+ "## Quarta. Oferta gastronòmica i intoleràncies alimentàries",
+ "LES MOLES oferirà ALS CLIENTS la seva diversitat d'aperitius, entrants, marisc, sopes i cremes, peix, carn i postres per tal que aquests, amb l'assessorament del Xef {rep}, puguin elaborar el seu menú i adaptar-lo al seu pressupost.",
+ "L'elecció de l'oferta gastronòmica serà de caràcter tancat d'acord amb la proposta escollida.",
+ "No obstant, ELS CLIENTS podran comunicar i informar a LES MOLES amb UN MES d'antelació a la data reservada per a la celebració de l'esdeveniment, de l'assistència de comensals amb alguna tipologia d'al·lèrgia i/o intoleràncies alimentàries, vegetarians, vegans, ovolactovegetarians o qualsevol altra necessitat especificada, definint el nombre de menús que es veurien afectats; aquesta proposta no afecta els aperitius.",
+ "",
+ "## Cinquena. Preus i menú",
+ "El preu del cobert escollit quedarà definit el dia de la prova del menú; qualsevol modificació serà acceptada fins a 1 mes abans de la data de l'esdeveniment.",
+ "",
+ "## Sisena. Prova del menú",
+ "LES MOLES ofereix ALS CLIENTS un tast del menú gratuït per a dues persones. En el cas que ELS CLIENTS volguessin assistir acompanyats a aquesta prova de tast, el cost serà del 50% sobre el preu del menú contractat; aquest preu es podrà aplicar fins a un màxim de quatre persones i s'abonarà el mateix dia de la prova.",
+ "ELS CLIENTS podran escollir qualsevol dia en servei de sopar per fer la PROVA DEL MENÚ.",
+ "Aquest dia es lliurarà ALS CLIENTS el FULL DE RUTA, on s'especificarà i detallarà el calendari a seguir durant les darreres 4 setmanes abans de la celebració.",
+ "",
+ "## Setena. Serveis extres",
+ "Són considerats serveis extres tots aquells serveis que no estiguin directament vinculats a la restauració ni al menú estipulat a la clàusula quarta, però que des de LES MOLES s'ofereixen per donar un millor servei i a requeriment ELS CLIENTS. Els serveis oferts queden subjectes a la disponibilitat de l'empresa subcontractada per LES MOLES.",
+ "- Cerimònia civil",
+ "- Grup de jazz en directe (acompanyament de cerimònia o aperitius)",
+ "- DJ's",
+ "- Monitor infantil a sala",
+ "- Monitor d'activitats infantils",
+ "- Inflables amb monitor",
+ "- Fotomatón",
+ "- Servei de bus",
+ "- Altres que puguin requerir-se",
+ "El cost dels serveis que no es trobin inclosos al preu del menú requerirà l'acceptació expressa per part ELS CLIENTS i s'incorporarà al cost total de la factura.",
+ "En cas que ELS CLIENTS s'encarreguin directament de subministrar els serveis extres, LES MOLES queda exempta de qualsevol fallida tècnica o d'altra índole que pugui esdevenir; així mateix, ELS CLIENTS han de tenir en compte que no es permet l'entrada a les instal·lacions de LES MOLES de serveis externs lligats amb la restauració.",
+ "",
+ "## Vuitena. Condicions de pagament",
+ "El cost total de l'esdeveniment es facturarà ALS CLIENTS i aquests hauran d'abonar-ho mitjançant transferència bancària al número de compte:",
+ "{banco}",
+ "IBAN {iban}",
+ "A l'ordre de transferència caldrà indicar el concepte: contracte Ref. {referencia}",
+ "ELS CLIENTS hauran de fer efectiu el pagament de la factura en dos trams:",
+ "- El {pct1} % del total de la factura, {plazo1}.",
+ "- El {pct2} % (la resta de l'import de la factura), {plazo2}.",
+ "Caldrà fer arribar el justificant de la transferència bancària al contacte facilitat per LES MOLES.",
+ "",
+ "## Novena. Protocol de l'esdeveniment",
+ "Amb l'objecte de preparar i organitzar l'esdeveniment, ELS CLIENTS, mitjançant missatge a l'adreça de correu electrònic {mail_eventos}, hauran de facilitar a LES MOLES la següent informació:",
+ "a) Per a una millor fluïdesa de la informació, Les Moles i ELS CLIENTS tindran un Drive compartit, de manera que es podrà fer un seguiment dels assistents, de la formalitat de les taules i dels pagaments.",
+ "b) En el cas que es vulgui el nom dels assistents sobre la taula, caldrà lliurar un plànol detallat de les taules amb el nom de totes les persones.",
+ "c) Foto o logotip que vulguin emprar per tal de personalitzar les minutes. En cas de no disposar-ne o no facilitar-lo a temps, les minutes seran impreses amb imatges predeterminades per Les Moles Events.",
+ "d) Música seleccionada per acompanyar la cerimònia o el convit; caldrà especificar el títol de la cançó i el moment concret en què s'ha de reproduir.",
+ "ELS CLIENTS hauran d'informar els assistents que, per a qualsevol acte que vulguin preparar, desenvolupar o organitzar, caldrà que aquests abans es posin en contacte amb Les Moles Events mitjançant l'adreça de correu electrònic {mail_eventos} o per WhatsApp al {whatsapp}.",
+ "LES MOLES informa que la legislació vigent prohibeix l'ús de coets, traques o focs de qualsevol mena en tot el recinte del restaurant.",
+ "",
+ "## Desena. Seguiment del contracte",
+ "LES MOLES posa a disposició ELS CLIENTS la persona responsable del departament Les Moles Events, amb qui podran reunir-se per resoldre qualsevol dubte o consulta relacionada amb l'esdeveniment que vulguin celebrar; així mateix, les persones responsables del departament Les Moles Events els assessoraran i guiaran en tot allò que creguin oportú per anar perfilant els detalls de la celebració.",
+ "",
+ "## Onzena. Suspensió de l'esdeveniment",
+ "En cas de suspensió de l'esdeveniment i/o de la reserva de data:",
+ "Per circumstàncies alienes a LES MOLES. ELS CLIENTS no tindran dret a la devolució de la fiança abonada, estipulada com a reserva de data del contracte Ref. {referencia}, que serà considerada una contraprestació d'honoraris i despeses de cancel·lació, considerant-se amb això ambdues parts totalment saldades i liquidades i amb el compromís de no reclamar en causa d'aquest contracte, quedant totalment alliberades de qualsevol compromís actual o futur.",
+ "Per desistiment per part ELS CLIENTS. En aquest cas no tindran dret a la devolució de la fiança abonada, estipulada a la clàusula segona d'aquest contracte, que serà considerada una contraprestació d'honoraris i despeses de cancel·lació, considerant-se amb això ambdues parts totalment saldades i liquidades i amb el compromís de no reclamar en causa d'aquest contracte, quedant totalment alliberades les parts de qualsevol compromís actual o futur.",
+ "Per circumstàncies que puguin ser imputades a LES MOLES. ELS CLIENTS i LES MOLES buscaran una nova data; si això no fos possible, LES MOLES retornarà la fiança estipulada a la clàusula segona del contracte de reserva de data ALS CLIENTS, considerant-se amb això ambdues parts totalment saldades i liquidades i amb el compromís de no reclamar en causa d'aquest contracte, quedant totalment alliberades de qualsevol compromís actual o futur.",
+ "",
+ "## Dotzena. Política de protecció de dades",
+ "LES MOLES informa ALS CLIENTS que, en compliment de la normativa vigent en matèria de protecció de dades personals (RGPD 2016/679 de 27 d'abril de 2016 i la Llei Orgànica 3/2018, de 5 de desembre, de Protecció de Dades Personals i garantia dels drets digitals), les dades facilitades en aquest contracte seran incorporades a la nostra base de dades, on seran objecte de tractament amb la finalitat d'oferir-los una millor prestació de serveis i atendre els compromisos derivats de la relació comercial establerta en aquest contracte, mitjançant la tramesa periòdica d'informació relacionada amb productes, serveis o novetats de {razon} o d'altres empreses pertanyents al grup que puguin ser de l'interès ELS CLIENTS i que busquen fomentar avantatges i beneficis.",
+ "ELS CLIENTS poden exercir els seus drets d'accés, rectificació, oposició, limitació i, en el seu cas, portabilitat o cancel·lació comunicant-ho a {mail_eventos} i indicant-hi les dades personals.",
+ "Si es considerés que el tractament de les seves dades no s'ajusta a la normativa vigent, podran presentar una reclamació davant l'autoritat de control (www.agpd.es).",
+ "Així mateix, s'informa del dret a retirar el consentiment en qualsevol moment del tractament. Les seves dades es mantindran mentre existeixi un interès mutu i mentre no s'exerceixi cap dels drets que ho empari. D'altra banda, no es realitzaran transferències internacionals amb les seves dades.",
+ "En cas de produir-se alguna modificació de les dades ELS CLIENTS, s'haurà de comunicar a LES MOLES amb l'objecte d'esmenar-ho i mantenir així les dades actualitzades en tot moment, d'acord amb allò establert a la normativa legal vigent en matèria de protecció de dades.",
+ "Per a una informació més detallada sobre la protecció de dades personals i conèixer les empreses del grup, ELS CLIENTS poden accedir a la nostra política de privacitat.",
+ "",
+ "{clausulas_extra}",
+ "",
+ "I en prova de conformitat, es signa el present contracte en el lloc i data indicats a l'encapçalament."
+].join("\n");
+/* huella del texto de fábrica de la versión anterior: si es el que está guardado (sin personalizar), se cambia por el de ahora */
+var CON_OLD_H="1jclvxr";
+var CON_ORD={es:["Primera","Segunda","Tercera","Cuarta","Quinta","Sexta","Séptima","Octava","Novena","Décima","Undécima","Duodécima","Decimotercera","Decimocuarta","Decimoquinta","Decimosexta","Decimoséptima","Decimoctava","Decimonovena","Vigésima"],
+  ca:["Primera","Segona","Tercera","Quarta","Cinquena","Sisena","Setena","Vuitena","Novena","Desena","Onzena","Dotzena","Tretzena","Catorzena","Quinzena","Setzena","Dissetena","Divuitena","Dinovena","Vintena"]};
 /* lo que se enseña cuando falta un dato */
 var CON_LAB={cliente:"el nombre del cliente",fecha_evento:"la fecha del evento",lugar:"el lugar",razon:"la razón social del restaurante",cif:"el CIF del restaurante",
   domicilio:"el domicilio del restaurante",rep:"el representante del restaurante",iban:"el IBAN para los pagos (Resumen → portal del cliente)",
   menu_resumen:"el menú del evento (platos elegidos)",desglose:"los comensales (plano de mesas)",tabla_importes:"los precios del menú (Presupuesto)",plan_pagos:"el importe total",
   cancelacion:"las condiciones de cancelación (Parámetros → Contrato y propuesta)",mail_contacto:"el correo de contacto (Resumen → portal del cliente)",
-  restaurante:"el nombre del restaurante",poblacion:"la población",tipo:"el tipo de evento",valida_hasta:"la validez de la propuesta"};
+  restaurante:"el nombre del restaurante",poblacion:"la población",tipo:"el tipo de evento",valida_hasta:"la validez de la propuesta",
+  referencia:"la referencia del contrato (en «Datos y cláusulas de este contrato»)",partes_clientes:"el nombre de los clientes (Ficha y contacto)",fecha_evento_corta:"la fecha del evento",
+  reserva:"la señal de reserva (Parámetros → Agenda con el cliente)",banco:"el banco de la empresa",rep_doc:"el documento de quien firma por la empresa",cargo:"el cargo de quien firma por la empresa",
+  mail_eventos:"el correo de eventos de la empresa",whatsapp:"el WhatsApp de la empresa",celebracion:"el tipo de evento",lugar_txt:"el lugar"};
 /* cuántos días son: la agenda lo sabe (el cierre de cambios) */
 var CON_VARS_AYUDA=[["cliente","el nombre del cliente (de la ficha)"],["tipo","boda, comunión…"],["fecha_evento","fecha completa del evento"],["lugar","lugar del evento"],
   ["personas","comensales en total"],["desglose","«155 adultos, 4 niños y 8 de staff»"],["adultos","adultos"],["ninos","niños"],["bebes","bebés"],["staff","staff"],["total","importe total"],["senal","importe de la señal"],["iban","IBAN de los pagos"],
   ["fecha_hoy","fecha del documento"],["valida_hasta","fin de la validez de la propuesta"],["dias_cierre","días antes en que se cierran los cambios"],
   ["restaurante","nombre comercial"],["razon","razón social"],["cif","CIF"],["domicilio","domicilio"],["poblacion","población"],["rep","representante"],["mail_contacto","correo de contacto"],
+  ["cliente1","primer cliente (Ficha)"],["cliente2","segundo cliente (Ficha)"],["doc1","documento del primer cliente"],["doc2","documento del segundo"],["partes_clientes","los clientes con su documento, ya redactado"],
+  ["referencia","referencia del contrato"],["fecha_evento_corta","fecha del evento, 27/09/2025"],["celebracion","«del enlace de …»"],["lugar_txt","«en las dependencias del Restaurante LES MOLES»"],["reserva","señal: «1000 euros»"],
+  ["concepto_reserva","concepto de la transferencia de la reserva"],["banco","banco"],["rep_doc","documento de quien firma por la empresa"],["cargo","cargo de quien firma"],["mail_eventos","correo de eventos"],["whatsapp","WhatsApp"],
+  ["pct1","% del primer pago"],["pct2","% del último pago"],["plazo1","cuándo se hace el primer pago"],["plazo2","cuándo se hace el último"],
+  ["clausulas_extra","bloque: cláusulas adicionales de ese evento (no lo quites)"],
   ["cancelacion","bloque: condiciones de cancelación"],["condiciones_extra","bloque: condiciones adicionales (opcional)"],
   ["menu_resumen","bloque: platos por apartado"],["tabla_importes","bloque: menús, extras y total"],["plan_pagos","bloque: señal y pagos con sus fechas"]];
 function conHashTxt(s){ var h=5381; s=String(s==null?"":s); for(var i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
 function conCfg(){
-  var d=paramData("contrato")||{}, em=d.empresa||{}, pt=paramData("portal")||{};
-  return {empresa:{nombre:em.nombre||"Les Moles",razon:em.razon||"",cif:em.cif||"",domicilio:em.domicilio||"",poblacion:em.poblacion||"Ulldecona",rep:em.rep||"",cargo:em.cargo||""},
-    validez:(+d.validez>0?+d.validez:30), cancelacion:d.cancelacion||"", extra:d.extra||"",
-    propuesta:d.propuesta||CON_PROP_DEF, contrato:d.contrato||CON_CONT_DEF, revisado:d.revisado||null, iban:pt.iban||"", mail:pt.mail||"", tel:pt.tel||""};
+  var d=paramData("contrato")||{}, em=d.empresa||{}, pt=paramData("portal")||{}, pg=d.pagos||{};
+  /* los datos de la casa vienen de su contrato habitual; todo se puede cambiar en Parámetros → Contrato y propuesta */
+  var emp={nombre:em.nombre||"Les Moles",razon:em.razon||"CASTELL VIDAL, SL",cif:em.cif||"B43348374",domicilio:em.domicilio||"Ctra. La Sénia, km 2, 43550 Ulldecona",poblacion:em.poblacion||"Ulldecona",
+    rep:em.rep||"Jeroni Castell Vidal",cargo:em.cargo||"administrador",repTrato:em.repTrato!=null?em.repTrato:"el Sr. ",repDoc:em.repDoc||"DNI 40.923.745-Y",banco:em.banco||"Banco Santander",
+    iban:em.iban||"ES33 0049 5652 7420 1602 2973",mail:em.mail||"eventos@lesmoles.com",whatsapp:em.whatsapp||"657 20 58 82"};
+  var p1=+pg.pct1, pagos={pct1:(p1>0&&p1<100)?p1:65,plazo1es:pg.plazo1es||"3 semanas antes de la celebración",plazo2es:pg.plazo2es||"dos días antes de la celebración, una vez cerrado el número definitivo de asistentes",
+    plazo1ca:pg.plazo1ca||"3 setmanes abans de la celebració",plazo2ca:pg.plazo2ca||"dos dies abans de la celebració, un cop tancat el nombre definitiu d'assistents"};
+  var tpl=d.contrato; if(tpl&&conHashTxt(tpl)===CON_OLD_H) tpl="";
+  return {empresa:emp, validez:(+d.validez>0?+d.validez:30), cancelacion:d.cancelacion||"", extra:d.extra||"", pagos:pagos,
+    propuesta:d.propuesta||CON_PROP_DEF, contrato:tpl||CON_CONT_DEF, contratoCa:d.contratoCa||CON_CONT_CA, revisado:d.revisado||null, iban:emp.iban||pt.iban||"", mail:pt.mail||"", tel:pt.tel||""};
 }
 /* la «huella» de la plantilla del contrato: si cambia algo, hay que volver a marcarla como revisada */
-function conTplHash(cfg){ return conHashTxt([cfg.contrato,cfg.cancelacion,cfg.extra].join("\u0001")); }
+function conTplHash(cfg){ return conHashTxt([cfg.contrato,cfg.contratoCa,cfg.cancelacion,cfg.extra,JSON.stringify(cfg.pagos||{})].join("\u0001")); }
 function conRevisado(cfg){ return !!(cfg.revisado&&cfg.revisado.h&&cfg.revisado.h===conTplHash(cfg)); }
 function conFechaLarga(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); try{ return d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmyFromISO(iso); } }
 function conFechaCorta(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); try{ return d.toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmyFromISO(iso); } }
 function conSumaDias(iso,n){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); d.setUTCDate(d.getUTCDate()+n); return d.getUTCFullYear()+"-"+("0"+(d.getUTCMonth()+1)).slice(-2)+"-"+("0"+d.getUTCDate()).slice(-2); }
 function conLimpia(s){ return String(s==null?"":s).replace(/\|/g,"/").replace(/\s+/g," ").trim(); }
 /* todos los valores del documento, sacados del evento (nada se escribe a mano aquí) */
-function conVars(e,cfg,fechaISO){
+function conFechaL(iso,L){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); try{ return d.toLocaleDateString(L==="ca"?"ca-ES":"es-ES",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return iso; } }
+function conOrdinales(tpl){ var lista=CON_ORD.es.concat(CON_ORD.ca).map(function(x){ return x.toLowerCase(); }), n=0; String(tpl||"").split("\n").forEach(function(ln){ var m=/^##\s+([^\s.]+)\./.exec(ln); if(m&&lista.indexOf(m[1].toLowerCase())>=0) n++; }); return n; }
+/* las cláusulas que se añaden a UN evento: siguen la numeración del texto base */
+function conExtras(tpl,extras,L){
+  var out=[], n0=conOrdinales(tpl), k=0; L=L==="ca"?"ca":"es";
+  (extras||[]).forEach(function(x){
+    var t=conLimpia(x&&x.t), tx=String((x&&x.x)||"").split(/\r?\n/).map(function(l){ return l.replace(/^[#|]+\s*/,"").trim(); }).filter(Boolean);
+    if(!t&&!tx.length) return; k++;
+    var o=CON_ORD[L][n0+k-1], base=L==="ca"?"Clàusula addicional":"Cláusula adicional";
+    out.push("## "+(o?(o+". "+(t||base)):(base+" "+k+(t?". "+t:""))));
+    tx.forEach(function(l){ out.push(l); });
+  });
+  return out;
+}
+/* lo propio del contrato: los clientes con su documento, la reserva, el pago, la referencia… (en castellano o en catalán) */
+function conVarsContrato(e,cfg,v,F,L,fechaISO){
+  var C=e.contrato||{}, EM=cfg.empresa, pg=cfg.pagos, req=[], ca=L==="ca";
+  var n1=String(F.parejaA||"").trim(), n2=String(F.parejaB||"").trim(); if(!n1&&!n2) n1=String(F.contacto||"").trim();
+  var DT={DNI:"DNI",NIE:"NIE",Pasaporte:ca?"Passaport":"Pasaporte"};
+  function doc(i){ var t=C["doc"+i]||"DNI", n=String(C["num"+i]||"").trim().toUpperCase(); return n?(DT[t]||t)+" "+n:""; }
+  function trato(i){ var t=C["t"+i]; return t==="Sr."?"el Sr. ":t==="Sra."?"la Sra. ":""; }
+  v.cliente1=n1; v.cliente2=n2; v.doc1=doc(1); v.doc2=doc(2);
+  var partes=[], nombres=[];
+  [[1,n1],[2,n2]].forEach(function(p){ if(!p[1]) return; var d=doc(p[0]); nombres.push(p[1]);
+    if(!d) req.push("el documento de identidad de "+p[1]+" (en «Datos y cláusulas de este contrato»)");
+    partes.push(trato(p[0])+p[1]+" "+(ca?"amb":"con")+" "+(d||"[falta]")); });
+  var uno=partes.length<2, nj=nombres.join(ca?" i ":" y ");
+  v.partes_clientes=partes.length?(partes.join(ca?" i ":" y ")+(uno?(ca?", qui actua en representació pròpia":", quien actúa en representación propia"):(ca?", els quals actuen en representació pròpia":", los cuales actúan en representación propia"))):"";
+  v.clientes=nj;
+  v.celebracion=/boda|bodes/.test(String(v.tipo||"").toLowerCase())?((ca?"de l'enllaç de ":"del enlace de ")+nj):((ca?"de l'esdeveniment (":"del evento (")+v.tipo+(ca?") de ":") de ")+nj);
+  var lu=String(F.ubicacion||"").trim(); v.lugar_txt=(!lu||/moles/i.test(lu))?(ca?"a les dependències del Restaurant LES MOLES":"en las dependencias del Restaurante LES MOLES"):((ca?"a ":"en ")+lu);
+  v.fecha_evento_corta=dmyFromISO(F.fecha); v.fecha_hoy=conFechaL(fechaISO,L);
+  var sen=Math.max(0,+agendaCfg().senal||0); v.reserva=sen>0?(String(Math.round(sen*100)/100).replace(".",",")+" euros"):"";
+  v.banco=EM.banco; v.iban=cfg.iban||""; v.mail_eventos=EM.mail; v.whatsapp=EM.whatsapp;
+  v.rep_trato=EM.repTrato||""; v.rep_doc=EM.repDoc; v.cargo=EM.cargo; v.de_cargo=(ca?(/^[aeiouàèéíòóúh]/i.test(EM.cargo)?"d'":"de "):"de ")+EM.cargo;
+  v.pct1=String(pg.pct1); v.pct2=String(Math.round((100-pg.pct1)*100)/100); v.plazo1=pg["plazo1"+L]; v.plazo2=pg["plazo2"+L];
+  v.concepto_reserva=ca?("Reserva data "+nj+" "+v.fecha_evento_corta):(nj+" ("+v.fecha_evento_corta+")");
+  v.referencia=String(C.ref||"").trim();
+  return {req:req,nombres:[n1,n2]};
+}
+function conVars(e,cfg,fechaISO,idioma){
   var F=e.ficha||{}, c=planCounts(e), staff=staffMenus(e,c), ad=Math.max(0,c.adultos-(c.staff||0)), P=e.presupuesto||{}, pt=presupTotals(e), ag=agendaCfg(), EM=cfg.empresa;
   var v={}, opc={}, bl={}, bopc={};
   var cli=[F.parejaA,F.parejaB].filter(function(x){ return x&&String(x).trim(); }).map(function(x){ return String(x).trim(); }).join(" y ")||String(F.contacto||"").trim();
@@ -11632,12 +11887,18 @@ function conVars(e,cfg,fechaISO){
   bl.plan_pagos=pp;
   bl.cancelacion=String(cfg.cancelacion||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean);
   bl.condiciones_extra=String(cfg.extra||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean); bopc.condiciones_extra=1;
-  return {v:v,opc:opc,bl:bl,bopc:bopc};
+  var RC=conVarsContrato(e,cfg,v,F,idioma==="ca"?"ca":"es",fechaISO);
+  return {v:v,opc:opc,bl:bl,bopc:bopc,req:RC.req,nombres:RC.nombres};
 }
 /* el documento ya relleno: {texto, faltan:[…lo que hay que completar], desconocidas:[variables que no existen]} */
 function conRender(e,tipo,fechaISO){
-  var cfg=conCfg(), tpl=tipo==="propuesta"?cfg.propuesta:cfg.contrato, V=conVars(e,cfg,fechaISO||hoyISO()), faltan=[], desc=[], out=[];
+  tipo=tipo==="propuesta"?"propuesta":"contrato";
+  var cfg=conCfg(), C=e.contrato||{}, L=(tipo==="contrato"&&C.idioma==="ca")?"ca":"es";
+  /* el texto de ESTE evento (si se ha retocado) o el texto base del idioma elegido */
+  var tpl=tipo==="propuesta"?cfg.propuesta:(String(C.tpl||"").trim()?String(C.tpl):(L==="ca"?cfg.contratoCa:cfg.contrato));
+  var V=conVars(e,cfg,fechaISO||hoyISO(),L), faltan=[], desc=[], out=[];
   function falta(k){ var l=CON_LAB[k]||k; if(faltan.indexOf(l)<0) faltan.push(l); }
+  if(tipo==="contrato"){ V.bl.clausulas_extra=conExtras(tpl,C.extras,L); V.bopc.clausulas_extra=1; (V.req||[]).forEach(function(l){ if(faltan.indexOf(l)<0) faltan.push(l); }); }
   String(tpl).replace(/\r/g,"").split("\n").forEach(function(ln){
     var m=/^\s*\{(\w+)\}\s*$/.exec(ln);
     if(m&&V.bl[m[1]]!==undefined){ if(!V.bl[m[1]].length){ if(!V.bopc[m[1]]) falta(m[1]); return; } V.bl[m[1]].forEach(function(x){ out.push(x); }); return; }
@@ -11648,7 +11909,8 @@ function conRender(e,tipo,fechaISO){
       return V.v[k]; });
     out.push(ln.replace(/\s+$/,""));
   });
-  return {texto:out.join("\n").replace(/\n{3,}/g,"\n\n").trim(), faltan:faltan, desconocidas:desc};
+  var nm=(V.nombres||[]).filter(Boolean);
+  return {texto:out.join("\n").replace(/\n{3,}/g,"\n\n").trim(), faltan:faltan, desconocidas:desc, idioma:L, firmantes:nm.length>1?2:1, nombres:V.nombres||[]};
 }
 /* el texto sencillo → bloques (los usan el PDF y la página del portal) */
 function conBloques(texto){
@@ -11658,7 +11920,7 @@ function conBloques(texto){
     if((m=/^#\s+(.*)$/.exec(t))) out.push({t:"h1",x:m[1]});
     else if((m=/^##\s+(.*)$/.exec(t))) out.push({t:"h2",x:m[1]});
     else if((m=/^-\s+(.*)$/.exec(t))) out.push({t:"li",x:m[1]});
-    else if(t.charAt(0)==="|"){ var tot=t.charAt(1)==="!", c=t.replace(/^\|!?\s*/,"").replace(/\s*\|\s*$/,"").split(/\s*\|\s*/); out.push({t:"row",bold:tot,c:c.length>2?[c[0]||"",c[1]||"",c.slice(2).join(" ")]:[c[0]||"",c.slice(1).join(" "),""]}); }
+    else if(t.charAt(0)==="|"){ var tot=t.charAt(1)==="!", c=t.replace(/^\|!?\s*/,"").replace(/\s*\|\s*$/,"").split(/\s*\|\s*/); out.push({t:"row",bold:tot,c:[c[0]||"",c.slice(1).join(" ")]}); }
     else out.push({t:"p",x:t});
   });
   return out;
@@ -11668,7 +11930,7 @@ function conHtml(texto){
   function cierra(){ if(ul){ out.push("</ul>"); ul=false; } if(tb){ out.push("</tbody></table></div>"); tb=false; } }
   conBloques(texto).forEach(function(b){
     if(b.t==="li"){ if(tb){ cierra(); } if(!ul){ out.push('<ul class="cn-ul">'); ul=true; } out.push("<li>"+escH(b.x)+"</li>"); return; }
-    if(b.t==="row"){ if(ul){ cierra(); } if(!tb){ out.push('<div class="cn-tw"><table class="cn-tab"><tbody>'); tb=true; } out.push('<tr'+(b.bold?' class="tot"':"")+"><td>"+escH(b.c[0])+'</td><td class="r">'+escH(b.c[1])+"</td>"+(b.c[2]?'<td class="r">'+escH(b.c[2])+"</td>":"")+"</tr>"); return; }
+    if(b.t==="row"){ if(ul){ cierra(); } if(!tb){ out.push('<div class="cn-tw"><table class="cn-tab"><tbody>'); tb=true; } out.push('<tr'+(b.bold?' class="tot"':"")+"><td>"+escH(b.c[0])+'</td><td class="r">'+escH(b.c[1])+"</td></tr>"); return; }
     cierra();
     if(b.t==="h1") out.push('<h2 class="cn-t">'+escH(b.x)+"</h2>"); else if(b.t==="h2") out.push('<h3 class="cn-s">'+escH(b.x)+"</h3>"); else out.push('<p class="cn-p">'+escH(b.x)+"</p>");
   });
@@ -11690,32 +11952,38 @@ function conPages(texto,pw,ph,firma,meta){
     else if(b.t==="h2"){ sitio(58); y+=12; cur.push(TX(M,y,b.x.toUpperCase(),{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16; }
     else if(b.t==="p"){ partir(b.x,W,"ser",10.5,0).forEach(function(l){ sitio(LH); cur.push(TX(M,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=LH; }); y+=5; }
     else if(b.t==="li"){ partir(b.x,W-16,"ser",10.5,0).forEach(function(l,i){ sitio(LH); if(i===0) cur.push(TX(M+3,y,"·",{size:13,fo:"sansb",a:"start",c:GOLD})); cur.push(TX(M+16,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=LH; }); y+=2; }
-    else if(b.t==="row"){ var amt=b.c[1]||"", ter=b.c[2]||"", fo=b.bold?"sansb":"ser"; partir(b.c[0]||"",W-(ter?220:amt?120:8),fo,10.5,0).forEach(function(l,i){ sitio(LH+4); cur.push(TX(M+4,y,l,{size:10.5,fo:fo,a:"start",c:INK}));
-        if(i===0&&amt) cur.push(TX(ter?M+W-120:M+W-4,y,amt,{size:10.5,fo:b.bold?"sansb":"sans",a:"end",c:INK})); if(i===0&&ter) cur.push(TX(M+W-4,y,ter,{size:10.5,fo:"sans",a:"end",c:SOFT})); y+=LH; });
+    else if(b.t==="row"){ var amt=b.c[1]||"", fo=b.bold?"sansb":"ser"; partir(b.c[0]||"",W-(amt?120:8),fo,10.5,0).forEach(function(l,i){ sitio(LH+4); cur.push(TX(M+4,y,l,{size:10.5,fo:fo,a:"start",c:INK})); if(i===0&&amt) cur.push(TX(M+W-4,y,amt,{size:10.5,fo:b.bold?"sansb":"sans",a:"end",c:INK})); y+=LH; });
       cur.push(LN(M,y-LH+5,M+W,y-LH+5,b.bold?"#C9B182":"#EAE2D0",b.bold?0.8:0.5)); y+=3; }
   });
-  /* bloque de firma */
   if(meta.sinFirma){ pages.push(cur); var tit0=meta.titulo||""; pages.forEach(function(p,i){ p.push(TX(pw/2,ph-30,(meta.marca||"Les Moles Events")+(tit0?" · "+tit0:"")+" · página "+(i+1)+" de "+pages.length,{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1})); }); return pages; }
-  sitio(150); y+=16; cur.push(TX(M,y,"FIRMAS",{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16;
-  var bw=(W-18)/2, bh=96, x2=M+bw+18;
+  /* bloque de firma: el restaurante y uno o dos clientes (a mano o con la aceptación online de cada uno) */
+  var ca=!!meta.ca, TT=ca?{f:"FIRMES",r:"PER EL RESTAURANT",c:"EL CLIENT",a:"ACCEPTAT ELECTRÒNICAMENT",s:"Signatura i data",em:"Emès el ",h:"Empremta del text acceptat: ",d:"Document "}:
+    {f:"FIRMAS",r:"POR EL RESTAURANTE",c:"EL CLIENTE",a:"ACEPTADO ELECTRÓNICAMENTE",s:"Firma y fecha",em:"Emitido el ",h:"Huella del texto aceptado: ",d:"Documento "};
+  var fl=Array.isArray(firma)?firma:[firma||null], dos=(+meta.firmantes===2)||fl.length>1, nb=dos?3:2, gap=12, bw=(W-gap*(nb-1))/nb, bh=dos?118:100;
+  sitio(bh+60); y+=16; cur.push(TX(M,y,TT.f,{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=16;
+  function lin(t,w,fo,sz){ return partir(String(t||""),w,fo,sz,0); }
   cur.push(R(M,y,bw,bh,4,"#FBF8F0","#E3D8BF",0.8));
-  cur.push(TX(M+12,y+18,"POR EL RESTAURANTE",{size:7.5,fo:"sansb",a:"start",c:GOLD,ls:1.4}));
-  cur.push(TX(M+12,y+40,meta.rep||meta.marca||"",{size:11.5,fo:"ser",a:"start",c:INK}));
-  if(meta.razon) cur.push(TX(M+12,y+56,meta.razon,{size:8.5,fo:"sans",a:"start",c:SOFT}));
-  if(meta.fecha) cur.push(TX(M+12,y+bh-14,"Emitido el "+dmyFromISO(meta.fecha),{size:8,fo:"sans",a:"start",c:FADE}));
-  if(firma){
-    cur.push(R(x2,y,bw,bh,4,"#EEF3E4","#C9D6B0",0.8));
-    cur.push(TX(x2+12,y+18,"ACEPTADO ELECTRÓNICAMENTE",{size:7.5,fo:"sansb",a:"start",c:"#4C6A2A",ls:1.4}));
-    cur.push(TX(x2+12,y+40,firma.nombre||"",{size:11.5,fo:"ser",a:"start",c:INK}));
-    if(firma.nif) cur.push(TX(x2+12,y+55,"NIF "+firma.nif,{size:8.5,fo:"sans",a:"start",c:SOFT}));
-    cur.push(TX(x2+12,y+70,conFechaHora(firma.ts),{size:8.5,fo:"sans",a:"start",c:SOFT}));
-    cur.push(TX(x2+12,y+bh-10,"Huella del texto aceptado: "+(firma.h||""),{size:7,fo:"sans",a:"start",c:FADE}));
-  } else {
-    cur.push(R(x2,y,bw,bh,4,"#FFFFFF","#D9CFB5",0.8));
-    cur.push(TX(x2+12,y+18,"EL CLIENTE",{size:7.5,fo:"sansb",a:"start",c:GOLD,ls:1.4}));
-    cur.push(TX(x2+12,y+34,meta.cliente||"",{size:10.5,fo:"ser",a:"start",c:INK}));
-    cur.push(LN(x2+12,y+bh-22,x2+bw-12,y+bh-22,"#8E8470",0.6)); cur.push(TX(x2+12,y+bh-10,"Firma y fecha",{size:7.5,fo:"sans",a:"start",c:FADE}));
+  cur.push(TX(M+10,y+16,TT.r,{size:7,fo:"sansb",a:"start",c:GOLD,ls:1.2}));
+  lin(meta.rep||meta.marca||"",bw-20,"ser",10.5).slice(0,2).forEach(function(l,i){ cur.push(TX(M+10,y+36+i*13,l,{size:10.5,fo:"ser",a:"start",c:INK})); });
+  if(meta.razon) cur.push(TX(M+10,y+bh-30,lin(meta.razon,bw-20,"sans",8)[0]||"",{size:8,fo:"sans",a:"start",c:SOFT}));
+  if(meta.fecha) cur.push(TX(M+10,y+bh-14,TT.em+dmyFromISO(meta.fecha),{size:7.5,fo:"sans",a:"start",c:FADE}));
+  for(var i=0;i<nb-1;i++){
+    var xi=M+(bw+gap)*(i+1), f=fl[i]||null, nom=(meta.nombres&&meta.nombres[i])||(i===0&&!dos?meta.cliente:"")||"";
+    if(f){
+      cur.push(R(xi,y,bw,bh,4,"#EEF3E4","#C9D6B0",0.8));
+      cur.push(TX(xi+10,y+16,TT.a,{size:6.5,fo:"sansb",a:"start",c:"#4C6A2A",ls:1}));
+      lin(f.nombre||nom,bw-20,"ser",10.5).slice(0,2).forEach(function(l,k){ cur.push(TX(xi+10,y+36+k*13,l,{size:10.5,fo:"ser",a:"start",c:INK})); });
+      if(f.nif) cur.push(TX(xi+10,y+66,TT.d+f.nif,{size:8,fo:"sans",a:"start",c:SOFT}));
+      cur.push(TX(xi+10,y+80,conFechaHora(f.ts),{size:7.5,fo:"sans",a:"start",c:SOFT}));
+      cur.push(TX(xi+10,y+bh-10,TT.h+(f.h||""),{size:6.5,fo:"sans",a:"start",c:FADE}));
+    } else {
+      cur.push(R(xi,y,bw,bh,4,"#FFFFFF","#D9CFB5",0.8));
+      cur.push(TX(xi+10,y+16,TT.c+(dos?" "+(i+1):""),{size:7,fo:"sansb",a:"start",c:GOLD,ls:1.2}));
+      lin(nom,bw-20,"ser",10).slice(0,2).forEach(function(l,k){ cur.push(TX(xi+10,y+34+k*12,l,{size:10,fo:"ser",a:"start",c:INK})); });
+      cur.push(LN(xi+10,y+bh-22,xi+bw-10,y+bh-22,"#8E8470",0.6)); cur.push(TX(xi+10,y+bh-10,TT.s,{size:7,fo:"sans",a:"start",c:FADE}));
+    }
   }
+  y+=bh+10;
   pages.push(cur);
   var tit=meta.titulo||"";
   pages.forEach(function(p,i){ p.push(TX(pw/2,ph-30,(meta.marca||"Les Moles Events")+(tit?" · "+tit:"")+" · página "+(i+1)+" de "+pages.length,{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1})); });
@@ -11726,29 +11994,34 @@ function conPdfDeTexto(texto,firma,meta,nombreArchivo){
   var P=PAPERS.A4, pages=conPages(texto,P.w,P.h,firma,meta).map(function(x){ return pageOf(x,P.w,P.h,null); });
   return deliver(nombreArchivo+".pdf",buildPDF(pages)).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
 }
-function conMeta(e,cfg,extra,emp){ var EM=cfg.empresa, F=e.ficha||{}; var o={marca:EM.nombre,razon:EM.razon,rep:EM.rep+(EM.cargo?" · "+EM.cargo:""),
-  cliente:[F.parejaA,F.parejaB].filter(Boolean).join(" y ")||F.contacto||""}; if(emp){ if(emp.marca) o.marca=emp.marca; if(emp.razon!=null) o.razon=emp.razon; if(emp.rep!=null) o.rep=emp.rep; }
+function conMeta(e,cfg,extra,emp){ var EM=cfg.empresa, F=e.ficha||{}, C=e.contrato||{}; var o={marca:EM.nombre,razon:EM.razon,rep:EM.rep+(EM.cargo?" · "+EM.cargo:""),
+  cliente:[F.parejaA,F.parejaB].filter(Boolean).join(" y ")||F.contacto||"",nombres:[F.parejaA||F.contacto||"",F.parejaB||""].filter(Boolean),firmantes:(F.parejaA&&F.parejaB)?2:1,ca:C.idioma==="ca"}; if(emp){ if(emp.marca) o.marca=emp.marca; if(emp.razon!=null) o.razon=emp.razon; if(emp.rep!=null) o.rep=emp.rep; }
   Object.keys(extra||{}).forEach(function(k){ o[k]=extra[k]; }); return o; }
 /* que = propuesta | contrato (borrador con los datos de ahora) · publicado · firmado */
 function conDescargar(e,que){
-  var cfg=conCfg(), C=e.contrato||{}, base=(nombreLimpio(e.name)||"evento").replace(/\s+/g,"_"), tx, firma=null, meta, nombre;
+  var cfg=conCfg(), C=e.contrato||{}, base=(nombreLimpio(e.name)||"evento").replace(/\s+/g,"_"), tx, firma=null, meta, nombre, fm=+C.firmantes===2?2:1;
+  function fo(x){ return x?{nombre:x.nombre,nif:x.nif,ts:x.ts,h:x.h}:null; }
+  var pubMeta={firmantes:fm,ca:C.pubIdioma==="ca",nombres:(C.nombres||[]).filter(Boolean)};
   if(que==="publicado"||que==="firmado"){
-    var f=C.firmado||null;
-    if(que==="firmado"){ if(!f||!f.texto){ toast("Todavía no hay nada firmado.",true); return; } tx=f.texto; firma={nombre:f.nombre,nif:f.nif,ts:f.ts,h:f.h}; meta=conMeta(e,cfg,{ver:"versión "+(f.ver||1),fecha:f.fecha,titulo:f.tipo==="propuesta"?"Propuesta":"Contrato"},f.emp); nombre=base+"_"+(f.tipo||"contrato")+"_firmado"; }
-    else { if(!C.texto){ toast("Todavía no hay nada publicado.",true); return; } tx=C.texto; if(f&&f.h===conHashTxt(C.texto)) firma={nombre:f.nombre,nif:f.nif,ts:f.ts,h:f.h};
-      meta=conMeta(e,cfg,{ver:"versión "+(C.ver||1),fecha:C.fecha,titulo:C.tipo==="propuesta"?"Propuesta":"Contrato"},C.emp); nombre=base+"_"+(C.tipo||"contrato")+(firma?"_firmado":""); }
+    var f=C.firmado||null, f2=C.firmado2||null;
+    if(que==="firmado"){ if(!f||!f.texto){ toast("Todavía no hay nada firmado.",true); return; } tx=f.texto; firma=[fo(f),(f2&&f2.h===f.h)?fo(f2):null];
+      meta=conMeta(e,cfg,Object.assign({ver:"versión "+(f.ver||1),fecha:f.fecha,titulo:f.tipo==="propuesta"?"Propuesta":"Contrato"},pubMeta,{firmantes:(f2&&f2.h===f.h)?2:fm}),f.emp); nombre=base+"_"+(f.tipo||"contrato")+"_firmado"; }
+    else { if(!C.texto){ toast("Todavía no hay nada publicado.",true); return; } tx=C.texto; var hh=conHashTxt(C.texto);
+      firma=fm===2?[(f&&f.h===hh)?fo(f):null,(f2&&f2.h===hh)?fo(f2):null]:((f&&f.h===hh)?fo(f):null);
+      meta=conMeta(e,cfg,Object.assign({ver:"versión "+(C.ver||1),fecha:C.fecha,titulo:C.tipo==="propuesta"?"Propuesta":"Contrato"},pubMeta),C.emp); nombre=base+"_"+(C.tipo||"contrato")+((f&&f.h===hh)?"_firmado":""); }
   } else {
     que=que==="propuesta"?"propuesta":"contrato"; var r=conRender(e,que,hoyISO()); tx=r.texto;
     if(r.faltan.length) toast("Es un borrador: falta "+r.faltan.slice(0,3).join(", ")+(r.faltan.length>3?"…":"")+".");
-    meta=conMeta(e,cfg,{borrador:true,fecha:hoyISO(),titulo:que==="propuesta"?"Propuesta":"Contrato"}); nombre=base+"_"+que+"_borrador";
+    meta=conMeta(e,cfg,{borrador:true,fecha:hoyISO(),titulo:que==="propuesta"?"Propuesta":"Contrato",firmantes:que==="contrato"?r.firmantes:1,ca:que==="contrato"&&r.idioma==="ca",nombres:(r.nombres||[]).filter(Boolean)}); nombre=base+"_"+que+"_borrador";
   }
   return conPdfDeTexto(tx,firma,meta,nombre).then(function(){ toast("PDF descargado."); });
 }
 /* en qué punto está el contrato de un evento */
 function conEstado(e){
-  var C=e.contrato||{}, ap=(e.aprobaciones||{}).contrato||null, h=C.texto?conHashTxt(C.texto):"";
-  return {pub:!!C.texto, tipo:C.tipo||"contrato", ver:C.ver||0, ts:C.ts||0, por:C.por||"", fecha:C.fecha||"", hash:h,
-    ok:!!(h&&ap&&ap.ts&&ap.h===h), viejo:!!(ap&&ap.ts&&(!h||ap.h!==h)), ap:ap, firmado:C.firmado||null};
+  var C=e.contrato||{}, A=e.aprobaciones||{}, ap=A.contrato||null, ap2=A.contrato2||null, h=C.texto?conHashTxt(C.texto):"", fm=+C.firmantes===2?2:1;
+  var ok1=!!(h&&ap&&ap.ts&&ap.h===h), ok2=fm<2||!!(h&&ap2&&ap2.ts&&ap2.h===h);
+  return {pub:!!C.texto, tipo:C.tipo||"contrato", ver:C.ver||0, ts:C.ts||0, por:C.por||"", fecha:C.fecha||"", hash:h, firmantes:fm, ok1:ok1, ok2:ok2, ok:ok1&&ok2, parcial:(ok1!==ok2)&&(fm===2),
+    viejo:!!((ap&&ap.ts&&(!h||ap.h!==h))||(fm===2&&ap2&&ap2.ts&&(!h||ap2.h!==h))), ap:ap, ap2:ap2, firmado:C.firmado||null, firmado2:C.firmado2||null, nombres:(C.nombres||[]).filter(Boolean)};
 }
 function conSenalOk(e){
   var sen=Math.max(0,+agendaCfg().senal||0), pagos=((e.presupuesto||{}).pagos||[]).filter(function(p){ return +p.importe>0; });
@@ -11770,6 +12043,7 @@ function conPublicar(e,tipo){
   /* se cambian los campos EN SU SITIO: así no se pisa lo que el servidor guarda aparte (la aceptación) */
   var cf2=conCfg(), EM=cf2.empresa;
   C.tipo=tipo; C.ver=(+C.ver||0)+1; C.texto=r.texto; C.fecha=hoy; C.ts=Date.now(); C.por=(u&&(u.name||u.email))||"";
+  C.firmantes=(tipo==="contrato"&&r.firmantes===2)?2:1; C.pubIdioma=(tipo==="contrato"&&r.idioma==="ca")?"ca":"es"; C.nombres=(r.nombres||[]).filter(Boolean);
   C.emp={marca:EM.nombre,razon:EM.razon,rep:EM.rep+(EM.cargo?" · "+EM.cargo:"")};
   e.updated=Date.now(); try{ portalAlDia(e); }catch(_){}
   toast((tipo==="contrato"?"Contrato":"Propuesta")+" publicado en el portal del cliente (versión "+C.ver+").");
@@ -11780,6 +12054,42 @@ function conRetirar(e){ var C=e.contrato; if(!C||!C.texto) return false; C.texto
 function conPill(e){ var st=conEstado(e); return st.ok?" · aceptado":(st.pub?" · publicado":(st.viejo?" · cambió":"")); }
 function conPuede(){ try{ return window.LM_SESSION?window.LM_SESSION.can("portal"):true; }catch(_){ return true; } }
 function conEsAdmin(){ try{ return window.LM_SESSION?window.LM_SESSION.role()==="admin":true; }catch(_){ return true; } }
+/* «Event12_2026»: el siguiente número del año, mirando las referencias que ya tienen los otros eventos */
+function conSugerirRef(e){
+  var anio=String(((e.ficha||{}).fecha||hoyISO())).slice(0,4), mx=0;
+  ((typeof store!=="undefined"&&store.events)||[]).forEach(function(x){ var m=/^Event\s*(\d+)[_\-]\s*(\d{4})$/i.exec(String((x.contrato||{}).ref||"").trim()); if(m&&m[2]===anio) mx=Math.max(mx,+m[1]); });
+  return "Event"+(mx+1)+"_"+anio;
+}
+/* lo propio de ESTE contrato: idioma, referencia, quién firma (con su documento), cláusulas añadidas y, si hace falta, el texto entero */
+/* el panel se queda como lo dejó la persona (abierto o cerrado) aunque la pantalla se repinte al pulsar un botón de dentro */
+var conAjAbierto=null;
+document.addEventListener("toggle",function(ev){ var t=ev.target; if(t&&t.classList&&t.classList.contains("cn-aj")) conAjAbierto=!!t.open; },true);
+function conAjustes(e,cfg,rC,st){
+  var C=e.contrato||{}, F=e.ficha||{}, n=[String(F.parejaA||"").trim()||String(F.contacto||"").trim(), String(F.parejaB||"").trim()], tpl=!!String(C.tpl||"").trim();
+  function sel(path,val,opts,label,live){ return '<label class="cn-sel"><span>'+escH(label)+'</span><select data-f="'+path+'"'+(live?' data-live':'')+' aria-label="'+escH(label)+'">'+opts.map(function(o){ return '<option value="'+escH(o[0])+'"'+(String(val||"")===o[0]?" selected":"")+'>'+escH(o[1])+'</option>'; }).join("")+'</select></label>'; }
+  var h='<details class="cn-aj"'+((conAjAbierto===null?!(st.pub||C.ref):conAjAbierto)?" open":"")+'><summary>Datos y cláusulas de este contrato'+(C.extras&&C.extras.length?' · '+C.extras.length+(C.extras.length===1?' cláusula añadida':' cláusulas añadidas'):'')+(tpl?' · texto propio':'')+'</summary><div class="cn-aj-b">';
+  h+='<div class="cn-row">'+sel("contrato.idioma",C.idioma||"es",[["es","Castellano"],["ca","Català"]],"Idioma del contrato",true)+
+    '<label class="cn-sel"><span>Referencia</span><input type="text" data-f="contrato.ref" maxlength="40" value="'+escH(C.ref||"")+'" placeholder="'+escH(conSugerirRef(e))+'" aria-label="Referencia del contrato" autocomplete="off"></label>'+
+    '<button type="button" class="btn sm" data-act="con-ref">Poner '+escH(conSugerirRef(e))+'</button></div>';
+  if(!n[0]) h+='<p class="cn-nota">Escribe el nombre de los clientes en «Ficha y contacto» para poder redactar el contrato.</p>';
+  [1,2].forEach(function(i){ var nom=n[i-1]; if(!nom) return;
+    h+='<div class="cn-parte"><b>'+escH(nom)+'</b>'+sel("contrato.t"+i,C["t"+i],[["","—"],["Sr.","Sr."],["Sra.","Sra."]],"Tratamiento")+sel("contrato.doc"+i,C["doc"+i]||"DNI",[["DNI","DNI"],["NIE","NIE"],["Pasaporte","Pasaporte"]],"Documento")+
+      '<label class="cn-sel"><span>Número</span><input type="text" data-f="contrato.num'+i+'" maxlength="20" value="'+escH(C["num"+i]||"")+'" placeholder="Del documento de identidad" aria-label="Número de documento de '+escH(nom)+'" autocomplete="off" autocapitalize="characters"></label></div>'; });
+  h+='<p class="cn-nota">El número lo tienes en la copia del documento que suben los clientes (en «Documentos» del evento).</p>';
+  var ex=C.extras||[];
+  h+='<h4 class="cn-h4">Cláusulas adicionales</h4><p class="cn-nota">Se añaden al final, numeradas a continuación de las del contrato. Solo valen para este evento.</p>';
+  ex.forEach(function(x,i){ h+='<div class="cn-extra"><label class="cn-sel"><span>Título</span><input type="text" data-arr="contrato.extras" data-i="'+i+'" data-k="t" maxlength="100" value="'+escH(x.t||"")+'" placeholder="Ej.: Servicio de bus" aria-label="Título de la cláusula '+(i+1)+'"></label>'+
+    '<label class="cn-sel cn-ta"><span>Texto</span><textarea rows="3" data-arr="contrato.extras" data-i="'+i+'" data-k="x" aria-label="Texto de la cláusula '+(i+1)+'" placeholder="Lo que se acuerda">'+escH(x.x||"")+'</textarea></label>'+
+    '<button type="button" class="btn sm" data-act="con-extra-del" data-i="'+i+'" aria-label="Quitar la cláusula '+(i+1)+'">Quitar</button></div>'; });
+  h+='<div class="cn-acc"><button type="button" class="btn sm" data-act="con-extra-add">+ Añadir una cláusula</button></div>';
+  h+='<h4 class="cn-h4">Texto del contrato</h4>';
+  if(!tpl) h+='<p class="cn-nota">Este contrato usa el <b>texto habitual</b> de Les Moles ('+((C.idioma||"es")==="ca"?"català":"castellano")+'). Se rellena solo con los datos del evento. Si hay que cambiar algo más que añadir cláusulas, puedes editar el texto entero solo para este evento.</p><div class="cn-acc"><button type="button" class="btn sm" data-act="con-tpl-edit">Editar el texto de este contrato</button></div>';
+  else h+='<div class="cn-aviso">Este contrato usa un <b>texto propio</b>, distinto del habitual. Puedes usar las variables entre llaves ({cliente1}, {fecha_evento_corta}, {referencia}…) y dejar la línea <code>{clausulas_extra}</code> donde irían las cláusulas adicionales.</div>'+
+    '<label class="cn-sel cn-ta"><span>Texto de este contrato</span><textarea class="cn-tpl" rows="20" data-f="contrato.tpl" spellcheck="true" aria-label="Texto completo de este contrato">'+escH(C.tpl||"")+'</textarea></label>'+
+    '<div class="cn-acc"><button type="button" class="btn sm" data-act="con-tpl-reset">Volver al texto habitual</button></div>';
+  h+='<details class="cn-ver"><summary>Ver cómo queda (borrador)</summary>'+(rC.faltan.length?'<div class="cn-aviso mal">Falta: '+escH(rC.faltan.join(", "))+'.</div>':'')+'<div class="cn-doc">'+conHtml(rC.texto)+'</div></details>';
+  return h+'</div></details>';
+}
 function contratoCard(e){
   var st=conEstado(e), cfg=conCfg(), pt=presupTotals(e), puede=conPuede(), sen=Math.max(0,+agendaCfg().senal||0), senOk=conSenalOk(e);
   var tipoSel=st.pub?st.tipo:"contrato", cambios=false;
@@ -11789,7 +12099,12 @@ function contratoCard(e){
   var f=st.firmado;
   var s1=paso(pt.total>0?"ok":"",'Presupuesto',pt.total>0?'Total '+escH(fmtEur(pt.total)):'Faltan precios o comensales');
   var s2=paso(st.pub?"ok":"",'Documento en el portal del cliente',st.pub?escH((st.tipo==="propuesta"?"Propuesta":"Contrato")+' · versión '+st.ver+' · '+conFechaHora(st.ts)+(st.por?' · '+st.por:"")):'Todavía no se ha publicado');
-  var s3=paso(st.ok?"ok":(st.viejo?"aviso":""),'Aceptado por el cliente',
+  var s3;
+  if(st.pub&&st.firmantes===2){
+    var nn=st.nombres, f2=st.firmado2;
+    function linea(i,ok,fi,ap,nom){ return '<b class="cn-fm">'+escH(nom||("Cliente "+i))+'</b>: '+(ok?escH((fi&&fi.nif?'documento '+fi.nif+' · ':'')+'aceptó el '+conFechaHora(ap.ts)):(ap&&ap.ts?'aceptó una versión anterior':'pendiente')); }
+    s3=paso(st.ok?"ok":((st.parcial||st.viejo)?"aviso":""),'Aceptado por los dos clientes',linea(1,st.ok1,f,st.ap,nn[0])+'<br>'+linea(2,st.ok2,f2,st.ap2,nn[1])+(st.viejo?'<br>Hay que pedirles que acepten la versión nueva.':(st.parcial?'<br>Falta una persona: que lo abra desde su móvil con el mismo enlace.':'')));
+  } else s3=paso(st.ok?"ok":(st.viejo?"aviso":""),'Aceptado por el cliente',
     st.ok?escH((f&&f.nombre||st.ap.nombre)+(f&&f.nif?' · NIF '+f.nif:"")+' · '+conFechaHora(st.ap.ts)):(st.viejo?'Aceptó una versión anterior ('+escH(st.ap.nombre||"")+', '+escH(conFechaHora(st.ap.ts))+'): hay que pedirle que acepte la nueva':(st.pub?'Pendiente: el cliente lo ve en su portal':'')));
   var s4=paso(senOk?"ok":"",'Señal recibida',senOk?'Registrada en los pagos':(sen>0?'Se registra a mano cuando llega la transferencia':'No hay señal definida en la agenda'),
     (!senOk&&sen>0&&puede&&st.ok)?'<button type="button" class="btn sm gold cn-mini" data-act="pago-reserva">Registrar señal recibida ('+escH(fmtEur(sen))+')</button>':"");
@@ -11805,12 +12120,13 @@ function contratoCard(e){
     '<button type="button" class="btn gold sm" data-act="con-pub"'+(puede?"":" disabled")+'>'+(st.pub?(cambios?'Publicar la versión nueva':'Volver a publicar'):'Publicar en el portal del cliente')+'</button>'+
     (st.pub?'<button type="button" class="btn sm" data-act="con-quitar"'+(puede?"":" disabled")+'>Retirar del portal</button>':"")+'</div>'+
     (puede?"":'<p class="cn-nota">Publicar lo hace administración o eventos.</p>');
+  var rC=conRender(e,"contrato",hoyISO()), aj=conAjustes(e,cfg,rC,st);
   var ver=st.pub?'<details class="cn-ver"><summary>Lo que ve el cliente · versión '+st.ver+(st.ok?' · aceptada':"")+'</summary><div class="cn-doc">'+conHtml(e.contrato.texto)+'</div></details>':"";
   return '<div class="pv-sec">Propuesta y contrato <span class="pv-sec-note">— del presupuesto a la firma del cliente</span></div>'+
-    '<div class="pcard cn-card" id="cn-card"><ol class="cn-steps">'+s1+s2+s3+s4+'</ol>'+av+botones+pub+ver+
-    '<p class="cn-nota">Firma electrónica simple: nombre, NIF, fecha y hora, y una huella del texto aceptado. El PDF firmado se puede descargar siempre.</p></div>';
+    '<div class="pcard cn-card" id="cn-card"><ol class="cn-steps">'+s1+s2+s3+s4+'</ol>'+av+aj+botones+pub+ver+
+    '<p class="cn-nota">Firma electrónica simple: nombre, documento, fecha y hora, y una huella del texto aceptado (cada cliente firma por separado). El PDF firmado se puede descargar siempre.</p></div>';
 }
-window.LM_CONTRATO={defs:{propuesta:CON_PROP_DEF,contrato:CON_CONT_DEF},ayuda:CON_VARS_AYUDA,cfg:conCfg,tplHash:conTplHash,revisado:conRevisado,render:conRender,html:conHtml,hash:conHashTxt,
+window.LM_CONTRATO={descargar:conDescargar,defs:{propuesta:CON_PROP_DEF,contrato:CON_CONT_DEF,contratoCa:CON_CONT_CA},sugerirRef:conSugerirRef,extras:conExtras,ayuda:CON_VARS_AYUDA,cfg:conCfg,tplHash:conTplHash,revisado:conRevisado,render:conRender,html:conHtml,hash:conHashTxt,
   pdfTexto:conPdfDeTexto,fechaHora:conFechaHora,estado:conEstado};
 
 function viewComm(e){
@@ -11871,8 +12187,10 @@ function viewDocs(e){
   var cards='<button type="button" class="doc-card doc-main" data-act="doc-resumen"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Hoja de ruta del evento</b><span>Una hoja A4: cuántos son, hora, contacto, bebida, jamón, mesas y alergias · sin presupuesto</span></span></button>'+
     '<button type="button" class="doc-card doc-main" data-act="presu-pdf"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Presupuesto</b><span>Menús × precio, extras, pagos y pendiente · PDF</span></span></button>'+links.map(function(l){ return '<button type="button" class="doc-card" data-act="goto" data-k="'+l.k+'"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>'+escH(l.t)+'</b><span>'+escH(l.s)+'</span></span></button>'; }).join("");
   var extra=e.docs.map(function(dc,i){ return '<div class="comm"><span class="comm-ic">'+ICONS.doc+'</span><div class="comm-b"><div class="comm-top"><b>'+escH(dc.nombre)+'</b></div><a class="comm-tx" style="word-break:break-all" href="'+escH(/^https?:\/\//i.test(dc.url)?dc.url:"https://"+dc.url)+'" target="_blank" rel="noopener">'+escH(dc.url)+'</a></div><button type="button" class="row-del" data-act="doc-del" data-i="'+i+'" aria-label="Quitar «'+escH(dc.nombre)+'»">×</button></div>'; }).join("");
-  if(!e.docs.length) extra='<p style="color:var(--c-mut);font-style:italic;padding:6px 2px">Sin enlaces. Añade el contrato, la propuesta u otros documentos (URL).</p>';
-  return '<div class="pv-sec">Documentos del evento <span class="pv-sec-note">— abre cada sección; desde allí se imprime o se descarga en PDF</span></div>'+
+  if(!e.docs.length) extra='<p style="color:var(--c-mut);font-style:italic;padding:6px 2px">Sin enlaces. Aquí puedes añadir otros documentos que vivan fuera (una URL); el contrato, los justificantes y los documentos de identidad están arriba.</p>';
+  try{ if(window.LM_docsCargar) window.LM_docsCargar(); }catch(_){}
+  return '<div id="dc-host" aria-live="polite"></div>'+
+    '<div class="pv-sec">Documentos del evento <span class="pv-sec-note">— abre cada sección; desde allí se imprime o se descarga en PDF</span></div>'+
     '<div class="doc-grid">'+cards+'</div>'+
     '<div class="pv-sec">Enlaces y documentos externos</div>'+
     '<div class="pcard"><div class="comm-form"><label class="fld"><span class="lbl">Nombre</span><input id="docn" type="text" placeholder="Contrato, propuesta…"></label>'+
@@ -17554,6 +17872,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     function fila(a,b,c,d,e,f){ return '<tr><td>'+a+'</td><td>'+b+'</td><td>'+c+'</td><td>'+d+'</td><td>'+e+'</td><td>'+f+'</td></tr>'; }
     return '<table class="pr-reg"><thead><tr><th>Tratamiento</th><th>Finalidad</th><th>Personas y datos</th><th>Base jurídica</th><th>Plazo</th><th>Destinatarios y medidas</th></tr></thead><tbody>'+
       fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
+      fila("Documentos de los clientes","Identificar a quienes firman el contrato y dejar registro de los pagos recibidos","Copia del DNI, NIE o pasaporte de los clientes; justificantes de pago (nombre, importe, a veces datos de la cuenta)","Contrato del evento (art. 6.1.b) y obligaciones fiscales y contables (art. 6.1.c)",(((cfg&&+cfg.dniDias)||0)?((cfg&&+cfg.dniDias)||0)+" días tras el evento (documentos de identidad)":"Hasta anonimizar el evento (documentos de identidad)")+"; los justificantes, hasta anonimizar el evento","Documentos de identidad: solo administración y eventos, y cada apertura queda anotada; justificantes: también contabilidad. Encargado: Cloudflare")+
       fila("Correos y avisos","Avisar a clientes, camareros y equipo (recordatorios, turnos, resumen semanal)","Correo del destinatario y el texto del mensaje","Relación contractual o laboral (art. 6.1.b)","180 días (bandeja de salida); se borra al anonimizar el evento","Administración y eventos")+
       fila("Consultas web","Contestar a quien pregunta por una celebración desde el formulario público","Nombre, correo o teléfono, fecha, invitados y mensaje de quien consulta","Consentimiento (casilla del formulario)","Administración y eventos","Hasta 36 meses según lo que elija el administrador (12 de fábrica)"),
       fila("Proveedores de compra","Pedir los ingredientes, bebidas y material de cada evento","Nombre, teléfono y correo de contacto de cada proveedor","Relación comercial","Administración y compras","Mientras dure la relación comercial"),
@@ -17574,6 +17893,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         '<label class="fld wide"><span class="lbl">Dirección</span><input id="pr-dir" type="text" maxlength="200" value="'+esc(c.direccion)+'" placeholder="Calle, localidad"></label>'+
         '<label class="fld"><span class="lbl">Correo de privacidad</span><input id="pr-mail" type="email" maxlength="120" value="'+esc(c.email)+'" placeholder="'+esc(mailContacto()||"correo@…")+'"></label>'+
         '<label class="fld"><span class="lbl">Conservar los datos de un evento</span><select id="pr-meses">'+[6,12,18,24,36,60].map(function(m){ return '<option value="'+m+'"'+(m===c.meses?" selected":"")+'>'+m+' meses después</option>'; }).join("")+'</select></label>'+
+        '<label class="fld"><span class="lbl">Documentos de identidad de los clientes (DNI, NIE, pasaporte)</span><select id="pr-dni">'+[30,60,90,180,0].map(function(m){ return '<option value="'+m+'"'+(m===(+c.dniDias||0)?" selected":"")+'>'+(m?m+" días después del evento":"Solo al anonimizar el evento")+'</option>'; }).join("")+'</select></label>'+
         '<label class="pr-chk"><input id="pr-auto" type="checkbox"'+(c.auto?" checked":"")+'> Anonimizar sola, una vez al día, los eventos que pasen el plazo</label></div>'+
         '<div class="pr-btns"><button type="button" class="btn gold sm" data-pr="guardar"'+(P.ocupado?" disabled":"")+'>Guardar</button>'+(d.ultima?'<span class="es-peq">Última anonimización: '+esc(fh(d.ultima.ts))+(d.ultima.auto?" (automática)":"")+(d.ultima.n?" · "+d.ultima.n+(d.ultima.n===1?" evento":" eventos"):"")+'</span>':'')+'</div></section>';
       var n=d.elegibles.length, nsel=d.elegibles.filter(function(x){ return P.sel[x.id]; }).length;
@@ -17602,7 +17922,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function leerCfg(){
     var g=function(id){ var e=document.getElementById(id); return e?e.value:""; };
-    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),auto:!!(document.getElementById("pr-auto")||{}).checked};
+    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),dniDias:+g("pr-dni"),auto:!!(document.getElementById("pr-auto")||{}).checked};
   }
   function resumenPers(){
     var pe=P.pers; if(!pe) return ""; var t="Resultado de la búsqueda de datos personales ("+fh(Date.now())+"):\n";
@@ -18537,10 +18857,12 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function guarda(fn,msg){ var d=datos(); fn(d); BR.setParam("contrato",d); if(msg) toast(msg); }
   function fh(ms){ return K.fechaHora(ms); }
   function fld(id,t,v,ph,wide){ return '<label class="fld'+(wide?" wide":"")+'"><span class="lbl">'+esc(t)+'</span><input type="text" data-cn="'+id+'" value="'+esc(v)+'" placeholder="'+esc(ph||"")+'"></label>'; }
+  function ibanAviso(c){ var pi=String((BR.param("portal")||{}).iban||"").replace(/\s+/g,"").toUpperCase(), ci=String(c.iban||"").replace(/\s+/g,"").toUpperCase();
+    return (pi&&ci&&pi!==ci)?'<div class="cn-aviso">El IBAN del portal del cliente (Resumen → Pagos) es distinto del que sale en el contrato. Comprobad que es lo que queréis: el cliente vería dos cuentas.</div>':""; }
   function estadoHTML(c){
     var rev=K.revisado(c), r=c.revisado, cambio=!!(r&&r.h&&!rev);
     return '<div class="cn-aviso'+(rev?" ok":"")+'" id="cn-estado"><b>'+(rev?'Contrato revisado':'Contrato sin revisar')+'</b> · '+(rev?'Marcado como revisado por '+esc(r.por||"")+' el '+esc(fh(r.ts))+'. Ya se puede publicar.':
-      (cambio?'El texto ha cambiado desde la última revisión ('+esc(r.por||"")+', '+esc(fh(r.ts))+'): hay que volver a marcarlo.':'Los textos de fábrica son un <b>modelo orientativo</b>, no asesoramiento legal. Que los lea vuestro asesor o abogado, ajustadlos y después marcad «revisado». Hasta entonces el contrato solo se puede ver y descargar como borrador.'))+'</div>';
+      (cambio?'El texto ha cambiado desde la última revisión ('+esc(r.por||"")+', '+esc(fh(r.ts))+'): hay que volver a marcarlo.':'El texto base es el <b>contrato habitual de Les Moles</b> (castellano y català); el programa no lo revisa legalmente. Que lo lea quien corresponda (vuestro asesor, si queréis) y después marcad «revisado». Hasta entonces el contrato solo se puede ver y descargar como borrador.'))+'</div>';
   }
   function pinta(){
     var host=S.host; if(!host) return;
@@ -18551,20 +18873,27 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     h+='<h2 class="cn-h2">La empresa</h2><div class="pcard"><div class="fldset">'+
       fld("empresa.nombre","Nombre comercial",E.nombre,"Les Moles")+fld("empresa.razon","Razón social",E.razon,"Nombre legal de la empresa")+fld("empresa.cif","CIF",E.cif,"B12345678")+
       fld("empresa.domicilio","Domicilio",E.domicilio,"Calle, número, código postal y población",true)+fld("empresa.poblacion","Población (para «En …, a …»)",E.poblacion,"Ulldecona")+
-      fld("empresa.rep","Quién firma en nombre de la empresa",E.rep,"Nombre y apellidos")+fld("empresa.cargo","Cargo (opcional)",E.cargo,"Administrador")+'</div></div>';
+      fld("empresa.rep","Quién firma en nombre de la empresa",E.rep,"Nombre y apellidos")+fld("empresa.cargo","Cargo",E.cargo,"administrador")+
+      fld("empresa.repTrato","Tratamiento de quien firma",E.repTrato,"el Sr. / la Sra.")+fld("empresa.repDoc","Su documento de identidad",E.repDoc,"DNI 12.345.678-X")+
+      fld("empresa.banco","Banco",E.banco,"Banco Santander")+fld("empresa.iban","IBAN para los pagos del contrato",c.iban,"ES00 0000 0000 0000 0000 0000")+
+      fld("empresa.mail","Correo de eventos (sale en el contrato)",E.mail,"eventos@lesmoles.com")+fld("empresa.whatsapp","WhatsApp de eventos",E.whatsapp,"657 20 58 82")+'</div>'+ibanAviso(c)+'</div>';
+    var G=c.pagos;
+    h+='<h2 class="cn-h2">Pagos del contrato</h2><div class="pcard"><p class="cn-peq">Lo que dice la cláusula «Condiciones de pago». Conviene que coincida con la <b>agenda con el cliente</b> (Parámetros → Agenda con el cliente): el contrato es lo que se firma y la agenda es lo que se avisa.</p><div class="fldset"><label class="fld"><span class="lbl">Primer pago (% de la factura)</span><input type="number" min="1" max="99" data-cn="pagos.pct1" value="'+esc(G.pct1)+'"></label>'+
+      fld("pagos.plazo1es","Cuándo es el primer pago (castellano)",G.plazo1es,"3 semanas antes de la celebración",true)+fld("pagos.plazo2es","Cuándo es el último pago (castellano)",G.plazo2es,"dos días antes de la celebración…",true)+
+      fld("pagos.plazo1ca","Quan és el primer pagament (català)",G.plazo1ca,"3 setmanes abans de la celebració",true)+fld("pagos.plazo2ca","Quan és l'últim pagament (català)",G.plazo2ca,"dos dies abans de la celebració…",true)+'</div></div>';
     h+='<h2 class="cn-h2">Condiciones</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Validez de la propuesta (días)</span><input type="number" min="1" max="365" data-cn="validez" value="'+esc(c.validez)+'"></label>'+
-      '<label class="fld wide"><span class="lbl">Condiciones de cancelación <small>(obligatorio para publicar un contrato; salen en el apartado «Cancelación»)</small></span><textarea rows="5" data-cn="cancelacion" placeholder="Escribid aquí cómo funciona la cancelación: qué pasa con la señal, plazos, porcentajes…">'+esc(c.cancelacion)+'</textarea></label>'+
+      '<label class="fld wide"><span class="lbl">Condiciones de cancelación <small>(opcional: el contrato base ya lleva sus cláusulas de cancelación; este texto solo sale si añades {cancelacion} al contrato)</small></span><textarea rows="5" data-cn="cancelacion" placeholder="Escribid aquí cómo funciona la cancelación: qué pasa con la señal, plazos, porcentajes…">'+esc(c.cancelacion)+'</textarea></label>'+
       '<label class="fld wide"><span class="lbl">Condiciones adicionales <small>(opcional; salen justo debajo)</small></span><textarea rows="3" data-cn="extra" placeholder="Ej.: horario máximo del servicio, música, decoración propia…">'+esc(c.extra)+'</textarea></label></div></div>';
     h+='<h2 class="cn-h2">Los textos</h2><div class="pcard cn-vars"><p class="cn-peq">Variables (toca una para ponerla donde esté el cursor): '+K.ayuda.map(function(v){ return '<button type="button" class="cn-chip" data-cna="var" data-v="'+v[0]+'" title="'+esc(v[1])+'">{'+v[0]+'}</button>'; }).join(" ")+'</p>'+
       '<p class="cn-peq">Formato: <code># Título</code> · <code>## Apartado</code> · <code>- punto</code> · <code>| concepto | importe |</code> · el resto, párrafos. Los bloques <code>{menu_resumen}</code>, <code>{tabla_importes}</code>, <code>{plan_pagos}</code>, <code>{cancelacion}</code> y <code>{condiciones_extra}</code> van solos en su línea.</p></div>';
-    [["propuesta","Plantilla de la propuesta",c.propuesta],["contrato","Plantilla del contrato",c.contrato]].forEach(function(p){
+    [["propuesta","Plantilla de la propuesta",c.propuesta],["contrato","Plantilla del contrato (castellano)",c.contrato],["contratoCa","Plantilla del contrato (català)",c.contratoCa]].forEach(function(p){
       var mod=p[2]!==K.defs[p[0]];
-      h+='<div class="pcard"><label class="fld wide"><span class="lbl">'+esc(p[1])+(mod?' <em>personalizada</em>':'')+'</span><textarea class="cn-tpl" rows="'+(p[0]==="contrato"?22:14)+'" data-cn="'+p[0]+'" spellcheck="true">'+esc(p[2])+'</textarea></label>'+
+      h+='<div class="pcard"><label class="fld wide"><span class="lbl">'+esc(p[1])+(mod?' <em>personalizada</em>':'')+'</span><textarea class="cn-tpl" rows="'+(p[0]==="propuesta"?14:22)+'" data-cn="'+p[0]+'" spellcheck="true">'+esc(p[2])+'</textarea></label>'+
         (mod?'<div class="cn-b"><button type="button" class="btn sm" data-cna="restablecer" data-k="'+p[0]+'">Volver al texto de fábrica</button></div>':'')+'</div>';
     });
     h+='<h2 class="cn-h2">Revisión</h2><div class="pcard"><label class="av-chk cn-rev"><input type="checkbox" id="cn-rev" data-cna="revisado"'+(rev?" checked":"")+'> He revisado el texto del contrato (y las condiciones de cancelación) con quien corresponda y se puede usar.</label>'+
       '<p class="cn-peq">Es una <b>firma electrónica simple</b>: el cliente escribe su nombre y su NIF, y se guardan la fecha, la hora y una huella del texto aceptado. Sirve como prueba de la aceptación, pero no es una firma electrónica avanzada ni cualificada; si queréis esas garantías hace falta un proveedor de firma externo. Consultadlo con vuestro asesor.</p></div>';
-    h+='<h2 class="cn-h2">Vista previa</h2><div class="pcard"><p class="cn-peq">Con el evento que tienes abierto'+(ev?': <b>'+esc(String(ev.name||"").slice(0,60))+'</b>':' (abre uno primero)')+'.</p><div class="cn-b"><button type="button" class="btn sm" data-cna="ver" data-t="propuesta"'+(ev?"":" disabled")+'>Ver la propuesta</button><button type="button" class="btn sm" data-cna="ver" data-t="contrato"'+(ev?"":" disabled")+'>Ver el contrato</button>'+(S.vista?'<button type="button" class="btn sm gold" data-cna="pdf">Descargar este PDF de prueba</button>':"")+'</div>';
+    h+='<h2 class="cn-h2">Vista previa</h2><div class="pcard"><p class="cn-peq">Con el evento que tienes abierto'+(ev?': <b>'+esc(String(ev.name||"").slice(0,60))+'</b>':' (abre uno primero)')+'.</p><div class="cn-b"><button type="button" class="btn sm" data-cna="ver" data-t="contrato-ca"'+(ev?"":" disabled")+'>Ver el contrato (català)</button><button type="button" class="btn sm" data-cna="ver" data-t="propuesta"'+(ev?"":" disabled")+'>Ver la propuesta</button><button type="button" class="btn sm" data-cna="ver" data-t="contrato"'+(ev?"":" disabled")+'>Ver el contrato</button>'+(S.vista?'<button type="button" class="btn sm gold" data-cna="pdf">Descargar este PDF de prueba</button>':"")+'</div>';
     if(S.vista){ var v=S.vista; h+=(v.faltan.length?'<div class="cn-aviso mal">Para publicarlo falta: '+esc(v.faltan.join(", "))+'.</div>':'<div class="cn-aviso ok">Con los datos de este evento no falta nada.</div>')+(v.desconocidas.length?'<div class="cn-aviso mal">Variables que no existen: '+esc(v.desconocidas.join(", "))+'.</div>':"")+'<div class="cn-doc">'+K.html(v.texto)+'</div>'; }
     h+='</div></div>';
     var y=host.scrollTop; host.innerHTML=h; host.scrollTop=y;
@@ -18573,7 +18902,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function onChange(ev){
     var t=ev.target, k=t.getAttribute&&t.getAttribute("data-cn");
-    if(k){ var v=t.type==="number"?Math.max(1,Math.min(365,Math.round(+t.value)||30)):t.value;
+    if(k){ var v=t.type==="number"?Math.max(1,Math.min(k==="pagos.pct1"?99:365,Math.round(+t.value)||(k==="pagos.pct1"?65:30))):t.value;
       guarda(function(d){ setPath(d,k,v); },null); toast("Guardado."); refresca(); return; }
     if(t.getAttribute&&t.getAttribute("data-cna")==="revisado"){
       guarda(function(d){ d.revisado=t.checked?{ts:Date.now(),por:quien(),h:K.tplHash(K.cfg())}:null; },t.checked?"Texto marcado como revisado. Ya se pueden publicar contratos.":"Revisión quitada."); pinta(); }
@@ -18587,7 +18916,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       ta.value=ta.value.slice(0,s)+ins+ta.value.slice(e2); ta.selectionStart=ta.selectionEnd=s+ins.length; ta.focus();
       var k=ta.getAttribute("data-cn"), val=ta.value; guarda(function(d){ setPath(d,k,val); },null); refresca(); return; }
     if(a==="restablecer"){ var k2=b.getAttribute("data-k"); guarda(function(d){ delete d[k2]; },"Vuelto al texto de fábrica."); pinta(); return; }
-    if(a==="ver"){ var e=null; try{ e=BR.current(); }catch(_){} if(!e) return; var t2=b.getAttribute("data-t"), r=K.render(e,t2,hoy());
+    if(a==="ver"){ var e=null; try{ e=BR.current(); }catch(_){} if(!e) return; var t2=b.getAttribute("data-t"), ca=(t2==="contrato-ca"); if(ca){ t2="contrato"; e=Object.assign({},e,{contrato:Object.assign({},e.contrato||{},{idioma:"ca",tpl:""})}); }
+      var r=K.render(e,t2,hoy());
       S.vista={tipo:t2,texto:r.texto,faltan:r.faltan,desconocidas:r.desconocidas}; pinta(); return; }
     if(a==="pdf"&&S.vista){ var c=K.cfg(); K.pdfTexto(S.vista.texto,null,{marca:c.empresa.nombre,razon:c.empresa.razon,rep:c.empresa.rep+(c.empresa.cargo?" · "+c.empresa.cargo:""),borrador:true,fecha:hoy(),titulo:S.vista.tipo==="propuesta"?"Propuesta":"Contrato"},"prueba_"+S.vista.tipo); return; }
   }
@@ -19265,6 +19595,168 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
 <script>
 /* ═════════════════════════════════════════════════════════════════
+   DOCUMENTOS DEL EVENTO (equipo) — en «Recursos → Documentos» de cada evento:
+   · EL CONTRATO: en qué punto está (borrador, publicado, aceptado por uno o los dos clientes) y su PDF.
+   · JUSTIFICANTES DE PAGO: los que suben los clientes desde su portal o el equipo; se confirman cuando llega el dinero y se pueden
+     asociar a un pago concreto. Los ven administración, eventos y contabilidad.
+   · DOCUMENTOS DE IDENTIDAD de los clientes: solo administración y eventos; cada apertura queda en el registro de actividad.
+   Los archivos viven en el servidor (tabla evento_docs), no en el documento de eventos.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  var S={ev:"",docs:[],puede:{dni:false,justificante:false},cargando:false,err:"",editar:0,subiendo:false};
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function toast(m,mal){ try{ BR.toast(m,mal); }catch(_){} }
+  function backend(){ return !!(window.LM_backend&&window.LM_backend()); }
+  function rol(){ try{ return window.LM_SESSION.role(); }catch(_){ return "admin"; } }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function z(n){ return (n<10?"0":"")+n; }
+  function fch(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+"/"+d.getFullYear()+" "+z(d.getHours())+":"+z(d.getMinutes()); }
+  function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
+  function eur(n){ return (+n||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
+  function kb(n){ return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB"; }
+  function api(path,method,body){
+    return fetch(path,{method:method||"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json","Accept":"application/json"}:{"Accept":"application/json"},body:body?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j._status=r.status; return j; }); });
+  }
+  /* una imagen reducida hasta que quepa (el servidor admite 600 KB) o un PDF tal cual */
+  function archivoADoc(file){
+    return new Promise(function(res,rej){
+      if(/^image\//.test(file.type)){
+        var fr=new FileReader(); fr.onerror=function(){ rej({message:"No se ha podido leer la imagen."}); };
+        fr.onload=function(){ var im=new Image(); im.onerror=function(){ rej({message:"Esa imagen no se puede abrir. Prueba con un JPG o PNG."}); };
+          im.onload=function(){ var k=Math.min(1,1800/Math.max(im.naturalWidth,im.naturalHeight)), w=Math.max(1,Math.round(im.naturalWidth*k)), h=Math.max(1,Math.round(im.naturalHeight*k)), q=0.88, n=0, src;
+            function dib(){ var c=document.createElement("canvas"); c.width=w; c.height=h; var g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,w,h); g.drawImage(im,0,0,w,h); return c.toDataURL("image/jpeg",q); }
+            src=dib(); while(src.length*0.75>560000&&n<10){ n++; w=Math.max(200,Math.round(w*0.85)); h=Math.max(200,Math.round(h*0.85)); q=Math.max(0.5,q-0.06); src=dib(); }
+            if(src.length*0.75>590000) rej({message:"La imagen es demasiado grande."}); else res({src:src,nombre:String(file.name||"").slice(0,80)}); };
+          im.src=fr.result; };
+        fr.readAsDataURL(file); return; }
+      if(file.type==="application/pdf"||/\.pdf$/i.test(file.name||"")){
+        if(file.size>600000){ rej({message:"El PDF pesa más de 600 KB. Sube una foto o captura, o un PDF más ligero."}); return; }
+        var fp=new FileReader(); fp.onerror=function(){ rej({message:"No se ha podido leer el archivo."}); }; fp.onload=function(){ res({src:String(fp.result).replace(/^data:[^;]*;/,"data:application/pdf;"),nombre:String(file.name||"").slice(0,80)}); }; fp.readAsDataURL(file); return; }
+      rej({message:"Solo se pueden subir fotos (JPG, PNG, WebP) o PDF."});
+    });
+  }
+  function nombres(e){ var F=(e&&e.ficha)||{}, a=String(F.parejaA||"").trim()||String(F.contacto||"").trim(), b=String(F.parejaB||"").trim(); return [a||"Cliente 1",b]; }
+  function pagosDe(e){ return ((e&&e.presupuesto)||{}).pagos||[]; }
+  function pagoTxt(p){ return (p.fecha?dmy(p.fecha)+" · ":"")+(p.concepto||"Pago")+" · "+eur(p.importe); }
+
+  /* ── el contrato ── */
+  function bloqueContrato(e){
+    var K=window.LM_CONTRATO; if(!K||!K.estado) return "";
+    var st=K.estado(e), C=e.contrato||{}, nn=(st.nombres||[]), t="";
+    if(!st.pub) t='<b>Sin publicar todavía.</b> Se prepara y se publica desde Presupuesto → «Propuesta y contrato».';
+    else {
+      t='<b>'+(st.tipo==="propuesta"?"Propuesta":"Contrato")+' publicado</b> · versión '+st.ver+(C.pubIdioma==="ca"?" · català":"")+' · '+esc(fch(st.ts))+'<br>';
+      if(st.firmantes===2) t+=[1,2].map(function(i){ var ap=i===1?st.ap:st.ap2, ok=i===1?st.ok1:st.ok2; return esc(nn[i-1]||("Cliente "+i))+': '+(ok?'aceptó el '+esc(fch(ap.ts)):'pendiente'); }).join(" · ");
+      else t+=st.ok?('Aceptado por '+esc((st.firmado&&st.firmado.nombre)||(st.ap&&st.ap.nombre)||"")+' el '+esc(fch(st.ap.ts))):'Pendiente de que lo acepte el cliente en su portal.';
+    }
+    return '<div class="pv-sec">Contrato <span class="pv-sec-note">— el que se pasa a los clientes para aceptar y firmar</span></div>'+
+      '<div class="pcard dc-con"><p class="dc-t">'+t+'</p><div class="dc-acc"><button type="button" class="btn sm" data-dc="con-pdf" data-t="contrato">Borrador · PDF</button>'+
+      (st.pub?'<button type="button" class="btn sm" data-dc="con-pdf" data-t="publicado">Lo publicado · PDF</button>':'')+((st.ok||st.ok1||st.ok2)?'<button type="button" class="btn sm" data-dc="con-pdf" data-t="firmado">Firmado · PDF</button>':'')+
+      '<button type="button" class="btn sm gold" data-dc="con-ir">Preparar o publicar el contrato</button></div></div>';
+  }
+
+  /* ── justificantes de pago ── */
+  function badge(d){ return '<span class="dc-st '+(d.estado==="confirmado"?"ok":"pen")+'">'+(d.estado==="confirmado"?"Confirmado":"Pendiente de confirmar")+'</span>'; }
+  function bloqueJust(e){
+    var js=S.docs.filter(function(d){ return d.kind==="justificante"; }), pagos=pagosDe(e), puede=true;
+    var h='<div class="pv-sec">Justificantes de pago <span class="pv-sec-note">— los suben los clientes o el equipo; quedan como registro del pago</span></div><div class="pcard dc-j">';
+    if(!js.length) h+='<p class="dc-vacio">Todavía no hay justificantes.</p>';
+    js.forEach(function(d){
+      var asoc=pagos.filter(function(p){ return p.id===d.ref; })[0];
+      h+='<div class="dc-it" data-id="'+d.id+'"><div class="dc-it-h"><div class="dc-it-t"><b>'+esc(d.concepto||d.nombre||"Justificante")+'</b>'+badge(d)+(d.de==="cliente"&&!d.leido?'<span class="dc-st nuevo">Nuevo</span>':'')+'</div>'+
+        '<div class="dc-it-m">'+[d.importe!=null?eur(d.importe):"",d.fecha?dmy(d.fecha):"","subido por "+(d.de==="cliente"?"el cliente":(d.por||"el equipo"))+" el "+fch(d.ts),kb(d.bytes)].filter(Boolean).map(esc).join(" · ")+(asoc?' · <b>Pago:</b> '+esc(pagoTxt(asoc)):'')+(d.nota?'<br><i>'+esc(d.nota)+'</i>':'')+'</div></div>';
+      if(S.editar===d.id) h+='<div class="dc-ed"><label class="fld"><span class="lbl">Concepto</span><input type="text" id="dc-e-con" maxlength="120" value="'+esc(d.concepto||"")+'"></label>'+
+        '<label class="fld"><span class="lbl">Importe (€)</span><input type="text" inputmode="decimal" id="dc-e-imp" maxlength="12" value="'+esc(d.importe!=null?String(d.importe).replace(".",","):"")+'"></label>'+
+        '<label class="fld"><span class="lbl">Fecha</span><input type="date" id="dc-e-fec" value="'+esc(d.fecha||"")+'"></label>'+
+        '<label class="fld wide"><span class="lbl">Nota</span><input type="text" id="dc-e-nota" maxlength="300" value="'+esc(d.nota||"")+'" placeholder="Ej.: llegó el 21/11"></label>'+
+        '<div class="dc-acc"><button type="button" class="btn sm gold" data-dc="guardar" data-id="'+d.id+'">Guardar</button><button type="button" class="btn sm" data-dc="cancelar">Cancelar</button></div></div>';
+      h+='<div class="dc-acc"><a class="btn sm" href="/api/docs/ver?id='+d.id+'" target="_blank" rel="noopener">Ver el archivo</a>'+
+        '<button type="button" class="btn sm'+(d.estado==="confirmado"?"":" gold")+'" data-dc="estado" data-id="'+d.id+'" data-v="'+(d.estado==="confirmado"?"pendiente":"confirmado")+'">'+(d.estado==="confirmado"?"Dejar como pendiente":"Confirmar: el dinero ha llegado")+'</button>'+
+        '<button type="button" class="btn sm" data-dc="editar" data-id="'+d.id+'">Editar</button>'+
+        (pagos.length?'<label class="dc-as"><span>Asociar a</span><select data-dc-sel="ref" data-id="'+d.id+'" aria-label="Pago al que corresponde este justificante"><option value="">Ningún pago</option>'+pagos.map(function(p){ return '<option value="'+esc(p.id)+'"'+(p.id===d.ref?" selected":"")+'>'+esc(pagoTxt(p))+'</option>'; }).join("")+'</select></label>':'')+
+        '<button type="button" class="btn sm" data-dc="borrar" data-id="'+d.id+'" data-t="el justificante">Quitar</button></div></div>';
+    });
+    h+='<div class="dc-up"><div class="dc-up-t">Subir un justificante</div><div class="dc-ed"><label class="fld"><span class="lbl">Concepto</span><input type="text" id="dc-j-con" maxlength="120" placeholder="Señal, primer pago…"></label>'+
+      '<label class="fld"><span class="lbl">Importe (€)</span><input type="text" inputmode="decimal" id="dc-j-imp" maxlength="12"></label><label class="fld"><span class="lbl">Fecha</span><input type="date" id="dc-j-fec"></label>'+
+      '<div class="dc-acc"><button type="button" class="btn sm gold" data-dc="subir-j"'+(S.subiendo?" disabled":"")+'>'+(S.subiendo?"Subiendo…":"Elegir el archivo y subirlo")+'</button><input type="file" id="dc-j-file" accept="image/*,application/pdf" hidden></div></div>'+
+      '<p class="dc-nota">JPG, PNG, WebP o PDF de hasta 600 KB (las fotos se reducen solas).</p></div></div>';
+    return h;
+  }
+
+  /* ── documentos de identidad ── */
+  function bloqueDni(e){
+    var n=nombres(e), h='<div class="pv-sec">Documentos de identidad de los clientes <span class="pv-sec-note">— DNI, NIE o pasaporte; solo administración y eventos</span></div><div class="pcard dc-d">'+
+      '<p class="dc-nota dc-aviso"><b>Datos personales delicados.</b> Solo los ven administración y eventos; cada vez que alguien abre uno queda anotado en el registro de actividad, y se borran solos pasado el plazo fijado en Parámetros → Privacidad y datos (o al anonimizar el evento). El número del documento se escribe en el contrato (Presupuesto → «Datos y cláusulas de este contrato»).</p>';
+    [1,2].forEach(function(i){ var nom=n[i-1]; if(!nom) return; var fs=S.docs.filter(function(d){ return d.kind==="dni"&&String(d.persona)===String(i); });
+      h+='<div class="dc-pers"><b>'+esc(nom)+'</b>'+(fs.length?fs.map(function(d){
+        return '<div class="dc-it" data-id="'+d.id+'"><div class="dc-it-h"><div class="dc-it-t"><b>'+esc(d.nombre||"Archivo")+'</b>'+(d.de==="cliente"&&!d.leido?'<span class="dc-st nuevo">Nuevo</span>':'')+'</div><div class="dc-it-m">'+esc("subido por "+(d.de==="cliente"?"el cliente":(d.por||"el equipo"))+" el "+fch(d.ts)+" · "+kb(d.bytes))+'</div></div>'+
+          '<div class="dc-acc"><a class="btn sm" href="/api/docs/ver?id='+d.id+'" target="_blank" rel="noopener">Ver</a><button type="button" class="btn sm" data-dc="borrar" data-id="'+d.id+'" data-t="este documento de identidad">Quitar</button></div></div>'; }).join(""):'<p class="dc-vacio">Todavía no hay ninguno.</p>')+
+        (fs.length<4?'<div class="dc-acc"><button type="button" class="btn sm" data-dc="subir-d" data-p="'+i+'"'+(S.subiendo?" disabled":"")+'>'+(fs.length?"Añadir otro archivo":"Subir el documento de "+esc(nom))+'</button><input type="file" id="dc-d-file-'+i+'" accept="image/*,application/pdf" multiple hidden></div>':'')+'</div>'; });
+    return h+'</div>';
+  }
+
+  function pinta(){
+    var host=document.getElementById("dc-host"), e=evActual(); if(!host||!e) return;
+    if(!backend()){ host.innerHTML='<div class="pv-sec">Contrato, justificantes y documentos de identidad</div><div class="pcard"><p class="dc-vacio">Se guardan en el servidor: aquí solo se pueden usar en la página real de Les Moles.</p></div>'; return; }
+    if(S.err){ host.innerHTML='<div class="pcard"><p class="dc-vacio">'+esc(S.err)+'</p></div>'; return; }
+    if(S.cargando&&!S.docs.length&&S.ev!==e.id){ host.innerHTML='<p class="dc-vacio" role="status">Cargando…</p>'; return; }
+    var y=host.closest("#plan-scroll")?host.closest("#plan-scroll").scrollTop:0;
+    var r=rol(), h="";
+    if(r==="admin"||r==="eventos"||r==="contabilidad") h+=bloqueContrato(e);
+    if(S.puede.justificante) h+=bloqueJust(e);
+    if(S.puede.dni) h+=bloqueDni(e);
+    host.innerHTML=h;
+    var sc=host.closest("#plan-scroll"); if(sc) sc.scrollTop=y;
+  }
+  function carga(){
+    var e=evActual(), host=document.getElementById("dc-host"); if(!host||!e) return;
+    if(!backend()){ pinta(); return; }
+    var r=rol(); if(r!=="admin"&&r!=="eventos"&&r!=="contabilidad"){ host.innerHTML=""; return; }
+    if(S.ev!==e.id){ S.docs=[]; S.editar=0; }
+    S.ev=e.id; S.cargando=true; S.err="";
+    api("/api/docs?ev="+encodeURIComponent(e.id),"GET").then(function(j){
+      S.cargando=false;
+      if(j._status===200){ S.docs=j.docs||[]; S.puede=j.puede||{dni:false,justificante:false};
+        if(S.docs.some(function(d){ return d.de==="cliente"&&!d.leido; })) api("/api/docs/leido","POST",{ev:e.id}).then(function(){ try{ if(window.LM_portalRefrescar) window.LM_portalRefrescar(); }catch(_){} }); }
+      else S.err=j.message||"No se han podido cargar los documentos.";
+      pinta();
+    }).catch(function(){ S.cargando=false; S.err="Sin conexión con el servidor."; pinta(); });
+  }
+  window.LM_docsCargar=function(){ setTimeout(carga,0); };
+  function enDocs(){ return !!document.getElementById("dc-host"); }
+  document.addEventListener("click",function(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-dc]"); if(!b||!enDocs()) return; var a=b.getAttribute("data-dc"), e=evActual(); if(!e) return;
+    var id=+b.getAttribute("data-id")||0;
+    if(a==="con-pdf"){ try{ window.LM_CONTRATO.descargar(e,b.getAttribute("data-t")); }catch(_){ toast("No se ha podido preparar el PDF.",true); } return; }
+    if(a==="con-ir"){ if(window.irASeccion){ window.irASeccion("presup"); setTimeout(function(){ var c=document.getElementById("cn-card"); if(c) c.scrollIntoView({behavior:"smooth",block:"start"}); },700); } return; }
+    if(a==="editar"){ S.editar=id; pinta(); return; }
+    if(a==="cancelar"){ S.editar=0; pinta(); return; }
+    if(a==="guardar"){ var v=function(i){ var x=document.getElementById(i); return x?x.value:""; };
+      api("/api/docs/editar","POST",{id:id,concepto:v("dc-e-con"),importe:v("dc-e-imp").replace(",","."),fecha:v("dc-e-fec"),nota:v("dc-e-nota")}).then(function(j){ if(j._status===200){ S.editar=0; toast("Guardado."); carga(); } else toast(j.message||"No se ha podido guardar.",true); }); return; }
+    if(a==="estado"){ api("/api/docs/editar","POST",{id:id,estado:b.getAttribute("data-v")}).then(function(j){ if(j._status===200){ toast(b.getAttribute("data-v")==="confirmado"?"Justificante confirmado.":"Justificante pendiente."); carga(); } else toast(j.message||"No se ha podido cambiar.",true); }); return; }
+    if(a==="borrar"){ if(!window.confirm("¿Quitar "+(b.getAttribute("data-t")||"este documento")+"? No se puede deshacer.")) return;
+      api("/api/docs/borrar","POST",{id:id}).then(function(j){ if(j._status===200){ toast("Quitado."); carga(); } else toast(j.message||"No se ha podido quitar.",true); }); return; }
+    if(a==="subir-j"){ var f=document.getElementById("dc-j-file"); if(f) f.click(); return; }
+    if(a==="subir-d"){ var f2=document.getElementById("dc-d-file-"+b.getAttribute("data-p")); if(f2) f2.click(); return; }
+  });
+  document.addEventListener("change",function(ev){
+    var t=ev.target; if(!t||!enDocs()) return; var e=evActual(); if(!e) return;
+    if(t.getAttribute&&t.getAttribute("data-dc-sel")==="ref"){ api("/api/docs/editar","POST",{id:+t.getAttribute("data-id"),ref:t.value}).then(function(j){ if(j._status===200){ toast(t.value?"Asociado al pago.":"Sin pago asociado."); carga(); } else toast(j.message||"No se ha podido cambiar.",true); }); return; }
+    var kind=t.id==="dc-j-file"?"justificante":/^dc-d-file-[12]$/.test(t.id||"")?"dni":""; if(!kind||!t.files||!t.files.length) return;
+    var lista=Array.prototype.slice.call(t.files), persona=kind==="dni"?t.id.slice(-1):"";
+    var v=function(i){ var x=document.getElementById(i); return x?x.value:""; };
+    var base=kind==="justificante"?{concepto:v("dc-j-con"),importe:v("dc-j-imp").replace(",","."),fecha:v("dc-j-fec")}:{persona:persona};
+    S.subiendo=true; pinta(); t.value="";
+    lista.reduce(function(p,f){ return p.then(function(){ return archivoADoc(f).then(function(o){ return api("/api/docs","POST",Object.assign({ev:e.id,kind:kind,nombre:o.nombre,src:o.src},base)); }).then(function(j){ if(j._status!==200) toast(j.message||"No se ha podido subir ese archivo.",true); }).catch(function(x){ toast((x&&x.message)||"No se ha podido subir ese archivo.",true); }); }); },Promise.resolve())
+      .then(function(){ S.subiendo=false; toast(lista.length===1?"Subido.":"Subidos."); carga(); });
+  });
+})();
+</script>
+<script>
+/* ═════════════════════════════════════════════════════════════════
    AVISOS Y CORREO · WHATSAPP CON UN CLIC
    · «Avisos y correo» (en Planificación): para el evento abierto, a quién hay que
      escribir y con qué mensaje ya redactado — la clienta (la lista, los pagos, las
@@ -19673,8 +20165,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   };
   window.LM_portalChip=function(e){
     try{
-      var r=Q.res[e.id]; if(!r||!(r.msgs||r.arch)||!puede()) return "";
-      var t=[]; if(r.msgs) t.push(r.msgs+(r.msgs===1?" mensaje":" mensajes")); if(r.arch) t.push(r.arch+(r.arch===1?" archivo":" archivos"));
+      var r=Q.res[e.id]; if(!r||!(r.msgs||r.arch||r.docs)||!puede()) return "";
+      var t=[]; if(r.msgs) t.push(r.msgs+(r.msgs===1?" mensaje":" mensajes")); if(r.arch) t.push(r.arch+(r.arch===1?" archivo":" archivos")); if(r.docs) t.push(r.docs+(r.docs===1?" documento":" documentos"));
       return '<div class="ev-co ev-portal" title="Lo que ha mandado el cliente desde su portal y nadie ha leído">Portal: '+esc(t.join(" · "))+' sin leer</div>';
     }catch(_){ return ""; }
   };
@@ -19687,7 +20179,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(e.contrato&&e.contrato.texto) t.push((e.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+": "+(ap.contrato&&ap.contrato.ts&&ap.contrato.h===window.LM_CONTRATO.hash(e.contrato.texto)?"aceptado ("+esc(ap.contrato.nombre||"")+")":"sin aceptar"));
     if(r&&r.msgs) t.push('<b>'+r.msgs+(r.msgs===1?" mensaje sin leer":" mensajes sin leer")+'</b>');
     if(r&&r.arch) t.push('<b>'+r.arch+(r.arch===1?" archivo nuevo":" archivos nuevos")+'</b>');
-    return '<div class="portal-st portal-act"><span>'+t.join(" · ")+'</span><button class="btn sm" type="button" data-pt-ir="portal">Abrir lo del cliente</button></div>';
+    if(r&&r.docs) t.push('<b>'+r.docs+(r.docs===1?" documento nuevo (justificante o identidad)":" documentos nuevos (justificantes o identidad)")+'</b>');
+    return '<div class="portal-st portal-act"><span>'+t.join(" · ")+'</span><button class="btn sm" type="button" data-pt-ir="portal">Abrir lo del cliente</button>'+(r&&r.docs?'<button class="btn sm" type="button" data-pt-ir="docs">Ver los documentos</button>':'')+'</div>';
   };
   document.addEventListener("click",function(ev){ var b=ev.target.closest&&ev.target.closest("[data-pt-ir]"); if(b&&window.irASeccion){ ev.preventDefault(); window.irASeccion(b.getAttribute("data-pt-ir")); } });
   setInterval(function(){ if(backend()&&puede()&&document.body.classList.contains("authed")) cargarResumen(function(){ try{ if(document.body.classList.contains("mode-home")&&window.renderHome) window.renderHome(); }catch(_){} }); },60000);
@@ -19806,7 +20299,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var BR=window.SITTING_BRIDGE;
   var D=null, S=null, BASE0=null, NUEVO=true, TOKEN="", VISTA=false, saveTm=null, estado="borrador", enviadaTs=null, host=null, tab="inicio", PRIV=null, CONSENT=null, CONSENT_CHK=false, PRIV_OPEN=false;
   /* aprobar, plano, mensajes y archivos (v01.65) */
-  var AP=null, MSGS=[], ARCH=[], MIN=null, APN="", MSGTXT="", PLSEL=null, SUBIENDO=false;
+  var AP=null, MSGS=[], ARCH=[], MIN=null, APN="", MSGTXT="", PLSEL=null, SUBIENDO=false, DOCS=[], JUSTSEL="";
   var MES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
   var TIPOS=[["adulto","Adulto"],["nino","Niño/a"],["bebe","Bebé (trona)"]];
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
@@ -19961,6 +20454,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-th{position:relative;margin:10px 0;border:1px solid var(--pl);border-radius:8px;overflow:hidden;background:var(--pf);aspect-ratio:1/1;display:grid;place-items:center}#novios .pn-fotos .pn-th{margin:0}#novios .pn-th img{width:100%;height:100%;object-fit:cover}#novios .pn-th.logo{max-width:200px}#novios .pn-th.logo img{object-fit:contain;padding:10px}",
   "#novios .pn-th .pn-x{position:absolute;top:4px;right:4px;width:30px;height:30px;border-radius:50%;background:rgba(26,26,26,.78);color:#fff;border:0;font-size:18px;line-height:1;cursor:pointer}",
   "@media (max-width:560px){#novios .pn-mesa-d ul{columns:1}#novios .pn-b{max-width:94%}}",
+  "#novios .pn-docl{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:8px}#novios .pn-docl li{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 12px;border:1px solid var(--pl);border-radius:10px;background:var(--pf)}",
+  "#novios .pn-docl li>div{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}#novios .pn-docl li b{font-weight:650}#novios .pn-docl li span{font-size:12.5px;color:var(--pm)}#novios .pn-docl .pn-st{font-size:11px}",
+  "#novios .pn-docf{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end;margin-top:12px}#novios .pn-docf select,#novios .pn-docf input{min-height:44px;width:100%}",
+  "#novios .pn-dni{padding:12px 0;border-top:1px solid var(--pl)}#novios .pn-dni:first-of-type{border-top:0}#novios .pn-dni>b{display:block;margin-bottom:4px}",
   "@media (prefers-reduced-motion:reduce){#novios .pn-panel{animation:none}}"
   ].join("\n");
   function css(){ if(document.getElementById("pn-css")) return; var st=document.createElement("style"); st.id="pn-css"; st.textContent=CSS; document.head.appendChild(st); }
@@ -19979,26 +20476,31 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       (pr.total>0?'<div><b class="pn-n">'+esc(eur(pr.pend).replace(",00",""))+'</b><span>pendiente de pagar</span></div>':'')+'</div></div></header>';
   }
   function conDoc(){ var C=P().contrato; return (C&&C.texto)?C:null; }
-  function conPend(){ return !!(conDoc()&&AP&&AP.contrato&&!AP.contrato.ok&&D&&D.editable); }
-  var CNOM="", CNIF="", CCHK=false;
+  function conFirmantes(){ return (AP&&AP.contratoFirmantes)===2?2:1; }
+  function conPend(){ var fm=conFirmantes(); return !!(conDoc()&&AP&&AP.contrato&&D&&D.editable&&(!AP.contrato.ok||(fm===2&&!(AP.contrato2&&AP.contrato2.ok)))); }
+  var CNS={1:{nom:"",nif:"",chk:false},2:{nom:"",nif:"",chk:false}};
+  /* lo de cada persona que firma: ya firmado, o su formulario (nombre, documento y «lo he leído») */
+  function vFirma(i,esC,act){
+    var s=(i===1?(AP&&AP.contrato):(AP&&AP.contrato2))||{}, C=conDoc(), nn=C.nombres||[], dos=conFirmantes()===2, q=CNS[i];
+    if(s.ok) return '<div class="pn-aprob ok">'+IC.check+'<div><b>'+(esC?"Contrato aceptado":"Propuesta aceptada")+' por '+esc(s.nombre)+'</b><span>el '+esc(fch(s.ts))+'. Guardamos una huella del texto que se ha aceptado.</span></div></div>';
+    var h="";
+    if(s.desactualizada) h+='<div class="pn-aprob viejo">'+IC.info+'<div><b>Ha cambiado desde que lo aceptasteis</b><span>Se aceptó una versión anterior ('+esc(s.nombre)+', '+esc(fch(s.ts))+'). Leed la nueva y aceptadla de nuevo.</span></div></div>';
+    if(!act) return h+'<p class="pn-lead">'+(soloMirar()?"(Vista del equipo: aquí el cliente podría aceptar.)":(D&&D.local?"Esto funciona en la página real, no en la vista previa.":"Para aceptar hace falta el enlace nuevo de Les Moles."))+'</p>';
+    return h+'<div class="pn-card pn-acepta"><div class="pn-eb">'+(dos?esc(nn[i-1]||("Persona "+i))+' · ':"")+(esC?"Aceptar y firmar el contrato":"Aceptar la propuesta")+'</div>'+
+      '<label class="pn-fld"><span class="pn-lbl">Nombre y apellidos</span><input type="text" id="pn-cn-nom-'+i+'" maxlength="80" autocomplete="name" value="'+esc(q.nom||nn[i-1]||(i===1?(APN||nombres().a||""):""))+'"></label>'+
+      '<label class="pn-fld"><span class="pn-lbl">DNI, NIE o pasaporte</span><input type="text" id="pn-cn-nif-'+i+'" maxlength="16" autocomplete="off" autocapitalize="characters" value="'+esc(q.nif)+'"></label>'+
+      '<label class="pn-chk"><input type="checkbox" id="pn-cn-chk-'+i+'"'+(q.chk?" checked":"")+'> <span>He leído el texto y lo acepto.</span></label>'+
+      '<button type="button" class="pn-btn pri" data-pn-act="aceptar-contrato" data-firmante="'+i+'">'+(esC?"Aceptar y firmar":"Aceptar la propuesta")+'</button>'+
+      '<p class="pn-lead pn-peq">Queda guardado con el nombre, la fecha y la hora del momento en que se acepta.</p></div>';
+  }
   function vContrato(){
-    var C=conDoc(), act=puedeActuar(), s=(AP&&AP.contrato)||{}, esC=C.tipo!=="propuesta", K=window.LM_CONTRATO;
-    var h='<div class="pn-head"><div><h2 class="pn-h2">'+(esC?"El contrato":"La propuesta")+'</h2><p class="pn-lead">'+(esC?"Leedlo con calma. Si todo está bien, podéis aceptarlo aquí mismo con vuestro nombre y vuestro NIF. Si algo no cuadra, escribidnos desde «Mensajes».":"Esta es la propuesta que os hacemos. Si os encaja, podéis aceptarla aquí mismo. Si queréis cambiar algo, escribidnos desde «Mensajes».")+'</p></div></div>';
-    h+='<div class="pn-card"><div class="cn-doc">'+(K?K.html(C.texto):esc(C.texto))+'</div><div class="pn-acciones"><button type="button" class="pn-btn" data-pn-act="pdf-contrato">Descargar en PDF</button></div></div>';
-    if(s.ok) h+='<div class="pn-aprob ok">'+IC.check+'<div><b>'+(esC?"Contrato aceptado":"Propuesta aceptada")+' por '+esc(s.nombre)+'</b><span>el '+esc(fch(s.ts))+'. Guardamos una huella del texto que habéis aceptado.</span></div></div>';
-    else {
-      if(s.desactualizada) h+='<div class="pn-aprob viejo">'+IC.info+'<div><b>Ha cambiado desde que lo aceptasteis</b><span>Aceptasteis una versión anterior ('+esc(s.nombre)+', '+esc(fch(s.ts))+'). Leed la nueva y aceptadla de nuevo.</span></div></div>';
-      if(!act) h+='<p class="pn-lead">'+(soloMirar()?"(Vista del equipo: aquí el cliente podría aceptar.)":(D&&D.local?"Esto funciona en la página real, no en la vista previa.":"Para aceptar hace falta el enlace nuevo de Les Moles."))+'</p>';
-      else h+='<div class="pn-card pn-acepta"><div class="pn-eb">'+(esC?"Aceptar y firmar el contrato":"Aceptar la propuesta")+'</div>'+
-        '<label class="pn-fld"><span class="pn-lbl">Nombre y apellidos</span><input type="text" id="pn-cn-nom" maxlength="80" autocomplete="name" value="'+esc(CNOM||APN||nombres().a||"")+'"></label>'+
-        '<label class="pn-fld"><span class="pn-lbl">NIF, DNI o NIE</span><input type="text" id="pn-cn-nif" maxlength="16" autocomplete="off" autocapitalize="characters" value="'+esc(CNIF)+'"></label>'+
-        '<label class="pn-chk"><input type="checkbox" id="pn-cn-chk"'+(CCHK?" checked":"")+'> <span>He leído el texto y lo acepto.</span></label>'+
-        '<button type="button" class="pn-btn pri" data-pn-act="aceptar-contrato">'+(esC?"Aceptar y firmar":"Aceptar la propuesta")+'</button>'+
-        '<p class="pn-lead pn-peq">Queda guardado con vuestro nombre, la fecha y la hora del momento en que lo aceptáis.</p></div>';
-    }
+    var C=conDoc(), act=puedeActuar(), esC=C.tipo!=="propuesta", K=window.LM_CONTRATO, dos=conFirmantes()===2;
+    var h='<div class="pn-head"><div><h2 class="pn-h2">'+(esC?"El contrato":"La propuesta")+'</h2><p class="pn-lead">'+(esC?(dos?"Leedlo con calma. Lo firman las dos personas: cada una lo acepta aquí con su nombre y su documento (pueden hacerlo desde el mismo enlace, cada una en su móvil). Si algo no cuadra, escribidnos desde «Mensajes».":"Leedlo con calma. Si todo está bien, podéis aceptarlo aquí mismo con vuestro nombre y vuestro documento. Si algo no cuadra, escribidnos desde «Mensajes»."):"Esta es la propuesta que os hacemos. Si os encaja, podéis aceptarla aquí mismo. Si queréis cambiar algo, escribidnos desde «Mensajes».")+'</p></div></div>';
+    h+='<div class="pn-card"><div class="cn-doc" lang="'+(C.idioma==="ca"?"ca":"es")+'">'+(K?K.html(C.texto):esc(C.texto))+'</div><div class="pn-acciones"><button type="button" class="pn-btn" data-pn-act="pdf-contrato">Descargar en PDF</button></div></div>';
+    h+=vFirma(1,esC,act); if(dos) h+=vFirma(2,esC,act);
     return h;
   }
-  function vTabs(){ var CT=conDoc(), T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["plano","Plano"],["dia","El día"],["aprob","Aprobar"+(porAprobar()?" ·":"")],["msg","Mensajes"+(msgNuevos()?" ·":"")]];
+  function vTabs(){ var CT=conDoc(), T=[["inicio","Inicio"],["pagos","Pagos"],["presu","Presupuesto"],["inv","Invitados"],["plano","Plano"],["dia","El día"],["aprob","Aprobar"+(porAprobar()?" ·":"")],["docs","Documentos"+(docsPend()?" ·":"")],["msg","Mensajes"+(msgNuevos()?" ·":"")]];
     if(CT) T.splice(3,0,["contrato",(CT.tipo==="propuesta"?"Propuesta":"Contrato")+(conPend()?" ·":"")]);
     return '<nav class="pn-tabs" aria-label="Apartados"><div class="pn-wrap" role="tablist">'+T.map(function(t){ return '<button class="pn-tab" role="tab" type="button" aria-selected="'+(tab===t[0])+'" data-pn-tab="'+t[0]+'">'+t[1]+'</button>'; }).join("")+'</div></nav>'; }
   function vInicio(){
@@ -20012,6 +20514,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var pa=[]; if(AP&&D.editable){ if(((P().menu)||[]).length&&!AP.menu.ok) pa.push("el menú"); if(MIN&&!AP.minuta.ok) pa.push("la minuta"); }
     if(pa.length) h+='<div class="pn-next"><span class="ic">'+IC.edit+'</span><div><span>Para revisar</span><b>Aprobad '+pa.join(" y ")+'</b><span>Cuando estén como queréis, aprobadlos desde aquí con vuestro nombre.</span></div><button class="pn-btn pri go" type="button" data-pn-go="aprob">Revisar</button></div>';
     if(conPend()){ var _C=conDoc(); h+='<div class="pn-next"><span class="ic">'+IC.edit+'</span><div><span>Para aceptar</span><b>'+(_C.tipo==="propuesta"?"Tenéis una propuesta":"Tenéis el contrato")+' esperando</b><span>Leedlo y, si todo está bien, aceptadlo desde aquí.</span></div><button class="pn-btn pri go" type="button" data-pn-go="contrato">Verlo</button></div>'; }
+    if(docsPend()) h+='<div class="pn-next"><span class="ic">'+IC.edit+'</span><div><span>Para el contrato</span><b>Subid una copia del documento de identidad</b><span>DNI, NIE o pasaporte, de cada persona que firma. Solo lo ve el equipo de Les Moles.</span></div><button class="pn-btn pri go" type="button" data-pn-go="docs">Subir</button></div>';
     if(msgNuevos()) h+='<div class="pn-next"><span class="ic">'+IC.info+'</span><div><span>Mensajes</span><b>Les Moles os ha escrito</b><span>'+esc(MSGS.filter(function(m){ return m.de==="equipo"; }).pop().texto.slice(0,90))+'…</span></div><button class="pn-btn go" type="button" data-pn-go="msg">Leer</button></div>';
     if(L.length){ var primero=true;
       h+='<div class="pn-card"><div class="pn-head" style="margin-bottom:18px"><div class="pn-eb">Qué toca y cuándo</div><span class="pn-perm lock">'+IC.lock+'Lo marca Les Moles</span></div><ol class="pn-steps">'+
@@ -20039,6 +20542,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     h+='<div class="pn-card" style="display:grid;gap:10px"><div class="pn-eb">Cómo pagar</div><p style="margin:0;color:var(--pm)">Por transferencia'+(ct.iban?' a la cuenta de Les Moles':'; os damos la cuenta en la reunión')+'. Poned este concepto para que sepamos de quién es el pago:</p>'+
       '<div class="pn-copy"><span>Concepto</span><code id="pn-cpt">'+esc(concepto)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-cpt">Copiar</button></div>'+
       (ct.iban?'<div class="pn-copy"><span>Cuenta (IBAN)</span><code id="pn-iban">'+esc(ct.iban)+'</code><button class="pn-btn" type="button" data-pn-copy="pn-iban">Copiar</button></div>':'')+'</div>';
+    if(puedeActuar()) h+='<div class="pn-card" style="display:grid;gap:10px"><div class="pn-eb">¿Ya habéis hecho el pago?</div><p style="margin:0;color:var(--pm)">Subid el justificante de la transferencia (captura o PDF del banco): queda registrado y nos avisa.</p><div><button class="pn-btn" type="button" data-pn-go="docs">Subir el justificante</button></div></div>';
     return h;
   }
   function vPresu(){
@@ -20112,7 +20616,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function imgUrl(id){ return "/api/share/img?t="+encodeURIComponent(TOKEN)+"&id="+id; }
   function fch(ms){ var d=new Date(ms); return d.toLocaleDateString("es-ES",{day:"numeric",month:"long"})+" · "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
   function accion(b){ return fetch("/api/share/accion?t="+encodeURIComponent(TOKEN),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ if(!r.ok){ j._s=r.status; throw j; } return j; }); }); }
-  function aplicar(j){ if(j.estado) AP=j.estado; if(j.msgs) MSGS=j.msgs; if(j.arch) ARCH=j.arch; if(j.minuta!==undefined) MIN=j.minuta; }
+  function aplicar(j){ if(j.estado) AP=j.estado; if(j.msgs) MSGS=j.msgs; if(j.arch) ARCH=j.arch; if(j.docs) DOCS=j.docs; if(j.minuta!==undefined) MIN=j.minuta; }
   function porAprobar(){ return !!(AP&&D&&D.editable&&((((P().menu)||[]).length&&!AP.menu.ok)||(MIN&&!AP.minuta.ok))); }
   function vistoMsg(){ try{ return +localStorage.getItem("lm_pn_msg_"+TOKEN)||0; }catch(_){ return 0; } }
   function msgNuevos(){ var v=vistoMsg(); return MSGS.some(function(m){ return m.de==="equipo"&&m.ts>v; }); }
@@ -20192,19 +20696,25 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar."); if(j&&j._s===409) refrescar(); b.disabled=false; });
       return true; }
     if(a==="aceptar-contrato"){
-      var cn=document.getElementById("pn-cn-nom"), cf=document.getElementById("pn-cn-nif"), cc=document.getElementById("pn-cn-chk"), nom2=(cn&&cn.value||"").trim(), nif=(cf&&cf.value||"").replace(/[\s.\-]/g,"").toUpperCase();
+      var fi=+b.getAttribute("data-firmante")||1, cn=document.getElementById("pn-cn-nom-"+fi), cf=document.getElementById("pn-cn-nif-"+fi), cc=document.getElementById("pn-cn-chk-"+fi), nom2=(cn&&cn.value||"").trim(), nif=(cf&&cf.value||"").replace(/[\s.\-]/g,"").toUpperCase();
+      CNS[fi]={nom:nom2,nif:nif,chk:!!(cc&&cc.checked)};
       if(nom2.length<2){ aviso("Escribid vuestro nombre."); if(cn) cn.focus(); return true; }
-      if(!/^[A-Z0-9]{6,12}$/.test(nif)){ aviso("Escribid vuestro NIF, DNI o NIE (sin espacios)."); if(cf) cf.focus(); return true; }
+      if(!/^[A-Z0-9]{6,12}$/.test(nif)){ aviso("Escribid vuestro DNI, NIE o pasaporte (sin espacios)."); if(cf) cf.focus(); return true; }
       if(!(cc&&cc.checked)){ aviso("Marcad que habéis leído el texto y lo aceptáis."); if(cc) cc.focus(); return true; }
-      CNOM=nom2; CNIF=nif; b.disabled=true;
-      accion({tipo:"aprobar",item:"contrato",nombre:nom2,nif:nif,h:AP&&AP.contratoHash}).then(function(j){ aplicar(j); pintar(); aviso("Aceptado. ¡Gracias, "+nom2.split(" ")[0]+"!"); })
+      b.disabled=true;
+      accion({tipo:"aprobar",item:"contrato",firmante:fi,nombre:nom2,nif:nif,h:AP&&AP.contratoHash}).then(function(j){ aplicar(j); pintar(); aviso("Aceptado. ¡Gracias, "+nom2.split(" ")[0]+"!"); })
         .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar."); if(j&&j._s===409) refrescar(); b.disabled=false; });
       return true; }
     if(a==="pdf-contrato"){
-      var C2=conDoc(), K2=window.LM_CONTRATO, s2=(AP&&AP.contrato)||{}; if(!C2||!K2) return true;
-      var em=C2.emp||{}, firma=s2.ok?{nombre:s2.nombre,nif:CNIF||"",ts:s2.ts,h:K2.hash(C2.texto)}:null;
-      K2.pdfTexto(C2.texto,firma,{marca:em.marca||"Les Moles",razon:em.razon||"",rep:em.rep||"",fecha:C2.fecha,ver:"versión "+(C2.ver||1),titulo:C2.tipo==="propuesta"?"Propuesta":"Contrato",cliente:nombres().a||""},(C2.tipo==="propuesta"?"propuesta":"contrato")+(firma?"_aceptado":""));
+      var C2=conDoc(), K2=window.LM_CONTRATO, fm2=conFirmantes(); if(!C2||!K2) return true;
+      var em=C2.emp||{}, hh2=K2.hash(C2.texto);
+      function fo(sx,q){ return (sx&&sx.ok)?{nombre:sx.nombre,nif:(CNS[q]&&CNS[q].nif)||"",ts:sx.ts,h:hh2}:null; }
+      var firma=fm2===2?[fo(AP&&AP.contrato,1),fo(AP&&AP.contrato2,2)]:fo(AP&&AP.contrato,1), algo=fm2===2?(firma[0]||firma[1]):firma;
+      K2.pdfTexto(C2.texto,firma,{marca:em.marca||"Les Moles",razon:em.razon||"",rep:em.rep||"",fecha:C2.fecha,ver:"versión "+(C2.ver||1),titulo:C2.tipo==="propuesta"?"Propuesta":"Contrato",cliente:nombres().a||"",firmantes:fm2,nombres:C2.nombres||[],ca:C2.idioma==="ca"},(C2.tipo==="propuesta"?"propuesta":"contrato")+(algo?"_aceptado":""));
       return true; }
+    if(a==="subir-just"){ var fj=document.getElementById("pn-file-just"); if(fj) fj.click(); return true; }
+    if(a==="subir-dni"){ var fd=document.getElementById("pn-file-dni-"+b.getAttribute("data-p")); if(fd) fd.click(); return true; }
+    if(a==="quitar-doc"){ accion({tipo:"doc-quitar",id:+b.getAttribute("data-id")}).then(function(j){ aplicar(j); pintar(); aviso("Quitado."); }).catch(function(j){ aviso((j&&j.message)||"No se ha podido quitar."); }); return true; }
     if(a==="enviar-msg"){
       var ta=document.getElementById("pn-msg"), tx=(ta&&ta.value||"").trim(); if(!tx){ aviso("Escribid el mensaje."); return true; }
       b.disabled=true; accion({tipo:"comentario",nombre:nombres().a||"",texto:tx}).then(function(j){ MSGTXT=""; aplicar(j); pintar(); var c=document.getElementById("pn-chat"); if(c) c.scrollTop=c.scrollHeight; aviso("Mensaje enviado. Os contestaremos aquí."); })
@@ -20213,6 +20723,42 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(a==="subir-logo"||a==="subir-foto"){ var fi=document.getElementById(a==="subir-logo"?"pn-file-logo":"pn-file-foto"); if(fi) fi.click(); return true; }
     if(a==="quitar-arch"){ accion({tipo:"quitar",id:+b.getAttribute("data-id")}).then(function(j){ aplicar(j); pintar(); aviso("Quitado."); }).catch(function(j){ aviso((j&&j.message)||"No se ha podido quitar."); }); return true; }
     return false;
+  }
+  /* ── documentos: justificantes de pago y documento de identidad ── */
+  function docsDe(kind,persona){ return DOCS.filter(function(d){ return d.kind===kind&&(persona==null||String(d.persona)===String(persona)); }); }
+  function personasDoc(){ var n=nombres(), out=[{i:1,nom:n.fb?"Persona 1":n.a}]; if(!n.solo) out.push({i:2,nom:n.b}); return out; }
+  function docsPend(){ return !!(puedeActuar()&&conDoc()&&personasDoc().some(function(p){ return !docsDe("dni",p.i).length; })); }
+  function archivoADoc(file){
+    return new Promise(function(res,rej){
+      if(/^image\//.test(file.type)) return imgComp(file,1600,false).then(function(o){ res({src:o.src,nombre:o.nombre}); },rej);
+      if(file.type==="application/pdf"||/\.pdf$/i.test(file.name||"")){
+        if(file.size>600000) return rej({message:"El PDF pesa demasiado (máx. 600 KB). Mandad una foto o captura, o un PDF más ligero."});
+        var fr=new FileReader(); fr.onerror=function(){ rej({message:"No se ha podido leer el archivo."}); }; fr.onload=function(){ res({src:String(fr.result).replace(/^data:[^;]*;/,"data:application/pdf;"),nombre:String(file.name||"").slice(0,80)}); }; fr.readAsDataURL(file); return; }
+      rej({message:"Solo se pueden enviar fotos (JPG, PNG, WebP) o PDF."}); });
+  }
+  function subirDocs(files,base){
+    var lista=Array.prototype.slice.call(files||[]); if(!lista.length) return;
+    SUBIENDO=true; pintar();
+    lista.reduce(function(p,f){ return p.then(function(){ return archivoADoc(f).then(function(o){ return accion(Object.assign({tipo:"doc",nombre:o.nombre,src:o.src,por:nombres().a||""},base)); }).then(aplicar).catch(function(j){ aviso((j&&j.message)||"No se ha podido subir ese archivo."); }); }); },Promise.resolve())
+      .then(function(){ SUBIENDO=false; pintar(); aviso(lista.length===1?"Recibido. Gracias.":"Recibidos. Gracias."); });
+  }
+  function vDocs(){
+    var act=puedeActuar(), js=docsDe("justificante"), pagos=pasos().filter(function(p){ return p.tipo==="pago"&&p.importe&&!p.done; }), hoy=(D&&D.hoy)||"";
+    var h='<div class="pn-head"><div><h2 class="pn-h2">Documentos</h2><p class="pn-lead">Aquí podéis mandarnos el justificante de cada pago y una copia del documento de identidad de cada persona que firma. Solo lo ve el equipo de Les Moles.</p></div></div>';
+    h+='<div class="pn-card"><div class="pn-eb">Justificantes de pago</div><p class="pn-lead">Cuando hagáis una transferencia, subid la captura o el PDF del banco (JPG, PNG, WebP o PDF; hasta 600 KB). Así queda el registro.</p>';
+    if(js.length) h+='<ul class="pn-docl">'+js.map(function(d){ return '<li><div><b>'+esc(d.concepto||d.nombre||"Justificante")+'</b><span>'+(d.importe!=null?esc(eur(d.importe))+' · ':'')+(d.fecha?esc(corto(d0(d.fecha)))+' · ':'')+'subido el '+esc(fch(d.ts))+'</span></div><span class="pn-st '+(d.estado==="confirmado"?"ok":"soon")+'">'+(d.estado==="confirmado"?"Confirmado por Les Moles":"Recibido")+'</span>'+
+      (act&&d.de==="cliente"&&d.estado!=="confirmado"?'<button type="button" class="pn-btn gh" data-pn-act="quitar-doc" data-id="'+d.id+'" aria-label="Quitar este justificante">Quitar</button>':'')+'</li>'; }).join("")+'</ul>';
+    else h+='<p class="pn-lead">Todavía no habéis subido ninguno.</p>';
+    if(act) h+='<div class="pn-docf"><label class="pn-fld"><span class="pn-lbl">¿De qué pago es?</span><select id="pn-just-ref">'+pagos.map(function(p){ return '<option value="'+esc(p.id)+'"'+(JUSTSEL===p.id?" selected":"")+' data-imp="'+esc(String(p.importe))+'">'+esc(p.t+" · "+eur(p.importe))+'</option>'; }).join("")+'<option value="">Otro pago</option></select></label>'+
+      '<label class="pn-fld"><span class="pn-lbl">Importe (€)</span><input type="text" inputmode="decimal" id="pn-just-imp" maxlength="12" value="'+esc(pagos.length?String(pagos[0].importe).replace(".",","):"")+'"></label>'+
+      '<label class="pn-fld"><span class="pn-lbl">Fecha del pago</span><input type="date" id="pn-just-fec" value="'+esc(hoy)+'"></label>'+
+      '<div><button type="button" class="pn-btn pri" data-pn-act="subir-just"'+(SUBIENDO?" disabled":"")+'>'+(SUBIENDO?"Subiendo…":"Subir el justificante")+'</button><input type="file" id="pn-file-just" accept="image/*,application/pdf" hidden></div></div>';
+    h+='</div>';
+    h+='<div class="pn-card"><div class="pn-eb">Documento de identidad</div><p class="pn-lead">Para el contrato necesitamos una copia del DNI, NIE o pasaporte de cada persona que firma (por las dos caras; foto o PDF). Solo la ve el equipo de Les Moles y '+(PRIV&&PRIV.dniDias?"se borra a los "+PRIV.dniDias+" días del evento":"se borra cuando el evento se archiva")+'. <b>No podréis volver a verla aquí</b>: guardad vuestra copia.</p>';
+    personasDoc().forEach(function(p){ var fs=docsDe("dni",p.i);
+      h+='<div class="pn-dni"><b>'+esc(p.nom)+'</b>'+(fs.length?'<ul class="pn-docl">'+fs.map(function(d){ return '<li><div><b>'+esc(d.nombre||"Archivo")+'</b><span>subido el '+esc(fch(d.ts))+'</span></div><span class="pn-st ok">Recibido</span>'+(act&&d.de==="cliente"?'<button type="button" class="pn-btn gh" data-pn-act="quitar-doc" data-id="'+d.id+'" aria-label="Quitar este archivo de '+esc(p.nom)+'">Quitar</button>':'')+'</li>'; }).join("")+'</ul>':'<p class="pn-lead">Todavía no hay ningún archivo.</p>')+
+        (act&&fs.length<4?'<div><button type="button" class="pn-btn" data-pn-act="subir-dni" data-p="'+p.i+'"'+(SUBIENDO?" disabled":"")+'>'+(fs.length?"Añadir otro archivo":"Subir el documento")+'</button><input type="file" id="pn-file-dni-'+p.i+'" accept="image/*,application/pdf" multiple hidden></div>':'')+'</div>'; });
+    return h+'</div>';
   }
   function vDia(){
     var h='<div class="pn-head"><div><h2 class="pn-h2">'+esc(PAL().dia)+'</h2><p class="pn-lead">Horarios y menú tal como los tenemos preparados. Si queréis cambiar algo, habladlo con nosotros en la reunión.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
@@ -20231,7 +20777,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     host=document.getElementById("novios"); if(!host) return; css();
     var y=host.scrollTop;
     host.className="pn on";
-    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():tab==="plano"?vPlano():tab==="aprob"?vAprob():tab==="msg"?vMsg():(tab==="contrato"&&conDoc())?vContrato():vInicio();
+    var panel=tab==="pagos"?vPagos():tab==="presu"?vPresu():tab==="inv"?vInv():tab==="dia"?vDia():tab==="plano"?vPlano():tab==="aprob"?vAprob():tab==="docs"?vDocs():tab==="msg"?vMsg():(tab==="contrato"&&conDoc())?vContrato():vInicio();
     host.innerHTML=(VISTA?'<div class="pn-vista">Así lo ve el cliente'+(D&&D.editable?'':' (enlace antiguo: solo lectura)')+' · <button class="pn-btn" type="button" data-pn-act="salir">Volver a la app</button></div>':'')+
       vHero()+vTabs()+'<main class="pn-main pn-wrap"><section class="pn-panel" role="tabpanel">'+panel+'</section></main><footer class="pn-foot">Les Moles Events · Ulldecona · <button type="button" class="pn-flnk" data-pn-act="priv">Privacidad</button></footer><div class="pn-toast" id="pn-toast" role="status" aria-live="polite"></div>';
     host.scrollTop=y;
@@ -20313,15 +20859,21 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var base=usarPropia?L.data:{parejaA:(P0.nombres&&P0.nombres.a)||(d.event&&d.event.parejaA)||"",parejaB:(P0.nombres&&P0.nombres.b)||(d.event&&d.event.parejaB)||"",mesas:((P0.lista&&P0.lista.mesas)||[])};
     S=JSON.parse(JSON.stringify(base));
     S.mesas=(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; });
-    AP=d.aprob||null; MSGS=d.msgs||[]; ARCH=d.arch||[]; MIN=d.minuta||null;
+    AP=d.aprob||null; MSGS=d.msgs||[]; ARCH=d.arch||[]; DOCS=d.docs||[]; MIN=d.minuta||null;
     NUEVO=true; BASE0=JSON.parse(JSON.stringify({parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:S.mesas}));
     if(!S.mesas.length) S.mesas=[{k:null,nombre:"Presidencial",g:[{n:S.parejaA||"",t:"adulto",a:""},{n:S.parejaB||"",t:"adulto",a:""}]}];
     if(!D.portal) D.portal={titulo:d.event.title,fecha:d.event.fecha,ubicacion:d.event.ubicacion,tipo:d.event.tipo,pasos:[],presupuesto:{},horas:[],menu:[]};
     tab="inicio"; var h=(location.hash||"").replace("#","");
-    if(["inicio","pagos","presu","inv","dia","plano","aprob","msg","contrato"].indexOf(h)>-1) tab=h;
+    if(["inicio","pagos","presu","inv","dia","plano","aprob","msg","contrato","docs"].indexOf(h)>-1) tab=h;
     pintar();
     if(!host.__pn){ host.__pn=true; host.addEventListener("click",onClick); host.addEventListener("input",onInput); host.addEventListener("keydown",function(ev){ var m=ev.target.closest&&ev.target.closest("[data-pn-mesa]"); if(m&&(ev.key==="Enter"||ev.key===" ")){ ev.preventDefault(); onExtra(ev); } });
-      host.addEventListener("change",function(ev){ if(ev.target&&(ev.target.id==="pn-file-logo"||ev.target.id==="pn-file-foto")){ var kd=ev.target.id==="pn-file-logo"?"logo":"foto", fl=ev.target.files; subirArchivos(fl,kd); ev.target.value=""; return; } if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
+      host.addEventListener("change",function(ev){
+        var t0=ev.target, id0=t0&&t0.id||"";
+        if(id0==="pn-just-ref"){ var op=t0.options[t0.selectedIndex], im=document.getElementById("pn-just-imp"); JUSTSEL=t0.value; if(im&&op&&op.getAttribute("data-imp")) im.value=String(op.getAttribute("data-imp")).replace(".",","); return; }
+        if(id0==="pn-file-just"){ var sel=document.getElementById("pn-just-ref"), op2=sel&&sel.options[sel.selectedIndex], imp=(document.getElementById("pn-just-imp")||{}).value||"", fec=(document.getElementById("pn-just-fec")||{}).value||"";
+          subirDocs(t0.files,{kind:"justificante",ref:(sel&&sel.value)||"",concepto:(sel&&sel.value&&op2)?op2.textContent.split(" · ")[0]:"Pago",importe:imp.replace(",","."),fecha:fec}); t0.value=""; return; }
+        if(/^pn-file-dni-[12]$/.test(id0)){ subirDocs(t0.files,{kind:"dni",persona:id0.slice(-1)}); t0.value=""; return; }
+        if(ev.target&&(ev.target.id==="pn-file-logo"||ev.target.id==="pn-file-foto")){ var kd=ev.target.id==="pn-file-logo"?"logo":"foto", fl=ev.target.files; subirArchivos(fl,kd); ev.target.value=""; return; } if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
       else if(ev.target&&ev.target.id==="pn-consent"){ CONSENT_CHK=ev.target.checked; var pc=document.getElementById("pn-priv"); if(pc) pc.classList.toggle("falta",hayAlergias()&&!consentido()); programar(); } }); }
     host.removeAttribute("aria-hidden");
   }
@@ -20340,9 +20892,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!D||D.local||VISTA||!host||!host.classList.contains("on")||document.visibilityState!=="visible"||!TOKEN) return;
     fetch("/api/share?t="+encodeURIComponent(TOKEN),{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; }).then(function(j){
       if(!j||!j.event) return;
-      var antes=JSON.stringify([D.portal,D.event,estado,AP,MSGS,ARCH,MIN]);
+      var antes=JSON.stringify([D.portal,D.event,estado,AP,MSGS,ARCH,MIN,DOCS]);
       D.portal=j.portal||D.portal; D.event=j.event; D.hoy=j.hoy; D.editable=j.editable;
-      if(j.aprob) AP=j.aprob; MSGS=j.msgs||MSGS; ARCH=j.arch||ARCH; MIN=(j.minuta===undefined?MIN:j.minuta);
+      if(j.aprob) AP=j.aprob; MSGS=j.msgs||MSGS; ARCH=j.arch||ARCH; DOCS=j.docs||DOCS; MIN=(j.minuta===undefined?MIN:j.minuta);
       if(j.lista&&j.lista.estado) estado=j.lista.estado;
       if(j.priv) PRIV=j.priv; var cs2=j.lista&&j.lista.data&&j.lista.data.consent; if(cs2&&!CONSENT&&(!PRIV||cs2.v===PRIV.v)){ CONSENT=cs2; CONSENT_CHK=true; }
       /* si el equipo ya tiene su lista en el plano y ella no está tocando nada, se le enseña el plano tal como está ahora */
@@ -20351,7 +20903,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         var nuevo=JSON.stringify(D.portal.lista.mesas.map(function(m){ return {nombre:m.nombre||"",g:(m.g||[]).map(function(g){ return [g.n||"",g.t||"adulto",g.a||""]; })}; })), actual=JSON.stringify((S.mesas||[]).map(function(m){ return {nombre:m.nombre||"",g:(m.g||[]).map(function(g){ return [g.n||"",g.t||"adulto",g.a||""]; })}; }));
         if(nuevo!==actual){ var nu=(D.portal.nombres||{}); S={parejaA:nu.a||S.parejaA||"",parejaB:nu.b||S.parejaB||"",mesas:D.portal.lista.mesas.map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; })};
           BASE0=JSON.parse(JSON.stringify(S)); NUEVO=true; antes+="x"; } }
-      if(JSON.stringify([D.portal,D.event,estado,AP,MSGS,ARCH,MIN])!==antes.replace(/x$/,"")||/x$/.test(antes)){ if(!ocupado) pintar(); }
+      if(JSON.stringify([D.portal,D.event,estado,AP,MSGS,ARCH,MIN,DOCS])!==antes.replace(/x$/,"")||/x$/.test(antes)){ if(!ocupado) pintar(); }
     }).catch(function(){});
   }
   setInterval(refrescar,45000);
