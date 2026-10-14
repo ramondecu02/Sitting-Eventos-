@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.71 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.72 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.71".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.72".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -1368,6 +1368,7 @@ body.mode-plan .planv{display:flex}
 .mnu-prep-dish-h b{font-family:var(--font-paper); font-size:15.5px; font-weight:600}
 .mnu-prep-dish-h .rac{margin-left:auto; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-fade); white-space:nowrap}
 .mnu-prep-steps{font-size:11.5px; color:var(--ink-soft); font-style:italic; margin:3px 0 0 22px}
+.mnu-prep-nota{font-style:italic; color:var(--ink-soft); margin:3px 0 0 22px}
 /* la minuta: todo centrado; cada tiempo del menú entre dos filetes */
 .mnu-card-fam{display:flex; align-items:center; gap:16px; margin:30px 0 12px; font-family:var(--font-text); font-weight:700; font-size:11.5px; letter-spacing:.26em; text-transform:uppercase; color:var(--gold-p); text-align:center}
 .mnu-card-fam::before,.mnu-card-fam::after{content:""; flex:1; height:1px; background:var(--rule)}
@@ -4149,7 +4150,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.71</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.72</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4432,7 +4433,7 @@ Lluc (trona)</div>
     <div class="seg" id="mnu-tabs" role="tablist" aria-label="Vistas del menú">
       <button role="tab" aria-selected="true" data-v="sel">Selección</button>
       <button role="tab" aria-selected="false" data-v="prod">Producción</button>
-      <button role="tab" aria-selected="false" data-v="compra">Compra</button>
+      <button role="tab" aria-selected="false" data-v="compra">Qué preparar</button>
       <button role="tab" aria-selected="false" data-v="serv">Servicio</button>
       <button role="tab" aria-selected="false" data-v="bebida">Bebida</button>
       <button role="tab" aria-selected="false" data-v="esc">Escaleta</button>
@@ -4442,7 +4443,7 @@ Lluc (trona)</div>
       <input type="text" id="mnu-q" placeholder="Buscar plato o ingrediente…" aria-label="Buscar plato o ingrediente">
     </div>
     <div class="mnu-fams" id="mnu-fams"></div>
-    <div class="mnu-note" id="mnu-note">Marca aquí los platos del menú de este evento. <b>Producción</b>, <b>Lista de la compra</b>, <b>Check list de servicio</b>, <b>Bebida</b> y el <b>Menú para imprimir</b> se generan solos: están en «Menú del evento», en la barra lateral (en el móvil, en la barra de abajo), y se descargan en PDF. Se guarda para todo el equipo.</div>
+    <div class="mnu-note" id="mnu-note">Marca aquí los platos del menú de este evento. <b>Producción</b>, <b>Qué preparar</b>, <b>Check list de servicio</b>, <b>Bebida</b> y el <b>Menú para imprimir</b> se generan solos: están en «Menú del evento», en la barra lateral (en el móvil, en la barra de abajo), y se descargan en PDF. Se guarda para todo el equipo.</div>
   </div>
   <div class="mnu-body" id="mnu-body"></div>
 </div>
@@ -9289,7 +9290,7 @@ var SECCIONES=[
   {k:"montaje",  g:"Plano de mesas", t:"Montaje de mesas"},
   {k:"m-sel",    g:"Menú del evento", t:"Elegir platos"},
   {k:"m-prod",   g:"Menú del evento", t:"Producción"},
-  {k:"m-compra", g:"Menú del evento", t:"Lista de la compra"},
+  {k:"m-compra", g:"Menú del evento", t:"Qué preparar"},
   {k:"pedidos",  g:"Menú del evento", t:"Pedidos a proveedores"},
   {k:"m-aler",   g:"Menú del evento", t:"Alergias y sustituciones"},
   {k:"m-serv",   g:"Menú del evento", t:"Check list de servicio"},
@@ -9523,7 +9524,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.71</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.72</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10696,7 +10697,7 @@ function renderResumen(){
     {k:"list",    ic:"guests",         lbl:"Invitados",     hint:pax>0?(pax+" invitado"+(pax===1?"":"s")+(t.espec?" · "+t.espec+" con alergia o dieta":"")):"Sin invitados aún", bd:badge(pax>0)},
     {k:"m-sel",   ic:"Menú del evento",lbl:"Banquete",      hint:dishes>0?(dishes+" plato"+(dishes===1?"":"s")+" del menú"):"Menú por definir", bd:badge(dishes>0)},
     {k:"m-prod",  ic:"prod",           lbl:"Producción",    hint:dishes>0?(dishes+" plato"+(dishes===1?"":"s")+" a preparar"):"Sin platos aún", bd:dishes>0?'<span class="badge prog">Preparar</span>':'<span class="badge todo">Pendiente</span>'},
-    {k:"m-compra",ic:"cart",           lbl:"Compras",       hint:"Lista de la compra", bd:dishes>0?'<span class="badge prog">En curso</span>':'<span class="badge todo">Pendiente</span>'},
+    {k:"m-compra",ic:"check",          lbl:"Qué preparar",  hint:"Cada plato, con lo que lleva", bd:dishes>0?'<span class="badge prog">En curso</span>':'<span class="badge todo">Pendiente</span>'},
     {k:"cam",     ic:"people",         lbl:"Servicio",      hint:camSi>0?(camSi+" camarero"+(camSi===1?"":"s")+(camNeed?" · "+camNeed+" recom.":"")):"Reparto y check list", bd:badge(camSi>0)},
     {k:"m-bebida",ic:"drink",          lbl:"Bebidas",       hint:bebCount>0?(bebCount+" categoría"+(bebCount===1?"":"s")):"Vinos, cava, refrescos…", bd:badge(bebCount>0)},
     {k:"card",    ic:"doc",            lbl:"Documentos",    hint:"Planos · marcasitios · menús", bd:(mesas>0||dishes>0)?'<span class="badge done">Disponibles</span>':'<span class="badge todo">Pendiente</span>'}
@@ -12883,7 +12884,7 @@ function viewDocs(e){
     {k:"m-esc",t:"Escaleta",s:"Hoja de servicio del día"},
     {k:"m-card",t:"Menú para invitados",s:"El menú que se entrega a los invitados · PDF"},
     {k:"m-prod",t:"Producción",s:"Hoja de cocina"},
-    {k:"m-compra",t:"Lista de la compra",s:"Compras del evento"},
+    {k:"m-compra",t:"Qué preparar",s:"Por plato"},
     {k:"m-serv",t:"Check list de servicio",s:"Montaje y servicio"},
     {k:"prov",t:"Proveedores",s:"Contactos y estado"},
     {k:"fotos",t:"Fotografías",s:"Espacios, montajes y gastronomía"}
@@ -13421,7 +13422,7 @@ function propioHtml(){
   var otros=mpOtros();
   return '<details class="mp-card"'+(abierto?' open':'')+' id="mp-card"><summary><span class="mp-sum-t">Menú personalizado</span><span class="mp-sum-n">'+
       (pr.length?pr.length+(pr.length===1?" plato escrito a mano":" platos escritos a mano"):(boda?"escribe platos que no estén en el catálogo":"para bautizos, comidas de empresa y eventos especiales"))+'</span></summary>'+
-    '<p class="mp-p">Escribe los platos tal como irán en el menú y elige en qué tiempo van. Salen en <b>Producción</b>, <b>Compra</b>, <b>Servicio</b>, <b>Escaleta</b> y el <b>Menú para imprimir</b>, igual que los del catálogo. Puedes combinarlos con platos del catálogo.</p>'+
+    '<p class="mp-p">Escribe los platos tal como irán en el menú y elige en qué tiempo van. Salen en <b>Producción</b>, <b>Qué preparar</b>, <b>Servicio</b>, <b>Escaleta</b> y el <b>Menú para imprimir</b>, igual que los del catálogo. Puedes combinarlos con platos del catálogo.</p>'+
     '<div class="mp-add"><label class="mp-fld"><span class="lbl">Tiempo</span><select id="mp-fam">'+mpFamOpts(mpFam)+'</select></label>'+
       '<label class="mp-fld mp-grow"><span class="lbl">Plato</span><input id="mp-nom" type="text" maxlength="140" autocomplete="off" placeholder="p. ej. Canelones de rustido con bechamel de setas"></label>'+
       '<button type="button" class="btn gold" id="mp-add">Añadir plato</button></div>'+
@@ -13477,7 +13478,7 @@ function mpEditar(id){
       '<div class="mp-two"><label class="mp-fld"><span class="lbl">Plato de servicio (vajilla)</span><input id="mp-ed-s" type="text" list="mp-dl-s" value="'+esc(w.servicio||"")+'" placeholder="Opcional"></label>'+
       '<label class="mp-fld"><span class="lbl">Cubiertos</span><input id="mp-ed-u" type="text" list="mp-dl-u" value="'+esc(w.cubiertos||"")+'" placeholder="Opcional"></label></div>'+
       '<datalist id="mp-dl-s">'+sv.map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist><datalist id="mp-dl-u">'+cu.map(function(v){ return '<option value="'+esc(v)+'"></option>'; }).join("")+'</datalist>'+
-      '<div><div class="lbl">Ingredientes por ración <span class="mp-hint">(opcional: con ellos salen en Producción y en la lista de la compra)</span></div><div id="mp-ings">'+filas()+'</div>'+
+      '<div><div class="lbl">Ingredientes por ración <span class="mp-hint">(opcional: con ellos salen en Producción y en Qué preparar)</span></div><div id="mp-ings">'+filas()+'</div>'+
       '<button type="button" class="btn sm" id="mp-ing-add">+ Ingrediente</button></div>'+
     '</div><div class="imp-foot"><button class="btn gold" type="button" id="mp-ed-ok">Guardar</button></div></div>';
   document.body.appendChild(ovl);
@@ -13620,15 +13621,13 @@ function prodDishBlock(d,t){
   var steps=d.steps.length?('<div class="mnu-prep-steps">'+d.steps.map(esc).join(" · ")+'</div>'):"";
   return '<div class="mnu-prep-dish">'+
     '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+(rac===1?' ración':' raciones')+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
-    (fu?'<div class="mnu-prep-steps">'+fu+(fu===1?' lleva':' llevan')+' plato sustitutivo (ver al final)</div>':'')+
+    (fu?'<p class="mnu-note mnu-prep-nota">'+fu+(fu===1?' lleva':' llevan')+' plato sustitutivo (ver al final)</p>':'')+
     (rows?('<table class="mnu-ing-table sm"><tbody>'+rows+'</tbody></table>'):"")+
     steps+'</div>';
 }
-function renderProduccion(){
-  var sel=selectedDishes();
-  if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
-  var t=evTotals(); t.esc=prodCtx();
-  var html=printBar("producción")+'<div class="sheet"><div class="frame">'+docHead("Producción",t);
+/* los platos del evento por tiempo y estación (Producción y Qué preparar los recorren igual) */
+function platosPorTiempo(sel,t,bloque){
+  var html="";
   MENU_DATA.forEach(function(f){
     var ds=sel.filter(function(d){return d._famKey===f.key;});
     if(!ds.length) return;
@@ -13640,12 +13639,20 @@ function renderProduccion(){
         var stName=d.station, group=[];
         while(i<ds.length && ds[i].station===stName){ group.push(ds[i]); i++; }
         html+='<div class="mnu-sheet-station">'+esc(stName)+'</div>';
-        group.forEach(function(dd){ html+=prodDishBlock(dd,t); });
+        group.forEach(function(dd){ html+=bloque(dd,t); });
       } else {
-        html+=prodDishBlock(d,t); i++;
+        html+=bloque(d,t); i++;
       }
     }
   });
+  return html;
+}
+function renderProduccion(){
+  var sel=selectedDishes();
+  if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
+  var t=evTotals(); t.esc=prodCtx();
+  var html=printBar("producción")+'<div class="sheet"><div class="frame">'+docHead("Producción",t);
+  html+=platosPorTiempo(sel,t,prodDishBlock);
   if(t.esc.subs.length){
     html+='<h3 class="mnu-sheet-fam">Aperitivos adaptados y platos sustitutivos</h3>';
     t.esc.subs.forEach(function(x){ html+='<div class="mnu-prep-dish"><div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(x.txt)+'</b><span class="rac">'+x.n+(x.n===1?' ración':' raciones')+'</span></div>'+
@@ -13656,7 +13663,35 @@ function renderProduccion(){
   wirePrintBtn();
 }
 
-/* ══ Compra: ingredientes sumados de todos los platos marcados ══════ */
+/* ══ Qué preparar: cada plato con lo que lleva, igual que su escandallo en Parámetros ═══
+   Sin listado total: los totales por proveedor están en «Pedidos a proveedores». */
+function prepDishBlock(d,t){
+  var rac=racionesDe(d,t), fu=t.esc&&t.esc.fuera[d._uid]||0;
+  var rows=d.ingredients.map(function(ing){
+    var val=ing.qty==null?'<span title="Cantidad pendiente: complétala en Parámetros, en «Platos y escandallo»">pendiente</span>':fmtAmount(ing.qty*rac,ing.unit);
+    var por=ing.qty==null?"":' <span class="mnu-base">'+fmtNum(+ing.qty,2)+(ing.unit?" "+esc(ing.unit):"")+' por ración</span>';
+    return '<tr><td>'+esc(ing.name)+por+'</td><td class="q">'+val+'</td></tr>';
+  }).join("");
+  return '<div class="mnu-prep-dish">'+
+    '<div class="mnu-prep-dish-h"><span class="chk">☐</span><b>'+esc(d.name)+'</b><span class="rac">'+rac+(rac===1?' ración':' raciones')+(d._famKey==="NIÑOS"?' (niños)':'')+'</span></div>'+
+    (fu?'<p class="mnu-note mnu-prep-nota">'+fu+(fu===1?' lleva':' llevan')+' plato sustitutivo (ver Producción)</p>':'')+
+    (rows?('<table class="mnu-ing-table sm"><tbody>'+rows+'</tbody></table>'):'<p class="mnu-note mnu-prep-nota">Sin escandallo: añade lo que lleva en Parámetros, en «Platos y escandallo».</p>')+
+    '</div>';
+}
+function renderCompra(){
+  var sel=selectedDishes();
+  if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
+  var t=evTotals(); t.esc=prodCtx();
+  var pend=0; sel.forEach(function(d){ d.ingredients.forEach(function(i){ if(i.qty==null) pend++; }); });
+  var html=printBar("preparación")+'<p class="mnu-note ped-ir">Cada plato con lo que hay que preparar para este evento (cantidad por ración × raciones). El total por proveedor está en los pedidos. <button type="button" class="btn sm gold" data-ir="pedidos">Hacer los pedidos por proveedor →</button></p><div class="sheet"><div class="frame">'+docHead("Qué preparar",t)+
+    platosPorTiempo(sel,t,prepDishBlock)+
+    (pend?('<p class="mnu-note" style="margin-top:14px">'+(pend===1?'Falta la cantidad de 1 ingrediente: complétala':'Faltan las cantidades de '+pend+' ingredientes: complétalas')+' en Parámetros, en «Platos y escandallo».</p>'):'')+
+    '<div class="foot">Les Moles Events</div></div></div>';
+  $("mnu-body").innerHTML=html;
+  wirePrintBtn();
+  var irPed=$("mnu-body").querySelector("[data-ir=pedidos]"); if(irPed) irPed.addEventListener("click",function(){ if(window.irASeccion) window.irASeccion("pedidos"); });
+}
+
 /* móvil/tablet: barra fina sobre el plano (herramientas plegadas, lista de invitados, zoom) */
 (function(){
   var st=document.querySelector("main.stage"); if(!st||st.querySelector(".m-planbar")) return;
@@ -13674,36 +13709,6 @@ function renderProduccion(){
 /* Esc cierra el panel de la mesa seleccionada */
 document.addEventListener("keydown",function(ev){ if(ev.key!=="Escape") return; var p=document.getElementById("prop"), c=document.getElementById("p-close");
   if(p&&p.classList.contains("on")&&c&&!(ev.target&&/^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName))) c.click(); });
-function renderCompra(){
-  var sel=selectedDishes();
-  if(!sel.length){ $("mnu-body").innerHTML=emptyPrep(); return; }
-  var t=evTotals(); t.esc=prodCtx();
-  var agg={}, pend=[];
-  /* «Puré calabacin» y «Puré de calabacin» son lo mismo; gramos y unidades de un mismo
-     ingrediente no se suman entre sí (salen en dos líneas) */
-  function clave(n,u){ return String(n||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s*\/\s*/g,"/").replace(/\b(de|del|la|el|los|las)\b/g," ").replace(/\s+/g," ").trim()+"|"+(u||""); }
-  sel.forEach(function(d){
-    var rac=racionesDe(d,t);   /* lo mismo que en Producción y en la escaleta */
-    d.ingredients.forEach(function(ing){
-      if(ing.qty==null){ pend.push(ing.name+" (en «"+d.name+"»)"); return; }
-      var k=clave(ing.name,ing.unit);
-      if(!agg[k]) agg[k]={name:ing.name,total:0,unit:ing.unit};
-      agg[k].total+=ing.qty*rac;
-    });
-  });
-  var keys=Object.keys(agg).sort(function(a,b){ return agg[a].name.localeCompare(agg[b].name,"es")||a.localeCompare(b); });
-  var rows=keys.map(function(k){
-    return '<tr><td><span class="chk">☐</span>'+esc(agg[k].name)+'</td><td class="q">'+fmtAmount(agg[k].total,agg[k].unit)+'</td></tr>';
-  }).join("");
-  var html=printBar("lista de compra")+'<p class="mnu-note ped-ir"><button type="button" class="btn sm gold" data-ir="pedidos">Hacer los pedidos por proveedor →</button></p><div class="sheet"><div class="frame">'+docHead("Lista de compra",t)+
-    (rows?('<table class="mnu-ing-table"><tbody>'+rows+'</tbody></table>'):'<p class="mnu-note">Sin ingredientes con cantidad conocida.</p>')+
-    (pend.length?('<p class="mnu-note" style="margin-top:14px">Falta la cantidad de '+pend.slice(0,6).map(esc).join(", ")+(pend.length>6?' y '+(pend.length-6)+' más':'')+'. No están sumados aquí: complétalos en Parámetros → Platos y escandallo.</p>'):'')+
-    '<div class="foot">Les Moles Events</div></div></div>';
-  $("mnu-body").innerHTML=html;
-  wirePrintBtn();
-  var irPed=$("mnu-body").querySelector("[data-ir=pedidos]"); if(irPed) irPed.addEventListener("click",function(){ if(window.irASeccion) window.irASeccion("pedidos"); });
-}
-
 /* ══ lo que hay que COMPRAR en un evento, para «Pedidos a proveedores» ═══════════════════════
    Las mismas cuentas que la lista de la compra (raciones de cada plato × cantidad del escandallo), más las bebidas del evento y el
    material que falta según el Montaje (inventario). Cada línea lleva su clave (k, única por artículo y unidad) y la clave de asignación
@@ -18176,7 +18181,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      vistas:["resumen","crm","plan","list","m-sel","m-aler","m-bebida","cam"]},
     {k:"cocina",  t:"Cocina",   def:"platos del menú, platos sustitutivos y producción",
      vistas:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc"]},
-    {k:"compras", t:"Compras",  def:"lista de la compra, proveedores y pedidos",
+    {k:"compras", t:"Compras",  def:"qué preparar por plato, proveedores y pedidos",
      vistas:["resumen","m-compra","pedidos","m-prod","prov","presup","inv"]},
     {k:"servicio",t:"Servicio", def:"sala, camareros, montaje y escaleta",
      vistas:["resumen","cam","cam-rep","m-serv","m-esc","plan","list","montaje"]},
@@ -21847,7 +21852,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var ROL_DESC={admin:"Lo ve y lo cambia todo, incluidos parámetros, rentabilidad, copias de seguridad y usuarios.",
     eventos:"Organiza los eventos: ficha, plano, menú, camareros y presupuesto.",
     cocina:"Cocina: menú, producción, alergias, escaleta e inventario.",
-    compras:"Compras: lista de la compra, proveedores, presupuesto e inventario.",
+    compras:"Compras: qué preparar por plato, proveedores, presupuesto e inventario.",
     contabilidad:"Contabilidad: presupuesto y cobros, proveedores y pedidos, horas del personal, cierre del evento y previsión.",
     servicio:"Sala: camareros, check list, escaleta, plano y montaje."};
   var uScrim=$("users-scrim");
@@ -22166,7 +22171,7 @@ var PROV_DEF=["Florista","DJ / Música","Fotógrafo","Videógrafo","Autobuses","
 /* ── estado de la pantalla ── */
 var ui={fam:null, q:"", open:null, catQ:""};
 var VISTAS={
-  "p-platos":  {t:"Platos y escandallo", secs:["platos"], guia:"El catálogo de platos del menú con su escandallo por comensal: con estas cantidades se calculan la producción y la lista de la compra de cada evento. La vajilla y los cubiertos de cada plato alimentan el check list de servicio."},
+  "p-platos":  {t:"Platos y escandallo", secs:["platos"], guia:"El catálogo de platos del menú con su escandallo por comensal: con estas cantidades se calculan la producción y lo que hay que preparar de cada plato en cada evento. La vajilla y los cubiertos de cada plato alimentan el check list de servicio."},
   "p-bebidas": {t:"Bebidas", secs:["bebidas"], guia:"Cuántas botellas se prevén por persona en cada momento (aperitivo y banquete) y qué marcas se pueden elegir en cada evento."},
   "p-servicio":{t:"Servicio y camareros", secs:["servicio","catalogo","montaje"], guia:"Cuántos comensales atiende cada camarero, las personas por mesa de partida, el catálogo de vajilla y cubiertos, y el material de montaje y de cada estación."},
   "p-comercial":{t:"Presupuesto y pagos", secs:["comercial"], guia:"Porcentaje del primer pago (sobre el total), precios de partida de los eventos nuevos, tipos de evento y servicios de proveedores."},
@@ -22244,7 +22249,7 @@ function avisosPlato(x,arts){
   String(x.cubiertos||"").split("+").map(function(s){ return s.trim(); }).filter(function(s){ return s&&s!=="—"; }).forEach(function(c){
     if(arts[c]!=="CUBIERTO"&&arts[c]!=="PLATO") av.push("El cubierto «"+c+"» no está en el catálogo: no saldrá en el check list.");
   });
-  if(!(x.ingredients||[]).length) av.push("Sin escandallo: no suma nada en producción ni en la compra.");
+  if(!(x.ingredients||[]).length) av.push("Sin escandallo: no sale nada en Producción ni en Qué preparar.");
   return av;
 }
 function filaPlato(f,x,fams,arts){

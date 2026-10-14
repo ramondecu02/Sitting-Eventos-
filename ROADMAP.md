@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.71** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.72** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.72
+- **«Lista de la compra» pasa a llamarse «Qué preparar»** (Menú del evento, y su pestaña) y **ya no es un listado total**: cada plato sale con **lo que hay que preparar**, como en su escandallo de Parámetros. Por ejemplo, «Arroz de pato del Delta del Ebro y alcachofas · 155 raciones»: sofrito de alcachofa, pimiento cortado, ajo picado, salsa de tomate, arroz carneroli, caldo de pollo, magret cortado y española, cada uno con su **cantidad por ración** y la **cantidad para el evento** (por ración × raciones). Va ordenado por tiempos del menú, igual que Producción; un plato sin escandallo lo avisa en vez de quedar vacío, y si falta alguna medida sale «pendiente».
+- **Los totales por proveedor siguen en «Pedidos a proveedores»** (hay un botón en la propia hoja que lleva allí). El PDF se llama «preparación» y lleva el mismo aspecto que Producción.
+- Arreglo menor: en el PDF de **Producción**, la nota «N llevan plato sustitutivo» salía con el prefijo «Montaje:»; ya no.
 
 ### Novedad de la versión 01.71
 - **El contrato es ahora tu Word, tal cual.** En la 01.70 el texto era el vuestro pero la presentación era la del programa; ahora es **la de vuestros dos Word**: letra **Calibri** (se usa Carlito, su equivalente libre y con las mismas medidas), texto **justificado**, título y «Ref.» en gris, «REUNIDOS» y «CLAUSULAS» centrados, cada cláusula con su etiqueta **subrayada** (Primera, Segunda…) y su título en negrita, nombres, documentos, importes y plazos en **negrita**, los datos de la cuenta **resaltados en amarillo**, las listas con «a)», «b)»… o con viñetas, las **firmas** en columnas (el restaurante y cada cliente, con su documento debajo), el **logo** arriba a la derecha con «**Página | N**» (en catalán «Pàgina»), la **marca de agua** grande del logo y el **pie** con los datos de Castell Vidal en cada página. Se ve así en el portal del cliente, en la vista previa y en el **PDF** (con la letra incrustada, así que se ve igual en cualquier ordenador). Con los datos de ejemplo de tu Word, el texto sale **palabra por palabra igual**: la prueba lo compara con el original.
@@ -166,7 +171,7 @@ se recupera con el código manual por evento.
 - **Menú → Planificación → Coordinación** (la ven todos los roles, también Compras y Servicio):
   - **Datos compartidos:** fecha, comensales (adultos, niños, bebés, staff), mesas, alergias y dietas, platos sustitutivos, platos del menú, bebidas y camareros, con **quién los define** y **quién los necesita**.
   - **Estado por departamento** (Eventos, Cocina, Compras, Servicio): al pulsar «He revisado» se guarda una foto de las cifras; desde entonces, la tarjeta del departamento dice **qué ha cambiado** («Adultos 163 → 164», «+ Lucía Nueva (Mesa 99) · gluten», «+ Edu Rodríguez → Lubina») solo de lo que le afecta a ese departamento. Cada rol solo puede marcar como revisado lo suyo (el administrador, todo).
-  - **Aviso flotante** en las pantallas de tu departamento (p. ej. la Lista de la compra para Compras): «Compras: 5 cambios desde tu última revisión · Ver detalle · He revisado».
+  - **Aviso flotante** en las pantallas de tu departamento (p. ej. «Qué preparar» para Compras): «Compras: 5 cambios desde tu última revisión · Ver detalle · He revisado».
   - **Pastilla en la tarjeta del evento** (Inicio): «Compras: 5 cambios»; Eventos y administración ven «Por revisar: Compras».
   - **Avisos entre departamentos** («suben 10 comensales, pedir más cordero»): quedan pendientes en el evento hasta que alguien los marca como hechos.
   - **Comprobaciones** del evento (las mismas alertas del resumen) repartidas por departamento, con un botón que lleva a la pantalla donde se arreglan.
@@ -294,8 +299,8 @@ se recupera con el código manual por evento.
 - **Tu parte (no depende de mí):** (1) **que tu asesor o abogado lea el texto del contrato**, lo ajuste en Parámetros y lo marque como revisado; (2) escribir las **condiciones de cancelación**; (3) rellenar los **datos de la empresa** (razón social, CIF, domicilio, quién firma); (4) decidir si te basta la firma electrónica simple o quieres un **proveedor de firma** externo.
 
 ### 4.2 Compras por proveedor — ✅ **hecho en la v01.67** (falta tu parte: dar de alta tus proveedores y asignarles los artículos la primera vez)
-- **Menú del evento → «Pedidos a proveedores»** (administración, eventos y compras; en la «Lista de la compra» hay un botón que lleva allí): lo que hay que comprar para el evento abierto, repartido **por proveedor**:
-  - **Qué se compra:** los ingredientes de los platos elegidos (las mismas cuentas que la lista de la compra: raciones × escandallo), las **bebidas del evento** (con su producto y cantidad) y el **material que falta** según el Montaje y el inventario (sillas, mesas, tronas…). Las cantidades se redondean **hacia arriba** a unidades de compra (kg, g, unidades, botellas) para no quedarse cortos.
+- **Menú del evento → «Pedidos a proveedores»** (administración, eventos y compras; en «Qué preparar» hay un botón que lleva allí): lo que hay que comprar para el evento abierto, repartido **por proveedor**:
+  - **Qué se compra:** los ingredientes de los platos elegidos (las mismas cuentas que «Qué preparar»: raciones × escandallo), las **bebidas del evento** (con su producto y cantidad) y el **material que falta** según el Montaje y el inventario (sillas, mesas, tronas…). Las cantidades se redondean **hacia arriba** a unidades de compra (kg, g, unidades, botellas) para no quedarse cortos.
   - **Proveedores de compra** (alta, edición y baja en la propia pantalla: nombre, contacto, teléfono y correo) y **asignación una sola vez por artículo**: se recuerda para todos los eventos siguientes. Los que no tienen proveedor salen aparte, con un desplegable en cada uno y la opción de **marcar varios y asignarlos de golpe**.
   - **Coste estimado** de cada línea y del pedido, con los precios del **«Análisis de compras»** del Maître (lo que no tenga precio sale como «sin precio»).
 - **El pedido:** «Preparar el pedido» congela las cantidades (versión 1, fecha de entrega —por defecto el día antes del evento— y notas para el proveedor). Se envía por **correo** (ya redactado: saludo, evento, fecha de entrega y todas las líneas; queda en la bandeja del servidor y no se repite la misma versión), por **WhatsApp** (con el teléfono del proveedor) o en **PDF** con una columna «Recibido» para apuntar a mano; si se avisó por teléfono, «Ya lo he enviado». Si después **cambia el evento** (más invitados, otro plato…), el pedido avisa de **qué ha cambiado** (p. ej. «Ajo picado: 78 g → 83 g») y se actualiza con un clic (versión 2, indicando que hay que avisar al proveedor).
@@ -345,9 +350,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel | 01.69–01.71 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato | 01.69–01.72 |
 
-**Estado: todo entregado (01.54 → 01.71).**
+**Estado: todo entregado (01.54 → 01.72).**
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,
