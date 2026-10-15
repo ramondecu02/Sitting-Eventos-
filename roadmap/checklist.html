@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Les Moles Events · Roadmap (checklist)</title><style>
+@font-face{font-family:'Instrument Sans';src:url('fonts/instrument-sans-latin-400-normal.woff2') format('woff2');font-weight:400;font-style:normal}
+@font-face{font-family:'Instrument Sans';src:url('fonts/instrument-sans-latin-400-italic.woff2') format('woff2');font-weight:400;font-style:italic}
+@font-face{font-family:'Instrument Sans';src:url('fonts/instrument-sans-latin-700-normal.woff2') format('woff2');font-weight:700;font-style:normal}
+@font-face{font-family:'Instrument Serif';src:url('fonts/instrument-serif-latin-400-normal.woff2') format('woff2');font-weight:400;font-style:normal}
+:root{--ink:#1a1a1a;--ink2:#2a2a27;--mut:#56554e;--mut2:#8d8c80;--ol:#6e7d50;--ol2:#b9c29e;--line:#cfcbb6;--cream:#f1efe4;--cardok:#f8faf3}
+@page{size:A4;margin:13mm 14mm 17mm}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;font:9.1pt/1.32 'Instrument Sans','Liberation Sans',Arial,sans-serif;color:var(--ink)}
+h1,h2,h3{font-family:'Instrument Serif','Liberation Serif',Georgia,serif;font-weight:400;margin:0}
+ul{list-style:none;margin:0;padding:0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--ink);padding-bottom:6pt}
+.top .k{font-weight:700;font-size:7.3pt;letter-spacing:.3em;text-transform:uppercase;color:var(--ol)}
+.top h1{font-size:23pt;line-height:1.05;margin-top:3pt}
+.top .r{text-align:right;font-size:7.8pt;color:var(--mut);line-height:1.45}
+.top .r b{color:var(--ink)}
+.leyenda{display:flex;gap:16pt;align-items:center;background:var(--cream);border-radius:3pt;padding:5pt 9pt;margin:9pt 0 12pt;font-size:7.6pt;color:var(--mut)}
+.leyenda span{display:inline-flex;gap:5pt;align-items:center}
+h2.sec{font-size:15pt;margin:14pt 0 6pt;break-after:avoid}
+h2.sec small{font:400 8.4pt 'Instrument Sans',sans-serif;color:var(--mut);margin-left:6pt}
+.lista li{display:flex;gap:7pt;align-items:flex-start;padding:2.2pt 0;break-inside:avoid}
+.lista li .cb{margin-top:1.4pt}
+.nw{white-space:nowrap}
+.lista .sub{display:block;font-style:italic;font-size:7.6pt;color:var(--mut)}
+.cb{flex:none;display:inline-block;width:8.6pt;height:8.6pt;border:.75pt solid var(--ink);border-radius:2pt;background:#fff}
+.cb.on{background:var(--ol) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 5.2 4.2 7.4 8 2.8' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;border-color:var(--ol)}
+.cb.big{width:12pt;height:12pt;border-width:1.5pt;border-radius:3pt}
+.cb.on.big{border-color:var(--ol)}
+table{width:100%;border-collapse:collapse;font-size:8.6pt}
+th{font-weight:700;font-size:7pt;letter-spacing:.22em;text-transform:uppercase;color:var(--ol);text-align:left;padding:3pt 4pt;border-bottom:1.2pt solid var(--ink)}
+td{padding:5pt 4pt;border-bottom:.6pt solid var(--line);vertical-align:top}
+tr{break-inside:avoid}
+td.d,td.v{white-space:nowrap}
+td.d{width:58pt}td.v{width:44pt;text-align:right;color:var(--mut)}
+td.d .cb{margin-right:7pt;vertical-align:-1.5pt}
+.fase{break-before:page}
+.fase.f1{break-before:auto}
+.banner{display:flex;align-items:baseline;gap:9pt;background:var(--cream);border-bottom:2pt solid var(--ink);padding:7pt 9pt 6pt;margin:12pt 0 10pt;break-after:avoid}
+.banner .fn{font-weight:700;font-size:8pt;letter-spacing:.3em;text-transform:uppercase;color:var(--ol)}
+.banner h2{font-size:17pt}
+.banner .sub{font-size:8.8pt;color:var(--mut)}
+.banner em{margin-left:auto;font-size:8pt;color:var(--mut)}
+.card{border:1px solid var(--line);border-left:3pt solid var(--ol);border-radius:4pt;background:#fff;padding:8pt 11pt 6pt;margin:0 0 9pt;break-inside:avoid}
+.card.done{background:var(--cardok);border-left-color:var(--ol2)}
+.card header{display:flex;gap:9pt;align-items:flex-start}
+.card header .ttl{flex:1;min-width:0}
+.num{font-weight:700;font-size:7.8pt;letter-spacing:.14em;color:var(--ol)}
+.card h3{font-size:13.2pt;line-height:1.15;margin-top:1pt}
+.meta{text-align:right;white-space:nowrap;line-height:1.35}
+.meta b{display:block;font-size:8.6pt}
+.meta span{font-size:7.8pt;color:var(--mut)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18pt;margin-top:5pt}
+.cols h4{margin:0 0 4pt;font-weight:700;font-size:7.3pt;letter-spacing:.24em;text-transform:uppercase;color:var(--ol)}
+.cols li{display:flex;gap:7pt;align-items:flex-start;padding:1.6pt 0;line-height:1.3}
+.cols li .cb{margin-top:1.5pt;width:8pt;height:8pt}
+.cols ul.hc li{font-style:italic;color:var(--ink2)}
+.card footer{display:flex;justify-content:flex-end;gap:16pt;margin-top:7pt;padding-top:4pt;border-top:.7pt dashed var(--line);font-size:7.3pt;color:var(--mut2)}
+.card footer i{display:inline-block;width:70pt;border-bottom:.7pt solid var(--mut2);margin-left:4pt}
+.fin{break-before:auto;padding-top:6pt}
+</style></head><body>
+<div class="top"><div><div class="k">Les Moles Events</div><h1>Roadmap · checklist</h1></div>
+<div class="r"><b>Versión 01.77</b> · octubre 2026<br>Objetivo: usar el programa al 100 % en todos los eventos<br>Esfuerzos estimados en días de desarrollo y pruebas</div></div>
+<div class="leyenda"><span><span class="cb  " role="img" aria-label="pendiente"></span> casilla vacía = pendiente</span><span><span class="cb on " role="img" aria-label="hecho"></span> hecho</span><span>«Hecho cuando…» = prueba que confirma que el punto está terminado</span></div>
+
+<h2 class="sec" style="margin-top:0">Ya hecho</h2><ul class="lista"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Plano de mesas, invitados, alergias y montaje</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Menú, escaleta (con paradas y su duración), producción, compras y bebidas</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Minutas: editor tipo Canva, 60 modelos por evento y estilo, castellano / catalán</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Camareros: agenda, disponibilidad, alta y baja, reparto por tiempos y «Avisar»</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Portal del cliente (enlace ?cliente=), textos según el tipo de evento y lista → plano en unos 5 s</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Usuarios y roles (administrador, eventos, cocina, compras, contabilidad, servicio)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Previsión de banquetes, rentabilidad, inventario y presupuesto imprimible</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Despliegue automático: cada cambio subido a la rama de producción se publica en Cloudflare Pages</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Móvil sin zoom (pellizco, doble toque y zoom al entrar en un campo)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Copias de seguridad automáticas, papelera de 30 días y restaurar un evento o todo (Parámetros → Copias de seguridad) <span class="nw">· v01.54</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Historial de cambios por evento: quién, qué y cuándo, y volver a una versión anterior (Planificación → Historial de cambios) <span class="nw">· v01.56</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Equipo y accesos: fichas de usuario, alta por invitación, desactivar, permisos por rol editables, registro de actividad, contraseña propia y cierre por inactividad <span class="nw">· v01.57</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cambios compartidos entre departamentos (se juntan por secciones, sin pisarse) y sección «Coordinación»: cifras compartidas, cambios por revisar y avisos <span class="nw">· v01.58</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Planos de fondo del salón compartidos con todo el equipo (servidor, cola sin conexión, migración de los que ya había) <span class="nw">· v01.59</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>App instalable (icono, pantalla completa) y modo sin conexión: se abre sin red y los cambios se suben solos al volver <span class="nw">· v01.60</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>RGPD: aviso y consentimiento en el portal, plazo de conservación, anonimizar eventos y derechos de las personas · Estado del sistema (errores, espacio, vigilante) <span class="nw">· v01.61</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Modo servicio (el día del evento), turnos y horas de camareros, y cierre del evento <span class="nw">· v01.62–01.63</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Avisos por correo (cliente, camareros, resumen del equipo, bandeja de salida) y WhatsApp con un clic <span class="nw">· v01.64</span> (el correo sale de verdad cuando pongas la cuenta)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Portal del cliente ampliado: aprobar menú y minuta con nombre y fecha, plano, mensajes con el equipo, logo y fotos <span class="nw">· v01.65</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Propuesta y contrato: PDF desde el presupuesto, plantilla editable, publicar en el portal y aceptación online con nombre y NIF <span class="nw">· v01.66</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Pedidos a proveedores: lo que hay que comprar repartido por proveedor, envío por correo o WhatsApp y control de recepción <span class="nw">· v01.67</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Consultas web: formulario público con antispam, bandeja del equipo, disponibilidad por local y de la consulta al evento con un clic <span class="nw">· v01.68</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Rol Contabilidad y Previsión por fusión: «Importar Excel» compara con lo que hay, enseña lo nuevo, lo cambiado y lo repetido y no pisa lo editado en la app <span class="nw">· v01.69</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Justificantes de pago y documentos de identidad subidos por el cliente o el equipo (Recursos → Documentos) <span class="nw">· v01.70</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Contrato de Les Moles tal cual su Word (castellano y català: Calibri, logo, marca de agua, pie, negritas y subrayados) con los datos puestos solos, editable sobre el propio papel, cláusulas añadidas por evento y dos firmantes <span class="nw">· v01.70–01.71</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>«Qué preparar» (antes «Lista de la compra»): cada plato con lo que lleva, por ración y para el evento, como en su escandallo de Parámetros, sin listado total <span class="nw">· v01.72</span> (en el orden de la escaleta desde la v01.73)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Alergias y sustituciones: copiar los platos de un comensal a otros con el mismo caso (dos vegetarianos, dos celíacos…) sin escribirlos dos veces, con «Deshacer» <span class="nw">· v01.73</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Plano de sala, salón interior: «Ordenar» (y la primera colocación) deja las mesas en 3 filas horizontales, ni una más <span class="nw">· v01.74</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Comunicación con los clientes: notas largas con asunto (editables), adjuntar el chat de WhatsApp (.txt o .zip), correos (.eml) y capturas o PDF, y un registro con buscador (también dentro de los adjuntos), desde/hasta y filtro por tipo <span class="nw">· v01.75</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Escaleta y Alergias: lo que se confirma a mano cuenta como decidido, y la escaleta dice por qué sigue pendiente cada comensal (qué plato le falta y en qué tiempo) <span class="nw">· v01.76</span></span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Alergias: «No hace falta» en cada plato que choca, para no tener que añadir un sustituto que no se necesita; deja de contar como falta en toda la app, se copia con «Copiar a otros…» y se borra al anonimizar <span class="nw">· v01.77</span></span></li></ul>
+
+<h2 class="sec">Decisiones previas <small>antes de empezar</small></h2>
+<ul class="lista"><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Personas que usarán el programa desde el día 1: nombre, correo y rol</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Qué proyecto de Cloudflare Pages es el de producción (hoy hay tres) y desconectar los otros dos</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Cuenta de correo transaccional creada y con el dominio del restaurante verificado (para la fase 3)</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Persona de referencia que aprueba cada entrega</span></li></ul>
+
+<h2 class="sec">Calendario propuesto</h2>
+<table><thead><tr><th>Días</th><th>Entrega</th><th style="text-align:right">Versión</th></tr></thead><tbody><tr><td class="d"><span class="cb on " role="img" aria-label="hecho"></span>1–3</td><td>Copias y papelera · historial · usuarios y permisos · cambios compartidos · planos compartidos · app instalable · RGPD · estado</td><td class="v">01.54–01.61</td></tr><tr><td class="d"><span class="cb on " role="img" aria-label="hecho"></span>4–9</td><td>Modo servicio · turnos y horas · cierre de evento</td><td class="v">01.62–01.63</td></tr><tr><td class="d"><span class="cb on " role="img" aria-label="hecho"></span>10–14</td><td>Avisos por correo · WhatsApp · portal ampliado</td><td class="v">01.64–01.65</td></tr><tr><td class="d"><span class="cb on " role="img" aria-label="hecho"></span>15–28</td><td>Contrato y firma · compras por proveedor · consultas</td><td class="v">01.66–01.68</td></tr><tr><td class="d"><span class="cb on " role="img" aria-label="hecho"></span>Después</td><td>Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato</td><td class="v">01.69–01.77</td></tr></tbody></table>
+
+<div class="fase f1"><div class="banner"><span class="fn">Fase 1</span><h2>Proteger los datos</h2><span class="sub">Días 1–3 · imprescindible antes de fiarlo todo al programa</span><em>68 de 68 casillas hechas</em></div>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.1</div><h3>Copias de seguridad, papelera y restaurar</h3></div>
+    <div class="meta"><b>~1 día</b><span>v01.54</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Tabla de copias y copia automática al guardar (como mucho una cada pocas horas)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Conservar 30 copias diarias y 12 semanales</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Papelera de eventos borrados (30 días)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Parámetros → Copias: elegir fecha, ver qué eventos cambian y restaurar uno o todos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Botón «Descargar todo» (JSON), solo admin</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Se borra un evento de prueba y se recupera en menos de 1 minuto</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Se restaura un evento de ayer sin tocar los demás</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>La descarga completa se vuelve a importar sin errores</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.2</div><h3>Historial de cambios por evento</h3></div>
+    <div class="meta"><b>~1 día</b><span>v01.56</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>El servidor apunta quién y qué sección cambió al guardar</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Instantánea del evento (como mucho 1 cada 10 min por persona y evento; las últimas 50)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Pestaña «Historial» en el evento: quién · qué · cuándo</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Botón «Volver a esta versión»</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aparece «Ana · plano · hace 5 min» tras un cambio</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Se deshace el último cambio de un evento</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>La base de datos no engorda de forma apreciable</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.3</div><h3>App instalable y modo sin conexión</h3></div>
+    <div class="meta"><b>~1 día</b><span>v01.60</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Manifiesto e iconos (se instala con su icono en el móvil o la tablet)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Caché de la app y del último documento</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cola de cambios hechos sin conexión y sincronización al volver</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aviso «sin conexión · N cambios pendientes»</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Con el modo avión se abre la escaleta del día y se marca algo</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Al recuperar la red, el cambio aparece en otro dispositivo</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Se instala desde el móvil y abre a pantalla completa</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.4</div><h3>Usuarios, roles y registro de cada persona</h3></div>
+    <div class="meta"><b>~1,5 días</b><span>v01.57</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Ficha de cada persona (rol, puesto, teléfono, estado, último acceso)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Alta por invitación: enlace de un solo uso para que cada persona elija su contraseña</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cambiar la propia contraseña y obligar a cambiar la temporal</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Desactivar y activar el acceso sin perder el historial; siempre un administrador</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Permisos por rol editables (tabla de secciones) y vuelta a los de fábrica</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Registro de actividad filtrable por persona (accesos, usuarios, borrados, copias)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Bloqueo tras 5 fallos y cierre de sesión por inactividad configurable</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Solo administración y eventos pueden borrar eventos</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Una invitación de principio a fin en dos navegadores</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Una persona desactivada no puede entrar y su sesión abierta se cierra</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Los permisos nuevos llegan a otra persona al recargar</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cocina no puede borrar un evento</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.7</div><h3>Cambios compartidos y coordinación entre departamentos</h3></div>
+    <div class="meta"><b>~2 días</b><span>v01.58</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Los cambios de Eventos, Cocina y Compras en el mismo evento se juntan por secciones (nadie pisa a nadie)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>El plano, que también lleva los platos sustitutivos de Cocina, se junta línea a línea con la versión que cada persona tenía antes</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Trabajo sin conexión: al volver, los cambios se juntan sin borrar lo de los demás</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Sección «Coordinación»: cifras compartidas (comensales, alergias, sustitutivos, platos, bebidas) y quién las define y quién las necesita</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Estado por departamento: qué ha cambiado desde su última revisión y botón «He revisado»</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aviso en las pantallas de tu departamento y pastilla en la tarjeta del evento (Inicio)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Avisos entre departamentos que quedan pendientes hasta que alguien los marca como hechos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Comprobaciones del evento repartidas por departamento</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Eventos cambia el plano y Cocina el menú a la vez: se conservan los dos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cocina marca un plato sustitutivo mientras Eventos añade invitados: el plano tiene las dos cosas</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Compras ve qué ha cambiado (adultos, alergias, sustitutivos, platos) desde su última revisión</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.8</div><h3>Planos de fondo compartidos</h3></div>
+    <div class="meta"><b>~1 día</b><span>v01.59</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Hoy la imagen del salón sobre la que se dibuja el plano se guarda solo en el navegador de quien la sube: el resto del equipo no la ve</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Guardarla en el servidor (comprimida, aparte del documento de eventos) y que la vean todos los dispositivos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Pasar a compartida la que ya haya en cada navegador, sin perderla</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Planos propios de un evento (catering fuera) también compartidos</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Se sube el plano del salón desde un ordenador y se ve en la tablet de sala</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Los planos que ya estaban en un navegador siguen ahí tras la actualización</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.5</div><h3>RGPD y datos de clientes</h3></div>
+    <div class="meta"><b>~0,5 día</b><span>v01.61</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aviso de privacidad y consentimiento en el portal del cliente (las alergias son datos de salud)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Política de conservación decidida por el restaurante (p. ej. 12 meses)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Anonimizar nombres y alergias de eventos cerrados pasado el plazo</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>El portal muestra el aviso antes de pedir datos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Un evento de prueba caducado queda anonimizado</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">1.6</div><h3>Salud del sistema</h3></div>
+    <div class="meta"><b>~0,5 día</b><span>v01.61</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Pantalla «Estado» para admin: último guardado, última copia y errores recientes</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Registro de errores del servidor</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Medir el tamaño del documento (la base de datos admite 2 MB por registro) y avisar a tiempo</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Un error provocado aparece en la pantalla en menos de 1 minuto</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section></div>
+<div class="fase f2"><div class="banner"><span class="fn">Fase 2</span><h2>El día del evento</h2><span class="sub">Días 4–9</span><em>21 de 21 casillas hechas</em></div>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">2.1</div><h3>Modo servicio</h3></div>
+    <div class="meta"><b>2–3 días</b><span>v01.62</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Escaleta en directo: qué toca ahora, qué viene y cuánto dura la parada en curso</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Botón «Salido» por plato o tiempo, con la hora real</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Plano con alergias por mesa en grande y búsqueda de invitado</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Llegada de invitados (marcar presentes) y recuento en vivo</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Incidencias rápidas («falta pan en mesa 4») visibles para el responsable</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Dos móviles ven el mismo estado en menos de 6 segundos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Al acabar queda el registro de horas reales frente a la escaleta prevista</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">2.2</div><h3>Turnos y horas de camareros</h3></div>
+    <div class="meta"><b>~2 días</b><span>v01.63</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Asignar personal a cada evento</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Registrar hora real de entrada y de salida</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Total de horas por camarero y por mes</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Exportación a Excel/CSV para la gestoría</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Hoja por camarero con sus funciones y su horario</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Al cerrar un evento sale «María · 7,5 h · barra»</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>El CSV mensual cuadra con las horas registradas</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">2.3</div><h3>Cierre del evento</h3></div>
+    <div class="meta"><b>~1 día</b><span>v01.63</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Lista de cierre: cobros pendientes, material, incidencias y nota para la próxima vez</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Paso a «celebrado» con el resumen económico real frente al presupuestado</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Un evento de prueba pasa a «celebrado» con su resumen</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Las cifras reales coinciden con Rentabilidad</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section></div>
+<div class="fase f3"><div class="banner"><span class="fn">Fase 3</span><h2>Comunicación</h2><span class="sub">Días 10–14</span><em>17 de 21 casillas hechas</em></div>
+<section class="card open">
+  <header><span class="cb  big" role="img" aria-label="pendiente"></span><div class="ttl"><div class="num">3.1</div><h3>Avisos por correo</h3></div>
+    <div class="meta"><b>1–2 días</b><span>v01.64</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cuenta de correo verificada y conectada</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Resumen diario o semanal al equipo («3 eventos · faltan 2 pagos · 4 camareros por avisar»)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Recordatorios al cliente: enviar la lista, pagos, reunión</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aviso a los camareros marcados «Avisar», con los datos de su turno</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Registro de envíos (estado e intentos) y plantillas editables en Parámetros</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Disparo programado mediante una acción que llama a un punto protegido del servidor</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Llega el resumen del lunes a las 8:00</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Un cliente de prueba recibe el recordatorio de la lista</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Cada envío queda registrado</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">3.2</div><h3>WhatsApp con un clic</h3></div>
+    <div class="meta"><b>~0,5 día</b><span>v01.64</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Botones «Avisar por WhatsApp» con el mensaje ya redactado (camareros, clientes, proveedores)</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Abre WhatsApp con el teléfono y el mensaje correctos</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">3.3</div><h3>Portal del cliente ampliado</h3></div>
+    <div class="meta"><b>~2 días</b><span>v01.65</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aprobar la minuta y el menú (con nombre y fecha)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Subir su logo y fotos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Ver el plano</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Dejar comentarios al equipo y recibir su respuesta</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cada aprobación queda en el historial del evento</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Un cliente de prueba aprueba la minuta y queda en el historial</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>El logo que sube llega al equipo para colocarlo en la minuta</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section></div>
+<div class="fase f4"><div class="banner"><span class="fn">Fase 4</span><h2>Parte comercial y compras</h2><span class="sub">Semanas 3–4</span><em>28 de 32 casillas hechas</em></div>
+<section class="card open">
+  <header><span class="cb  big" role="img" aria-label="pendiente"></span><div class="ttl"><div class="num">4.1</div><h3>Presupuesto → contrato → firma</h3></div>
+    <div class="meta"><b>2–3 días</b><span>v01.66</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>PDF de propuesta desde el presupuesto del evento</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>PDF de contrato (plantilla editable en Parámetros, con revisión del asesor antes de publicar)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Aceptación online en el portal (nombre, NIF, fecha, hora y huella del texto)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Registro de la señal</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Firma electrónica simple; proveedor de firma externo solo si hace falta validez reforzada (decisión tuya)</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Se genera el contrato de un evento de prueba</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>El cliente lo acepta desde el portal y queda registrado con fecha y hora</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Tu asesor revisa el texto base del contrato (y lo marcas como «revisado»)</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">4.2</div><h3>Compras por proveedor</h3></div>
+    <div class="meta"><b>~2 días</b><span>v01.67</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Pedido agrupado por proveedor a partir de lo que lleva cada plato (ingredientes, bebidas y material que falta)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Envío por correo o WhatsApp, y PDF</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Control de recepción: lo pedido frente a lo llegado, línea a línea</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Conexión con el inventario (material que falta) y con los precios de «Análisis de compras»</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Un pedido sale agrupado por proveedor</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Lo recibido se compara con lo pedido</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">4.3</div><h3>Consultas y disponibilidad</h3></div>
+    <div class="meta"><b>~2 días</b><span>v01.68</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Formulario web público con protección anti-spam (campo trampa, tiempo mínimo, topes y Turnstile opcional) y casilla de privacidad</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Calendario de disponibilidad por fecha y salón (Previsión + eventos)</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Seguimiento de la consulta hasta confirmar</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Convertir la consulta en evento con un clic</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Una consulta de prueba llega a la app</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Se convierte en evento sin reescribir datos</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section>
+<section class="card done">
+  <header><span class="cb on big" role="img" aria-label="hecho"></span><div class="ttl"><div class="num">4.4</div><h3>Contrato tal cual su Word, justificantes de pago y documentos de identidad</h3></div>
+    <div class="meta"><b>~4 días</b><span>v01.71</span></div></header>
+  <div class="cols">
+    <div><h4>Qué se hace</h4><ul><li><span class="cb on " role="img" aria-label="hecho"></span><span>Contrato de Les Moles en castellano y en català con el formato de vuestro Word (letra, logo, marca de agua, pie, negritas), con la referencia, los dos clientes con su documento, la reserva, el pago y el IBAN rellenados solos</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Cláusulas adicionales por evento (se numeran a continuación) y edición del contrato sobre el propio papel, con los datos como etiquetas; «volver al texto habitual»</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Dos firmantes: cada persona acepta con su nombre y su documento, desde el mismo enlace; el PDF lleva las firmas como el Word</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Justificantes de pago: los sube el cliente (portal) o el equipo, se confirman y se asocian a un pago</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Documentos de identidad de los clientes: se suben, solo los ven administración y eventos (cada apertura queda registrada) y se borran a los N días del evento</span></li></ul></div>
+    <div><h4>Hecho cuando…</h4><ul class="hc"><li><span class="cb on " role="img" aria-label="hecho"></span><span>El contrato de un evento de prueba sale igual que el Word, en los dos idiomas y con una cláusula añadida</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Los dos clientes firman desde el móvil y el PDF lleva sus firmas y la aceptación</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Un justificante y un documento de identidad subidos por el cliente aparecen en Documentos del evento</span></li></ul></div>
+  </div>
+  <footer><span>Responsable <i></i></span><span>Fecha <i></i></span></footer>
+</section></div>
+
+<div class="fin"><h2 class="sec">Calidad continua <small>en paralelo</small></h2>
+<ul class="lista"><li><span class="cb on " role="img" aria-label="hecho"></span><span>Accesibilidad: revisión automática (axe-core) de las pantallas nuevas del equipo, el portal del cliente en móvil y el formulario público: 0 avisos graves tras los arreglos de la 01.68 y la 01.70</span></li><li><span class="cb on " role="img" aria-label="hecho"></span><span>Seguridad: cookies HttpOnly + Secure + SameSite, topes y tamaño máximo en los puntos públicos, permisos aplicados en el servidor</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Auditoría con varios revisores de toda la app (diseño, cifras, móvil): opcional, la lanzo cuando lo pidas</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Pruebas automáticas de los flujos críticos (cliente → plano, guardado, copia y restauración) en cada entrega</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Cada entrega: versión visible en pantalla, prueba en navegador y móvil, e informe en castellano</span></li></ul>
+
+<h2 class="sec">Lo que falta y depende de ti <small>de lo más a lo menos urgente</small></h2>
+<ul class="lista"><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Cuenta de correo (Resend) con el dominio verificado; secretos RESEND_API_KEY, MAIL_FROM y CRON_TOKEN en cada proyecto de Cloudflare Pages; en GitHub el secreto CRON_TOKEN, la variable SITE_URL y avisos.yml en la rama principal<span class="sub">Hasta entonces todo queda «simulado» y no sale ningún correo</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Decidir qué proyecto de Cloudflare Pages es el de producción (hay tres) y desconectar los otros dos<span class="sub">Que nadie entre en una copia sin datos</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Definir las personas: los perfiles ya existen (Administrador —Jeroni—, Eventos, Cocina, Compras, Contabilidad y Servicio); falta quién es cada uno e invitarles desde «Equipo y accesos»; persona de referencia; dos administradores como mínimo; decidir si Eventos ve Proveedores y Comunicación<span class="sub">Empezar a usarlo en serio</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Cargar los Excel de Previsión 2027 y 2028 con el nuevo «Importar Excel» y revisar los casos dudosos (Laia i Albert, Jordi Aleu, Núria i Victor, Zaida, Laura y Sergi)<span class="sub">Previsión al día</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Contrato: que el asesor lea el texto base (es el vuestro de siempre), lo marque como «revisado» y confirmar los datos de la empresa y el IBAN; decidir si basta la firma simple o queréis proveedor externo<span class="sub">Poder publicar contratos a clientes</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Documentos de clientes: decidir cuántos días se guardan los DNI tras el evento (hoy 90) y cuánto los justificantes de pago (hoy hasta anonimizar el evento; la contabilidad suele exigir años); y que el primer pago del contrato (3 semanas antes) coincida con el aviso de la agenda (18 días)<span class="sub">Cumplir RGPD y obligaciones contables</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Datos del responsable de privacidad (Parámetros → Privacidad y datos) y revisión de los textos por el asesor<span class="sub">Cumplir RGPD con vuestros textos</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Proveedores de compra: darlos de alta y asignarles los artículos la primera vez<span class="sub">Pedidos agrupados por proveedor</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Consultas web: activar el formulario, elegir tipos y salones y poner el enlace ?consulta en la web, Instagram y Google Business<span class="sub">Recibir consultas</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Vigilante externo (p. ej. UptimeRobot) mirando /api/health<span class="sub">Saber si la app se cae</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Volver a importar los precios del «Análisis de compras» del Maître cuando cambien<span class="sub">Costes estimados al día</span></span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Un evento piloto de principio a fin (consulta → contrato → pedidos → servicio → cierre) y anotar lo que chirríe<span class="sub">Pulir con uso real</span></span></li></ul>
+
+<h2 class="sec">Opcionales <small>si los quieres, se hacen</small></h2>
+<ul class="lista"><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Avisos por correo de «el cliente ha escrito / ha aprobado» (hoy se ven en el Inicio de la app)</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Proveedor de firma electrónica avanzada, si el contrato necesita más validez</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Claves de Turnstile para el formulario de consultas, si algún día entra spam</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Auditoría con varios revisores de toda la app (diseño, cifras, móvil)</span></li><li><span class="cb  " role="img" aria-label="pendiente"></span><span>Permitir el zoom en el móvil (hoy bloqueado a petición tuya; los lectores de pantalla lo recomiendan)</span></li></ul></div>
+</body></html>
