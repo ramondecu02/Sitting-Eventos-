@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.78** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.79** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.79
+- **Portal del cliente, Inicio: una sola tarjeta «Qué os falta».** Antes, lo pendiente salía en hasta cinco avisos sueltos (y en una prueba normal Inicio quedaba casi vacío); ahora hay **una lista, de lo más urgente a lo menos**, cada fila con su botón directo a la pestaña que toca: **firmar el contrato o aceptar la propuesta**, **enviar la lista de invitados** (con su fecha límite y «en 33 días»; en rojo y primera si ya pasó), **subir el documento de identidad**, **aprobar el menú** y **aprobar la minuta** (por separado; si el equipo los cambió, dice «revisadlo otra vez»), **el próximo pago** cuando faltan 30 días o menos (o ya pasó la fecha) y **un mensaje nuevo de Les Moles**. El primer botón es el principal. Cuando no queda nada, sale **«Por ahora no os falta nada»**.
+- **«Lo siguiente»** (la próxima cita del calendario) solo sale cuando no está ya en esa lista, para no repetirlo.
+- **Pestañas:** la pestaña **Inicio lleva el número de cosas pendientes** (se ve siempre, aunque «Aprobar», «Documentos» o «Mensajes» queden fuera de la pantalla en el móvil) y lo lee el lector de pantalla («Inicio (3 pendientes)»). La pestaña elegida **queda siempre a la vista**: antes, al tocar una de las últimas, la tira volvía al principio y la elegida se perdía de vista. Y una **sombra a los lados** avisa de que hay más pestañas.
 
 ### Novedad de la versión 01.78
 - **Portal del cliente (pestaña «Invitados»): la lista cabe en un móvil.** Con 59 personas la pantalla medía unos 12.000 px de alto, porque cada persona ocupaba tres campos apilados. Ahora cada **mesa es plegable** (con 3 mesas o más entran plegadas; con una o dos, abiertas), y su cabecera dice **«10 personas · 2 alergias»** sin abrirla; se abre y se cierra con un toque (y quedan como las dejó el cliente al cambiar de pestaña, al añadir o al quitar mesas). Con la lista plegada la pestaña mide unos 2.400 px, y cada persona ocupa dos filas (nombre; tipo y alergia) en vez de tres.
@@ -382,9 +387,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil | 01.69–01.78 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio | 01.69–01.79 |
 
-**Estado: todo entregado (01.54 → 01.78).**
+**Estado: todo entregado (01.54 → 01.79).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 

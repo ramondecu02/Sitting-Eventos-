@@ -38,6 +38,7 @@ export const hecho = [
   'Escaleta y Alergias: lo que se confirma a mano cuenta como decidido, y la escaleta dice por qué sigue pendiente cada comensal (qué plato le falta y en qué tiempo) · v01.76',
   'Alergias: «No hace falta» en cada plato que choca, para no tener que añadir un sustituto que no se necesita; deja de contar como falta en toda la app, se copia con «Copiar a otros…» y se borra al anonimizar · v01.77',
   'Portal del cliente, Invitados: mesas plegables con su resumen («10 personas · 2 alergias»), buscador por nombre, mesa o alergia, filtro «Solo con alergia o dieta» y filas más compactas: en el móvil la pestaña pasa de unos 12.000 px a unos 2.400 · v01.78',
+  'Portal del cliente, Inicio: tarjeta «Qué os falta» (firmar, lista de invitados, identidad, aprobar menú y minuta, próximo pago y mensajes, con botón a cada uno y lo atrasado primero), número de pendientes en la pestaña Inicio y pestaña elegida siempre a la vista · v01.79',
 ];
 
 export const decisiones = [
@@ -52,7 +53,7 @@ export const calendario = [
   ['4–9', 'Modo servicio · turnos y horas · cierre de evento', '01.62–01.63'],
   ['10–14', 'Avisos por correo · WhatsApp · portal ampliado', '01.64–01.65'],
   ['15–28', 'Contrato y firma · compras por proveedor · consultas', '01.66–01.68'],
-  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil', '01.69–01.78'],
+  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio', '01.69–01.79'],
 ];
 
 export const fases = [
