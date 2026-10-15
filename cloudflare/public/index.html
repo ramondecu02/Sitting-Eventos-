@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.80 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.81 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.80".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.81".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4250,7 +4250,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.80</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.81</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9655,7 +9655,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.80</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.81</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9964,11 +9964,16 @@ function portalGuest(g,t){
 function planoEsquema(e){
   var d, L=(e.plans&&e.plans[e.loc||"interior"])||null; try{ d=parse(e.text||""); }catch(_){ return null; }
   if(!L||!L.pos||!d.tables.length) return null;
-  var w=Math.round(L.rw||1400), h=Math.round(L.rh||960), sc=L.scale||1, mesas=[];
+  var w=Math.round(L.rw||1400), h=Math.round(L.rh||960), sc=L.scale||1, us=+e.userSize||1, mesas=[];
   d.tables.forEach(function(t){
     var p=L.pos[t.num]; if(!p) return;
-    var pax=t.guests.length, k=sc*((L.size&&L.size[t.num])||1), rect=(t.shape==="rect"||t.shape==="presid");
-    var bw=Math.round((rect?150+26*pax:190+12*pax)*k), bh=rect?Math.round(150*k):bw;
+    var pax=t.guests.length, k=sc*us*((L.size&&L.size[t.num])||1), rect=(t.shape==="rect"||t.shape==="presid"), r0=null;
+    /* la caja real de la mesa en el plano del equipo (con sus sillas y etiquetas): el dibujo del cliente queda siempre dentro de ella,
+       así dos mesas que no se tocan en el plano tampoco se tocan aquí */
+    try{ r0=buildTable(t,I18N.es,false,!!(L.vert&&L.vert[t.num])); }catch(_){ r0=null; }
+    var bw,bh;
+    if(r0){ if(rect){ bw=Math.round(r0.w*k*0.86); bh=Math.round(r0.h*k*0.8); } else { bw=bh=Math.round(Math.min(r0.w,r0.h)*k*0.82); } }
+    else { bw=Math.round((rect?150+26*pax:190+12*pax)*k); bh=rect?Math.round(150*k):bw; }
     mesas.push({k:t.num,num:mesaMark(t),n:mesaTxt(t,I18N.es),x:Math.round(p.x),y:Math.round(p.y),w:Math.max(46,bw),h:Math.max(40,bh),f:rect?"rect":"round",pax:pax,st:!!t.staff});
   });
   return mesas.length?{w:w,h:h,mesas:mesas}:null;
@@ -9987,11 +9992,12 @@ function portalFoto(e){
   var pagos=(P.pagos||[]).filter(function(p){ return +p.importe; }).map(function(p){ return {concepto:p.concepto||"Pago",fecha:p.fecha||"",importe:+p.importe||0}; })
     .sort(function(a,b){ return String(a.fecha).localeCompare(String(b.fecha)); });
   var pasos=[];
-  if(senal>0) pasos.push({id:"senal",tipo:"pago",t:"Reserva y señal",d:"Con ella la fecha queda reservada.",fecha:(pagos[0]&&pagos[0].fecha)||"",importe:senal,done:pt.pagado>=senal-0.5});
+  if(senal>0) pasos.push({id:"senal",tipo:"pago",t:"Reserva y señal",d:"Con ella la fecha queda reservada."+((pt.pagado>0&&pt.pagado<senal-0.5)?" Habéis pagado "+fmtEur(pt.pagado)+" de "+fmtEur(senal)+": falta el resto.":""),fecha:(pagos[0]&&pagos[0].fecha)||"",importe:(pt.pagado>=senal-0.5)?senal:Math.max(0,Math.round((senal-pt.pagado)*100)/100),done:pt.pagado>=senal-0.5});
   var cierre="";
   hitosAuto(e).forEach(function(h){
     var tx=PORTAL_TXT[h.id]||{};
-    pasos.push({id:h.id,tipo:h.tipo,t:(tx.t||h.t)+(h.id==="pago1"?" ("+pct+" %)":""),d:tx.d||h.d||"",fecha:h.fecha,importe:h.importe!=null?Math.round(h.importe*100)/100:null,done:!!h.done});
+    var pend=(!h.done&&h.pendiente!=null)?h.pendiente:h.importe, adel=(!h.done&&h.tipo==="pago"&&h.importe!=null&&pend!=null&&h.importe-pend>0.5);
+    pasos.push({id:h.id,tipo:h.tipo,t:(tx.t||h.t)+(h.id==="pago1"?" ("+pct+" %)":""),d:(tx.d||h.d||"")+(adel?((tx.d||h.d)?" ":"")+"Ya está descontado lo que habéis pagado de más.":""),fecha:h.fecha,importe:pend!=null?Math.round(pend*100)/100:null,done:!!h.done});
     if(h.cierre) cierre=h.fecha;
   });
   if(F.fecha) pasos.push({id:"boda",tipo:"boda",t:palabrasEvento(F.tipo).hito,d:[F.ubicacion||"Les Moles"].join(""),fecha:F.fecha,done:false});
@@ -10033,7 +10039,7 @@ function snapDe(e){
   Object.keys(cam).forEach(function(k){ if(cam[k]==="si") camSi++; });
   Object.keys(av).forEach(function(k){ if(av[k]==="avisar") camAv++; });
   try{ if(B&&B.conEvento) B.conEvento(e,function(){ try{ nec=(B.evTotals&&B.evTotals().camareros)||0; }catch(_){} try{ sin=((B.alerPendientes&&B.alerPendientes())||[]).length; }catch(_){} }); }catch(_){}
-  var hitos=[]; try{ hitos=hitosAuto(e).map(function(h){ return {id:h.id,tipo:h.tipo,t:hitoTxt(h),fecha:h.fecha,importe:h.importe!=null?Math.round(h.importe*100)/100:null,done:!!h.done}; }); }catch(_){}
+  var hitos=[]; try{ hitos=hitosAuto(e).map(function(h){ var q=(!h.done&&h.pendiente!=null)?Object.assign({},h,{importe:h.pendiente}):h; return {id:h.id,tipo:h.tipo,t:hitoTxt(q),fecha:h.fecha,importe:q.importe!=null?Math.round(q.importe*100)/100:null,done:!!h.done}; }); }catch(_){}
   return {u:e.updated||0, adultos:c.adultos||0, ninos:c.ninos||0, staff:c.staff||0, tot:c.pax||0, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100,
     pend:Math.max(0,Math.round(pt.pend*100)/100), camSi:camSi, camNec:nec, camAvisar:camAv, sinSust:sin, hitos:hitos};
 }
@@ -11183,7 +11189,7 @@ function hitosAuto(e){
   var base=new Date(f+"T00:00:00"); if(isNaN(base)) return [];
   var cfg=agendaCfg(), pt=presupTotals(e), senal=Math.max(0,+cfg.senal||0), pct=pctSenal(), hechos=e.agendaHecho||{};
   var hoy=new Date(new Date().toDateString());
-  return cfg.hitos.map(function(h){
+  var out=cfg.hitos.map(function(h){
     var d=new Date(base); d.setDate(d.getDate()-(+h.dias||0));
     var imp=null, done=!!hechos[h.id], auto=false;
     if(h.tipo==="pago"){
@@ -11194,6 +11200,16 @@ function hitosAuto(e){
     return {id:h.id, t:t, d:h.d||"", tipo:h.tipo, fecha:isoDe(d), dias:+h.dias||0, importe:imp, done:done, auto:auto, cierre:!!h.cierre,
             falta:Math.round((d-hoy)/86400000)};
   }).sort(function(a,b){ return a.fecha<b.fecha?-1:1; });
+  /* «importe» es lo previsto (lo del contrato y el presupuesto). «pendiente» es lo que falta de verdad por pagar en ese plazo: lo que ya se
+     pagó de más en la señal o en un plazo anterior se descuenta del siguiente, así lo que sale por pagar suma siempre lo que figura como pendiente */
+  var acum=senal;
+  out.forEach(function(h){
+    if(h.tipo!=="pago"){ return; }
+    var nom=h.importe||0, tgt=Math.min(pt.total>0?pt.total:acum+nom,acum+nom);
+    h.pendiente=(h.done||!(pt.total>0))?(h.done?0:nom):Math.round(Math.max(0,Math.min(nom,tgt-Math.max(pt.pagado,acum)))*100)/100;
+    acum=tgt;
+  });
+  return out;
 }
 /* ¿el evento ya no admite cambios? (pasado el hito de cierre y antes del día) */
 function cambiosCerrados(e){ var c=hitosAuto(e).filter(function(h){ return h.cierre; })[0]; var dr=diasRestantes(e); return !!(c&&c.falta<=0&&dr!=null&&dr>=0)?c:null; }
@@ -22096,7 +22112,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(L.length) h+='<ul class="pn-pays">'+L.map(function(p){ var k=dias(p.f), st;
         if(p.done) st='<span class="pn-st ok">Pagado</span>'; else if(k!=null&&k<0) st='<span class="pn-st late">Pendiente</span>'; else if(primero) st='<span class="pn-st soon">Próximo'+(k!=null?" · "+esc(cuando(k)):"")+'</span>'; else st='<span class="pn-st later">'+esc(cuando(k))+'</span>';
         if(!p.done) primero=false;
-        return '<li class="pn-pay"><div class="pay-d">'+(p.f?'<b class="pn-n">'+p.f.getDate()+'</b><i>'+MES[p.f.getMonth()]+' '+String(p.f.getFullYear()).slice(2)+'</i>':'<b>—</b>')+'</div><div class="pay-t"><b>'+esc(p.t)+'</b><span>'+(p.id==="pago2"?"Lo que falta del total · ese día se cierran los cambios":p.id==="senal"?"Al reservar la fecha":/pago1/.test(p.id)?(pr.pct||65)+" % del presupuesto":"")+'</span></div><div class="pay-a"><b class="pn-n">'+eur(p.importe)+'</b>'+st+'</div></li>'; }).join("")+'</ul>';
+        return '<li class="pn-pay"><div class="pay-d">'+(p.f?'<b class="pn-n">'+p.f.getDate()+'</b><i>'+MES[p.f.getMonth()]+' '+String(p.f.getFullYear()).slice(2)+'</i>':'<b>—</b>')+'</div><div class="pay-t"><b>'+esc(p.t)+'</b><span>'+(p.id==="pago2"?"Lo que falta del total · ese día se cierran los cambios":p.id==="senal"?(/Habéis pagado/.test(p.d||"")?p.d.replace("Con ella la fecha queda reservada. ",""):"Al reservar la fecha"):/pago1/.test(p.id)?(pr.pct||65)+" % del presupuesto"+(/descontado/.test(p.d||"")?", ya descontado lo que habéis pagado de más":""):"")+'</span></div><div class="pay-a"><b class="pn-n">'+eur(p.importe)+'</b>'+st+'</div></li>'; }).join("")+'</ul>';
     var rec=P().pagos||[];
     if(rec.length) h+='<div class="pn-card"><div class="pn-eb" style="margin-bottom:10px">Pagos recibidos</div>'+rec.map(function(p){ return '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--ph)"><span>'+esc(p.fecha?corto(d0(p.fecha)):"")+' · '+esc(p.concepto)+'</span><b class="pn-n">'+eur(p.importe)+'</b></div>'; }).join("")+'</div>';
     var ct=P().contacto||{}, n=nombres(), f=d0(P().fecha);

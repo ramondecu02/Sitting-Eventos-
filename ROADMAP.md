@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.80** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.81** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.81
+- **Portal del cliente: lo que sale por pagar suma siempre lo que falta.** Los plazos se calculaban con la señal «de fábrica» (1.000 €) aunque el cliente hubiera pagado otra cantidad: con 2.000 € de señal, el portal decía «Pendiente 3.660 €» y debajo ponía plazos que sumaban 4.660 €. Ahora **lo que ya se pagó de más se descuenta del siguiente plazo** («Primer pago 2.679 €… ya descontado lo que habéis pagado de más») y, si la señal está a medias, dice «Habéis pagado 500 € de 1.000 €: falta el resto». La suma de lo que falta por pagar coincide con «Pendiente» en los casos que probé (señal de más, a medias, parte del primer pago, todo pagado, nada pagado). El **importe previsto** (el que va en el contrato, el presupuesto y la agenda del equipo) **no cambia**; los avisos por correo al cliente sí llevan lo que falta de verdad.
+- **El plano del cliente ya no solapa mesas.** El esquema calculaba el tamaño de cada mesa con una fórmula aproximada y, en el evento de ejemplo, la mesa 3 pisaba a la 4. Ahora parte de la **caja real de cada mesa en el plano del equipo** (con su tamaño, sus giros y el zoom del evento) y dibuja dentro de ella: dos mesas que no se tocan en el plano del equipo tampoco se tocan en el del cliente. Probado con un salón de 10 mesas de todas las formas (presidencial, redonda, rectangular, oval, cuadrada) colocadas con «Ordenar».
+- **Fecha única del evento:** revisado y no hay fallo. Al cambiar la fecha en la ficha se reescribe también la del título del plano y al revés, y todas las pantallas leen la de la ficha; la doble fecha que vi era de mi prueba (había dos eventos).
 
 ### Novedad de la versión 01.80
 - **El portal del cliente se cierra solo después del evento.** Hasta ahora el enlace seguía enseñando el IBAN, el presupuesto y el contrato hasta anonimizar el evento (12 meses por defecto). Ahora hay un plazo en **Parámetros → Privacidad y datos → «Cerrar el portal del cliente»**: 7, 15, **30 (por defecto)**, 60, 90 o 180 días después del evento, o «No cerrarlo». Pasado el plazo, el enlace da una pantalla amable («Este portal ya está cerrado… gracias por celebrarlo con nosotros», con el correo y el teléfono del equipo, sin IBAN) y el servidor rechaza todo lo demás (lista, mensajes, archivos, imágenes). El **Resumen del evento** dice cuándo se cierra («El portal se cierra solo el 11 de enero de 2027»). Queda en el registro de actividad.
@@ -394,9 +399,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento y cabeceras de seguridad | 01.69–01.80 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran y plano del cliente sin solapes | 01.69–01.81 |
 
-**Estado: todo entregado (01.54 → 01.80).**
+**Estado: todo entregado (01.54 → 01.81).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
