@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.76** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.77** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.77
+- **«No hace falta» en cada plato que choca.** Si en una ficha de «Alergias y sustituciones» no se añade un plato sustitutivo es porque no hace falta, así que ahora **cada «Falta sustituto» (y el «Falta su aperitivo adaptado») lleva un botón «No hace falta»**: el plato se queda como **«No hace falta sustituto»** (en gris, con un botón «Volver a marcarlo como falta» por si te equivocas) y **deja de contar como falta** en todas partes: «Pendiente: faltan N platos» de la ficha, las «sustituciones pendientes» y las «personas por decidir» del resumen, la parte de arriba del Menú de la escaleta (y su PDF), la hoja de ruta y los avisos del Resumen. Una persona sin ningún plato puesto queda decidida en cuanto das por bueno lo que la app marcaba, sin tener que marcar «Sin cambios»; y quien ya tiene plato deja de salir pendiente cuando no le queda ninguna falta.
+- **Se guarda con el evento** (por persona y por plato, en el menú del evento) y **viaja con «Copiar a otros… / Copiar de otro…»**: al copiar los platos de un comensal a otro se copian también los «No hace falta» (y «Deshacer» los quita). Se borra al **anonimizar** el evento y al **suprimir a una persona** (lleva nombres).
+- Sigue estando la casilla de persona («Sin cambios con este menú» / «Todo decidido») para dar por decidido a alguien de golpe.
 
 ### Novedad de la versión 01.76
 - **Escaleta ⇄ Alergias: lo que tú marcas ahora cuenta, y la escaleta explica por qué sigue pendiente cada uno.** En la parte de arriba del «Menú» de la escaleta salía «Con alergia o dieta y sin plato sustitutivo decidido» aunque alguien ya tuviera su plato puesto (por ejemplo, el del 1º plato). La causa: la app seguía viendo otro plato del menú que choca con su alergia o dieta (el aperitivo, el 2º plato, el postre…) sin sustituto, y **ni siquiera marcarlo a mano lo quitaba**. Ahora:
@@ -374,7 +379,7 @@ se recupera con el código manual por evento.
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
 | Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros | 01.69–01.75 |
 
-**Estado: todo entregado (01.54 → 01.76).**
+**Estado: todo entregado (01.54 → 01.77).**
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,

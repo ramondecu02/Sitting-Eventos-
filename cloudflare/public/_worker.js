@@ -699,7 +699,7 @@ function anonEvento(e, ahora) {
   ["parejaA", "parejaB", "contacto", "telefono", "email", "origen", "comoNos", "notas", "foto"].forEach((k) => { if (F[k]) F[k] = ""; });
   F.estado = "cerrada";
   c.comunicaciones = []; c.docs = [];
-  if (c.menu) { delete c.menu.minuta; delete c.menu.aperAdapt; delete c.menu.alerOk; delete c.menu.aperitivosPorAlergia; }
+  if (c.menu) { delete c.menu.minuta; delete c.menu.aperAdapt; delete c.menu.alerOk; delete c.menu.alerSin; delete c.menu.aperitivosPorAlergia; }
   c.share = { on: false, id: "" };
   delete c.rev; delete c.avisos;
   /* el contrato (con el nombre y el NIF de quien lo aceptó) y quién aprobó el menú o la minuta */
@@ -837,7 +837,7 @@ function buscarEnEvento(e, qn, borrar) {
   const CS = e.cierre; if (CS) ["nota", "material"].forEach((k) => { if (CS[k] && normTxt(CS[k]).indexOf(qn) >= 0) { hit.otros++; if (borrar) CS[k] = "(borrado)"; } });
   Object.keys(e.turnos || {}).forEach((id) => { const t = e.turnos[id]; if (t && t.nota && normTxt(t.nota).indexOf(qn) >= 0) { hit.otros++; if (borrar) t.nota = "(borrado)"; } });
   const SV = e.cierreServicio; if (SV) { (SV.incidencias || []).forEach((x) => { if (x && x.txt && normTxt(x.txt).indexOf(qn) >= 0) { hit.otros++; if (borrar) x.txt = "(borrado)"; } }); if (SV.notas && normTxt(SV.notas).indexOf(qn) >= 0) { hit.otros++; if (borrar) SV.notas = "(borrado)"; } }
-  if (borrar && (hit.plano || hit.ficha || hit.otros)) { e.text = lines.join("\n"); if (hit.plano && e.menu) { delete e.menu.aperAdapt; delete e.menu.alerOk; } }
+  if (borrar && (hit.plano || hit.ficha || hit.otros)) { e.text = lines.join("\n"); if (hit.plano && e.menu) { delete e.menu.aperAdapt; delete e.menu.alerOk; delete e.menu.alerSin; } }
   return hit;
 }
 async function privPersona(request, env) {
