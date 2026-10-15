@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.79 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.80 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.79".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.80".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -42,6 +42,7 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
 <script>
 /* Sin zoom en el móvil: la app se ve siempre a su tamaño. El meta de arriba lo quita en Android;
    el iPhone lo ignora para el pellizco, así que también se frena el gesto de la página. (El
@@ -4249,7 +4250,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.79</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.80</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9654,7 +9655,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.79</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.80</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10933,6 +10934,9 @@ function renderResumen(){
     "Su última lista se descartó el "+escH(cuandoTs(lr.revisada))+".";
   var ses=null; try{ ses=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
   var esAdmin=!hayServidor()||(ses&&ses.role==="admin"), ct=paramData("portal")||{};
+  var cierreHint=""; try{ var pdias=window.LM_portalDias, fe=(e.ficha||{}).fecha;
+    if(e.share.on&&pdias>0&&/^\d{4}-\d\d-\d\d$/.test(fe||"")){ var cd=new Date(fe+"T00:00:00"); cd.setDate(cd.getDate()+pdias); cierreHint='<p class="portal-hint">El portal se cierra solo el <b>'+cd.toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"})+'</b> ('+pdias+' días después del evento; se cambia en Parámetros → Privacidad y datos).</p>'; }
+    else if(e.share.on&&pdias===0) cierreHint='<p class="portal-hint">El portal no se cierra solo: sigue abierto hasta que lo desactives o anonimices el evento (se cambia en Parámetros → Privacidad y datos).</p>'; }catch(_){ }
   var shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card portal-card">'+
     '<div class="share-h">Portal del cliente</div>'+
     (e.share.on
@@ -10941,7 +10945,7 @@ function renderResumen(){
         '<button class="btn" id="rsm-share-copy" type="button">Copiar</button>'+
         '<button class="btn" id="rsm-share-ver" type="button">Ver como el cliente</button></div>'+
         (!fuerte?'<p class="portal-warn">Este enlace es de antes y solo permite ver. Crea uno nuevo para que puedan rellenar su lista; el anterior dejará de funcionar.</p>':'')+
-        '<div class="portal-st'+(lr&&lr.estado==="enviada"&&!auto?" nueva":"")+'"><span>'+estLista+'</span>'+(e.share.antes&&un?'<button class="btn sm" id="rsm-nov-undo" type="button">Deshacer ese cambio</button>':'')+(!auto&&lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
+        cierreHint+'<div class="portal-st'+(lr&&lr.estado==="enviada"&&!auto?" nueva":"")+'"><span>'+estLista+'</span>'+(e.share.antes&&un?'<button class="btn sm" id="rsm-nov-undo" type="button">Deshacer ese cambio</button>':'')+(!auto&&lr&&(lr.estado==="enviada"||lr.estado==="borrador")?'<button class="btn '+(lr.estado==="enviada"?"gold":"")+' sm" id="rsm-nov-rev" type="button">'+(lr.estado==="enviada"?"Revisar su lista":"Ver su borrador")+'</button>':'')+'</div>'+
         (window.LM_portalResumenHTML?window.LM_portalResumenHTML(e):'')+
         '<label class="portal-auto"><input type="checkbox" id="rsm-nov-auto"'+(auto?' checked':'')+'><span><b>Pasar sus cambios al plano automáticamente</b><small>'+(auto?'Cuando el cliente añade, quita o cambia a alguien de mesa, el plano se actualiza solo (sin deshacer lo que hayáis tocado vosotros) y os avisa aquí y en el panel de inicio.':'Desactivado: cuando el cliente envíe su lista, la revisáis y la pasáis al plano con un clic.')+'</small></span></label>'+
         '<div class="portal-links"><button class="share-off" id="rsm-share-new" type="button">Crear enlace nuevo</button><button class="share-off" id="rsm-share-off" type="button">Desactivar el portal</button></div>'
@@ -18915,8 +18919,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         '<label class="fld"><span class="lbl">Correo de privacidad</span><input id="pr-mail" type="email" maxlength="120" value="'+esc(c.email)+'" placeholder="'+esc(mailContacto()||"correo@…")+'"></label>'+
         '<label class="fld"><span class="lbl">Conservar los datos de un evento</span><select id="pr-meses">'+[6,12,18,24,36,60].map(function(m){ return '<option value="'+m+'"'+(m===c.meses?" selected":"")+'>'+m+' meses después</option>'; }).join("")+'</select></label>'+
         '<label class="fld"><span class="lbl">Documentos de identidad de los clientes (DNI, NIE, pasaporte)</span><select id="pr-dni">'+[30,60,90,180,0].map(function(m){ return '<option value="'+m+'"'+(m===(+c.dniDias||0)?" selected":"")+'>'+(m?m+" días después del evento":"Solo al anonimizar el evento")+'</option>'; }).join("")+'</select></label>'+
+        '<label class="fld"><span class="lbl">Cerrar el portal del cliente (el enlace que se le envía)</span><select id="pr-portal">'+[7,15,30,60,90,180,0].map(function(m){ return '<option value="'+m+'"'+(m===(+c.portalDias||0)?" selected":"")+'>'+(m?m+" días después del evento":"No cerrarlo (hasta anonimizar el evento)")+'</option>'; }).join("")+'</select></label>'+
         '<label class="pr-chk"><input id="pr-auto" type="checkbox"'+(c.auto?" checked":"")+'> Anonimizar sola, una vez al día, los eventos que pasen el plazo</label></div>'+
         '<div class="pr-btns"><button type="button" class="btn gold sm" data-pr="guardar"'+(P.ocupado?" disabled":"")+'>Guardar</button>'+(d.ultima?'<span class="es-peq">Última anonimización: '+esc(fh(d.ultima.ts))+(d.ultima.auto?" (automática)":"")+(d.ultima.n?" · "+d.ultima.n+(d.ultima.n===1?" evento":" eventos"):"")+'</span>':'')+'</div></section>';
+      if(d.cortos&&d.cortos.length) h+='<section class="pcard" aria-label="Portales con enlace antiguo"><h2>Portales con enlace antiguo <em>'+d.cortos.length+'</em></h2><p class="es-peq">Estos enlaces son cortos (de las primeras versiones): solo dejan mirar y son más fáciles de adivinar que los nuevos. Entra en el evento → Resumen → «Crear enlace nuevo» y envíaselo al cliente; el antiguo deja de funcionar.</p><div class="pr-lista">'+
+        d.cortos.map(function(x){ return '<div class="pr-ev"><span class="pr-evn">'+esc(x.name||"Sin título")+'</span><span class="pr-evf">'+esc(x.fecha?fechaEs(x.fecha):"")+'</span><button type="button" class="btn sm" data-pr="ir-ev" data-id="'+esc(x.id)+'">Ir al evento</button></div>'; }).join("")+'</div></section>';
       var n=d.elegibles.length, nsel=d.elegibles.filter(function(x){ return P.sel[x.id]; }).length;
       h+='<section class="pcard" aria-label="Eventos que han pasado el plazo"><h2>Eventos que ya han pasado el plazo <em>'+n+'</em></h2>'+
         (P.msg?'<div class="pr-ok" role="status">'+esc(P.msg)+'</div>':'')+
@@ -18943,7 +18950,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function leerCfg(){
     var g=function(id){ var e=document.getElementById(id); return e?e.value:""; };
-    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),dniDias:+g("pr-dni"),auto:!!(document.getElementById("pr-auto")||{}).checked};
+    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),dniDias:+g("pr-dni"),portalDias:+g("pr-portal"),auto:!!(document.getElementById("pr-auto")||{}).checked};
   }
   function resumenPers(){
     var pe=P.pers; if(!pe) return ""; var t="Resultado de la búsqueda de datos personales ("+fh(Date.now())+"):\n";
@@ -18958,6 +18965,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       hostP.addEventListener("click",function(ev){
         var b=ev.target.closest&&ev.target.closest("[data-pr]"); if(!b||!activoP()) return; var a=b.getAttribute("data-pr");
         if(a==="guardar"){ P.ocupado=true; api("/api/privacidad",{method:"PUT",body:leerCfg()}).then(function(j){ P.d.cfg=j.cfg; toast("Guardado."); }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; pintarP(); cargarP(); }); }
+        else if(a==="ir-ev"){ try{ window.SITTING_BRIDGE.switchActiveEvent(b.getAttribute("data-id")); window.irASeccion("resumen"); }catch(_){} }
         else if(a==="anon"){ if(!armar(b,"¿Seguro? No se puede deshacer")) return; var ids=P.d.elegibles.filter(function(x){ return P.sel[x.id]; }).map(function(x){ return x.id; });
           P.ocupado=true; api("/api/privacidad/anonimizar",{body:{ids:ids}}).then(function(j){ P.msg=j.n+(j.n===1?" evento anonimizado.":" eventos anonimizados."); P.sel={}; toast(P.msg); try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; cargarP(); pintarP(); }); }
         else if(a==="buscar"||a==="quitar"){
@@ -21965,6 +21973,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-toast.on{opacity:1;transform:translate(-50%,0)}#novios .pn-toast button{margin-left:10px;background:transparent;color:inherit;border:1px solid rgba(244,243,236,.4);border-radius:6px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer;pointer-events:auto}",
   "#novios .pn-foot{padding-block:26px 40px;text-align:center;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--pfa)}",
   "#novios .pn-empty{min-height:70vh;display:grid;place-items:center;text-align:center;padding:40px 24px;font-family:var(--dsp);font-size:22px;color:var(--pm)}",
+  "#novios main.pn-empty h1{font-size:30px;line-height:1.15;color:var(--pi);margin:0 0 14px}#novios main.pn-empty .pn-lead{font-family:var(--txt);font-size:15px;line-height:1.55;max-width:34ch;margin:0 auto 12px;color:var(--pm)}#novios main.pn-empty .pn-lead b{display:block;color:var(--pi);font-weight:650;margin-top:4px}",
   "@media (max-width:620px){#novios .pn-hero{padding-block:26px 22px}#novios .pn-count b{font-size:20px}#novios .pn-money{grid-template-columns:1fr}#novios .pn-money>div+div{border-left:0;border-top:1px solid var(--ph)}",
   "#novios .pn-pay{grid-template-columns:50px 1fr}#novios .pay-a{grid-column:2;text-align:left}#novios .pn-pair{grid-template-columns:1fr}",
   "#novios .pn-g{grid-template-columns:138px minmax(0,1fr) 34px;gap:6px 8px;padding:10px 12px}#novios .pn-g .nm{grid-column:1/3;grid-row:1}#novios .pn-g .pn-x{grid-column:3;grid-row:1}#novios .pn-g .tp{grid-column:1;grid-row:2}#novios .pn-g .al{grid-column:2/4;grid-row:2}",
@@ -22439,11 +22448,21 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       var cn=mEl.querySelector(".cnt"); if(cn) cn.innerHTML=cntMesa(S.mesas[mi]); }
     soloContadores(); programar();
   }
-  function cerrarVista(){ try{ if(window.LM_cargarListasNovios) window.LM_cargarListasNovios(); }catch(_){}
+  /* el portal se pinta encima del resto de la app: sin esto el lector de pantalla y el tabulador llegaban a la pantalla de acceso de detrás */
+  function fondo(bloq){ Array.prototype.forEach.call(document.body.children,function(e){ if(e===host||/^(SCRIPT|STYLE|LINK|NOSCRIPT)$/.test(e.tagName)) return;
+    if(bloq){ if(!e.hasAttribute("inert")){ e.setAttribute("inert",""); e.setAttribute("data-pn-in","1"); } if(!e.hasAttribute("aria-hidden")){ e.setAttribute("aria-hidden","true"); e.setAttribute("data-pn-ah","1"); } }
+    else { if(e.getAttribute("data-pn-in")){ e.removeAttribute("inert"); e.removeAttribute("data-pn-in"); } if(e.getAttribute("data-pn-ah")){ e.removeAttribute("aria-hidden"); e.removeAttribute("data-pn-ah"); } } }); }
+  function cerradoPortal(j){
+    host=document.getElementById("novios"); if(!host) return; css(); fondo(true);
+    var c=(j&&j.contacto)||{}, ct=(c.mail||c.tel)?'Si necesitáis algo, escribid o llamad a Les Moles:'+(c.mail?'<b>'+esc(c.mail)+'</b>':'')+(c.tel?'<b>'+esc(c.tel)+'</b>':''):'Si necesitáis algo, escribid o llamad a Les Moles.';
+    host.className="pn on"; host.innerHTML='<main class="pn-empty"><div><h1 class="pn-h2">Este portal ya está cerrado</h1><p class="pn-lead">Ha pasado el plazo desde el evento y, por privacidad, el enlace ya no da acceso a los datos. Gracias por celebrarlo con nosotros.</p><p class="pn-lead">'+ct+'</p></div></main>';
+    host.removeAttribute("aria-hidden");
+  }
+  function cerrarVista(){ fondo(false); try{ if(window.LM_cargarListasNovios) window.LM_cargarListasNovios(); }catch(_){}
     var h=document.getElementById("novios"); if(h){ h.classList.remove("on"); h.className=""; h.innerHTML=""; h.setAttribute("aria-hidden","true"); } document.documentElement.style.background=""; VISTA=false; try{ document.title="Les Moles Events"; }catch(_){} }
 
   function arrancar(d){
-    D=d; host=document.getElementById("novios"); if(!host) return;
+    D=d; host=document.getElementById("novios"); if(!host) return; fondo(true);
     if(!d||(!d.event&&!d.portal)){ css(); host.className="pn on"; host.innerHTML='<div class="pn-empty">Este enlace no está disponible.<br>Pedid a Les Moles que vuelva a compartirlo.</div>'; return; }
     var P0=d.portal||{};
     var L=d.lista, usarPropia=L&&L.data&&(L.estado==="borrador"||L.estado==="enviada");
@@ -22509,8 +22528,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!VISTA) document.documentElement.style.background="#1A1A1A";
     if(VISTA){ arrancar(fromLocal(token)); return; }
     fetch("/api/share?t="+encodeURIComponent(token),{headers:{"Accept":"application/json"}})
-      .then(function(r){ if(r.status===404) return {notFound:true}; if(!r.ok) throw 0; return r.json(); })
-      .then(function(j){ if(j&&j.notFound){ arrancar(null); return; } arrancar(j); })
+      .then(function(r){ if(r.status===404) return {notFound:true}; if(r.status===410) return r.json().then(function(c){ return {caducado:c}; }); if(!r.ok) throw 0; return r.json(); })
+      .then(function(j){ if(j&&j.notFound){ arrancar(null); return; } if(j&&j.caducado){ cerradoPortal(j.caducado); return; } arrancar(j); })
       .catch(function(){ arrancar(fromLocal(token)); });
   };
   /* token de la URL: ?cliente=<id> (el antiguo ?novios=<id> también vale) */
@@ -22609,6 +22628,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var ROLES_DEF=null, idleMin=480, sinRed=false;
   function aplicarAjustes(d){
     if(!d) return;
+    if(d.portalDias!=null) window.LM_portalDias=+d.portalDias;
     try{ localStorage.setItem("lm_ajustes_v1",JSON.stringify({roles:d.roles||null,idleMin:d.idleMin==null?null:d.idleMin})); }catch(_){}
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el

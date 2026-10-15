@@ -84,15 +84,25 @@ const SESSION_DAYS = 14;
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
+/* cabeceras de seguridad (v01.80): ninguna página ni respuesta se indexa, la app no se puede meter dentro de otra web
+   (así nadie puede tapar un botón del portal con otra página) y el enlace privado del cliente no viaja a otras webs */
+function conSeguridad(res, html) {
+  const o = new Response(res.body, res);
+  o.headers.set("X-Content-Type-Options", "nosniff");
+  o.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  o.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (html) { o.headers.set("X-Frame-Options", "SAMEORIGIN"); o.headers.set("Content-Security-Policy", "frame-ancestors 'self'"); }
+  return o;
+}
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       try {
-        return await api(request, env, url);
+        return conSeguridad(await api(request, env, url), false);
       } catch (err) {
         await logError(env, "servidor", url.pathname + " (" + request.method + ")", String(err && err.message || err), null);
-        return json({ error: "server", detail: String(err && err.message || err) }, 500);
+        return conSeguridad(json({ error: "server", detail: String(err && err.message || err) }, 500), false);
       }
     }
     // Resto: la aplicación (assets estáticos). SPA de un solo HTML.
@@ -102,14 +112,14 @@ export default {
     const ct = res.headers.get("Content-Type") || "";
     /* la app instalable: el service worker y el manifiesto se revisan siempre (si no, una versión vieja se queda pegada) */
     if (url.pathname === "/sw.js" || url.pathname === "/manifest.webmanifest") {
-      const o = new Response(res.body, res);
+      const o = conSeguridad(res, false);
       o.headers.set("Cache-Control", "no-cache");
       if (url.pathname === "/sw.js") { o.headers.set("Content-Type", "application/javascript; charset=utf-8"); o.headers.set("Service-Worker-Allowed", "/"); }
       else o.headers.set("Content-Type", "application/manifest+json; charset=utf-8");
       return o;
     }
     if (ct.indexOf("text/html") === -1) return res;
-    const out = new Response(res.body, res);
+    const out = conSeguridad(res, true);
     out.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
     return out;
   },
@@ -216,7 +226,8 @@ async function meRoute(request, env) {
   if (s) {
     const u = await env.DB.prepare("SELECT phone, puesto, must_change FROM users WHERE id=?1").bind(s.uid).first();
     const aj = await ajustes(env);
-    return json({ authed: true, user: Object.assign(pubUser(s), { phone: (u && u.phone) || "", puesto: (u && u.puesto) || "", mustChange: !!(u && u.must_change) }), roles: aj.roles, idleMin: aj.idleMin });
+    let portalDias = PRIV_DEF.portalDias; try { portalDias = (await privCfg(env)).portalDias; } catch (_) {}
+    return json({ authed: true, user: Object.assign(pubUser(s), { phone: (u && u.phone) || "", puesto: (u && u.puesto) || "", mustChange: !!(u && u.must_change) }), roles: aj.roles, idleMin: aj.idleMin, portalDias });
   }
   const n = await countUsers(env);
   return json({ authed: false, setup: n === 0 });
@@ -287,6 +298,36 @@ async function eventoCompartido(env, token) {
   const events = (doc && doc.events) || [];
   return events.find((e) => e && e.share && e.share.on && e.share.id === token) || null;
 }
+/* v01.80 · quien prueba enlaces al azar se queda sin poder probar más (25 fallos en 10 minutos por conexión; cada servidor lleva su cuenta,
+   así que es un freno, no una puerta cerrada: los enlaces nuevos son imposibles de adivinar) y el portal se cierra N días después
+   del evento (Parámetros → Privacidad y datos; 0 = no se cierra hasta anonimizar). */
+const MALOS = new Map();
+function ipDe(request) { return request.headers.get("CF-Connecting-IP") || (request.headers.get("X-Forwarded-For") || "").split(",")[0].trim() || "?"; }
+function demasiados(ip) { const r = MALOS.get(ip); return !!r && r.n >= 25 && Date.now() - r.t < 600e3; }
+function fallo(ip) {
+  const n = Date.now(); let r = MALOS.get(ip);
+  if (!r || n - r.t >= 600e3) r = { n: 0, t: n };
+  r.n++; MALOS.set(ip, r);
+  if (MALOS.size > 2000) for (const [k, v] of MALOS) if (n - v.t >= 600e3) MALOS.delete(k);
+}
+function portalCerrado(ev, cfg) {
+  const d = +(cfg && cfg.portalDias) || 0; if (d <= 0) return false;
+  const f = ev && ev.ficha && ev.ficha.fecha; if (!/^\d{4}-\d{2}-\d{2}$/.test(f || "")) return false;
+  return Math.floor((Date.parse(hoyISO() + "T00:00:00Z") - Date.parse(f + "T00:00:00Z")) / 864e5) > d;
+}
+async function eventoDeCliente(request, env, token, msg404) {
+  const ip = ipDe(request);
+  if (demasiados(ip)) return { res: json({ error: "limit", message: "Demasiados intentos con enlaces que no existen. Probad de nuevo en unos minutos." }, 429) };
+  const ev = await eventoCompartido(env, token);
+  if (!ev) { fallo(ip); return { res: json(msg404 ? { error: "not-found", message: msg404 } : { error: "not-found" }, 404) }; }
+  let cfg = PRIV_DEF; try { cfg = await privCfg(env); } catch (_) {}
+  if (portalCerrado(ev, cfg)) {
+    let contacto = { tel: "", mail: "" };
+    try { const pt = ((((await corDoc(env)).params || {}).sec || {}).portal || {}).data || {}; contacto = { tel: String(pt.tel || "").slice(0, 40), mail: String(pt.mail || "").slice(0, 120) }; } catch (_) {}
+    return { res: json({ error: "caducado", message: "Este portal ya está cerrado: pasaron más de " + cfg.portalDias + " días desde el evento.", contacto }, 410) };
+  }
+  return { ev, cfg };
+}
 /* los enlaces antiguos (cortos) se pueden ver, pero para editar hace falta uno
    nuevo y largo, imposible de adivinar */
 function tokenFuerte(t) { return typeof t === "string" && t.length >= 24; }
@@ -295,8 +336,8 @@ function hoyISO() { return new Date(Date.now() + 2 * 3600e3).toISOString().slice
 async function shareRoute(request, env, url) {
   const token = (url.searchParams.get("t") || "").trim();
   if (!token) return json({ error: "not-found" }, 404);
-  const ev = await eventoCompartido(env, token);
-  if (!ev) return json({ error: "not-found" }, 404);
+  const ac = await eventoDeCliente(request, env, token); if (ac.res) return ac.res;
+  const ev = ac.ev;
   const F = ev.ficha || {};
   const counts = countPlano(ev.text || "");
   const pub = {
@@ -323,7 +364,7 @@ async function shareRoute(request, env, url) {
     if (r) { let d = null; try { d = JSON.parse(r.data); } catch (_) {} lista = { data: d, estado: r.estado, enviada: r.enviada, updated: r.updated, revisada: r.revisada }; }
   } catch (_) {}
   let priv = null;
-  try { const c = await privCfg(env); priv = { responsable: c.responsable, nif: c.nif, direccion: c.direccion, email: c.email, meses: c.meses, dniDias: c.dniDias, v: PRIV_V }; } catch (_) {}
+  try { const c = ac.cfg; priv = { responsable: c.responsable, nif: c.nif, direccion: c.direccion, email: c.email, meses: c.meses, dniDias: c.dniDias, v: PRIV_V }; } catch (_) {}
   let ext = {}; try { ext = await porDatos(env, ev); } catch (_) {}
   return json({ event: pub, portal: (ev.share && ev.share.portal) || null, lista, editable: tokenFuerte(token), hoy: hoyISO(), priv, aprob: ext.estado || null, msgs: ext.msgs || [], arch: ext.arch || [], minuta: ext.minuta || null, docs: ext.docs || [] });
 }
@@ -351,8 +392,8 @@ function listaLimpia(b) {
 async function sharePost(request, env, url) {
   const token = (url.searchParams.get("t") || "").trim();
   if (!tokenFuerte(token)) return json({ error: "old-link", message: "Este enlace es antiguo. Pedid a Les Moles uno nuevo para poder editar." }, 403);
-  const ev = await eventoCompartido(env, token);
-  if (!ev) return json({ error: "not-found", message: "Este enlace ya no está activo." }, 404);
+  const ac = await eventoDeCliente(request, env, token, "Este enlace ya no está activo."); if (ac.res) return ac.res;
+  const ev = ac.ev;
   const portal = (ev.share && ev.share.portal) || {};
   if (portal.cierre && hoyISO() >= portal.cierre) return json({ error: "cerrado", message: "Los cambios ya están cerrados. Para cualquier cambio, llamad a Les Moles." }, 423);
   const txt = await request.text();
@@ -623,7 +664,8 @@ async function estadoLimpiar(request, env) {
 const PRIV_V = 1;
 /* se exige la casilla de consentimiento para guardar alergias en el portal del cliente (la app del portal ya la trae) */
 const PRIV_EXIGIR = true;
-const PRIV_DEF = { responsable: "", nif: "", direccion: "", email: "", meses: 12, auto: false, dniDias: 90 };
+const PRIV_DEF = { responsable: "", nif: "", direccion: "", email: "", meses: 12, auto: false, dniDias: 90, portalDias: 30 };
+const PRIV_PORTAL_DIAS = [0, 7, 15, 30, 60, 90, 180];   /* días después del evento en que se cierra el portal; 0 = no se cierra */
 const PRIV_DNI_DIAS = [0, 30, 60, 90, 180];   /* 0 = solo al anonimizar el evento */
 const PRIV_MESES = [6, 12, 18, 24, 36, 60];
 async function privCfg(env) {
@@ -635,6 +677,8 @@ async function privCfg(env) {
   o.meses = +o.meses; o.auto = !!o.auto;
   if (PRIV_DNI_DIAS.indexOf(+o.dniDias) < 0) o.dniDias = PRIV_DEF.dniDias;
   o.dniDias = +o.dniDias;
+  if (PRIV_PORTAL_DIAS.indexOf(+o.portalDias) < 0) o.portalDias = PRIV_DEF.portalDias;
+  o.portalDias = +o.portalDias;
   return o;
 }
 function mesesDesde(fechaISO, ahora) {
@@ -653,7 +697,9 @@ async function privGet(request, env) {
   const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first();
   let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {}
   const u = await env.DB.prepare("SELECT v FROM meta WHERE k='priv_ultima'").first(); let ultima = null; try { ultima = u ? JSON.parse(u.v) : null; } catch (_) {}
-  return json({ cfg, v: PRIV_V, elegibles: elegibles(doc, cfg.meses, ahora), anonimizados: (doc.events || []).filter((e) => e && e.anonimizado).length, eventos: (doc.events || []).length, ultima });
+  /* los portales con enlace antiguo y corto (de antes de la v01.60): solo dejan mirar, pero son más fáciles de adivinar que los nuevos */
+  const cortos = (doc.events || []).filter((e) => e && e.share && e.share.on && String(e.share.id || "").length < 24).map((e) => ({ id: e.id, name: e.name || "", fecha: (e.ficha && e.ficha.fecha) || "" }));
+  return json({ cfg, v: PRIV_V, elegibles: elegibles(doc, cfg.meses, ahora), anonimizados: (doc.events || []).filter((e) => e && e.anonimizado).length, eventos: (doc.events || []).length, ultima, cortos });
 }
 async function privPut(request, env) {
   const a = await usersAdmin(request, env); if (a.err) return a.err;
@@ -665,9 +711,11 @@ async function privPut(request, env) {
   if (email && !validEmail(email.toLowerCase())) return json({ error: "invalid", message: "El correo de privacidad no es válido." }, 400);
   const dniDias = b.dniDias === undefined ? PRIV_DEF.dniDias : +b.dniDias;
   if (PRIV_DNI_DIAS.indexOf(dniDias) < 0) return json({ error: "invalid", message: "Plazo de los documentos de identidad no válido." }, 400);
-  const cfg = { responsable: t(b.responsable, 140), nif: t(b.nif, 30), direccion: t(b.direccion, 200), email, meses, auto: !!b.auto, dniDias };
+  const portalDias = b.portalDias === undefined ? PRIV_DEF.portalDias : +b.portalDias;
+  if (PRIV_PORTAL_DIAS.indexOf(portalDias) < 0) return json({ error: "invalid", message: "Plazo de cierre del portal no válido." }, 400);
+  const cfg = { responsable: t(b.responsable, 140), nif: t(b.nif, 30), direccion: t(b.direccion, 200), email, meses, auto: !!b.auto, dniDias, portalDias };
   await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('privacidad', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(cfg)).run();
-  await logAct(env, a.s, "privacidad", "Plazo de conservación: " + meses + " meses" + (cfg.auto ? " · anonimizar sola" : "") + " · documentos de identidad: " + (dniDias ? dniDias + " días tras el evento" : "al anonimizar"));
+  await logAct(env, a.s, "privacidad", "Plazo de conservación: " + meses + " meses" + (cfg.auto ? " · anonimizar sola" : "") + " · documentos de identidad: " + (dniDias ? dniDias + " días tras el evento" : "al anonimizar") + " · portal del cliente: " + (portalDias ? "se cierra a los " + portalDias + " días del evento" : "no se cierra"));
   return json({ ok: true, cfg });
 }
 /* fuera datos personales de un evento (el resto de cifras se queda) */
@@ -1525,8 +1573,8 @@ function porAprobar(doc, evId, item, nombre, h, ahora, firmado) {
 }
 async function porClienteSesion(request, env, url, soloLectura) {
   const token = (url.searchParams.get("t") || "").trim();
-  const ev = await eventoCompartido(env, token);
-  if (!ev) return { err: json({ error: "not-found", message: "Este enlace ya no está activo." }, 404) };
+  const ac = await eventoDeCliente(request, env, token, "Este enlace ya no está activo."); if (ac.res) return { err: ac.res };
+  const ev = ac.ev;
   if (!soloLectura && !tokenFuerte(token)) return { err: json({ error: "old-link", message: "Este enlace es antiguo. Pedid a Les Moles uno nuevo para poder usar esto." }, 403) };
   return { ev, token };
 }

@@ -39,6 +39,7 @@ export const hecho = [
   'Alergias: «No hace falta» en cada plato que choca, para no tener que añadir un sustituto que no se necesita; deja de contar como falta en toda la app, se copia con «Copiar a otros…» y se borra al anonimizar · v01.77',
   'Portal del cliente, Invitados: mesas plegables con su resumen («10 personas · 2 alergias»), buscador por nombre, mesa o alergia, filtro «Solo con alergia o dieta» y filas más compactas: en el móvil la pestaña pasa de unos 12.000 px a unos 2.400 · v01.78',
   'Portal del cliente, Inicio: tarjeta «Qué os falta» (firmar, lista de invitados, identidad, aprobar menú y minuta, próximo pago y mensajes, con botón a cada uno y lo atrasado primero), número de pendientes en la pestaña Inicio y pestaña elegida siempre a la vista · v01.79',
+  'Seguridad del portal: se cierra solo N días después del evento (30 por defecto, se cambia en Parámetros → Privacidad y datos), cabeceras (no indexar, no incrustar en otra web), tope a quien prueba enlaces al azar, enlaces antiguos listados y la app de detrás del portal apartada para lectores de pantalla y tabulador · v01.80',
 ];
 
 export const decisiones = [
@@ -53,7 +54,7 @@ export const calendario = [
   ['4–9', 'Modo servicio · turnos y horas · cierre de evento', '01.62–01.63'],
   ['10–14', 'Avisos por correo · WhatsApp · portal ampliado', '01.64–01.65'],
   ['15–28', 'Contrato y firma · compras por proveedor · consultas', '01.66–01.68'],
-  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio', '01.69–01.79'],
+  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento y cabeceras de seguridad', '01.69–01.80'],
 ];
 
 export const fases = [
@@ -295,7 +296,7 @@ export const fases = [
 
 export const calidad = [
   ['Accesibilidad: revisión automática (axe-core) de las pantallas nuevas del equipo, el portal del cliente en móvil y el formulario público: 0 avisos graves tras los arreglos de la 01.68 y la 01.70', T],
-  ['Seguridad: cookies HttpOnly + Secure + SameSite, topes y tamaño máximo en los puntos públicos, permisos aplicados en el servidor', T],
+  ['Seguridad: cookies HttpOnly + Secure + SameSite, topes y tamaño máximo en los puntos públicos, permisos aplicados en el servidor, cabeceras que impiden indexar o incrustar la app, cierre del portal tras el evento y tope a quien prueba enlaces', T],
   ['Auditoría con varios revisores de toda la app (diseño, cifras, móvil): opcional, la lanzo cuando lo pidas', F],
   ['Pruebas automáticas de los flujos críticos (cliente → plano, guardado, copia y restauración) en cada entrega', F],
   ['Cada entrega: versión visible en pantalla, prueba en navegador y móvil, e informe en castellano', F],
@@ -309,6 +310,7 @@ export const falta = [
   ['Cargar los Excel de Previsión 2027 y 2028 con el nuevo «Importar Excel» y revisar los casos dudosos (Laia i Albert, Jordi Aleu, Núria i Victor, Zaida, Laura y Sergi)', 'Previsión al día'],
   ['Contrato: que el asesor lea el texto base (es el vuestro de siempre), lo marque como «revisado» y confirmar los datos de la empresa y el IBAN; decidir si basta la firma simple o queréis proveedor externo', 'Poder publicar contratos a clientes'],
   ['Documentos de clientes: decidir cuántos días se guardan los DNI tras el evento (hoy 90) y cuánto los justificantes de pago (hoy hasta anonimizar el evento; la contabilidad suele exigir años); y que el primer pago del contrato (3 semanas antes) coincida con el aviso de la agenda (18 días)', 'Cumplir RGPD y obligaciones contables'],
+  ['Portal del cliente: decidir cuántos días después del evento se cierra (hoy 30; Parámetros → Privacidad y datos) y crear enlace nuevo en los eventos que aún tengan un enlace antiguo y corto (esa misma pantalla los lista)', 'Que el IBAN, el presupuesto y el contrato no queden abiertos para siempre'],
   ['Datos del responsable de privacidad (Parámetros → Privacidad y datos) y revisión de los textos por el asesor', 'Cumplir RGPD con vuestros textos'],
   ['Proveedores de compra: darlos de alta y asignarles los artículos la primera vez', 'Pedidos agrupados por proveedor'],
   ['Consultas web: activar el formulario, elegir tipos y salones y poner el enlace ?consulta en la web, Instagram y Google Business', 'Recibir consultas'],
