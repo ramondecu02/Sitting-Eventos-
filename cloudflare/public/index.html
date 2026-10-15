@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.73 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.74 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.73".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.74".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4173,7 +4173,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.73</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.74</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4313,7 +4313,7 @@ Lluc (trona)</div>
 
       <div class="grp" id="plan-tools">
         <button class="btn sm" id="addT">+ Mesa</button>
-        <button class="btn sm" id="auto" title="Recolocar todas las mesas">Ordenar</button>
+        <button class="btn sm" id="auto" title="Recolocar todas las mesas (en el salón interior, en 3 filas)">Ordenar</button>
         <select id="addMark" class="btn sm" aria-label="Añadir un elemento de sala (WC, salida de camareros…)" title="Añadir WC, salida de camareros, cocina, barra…">
           <option value="">+ Elemento de sala…</option>
           <option value="wc">WC</option>
@@ -5552,8 +5552,37 @@ function packAt(boxes,sc,lay){
   });
   return {pos:pos,bottom:y};
 }
+/* Salón interior: el comedor solo admite 3 filas de mesas, así que «Ordenar» (y la primera colocación) las reparte en
+   3 filas horizontales, ni una más. La presidencial abre la primera fila y el resto sigue por orden de mesa; las filas se
+   reparten de modo que la más ancha sea lo más corta posible, y si no caben a tamaño normal las mesas se reducen
+   (hasta el 30 %) en vez de crear una cuarta fila. Las filas quedan separadas por pasillos, centradas en la sala. */
+var FILAS_INTERIOR=3;
+/* cuántas filas (alturas distintas) forman unas posiciones */
+function filasDe(pos){ var ys=Object.keys(pos).map(function(k){ return pos[k].y; }).sort(function(a,b){ return a-b; }), n=0, last=-1e9; ys.forEach(function(y){ if(y-last>12) n++; last=y; }); return n; }
+function packFilas(boxes,sc,lay,k){
+  var W=BR-BL, H=BB-BT, order=boxes.slice().sort(function(a,b){ return (a.presid?0:1)-(b.presid?0:1); });
+  var it=order.map(function(b){ var f=sc*(lay.size[b.num]||1); return {b:b,w:b.w*f,h:b.h*f}; }), n=it.length, i, j, m;
+  function ancho(a,z){ var w=0; for(var q=a;q<z;q++) w+=it[q].w; return w+GAP*Math.max(0,z-a-1); }
+  /* partición en k filas seguidas que minimiza la fila más ancha */
+  var dp=[], cut=[]; for(j=0;j<=k;j++){ dp.push([]); cut.push([]); for(i=0;i<=n;i++){ dp[j].push(Infinity); cut[j].push(0); } } dp[0][0]=0;
+  for(j=1;j<=k;j++) for(i=j;i<=n;i++) for(m=j-1;m<i;m++){ var v=Math.max(dp[j-1][m],ancho(m,i)); if(v<dp[j][i]){ dp[j][i]=v; cut[j][i]=m; } }
+  var rows=[], z=n; for(j=k;j>=1;j--){ var a=cut[j][z]; rows.unshift(it.slice(a,z)); z=a; }
+  var rw=rows.map(function(r){ return ancho(0,0)+r.reduce(function(t,x){ return t+x.w; },0)+GAP*Math.max(0,r.length-1); });
+  var rh=rows.map(function(r){ return r.reduce(function(t,x){ return Math.max(t,x.h); },0); });
+  var sumH=rh.reduce(function(t,x){ return t+x; },0);
+  var ok=Math.max.apply(null,rw)<=W && sumH+GAP*(k-1)<=H;
+  var gap=Math.min(220,Math.max(GAP,(H-sumH)/(k+1))), tot=sumH+gap*(k-1), y=BT+Math.max(0,(H-tot)/2), pos={};
+  rows.forEach(function(r,ri){ var x=BL+(W-rw[ri])/2;
+    r.forEach(function(q){ pos[q.b.num]={x:Math.round(x+q.w/2),y:Math.round(y+rh[ri]/2)}; x+=q.w+GAP; });
+    y+=rh[ri]+gap; });
+  return {pos:pos,ok:ok};
+}
 function autoLayout(boxes,lay){
   var s,r;
+  if(loc()==="interior"&&boxes.length){
+    var k=Math.min(FILAS_INTERIOR,boxes.length);
+    for(var pc=100;pc>=30;pc-=2){ r=packFilas(boxes,pc/100,lay,k); if(r.ok) return {scale:pc/100,pos:r.pos}; }
+  }
   for(s=1.0;s>=0.44;s-=0.04){ r=packAt(boxes,s,lay); if(r.bottom<=BB) return {scale:Math.round(s*100)/100,pos:r.pos}; }
   r=packAt(boxes,0.44,lay); return {scale:0.44,pos:r.pos};
 }
@@ -9144,7 +9173,9 @@ $("auto").addEventListener("click",function(){
   pushUndo();
   var p=plan(), a=autoLayout(boxes,p);
   p.scale=a.scale; p.pos=a.pos; setUserSize(1);
-  renderPlan(); save(); toast("Mesas recolocadas.");
+  renderPlan(); save();
+  var nf=filasDe(a.pos);
+  toast(loc()==="interior"&&boxes.length>=3?(nf===3?"Mesas recolocadas en 3 filas.":"Mesas recolocadas, pero no caben en 3 filas: salen en "+nf+"."):"Mesas recolocadas.");
 });
 $("size").addEventListener("input",function(){userSize=+this.value/100;renderPlan();});
 $("size").addEventListener("change",function(){ var e=current(); if(e) e.userSize=userSize; save(); });
@@ -9547,7 +9578,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.73</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.74</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }

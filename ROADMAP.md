@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.73** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.74** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,10 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.74
+- **Salón interior: las mesas se ordenan en 3 filas horizontales, ni una más.** En el salón interior del restaurante solo caben 3 filas de mesas, y el botón **«Ordenar»** (también la primera colocación de un evento nuevo) ahora las reparte exactamente en 3: la presidencial abre la primera fila, el resto sigue por orden de mesa y las filas se equilibran para que ninguna quede mucho más larga que otra. Quedan separadas por pasillos y centradas en la sala. Si con las mesas a tamaño normal no caben en 3 filas, se **reducen** (hasta el 30 %) en vez de crear una cuarta fila; si hay menos de 3 mesas, una fila por mesa. Al terminar, el aviso dice «Mesas recolocadas en 3 filas». **El exterior no cambia** (sigue su colocación de siempre).
+- Una mesa que se añade después, escribiéndola en la lista, se coloca en un hueco libre como hasta ahora; para volver a las 3 filas basta pulsar «Ordenar».
 
 ### Novedad de la versión 01.73
 - **Alergias y sustituciones: copiar los platos de un comensal a otros.** Si a un vegetariano le marcas unos platos, en su fila sale **«Copiar a otros…»**: se abre la lista de comensales con **el mismo caso** (mismas alergias o misma dieta, p. ej. «Pescetariano · 4») ya marcados, y también los de otros casos para elegirlos a mano. Se copian los platos **con su tiempo** (primero, segundo…) y, si el comensal estaba como «Sin cambios con este menú», también eso. Lo que ya tenga otro comensal se avisa («Ya tiene: … · se reemplaza»), al que ya tiene exactamente lo mismo no hace falta tocarlo, y queda un aviso con **«Deshacer»**. En las filas que aún no tienen platos sale **«Copiar de otro…»**, que trae los de alguien que ya los tenga (el del mismo caso, marcado de entrada). Se copia lo que se ve, aunque lo acabes de teclear. Los platos viajan en el plano, como siempre.
@@ -355,9 +359,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales | 01.69–01.73 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas | 01.69–01.74 |
 
-**Estado: todo entregado (01.54 → 01.73).**
+**Estado: todo entregado (01.54 → 01.74).**
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,
