@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.75 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.76 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.75".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.76".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2957,6 +2957,7 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .aler-plato{font-size:11px}
 .aler-row.sin-cambio .aler-plato{opacity:1}
 .aler-pend{font-size:11px; font-weight:700; color:var(--warning-tx); background:var(--warning-soft); border-radius:99px; padding:2px 9px; white-space:nowrap}
+.aler-conf{font-size:11.5px; font-weight:500; color:var(--c-ink); background:var(--bg-2,#F2EFE8); border-radius:99px; padding:2px 9px}
 /* campos de «Ajustes del evento» como el resto */
 .mnu-ev-field input[type=number],.mnu-ajustes input[type=number]{min-height:38px; border:1px solid var(--c-line-2); border-radius:var(--r-sm); padding:6px 9px; background:var(--field); color:var(--c-ink)}
 .mp-card,.mp-cat-h{margin-left:auto; margin-right:auto}
@@ -4245,7 +4246,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.75</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.76</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4816,7 +4817,7 @@ var GAP=16;
    en gris neutro. La etiqueta ("Primero"…) es también como se guarda en el
    texto del comensal, para que la elección viaje con el evento. */
 var CURSOS={primero:{lab:"Primer plato",tag:"Primero",c:"#2C6E8F"},
-            segundo:{lab:"Segundo plato",tag:"Segundo",c:"#B0632A"},
+            segundo:{lab:"Segundo plato",tag:"Segundo",c:"#9E5622"},
             tercero:{lab:"Tercer plato",tag:"Tercero",c:"#3E7A4A"},
             postre:{lab:"Postre",tag:"Postre",c:"#7A4E8E"}};
 var CURSO_ORDER=["primero","segundo","tercero","postre"];
@@ -9650,7 +9651,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.75</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.76</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -14317,6 +14318,19 @@ function noComeModelo(g,sel,cur){
   });
   return {no:no, dudosa:inv.desconocidas.filter(function(x){ return ex.dudosa.indexOf(x)>-1; }), sinRev:sinRev, ex:ex};
 }
+/* lo que le falta a una persona por decidir: los platos del menú que chocan con su alergia o dieta y siguen sin sustituto
+   (el aperitivo cuenta una vez; un plato por cada tiempo). Es la misma cuenta que los «Falta sustituto» de su ficha. */
+function noComeFaltas(g,sel,cur){
+  var M=noComeModelo(g,sel,cur), subs=(g.sustitutos||[]).map(function(p,i){ return {p:String(p||"").trim(),c:(g.sustitutosC||[])[i]||""}; }).filter(function(x){ return x.p; });
+  var key=g.mesa+"|"+g.nombre, aperAd=0, usados={}, out=[], ap=0;
+  try{ var AP=escAperitivos(escCuentas(),escCfg()); AP.pers.forEach(function(r){ if(r.key===key) r.items.forEach(function(it){ if(it.t) aperAd++; }); }); }catch(_){}
+  M.no.forEach(function(x){ var f=x.d._famKey; if(x.c.ap||f==="APERITIVOS"||f==="ESTACIONES") ap++; });
+  if(ap&&!aperAd) out.push("Aperitivo");
+  M.no.forEach(function(x){ var f=x.d._famKey; if(x.c.ap||f==="APERITIVOS"||f==="ESTACIONES") return;
+    var k=x.c.k||"", s=subs.filter(function(y,i){ return y.c&&y.c===k&&!usados[i+":"+y.p]; })[0];
+    if(s) usados[subs.indexOf(s)+":"+s.p]=1; else out.push(f==="PAN"?"Pan":(x.c.t||x.d._famLabel)); });
+  return out;
+}
 function noComeHTML(g,sel,cur){
   var M=noComeModelo(g,sel,cur), subs=(g.sustitutos||[]).map(function(p,i){ return {p:String(p||"").trim(),c:(g.sustitutosC||[])[i]||""}; }).filter(function(x){ return x.p; });
   var key=g.mesa+"|"+g.nombre, aperAd=[];
@@ -14356,11 +14370,11 @@ function renderAlergias(){
   }
   var okM=(menu()&&menu().alerOk)||{};
   var selAlg=selectedDishes(), curAlg=algCursos(selAlg);
-  /* cuántos platos que chocan siguen sin sustituto: con ellos pendientes no cuenta como decidido,
-     aunque esté marcado «Sin cambios» (la app propone, una persona decide) */
-  function faltasDe(g){ if(!selAlg.length) return 0; try{ return (noComeHTML(g,selAlg,curAlg).match(/nc-sust falta/g)||[]).length; }catch(_){ return 0; } }
+  /* cuántos platos que chocan siguen sin sustituto: la app los enseña y avisa, pero si una persona confirma a mano
+     («Sin cambios» / «Todo decidido») cuenta como decidido */
+  function faltasDe(g){ if(!selAlg.length) return 0; try{ return noComeFaltas(g,selAlg,curAlg).length; }catch(_){ return 0; } }
   var faltas=lista.map(faltasDe);
-  var conPlato=lista.filter(function(g,i){ return !faltas[i]&&((g.sustitutos&&g.sustitutos.length)||okM[aaKey(g)]); }).length;
+  var conPlato=lista.filter(function(g,i){ return alerDecidido(g,faltas[i],okM); }).length;
   /* sugerencias: primero los platos marcados para este evento, después el resto
      del catálogo. Se pueden escribir a mano igual, la lista solo ahorra teclear */
   var marcados=selectedDishes().map(function(d){ return d.name; });
@@ -14395,11 +14409,12 @@ function renderAlergias(){
           (g.kind==="veg"?'<span class="tag v">Vegetariano</span>':"")+
           (g.kind==="vegan"?'<span class="tag vg">Vegano</span>':"")+
           (g.preg?'<span class="tag o">Embarazada</span>':"");
-        var ok=!!okM[aaKey(g)], fal=faltasDe(g);
-        return '<div class="aler-row'+(!fal&&((g.sustitutos&&g.sustitutos.length)||ok)?" hecho":"")+(ok&&!fal?" sin-cambio":"")+'">'+
+        var ok=!!okM[aaKey(g)], fal=faltasDe(g), tiene=!!(g.sustitutos&&g.sustitutos.length), dec=alerDecidido(g,fal,okM);
+        return '<div class="aler-row'+(dec?" hecho":"")+(ok&&!tiene?" sin-cambio":"")+(ok&&fal?" conf":"")+'">'+
           '<span class="aler-nm">'+esc(g.nombre)+'</span>'+
-          motivos+(fal?'<span class="aler-pend">Pendiente: '+(fal===1?'falta 1 plato':'faltan '+fal+' platos')+'</span>':'')+
-          '<label class="aler-ok" title="Con los platos de este menú no le hace falta ningún cambio"><input type="checkbox" data-aler-ok="'+esc(aaKey(g))+'"'+(ok?" checked":"")+'> Sin cambios con este menú</label>'+
+          motivos+(fal&&!ok?'<span class="aler-pend">Pendiente: '+(fal===1?'falta 1 plato':'faltan '+fal+' platos')+'</span>':'')+
+          (fal&&ok?'<span class="aler-conf">Confirmado a mano · la app ve '+(fal===1?'1 plato que choca':fal+' platos que chocan')+' sin sustituto</span>':'')+
+          '<label class="aler-ok" title="'+(tiene?'Ya está decidido todo lo que necesita, aunque la app vea algún plato que choque':'Con los platos de este menú no le hace falta ningún cambio')+'"><input type="checkbox" data-aler-ok="'+esc(aaKey(g))+'"'+(ok?" checked":"")+'> '+(tiene?'Todo decidido':'Sin cambios con este menú')+'</label>'+
           (selAlg.length?noComeHTML(g,selAlg,curAlg):'')+
           '<div class="aler-plato" data-mesa="'+num+'" data-i="'+g.i+'">'+
           '<span class="aler-plato-lbl">Se le sirve <small>(escribe o cambia)</small></span>'+
@@ -14415,8 +14430,8 @@ function renderAlergias(){
           '</div>'+
           '<button type="button" class="btn ico aler-plato-add" aria-label="Añadir otro plato para '+esc(g.nombre)+'" title="Añadir otro plato">+</button>'+
           (((g.sustitutos&&g.sustitutos.length)||ok)
-            ?'<div class="aler-cp-wrap"><button type="button" class="btn sm aler-cp" data-aler-cp="a" aria-label="Copiar lo de '+esc(g.nombre)+' a otros comensales">Copiar a otros…</button></div>'
-            :(hayDonantes?'<div class="aler-cp-wrap"><button type="button" class="btn sm aler-cp" data-aler-cp="de" aria-label="Copiar a '+esc(g.nombre)+' lo de otro comensal">Copiar de otro…</button></div>':''))+
+            ?'<div class="aler-cp-wrap"><button type="button" class="btn sm aler-cp" data-aler-cp="a" aria-label="Copiar a otros… lo de '+esc(g.nombre)+'">Copiar a otros…</button></div>'
+            :(hayDonantes?'<div class="aler-cp-wrap"><button type="button" class="btn sm aler-cp" data-aler-cp="de" aria-label="Copiar de otro… para '+esc(g.nombre)+'">Copiar de otro…</button></div>':''))+
           '</div>'+
 
           '</div>';
@@ -15894,12 +15909,19 @@ function escModelo(){
     var nom1=x.sorbete?"Sorbete":nPlato+"º plato"; anc("pl:"+x.uid,nom1+" · "+x.name,"el "+nom1.toLowerCase(),"Menú",fb[fb.length-1]);
   }); });
   var okM=(menu()&&menu().alerOk)||{};
-  var pendK=null; try{ pendK={}; alerPendientes().forEach(function(g){ pendK[aaKey(g)]=1; }); }catch(_){ pendK=null; }
+  var pendK=null, detK={}; try{ pendK={}; alerPendDetalle().forEach(function(x){ pendK[x.key]=1; detK[x.key]=x; }); }catch(_){ pendK=null; }
   var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&(pendK?pendK[escKey(p)]:(!(g.menus&&g.menus.length)&&!okM[escKey(p)])); });
   if(fb.length&&sinSust.length){
-    var gpend=sinSust.map(function(p){ return {nombre:primerNombre(p.g.name),mesa:p.mesa}; });
-    var fpend=fila("Con alergia o dieta y sin plato sustitutivo decidido",escNombres(gpend),null);
-    fpend.q=String(sinSust.length); fpend.sust=true; fpend.pend=true; fpend.gente=gpend; fb.unshift(fpend);
+    /* los que no tienen ningún plato decidido van juntos; los que ya tienen alguno pero siguen pendientes se agrupan por lo que les
+       falta, para que se vea POR QUÉ salen aquí (y qué hay que decidir para que dejen de salir) */
+    var grp0=[], parc={}, parcO=[], filasP=[];
+    sinSust.forEach(function(p){ var x=detK[escKey(p)], gente={nombre:primerNombre(p.g.name),mesa:p.mesa};
+      if(x&&x.subs&&x.falta.length){ var kk=x.falta.join("|"); if(!parc[kk]){ parc[kk]={falta:x.falta,gente:[]}; parcO.push(kk); } parc[kk].gente.push(gente); }
+      else grp0.push(gente); });
+    function filaPend(t,gente){ var f=fila(t,escNombres(gente),null); f.q=String(gente.length); f.sust=true; f.pend=true; f.gente=gente; return f; }
+    if(grp0.length) filasP.push(filaPend("Con alergia o dieta y sin plato sustitutivo decidido",grp0));
+    parcO.forEach(function(kk){ var q2=parc[kk]; filasP.push(filaPend("Con plato decidido, pero les falta: "+q2.falta.map(function(t){ return t.charAt(0).toLowerCase()+t.slice(1); }).join(" · "),q2.gente)); });
+    Array.prototype.unshift.apply(fb,filasP);
   }
   if(fb.length) md.secs.push({t:"Menú",sub:adTot+" adultos",filas:fb,leyenda:fb.some(function(f){ return f.sust; })?"En color: plato sustitutivo, para quién y en qué mesa":""});
   /* ── menú infantil: aperitivo, primeros, segundos, postre y lo que se añada ── */
@@ -16538,12 +16560,17 @@ function algBloque(g,A,sel){
 /* UNA sola definición de «por decidir», la de la vista por mesa: sin plato ni
    «sin cambios», o con algún plato que choca todavía sin sustituto. La usan la
    hoja de alergias, la escaleta, la hoja de ruta y los avisos del resumen. */
-function alerPendientes(){
+/* «decidido»: lo ha confirmado una persona («Sin cambios con este menú» o «Todo decidido») o tiene plato y no queda ninguno
+   que choque sin sustituto. La app propone y avisa, pero lo que una persona confirma a mano manda. */
+function alerDecidido(g,fal,okM){ return !!okM[aaKey(g)]||(!fal&&!!(g.sustitutos&&g.sustitutos.length)); }
+/* los que siguen por decidir, con lo que les falta (los tiempos que chocan sin sustituto) y cuántos platos tienen ya */
+function alerPendDetalle(){
   var lista=BR.alergias?BR.alergias():[], sel=selectedDishes(), cur=algCursos(sel), okM=(menu()&&menu().alerOk)||{};
-  return lista.filter(function(g){
-    var fal=sel.length?(noComeHTML(g,sel,cur).match(/nc-sust falta/g)||[]).length:0;
-    return !(!fal&&((g.sustitutos&&g.sustitutos.length)||okM[aaKey(g)])); });
+  return lista.map(function(g){ var fl=[]; if(sel.length){ try{ fl=noComeFaltas(g,sel,cur); }catch(_){ fl=[]; } }
+      return {g:g,key:aaKey(g),falta:fl,subs:(g.sustitutos||[]).filter(Boolean).length}; })
+    .filter(function(x){ return !alerDecidido(x.g,x.falta.length,okM); });
 }
+function alerPendientes(){ return alerPendDetalle().map(function(x){ return x.g; }); }
 BR.alerPendientes=function(){ try{ return alerPendientes().map(function(g){ return aaKey(g); }); }catch(_){ return null; } };
 /* Las cifras que comparten los departamentos, del evento activo (o del que se fuerce con BR.conEvento). Solo LEE: no crea nada en el evento. */
 BR.hechos=function(){
@@ -16570,9 +16597,9 @@ BR.hechos=function(){
 function alerCifras(lista,sel){
   var cur=algCursos(sel), okM=(menu()&&menu().alerOk)||{}, no=0, dec=0;
   lista.forEach(function(g){
-    var fal=(noComeHTML(g,sel,cur).match(/nc-sust falta/g)||[]).length;
-    no+=fal;
-    if(!(!fal&&((g.sustitutos&&g.sustitutos.length)||okM[aaKey(g)]))) dec++; });
+    var fal=0; try{ fal=noComeFaltas(g,sel,cur).length; }catch(_){}
+    if(!okM[aaKey(g)]) no+=fal;   /* lo confirmado a mano ya no es una sustitución pendiente */
+    if(!alerDecidido(g,fal,okM)) dec++; });
   var ingSin={}, platosSin=0;
   sel.forEach(function(d){ var p=algPlato(d); p.sinRevisar.forEach(function(n){ ingSin[algNorm(n)]=1; }); if(p.sinRevisar.length||p.sinEscandallo) platosSin++; });
   return {n:lista.length, no:no, porDecidir:dec, decididos:lista.length-dec, nIng:Object.keys(ingSin).length, platosSin:platosSin,

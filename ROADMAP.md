@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.75** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.76** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,13 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.76
+- **Escaleta ⇄ Alergias: lo que tú marcas ahora cuenta, y la escaleta explica por qué sigue pendiente cada uno.** En la parte de arriba del «Menú» de la escaleta salía «Con alergia o dieta y sin plato sustitutivo decidido» aunque alguien ya tuviera su plato puesto (por ejemplo, el del 1º plato). La causa: la app seguía viendo otro plato del menú que choca con su alergia o dieta (el aperitivo, el 2º plato, el postre…) sin sustituto, y **ni siquiera marcarlo a mano lo quitaba**. Ahora:
+  - **Lo que una persona confirma a mano manda.** En «Alergias y sustituciones», la casilla de cada comensal (**«Sin cambios con este menú»**, que pasa a decir **«Todo decidido»** cuando ya tiene algún plato puesto) lo da por decidido aunque la app vea platos que chocan. La app sigue avisando, pero con una etiqueta discreta («Confirmado a mano · la app ve 3 platos que chocan sin sustituto»), y al desmarcarla vuelve a estar pendiente.
+  - **La escaleta dice POR QUÉ salen.** Quien no tiene ningún plato decidido sigue en «Con alergia o dieta y sin plato sustitutivo decidido»; quien ya tiene alguno pero le falta en otro tiempo sale aparte, agrupado por lo que le falta: **«Con plato decidido, pero les falta: aperitivo · 2º plato»**. Así se ve qué hay que decidir (o marcar como «Todo decidido») para que dejen de salir. También sale así en el PDF de la escaleta.
+  - **Las cifras coinciden en todas partes:** el resumen de Alergias («N personas por decidir»), la escaleta, la hoja de ruta y los avisos del Resumen usan ya la misma definición, y las «sustituciones pendientes» no cuentan lo que se ha confirmado a mano.
+- **Contraste:** el naranja del «Segundo plato» se oscurece un poco para cumplir el contraste AA, y los botones «Copiar a otros… / Copiar de otro…» llevan su texto visible en el nombre que leen los lectores de pantalla.
 
 ### Novedad de la versión 01.75
 - **Comunicación (Planificación → Comunicación): sitio de verdad para escribir.** La nota deja de ser una línea: es un **cuadro grande** (hasta **20.000 caracteres**, se puede estirar) con **asunto**, para apuntar lo que se dijo, lo que se acordó y lo que hay que recordar. Se ve con sus saltos de línea y, si es larga, **plegada** con «Ver todo». Y se puede **editar después** (fecha, tipo, asunto, nota y adjuntos); **Ctrl + Intro** registra. Los registros de antes siguen igual.
@@ -367,7 +374,7 @@ se recupera con el código manual por evento.
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
 | Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros | 01.69–01.75 |
 
-**Estado: todo entregado (01.54 → 01.75).**
+**Estado: todo entregado (01.54 → 01.76).**
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,
