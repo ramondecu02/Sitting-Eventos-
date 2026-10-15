@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.74** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.75** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.75
+- **Comunicación (Planificación → Comunicación): sitio de verdad para escribir.** La nota deja de ser una línea: es un **cuadro grande** (hasta **20.000 caracteres**, se puede estirar) con **asunto**, para apuntar lo que se dijo, lo que se acordó y lo que hay que recordar. Se ve con sus saltos de línea y, si es larga, **plegada** con «Ver todo». Y se puede **editar después** (fecha, tipo, asunto, nota y adjuntos); **Ctrl + Intro** registra. Los registros de antes siguen igual.
+- **Adjuntar lo que escriben los novios.** En el mismo formulario: **el chat de WhatsApp** (el archivo que sale de «Exportar chat»: **.txt**, o el **.zip** del iPhone, que se abre solo), **un correo** (.eml, o su texto en .txt), **una captura** (JPG, PNG, WebP; se reduce sola) o **un PDF**. Se pueden arrastrar. Al adjuntar un chat o un correo, la app **lee la fecha, quién escribe y el asunto** y los pone: «WhatsApp · 342 mensajes · del 03/03/2026 al 11/10/2026 · Neus, Carlos», «Correo de Neus · Menú infantil y alérgenos», y avisa de lo que ha rellenado. Un chat muy largo se parte solo en varios archivos. Los archivos (hasta 600 KB cada uno, 80 por evento) se guardan **en el servidor, aparte del documento de eventos**, y solo los ven **administración y eventos**; en el registro quedan su nombre, su resumen y su tamaño. Los de texto se **leen dentro de la app**: por días, con buscador propio y «**Ir a la fecha**»; las capturas y los PDF se abren aparte.
+- **El registro, para encontrar rápido.** Encima del historial hay: un **buscador** (una palabra, un nombre o una **fecha** escrita como 12/10/2026; no distingue acentos y también vale «octubre 2026»), que busca **también dentro de los adjuntos de texto** y enseña el trozo donde aparece con «Leer» para abrirlo ya buscando; **Desde / Hasta** con atajos «Última semana» y «Último mes»; y **botones por tipo** (Llamada, WhatsApp, Email, Reunión, Visita, Nota) con el número de cada uno, que se pueden combinar. Dice «Mostrando 4 de 37» y tiene «Quitar filtros».
+- **Privacidad:** los chats y correos son datos personales. Se **borran con el evento al anonimizarlo**, al **suprimir a una persona** (Parámetros → Privacidad) se borran la nota, el asunto y los adjuntos de ese evento, y quedan en el **registro de tratamientos** (fila nueva «Comunicaciones con los clientes»). Subir o borrar un adjunto queda en el registro de actividad (sin copiar su contenido). Al borrar un registro con adjuntos, se pide confirmar y también se borran sus archivos.
 
 ### Novedad de la versión 01.74
 - **Salón interior: las mesas se ordenan en 3 filas horizontales, ni una más.** En el salón interior del restaurante solo caben 3 filas de mesas, y el botón **«Ordenar»** (también la primera colocación de un evento nuevo) ahora las reparte exactamente en 3: la presidencial abre la primera fila, el resto sigue por orden de mesa y las filas se equilibran para que ninguna quede mucho más larga que otra. Quedan separadas por pasillos y centradas en la sala. Si con las mesas a tamaño normal no caben en 3 filas, se **reducen** (hasta el 30 %) en vez de crear una cuarta fila; si hay menos de 3 mesas, una fila por mesa. Al terminar, el aviso dice «Mesas recolocadas en 3 filas». **El exterior no cambia** (sigue su colocación de siempre).
@@ -359,9 +365,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas | 01.69–01.74 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros | 01.69–01.75 |
 
-**Estado: todo entregado (01.54 → 01.74).**
+**Estado: todo entregado (01.54 → 01.75).**
 
 El orden se puede cambiar según la urgencia real del restaurante: cualquier
 elemento de las fases 2–4 puede adelantarse sin depender de los anteriores,

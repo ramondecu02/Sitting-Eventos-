@@ -57,8 +57,9 @@
  *   POST /api/error             {msg,src?,v?} la app avisa de un error que le ha saltado (con sesión)
  *   GET  /api/estado            estado del sistema: último guardado, copias, tamaño del documento, errores (solo admin)
  *   DELETE /api/estado?errores=1 vacía el registro de errores (solo admin)
- *   GET  /api/docs?ev=          justificantes de pago y documentos de identidad del evento (sin contenido; según el rol)
- *   POST /api/docs              {ev,kind:"justificante"|"dni",persona?,nombre,src,ref?,concepto?,importe?,fecha?} sube uno (admin, eventos; contabilidad solo justificantes)
+ *   GET  /api/docs?ev=          justificantes de pago y documentos de identidad del evento (sin contenido; según el rol); con &kind=comunicacion, los adjuntos de Comunicación
+ *   POST /api/docs              {ev,kind:"justificante"|"dni"|"comunicacion",persona?,nombre,src,ref?,concepto?,importe?,fecha?} sube uno (admin, eventos; contabilidad solo justificantes;
+ *                               «comunicacion» = chat de WhatsApp o correo en texto plano, captura o PDF, solo admin y eventos)
  *   GET  /api/docs/ver?id=      el archivo (los de identidad: cada apertura queda en el registro de actividad)
  *   POST /api/docs/editar       {id,ref?,concepto?,importe?,fecha?,estado?,nota?,persona?}
  *   POST /api/docs/borrar       {id}
@@ -819,7 +820,7 @@ function buscarEnEvento(e, qn, borrar) {
     return borrar && tocado ? nuevo.join("+").replace(/\s*\+\s*/g, " + ").trim() : ln;
   });
   FICHA_PERS.forEach((k) => { if (F[k] && normTxt(F[k]).indexOf(qn) >= 0) { hit.ficha++; if (borrar) F[k] = ""; } });
-  (e.comunicaciones || []).forEach((c) => { if (c && normTxt(JSON.stringify(c)).indexOf(qn) >= 0) { hit.otros++; if (borrar) { c.nota = "(borrado)"; c.texto = "(borrado)"; } } });
+  (e.comunicaciones || []).forEach((c) => { if (c && normTxt(JSON.stringify(c)).indexOf(qn) >= 0) { hit.otros++; if (borrar) { c.nota = "(borrado)"; c.texto = "(borrado)"; if (c.asunto) c.asunto = "(borrado)"; c.adj = []; } } });
   /* quién aprobó o aceptó algo en el portal, y el contrato aceptado (nombre, NIF y el texto, que lleva el nombre del cliente) */
   Object.keys(e.aprobaciones || {}).forEach((k) => { const a = e.aprobaciones[k]; if (a && a.nombre && normTxt(a.nombre).indexOf(qn) >= 0) { hit.otros++; if (borrar) a.nombre = "(borrado)"; } });
   const CO = e.contrato;
@@ -1116,7 +1117,7 @@ async function consCfgPut(request, env) {
      sirve para bajarlos); cada vez que alguien del equipo abre uno queda anotado en el registro de actividad; se borran solos
      pasado un plazo tras el evento (Parámetros → Privacidad y datos, por defecto 90 días) y siempre al anonimizar el evento.
    Se guardan aparte, en evento_docs (no caben en el documento de eventos): JPG, PNG, WebP o PDF de hasta 600 KB. */
-const DOC_MAX = 600000, DOC_DIA = 20, DOC_NI_PERSONA = 4, DOC_JUS_MAX = 40, DOC_BODY_MAX = 1100000;
+const DOC_MAX = 600000, DOC_DIA = 20, DOC_NI_PERSONA = 4, DOC_JUS_MAX = 40, DOC_COM_MAX = 80, DOC_BODY_MAX = 1100000;
 let DOCS_OK = false;
 async function ensureDocs(env) {
   if (DOCS_OK) return;
@@ -1132,7 +1133,18 @@ function docMeta(r) {
 /* lo que ve el cliente de lo que ha subido: sin quién lo ha mirado ni notas internas */
 function docMetaCliente(r) { const m = docMeta(r); delete m.por; delete m.nota; delete m.leido; return m; }
 /* un archivo en data URL: de verdad JPG, PNG, WebP o PDF (se mira la cabecera, no el nombre) y no demasiado grande */
-function docArchivo(src) {
+function docArchivo(src, kind) {
+  /* en Comunicación valen también los textos (el chat de WhatsApp o un correo exportados): texto plano UTF-8, sin caracteres binarios */
+  if (kind === "comunicacion") {
+    const t = /^data:text\/plain;base64,([A-Za-z0-9+/=]+)$/.exec(String(src || ""));
+    if (t) {
+      const bytes = Math.floor(t[1].length * 3 / 4) - (t[1].endsWith("==") ? 2 : t[1].endsWith("=") ? 1 : 0);
+      if (bytes < 2) return { error: "invalid" };
+      if (bytes > DOC_MAX) return { error: "too-big" };
+      try { const bin = atob(t[1]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); const txt = new TextDecoder("utf-8", { fatal: true }).decode(u); if (txt.indexOf("\u0000") >= 0) return { error: "invalid" }; } catch (_) { return { error: "invalid" }; }
+      return { mime: "text/plain", bytes };
+    }
+  }
   const m = /^data:(image\/(?:jpeg|png|webp)|application\/pdf);base64,([A-Za-z0-9+/=]+)$/.exec(String(src || ""));
   if (!m) return null;
   const bytes = Math.floor(m[2].length * 3 / 4) - (m[2].endsWith("==") ? 2 : m[2].endsWith("=") ? 1 : 0);
@@ -1143,7 +1155,7 @@ function docArchivo(src) {
   return ok ? { mime: m[1], bytes } : null;
 }
 function docErrorArchivo(f) {
-  if (!f) return json({ error: "invalid", message: "Solo se pueden enviar fotos (JPG, PNG, WebP) o PDF." }, 400);
+  if (!f) return json({ error: "invalid", message: "Solo se pueden enviar fotos (JPG, PNG, WebP), PDF o, en Comunicación, textos (.txt)." }, 400);
   if (f.error === "too-big") return json({ error: "too-big", message: "El archivo es demasiado grande (máx. 600 KB). Mandad una foto o captura más pequeña, o un PDF más ligero." }, 413);
   if (f.error) return json({ error: "invalid", message: "El archivo no es válido." }, 400);
   return null;
@@ -1153,6 +1165,7 @@ function docPermiso(s, kind) {
   if (!s) return false;
   if (kind === "dni") return s.role === "admin" || s.role === "eventos";
   if (kind === "justificante") return s.role === "admin" || s.role === "eventos" || s.role === "contabilidad";
+  if (kind === "comunicacion") return s.role === "admin" || s.role === "eventos";
   return false;
 }
 function docNum(v) { const n = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(n) && n >= 0 && n < 1e8 ? Math.round(n * 100) / 100 : null; }
@@ -1170,7 +1183,9 @@ async function docsGet(request, env, url) {
   const evId = String(url.searchParams.get("ev") || "").slice(0, 80); if (!evId) return json({ error: "invalid" }, 400);
   const { results } = await env.DB.prepare("SELECT " + DOC_COLS + " FROM evento_docs WHERE ev=?1 ORDER BY id").bind(evId).all();
   if (Math.random() < 0.03) { try { await docsLimpiar(env); } catch (_) {} }
-  return json({ ev: evId, docs: (results || []).filter((r) => docPermiso(a.s, r.kind)).map(docMeta), puede: { dni: docPermiso(a.s, "dni"), justificante: docPermiso(a.s, "justificante") } });
+  /* los adjuntos de Comunicación se piden aparte (&kind=comunicacion) y no salen en Documentos del evento */
+  const soloCom = String(url.searchParams.get("kind") || "") === "comunicacion";
+  return json({ ev: evId, docs: (results || []).filter((r) => docPermiso(a.s, r.kind) && (soloCom ? r.kind === "comunicacion" : r.kind !== "comunicacion")).map(docMeta), puede: { dni: docPermiso(a.s, "dni"), justificante: docPermiso(a.s, "justificante"), comunicacion: docPermiso(a.s, "comunicacion") } });
 }
 /* GET /api/docs/ver?id=  el archivo (los de identidad: cada apertura queda en el registro de actividad) */
 async function docsVer(request, env, url) {
@@ -1181,23 +1196,24 @@ async function docsVer(request, env, url) {
   const m = /^data:([^;]+);base64,(.*)$/.exec(r.src || ""); if (!m) return json({ error: "not-found" }, 404);
   if (r.kind === "dni") { const ev = await porEventoPorId(env, r.ev); await logAct(env, a.s, "dni_visto", "Abrió un documento de identidad · " + String((ev && ev.name) || r.ev).slice(0, 80)); }
   const bin = atob(m[2]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
-  return new Response(u, { headers: { "Content-Type": r.mime || m[1], "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Content-Disposition": "inline" } });
+  return new Response(u, { headers: { "Content-Type": r.mime === "text/plain" ? "text/plain; charset=utf-8" : (r.mime || m[1]), "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Content-Disposition": "inline" } });
 }
 /* POST /api/docs  {ev, kind, persona?, nombre, src, ref?, concepto?, importe?, fecha?, nota?}  el equipo sube uno */
 async function docsSubir(request, env) {
   const a = await docsEquipo(request, env); if (a.err) return a.err;
   if ((+request.headers.get("content-length") || 0) > DOC_BODY_MAX) return json({ error: "too-big", message: "El archivo es demasiado grande (máx. 600 KB)." }, 413);
-  const b = await body(request), kind = b.kind === "dni" ? "dni" : b.kind === "justificante" ? "justificante" : "";
+  const b = await body(request), kind = b.kind === "dni" ? "dni" : b.kind === "justificante" ? "justificante" : b.kind === "comunicacion" ? "comunicacion" : "";
   if (!kind || !docPermiso(a.s, kind)) return json({ error: "forbidden", message: "Tu rol no puede subir este tipo de documento." }, 403);
   const ev = await porEventoPorId(env, b.ev); if (!ev) return json({ error: "not-found" }, 404);
-  const f = docArchivo(b.src), er = docErrorArchivo(f); if (er) return er;
+  const f = docArchivo(b.src, kind), er = docErrorArchivo(f); if (er) return er;
   const persona = kind === "dni" ? (String(b.persona) === "2" ? "2" : "1") : "";
   if (kind === "dni") { const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM evento_docs WHERE ev=?1 AND kind='dni' AND persona=?2").bind(ev.id, persona).first(); if (n && n.n >= DOC_NI_PERSONA) return json({ error: "limit", message: "Ya hay " + DOC_NI_PERSONA + " archivos de esta persona. Quita alguno para subir otro." }, 429); }
-  else { const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM evento_docs WHERE ev=?1 AND kind='justificante'").bind(ev.id).first(); if (n && n.n >= DOC_JUS_MAX) return json({ error: "limit", message: "Ya hay " + DOC_JUS_MAX + " justificantes en este evento." }, 429); }
+  else if (kind === "justificante") { const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM evento_docs WHERE ev=?1 AND kind='justificante'").bind(ev.id).first(); if (n && n.n >= DOC_JUS_MAX) return json({ error: "limit", message: "Ya hay " + DOC_JUS_MAX + " justificantes en este evento." }, 429); }
+  else { const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM evento_docs WHERE ev=?1 AND kind='comunicacion'").bind(ev.id).first(); if (n && n.n >= DOC_COM_MAX) return json({ error: "limit", message: "Ya hay " + DOC_COM_MAX + " adjuntos de comunicación en este evento. Quita alguno para subir otro." }, 429); }
   const ahora = Date.now();
   const r = await env.DB.prepare("INSERT INTO evento_docs (ev, kind, persona, de, por, nombre, mime, bytes, hash, src, ts, ref, concepto, importe, fecha, estado, nota, leido) VALUES (?1,?2,?3,'equipo',?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,1)")
     .bind(ev.id, kind, persona, porTexto(a.s.name || a.s.email, 60), porTexto(b.nombre, 80), f.mime, f.bytes, porHash(b.src), b.src, ahora, porTexto(b.ref, 60), porTexto(b.concepto, 120), docNum(b.importe), docFecha(b.fecha), kind === "justificante" ? "confirmado" : "", porTexto(b.nota, 300)).run();
-  await logAct(env, a.s, kind === "dni" ? "dni_subido" : "justificante_subido", (kind === "dni" ? "Documento de identidad" : "Justificante de pago") + " · " + String(ev.name || "").slice(0, 80));
+  await logAct(env, a.s, kind === "dni" ? "dni_subido" : kind === "comunicacion" ? "adjunto_subido" : "justificante_subido", (kind === "dni" ? "Documento de identidad" : kind === "comunicacion" ? "Adjunto en Comunicación" : "Justificante de pago") + " · " + String(ev.name || "").slice(0, 80));
   const nid = (r.meta && r.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM evento_docs").first()).id;
   const fila = await env.DB.prepare("SELECT " + DOC_COLS + " FROM evento_docs WHERE id=?1").bind(nid).first();
   return json({ ok: true, doc: fila ? docMeta(fila) : null });
@@ -1232,7 +1248,7 @@ async function docsBorrar(request, env) {
   if (!docPermiso(a.s, r.kind)) return json({ error: "forbidden" }, 403);
   await env.DB.prepare("DELETE FROM evento_docs WHERE id=?1").bind(r.id).run();
   const ev = await porEventoPorId(env, r.ev);
-  await logAct(env, a.s, r.kind === "dni" ? "dni_borrado" : "justificante_borrado", (r.kind === "dni" ? "Documento de identidad" : "Justificante") + " · " + String((ev && ev.name) || "").slice(0, 80));
+  await logAct(env, a.s, r.kind === "dni" ? "dni_borrado" : r.kind === "comunicacion" ? "adjunto_borrado" : "justificante_borrado", (r.kind === "dni" ? "Documento de identidad" : r.kind === "comunicacion" ? "Adjunto de Comunicación" : "Justificante") + " · " + String((ev && ev.name) || "").slice(0, 80));
   return json({ ok: true });
 }
 /* POST /api/docs/leido  {ev}  lo que subieron los clientes ya está visto */
