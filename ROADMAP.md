@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.77** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.78** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.78
+- **Portal del cliente (pestaña «Invitados»): la lista cabe en un móvil.** Con 59 personas la pantalla medía unos 12.000 px de alto, porque cada persona ocupaba tres campos apilados. Ahora cada **mesa es plegable** (con 3 mesas o más entran plegadas; con una o dos, abiertas), y su cabecera dice **«10 personas · 2 alergias»** sin abrirla; se abre y se cierra con un toque (y quedan como las dejó el cliente al cambiar de pestaña, al añadir o al quitar mesas). Con la lista plegada la pestaña mide unos 2.400 px, y cada persona ocupa dos filas (nombre; tipo y alergia) en vez de tres.
+- **Buscador y filtro.** Encima de las mesas (cuando hay más de dos mesas o más de 12 personas): **«Buscar en la lista»** (nombre, mesa o alergia; no distingue mayúsculas ni acentos), que enseña solo las mesas y personas que coinciden, ya abiertas, y dice cuántas hay; el botón **«Solo con alergia o dieta»** con su número; y **«Abrir todas» / «Cerrar todas»**. Buscar no vuelve a pintar la página, así que no se pierde el cursor. Nada de esto se envía al servidor: es solo de la pantalla.
+- Más pequeño: el texto de ayuda de la alergia pasa a «Alergia o dieta» (se cortaba en el móvil) y el tipo «Bebé (trona)» ya se lee entero.
 
 ### Novedad de la versión 01.77
 - **«No hace falta» en cada plato que choca.** Si en una ficha de «Alergias y sustituciones» no se añade un plato sustitutivo es porque no hace falta, así que ahora **cada «Falta sustituto» (y el «Falta su aperitivo adaptado») lleva un botón «No hace falta»**: el plato se queda como **«No hace falta sustituto»** (en gris, con un botón «Volver a marcarlo como falta» por si te equivocas) y **deja de contar como falta** en todas partes: «Pendiente: faltan N platos» de la ficha, las «sustituciones pendientes» y las «personas por decidir» del resumen, la parte de arriba del Menú de la escaleta (y su PDF), la hoja de ruta y los avisos del Resumen. Una persona sin ningún plato puesto queda decidida en cuanto das por bueno lo que la app marcaba, sin tener que marcar «Sin cambios»; y quien ya tiene plato deja de salir pendiente cuando no le queda ninguna falta.
@@ -377,9 +382,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato | 01.69–01.77 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil | 01.69–01.78 |
 
-**Estado: todo entregado (01.54 → 01.77).**
+**Estado: todo entregado (01.54 → 01.78).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
