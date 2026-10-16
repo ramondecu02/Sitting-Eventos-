@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.85** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.86** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,9 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.86
+- **«Alergias y sustituciones» más corto: cada comensal es un desplegable.** Cerrado, ocupa una sola línea con **su nombre** y un chip de estado («Faltan 4 platos», «Por decidir», «✓ Decidido», «✓ Sin cambios», «✓ Confirmado a mano»). Se abre pulsando el nombre (o con Intro / barra espaciadora) y dentro está todo: motivo, lo que no puede comer, el plato que se le sirve, «Todo decidido» y «Copiar a otros…». **Marcar «Todo decidido» lo cierra solo.** Todos arrancan cerrados, la pantalla recuerda cuáles has dejado abiertos aunque se repinte, y arriba hay **«Abrir los pendientes», «Abrir todos» y «Cerrar todos»**. Con los 9 comensales del evento de ejemplo la lista pasa de **3.512 px a 798 px** de alto en el ordenador y de **5.977 px a 852 px** en el móvil.
 
 ### Novedad de la versión 01.85
 - **«Solo aperitivo»: una persona que viene al aperitivo y no a cenar.** Se marca en el plano entre paréntesis, como las demás marcas: **«Ramón Gil (solo aperitivo)»** (también valen «només aperitiu», «solo el aperitivo», «no cena», «sin cena», «sense sopar» o solo «aperitivo»). Esa persona **cuenta en los aperitivos, las estaciones, las mesas de aperitivo, el jamón y la vajilla de aperitivo del check list**, y **no cuenta** en el sitting (no tiene silla en el plano; la mesa rotula «+1 SOLO APERITIVO»), en los menús, en los platos del banquete, postres, tarta, cafés ni ressopó, ni en Producción de esos platos. Si tiene **alergia**, sigue saliendo en Alergias y en los aperitivos adaptados, pero **no se le pide plato sustitutivo del banquete**. Se queda en el listado por mesas con su etiqueta y la marca viaja con la persona al pasar la lista que envía el cliente. La escaleta lo dice en «Menús» («Solo aperitivo (sin silla ni menú) · 2») y el Resumen lo suma aparte.
@@ -421,9 +424,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.85 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.86 |
 
-**Estado: todo entregado (01.54 → 01.85).**
+**Estado: todo entregado (01.54 → 01.86).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
