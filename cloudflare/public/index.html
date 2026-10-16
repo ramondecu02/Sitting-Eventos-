@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.82 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.83 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.82".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.83".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4250,7 +4250,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.82</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.83</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9441,6 +9441,7 @@ var SECCIONES=[
   {k:"fotos",    g:"Recursos", t:"Fotografías"},
   /* parámetros del negocio: solo el administrador (los demás roles tienen
      lista blanca de secciones y no incluyen ninguna p-*) */
+  {k:"p-inicio",   g:"Parámetros", t:"Todos los parámetros"},
   {k:"p-platos",   g:"Parámetros", t:"Platos y escandallo"},
   {k:"p-bebidas",  g:"Parámetros", t:"Bebidas"},
   {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
@@ -9639,6 +9640,9 @@ function renderTabbar(){
     });
     tb.appendChild(b);
   });
+  var bus=document.createElement("button"); bus.type="button"; bus.dataset.g="__buscar"; bus.setAttribute("aria-label","Buscar");
+  bus.innerHTML='<span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span><span class="tb-lb">Buscar</span>';
+  bus.addEventListener("click",function(){ if(window.LM_buscar) window.LM_buscar(); }); tb.appendChild(bus);
   var mas=document.createElement("button"); mas.type="button"; mas.dataset.g="__mas"; mas.setAttribute("aria-label","Más: sesión y ajustes");
   mas.innerHTML='<span class="tb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></span><span class="tb-lb">Más</span>';
   mas.addEventListener("click",abrirMas); tb.appendChild(mas);
@@ -9655,7 +9659,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.82</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.83</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11091,7 +11095,7 @@ function renderHomeNovios(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,pedidos:1,consultas:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
-  "p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,"p-consultas":1,
+  "p-inicio":1,"p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,"p-consultas":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -23132,6 +23136,8 @@ function guardar(sec,d,msg){ BR.setParam(sec,d); if(msg) toastP(msg); }
 
 /* ── cabecera común ── */
 function cabecera(k){
+  if(k==="p-inicio") return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Todos los parámetros</h1>'+
+    '<p class="pv-guide">Lo que se ajusta una vez y vale para <b>todos los eventos</b>: los platos y su escandallo, las bebidas, el servicio, los precios, el contrato y los avisos. Cada tarjeta lleva a su pantalla; los cambios se guardan solos y siempre se puede volver a los valores de fábrica.</p></div></header>';
   var v=VISTAS[k];
   if(k==="p-copias"){ var u=BK.datos&&BK.datos.backups&&BK.datos.backups[0];
     return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div>'+
@@ -23148,6 +23154,58 @@ function cabecera(k){
     '<p class="pv-guide">'+esc(v.guia)+' Los cambios se guardan solos y se aplican a todos los eventos.</p></div>'+
     (tocado.length&&k!=="p-alg"?'<div class="pv-actions"><button type="button" class="btn sm danger" data-pa="reset" data-secs="'+esc(v.secs.join(","))+'">Restaurar valores de fábrica</button></div>':'')+
     '</header>';
+}
+
+/* ══ PORTADA DE PARÁMETROS (v01.83): las 14 pantallas agrupadas por lo que hacen, con su estado ═══════════════ */
+var GRUPOS_P=[
+  {t:"Menú y cocina", it:[
+    ["p-platos","Platos y escandallo","Qué lleva cada plato, su vajilla y cómo se sirve: por persona o compartido en cada mesa.",["platos"]],
+    ["p-bebidas","Bebidas","Botellas por persona en cada momento y marcas que se pueden elegir.",["bebidas"]],
+    ["p-alg","Alérgenos","Qué alérgenos lleva cada ingrediente (lo revisa cocina).",["alergenos"]],
+    ["p-pvp","Precios de venta","Lo que se cobra por plato, packs, suplementos y barra libre.",["pvp"]]]},
+  {t:"Servicio en sala", it:[
+    ["p-servicio","Servicio y camareros","Comensales por camarero, catálogo de vajilla y cubiertos y material de montaje.",["servicio","catalogo","montaje"]],
+    ["p-tareas","Tareas por fase","El checklist que se crea en cada evento nuevo.",["tareas"]]]},
+  {t:"Clientes y ventas", it:[
+    ["p-comercial","Presupuesto y pagos","Primer pago, precios de partida, tipos de evento y servicios de proveedores.",["comercial"]],
+    ["p-agenda","Agenda con el cliente","La señal y los pasos que se programan solos desde la fecha del evento.",["agenda"]],
+    ["p-contrato","Contrato y propuesta","El texto del contrato, sus cláusulas y los datos de la empresa.",null],
+    ["p-consultas","Consultas web","El formulario público de consultas, sus tipos, salones y disponibilidad.",null],
+    ["p-correo","Correo y avisos","La cuenta de envío, las plantillas y los recordatorios automáticos.",null]]},
+  {t:"Sistema y datos", it:[
+    ["p-copias","Copias de seguridad","Recuperar eventos borrados o volver a como estaba un día.",null],
+    ["p-estado","Estado del sistema","Errores, espacio usado y salud de la app.",null],
+    ["p-privacidad","Privacidad y datos","Plazos de conservación, anonimizar eventos y derechos de las personas.",null]]}
+];
+function statsPlatos(){
+  var d=datos("platos"), cat=datos("catalogo").items||[], arts={}, n=0, mesa=0, avis=0;
+  cat.forEach(function(c){ arts[c.articulo]=c.categoria; });
+  (d.fams||[]).forEach(function(f){ f.dishes.forEach(function(x){ n++; if(M&&M.servirPor&&M.servirPor(f.key,x).ud==="mesa") mesa++; if(avisosPlato(x,arts).length) avis++; }); });
+  return {n:n,mesa:mesa,avis:avis};
+}
+function estadoSecs(secs){
+  if(!secs) return null;
+  var ms=secs.map(function(s){ return BR.paramMeta(s); }).filter(function(m){ return m&&m.data!=null; });
+  if(!ms.length) return {mod:false,txt:"De fábrica"};
+  var u=ms.sort(function(a,b){ return (b.updated||0)-(a.updated||0); })[0];
+  return {mod:true,txt:"Modificado"+(u.updated?" · "+new Date(u.updated).toLocaleDateString("es-ES",{day:"numeric",month:"short"}):"")};
+}
+function vHub(){
+  var st=statsPlatos(), rev=[];
+  if(st.avis) rev.push({t:st.avis+(st.avis===1?" plato tiene":" platos tienen")+" avisos",d:"Sin escandallo, con vajilla que no está en el catálogo…: no saldrían bien en Producción ni en el check list.",b:"Verlos",k:"p-platos",f:"avisos"});
+  if(st.mesa) rev.push({t:st.mesa+" platos se sirven compartidos por mesa",d:"El jamón, chips, coca, pa amb tomaca… van un plato en cada mesa de aperitivo. Compruébalo una vez y corrige lo que no sea así.",b:"Revisar cómo se sirven",k:"p-platos",f:"mesa",v:"sirve"});
+  var pt=BR.param("portal")||{}; if(!(pt.iban&&pt.tel&&pt.mail)) rev.push({t:"Faltan datos de pago o contacto del portal del cliente",d:"IBAN, teléfono o correo del equipo: el cliente los ve en su portal. Se escriben en el Resumen de cualquier evento, en «Portal del cliente».",b:"Ir al Resumen",k:"resumen"});
+  var h='';
+  if(rev.length) h+='<section class="pcard ph-rev" aria-label="Para revisar"><h2>Para revisar <em>'+rev.length+'</em></h2><ul>'+rev.map(function(r){
+    return '<li><div><b>'+esc(r.t)+'</b><span>'+esc(r.d)+'</span></div><button type="button" class="btn sm" data-pa="ir" data-k="'+esc(r.k)+'"'+(r.f?' data-f="'+r.f+'"':'')+(r.v?' data-v="'+r.v+'"':'')+'>'+esc(r.b)+'</button></li>'; }).join("")+'</ul></section>';
+  GRUPOS_P.forEach(function(g){
+    h+='<div class="pv-sec">'+esc(g.t)+'</div><div class="ph-grid">'+g.it.map(function(x){
+      var es=estadoSecs(x[3]), extra="";
+      if(x[0]==="p-platos") extra=st.n+' platos'+(st.mesa?' · '+st.mesa+' compartidos por mesa':'')+(st.avis?' · <b class="ph-av">'+st.avis+' con avisos</b>':'');
+      if(x[0]==="p-servicio"){ var nc=((datos("catalogo").items)||[]).length; extra=nc+' artículos de vajilla y cubiertos'; }
+      return '<button type="button" class="ph-card" data-pa="ir" data-k="'+x[0]+'"><span class="ph-t">'+esc(x[1])+'</span><span class="ph-d">'+esc(x[2])+'</span>'+
+        '<span class="ph-f">'+(es?'<span class="pp-state'+(es.mod?' mod':'')+'">'+esc(es.txt)+'</span>':'')+(extra?'<span class="ph-x">'+extra+'</span>':'')+'</span></button>'; }).join("")+'</div>'; });
+  return h;
 }
 
 /* ══ PLATOS Y ESCANDALLO ══════════════════════════════════════════════ */
@@ -23631,6 +23689,7 @@ function render(k,host){
   if(!esAdmin()) body='<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div>';
   else if(vistaActual==="p-copias") body=vCopias();
   else if(!M) body='<div class="pcard"><p>No se han podido cargar los datos del menú.</p></div>';
+  else if(vistaActual==="p-inicio") body=vHub();
   else if(vistaActual==="p-platos") body=vPlatos();
   else if(vistaActual==="p-bebidas") body=vBebidas();
   else if(vistaActual==="p-servicio") body=vServicio();
@@ -23645,6 +23704,8 @@ function render(k,host){
   if(!hostRef.__ppBound){ hostRef.__ppBound=true; hostRef.addEventListener("change",onChange); hostRef.addEventListener("input",onInput); hostRef.addEventListener("click",onClick); }
 }
 window.LM_renderParam=render;
+/* el buscador global (Ctrl + K) lleva a un plato concreto: se abre su ficha */
+window.LM_paramPlato=function(uid){ try{ var hit=buscaPlato(datos("platos"),uid); if(!hit) return false; ui.fam=hit.f.key; ui.q=""; ui.filtro="todos"; ui.vista="fichas"; ui.open=uid; return true; }catch(_){ return false; } };
 function enParam(){ return hostRef&&hostRef.querySelector(".pp-root"); }
 
 /* búsqueda en vivo sin repintar el campo (se conserva el foco) */
@@ -23768,6 +23829,7 @@ function onClick(ev){
   var b=ev.target.closest?ev.target.closest("[data-pa]"):null; if(!b) return;
   var a=b.getAttribute("data-pa"), i=+b.getAttribute("data-i");
   if(a.indexOf("bk-")===0){ bkClick(a,b); return; }
+  if(a==="ir"){ var dk=b.getAttribute("data-k"); if(dk==="p-platos"){ ui.q=""; ui.open=null; ui.filtro=b.getAttribute("data-f")||"todos"; ui.vista=b.getAttribute("data-v")||"fichas"; } if(window.irASeccion) window.irASeccion(dk); return; }
   if(a==="fam"){ ui.fam=b.getAttribute("data-k"); ui.q=""; ui.open=null; ui.filtro="todos"; render(); return; }
   if(a==="vista"){ ui.vista=b.getAttribute("data-k")==="sirve"?"sirve":"fichas"; render(); return; }
   if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); ui.q=""; ui.open=null; render(); return; }
@@ -23885,6 +23947,14 @@ st.textContent=
 ".ag-padd{padding-top:14px}"+
 "@media (max-width:760px){.ag-prow{grid-template-columns:1fr 1fr 34px}.ag-ptx,.ag-pd,.ag-pflags{grid-column:1/3}.ag-pej{grid-column:3;grid-row:2}.ag-prow .row-del{grid-column:3;grid-row:1}}"+
 ".pp-ej{font-size:12px;color:var(--c-mut)}"+
+".ph-rev h2{margin:0 0 10px;font-size:16px}.ph-rev h2 em{font-style:normal;font-size:12px;background:var(--gold);color:#fff;border-radius:99px;padding:1px 8px;margin-left:6px;vertical-align:2px}"+
+".ph-rev ul{list-style:none;margin:0;padding:0}.ph-rev li{display:flex;gap:14px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--c-line)}.ph-rev li:first-child{border-top:0;padding-top:2px}"+
+".ph-rev li b{display:block;font-size:14px}.ph-rev li span{display:block;font-size:12.5px;color:var(--c-mut);margin-top:2px;max-width:70ch}.ph-rev .btn{flex:none}"+
+".ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}"+
+".ph-card{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--c-line);border-radius:var(--r-lg);padding:16px 18px;cursor:pointer;font:inherit;color:inherit;min-height:132px;transition:border-color .13s,box-shadow .13s,transform .13s}"+
+".ph-card:hover{border-color:var(--olive-deep);box-shadow:var(--shadow-sm)}.ph-card:focus-visible{outline:2px solid var(--olive-deep);outline-offset:2px}"+
+".ph-t{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--c-ink)}.ph-d{font-size:13px;line-height:1.45;color:var(--c-mut)}"+
+".ph-f{margin-top:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--c-mut)}.ph-av{color:var(--warning-tx);font-weight:700}"+
 ".pp-tramo{display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap}"+
 ".pp-tramo input{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:7px 9px;color:var(--c-ink);font:inherit;font-size:13px}"+
 ".pp-tramo input:first-child{flex:1;min-width:140px}"+
@@ -27286,3 +27356,131 @@ function exportaMonoPNG(it){ aseguraEscena({items:[it]}).then(function(){ var c=
 window.LM_lienzo={estado:function(){ return ST; },aseguraTpl:aseguraTpl,mount:monta,exportarPDF:function(){ if(!ST) return Promise.resolve(); return exportaPDF(); },desmonta:function(){ if(ST){ terminaEdicion(); guardarYa(); } ST=null; document.removeEventListener("keydown",alTecla); document.removeEventListener("keyup",alTeclaSube); },plantillas:PLANTILLAS,genera:genera,dibujaEscena:dibujaEscena,aseguraEscena:aseguraEscena,dibujaHoja:function(sc,esc){ var prev=ST; ST={sc:sc}; try{ return dibujaHoja(esc); } finally{ ST=prev; } },fuentes:FUENTES};
 })();
 /*LZ-END*/</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   BUSCAR Y SALTAR (v01.83) — Ctrl + K (⌘ K en Mac), «/» o el botón «Buscar».
+   Una sola caja para llegar a cualquier sitio: secciones, eventos, platos
+   (solo administración) y acciones. Lo que cada persona no puede ver no sale.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  var ovl=null, inp=null, ul=null, res=null, items=[], sel=0, volver=null, ID="lm-pal";
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
+  function dentro(){ return document.body.classList.contains("authed")&&!document.querySelector("#novios.on")&&!document.querySelector(".ovl,.login-scrim.on"); }
+  function puede(k){ try{ return window.LM_SESSION&&window.LM_SESSION.can?window.LM_SESSION.can(k):true; }catch(_){ return true; } }
+  function esAdmin(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); return !!u&&u.role==="admin"; }catch(_){ return false; } }
+  var TIPO={sec:"Sección",ev:"Evento",plato:"Plato",act:"Acción"};
+
+  /* todo lo que se puede buscar, en el momento de abrir */
+  function fuentes(){
+    var out=[], pre=[];
+    out.push({kind:"sec",k:"resumen",t:"Resumen del evento",g:"Evento activo",pri:1});
+    (window.LM_SECCIONES||[]).forEach(function(s){ if(puede(s.k)) out.push({kind:"sec",k:s.k,t:s.t,g:s.g,pri:0}); });
+    try{ (BR.allEvents?BR.allEvents():[]).forEach(function(e){ if(!e||e.anonimizado) return;
+      var f=e.ficha&&e.ficha.fecha, d=f?new Date(f+"T00:00:00"):null, fs=d&&!isNaN(d)?d.toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"}):"";
+      out.push({kind:"ev",id:e.id,t:String(e.name||"Sin título"),g:"Evento"+(fs?" · "+fs:""),pri:0}); }); }catch(_){}
+    if(esAdmin()){ try{ BR.menuParams.actual().platos.fams.forEach(function(f){ f.dishes.forEach(function(x){ out.push({kind:"plato",uid:x.uid,t:x.name,g:"Plato · "+f.label,pri:2}); }); }); }catch(_){} }
+    out.push({kind:"act",id:"nuevo",t:"Nuevo evento",g:"Crear un evento",pri:0});
+    out.push({kind:"act",id:"panel",t:"Panel de eventos",g:"Ver todos los eventos",pri:0});
+    return out;
+  }
+  var DEF=["Resumen del evento","Ficha y contacto","Plano de sala","Elegir platos","Alergias y sustituciones","Check list de servicio","Escaleta","Portal del cliente","Nuevo evento","Platos y escandallo"];
+  function buscar(q){
+    var base=fuentes(), t=norm(q).trim().split(/\s+/).filter(Boolean);
+    if(!t.length){ var inicio=[]; DEF.forEach(function(n){ base.forEach(function(x){ if(x.t===n&&x.kind!=="plato"&&!inicio.some(function(y){ return y===x; })) inicio.push(x); }); });
+      var ev=base.filter(function(x){ return x.kind==="ev"; }).slice(0,5); return inicio.concat(ev); }
+    var r=[];
+    base.forEach(function(x){ var n=norm(x.t), g=norm(x.g), sc=0, ok=true;
+      t.forEach(function(w){ if(n.indexOf(w)===0) sc+=0; else if(n.indexOf(" "+w)>-1) sc+=1; else if(n.indexOf(w)>-1) sc+=2; else if(g.indexOf(w)>-1) sc+=4; else ok=false; });
+      if(ok) r.push({x:x,sc:sc+x.pri*0.5+(n===t.join(" ")?-3:0)}); });
+    r.sort(function(a,b){ return a.sc-b.sc||a.x.t.localeCompare(b.x.t,"es"); });
+    return r.slice(0,40).map(function(o){ return o.x; });
+  }
+  function pinta(){
+    var q=inp.value; items=buscar(q); if(sel>=items.length) sel=0;
+    ul.innerHTML=items.map(function(x,i){
+      return '<li id="'+ID+'-o'+i+'" role="option" class="pal-o'+(i===sel?" on":"")+'" aria-selected="'+(i===sel)+'" data-i="'+i+'"><span class="pal-t">'+esc(x.t)+'</span><span class="pal-g">'+esc(x.g)+'</span><span class="pal-k pal-k-'+x.kind+'">'+TIPO[x.kind]+'</span></li>'; }).join("")||'<li class="pal-vacio" role="presentation">Nada coincide con «'+esc(q)+'». Prueba con otra palabra.</li>';
+    inp.setAttribute("aria-activedescendant",items.length?ID+"-o"+sel:"");
+    res.textContent=q.trim()?(items.length?items.length+(items.length===1?" resultado":" resultados"):"Sin resultados"):"";
+    var on=ul.querySelector(".on"); if(on&&on.scrollIntoView) on.scrollIntoView({block:"nearest"});
+  }
+  function ir(x){
+    cerrar(true); if(!x) return;
+    setTimeout(function(){
+      try{
+        if(x.kind==="sec") window.irASeccion(x.k);
+        else if(x.kind==="ev"){ BR.switchActiveEvent(x.id); window.irASeccion("resumen"); }
+        else if(x.kind==="plato"){ if(window.LM_paramPlato) window.LM_paramPlato(x.uid); window.irASeccion("p-platos"); setTimeout(function(){ var o=document.querySelector(".pp-dish.open"); if(o&&o.scrollIntoView) o.scrollIntoView({block:"center"}); },250); }
+        else if(x.kind==="act"){ if(x.id==="panel"){ if(window.showHome) window.showHome(); } else { if(window.showHome) window.showHome(); var b=document.getElementById("home-new"); if(b) b.click(); } }
+      }catch(e){ try{ console.warn("buscador:",e); }catch(_){} }
+    },30);
+  }
+  function abrir(){
+    if(ovl||!dentro()) return;
+    volver=document.activeElement; sel=0;
+    ovl=document.createElement("div"); ovl.className="pal-ovl"; ovl.id=ID;
+    ovl.innerHTML='<div class="pal-box" role="dialog" aria-modal="true" aria-label="Buscar y saltar"><div class="pal-top"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>'+
+      '<input id="'+ID+'-q" type="text" role="combobox" aria-expanded="true" aria-controls="'+ID+'-l" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Buscar una pantalla, un evento o un plato…" aria-label="Buscar una pantalla, un evento o un plato"><button type="button" class="pal-esc" id="'+ID+'-x" aria-label="Cerrar el buscador (Esc)"><span class="d">Esc</span><span class="m">Cerrar</span></button></div>'+
+      '<ul id="'+ID+'-l" role="listbox" aria-label="Resultados"></ul><div class="pal-pie"><span><kbd>↑</kbd><kbd>↓</kbd> moverse · <kbd>Intro</kbd> ir</span><span id="'+ID+'-n" role="status" aria-live="polite"></span></div></div>';
+    document.body.appendChild(ovl);
+    inp=document.getElementById(ID+"-q"); ul=document.getElementById(ID+"-l"); res=document.getElementById(ID+"-n");
+    inp.addEventListener("input",function(){ sel=0; pinta(); });
+    inp.addEventListener("keydown",function(e){
+      if(e.key==="ArrowDown"){ e.preventDefault(); if(items.length){ sel=(sel+1)%items.length; pinta(); } }
+      else if(e.key==="ArrowUp"){ e.preventDefault(); if(items.length){ sel=(sel-1+items.length)%items.length; pinta(); } }
+      else if(e.key==="Enter"){ e.preventDefault(); ir(items[sel]); }
+      else if(e.key==="Escape"){ e.preventDefault(); cerrar(); }
+      else if(e.key==="Tab"){ e.preventDefault(); }
+    });
+    ul.addEventListener("click",function(e){ var li=e.target.closest&&e.target.closest("[data-i]"); if(li) ir(items[+li.getAttribute("data-i")]); });
+    ul.addEventListener("mousemove",function(e){ var li=e.target.closest&&e.target.closest("[data-i]"); if(li&&+li.getAttribute("data-i")!==sel){ sel=+li.getAttribute("data-i"); var o=ul.querySelector(".on"); if(o){ o.classList.remove("on"); o.setAttribute("aria-selected","false"); } li.classList.add("on"); li.setAttribute("aria-selected","true"); inp.setAttribute("aria-activedescendant",li.id); } });
+    ovl.addEventListener("mousedown",function(e){ if(e.target===ovl) cerrar(); });
+    document.getElementById(ID+"-x").addEventListener("click",function(){ cerrar(); });
+    pinta(); inp.focus();
+  }
+  function cerrar(sinFoco){
+    if(!ovl) return; ovl.remove(); ovl=inp=ul=res=null;
+    if(!sinFoco&&volver&&volver.focus&&document.contains(volver)){ try{ volver.focus(); }catch(_){} }
+    volver=null;
+  }
+  window.LM_buscar=abrir;
+  document.addEventListener("keydown",function(e){
+    var k=(e.key||"").toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&!e.altKey&&k==="k"){ if(!dentro()&&!ovl) return; e.preventDefault(); if(ovl) cerrar(); else abrir(); return; }
+    if(k==="/"&&!ovl&&!e.ctrlKey&&!e.metaKey&&!e.altKey){ var t=e.target, tag=t&&t.tagName; if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||(t&&t.isContentEditable)) return; if(!dentro()) return; e.preventDefault(); abrir(); }
+  });
+
+  /* el botón del menú lateral */
+  function boton(){
+    var ctx=document.getElementById("side-ctx"); if(!ctx||document.getElementById("side-find")) return;
+    var b=document.createElement("button"); b.type="button"; b.id="side-find"; b.className="side-find"; b.setAttribute("aria-label","Buscar una pantalla, un evento o un plato (Ctrl + K)");
+    var mac=/Mac|iPhone|iPad/.test(navigator.platform||"");
+    b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Buscar…</span><kbd>'+(mac?"⌘ K":"Ctrl K")+'</kbd>';
+    b.addEventListener("click",abrir); ctx.parentNode.insertBefore(b,ctx.nextSibling);
+  }
+  boton();
+  var st=document.createElement("style");
+  st.textContent=
+  ".side-find{display:flex;align-items:center;gap:9px;width:calc(100% - 24px);margin:0 12px 10px;padding:8px 12px;border-radius:var(--r-lg);background:transparent;border:1px solid var(--c-line);color:var(--c-mut);font:inherit;font-size:13px;cursor:pointer;text-align:left;transition:border-color .13s,color .13s}"+
+  ".side-find:hover{border-color:var(--c-line-2);color:var(--c-ink)}.side-find:focus-visible{outline:2px solid var(--olive-2);outline-offset:2px}.side-find span{flex:1}"+
+  ".sidenav .side-find{border-color:var(--nav-line);color:var(--nav-mut)}.sidenav .side-find:hover{border-color:var(--nav-faint);color:var(--nav-ink)}.sidenav .side-find kbd{background:var(--nav-raise);border-color:var(--nav-line);color:var(--nav-ink)}"+
+  ".side-find kbd,.pal-pie kbd,.pal-esc{font:600 10.5px var(--font-text);padding:2px 6px;border-radius:5px;border:1px solid var(--c-line-2);background:var(--bg);color:var(--c-mut)}"+
+  ".pal-ovl{position:fixed;inset:0;z-index:20000;background:rgba(20,20,18,.45);display:flex;align-items:flex-start;justify-content:center;padding:11vh 16px 16px;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}"+
+  ".pal-box{width:100%;max-width:640px;background:var(--panel);border:1px solid var(--c-line-2);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);overflow:hidden;color:var(--c-ink)}"+
+  ".pal-top{display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--c-line);color:var(--c-mut)}"+
+  ".pal-top input#lm-pal-q{flex:1;min-width:0;border:0;background:transparent;box-shadow:none;border-radius:0;font:inherit;font-size:16px;padding:16px 0;height:auto;color:var(--c-ink);outline:none}.pal-top input#lm-pal-q:focus{border:0;box-shadow:none;outline:none}.pal-top input::placeholder{color:var(--c-faint)}"+
+  "#lm-pal-l{list-style:none;margin:0;padding:6px;max-height:min(56vh,430px);overflow-y:auto}"+
+  ".pal-o{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r);cursor:pointer;min-height:44px}"+
+  ".pal-o.on{background:color-mix(in srgb,var(--olive) 16%,transparent)}"+
+  ".pal-esc{cursor:pointer}.pal-esc .m{display:none}"+
+  ".pal-t{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pal-g{flex:1;min-width:0;font-size:12.5px;color:var(--c-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"+
+  ".pal-k{flex:none;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--c-mut);border:1px solid var(--c-line-2);border-radius:99px;padding:2px 8px}.pal-k-act{background:var(--c-ink);color:var(--bg);border-color:var(--c-ink)}"+
+  ".pal-vacio{padding:18px 14px;color:var(--c-mut);font-size:13.5px}"+
+  ".pal-pie{display:flex;justify-content:space-between;gap:10px;padding:9px 14px;border-top:1px solid var(--c-line);font-size:12px;color:var(--c-mut);background:var(--bg)}.pal-pie kbd{margin:0 2px}"+
+  "@media (max-width:640px){.pal-ovl{padding:0}.pal-box{max-width:none;height:100%;border-radius:0;border:0;display:flex;flex-direction:column}#lm-pal-l{max-height:none;flex:1}.pal-g{display:none}.pal-pie span:first-child{display:none}.pal-esc{min-height:36px;padding:0 12px;font-size:13px}.pal-esc .d{display:none}.pal-esc .m{display:inline}}";
+  document.head.appendChild(st);
+})();
+</script>
