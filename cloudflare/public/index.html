@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.93 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.94 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.93".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.94".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4357,7 +4357,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.93</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.94</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4548,7 +4548,10 @@ Lluc (trona)</div>
       </div>
 
       <div class="spacer"></div>
-      <label class="toggle"><input type="checkbox" id="full"> Nombre completo</label>
+      <div class="seg" id="nm-seg" role="group" aria-label="Cómo salen los nombres de los invitados">
+        <button type="button" id="nm-full" aria-pressed="false" title="Nombre y apellidos, tal como están escritos">Nombre completo</button>
+        <button type="button" id="nm-pila" aria-pressed="true" title="Solo el nombre de pila, sin apellidos (si hay dos iguales en la misma mesa, con la inicial del apellido)">Solo nombre</button>
+      </div>
       <label class="toggle" for="lang" style="gap:7px">Idioma
         <select id="lang" style="width:auto;padding:5px 8px;font-size:12px"><option value="ca">Català</option><option value="es">Castellano</option></select>
       </label>
@@ -5505,10 +5508,29 @@ function parse(src,legacyNum){
 function mesaNumVisible(t){ return t.explicit!==false||!(t.name||t.shape==="presid"); }
 function mesaTxt(t,L){ return mesaNumVisible(t)?((L&&L.taula)||"Mesa")+" "+t.num:(t.name||((L&&L.shapes&&L.shapes.presid)||"Presidencial")); }
 function mesaMark(t){ return mesaNumVisible(t)?String(t.num):(norm(t.name||"P").replace(/^[^a-z0-9]+/,"").charAt(0)||"·").toUpperCase(); }
+/* el nombre de pila de un invitado, sin apellidos: «Joan Puig» → «Joan»; «Maria Carmen Soler» → «Maria Carmen»;
+   «Maria del Carmen López» → «Maria del Carmen»; «García López, Juan» → «Juan» */
+var NP_JUNTOS={maria:1,mari:1,"ma":1,"mª":1,jose:1,josep:1,joan:1,juan:1,luis:1,ana:1,anna:1,pere:1,miguel:1,miquel:1,carlos:1,carles:1,francisco:1,antonio:1,antoni:1,manuel:1,jesus:1,rosa:1};
+var NP_SEGUNDO={maria:1,jose:1,josep:1,joan:1,juan:1,luis:1,lluis:1,carlos:1,carles:1,carmen:1,carme:1,teresa:1,antonio:1,antoni:1,manuel:1,miguel:1,miquel:1,angel:1,angels:1,pau:1,pilar:1,isabel:1,francisco:1,javier:1,ramon:1,pedro:1,pere:1,jesus:1,rosa:1,dolores:1,lola:1,mercedes:1,cristina:1,victoria:1,concepcion:1,asuncion:1,montserrat:1,mar:1,nuria:1,ines:1};
+function nombrePila(nombre){
+  var t=String(nombre||"").trim(), c=t.indexOf(",");
+  if(c>0&&t.slice(c+1).trim()) t=t.slice(c+1).trim();      /* «Apellidos, Nombre» */
+  var p=t.split(/\s+/); if(p.length<2) return p[0]||"";
+  var a=norm(p[0]).replace(/\./g,""), b=norm(p[1]);
+  if(NP_JUNTOS[a]){
+    if((b==="del"||b==="de")&&p.length>2){ if(norm(p[2])==="la"&&p.length>3) return p.slice(0,4).join(" "); return p.slice(0,3).join(" "); }
+    if(NP_SEGUNDO[b]) return p[0]+" "+p[1];
+  }
+  return p[0];
+}
 function dedupeShort(t){
   var c={};
-  t.guests.forEach(function(g){var f=g.name.split(" ")[0];c[f]=(c[f]||0)+1;});
-  t.guests.forEach(function(g){var p=g.name.split(" "),f=p[0];g.short=(c[f]>1&&p.length>1)?f+" "+p[1][0]+".":f;});
+  t.guests.forEach(function(g){var f=nombrePila(g.name);c[f]=(c[f]||0)+1;});
+  t.guests.forEach(function(g){
+    var f=nombrePila(g.name), resto=g.name.indexOf(",")>0?g.name.slice(0,g.name.indexOf(",")).trim().split(/\s+/):g.name.trim().split(/\s+/).slice(f.split(" ").length);
+    while(resto.length>1&&/^(de|del|la|las|los|el|i|y|d')$/i.test(resto[0])) resto.shift();
+    g.short=(c[f]>1&&resto.length&&resto[0])?f+" "+resto[0][0].toUpperCase()+".":f;
+  });
 }
 function serialize(d){
   var L=I18N[$("lang").value]||I18N.ca;
@@ -5845,11 +5867,17 @@ function autoLayout(boxes,lay){
 var KEY="cv_sitting_v3", BGKEY="cv_sitting_planos";
 var store={events:[],active:null,prefs:{}}, BG={};
 function prefs(){ store.prefs=store.prefs||{}; return store.prefs; }
+/* cómo salen los nombres: completos o solo el de pila. Se recuerda por vista (plano, listado, marcasitios);
+   el plano ya salía con el nombre de pila de fábrica, el listado y los marcasitios con el nombre completo */
+function pilaDe(v){ var m=prefs().pila; if(m&&m[v]!=null) return !!m[v]; return v==="plan"?!prefs().full:false; }
+function setPila(v,val){ var pr=prefs(); pr.pila=pr.pila||{}; pr.pila[v]=!!val; if(v==="plan") pr.full=!val; }
+function gNom(g,v){ return pilaDe(v)?(g.short||g.name):g.name; }
+function syncPila(){ var on=pilaDe(view), a=$("nm-pila"), b=$("nm-full"); if(!a||!b) return; a.setAttribute("aria-pressed",on?"true":"false"); b.setAttribute("aria-pressed",on?"false":"true"); }
 function syncPrefs(){
   var e=current(), pr=prefs();
   if(pr.lang) $("lang").value=pr.lang;
   if(pr.paper) $("paper").value=pr.paper;
-  $("full").checked=!!pr.full;
+  syncPila();
   userSize=(e&&e.userSize)||1;
   $("size").value=Math.round(userSize*100);
 }
@@ -7021,7 +7049,7 @@ function renderPlan(){
   /* el input del título vive dentro del contenedor que se reemplaza: cerrarlo antes */
   if(editing){ try{ editing.remove(); }catch(e){} editing=null; }
   setRoom();
-  var L=I18N[$("lang").value]||I18N.ca, full=$("full").checked, p=plan();
+  var L=I18N[$("lang").value]||I18N.ca, full=!pilaDe("plan"), p=plan();
   computeBoxes(L,full);
   if(!doc.tables.length){ $("canvas").innerHTML='<div class="empty">Escribe la lista de invitados por mesas y el plano aparecerá aquí.</div>'; return; }
   /* Las mesas que ya no están en el texto se APARTAN, no se borran: mientras se reescribe
@@ -7379,7 +7407,7 @@ function guestRow(g,L){
   (g.menus||[]).forEach(function(p,i){var col=cursoColor((g.menusC||[])[i]);
     tags+='<span class="tag m" style="background:'+col+';color:#fff;border-color:'+col+'">'+esc(p)+'</span>';});
   g.notes.forEach(function(n){if(!/vegan|vegetari/i.test(n))tags+='<span class="tag o">'+esc(n)+'</span>';});
-  return '<div class="g'+(g.aler.length?" aler":"")+'"><span class="nm"'+(g.aler.length?' style="color:'+alerColor((g.alerFams||[])[0])+'"':"")+'>'+esc(g.name)+'</span>'+(g.star?'<span class="star">&#9733;</span>':'')+tags+'</div>';
+  return '<div class="g'+(g.aler.length?" aler":"")+'"><span class="nm"'+(g.aler.length?' style="color:'+alerColor((g.alerFams||[])[0])+'"':"")+'>'+esc(gNom(g,"list"))+'</span>'+(g.star?'<span class="star">&#9733;</span>':'')+tags+'</div>';
 }
 /* los aperitivos adaptados por alergia (del Menú, sección Alergias) también son
    del pase, igual que el plato sustitutivo de cada comensal — así que el
@@ -7437,7 +7465,7 @@ function sheetList(L){
     if(!esRestriccion) return;
     var tieneMenu=g.menus&&g.menus.length;
     var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
-    al.push('<div class="al"><span class="who">'+esc(g.name)+'</span><span class="mesa">'+esc(mesaTxt(t,L))+'</span><span class="what">'+esc(motivo)+
+    al.push('<div class="al"><span class="who">'+esc(gNom(g,"list"))+'</span><span class="mesa">'+esc(mesaTxt(t,L))+'</span><span class="what">'+esc(motivo)+
       (tieneMenu?g.menus.map(function(p,pi){ return '<b class="sust" style="color:'+cursoColor((g.menusC||[])[pi])+'">'+esc(p)+'</b>'; }).join(""):"")+'</span></div>');
   });});
   var aperis=aperitivosAdaptadosLista();
@@ -7469,7 +7497,7 @@ function sheetCards(L){
       ca='<div class="ca"><span class="caMot">'+esc(motivo)+'</span>'+
         (tieneMenu?g.menus.map(function(p){ return '<span class="sust">'+esc(p)+'</span>'; }).join(""):"")+'</div>';
     }
-    cards.push('<div class="card"><div class="cm">'+esc(mesaTxt(t,L))+'</div><div class="cn">'+esc(g.name)+'</div>'+
+    cards.push('<div class="card"><div class="cm">'+esc(mesaTxt(t,L))+'</div><div class="cn">'+esc(gNom(g,"card"))+'</div>'+
       (t.name?'<div class="ct">'+esc(t.name)+'</div>':'')+ca+'</div>');
   });});
   if(cards.length%2)cards.push('<div class="card" style="border-color:transparent"></div>');
@@ -7532,8 +7560,8 @@ function listPages(L,pw,ph){
       cur.push(LN(M+10,y0+32,pw-M-10,y0+32,"#E0D7C5",0.6));
       gs.forEach(function(g,i){
         var cx=M+16+(i%cols)*(W-24)/cols, cy=y0+46+Math.floor(i/cols)*15;
-        cur.push(TX(cx,cy,g.name+(g.star?"  *":""),{size:11.5,fo:"ser",a:"start",c:g.aler.length?alerColor((g.alerFams||[])[0]):INK}));
-        var tx=cx+textW({s:g.name+(g.star?"  *":""),fo:"ser",size:11.5,ls:0})+7;
+        cur.push(TX(cx,cy,gNom(g,"list")+(g.star?"  *":""),{size:11.5,fo:"ser",a:"start",c:g.aler.length?alerColor((g.alerFams||[])[0]):INK}));
+        var tx=cx+textW({s:gNom(g,"list")+(g.star?"  *":""),fo:"ser",size:11.5,ls:0})+7;
         var tags=[];
         g.aler.forEach(function(a,ai){tags.push({s:a.toUpperCase(),bg:alerColor((g.alerFams||[])[ai]),fg:"#FFFFFF"});});
         if(g.kind==="child")tags.push({s:L.leg.child.toUpperCase(),bg:"#DDBE86",fg:"#4A3714"});
@@ -7566,7 +7594,7 @@ function listPages(L,pw,ph){
     if(!esRestriccion) return;
     var tieneMenu=g.menus&&g.menus.length;
     var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
-    al.push({n:g.name,t:mesaTxt(t,L),a:motivo,m:tieneMenu?g.menus.join(" + "):null});
+    al.push({n:gNom(g,"list"),t:mesaTxt(t,L),a:motivo,m:tieneMenu?g.menus.join(" + "):null});
   });});
   /* cada aviso va en una columna de ancho fijo: el nombre a la izquierda y, a la
      derecha, mesa+alergia en una línea compacta (se recorta con "…" si no cabe —
@@ -7671,7 +7699,7 @@ function cardPages(L,pw,ph){
     var x=M+(i%cols)*cw, y=M+Math.floor(i/cols)*chh;
     var r=R(x,y,cw,chh,0,"none","#DCD2BE",0.5); cur.push(r);
     cur.push(TX(x+cw/2,y+chh/2-26,mesaTxt(t,L).toUpperCase(),{size:6.5,fo:"sans",a:"middle",c:GOLD,ls:2.4}));
-    cur.push(TX(x+cw/2,y+chh/2+2,g.name,{size:20,fo:"ser",a:"middle",c:INK}));
+    cur.push(TX(x+cw/2,y+chh/2+2,gNom(g,"card"),{size:20,fo:"ser",a:"middle",c:INK}));
     if(t.name) cur.push(TX(x+cw/2,y+chh/2+18,clip(t.name,30),{size:10,fo:"seri",a:"middle",c:FADE}));
     var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
     var tieneMenu=g.menus&&g.menus.length;
@@ -8575,7 +8603,7 @@ function pageOf(prims,w,h,fit){
   return {w:w,h:h,ops:ops,used:used};
 }
 function buildPages(kind){
-  var L=I18N[$("lang").value]||I18N.ca, full=$("full").checked, P=PAPERS[$("paper").value]||PAPERS.A4;
+  var L=I18N[$("lang").value]||I18N.ca, full=!pilaDe("plan"), P=PAPERS[$("paper").value]||PAPERS.A4;
   var base=(eventName(current().text)||"sitting").replace(/[^\wÀ-ÿ \-]/g,"").trim().replace(/\s+/g,"_")||"sitting";
   if(kind==="plan"){
     setRoom(); computeBoxes(L,full);
@@ -8824,6 +8852,7 @@ function renderView(){
   $("zoom-tools").style.display=isPlan?"flex":"none";
   $("hint").style.display=isPlan?"block":"none";
   $("pdfBtn").textContent=isPlan?"Exportar plano":(view==="list"?"Exportar listado":"Exportar marcasitios");
+  syncPila();
   if(isPlan) renderPlan();
   else $("sheets").innerHTML=doc.tables.length?(view==="list"?sheetList(L):sheetCards(L)):'<div class="empty">Escribe la lista de invitados por mesas y aparecerá aquí.</div>';
   showProp(); setPage();
@@ -9318,7 +9347,7 @@ $("share").addEventListener("click",openShare);
 $("imp-xls").addEventListener("click",openImport);
 $("dupEv").addEventListener("click",function(){ var e=current(); if(e) duplicarEvento(e.id); });
 $("ex-boda").addEventListener("click",function(){newEvent(EX_BODA);});
-$("full").addEventListener("change",function(){ prefs().full=this.checked; save(); render(); });
+["nm-full","nm-pila"].forEach(function(id){ $(id).addEventListener("click",function(){ setPila(view,id==="nm-pila"); save(); syncPila(); render(); }); });
 $("lang").addEventListener("change",function(){ prefs().lang=this.value; save(); render(); });
 $("paper").addEventListener("change",function(){ prefs().paper=this.value; setPage(); syncLocUI(); save(); });
 $("pdfBtn").addEventListener("click",function(){openExport(view);});
@@ -9853,7 +9882,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.93</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.94</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
