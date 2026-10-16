@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.89 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.90 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.89".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.90".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2902,6 +2902,22 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .mj-step .lbl{margin-bottom:6px}
 .mj-step-c input,.mj-sb{height:42px}
 .mj-vacio .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+.mj-mesa.mj-ancha{grid-column:1 / -1}
+.mj-edit{margin-top:6px; border-top:1px solid var(--c-hair); padding-top:6px}
+.mj-edit>summary{cursor:pointer; font-size:12px; font-weight:650; color:var(--c-ink); padding:6px 0; list-style:none}
+.mj-edit>summary::-webkit-details-marker{display:none}
+.mj-edit>summary::before{content:"▸ "} .mj-edit[open]>summary::before{content:"▾ "}
+.mj-ed{display:grid; grid-template-columns:minmax(150px,230px) 1fr; gap:14px; align-items:start}
+.mj-ed-prev{background:var(--bg-2,#F2EFE8); border-radius:10px; padding:8px; text-align:center}
+.mj-prev-svg{width:100%; height:auto; max-height:230px; display:block}
+.mj-prev-svg .seat{cursor:default}
+.mj-ed-f{display:flex; flex-direction:column; gap:10px; min-width:0}
+.mj-ed-lados{border:1px solid var(--c-line); border-radius:8px; padding:8px 10px; margin:0}
+.mj-ed-lados legend{padding:0 6px; font-size:12px; font-weight:650}
+.mj-ed-lados legend small{font-weight:500; color:var(--c-mut)}
+.mj-ed-btns{display:flex; flex-wrap:wrap; gap:6px}
+.mj-ed-cm{display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:12px; color:var(--c-mut)}
+@media (max-width:720px){ .mj-ed{grid-template-columns:1fr} }
 .mj-cambios-d{margin-top:8px}
 .mj-cambios-d>summary{cursor:pointer; font-size:12px; font-weight:600; color:var(--c-mut); padding:6px 0; list-style:none}
 .mj-cambios-d>summary::-webkit-details-marker{display:none}
@@ -4292,7 +4308,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.89</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.90</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5560,8 +5576,29 @@ function bRound(t,L,full){
   });
   return {p:it.concat(centerItems(t,L)),w:2*(Rr+64),h:2*(Rr+30)};
 }
+/* ── geometría de una mesa (editor de mesas, en Montaje): el largo en metros y cuánta gente va a cada lado.
+   t.geo = {len:metros, seats:[A,B,C,D]}: A = lado de arriba (a la izquierda si la mesa está girada), B = el de abajo
+   (derecha), C y D = las cabeceras. En las cuadradas: arriba, abajo, izquierda, derecha. Sin t.geo todo sale como siempre. ── */
+function geoLados(t,def){
+  var n=t.guests.length, g=t.geo&&t.geo.seats;
+  if(!Array.isArray(g)||g.length!==4) return def;
+  var o=g.map(function(x){ return Math.max(0,Math.min(40,Math.round(+x||0))); }), s=o[0]+o[1]+o[2]+o[3], k=0;
+  while(s>n&&k<400){ var j=3-(k%4); if(o[j]>0){ o[j]--; s--; } k++; }
+  k=0; while(s<n&&k<400){ o[k%2]++; s++; k++; }
+  return o;
+}
+function geoLen(t,auto){ var m=t.geo&&+t.geo.len; return m>0?Math.max(90,Math.round(m*REF_PXM)):auto; }
+/* lo que se dibuja de verdad en una mesa: reparto por lados y largo en px (auto = lo que saldría sin tocar nada) */
+function geoEfe(t){
+  var real=t.guests.length, sh=t.shape, S=null, len=null, auto=null, step;
+  if(sh==="rect"){ step=hasAler(t)?58:45; var t0=Math.ceil(real/2); S=geoLados(t,[t0,real-t0,0,0]); auto=Math.max(230,Math.max(t0,real-t0,2)*step); len=geoLen(t,Math.max(230,Math.max(S[0],S[1],2)*step)); }
+  else if(sh==="presid"){ step=hasAler(t)?60:48; S=geoLados(t,[real,0,0,0]); auto=Math.max(300,Math.max(real,1)*step); len=geoLen(t,Math.max(300,Math.max(S[0],S[1],1)*step)); }
+  else if(sh==="square"){ var n=Math.max(real,1), b=Math.floor(n/4), r=n%4, q=[b,b,b,b], i; for(i=0;i<r;i++) q[i]++; S=geoLados(t,[q[0],q[2],q[3],q[1]]); }
+  else if(sh==="oval"){ var Rr=Math.max(62,(Math.max(real,1)*42)/7.35); auto=Rr*1.45*2; len=geoLen(t,auto); }
+  return {S:S,len:len,auto:auto};
+}
 function bOval(t,L,full){
-  var n=Math.max(t.guests.length,1),Rr=Math.max(62,(n*42)/7.35),rx=Rr*1.45,ry=Rr*0.85,it=[];
+  var n=Math.max(t.guests.length,1),Rr=Math.max(62,(n*42)/7.35),rx=geoEfe(t).len/2,ry=Rr*0.85,it=[];
   var pl=EL(0,0,rx-24,Math.max(28,ry-24),TFILL,TSTROKE,1); pl.cls="plate"; it.push(pl);
   t.guests.forEach(function(g,i){
     var a=-Math.PI/2+i*2*Math.PI/n,c=Math.cos(a),s=Math.sin(a);
@@ -5572,61 +5609,90 @@ function bOval(t,L,full){
   return {p:it.concat(centerItems(t,L)),w:2*(rx+64),h:2*(ry+44)};
 }
 function bRect(t,L,full,vert){
-  var n=Math.max(t.guests.length,1),step=hasAler(t)?58:45;
-  var top=Math.ceil(n/2),per=Math.max(top,n-top,2),len=Math.max(230,per*step),th=78,it=[];
+  var E=geoEfe(t), S=E.S, len=E.len, th=78, it=[], cab=(S[2]||S[3])?44:0;
+  var o1=S[0], o2=S[0]+S[1], o3=o2+S[2], gA=t.guests.slice(0,o1), gB=t.guests.slice(o1,o2), gC=t.guests.slice(o2,o3), gD=t.guests.slice(o3);
   if(!vert){
     it.push(plate(-len/2,-th/2,len,th,7));
     it.push(R(-len/2+4,-th/2+4,len-8,th-8,4,"none",TSTROKE,0.4));
-    [[t.guests.slice(0,top),-1,0],[t.guests.slice(top),1,top]].forEach(function(pp){
+    [[gA,-1,0],[gB,1,o1]].forEach(function(pp){
       var list=pp[0],side=pp[1],off=pp[2],sp=len/Math.max(list.length,1);
       list.forEach(function(g,i){
         var x=-len/2+sp*(i+0.5),y=side*(th/2+16);
         it.push(seatItems(g,t.num,off+i,x,y,-0.8,side>0?-0.8:0.8,x,y+(side<0?-13:15),"middle",side>0,full));
       });
     });
-    return {p:it.concat(centerItems(t,L)),w:len+60,h:th+92};
+    /* cabeceras: en los extremos de la mesa */
+    [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){
+      var list=pp[0],side=pp[1],off=pp[2];
+      list.forEach(function(g,i){
+        var x=side*(len/2+18),y=(i-(list.length-1)/2)*26;
+        it.push(seatItems(g,t.num,off+i,x,y,side>0?-0.9:0.9,0,x+(side<0?-13:13),y+3.2,side<0?"end":"start",true,full));
+      });
+    });
+    return {p:it.concat(centerItems(t,L)),w:len+60+2*cab,h:th+92};
   }
   it.push(plate(-th/2,-len/2,th,len,7));
   it.push(R(-th/2+4,-len/2+4,th-8,len-8,4,"none",TSTROKE,0.4));
-  [[t.guests.slice(0,top),-1,0],[t.guests.slice(top),1,top]].forEach(function(pp){
+  [[gA,-1,0],[gB,1,o1]].forEach(function(pp){
     var list=pp[0],side=pp[1],off=pp[2],sp=len/Math.max(list.length,1);
     list.forEach(function(g,i){
       var y=-len/2+sp*(i+0.5),x=side*(th/2+16);
       it.push(seatItems(g,t.num,off+i,x,y,side>0?-0.9:0.9,0,x+(side<0?-13:13),y+3.2,side<0?"end":"start",true,full));
     });
   });
-  return {p:it.concat(centerItems(t,L)),w:th+190,h:len+50};
+  [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){
+    var list=pp[0],side=pp[1],off=pp[2];
+    list.forEach(function(g,i){
+      var x=(i-(list.length-1)/2)*52,y=side*(len/2+18);
+      it.push(seatItems(g,t.num,off+i,x,y,-0.8,side>0?-0.8:0.8,x,y+(side<0?-13:15),"middle",side>0,full));
+    });
+  });
+  return {p:it.concat(centerItems(t,L)),w:th+190,h:len+50+2*cab};
 }
 function bPresid(t,L,full,vert){
-  var n=Math.max(t.guests.length,1),step=hasAler(t)?60:48;
-  var len=Math.max(300,n*step),th=62,it=[],sp=len/n;
+  var E=geoEfe(t), S=E.S, len=E.len, th=62, it=[], cab=(S[2]||S[3])?44:0, nB=S[1]?30:0;
+  var o1=S[0], o2=S[0]+S[1], o3=o2+S[2], gA=t.guests.slice(0,o1), gB=t.guests.slice(o1,o2), gC=t.guests.slice(o2,o3), gD=t.guests.slice(o3);
+  var n=Math.max(t.guests.length,1);
   if(!vert){
-    t.guests.forEach(function(g,i){
-      var x=-len/2+sp*(i+0.5),y=-th/2-16;
+    gA.forEach(function(g,i){
+      var x=-len/2+len/Math.max(gA.length,1)*(i+0.5),y=-th/2-16;
       it.push(seatItems(g,t.num,i,x,y,-0.8,0.8,x,y-13,"middle",false,full));
     });
+    gB.forEach(function(g,i){
+      var x=-len/2+len/Math.max(gB.length,1)*(i+0.5),y=th/2+16;
+      it.push(seatItems(g,t.num,o1+i,x,y,-0.8,-0.8,x,y+15,"middle",true,full));
+    });
+    [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){ var list=pp[0],side=pp[1],off=pp[2];
+      list.forEach(function(g,i){ var x=side*(len/2+18),y=(i-(list.length-1)/2)*26;
+        it.push(seatItems(g,t.num,off+i,x,y,side>0?-0.9:0.9,0,x+(side<0?-13:13),y+3.2,side<0?"end":"start",true,full)); }); });
     it.push(plate(-len/2,-th/2,len,th,4,1.3));
     it.push(R(-len/2+4,-th/2+4,len-8,th-8,2,"none",TSTROKE,0.4));
     it.push(C(-len/2+24,0,12.5,"none",TSTROKE,1));
     it.push(TX(-len/2+24,5,mesaMark(t),{size:15,fo:"ser",a:"middle",c:GOLD}));
     it.push(TX(0,2,t.name||L.shapes.presid,{size:19,fo:"ser",a:"middle",c:INK}));
     it.push(TX(0,15,(L.shapes.presid+" · "+(t.cap||n)).toUpperCase(),{size:7,fo:"sans",a:"middle",c:FADE,ls:1.8}));
-    return {p:it,w:len+60,h:th+96};
+    return {p:it,w:len+60+2*cab,h:th+96+nB};
   }
-  t.guests.forEach(function(g,i){
-    var y=-len/2+sp*(i+0.5),x=-th/2-16;
+  gA.forEach(function(g,i){
+    var y=-len/2+len/Math.max(gA.length,1)*(i+0.5),x=-th/2-16;
     it.push(seatItems(g,t.num,i,x,y,0.9,0,x-13,y+3.2,"end",true,full));
   });
+  gB.forEach(function(g,i){
+    var y=-len/2+len/Math.max(gB.length,1)*(i+0.5),x=th/2+16;
+    it.push(seatItems(g,t.num,o1+i,x,y,-0.9,0,x+13,y+3.2,"start",true,full));
+  });
+  [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){ var list=pp[0],side=pp[1],off=pp[2];
+    list.forEach(function(g,i){ var x=(i-(list.length-1)/2)*52,y=side*(len/2+18);
+      it.push(seatItems(g,t.num,off+i,x,y,-0.8,side>0?-0.8:0.8,x,y+(side<0?-13:15),"middle",side>0,full)); }); });
   it.push(plate(-th/2,-len/2,th,len,4,1.3));
   it.push(R(-th/2+4,-len/2+4,th-8,len-8,2,"none",TSTROKE,0.4));
   it.push(C(0,-len/2+24,12.5,"none",TSTROKE,1));
   it.push(TX(0,-len/2+29,mesaMark(t),{size:15,fo:"ser",a:"middle",c:GOLD}));
   it.push(TX(5,20,clip(t.name||L.shapes.presid,Math.max(8,Math.floor((len-80)/9))),{size:15,fo:"ser",a:"middle",c:INK,rot:1}));
-  return {p:it,w:th+180,h:len+50};
+  return {p:it,w:th+180+nB,h:len+50+2*cab};
 }
 function bSquare(t,L,full){
-  var n=Math.max(t.guests.length,1),base=Math.floor(n/4),rem=n%4,sides=[base,base,base,base],i;
-  for(i=0;i<rem;i++)sides[i]++;
+  var Q=geoEfe(t).S, sides=[Q[0],Q[3],Q[1],Q[2]], i;
   var per=Math.max.apply(null,sides),S=Math.max(170,per*44),h=S/2,it=[],idx=0;
   it.push(plate(-h+24,-h+24,S-48,S-48,6));
   function run(count,fn){for(var k=0;k<count;k++){var g=t.guests[idx];if(g){fn(g,idx,k,count);idx++;}}}
@@ -6553,14 +6619,14 @@ function pintarPresencia(){
 var view="plan", doc=null, boxes=[], sel=null, zoom=1, userSize=1, editing=null;
 /* ── deshacer ── */
 var undoStack=[];
-function snapshot(){ var e=current(); return JSON.stringify({id:e.id,text:e.text,plans:e.plans,loc:e.loc}); }
+function snapshot(){ var e=current(); return JSON.stringify({id:e.id,text:e.text,plans:e.plans,loc:e.loc,mesaGeo:e.mesaGeo||null}); }
 function pushUndo(snap){ undoStack.push(snap||snapshot()); if(undoStack.length>40) undoStack.shift(); refreshUndo(); }
 function refreshUndo(){ var b=$("undo"); if(b) b.disabled=!undoStack.length; }
 function undo(){
   if(!undoStack.length){ toast("No hay nada que deshacer."); return; }
   var st=JSON.parse(undoStack.pop()), e=current();
   if(st.id&&st.id!==e.id){ undoStack=[]; refreshUndo(); toast("El deshacer era de otro evento; se ha descartado.",true); return; }
-  e.text=st.text; e.plans=st.plans; e.loc=st.loc;
+  e.text=st.text; e.plans=st.plans; e.loc=st.loc; if(st.mesaGeo) e.mesaGeo=st.mesaGeo; else delete e.mesaGeo;
   $("src").value=e.text; prevText=e.text; sel=null; fillSelect(); render(); save(); refreshUndo();
   toast("Deshecho.");
 }
@@ -6890,7 +6956,9 @@ function planPrims(L,full,forExport){
 /* ══ render del plano ═══════════════════════════════════════════════ */
 function computeBoxes(L,full){
   var p=plan();
+  var geoEv=(current().mesaGeo)||{};
   boxes=doc.tables.map(function(t){
+    t.geo=geoEv[t.num]||null;
     var b=buildTable(t,L,full,!!p.vert[t.num]);
     return {num:t.num,p:b.p,w:b.w,h:b.h,presid:t.shape==="presid"};
   });
@@ -9356,7 +9424,7 @@ function restoreSnap(snap){
   var st; try{ st=JSON.parse(snap); }catch(e){ return; }
   var e=current();
   if(!e||(st.id&&st.id!==e.id)){ toast("Ese cambio era de otro evento y ya no se puede deshacer."); return; }
-  e.text=st.text; e.plans=st.plans; e.loc=st.loc;
+  e.text=st.text; e.plans=st.plans; e.loc=st.loc; if(st.mesaGeo) e.mesaGeo=st.mesaGeo; else delete e.mesaGeo;
   $("src").value=e.text; prevText=e.text; sel=null; fillSelect(); render(); save();
   toast("Deshecho.");
 }
@@ -9723,7 +9791,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.89</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.90</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10038,6 +10106,7 @@ function planoEsquema(e){
     var pax=nSent(t), k=sc*us*((L.size&&L.size[t.num])||1), rect=(t.shape==="rect"||t.shape==="presid"), r0=null;
     /* la caja real de la mesa en el plano del equipo (con sus sillas y etiquetas): el dibujo del cliente queda siempre dentro de ella,
        así dos mesas que no se tocan en el plano tampoco se tocan aquí */
+    t.geo=(e.mesaGeo&&e.mesaGeo[t.num])||null;
     try{ r0=buildTable(t,I18N.es,false,!!(L.vert&&L.vert[t.num])); }catch(_){ r0=null; }
     var bw,bh;
     if(r0){ if(rect){ bw=Math.round(r0.w*k*0.86); bh=Math.round(r0.h*k*0.8); } else { bw=bh=Math.round(Math.min(r0.w,r0.h)*k*0.82); } }
@@ -13272,6 +13341,42 @@ window.SITTING_BRIDGE={
     commit();
     return true;
   },
+  /* ── editor de mesas (Montaje): todo lo de una mesa, y se dibuja en el plano real ── */
+  mesaInfo:function(num){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(num); if(!t) return null;
+    var e=current(), p=plan(); t.geo=(e.mesaGeo&&e.mesaGeo[num])||null;
+    var gs=t.guests.filter(function(g){ return !g.soloAper; }), proxy=Object.assign({},t,{guests:gs}), E=geoEfe(proxy), vert=!!p.vert[num];
+    return {num:t.num,name:t.name||"",shape:t.shape,cap:t.cap||null,sent:gs.length,aper:t.guests.length-gs.length,vert:vert,size:Math.round((p.size[num]||1)*100),
+      geo:t.geo?{len:t.geo.len||null,seats:Array.isArray(t.geo.seats)?t.geo.seats.slice():null}:null,
+      efe:{seats:E.S?E.S.slice():null,lenM:E.len?Math.round(E.len/REF_PXM*100)/100:null,autoM:E.auto?Math.round(E.auto/REF_PXM*100)/100:null},
+      svg:window.SITTING_BRIDGE.mesaSVG(num)};
+  },
+  mesaSVG:function(num){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(num); if(!t) return ""; var e=current(), p=plan(); t.geo=(e.mesaGeo&&e.mesaGeo[num])||null;
+    var b=buildTable(t,I18N.es,false,!!p.vert[num]), w=Math.round(b.w), h=Math.round(b.h);
+    return '<svg class="mj-prev-svg" viewBox="'+(-w/2)+' '+(-h/2)+' '+w+' '+h+'" role="img" aria-label="Así queda la mesa '+num+' en el plano">'+toSVG(b.p)+'</svg>';
+  },
+  editarMesa:function(num,patch){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(num); if(!t||!patch) return false;
+    var e=current(), p=plan(); pushUndo();
+    if(patch.name!=null){ t.name=String(patch.name).trim(); t.edited=1; }
+    if(patch.shape&&["round","rect","presid","square","oval"].indexOf(patch.shape)>-1){ t.shape=patch.shape; t.shapeWord=null; t.edited=1; }
+    if(patch.cap!==undefined){ var v=parseInt(patch.cap,10); t.cap=v>0?v:null; t.edited=1; }
+    if(patch.vert!==undefined) p.vert[num]=!!patch.vert;
+    if(patch.size!==undefined){ var pc=Math.max(50,Math.min(200,+patch.size||100)); p.size[num]=pc/100; }
+    if(patch.len!==undefined||patch.seats!==undefined){
+      e.mesaGeo=(e.mesaGeo&&typeof e.mesaGeo==="object")?e.mesaGeo:{}; var g=e.mesaGeo[num]||{};
+      if(patch.len!==undefined){ var Lm=+patch.len; if(Lm>0) g.len=Math.max(1,Math.min(15,Math.round(Lm*10)/10)); else delete g.len; }
+      if(patch.seats!==undefined){ if(Array.isArray(patch.seats)&&patch.seats.length===4) g.seats=patch.seats.map(function(x){ return Math.max(0,Math.min(40,Math.round(+x||0))); }); else delete g.seats; }
+      if(Object.keys(g).length) e.mesaGeo[num]=g; else delete e.mesaGeo[num];
+      if(!Object.keys(e.mesaGeo).length) delete e.mesaGeo;
+    }
+    e.updated=Date.now(); commit(); return true;
+  },
+  irAMesa:function(num){ sel=num; },
   /* las marcas de un comensal tal como están escritas en el plano, y entre ellas las «alergias» que no encajan con ningún alérgeno
      conocido (p. ej. «tarta número 50»): sirve para pasar a «detalle de servicio» lo que no es una alergia y poder deshacerlo */
   marcasDe:function(mesa,i){
@@ -25691,7 +25796,7 @@ function mjHoja(e,P,INV,otros){
 }
 
 /* ── pintar ── */
-var ui={pax:26, tab:"", ntab:3, ntab2:0, vista:"", tabLarga:""};
+var ui={pax:26, tab:"", ntab:3, ntab2:0, vista:"", tabLarga:"", ed:{}};
 var host=null;
 var COL={bien:"var(--mj-ok)",justo:"var(--mj-av)",no:"var(--mj-mal)"};
 function estado(n,ideal,max){ return n>max?"no":n>ideal?"justo":"bien"; }
@@ -25730,6 +25835,40 @@ function faltaTxt(x){ var n=x.nec-x.hay, t=x.t;
   if(n===1) t=t.replace(/^Mesas redondas/,"mesa redonda").replace(/^Tableros/,"tablero").replace(/^Sillas/,"silla").replace(/^Tronas/,"trona").replace(/^Mesas de aperitivo/,"mesa de aperitivo");
   else t=t.charAt(0).toLowerCase()+t.slice(1);
   return n+" "+t; }
+/* ── editor de una mesa: nombre, forma, plazas, largo, gente a cada lado, giro y tamaño; todo se dibuja en el plano real ── */
+var ED_FORMAS=[["round","Redonda"],["rect","Rectangular"],["presid","Presidencial"],["square","Cuadrada"],["oval","Ovalada"]];
+function coma(x){ return String(x).replace(".",","); }
+function editorMesa(f,P){
+  var n=f.t.num, I=BR.mesaInfo?BR.mesaInfo(n):null; if(!I) return "";
+  var larga=(I.shape==="rect"||I.shape==="presid"), lados=(larga||I.shape==="square"), conLen=(larga||I.shape==="oval"), S=I.efe.seats;
+  function fld(lbl,inner,cls){ return '<label class="fld'+(cls?' '+cls:'')+'"><span class="lbl">'+lbl+'</span>'+inner+'</label>'; }
+  function inp(k,v,ph,extra){ return '<input type="text" inputmode="decimal" data-mj="ed" data-k="'+k+'" data-f="'+k+n+'" data-n="'+n+'" value="'+esc(v)+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+(extra||'')+'>'; }
+  var lab=I.shape==="square"?["Arriba","Abajo","Izquierda","Derecha"]:I.vert?["Lado izquierdo","Lado derecho","Cabecera de arriba","Cabecera de abajo"]:["Lado de arriba","Lado de abajo","Cabecera izquierda","Cabecera derecha"];
+  var sum=S?S[0]+S[1]+S[2]+S[3]:0;
+  var cm=null, est=null;
+  if(larga&&I.efe.lenM&&S){ var porLado=Math.max(S[0],S[1],1); cm=Math.round(I.efe.lenM*100/porLado); est=cm<P.larga.min?"no":cm<P.larga.ideal?"justo":"bien"; }
+  var h='<details class="mj-edit" data-n="'+n+'"'+(ui.ed[n]?' open':'')+'><summary>Editar la mesa: forma, largo, gente a cada lado</summary><div class="mj-ed">'+
+    '<div class="mj-ed-prev">'+I.svg+'<p class="mj-sub">Así sale en el plano de sala'+(I.aper?' ('+I.aper+(I.aper===1?' persona solo aperitivo sin silla':' personas solo aperitivo sin silla')+')':'')+'.</p></div><div class="mj-ed-f">'+
+    '<div class="fldset">'+
+      fld("Nombre",inp("name",I.name,"p. ej. Familia de la novia"))+
+      fld("Forma",'<select data-mj="ed" data-k="shape" data-f="shape'+n+'" data-n="'+n+'">'+ED_FORMAS.map(function(x){ return '<option value="'+x[0]+'"'+(I.shape===x[0]?' selected':'')+'>'+x[1]+'</option>'; }).join("")+'</select>')+
+      fld("Plazas",inp("cap",I.cap||"",String(I.sent)+" sentados"," aria-describedby=\"mj-cap-"+n+"\""))+
+      (conLen?fld("Largo (m)",inp("len",I.geo&&I.geo.len?coma(I.geo.len):"","automático · "+coma(I.efe.autoM||I.efe.lenM||"")+" m")):"")+
+      (larga?fld("Giro",'<select data-mj="ed" data-k="vert" data-f="vert'+n+'" data-n="'+n+'"><option value="0"'+(!I.vert?' selected':'')+'>Horizontal</option><option value="1"'+(I.vert?' selected':'')+'>Vertical</option></select>'):"")+
+      fld("Tamaño en el plano (%)",inp("size",I.size,"100"))+
+    '</div>'+
+    (lados&&S?'<fieldset class="mj-ed-lados"><legend>Gente a cada lado <small>('+I.sent+' sentados)</small></legend><div class="fldset">'+
+      lab.map(function(l,i){ return fld(esc(l),'<input type="number" min="0" max="40" data-mj="ed" data-k="s" data-i="'+i+'" data-f="s'+i+'_'+n+'" data-n="'+n+'" value="'+S[i]+'">'); }).join("")+
+      '</div><p class="mj-sub" id="mj-cap-'+n+'">'+(sum===I.sent?'Los '+I.sent+' sentados están repartidos.':'Los lados suman '+sum+' y hay '+I.sent+' sentados: en el plano se ajusta solo.')+'</p>'+
+      '<div class="mj-ed-btns"><button type="button" class="btn sm" data-mj="ed-act" data-x="igual" data-n="'+n+'">Repartir por igual</button><button type="button" class="btn sm" data-mj="ed-act" data-x="uno" data-n="'+n+'">Todos a un lado</button>'+
+      (larga?'<button type="button" class="btn sm" data-mj="ed-act" data-x="cab" data-n="'+n+'">Con una persona en cada cabecera</button>':'')+'</div></fieldset>':'')+
+    (cm!=null?'<div class="mj-ed-cm"><span class="mj-chip '+est+'">'+EST_T[est]+'</span><span>'+cm+' cm por persona en el lado más lleno · mesa de '+coma(I.efe.lenM)+' m'+(f.k==="t"&&f.lon&&Math.abs(f.lon-I.efe.lenM)>0.05?' · el montaje propone '+coma(Math.round(f.lon*100)/100)+' m':'')+'</span></div>':'')+
+    '<div class="mj-ed-btns">'+(conLen&&f.k==="t"&&f.lon?'<button type="button" class="btn sm" data-mj="ed-act" data-x="usar" data-n="'+n+'" data-v="'+f.lon+'">Usar el largo del montaje ('+coma(Math.round(f.lon*100)/100)+' m)</button>':'')+
+      ((I.geo&&(I.geo.len||I.geo.seats))?'<button type="button" class="btn sm" data-mj="ed-act" data-x="auto" data-n="'+n+'">Volver a lo automático (largo y lados)</button>':'')+
+      '<button type="button" class="btn sm" data-mj="ed-act" data-x="plano" data-n="'+n+'">Ver en el plano</button></div>'+
+    '</div></div></details>';
+  return h;
+}
 function vHoja(e,P,INV){
   var H=mjHojaEv(e,P,INV);
   if(!H.filas.length) return '<div class="pcard mj-vacio"><p class="pp-empty">Este evento todavía no tiene mesas en el plano. Cuando las tenga, aquí sale qué montar en cada una y el material que hace falta.</p><div class="row"><button type="button" class="btn gold sm" onclick="window.irASeccion&&window.irASeccion(\'plan\')">Ir al plano de sala</button><button type="button" class="btn sm" data-mj="calc">Usar la calculadora</button></div></div>';
@@ -25757,13 +25896,13 @@ function vHoja(e,P,INV){
     var dib=!f.it?'':f.k==="r"?svgRed(f.it.d,f.n,f.ideal,f.max,f.monta):svgLarga(f.cfg.segs.map(function(sg,i){ return {n:sg.n,len:sg.len,alt:i>0}; }),f.cfg.ancho,f.n,f.ideal,f.max,f.monta,f.lados);
     var info=f.est==="no"?(f.max!=null?(f.n-f.max===1?"Sobra 1":"Sobran "+(f.n-f.max))+" (máx. "+f.max+")":"Sin mesa"):f.est==="justo"?(f.n-f.ideal)+" por encima del ideal ("+f.ideal+")":(f.ideal-f.n>0?"Caben "+(f.ideal-f.n)+" más a gusto":"Justo el ideal");
     var otros=f.avisos.filter(function(a){ return !/^Supera el máximo|^Por debajo del ideal/.test(a.t); });
-    return '<article class="mj-mesa '+f.est+(f.tipo!=="auto"?' amano':'')+'"><header><div><b>'+esc(f.lbl)+'</b>'+(f.nombre&&f.lbl!==f.nombre?'<span>'+esc(f.nombre)+'</span>':'')+'</div>'+
+    return '<article class="mj-mesa '+f.est+(f.tipo!=="auto"?' amano':'')+(ui.ed[f.t.num]?' mj-ancha':'')+'"><header><div><b>'+esc(f.lbl)+'</b>'+(f.nombre&&f.lbl!==f.nombre?'<span>'+esc(f.nombre)+'</span>':'')+'</div>'+
       '<div class="mj-pax"><b>'+f.n+'</b><span>'+(f.sent<f.n?'plazas · '+f.sent+' sentados':'comensales')+(f.bebes?' · '+f.bebes+' trona'+(f.bebes===1?'':'s'):'')+'</span></div></header>'+
       '<div class="mj-dib">'+dib+'</div>'+
       '<div class="mj-monta">'+esc(f.monta||"Sin mesa en el inventario")+(f.tipo!=="auto"?' <em>elegida a mano</em>':'')+'</div>'+
       '<div class="mj-est"><span class="mj-chip '+f.est+'">'+EST_T[f.est]+'</span><span>'+esc(info)+'</span></div>'+
       (otros.length?'<div class="mj-otros">'+otros.map(function(a){ return '<span class="mj-tag '+a.c+'">'+esc(a.t)+'</span>'; }).join("")+'</div>':'')+
-      '<details class="mj-cambios-d"'+(abierto||f.tipo!=="auto"?' open':'')+'><summary>Cambiar mesa</summary><div class="mj-cambios">'+opts(f)+'</div></details></article>'; }).join("");
+      '<details class="mj-cambios-d"'+(abierto||f.tipo!=="auto"?' open':'')+'><summary>Cambiar mesa</summary><div class="mj-cambios">'+opts(f)+'</div></details>'+editorMesa(f,P)+'</article>'; }).join("");
   return banner+'<div class="pv-sec">Material <span class="pv-sec-note">— lo que hay que sacar del almacén para este evento</span></div>'+mat+
     '<div class="pv-sec">Mesa por mesa <span class="pv-sec-note">— '+H.filas.length+' mesas del plano'+(cnt.no||cnt.justo?', primero las que tienen avisos':'')+'; la propuesta es automática y se puede cambiar en cada mesa</span></div>'+leyenda()+
     '<div class="mj-mesas">'+cards+'</div>';
@@ -25845,9 +25984,11 @@ function render(h2){ host=h2||host; if(!host) return;
   /* al cambiar el HTML se pierde el foco y el «change» que dispara volvería a pintar a la vez */
   if(pintando){ otra=true; return; } pintando=true; try{ pintar(); } finally{ pintando=false; } if(otra){ otra=false; render(); } }
 function pintar(){
-  var top=host.scrollTop, a=document.activeElement, foco=a&&host.contains(a)&&a.getAttribute("data-mj")?a.getAttribute("data-mj")+"|"+(a.getAttribute("data-n")||a.getAttribute("data-x")||""):null;
+  var top=host.scrollTop, a=document.activeElement, fEd=a&&host.contains(a)&&a.getAttribute("data-f"), foco=a&&host.contains(a)&&a.getAttribute("data-mj")&&!fEd?a.getAttribute("data-mj")+"|"+(a.getAttribute("data-n")||a.getAttribute("data-x")||""):null;
   host.innerHTML='<div class="pv-inner mtj-root">'+vista()+'</div>'; host.scrollTop=top;
+  if(fEd){ var ee=host.querySelector('[data-f="'+fEd+'"]'); if(ee){ try{ ee.focus(); if(ee.setSelectionRange&&ee.type==="text") ee.setSelectionRange(ee.value.length,ee.value.length); }catch(_){} } }
   if(foco){ var p=foco.split("|"), el=host.querySelector('[data-mj="'+p[0]+'"]'+(p[1]?'[data-n="'+p[1]+'"],[data-mj="'+p[0]+'"][data-x="'+p[1]+'"]':'')); if(el){ try{ el.focus(); if(el.setSelectionRange&&el.type==="text") el.setSelectionRange(el.value.length,el.value.length); }catch(_){} } }
+  if(!host.__mtjT){ host.__mtjT=true; host.addEventListener("toggle",function(ev){ var d=ev.target; if(d&&d.classList&&d.classList.contains("mj-edit")){ ui.ed[d.getAttribute("data-n")]=d.open; var ar=d.closest("article"); if(ar) ar.classList.toggle("mj-ancha",d.open); } },true); }
   if(!host.__mtj){ host.__mtj=true; host.addEventListener("change",onChange); host.addEventListener("input",onInput); host.addEventListener("click",onClick); host.addEventListener("keydown",onKey); }
 }
 function onKey(ev){ if(!enMtj()||ev.__mjk) return; ev.__mjk=1; var b=ev.target; if(!b||b.getAttribute("data-mj")!=="vista"||(ev.key!=="ArrowRight"&&ev.key!=="ArrowLeft")) return;
@@ -25861,7 +26002,26 @@ function onInput(ev){ if(!enMtj()) return; var k=ev.target.getAttribute&&ev.targ
     if(raw===""){ ui[k]=""; return; }
     ui[k]=Math.max(0,Math.min(999,+raw)); render(); } }
 function evMontaje(e){ e.montaje=e.montaje&&typeof e.montaje==="object"?e.montaje:{}; e.montaje.mesas=e.montaje.mesas||{}; return e.montaje.mesas; }
+/* aplicar un cambio de la mesa al plano real y a lo que se monta */
+function aplicarMesa(n,patch,msg){
+  if(!BR.editarMesa||!BR.editarMesa(n,patch)){ aviso("No he podido cambiar esa mesa."); render(); return; }
+  /* si se reparte la gente a un solo lado, el montaje también cuenta un solo lado */
+  if(patch.seats!==undefined){ var e=BR.current(); if(e){ var M=evMontaje(e), o=M[n]||{};
+    if(Array.isArray(patch.seats)){ var b=+patch.seats[1]||0; o.lados=b===0?1:2; } else delete o.lados;
+    if(Object.keys(o).length) M[n]=o; else delete M[n]; e.updated=Date.now(); BR.save(); } }
+  ui.ed[n]=true; aviso(msg||("Mesa "+n+" cambiada en el plano.")); render();
+}
 function onChange(ev){ if(!enMtj()) return; var el=ev.target, k=el.getAttribute&&el.getAttribute("data-mj"); if(!k) return;
+  if(k==="ed"){ var n=+el.getAttribute("data-n"), kk=el.getAttribute("data-k"), patch={}, raw=String(el.value||"").trim();
+    if(kk==="name") patch.name=raw;
+    else if(kk==="shape") patch.shape=el.value;
+    else if(kk==="cap"){ if(raw&&!(+raw>0)){ aviso("Las plazas tienen que ser un número mayor que 0."); render(); return; } patch.cap=raw?Math.round(+raw):null; }
+    else if(kk==="vert") patch.vert=el.value==="1";
+    else if(kk==="size"){ var sz=num(raw); if(raw&&!(sz>=50&&sz<=200)){ aviso("El tamaño va de 50 a 200 %."); render(); return; } patch.size=raw?sz:100; }
+    else if(kk==="len"){ var Lm=num(raw); if(raw&&!(Lm>=1&&Lm<=15)){ aviso("Pon el largo en metros, entre 1 y 15 (por ejemplo 3,6)."); render(); return; } patch.len=raw?Lm:null; }
+    else if(kk==="s"){ patch.seats=[].map.call(host.querySelectorAll('[data-mj="ed"][data-k="s"][data-n="'+n+'"]'),function(i2){ return Math.max(0,Math.round(+i2.value||0)); }); }
+    else return;
+    aplicarMesa(n,patch); return; }
   if(k==="pax"||k==="ntab"||k==="ntab2"){ if(ui[k]===""){ ui[k]=k==="ntab2"?0:1; el.value=ui[k]; } return; }
   if(k==="tab"||k==="tabLarga"){ ui[k]=el.value; render(); return; }
   if(k==="ladosCalc"){ ui.lados=el.value==="1"?1:2; render(); return; }
@@ -25904,6 +26064,14 @@ function imprimir(){ var e=BR.current(); if(!e) return; var P=mjP(), INV=mjInven
 }
 function onClick(ev){ if(!enMtj()) return; var b=ev.target.closest&&ev.target.closest("[data-mj]"); if(!b||b.tagName!=="BUTTON") return;
   var k=b.getAttribute("data-mj");
+  if(k==="ed-act"){ var n=+b.getAttribute("data-n"), x=b.getAttribute("data-x"), I=BR.mesaInfo?BR.mesaInfo(n):null; if(!I) return; var sent=I.sent;
+    if(x==="igual"){ var a=Math.ceil(sent/2); aplicarMesa(n,{seats:[a,sent-a,0,0]}); }
+    else if(x==="uno"){ aplicarMesa(n,{seats:[sent,0,0,0]}); }
+    else if(x==="cab"){ var r=Math.max(0,sent-2), a2=Math.ceil(r/2); aplicarMesa(n,{seats:[a2,r-a2,sent>=2?1:sent,sent>=2?1:0]}); }
+    else if(x==="usar"){ aplicarMesa(n,{len:+b.getAttribute("data-v")}); }
+    else if(x==="auto"){ aplicarMesa(n,{len:null,seats:null},"Mesa "+n+": largo y lados otra vez en automático."); }
+    else if(x==="plano"){ if(BR.irAMesa) BR.irAMesa(n); if(window.irASeccion) window.irASeccion("plan"); }
+    return; }
   if(k==="vista"){ ui.vista=b.getAttribute("data-x"); render(); var t=host.querySelector('[data-mj="vista"][aria-selected="true"]'); if(t) t.focus(); return; }
   if(k==="calc"){ ui.vista="calc"; render(); return; }
   if(k==="mas"||k==="menos"){ var x=b.getAttribute("data-x"); ui[x]=Math.max(x==="pax"?1:0,Math.min(999,(ui[x]|0)+(k==="mas"?1:-1))); render(); var bb=host.querySelector('[data-mj="'+k+'"][data-x="'+x+'"]'); if(bb) bb.focus(); return; }
