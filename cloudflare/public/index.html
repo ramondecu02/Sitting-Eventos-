@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.87 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.88 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.87".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.88".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -1325,6 +1325,12 @@ body.mode-plan .planv{display:flex}
 .aler-est.pend{color:var(--warning-tx); background:var(--warning-soft)}
 .aler-body{display:flex; align-items:center; gap:9px; flex-wrap:wrap; padding:2px 0 14px 22px}
 .aler-body .aler-plato{flex:1 1 100%; margin-left:0}
+.aler-plato-row{flex-wrap:wrap}
+.aler-plato-row input{min-width:160px}
+.aler-plato-det[hidden]{display:none}
+.aler-plato-det{flex:0 0 auto; text-transform:none; letter-spacing:.01em; font-size:12px; font-weight:600}
+.dt-otras{margin:12px 0 0; padding:10px 12px; border:1px solid var(--c-line); border-radius:8px}
+.dt-otras legend{padding:0 6px; font-size:12px; font-weight:650}
 .aler-tools{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 14px}
 .aler-tools span{flex:1 1 220px; font-size:12px; color:var(--c-mut)}
 @media (prefers-reduced-motion:reduce){ .aler-chev{transition:none} }
@@ -4286,7 +4292,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.87</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.88</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9717,7 +9723,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.87</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.88</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -13266,6 +13272,20 @@ window.SITTING_BRIDGE={
     commit();
     return true;
   },
+  /* las marcas de un comensal tal como están escritas en el plano, y entre ellas las «alergias» que no encajan con ningún alérgeno
+     conocido (p. ej. «tarta número 50»): sirve para pasar a «detalle de servicio» lo que no es una alergia y poder deshacerlo */
+  marcasDe:function(mesa,i){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(mesa), g=t&&t.guests[i]; if(!g) return null;
+    var otras=[]; g.raw.forEach(function(tag){ var c=classify(tag); if(c&&c.type==="aler"&&!alerFamsIn(c.text).length) otras.push({raw:tag,text:c.text}); });
+    return {raw:g.raw.slice(), otras:otras};
+  },
+  ponerMarcas:function(mesa,i,raw){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(mesa), g=t&&t.guests[i]; if(!g) return false;
+    g.raw=raw.slice(); commit(); doc=parse(current().text); renderView(); renderStats();
+    return true;
+  },
   /* colores de los tiempos, para que el Menú (otra IIFE) pinte igual que aquí */
   cursoColor:cursoColor,
   cursosInfo:function(){ return CURSOS; },
@@ -14538,6 +14558,7 @@ function renderAlergias(){
               '<input type="text" list="aler-platos" value="'+esc(p)+'" placeholder="plato sustitutivo" '+
               'aria-label="Plato para '+esc(g.nombre)+'">'+
               cursoSelectHTML((g.sustitutosC||[])[pi]||"")+
+              '<button type="button" class="btn sm aler-plato-det"'+(p?"":" hidden")+' aria-label="Pasar «'+esc(p||"este plato")+'» de '+esc(g.nombre)+' a detalle de servicio" title="Si no es una alergia (una vela, una dedicatoria…): se apunta como detalle de servicio en la escaleta y deja de restar plato">Pasar a detalle de servicio</button>'+
               '<button type="button" class="btn ico aler-plato-rm" aria-label="Quitar este plato de '+esc(g.nombre)+'" title="Quitar este plato">−</button>'+
               '</div>';
           }).join("")+
@@ -14652,11 +14673,14 @@ function nuevaFilaPlato(nombre){
   inp.setAttribute("aria-label","Plato para "+nombre);
   var wrap=document.createElement("span"); wrap.innerHTML=cursoSelectHTML("");
   var sel=wrap.firstChild;
+  var dtb=document.createElement("button");
+  dtb.type="button"; dtb.className="btn sm aler-plato-det"; dtb.hidden=true; dtb.textContent="Pasar a detalle de servicio";
+  dtb.setAttribute("aria-label","Pasar este plato de "+nombre+" a detalle de servicio"); dtb.title="Si no es una alergia (una vela, una dedicatoria…): se apunta como detalle de servicio en la escaleta y deja de restar plato";
   var rm=document.createElement("button");
   rm.type="button"; rm.className="btn ico aler-plato-rm";
   rm.setAttribute("aria-label","Quitar este plato de "+nombre); rm.title="Quitar este plato";
   rm.textContent="−";
-  row.appendChild(inp); row.appendChild(sel); row.appendChild(rm);
+  row.appendChild(inp); row.appendChild(sel); row.appendChild(dtb); row.appendChild(rm);
   return row;
 }
 function leerPlatoBox(box){
@@ -14690,6 +14714,7 @@ function commitPlatoBox(box){
 function wirePlatoBox(box){
   box.addEventListener("click",function(e){
     var cp=e.target.closest(".aler-cp"); if(cp){ alerCopiar(box,cp.getAttribute("data-aler-cp"),cp); return; }
+    var dtb=e.target.closest(".aler-plato-det"); if(dtb){ alerADetalle(box,dtb.closest(".aler-plato-row")); return; }
     if(e.target.closest(".aler-plato-add")){
       var nombre=box.closest(".aler-row").querySelector(".aler-nm").textContent;
       var row=nuevaFilaPlato(nombre);
@@ -14707,6 +14732,8 @@ function wirePlatoBox(box){
   box.addEventListener("keydown",function(e){
     if(e.key==="Enter"&&e.target.tagName==="INPUT"){ e.preventDefault(); commitPlatoBox(box); }
   });
+  /* el botón «Pasar a detalle de servicio» solo tiene sentido en una fila con algo escrito */
+  box.addEventListener("input",function(e){ var r=e.target.closest&&e.target.closest(".aler-plato-row"); if(!r||e.target.tagName!=="INPUT") return; var bt=r.querySelector(".aler-plato-det"); if(bt) bt.hidden=!e.target.value.trim(); });
   /* elegir el tiempo de un plato guarda al momento (y repinta con su color) */
   box.addEventListener("change",function(e){
     if(e.target.classList&&e.target.classList.contains("aler-plato-curso")) commitPlatoBox(box);
@@ -14799,6 +14826,73 @@ function alerCopiar(box,modo,opener){
     if(e.shiftKey){ if(k<=0){ e.preventDefault(); f[f.length-1].focus(); } } else if(k===f.length-1){ e.preventDefault(); f[0].focus(); } });
   pinta();
   var pri=ovl.querySelector("input:checked")||ovl.querySelector("input:not([disabled])")||ovl.querySelector('[data-cp="x"]'); if(pri) pri.focus();
+}
+/* ══ pasar un plato sustitutivo a «detalle de servicio» ═══════════════════
+   Lo que se apuntó como plato sustitutivo (o como «alergia») pero no lo es —«Tarta número 50», una dedicatoria—
+   se saca de «Se le sirve» y se pone en la escaleta, en «Detalles de servicio»: deja de restar plato y de salir en rojo.
+   Si la persona tenía una «alergia» que no es ningún alérgeno conocido (p. ej. «tarta número 50»), se ofrece quitarla del plano. */
+function detMomentoPara(txt,curso,an){
+  var n=escNorm(txt), pick=function(re){ return an.filter(function(a){ return re.test(a.label); })[0]; }, hit=null;
+  if(/tarta|pastel|pastis|vela|cumple/.test(n)) hit=pick(/^tarta/i)||pick(/^postre/i);
+  if(!hit&&curso==="primero") hit=pick(/^1º plato/i);
+  if(!hit&&curso==="segundo") hit=pick(/^2º plato/i);
+  if(!hit&&curso==="tercero") hit=pick(/^3º plato/i);
+  if(!hit&&curso==="postre") hit=pick(/^postre/i)||pick(/^tarta/i);
+  if(!hit) hit=pick(/^tarta/i)||pick(/^postre/i)||an[an.length-1];
+  return hit?hit.id:"";
+}
+function alerADetalle(box,fila){
+  var mesa=+box.dataset.mesa, i=+box.dataset.i, inp=fila.querySelector("input"), cs=fila.querySelector(".aler-plato-curso");
+  var txt=(inp?inp.value:"").trim(), curso=cs?cs.value:"";
+  if(!txt){ if(BR.toast) BR.toast("Escribe primero el detalle en ese plato.",true); if(inp) inp.focus(); return; }
+  var g=null; (BR.alergias?BR.alergias():[]).forEach(function(x){ if(x.mesa===mesa&&x.i===i) g=x; }); if(!g) return;
+  var md=escModelo(), an=(md&&md.anclas)||[], marcas=BR.marcasDe?BR.marcasDe(mesa,i):null, otras=(marcas&&marcas.otras)||[];
+  var def=detMomentoPara(txt,curso,an), tNorm=escNorm(txt);
+  function parecida(o){ var n=escNorm(o.text); if(!n) return false; if(n===tNorm||n.indexOf(tNorm)>-1||tNorm.indexOf(n)>-1) return true;
+    var pw=tNorm.split(" ").filter(function(w){ return w.length>=4; }); return /vela|cumple|numero|aniversari|dedicatoria/.test(n)||pw.some(function(w){ return n.indexOf(w)>-1; }); }
+  var ovl=document.createElement("div"); ovl.className="ovl cp-ovl";
+  var momentos=an.length?an.map(function(a){ return '<option value="'+esc(a.id)+'"'+(a.id===def?" selected":"")+'>En «'+esc(a.label)+'»</option>'; }).join(""):'<option value="">— no hay platos marcados en «Elegir platos» —</option>';
+  var bloqueOtras=otras.length?'<fieldset class="dt-otras"><legend>Su ficha del plano lleva estas «alergias» que no son ningún alérgeno conocido</legend>'+
+      otras.map(function(o,k){ return '<label class="cp-row"><input type="checkbox" data-dt-otra="'+k+'"'+(parecida(o)?" checked":"")+'> <span class="cp-nm">Quitar «'+esc(o.text)+'» del plano</span></label>'; }).join("")+
+      '<p class="cp-vacio">Si de verdad es una alergia, déjala marcada.</p></fieldset>':'';
+  ovl.innerHTML='<div class="ovl-box mp-box cp-box" role="dialog" aria-modal="true" aria-labelledby="dt-h">'+
+    '<div class="ovl-head"><h3 id="dt-h">Pasar a detalle de servicio</h3><div class="spacer"></div><button class="btn sm" type="button" data-dt="x">Cancelar</button></div>'+
+    '<div class="ovl-body cp-body" tabindex="0" role="region" aria-label="Detalle de servicio">'+
+      '<p class="cp-res"><b>«'+esc(txt)+'»</b> · '+esc(g.nombre)+' ('+esc(g.mesaLbl||("Mesa "+g.mesa))+')<br>Deja de ser un plato sustitutivo: <b>no resta plato</b> ni sale en rojo. Se apunta en la escaleta, en «Detalles de servicio».</p>'+
+      '<label class="fld"><span class="lbl">Momento en que se hace</span><select id="dt-cuando">'+momentos+'</select></label>'+bloqueOtras+
+    '</div>'+
+    '<div class="imp-foot"><button class="btn gold" type="button" data-dt="ok"'+(an.length?"":" disabled")+'>Pasar a detalle de servicio</button></div></div>';
+  document.body.appendChild(ovl);
+  function close(){ ovl.remove(); }
+  function volver(){ var x=document.querySelector('#mnu-body .aler-plato[data-mesa="'+mesa+'"][data-i="'+i+'"] .aler-plato-det')||document.querySelector('#mnu-body .aler-plato[data-mesa="'+mesa+'"][data-i="'+i+'"] input'); if(x) x.focus(); }
+  function aplicar(){
+    var tras=(ovl.querySelector("#dt-cuando")||{}).value; if(!tras) return;
+    var cfg=escCfg(), prevDet=Array.isArray(cfg.detalles)?JSON.parse(JSON.stringify(cfg.detalles)):null, prevRaw=marcas?marcas.raw.slice():null;
+    var quitar=[]; Array.prototype.forEach.call(ovl.querySelectorAll("[data-dt-otra]"),function(c){ if(c.checked) quitar.push(otras[+c.getAttribute("data-dt-otra")].raw); });
+    /* el detalle (con su persona y su momento) */
+    cfg.detalles=Array.isArray(cfg.detalles)?cfg.detalles:[];
+    cfg.detalles.push({id:"d"+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),k:aaKey(g),tras:tras,txt:txt});
+    /* se saca de «Se le sirve»: los demás platos de esa persona se quedan */
+    var resto=[]; Array.prototype.forEach.call(box.querySelectorAll(".aler-plato-row"),function(r){ if(r===fila) return; var i2=r.querySelector("input"), c2=r.querySelector(".aler-plato-curso"), n2=(i2?i2.value:"").trim(); if(n2) resto.push({n:n2,c:c2?c2.value:""}); });
+    if(BR.setSustitutos) BR.setSustitutos(mesa,i,resto);
+    /* y, si se pide, las «alergias» que no lo son */
+    if(quitar.length&&BR.marcasDe&&BR.ponerMarcas){ var m2=BR.marcasDe(mesa,i); if(m2) BR.ponerMarcas(mesa,i,m2.raw.filter(function(t){ return quitar.indexOf(t)<0; })); }
+    touchSave(); close(); if(mnuView==="aler") renderAlergias();
+    var nom=(an.filter(function(a){ return a.id===tras; })[0]||{}).label||"la escaleta";
+    if(BR.toast) BR.toast("«"+txt+"» pasa a Detalles de servicio, en «"+nom+"»."+(quitar.length?" Se han quitado "+quitar.length+(quitar.length===1?" marca":" marcas")+" del plano.":""),false,"Deshacer",function(){
+      var c3=escCfg(); if(prevDet) c3.detalles=prevDet; else delete c3.detalles;
+      if(prevRaw&&BR.ponerMarcas) BR.ponerMarcas(mesa,i,prevRaw);
+      touchSave(); if(mnuView==="aler") renderAlergias(); else if(mnuView==="esc") renderEscaleta(); });
+  }
+  ovl.addEventListener("click",function(e){ if(e.target===ovl){ close(); volver(); return; } var b=e.target.closest("[data-dt]"); if(!b) return;
+    if(b.getAttribute("data-dt")==="x"){ close(); volver(); } else if(b.getAttribute("data-dt")==="ok") aplicar(); });
+  ovl.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){ e.preventDefault(); close(); volver(); return; }
+    if(e.key!=="Tab") return;
+    var f=Array.prototype.filter.call(ovl.querySelectorAll('button:not([disabled]),input:not([disabled]),select,[tabindex="0"]'),function(x){ return x.offsetParent!==null; });
+    if(!f.length) return; var k=f.indexOf(document.activeElement);
+    if(e.shiftKey){ if(k<=0){ e.preventDefault(); f[f.length-1].focus(); } } else if(k===f.length-1){ e.preventDefault(); f[0].focus(); } });
+  var pri=ovl.querySelector("#dt-cuando"); if(pri) pri.focus();
 }
 function wirePlatos(){
   Array.prototype.forEach.call($("mnu-body").querySelectorAll(".aler-plato"),function(box){ wirePlatoBox(box); });
