@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.91 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.92 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.91".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.92".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2924,6 +2924,15 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .mjv-h.v{cursor:ns-resize}
 .mjv-h:hover,.mjv-h.on,.mjv-h:focus-visible{background:var(--gold-p,#9A722A); outline:3px solid color-mix(in srgb,var(--gold-p,#9A722A) 40%,transparent)}
 .mjv-ayuda{margin:0}
+.lz-lp{display:flex; flex-direction:column; gap:10px; margin-bottom:12px}
+.lz-lp-prev{border:1px solid var(--c-line); border-radius:10px; overflow:hidden; line-height:0}
+.lz-lp-prev canvas{width:100%; height:auto; display:block}
+.lz-lp-cols{display:flex; flex-wrap:wrap; gap:6px}
+.lz-sw{display:inline-flex; align-items:center; gap:6px; padding:4px 10px 4px 6px; border:1px solid var(--c-line); border-radius:99px; background:var(--panel); font:600 12px var(--font-text); color:var(--c-ink); cursor:pointer; min-height:34px}
+.lz-sw i{width:18px; height:18px; border-radius:50%; border:1px solid rgba(0,0,0,.25); display:inline-block}
+.lz-sw.on{border-color:var(--olive,#6E7D50); box-shadow:0 0 0 2px color-mix(in srgb,var(--olive,#6E7D50) 30%,transparent)}
+.lz-sw-otro input[type=color]{width:20px; height:20px; padding:0; border:0; background:none}
+.lz-chk{display:inline-flex; align-items:center; gap:6px; font-size:12px}
 .mjv-ctl{display:flex; flex-direction:column; gap:10px}
 .mjv-rg{display:flex; align-items:center; gap:8px} .mjv-rg input[type=range]{flex:1}
 @media (max-width:720px){ .mjv-canvas{padding:26px 34px; min-height:220px} .mjv-stage{grid-template-columns:auto minmax(0,1fr) auto; gap:6px} }
@@ -4332,7 +4341,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.91</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.92</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9828,7 +9837,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.91</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.92</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -22204,7 +22213,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     h+='<section class="pq-sec"><h2>Lo que ha enviado <small>'+(logo?1:0)+(logo?" logo":" logos")+' · '+fotos.length+(fotos.length===1?" foto":" fotos")+'</small></h2>'+
       ((logo||fotos.length)?'<div class="pq-fotos">'+[logo].concat(fotos).filter(Boolean).map(function(a){
         return '<figure class="pq-th'+(a.leido?"":" nuevo")+'"><a href="/api/portal/img?id='+a.id+'" target="_blank" rel="noopener"><img src="/api/portal/img?id='+a.id+'" alt="'+esc(a.kind==="logo"?"Logo del cliente":(a.nombre||"Foto del cliente"))+'" loading="lazy"></a><figcaption>'+esc(a.kind==="logo"?"Logo":(a.nombre||"Foto"))+' · '+esc(fch(a.ts))+'</figcaption>'+
-          '<div class="pq-thb"><a class="btn sm" href="/api/portal/img?id='+a.id+'" download="'+esc((a.kind==="logo"?"logo":"foto")+"_"+a.id+(a.mime==="image/png"?".png":a.mime==="image/webp"?".webp":".jpg"))+'">Bajar</a><button type="button" class="btn sm" data-pq="quitar" data-id="'+a.id+'">Quitar</button></div></figure>'; }).join("")+'</div>'
+          '<div class="pq-thb"><a class="btn sm" href="/api/portal/img?id='+a.id+'" download="'+esc((a.kind==="logo"?"logo":"foto")+"_"+a.id+(a.mime==="image/png"?".png":a.mime==="image/webp"?".webp":".jpg"))+'">Bajar</a>'+(a.kind==="logo"?'<button type="button" class="btn sm gold" data-pq="usar-logo" data-id="'+a.id+'" title="Lo recorta, le quita el fondo y lo deja en el diseñador como logo de la pareja, para cambiarle el color">Usar como logo de la pareja</button>':'')+'<button type="button" class="btn sm" data-pq="quitar" data-id="'+a.id+'">Quitar</button></div></figure>'; }).join("")+'</div>'
         :'<p class="pq-peq">El cliente todavía no ha enviado ni logo ni fotos.</p>')+'</section></div>';
     host.innerHTML=h; host.scrollTop=y;
     var root=host.querySelector(".pq-wrap"); root.addEventListener("click",manejar); root.addEventListener("input",function(ev){ if(ev.target.id==="pq-msg") Q.txt=ev.target.value; });
@@ -22242,6 +22251,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       b.disabled=true; api("/api/portal/msg","POST",{ev:e.id,texto:t}).then(function(j){ if(j._status===200){ Q.txt=""; Q.data=Object.assign({},Q.data,j); toast("Respuesta enviada: el cliente la verá en su portal."); } else toast(j.message||"No se ha podido enviar.",true); pintar(); var ch=Q.host.querySelector("#pq-chat"); if(ch) ch.scrollTop=ch.scrollHeight; });
     }
     else if(a==="quitar"){ api("/api/portal/arch?id="+b.getAttribute("data-id"),"DELETE").then(function(){ toast("Quitado."); cargarEv(true); }); }
+    else if(a==="usar-logo"){ var idl=b.getAttribute("data-id"); b.disabled=true;
+      if(!window.LM_logoPareja){ toast("El diseñador no está disponible.",true); b.disabled=false; return; }
+      window.LM_logoPareja.desdeUrl("/api/portal/img?id="+idl,"logo del cliente","portal:"+idl).then(function(){ b.disabled=false; toast("Listo: ya es el logo de la pareja. Lo tienes en el diseñador de la minuta (pestaña «Logo»), donde se le puede quitar el fondo y cambiar de color."); })
+        .catch(function(err){ b.disabled=false; toast((err&&err.message)||"No se ha podido usar ese logo.",true); }); }
   }
   window.LM_renderPortal=function(host){
     var e=evActual();
@@ -26281,6 +26294,96 @@ window.LM_montajeMesa=function(num){ try{
 BR.montaje={hojaEv:mjHojaEv, otrosDia:mjOtrosDia, mesasAper:mjMesasAper, configs:mjConfigs, mejor:mjMejor, cfgTxt:mjCfgTxt, medidas:mjMedidas, redonda:mjRedonda, longitud:mjLongitud, paxLarga:mjPaxLarga, opciones:mjOpciones, inventario:mjInventario, hoja:mjHoja, params:mjP, texto:texto};
 })();
 </script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   LOGO DE LA PAREJA (v01.92)
+   Los novios mandan su logo (por el portal o por WhatsApp). Aquí se lee como un
+   logo PROPIO del evento: se recorta, se le quita el fondo (blanco o negro) y se
+   puede pintar de cualquier color, y queda guardado en el evento para usarlo en
+   todos los diseños (@pareja), igual que los logos de la casa.
+   · LM_trataImg(imagen, {tinte, sinFondo, fondo}) → lienzo con el logo tratado
+   · LM_logoPareja: get · poner · ajusta · quita · desdeArchivo · desdeUrl · delPortal
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR) return;
+  var MAXPX=800, MAXCHARS=420000;
+  function hex2rgb(h){ var t=String(h||"").trim(), m=/^#?([0-9a-f]{6})$/i.exec(t); if(m){ var n=parseInt(m[1],16); return [n>>16&255,n>>8&255,n&255]; }
+    m=/^#?([0-9a-f]{3})$/i.exec(t); if(m){ var q=m[1]; return [parseInt(q[0]+q[0],16),parseInt(q[1]+q[1],16),parseInt(q[2]+q[2],16)]; } return null; }
+  function lumi(r,g,b){ return (0.299*r+0.587*g+0.114*b)/255; }
+  function clamp(v){ return v<0?0:v>255?255:Math.round(v); }
+  /* qué fondo tiene: transparente, claro, oscuro u otro (mirando los bordes) */
+  function fondoDe(p,w,h){
+    var pts=[[0,0],[w-1,0],[0,h-1],[w-1,h-1],[w>>1,0],[w>>1,h-1],[0,h>>1],[w-1,h>>1]], a=0, l=0;
+    pts.forEach(function(q){ var i=(q[1]*w+q[0])*4; a+=p[i+3]; l+=lumi(p[i],p[i+1],p[i+2]); });
+    a/=pts.length; l/=pts.length;
+    return a<24?"transp":l>0.86?"claro":l<0.16?"oscuro":"otro";
+  }
+  /* el tratamiento: quita el fondo (conservando los colores y los bordes suaves) y/o lo pinta de un solo color */
+  function trata(src,w,h,o){
+    var c=document.createElement("canvas"); c.width=w; c.height=h; var g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(src,0,0,w,h);
+    var id=g.getImageData(0,0,w,h), p=id.data, rgb=hex2rgb(o.tinte), fondo=o.fondo||fondoDe(p,w,h), quita=!!o.sinFondo&&(fondo==="claro"||fondo==="oscuro");
+    if(!rgb&&!quita) return c;
+    for(var i=0;i<p.length;i+=4){
+      var a=p[i+3]; if(!a) continue;
+      if(quita){
+        /* la opacidad sube según lo lejos que está del fondo; el dibujo «de verdad» (denso) conserva su color tal cual
+           y sólo los bordes suaves se des-mezclan del fondo */
+        var r=p[i], gg=p[i+1], b=p[i+2], d, k, lo, hi;
+        if(fondo==="claro"){ d=1-Math.min(r,gg,b)/255; lo=0.05; hi=0.40; } else { d=Math.max(r,gg,b)/255; lo=0.08; hi=0.40; }
+        k=d<=lo?0:d>=hi?1:(d-lo)/(hi-lo);
+        if(k<=0){ p[i+3]=0; continue; }
+        if(k<1&&!rgb){ if(fondo==="claro"){ p[i]=clamp((r-255*(1-k))/k); p[i+1]=clamp((gg-255*(1-k))/k); p[i+2]=clamp((b-255*(1-k))/k); } else { p[i]=clamp(r/k); p[i+1]=clamp(gg/k); p[i+2]=clamp(b/k); } }
+        p[i+3]=Math.round(a*k);
+      }
+      if(rgb){ p[i]=rgb[0]; p[i+1]=rgb[1]; p[i+2]=rgb[2]; }
+    }
+    g.putImageData(id,0,0); return c;
+  }
+  var CACHE=typeof WeakMap!=="undefined"?new WeakMap():null;
+  function trataImg(im,o){
+    o=o||{}; if(!im||(!o.tinte&&!o.sinFondo)) return im;
+    var w=im.naturalWidth||im.width, h=im.naturalHeight||im.height; if(!w||!h) return im;
+    var k=[o.tinte||"",o.sinFondo?1:0,o.fondo||""].join("|"), m=CACHE&&CACHE.get(im);
+    if(m&&m[k]) return m[k];
+    var r=trata(im,w,h,o); if(CACHE){ m=m||{}; m[k]=r; CACHE.set(im,m); } return r;
+  }
+  window.LM_trataImg=trataImg;
+  /* ingestar un logo: tamaño razonable, recorte al dibujo y qué fondo trae */
+  function carga(url){ return new Promise(function(res,rej){ var im=new Image(); im.onload=function(){ res(im); }; im.onerror=function(){ rej({message:"Esa imagen no se puede abrir. Prueba con un JPG, PNG o WebP."}); }; im.src=url; }); }
+  function ingesta(url){
+    return carga(url).then(function(im){
+      var iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height; if(!iw||!ih) throw {message:"La imagen está vacía."};
+      var k=Math.min(1,MAXPX/Math.max(iw,ih)), w=Math.max(1,Math.round(iw*k)), h=Math.max(1,Math.round(ih*k));
+      var c=document.createElement("canvas"); c.width=w; c.height=h; var g=c.getContext("2d",{willReadFrequently:true}); g.drawImage(im,0,0,w,h);
+      var p=g.getImageData(0,0,w,h).data, fondo=fondoDe(p,w,h), bg=fondo==="claro"?1:fondo==="oscuro"?0:null, x0=w, y0=h, x1=-1, y1=-1, x, y;
+      for(y=0;y<h;y++) for(x=0;x<w;x++){ var i=(y*w+x)*4; if(p[i+3]<20) continue; if(bg!=null&&Math.abs(lumi(p[i],p[i+1],p[i+2])-bg)<0.10) continue; if(x<x0) x0=x; if(x>x1) x1=x; if(y<y0) y0=y; if(y>y1) y1=y; }
+      if(x1<0){ x0=0; y0=0; x1=w-1; y1=h-1; }
+      var mg=Math.round(Math.max(w,h)*0.015); x0=Math.max(0,x0-mg); y0=Math.max(0,y0-mg); x1=Math.min(w-1,x1+mg); y1=Math.min(h-1,y1+mg);
+      var cw=x1-x0+1, ch=y1-y0+1, c2=document.createElement("canvas"); c2.width=cw; c2.height=ch; c2.getContext("2d").drawImage(c,x0,y0,cw,ch,0,0,cw,ch);
+      var out=c2.toDataURL("image/png"), f=1, n=0;
+      while(out.length>MAXCHARS&&n<6){ f*=0.8; n++; var c3=document.createElement("canvas"); c3.width=Math.max(1,Math.round(cw*f)); c3.height=Math.max(1,Math.round(ch*f)); c3.getContext("2d").drawImage(c2,0,0,c3.width,c3.height); out=c3.toDataURL("image/png"); cw=c3.width; ch=c3.height; }
+      return {src:out,w:cw,h:ch,fondo:fondo,sinFondo:fondo==="claro"||fondo==="oscuro"};
+    });
+  }
+  function leeDataURL(blob){ return new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){ res(fr.result); }; fr.onerror=function(){ rej({message:"No se ha podido leer la imagen."}); }; fr.readAsDataURL(blob); }); }
+  function ev(){ try{ return BR.current(); }catch(_){ return null; } }
+  function guarda(e){ e.updated=Date.now(); try{ BR.save(); }catch(_){} }
+  var API={
+    get:function(){ var e=ev(); return e&&e.logoPareja&&e.logoPareja.src?e.logoPareja:null; },
+    poner:function(r,de,nombre){ var e=ev(); if(!e) return null; e.logoPareja={src:r.src,w:r.w,h:r.h,fondo:r.fondo,sinFondo:!!r.sinFondo,tinte:"",de:de||"",nombre:String(nombre||"").slice(0,80),ts:Date.now()}; guarda(e); return e.logoPareja; },
+    ajusta:function(o){ var e=ev(), P=API.get(); if(!e||!P) return false; if(o&&"tinte" in o) P.tinte=o.tinte||""; if(o&&"sinFondo" in o) P.sinFondo=!!o.sinFondo; guarda(e); return true; },
+    quita:function(){ var e=ev(); if(!e) return; delete e.logoPareja; guarda(e); },
+    desdeArchivo:function(file){ return leeDataURL(file).then(ingesta).then(function(r){ API.poner(r,"subido",file.name); return r; }); },
+    desdeUrl:function(url,nombre,de){ return fetch(url,{credentials:"same-origin"}).then(function(r){ if(!r.ok) throw {message:"No se ha podido bajar el logo."}; return r.blob(); }).then(leeDataURL).then(ingesta).then(function(r){ API.poner(r,de||"portal",nombre); return r; }); },
+    delPortal:function(){ var e=ev(); if(!e) return Promise.resolve(null);
+      return fetch("/api/portal?ev="+encodeURIComponent(e.id),{credentials:"same-origin",headers:{Accept:"application/json"}}).then(function(r){ return r.ok?r.json():null; })
+        .then(function(j){ var a=j&&j.arch&&j.arch.filter(function(x){ return x.kind==="logo"; })[0]; return a?{id:a.id,nombre:a.nombre||"logo",ts:a.ts}:null; }).catch(function(){ return null; }); },
+    trata:trataImg
+  };
+  window.LM_logoPareja=API;
+})();
+</script>
 <script>/*LZ-START*/
 /* catálogo de imágenes del diseñador (se cargan de lz/NOMBRE.webp) */
 window.LM_LZ_MAN={
@@ -26329,7 +26432,7 @@ var BR=window.SITTING_BRIDGE; if(!BR) return;
 var W=297.64, H=841.89;                       /* media hoja A4 en puntos */
 var ARTE={}, ARTE_META={};                                  /* arte procedural (ver ext_arte) */
 var IMG_GLOBAL={};                            /* imágenes de fábrica: @olivo, @logos */
-function imgsFab(){ var m=BR.minutaImgs||{}; return {"@olivo":m.head||null,"@logos":m.logos||null}; }
+function imgsFab(){ var m=BR.minutaImgs||{}, P=window.LM_logoPareja?window.LM_logoPareja.get():null; return {"@olivo":m.head||null,"@logos":m.logos||null,"@pareja":P?{src:P.src,w:P.w,h:P.h}:null}; }
 
 /* ── tipografías ─────────────────────────────────────────────────────── */
 var FUENTES=[
@@ -26508,9 +26611,15 @@ function dibujaTexto(ctx,it,k){
     else { var cx=x0; ctx.textAlign="left"; for(var c=0;c<l.length;c++){ ctx.fillText(l[c],cx,by); cx+=ctx.measureText(l[c]).width+ls; } } });
   ctx.restore();
 }
+/* el color y el fondo de una imagen: los suyos o, si es el logo de la pareja, los que se le hayan puesto a ese logo */
+function imgTratada(it,im){
+  var LPa=window.LM_logoPareja, P=(it.src==="@pareja"&&LPa)?LPa.get():null, tinte=it.tinte!=null?it.tinte:((P&&P.tinte)||""), sf=it.sinFondo!=null?!!it.sinFondo:!!(P&&P.sinFondo);
+  if(!tinte&&!sf) return im; var o={tinte:tinte,sinFondo:sf}; if(P&&P.fondo) o.fondo=P.fondo;
+  return window.LM_trataImg?window.LM_trataImg(im,o):im;
+}
 function dibujaImagen(ctx,it){
   var im=imagen(it.src); ctx.save(); ctx.globalAlpha=it.op==null?1:it.op;
-  if(im) ctx.drawImage(im,it.x,it.y,it.w,it.h); else { ctx.strokeStyle="#bbb"; ctx.setLineDash([4,3]); ctx.strokeRect(it.x,it.y,it.w,it.h); }
+  if(im) ctx.drawImage(imgTratada(it,im),it.x,it.y,it.w,it.h); else { ctx.strokeStyle="#bbb"; ctx.setLineDash([4,3]); ctx.strokeRect(it.x,it.y,it.w,it.h); }
   ctx.restore();
 }
 /* la escena entera, en una hoja de ancho W (puntos) escalada por k */
@@ -26607,7 +26716,9 @@ tpl({id:"hojas_logo",nombre:"Hojas y logo de la pareja",desc:"Distinciones y log
   deco:function(sc,tp,dm){ var o=cabLogos(W/2,30,112,118); o.push(LZI("hoja_7",W-86,34,46)); o.push(TX("nom2","",24,112,W-48,est("Montserrat",17,"#111111",{b:1,i:1,lh:1.1}),{campo:"{nombre}"}));
     o.push(TX("fec","",24,142,W-48,est("Montserrat",9.4,"#333333",{i:1}),{campo:"{fecha}"}));
     o.push(LZI("hoja_6",W-82,462,58)); o.push(LZI("hoja_10",W-40,300,20)); o.push(LZI("hoja_1",W-70,596,38));
-    if(dm.cat==="boda") o.push(monoDeco(dm,"aro",W/2-62,664,124,156,"#1E1E1E","Cormorant Garamond")); return o; }});
+    var LPa=window.LM_logoPareja&&window.LM_logoPareja.get();
+    if(LPa){ var lw=Math.min(150,W-90), lh=lw*LPa.h/LPa.w; if(lh>170){ lh=170; lw=lh*LPa.w/LPa.h; } o.push(IMG("@pareja",(W-lw)/2,664+(170-lh)/2,lw,lh)); }
+    else if(dm.cat==="boda") o.push(monoDeco(dm,"aro",W/2-62,664,124,156,"#1E1E1E","Cormorant Garamond")); return o; }});
 /* sello de fecha */
 tpl({id:"sello",nombre:"Sello de fecha",desc:"Frase de agradecimiento en caligrafía verde y un sello con vuestros nombres y la fecha",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#2B2B2B",color:"#6E8F68",mx:46,x0:52,w:190,zona:{y0:182},pieY:818,pie:"sin",noNom:true,
   est:{tit:est("Cormorant Garamond",10.4,"#2B2B2B",{al:"left",up:1,ls:0.6,b:0,lh:1.2}),lin:est("Cormorant Garamond",7.2,"#3A3A3A",{al:"left",i:1,lh:1.42}),peq:est("Cormorant Garamond",6.8,"#3A3A3A",{al:"left",i:1,lh:1.5}),ast:est("Cormorant Garamond",7,"#6E8F68",{al:"left"}),nom:est("Allura",26,"#6E8F68"),rot:est("Allura",26,"#6E8F68")},
@@ -27672,7 +27783,10 @@ function barra(){
       '<div class="lz-grp">'+btn("al-left","⇤","Alinear a la izquierda",it.al==="left")+btn("al-center","↔","Centrar",it.al==="center")+btn("al-right","⇥","Alinear a la derecha",it.al==="right")+'</div>'+
       '<div class="lz-grp"><label class="lz-rg" title="Espaciado entre letras">Letras<input type="range" min="-1" max="14" step="0.1" data-lz-p="ls" value="'+(it.ls||0)+'"></label><label class="lz-rg" title="Interlineado">Líneas<input type="range" min="0.8" max="2.6" step="0.02" data-lz-p="lh" value="'+(it.lh||1.25)+'"></label></div>';
   } else if(it&&it.t==="img"){
-    h+='<div class="lz-grp"><label class="lz-rg">Opacidad<input type="range" min="0.1" max="1" step="0.05" data-lz-p="op" value="'+(it.op==null?1:it.op)+'"></label><label class="lz-b lz-up" for="lz-reemp">Cambiar imagen</label><input type="file" id="lz-reemp" accept="image/*" hidden></div>';
+    var P0=it.src==="@pareja"&&window.LM_logoPareja?window.LM_logoPareja.get():null, col0=it.tinte!=null?it.tinte:((P0&&P0.tinte)||""), sf0=it.sinFondo!=null?!!it.sinFondo:!!(P0&&P0.sinFondo);
+    h+='<div class="lz-grp"><label class="lz-rg">Color del logo<input type="color" class="lz-col" data-lz-p="tinte" value="'+esc(colorOk(col0||"#333333"))+'"></label>'+btn("tinte-neg","Negro","Pintarlo de negro",col0.toLowerCase()==="#111111")+btn("tinte-bln","Blanco","Pintarlo de blanco",col0.toLowerCase()==="#ffffff")+btn("tinte-off","Original","Volver a los colores originales",!col0)+
+      '<label class="lz-rg lz-chk"><input type="checkbox" data-lz-p="sinFondo"'+(sf0?" checked":"")+'> Quitar el fondo</label></div>'+
+      '<div class="lz-grp"><label class="lz-rg">Opacidad<input type="range" min="0.1" max="1" step="0.05" data-lz-p="op" value="'+(it.op==null?1:it.op)+'"></label><label class="lz-b lz-up" for="lz-reemp">Cambiar imagen</label><input type="file" id="lz-reemp" accept="image/*" hidden></div>';
   } else if(it&&it.t==="shape"&&it.f==="monograma"){
     h+='<div class="lz-grp"><select class="lz-sel" data-lz-p="est" aria-label="Estilo del logo">'+MONO_ESTILOS.map(function(e){ return '<option value="'+e.id+'"'+(it.est===e.id?" selected":"")+'>'+esc(e.n)+'</option>'; }).join("")+'</select><select class="lz-sel" data-lz-p="fnt" aria-label="Letra de las iniciales">'+MONO_FUENTES.map(function(n){ return '<option value="'+esc(n)+'"'+((it.fnt||MONO_DEF[it.est])===n?" selected":"")+'>'+esc(n)+'</option>'; }).join("")+'</select></div>'+
       '<div class="lz-grp"><input class="lz-n" data-lz-p="a" maxlength="2" value="'+esc(it.a)+'" aria-label="Primera inicial"><input class="lz-n" data-lz-p="b" maxlength="2" value="'+esc(it.b)+'" aria-label="Segunda inicial"><input class="lz-t" type="text" data-lz-p="nom" value="'+esc(it.nom||"")+'" placeholder="Nombres" aria-label="Nombres"><input class="lz-t lz-t-s" type="text" data-lz-p="fec" value="'+esc(it.fec||"")+'" placeholder="Fecha" aria-label="Fecha"></div>'+
@@ -27718,7 +27832,7 @@ function pintaMiniaturas(){ if(!rootEl) return; var tk=++pintandoMin; var dm=dat
   else cvs.forEach(function(cv,k){ setTimeout(function(){ dibuja(cv); },k*30); });
   Promise.resolve().then(function(){ propias().forEach(function(o){ var cv=rootEl&&rootEl.querySelector('canvas[data-lz-mth="'+o.id+'"]'); if(!cv) return; var sc=escenaDePropia(o,dm); aseguraEscena(sc).then(function(){ if(tk!==pintandoMin||!rootEl) return; sc.items.forEach(medir); var g=cv.getContext("2d"); g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,cv.width,cv.height); dibujaEscena(g,sc,cv.width/W,{}); }); }); }).catch(function(err){ try{ console.warn("minuta: miniaturas",err); }catch(_){} }); }
 function anadirHTML(){ var fb=function(a,t){ return '<button type="button" class="lz-add" data-lz-add="'+a+'">'+t+'</button>'; };
-  return '<div class="lz-sec">Texto e imágenes</div><div class="lz-adds">'+fb("txt","Aa Texto")+'<label class="lz-add" for="lz-img">🖼 Logo o imagen</label><input type="file" id="lz-img" accept="image/*" hidden>'+fb("@logos","Logo Les Moles")+fb("@olivo","Hojas de olivo")+'</div>'+
+  return '<div class="lz-sec">Texto e imágenes</div><div class="lz-adds">'+fb("txt","Aa Texto")+'<label class="lz-add" for="lz-img">🖼 Logo o imagen</label><input type="file" id="lz-img" accept="image/*" hidden>'+fb("@logos","Logo Les Moles")+(window.LM_logoPareja&&window.LM_logoPareja.get()?fb("@pareja","Logo de la pareja"):"")+fb("@olivo","Hojas de olivo")+'</div>'+
     '<div class="lz-sec">Líneas y marcos</div><div class="lz-adds">'+fb("linea","— Línea")+fb("rect","▭ Marco")+fb("redondo","▢ Marco redondo")+fb("arco","⌓ Arco")+fb("esquinas","⌜⌟ Esquinas")+fb("circ","● Círculo")+'</div>'+
     '<div class="lz-sec">Adornos dibujados</div><div class="lz-adds">'+fb("rama","Rama de olivo")+fb("laurel","Corona de laurel")+fb("espiga","Espiga")+fb("flor","Flor")+fb("onda","Olas")+fb("sol","Sol art déco")+fb("estrellas","Estrellas")+fb("puntos","Puntos")+fb("enso","Círculo de pincel")+fb("trama","Textura de puntos")+'</div>'+
     (Object.keys(ARTE_META).length?'<div class="lz-sec">Dibujos a pluma y acuarela</div><div class="lz-adds">'+Object.keys(ARTE_META).map(function(k){ return fb(k,ARTE_META[k].n); }).join("")+'</div>':''); }
@@ -27732,8 +27846,8 @@ function paginaHTML(){ return '<div class="lz-sec">Página</div><div class="lz-p
   '<div class="lz-sec">Descargar</div><div class="lz-pg"><button type="button" class="btn sm gold" data-lz-a="pdf">PDF · dos por hoja A4</button><button type="button" class="btn sm" data-lz-a="png">PNG · una minuta</button></div>'; }
 function esAdmin(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); if(!u) return true; return u.role==="admin"; }catch(_){ return true; } }
 function pestana(t){ ST.pest=t; var c=rootEl.querySelector("#lz-side-c"); if(!c) return; c.innerHTML=t==="d"?galeriaHTML():t==="a"?anadirHTML():t==="i"?iconoHTML():t==="l"?monoHTML():paginaHTML();
-  var tl=rootEl.querySelector("#lz-tab-l"); if(tl) tl.hidden=ST.catEv!=="boda"&&t!=="l";
-  rootEl.querySelectorAll("[data-lz-pest]").forEach(function(b){ b.setAttribute("aria-selected",b.getAttribute("data-lz-pest")===t?"true":"false"); }); if(t==="d") pintaMiniaturas(); else if(t==="i") pintaIconos(); else if(t==="l") pintaMonos(); }
+  var tl=rootEl.querySelector("#lz-tab-l"); if(tl) tl.hidden=ST.catEv!=="boda"&&t!=="l"&&!(window.LM_logoPareja&&window.LM_logoPareja.get());
+  rootEl.querySelectorAll("[data-lz-pest]").forEach(function(b){ b.setAttribute("aria-selected",b.getAttribute("data-lz-pest")===t?"true":"false"); }); if(t==="d") pintaMiniaturas(); else if(t==="i") pintaIconos(); else if(t==="l"){ pintaMonos(); pintaPareja(); } }
 
 function monta(h){
   host=h; cargaFuentes(); var m=minuta(); var dm=datos(); h.innerHTML='<p class="lz-cargando">Preparando el lienzo y las tipografías…</p>';
@@ -27749,7 +27863,7 @@ function arranca(h,sc,dm){
   ST.h0=sc.items.map(function(i){ return i.t==="txt"?i.h:null; }); sc.items.forEach(medir); empuja();
   h.innerHTML='<div class="lz" id="lz-root"><div class="lz-aviso" id="lz-aviso" hidden><span>El menú ha cambiado desde que diseñaste la minuta.</span><button type="button" class="btn sm gold" data-lz-a="rellenar">Actualizar los textos</button></div>'+
     '<div class="lz-bar" id="lz-bar"></div><div class="lz-main"><div class="lz-stage" id="lz-stage"><div class="lz-paper" id="lz-paper"><canvas id="lz-cv" aria-label="Minuta: lienzo de diseño" tabindex="0"></canvas><textarea id="lz-ta" hidden spellcheck="true" aria-label="Escribir el texto"></textarea></div><p class="lz-pie">Media hoja A4 (10,5 × 29,7 cm). En el PDF van dos iguales, para cortar por la mitad.</p></div>'+
-    '<aside class="lz-side"><div class="lz-tabs" role="tablist"><button type="button" role="tab" data-lz-pest="d" aria-selected="true">Diseños</button><button type="button" role="tab" data-lz-pest="a" aria-selected="false">Añadir</button><button type="button" role="tab" data-lz-pest="i" aria-selected="false">Iconos</button><button type="button" role="tab" data-lz-pest="l" id="lz-tab-l" aria-selected="false"'+(ST.catEv==="boda"?'':' hidden')+'>Logo</button><button type="button" role="tab" data-lz-pest="p" aria-selected="false">Página</button></div><div id="lz-side-c"></div></aside></div></div>';
+    '<aside class="lz-side"><div class="lz-tabs" role="tablist"><button type="button" role="tab" data-lz-pest="d" aria-selected="true">Diseños</button><button type="button" role="tab" data-lz-pest="a" aria-selected="false">Añadir</button><button type="button" role="tab" data-lz-pest="i" aria-selected="false">Iconos</button><button type="button" role="tab" data-lz-pest="l" id="lz-tab-l" aria-selected="false"'+(ST.catEv==="boda"||(window.LM_logoPareja&&window.LM_logoPareja.get())?'':' hidden')+'>Logo</button><button type="button" role="tab" data-lz-pest="p" aria-selected="false">Página</button></div><div id="lz-side-c"></div></aside></div></div>';
   rootEl=h.querySelector("#lz-root"); ST.cv=rootEl.querySelector("#lz-cv"); ST.ta=rootEl.querySelector("#lz-ta"); alCargar=function(){ if(!ST) return; pintaLienzo(); if(ST.pest==="d") pintaMiniaturas(); };
   /* eventos */
   var cv=ST.cv; cv.style.touchAction="none"; cv.addEventListener("pointerdown",alPulsar); cv.addEventListener("pointermove",alMover); cv.addEventListener("pointerup",alSoltar); cv.addEventListener("pointercancel",alSoltar); cv.addEventListener("dblclick",alDoble);
@@ -27786,7 +27900,7 @@ function alTecla(ev){ if(!ST||!document.body.contains(ST.cv)){ document.removeEv
   var d=ev.shiftKey?10:1; if(ev.key==="ArrowLeft"){ it.x-=d; } else if(ev.key==="ArrowRight"){ it.x+=d; } else if(ev.key==="ArrowUp"){ it.y-=d; } else if(ev.key==="ArrowDown"){ it.y+=d; } else return; ev.preventDefault(); it.mov=1; it.x=r1(it.x); it.y=r1(it.y); empuja(); guardar(); pintaLienzo(); }
 function alTeclaSube(ev){ if(ev.key===" "&&ST&&ST.espacio){ ST.espacio=false; if(ST.cv) ST.cv.style.cursor=ST.mano?"grab":"default"; } }
 function alClic(ev){
-  var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-cat],[data-lz-est],[data-lz-img],[data-lz-ico],[data-lz-mono],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
+  var t=ev.target.closest("[data-lz-a],[data-lz-pest],[data-lz-tpl],[data-lz-cat],[data-lz-est],[data-lz-img],[data-lz-ico],[data-lz-mono],[data-lz-mi],[data-lz-mdel],[data-lz-add],[data-lz-font],[data-lz-lp],[data-lz-lpc2]"); if(!t){ var f=rootEl.querySelector("#lz-fonts"); if(f&&!ev.target.closest("#lz-fonts")) f.hidden=true; return; }
   if(t.hasAttribute("data-lz-pest")){ pestana(t.getAttribute("data-lz-pest")); return; }
   if(t.hasAttribute("data-lz-tpl")){ cambiaDiseno(t.getAttribute("data-lz-tpl")); pestana("d"); return; }
   if(t.hasAttribute("data-lz-cat")){ ST.cat=t.getAttribute("data-lz-cat"); ST.est=""; pestana("d"); return; }
@@ -27794,10 +27908,12 @@ function alClic(ev){
   if(t.hasAttribute("data-lz-img")){ anadeImgCatalogo(t.getAttribute("data-lz-img")); return; }
   if(t.hasAttribute("data-lz-ico")){ anadeIcono(t.getAttribute("data-lz-ico")); return; }
   if(t.hasAttribute("data-lz-mono")){ anadeMono(t.getAttribute("data-lz-mono")); return; }
+  if(t.hasAttribute("data-lz-lpc2")){ if(window.LM_logoPareja&&window.LM_logoPareja.ajusta({tinte:t.getAttribute("data-lz-lpc2")})){ pestana("l"); pintaTodo(); } return; }
+  if(t.hasAttribute("data-lz-lp")){ accionLogo(t.getAttribute("data-lz-lp")); return; }
   if(t.hasAttribute("data-lz-mi")){ aplicaPropia(t.getAttribute("data-lz-mi")); return; }
   if(t.hasAttribute("data-lz-mdel")){ borraPropia(t.getAttribute("data-lz-mdel")); return; }
   if(t.hasAttribute("data-lz-font")){ var it=sel(); if(it){ var nombre=t.getAttribute("data-lz-font"); aseguraFuente(nombre).then(function(){ cambia("f",nombre); }); cambia("f",nombre); } return; }
-  if(t.hasAttribute("data-lz-add")){ var a=t.getAttribute("data-lz-add"); if(a==="txt") nuevoTexto(); else if(a.charAt(0)==="@"){ var fab=imgsFab()[a]; if(fab){ var ww=a==="@logos"?150:W-10, hh=ww*fab.h/fab.w; var im=IMG(a,(W-ww)/2,a==="@logos"?700:0,ww,hh); ST.sc.items.push(im); ST.sel=im.id; empuja(); guardar(); pintaTodo(); } } else nuevaForma(a); return; }
+  if(t.hasAttribute("data-lz-add")){ var a=t.getAttribute("data-lz-add"); if(a==="txt") nuevoTexto(); else if(a.charAt(0)==="@"){ var fab=imgsFab()[a]; if(fab){ var ww=a==="@olivo"?W-10:a==="@pareja"?130:150, hh=ww*fab.h/fab.w; if(a==="@pareja"&&hh>240){ hh=240; ww=hh*fab.w/fab.h; } var im=IMG(a,(W-ww)/2,a==="@olivo"?0:a==="@pareja"?Math.round(H-hh-90):700,ww,hh); ST.sc.items.push(im); ST.sel=im.id; empuja(); guardar(); pintaTodo(); } } else nuevaForma(a); return; }
   var a2=t.getAttribute("data-lz-a"), it2=sel();
   if(a2==="undo") deshacer(); else if(a2==="redo") rehacerAccion();
   else if(a2==="fonts"){ var f2=rootEl.querySelector("#lz-fonts"); f2.hidden=!f2.hidden; }
@@ -27808,18 +27924,22 @@ function alClic(ev){
   else if(a2==="bloq"&&it2){ it2.bloq=!it2.bloq; empuja(); guardar(); pintaTodo(); aviso(it2.bloq?"Bloqueado: no se mueve por error. Tócalo y pulsa el candado para soltarlo.":"Desbloqueado."); }
   else if(a2==="z+") ponZoom(ST.zoom*1.25); else if(a2==="z-") ponZoom(ST.zoom/1.25); else if(a2==="zfit") zoomFit(); else if(a2==="mano"){ ST.mano=!ST.mano; ST.cv.style.cursor=ST.mano?"grab":"default"; barra(); }
   else if(a2==="idioma-es"||a2==="idioma-ca"){ cambiaIdioma(a2.slice(7)); } else if(a2==="monopng"&&it2&&it2.f==="monograma") exportaMonoPNG(it2);
+  else if(a2==="tinte-neg"&&it2) cambia("tinte","#111111"); else if(a2==="tinte-bln"&&it2) cambia("tinte","#FFFFFF"); else if(a2==="tinte-off"&&it2){ cambia("tinte",""); }
   else if(a2==="atodos") aplicaEstiloATodos(); else if(a2==="sinrelleno"&&it2) cambia("fill",""); else if(a2==="semilla"&&it2) cambia("seed",Math.floor(Math.random()*9999));
   else if(a2==="rellenar"){ rellenaDesdeMenu(); } else if(a2==="repartir"){ reparte(ST.sc,ST.gap==null?7:ST.gap); empuja(); guardar(); pintaTodo(); }
   else if(a2==="restablecer"){ if(window.confirm("¿Volver al diseño original?\n\nSe pierde lo que hayas colocado a mano (puedes deshacerlo).")) cambiaDiseno(ST.sc.tpl); }
   else if(a2==="guardarpl") guardarPlantilla(); else if(a2==="pdf"){ exportaPDF(); } else if(a2==="png"){ exportaPNG(); }
 }
 function alCambio(ev){
-  var el=ev.target; if(el.id==="lz-img"&&el.files&&el.files[0]){ subeImagen(el.files[0],anadeImagen); el.value=""; return; }
+  var el=ev.target;
+  if(el.id==="lz-logo-up"&&el.files&&el.files[0]){ var fl=el.files[0]; el.value=""; logoDe(window.LM_logoPareja.desdeArchivo(fl),"Logo guardado como logo de la pareja."); return; }
+  if(el.hasAttribute&&el.hasAttribute("data-lz-lpcol")){ if(window.LM_logoPareja.ajusta({tinte:el.value})){ pintaTodo(); if(ev.type==="change") pestana("l"); } return; }
+  if(el.hasAttribute&&el.hasAttribute("data-lz-lpfondo")){ if(window.LM_logoPareja.ajusta({sinFondo:el.checked})){ pintaTodo(); pestana("l"); } return; } if(el.id==="lz-img"&&el.files&&el.files[0]){ subeImagen(el.files[0],anadeImagen); el.value=""; return; }
   if(el.id==="lz-reemp"&&el.files&&el.files[0]){ var it0=sel(); subeImagen(el.files[0],function(src,w,h){ if(it0){ it0.src=src; it0.h=it0.w*h/w; empuja(); guardar(); pintaTodo(); } }); el.value=""; return; }
   var lg=el.getAttribute("data-lz-lg"); if(lg){ ST.logo[lg]=el.value; pintaMonos(); return; }
   var p=el.getAttribute("data-lz-p"), pg=el.getAttribute("data-lz-pg"), fin=ev.type==="change";
   if(pg){ if(pg==="fondo"){ ST.sc.fondo=el.value; if(fin){ empuja(); guardar(); } pintaLienzo(); } else if(pg==="zoom"){ ponZoom(+el.value); } else if(pg==="guias"){ ST.guias=el.checked; pintaLienzo(); } else if(pg==="do"){ if(fin){ BR.minutaSet&&BR.minutaSet("do",el.value.trim()); rellenaDesdeMenu(true); } } else if(pg==="gap"){ ST.gap=+el.value; reparte(ST.sc,ST.gap); pintaLienzo(); if(fin){ empuja(); guardar(); } } return; }
-  if(!p) return; var it=sel(); if(!it) return; var v=el.value; if(p==="s"||p==="ls"||p==="lh"||p==="op"||p==="sw"||p==="doble") v=+v; if(p==="s"&&!(v>=4)) return;
+  if(!p) return; var it=sel(); if(!it) return; var v=el.type==="checkbox"?el.checked:el.value; if(p==="s"||p==="ls"||p==="lh"||p==="op"||p==="sw"||p==="doble") v=+v; if(p==="s"&&!(v>=4)) return;
   it[p]=v; if(it.f==="monograma"&&(p==="a"||p==="b"||p==="nom"||p==="fec")) it.man=1; if(it.t==="txt") medir(it); if(p==="fnt"||p==="fnt2"){ aseguraFuente(v).then(function(){ pintaLienzo(); }); }
   if(fin){ empuja(); guardar(); pintaTodo(); } else { pintaLienzo(); guardar(); }
 }
@@ -27961,11 +28081,46 @@ function dibujaMono(ctx,it){
     if(it.fec) mTxt(ctx,String(it.fec),cx,it.nom?t2:t1,fb,Math.max(3,d*0.062),Math.max(0.2,d*0.03)); }
   ctx.restore();
 }
+/* ── el logo que mandan los novios: se recorta, se le quita el fondo y se recolorea; se guarda como logo de la pareja ── */
+function logoDe(promesa,msg){ return promesa.then(function(){ pestana("l"); pintaTodo(); aviso(msg); }).catch(function(err){ aviso((err&&err.message)||"No se ha podido usar ese logo."); }); }
+function accionLogo(a){
+  var LPa=window.LM_logoPareja; if(!LPa) return;
+  if(a==="portal"&&ST.portalLogo){ logoDe(LPa.desdeUrl("/api/portal/img?id="+ST.portalLogo.id,ST.portalLogo.nombre,"portal:"+ST.portalLogo.id),"Listo: el logo del portal ya es el logo de la pareja."); }
+  else if(a==="anadir"){ var P=LPa.get(); if(!P) return; var ww=130, hh=ww*P.h/P.w; if(hh>240){ hh=240; ww=hh*P.w/P.h; } var it=IMG("@pareja",(W-ww)/2,Math.round(H-hh-90),ww,hh); ST.sc.items.push(it); ST.sel=it.id; empuja(); guardar(); aseguraEscena(ST.sc).then(function(){ pintaTodo(); }); pintaTodo(); aviso("Logo añadido al papel: muévelo, cámbiale el tamaño o el color."); }
+  else if(a==="quitar"){ if(!window.confirm("¿Quitar el logo de la pareja?\n\nLos papeles que lo usen se quedarán sin la imagen.")) return; LPa.quita(); pestana("l"); pintaTodo(); }
+}
+function parejaHTML(){
+  var LPa=window.LM_logoPareja; if(!LPa) return "";
+  var P=LPa.get(), pl=ST.portalLogo, h='<div class="lz-sec">El logo que nos han mandado</div>';
+  if(ST.portalLogo===undefined){ ST.portalLogo=null; LPa.delPortal().then(function(x){ ST.portalLogo=x||false; if(rootEl&&ST&&ST.pest==="l") pestana("l"); }); }
+  if(!P){
+    h+='<p class="esc-hint">Si los novios os han pasado su logo, <b>súbelo aquí</b> (JPG, PNG, WebP o SVG): se recorta, se le quita el fondo y se puede <b>cambiar de color</b>. Queda guardado como el <b>logo de la pareja</b> y sirve en todos los diseños, igual que los logos de la casa.</p><div class="lz-adds">'+
+      (pl?'<button type="button" class="lz-add" data-lz-lp="portal">⬇ Usar el que subieron en su portal</button>':'')+'<label class="lz-add" for="lz-logo-up">⬆ Subir un logo</label><input type="file" id="lz-logo-up" accept="image/*" hidden></div>';
+    return h;
+  }
+  var tp=TPL_POR[ST.sc.tpl]||{}, cols=[["Original",""],["Negro","#111111"],["Blanco","#FFFFFF"]];
+  if(tp.tinta) cols.push(["Texto",tp.tinta]); if(tp.color&&tp.color!==tp.tinta) cols.push(["Acento",tp.color]);
+  h+='<div class="lz-lp"><div class="lz-lp-prev"><canvas data-lz-lpc width="240" height="150" role="img" aria-label="Vista previa del logo de la pareja"></canvas></div>'+
+    '<div class="lz-lp-cols" role="group" aria-label="Color del logo">'+cols.map(function(c){ var on=(P.tinte||"").toLowerCase()===String(c[1]).toLowerCase(); return '<button type="button" class="lz-sw'+(on?" on":"")+'" data-lz-lpc2="'+esc(c[1])+'" aria-pressed="'+on+'" title="'+esc(c[0])+'"><i style="background:'+(c[1]?esc(c[1]):"conic-gradient(#e44,#ec4,#4c8,#48e,#a4e,#e44)")+'"></i><span>'+esc(c[0])+'</span></button>'; }).join("")+
+    '<label class="lz-sw lz-sw-otro"><input type="color" class="lz-col" data-lz-lpcol value="'+esc(colorOk(P.tinte||"#333333"))+'" aria-label="Otro color para el logo"><span>Otro</span></label></div>'+
+    '<label class="ag-chk"><input type="checkbox" data-lz-lpfondo'+(P.sinFondo?" checked":"")+(P.fondo==="transp"?" disabled":"")+'> Quitar el fondo'+(P.fondo==="transp"?" (ya es transparente)":P.fondo==="oscuro"?" (negro)":P.fondo==="otro"?" (este fondo no se puede quitar solo)":"")+'</label>'+
+    '<div class="lz-adds"><button type="button" class="lz-add" data-lz-lp="anadir">＋ Añadir al papel</button><label class="lz-add" for="lz-logo-up">Cambiar el logo</label><input type="file" id="lz-logo-up" accept="image/*" hidden>'+
+    (pl?'<button type="button" class="lz-add" data-lz-lp="portal">Usar el del portal</button>':'')+'<button type="button" class="lz-add" data-lz-lp="quitar">Quitar</button></div></div>';
+  return h;
+}
+function pintaPareja(){
+  var cv=rootEl&&rootEl.querySelector("canvas[data-lz-lpc]"); if(!cv||!window.LM_logoPareja||!window.LM_logoPareja.get()) return;
+  var im=imagen("@pareja"); if(!im){ esperaImg("@pareja").then(function(){ if(rootEl&&ST) pintaPareja(); }); return; }
+  var g=cv.getContext("2d"), w=cv.width, h=cv.height; g.clearRect(0,0,w,h);
+  for(var y=0;y<h;y+=10) for(var x=0;x<w;x+=10){ g.fillStyle=((x+y)/10)%2?"#E4E2DC":"#F4F2EC"; g.fillRect(x,y,10,10); }
+  var tr=imgTratada({src:"@pareja"},im), iw=tr.naturalWidth||tr.width, ih=tr.naturalHeight||tr.height, k=Math.min((w-24)/iw,(h-24)/ih);
+  g.drawImage(tr,(w-iw*k)/2,(h-ih*k)/2,iw*k,ih*k);
+}
 function monoHTML(){
   var L=ST.logo; var campos='<div class="lz-pg lz-logo-f"><label class="lz-rg">1ª inicial<input class="lz-n" data-lz-lg="a" maxlength="2" value="'+esc(L.a)+'"></label><label class="lz-rg">2ª inicial<input class="lz-n" data-lz-lg="b" maxlength="2" value="'+esc(L.b)+'"></label>'+
     '<label class="lz-rg lz-wide">Nombres<input class="lz-t" type="text" data-lz-lg="nom" value="'+esc(L.nom)+'"></label><label class="lz-rg lz-wide">Fecha<input class="lz-t" type="text" data-lz-lg="fec" value="'+esc(L.fec)+'"></label>'+
     '<label class="lz-rg">Color<input type="color" class="lz-col" data-lz-lg="color" value="'+esc(colorOk(L.color))+'"></label></div>';
-  return '<div class="lz-sec">Logo de los novios</div><p class="esc-hint">Con las iniciales y los nombres de la pareja. Elige un estilo y se añade al papel; después se mueve, se agranda y se cambia de color o de letra.</p>'+campos+
+  return parejaHTML()+'<div class="lz-sec">Logo de los novios</div><p class="esc-hint">Con las iniciales y los nombres de la pareja. Elige un estilo y se añade al papel; después se mueve, se agranda y se cambia de color o de letra.</p>'+campos+
     '<div class="lz-sec">Estilos</div><div class="lz-mgrid">'+MONO_ESTILOS.map(function(e){ return '<button type="button" class="lz-tp lz-mono" data-lz-mono="'+e.id+'" title="'+esc(e.n)+'"><canvas width="150" height="190" data-lz-mc="'+e.id+'"></canvas><b>'+esc(e.n)+'</b></button>'; }).join("")+'</div>';
 }
 function monoItem(est,L,x,y,w,h){ return S({f:"monograma",est:est,a:L.a,b:L.b,nom:L.nom,fec:L.fec,stroke:L.color,fnt:MONO_DEF[est],fnt2:"Jost",x:x,y:y,w:w,h:h,sw:1}); }

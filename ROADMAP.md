@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.91** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.92** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,14 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.92
+- **El logo que mandan los novios se lee como un logo propio del evento.** En el diseñador de la minuta, pestaña **«Logo»** (aparece sola en las bodas y en cuanto hay un logo guardado), sección **«El logo que nos han mandado»**:
+  - **Cómo entra:** con **«Usar el que subieron en su portal»** (el logo que los novios envían desde su portal), con el botón **«Usar como logo de la pareja»** de la pantalla del portal del equipo, o con **«Subir un logo»** (JPG, PNG, WebP o SVG: el que pasen por WhatsApp o por correo).
+  - **Lo prepara solo:** reduce el tamaño, **recorta los márgenes** sobrantes, **detecta el fondo** (blanco, negro o ya transparente) y propone **quitarlo**, conservando los colores y los bordes suaves del dibujo. «Quitar el fondo» se puede marcar y desmarcar.
+  - **Cambiar de color:** **Original**, **Negro**, **Blanco**, el **Texto** y el **Acento** del diseño elegido, o **cualquier color** con el selector, con una vista previa sobre damero transparente.
+  - **Es un logo propio:** queda guardado en el evento (**«Logo de la pareja»**), igual que los logos de la casa. **«Añadir al papel»** (y el botón «Logo de la pareja» de la pestaña «Añadir») lo coloca en la minuta como un elemento más que se mueve, se agranda y se duplica; **si luego se cambia el color o se cambia el logo, todos los papeles que lo usan se actualizan**. La plantilla «hojas con logo» lo usa en lugar del monograma cuando existe.
+  - **También en cualquier imagen:** al tocar una imagen del papel, la barra tiene **«Color del logo»** (selector, Negro, Blanco, Original) y **«Quitar el fondo»**, solo para ese elemento.
 
 ### Novedad de la versión 01.91
 - **Editor visual de mesas, para dejar la mesa «a mi gusto».** Se abre con **doble clic (o doble toque) en la mesa del plano**, con el botón **«Editar a mi gusto»** del panel de la mesa, o con **«Abrir el editor visual»** en Montaje de mesas. Es una pantalla grande con la mesa dibujada tal como saldrá en el plano:
@@ -453,9 +461,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.91 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.92 |
 
-**Estado: todo entregado (01.54 → 01.91).**
+**Estado: todo entregado (01.54 → 01.92).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 

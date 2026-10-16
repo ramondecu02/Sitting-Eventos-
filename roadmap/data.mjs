@@ -51,6 +51,7 @@ export const hecho = [
   'Platos por unidades: croquetas y buñuelos de 8 en 8 (campo «Uds por plato» en Parámetros → Platos): la vajilla del check list y la escaleta cuentan platos, no comensales · v01.89',
   'Montaje: editor de mesas (nombre, forma, plazas, largo en metros, giro, tamaño y gente a cada lado, con vista previa) que se dibuja en el plano real, el esquema del portal y el PDF · v01.90',
   'Editor visual de mesas (doble clic en la mesa): arrastrar los extremos para alargarla, + y − por lado y por cabecera (varias personas en una cabecera), intercambiar sillas, ancho, giro y forma, todo reflejado al momento en el plano · v01.91',
+  'Logo de los novios: el que mandan por el portal, WhatsApp o correo se recorta, se le quita el fondo (blanco o negro) y se cambia de color (original, negro, blanco, el del diseño o cualquiera); queda como «Logo de la pareja» del evento y se usa en todas las minutas · v01.92',
 ];
 
 export const decisiones = [
@@ -65,7 +66,7 @@ export const calendario = [
   ['4–9', 'Modo servicio · turnos y horas · cierre de evento', '01.62–01.63'],
   ['10–14', 'Avisos por correo · WhatsApp · portal ampliado', '01.64–01.65'],
   ['15–28', 'Contrato y firma · compras por proveedor · consultas', '01.66–01.68'],
-  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta', '01.69–01.91'],
+  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta', '01.69–01.92'],
 ];
 
 export const fases = [
