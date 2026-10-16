@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.81** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.82** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,13 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.82
+- **El jamón (y los platos compartidos) bien contados.** El check list de servicio contaba «PLATO CUADRADO JAMÓN» **por comensal** (58 platos) cuando va **un plato en cada mesa de aperitivo** (8 con el evento de ejemplo). Ahora los platos que se sirven compartidos —**jamón**, chips, crujiente de langostinos, pan de cristal / «pa amb tomaca», coca y encurtidos— llevan su **vajilla por mesa de aperitivo**, y los **cubiertos y utensilios siguen por persona** (los palillos de las aceitunas, por ejemplo). La escaleta dice además cuántos platos salen: «a cortar · 8 platos (1 por mesa)». La cantidad de producto (95 gr de jamón por comensal) no cambia.
+- **El menú infantil, por niños.** Su vajilla y sus cubiertos salían para **todos los comensales** (58 platos de fideuá para 3 niños). Ahora salen **por niño** (3) y, si el plato es compartido (jamón y pan con tomate de los niños), **por mesa de niños**.
+- **Parámetros → Platos y escandallo: «Cómo se sirve» a la vista.** Cada ficha lleva una etiqueta («1 por mesa») cuando el plato es compartido, y dentro un apartado **«Cómo se sirve»** con tres opciones claras: *Automático (ahora: compartido por mesa)*, *Por persona* y *Compartido: uno en cada mesa de aperitivo / de niños* (más cuántos platos por mesa), con un ejemplo con tu evento abierto («8 × PLATO CUADRADO JAMÓN (8 mesas de aperitivo)»). Lo que marques a mano manda sobre lo automático.
+- **Vista «Cómo se sirve» (tabla)** y **filtros** en esa pantalla: todos los platos de una familia (o de una búsqueda) en una tabla con su vajilla, cómo se sirve (se cambia ahí mismo), cuántos por mesa o persona y lo que saldría en el evento abierto. Filtros **«Compartidos por mesa»** y **«Con avisos»** (sin escandallo, vajilla fuera del catálogo…), cada uno con su número, sobre todas las familias a la vez.
+- **Catálogo de vajilla:** una frase aclara que «Se cuenta» del artículo es la regla de partida y que lo compartido se marca en el plato.
 
 ### Novedad de la versión 01.81
 - **Portal del cliente: lo que sale por pagar suma siempre lo que falta.** Los plazos se calculaban con la señal «de fábrica» (1.000 €) aunque el cliente hubiera pagado otra cantidad: con 2.000 € de señal, el portal decía «Pendiente 3.660 €» y debajo ponía plazos que sumaban 4.660 €. Ahora **lo que ya se pagó de más se descuenta del siguiente plazo** («Primer pago 2.679 €… ya descontado lo que habéis pagado de más») y, si la señal está a medias, dice «Habéis pagado 500 € de 1.000 €: falta el resto». La suma de lo que falta por pagar coincide con «Pendiente» en los casos que probé (señal de más, a medias, parte del primer pago, todo pagado, nada pagado). El **importe previsto** (el que va en el contrato, el presupuesto y la agenda del equipo) **no cambia**; los avisos por correo al cliente sí llevan lo que falta de verdad.
@@ -399,9 +406,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran y plano del cliente sin solapes | 01.69–01.81 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada | 01.69–01.82 |
 
-**Estado: todo entregado (01.54 → 01.81).**
+**Estado: todo entregado (01.54 → 01.82).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
