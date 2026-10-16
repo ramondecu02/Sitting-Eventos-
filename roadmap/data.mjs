@@ -43,6 +43,7 @@ export const hecho = [
   'Portal del cliente: los plazos de pago suman siempre lo que falta (lo pagado de más se descuenta del siguiente) y el esquema del plano usa el tamaño real de cada mesa, sin solapes · v01.81',
   'Platos compartidos bien contados: el jamón (y chips, crujiente, pan de cristal, coca…) lleva su plato en cada mesa de aperitivo, el menú infantil cuenta por niños y por mesa de niños, y Parámetros → Platos enseña y deja cambiar «Cómo se sirve» cada plato (ficha, tabla y filtros) · v01.82',
   'Interfaz: buscador global (Ctrl + K, «/» o el botón «Buscar») para saltar a cualquier sección, evento, plato o acción según el rol, y portada de Parámetros con las pantallas agrupadas, su estado y «Para revisar» · v01.83',
+  'Parámetros revisados: avisos de ingredientes sin cantidad, «Para revisar» con los alérgenos sin confirmar y controles de al menos 36 px en pantallas táctiles; todas las pantallas del equipo comprobadas en móvil, tableta y portátil · v01.84',
 ];
 
 export const decisiones = [
@@ -57,7 +58,7 @@ export const calendario = [
   ['4–9', 'Modo servicio · turnos y horas · cierre de evento', '01.62–01.63'],
   ['10–14', 'Avisos por correo · WhatsApp · portal ampliado', '01.64–01.65'],
   ['15–28', 'Contrato y firma · compras por proveedor · consultas', '01.66–01.68'],
-  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros y buscador global', '01.69–01.83'],
+  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros', '01.69–01.84'],
 ];
 
 export const fases = [
@@ -314,6 +315,7 @@ export const falta = [
   ['Contrato: que el asesor lea el texto base (es el vuestro de siempre), lo marque como «revisado» y confirmar los datos de la empresa y el IBAN; decidir si basta la firma simple o queréis proveedor externo', 'Poder publicar contratos a clientes'],
   ['Documentos de clientes: decidir cuántos días se guardan los DNI tras el evento (hoy 90) y cuánto los justificantes de pago (hoy hasta anonimizar el evento; la contabilidad suele exigir años); y que el primer pago del contrato (3 semanas antes) coincida con el aviso de la agenda (18 días)', 'Cumplir RGPD y obligaciones contables'],
   ['Portal del cliente: decidir cuántos días después del evento se cierra (hoy 30; Parámetros → Privacidad y datos) y crear enlace nuevo en los eventos que aún tengan un enlace antiguo y corto (esa misma pantalla los lista)', 'Que el IBAN, el presupuesto y el contrato no queden abiertos para siempre'],
+  ['Platos por completar (Parámetros → Platos y escandallo → «Con avisos»): tabla de quesos y tarta tatin sin escandallo, sopa fría de tomate con ingredientes sin cantidad; y confirmar con cocina los alérgenos de los 346 ingredientes (Parámetros → Alérgenos)', 'Producción, Qué preparar y Alergias al día y sin «pendiente»'],
   ['Datos del responsable de privacidad (Parámetros → Privacidad y datos) y revisión de los textos por el asesor', 'Cumplir RGPD con vuestros textos'],
   ['Proveedores de compra: darlos de alta y asignarles los artículos la primera vez', 'Pedidos agrupados por proveedor'],
   ['Consultas web: activar el formulario, elegir tipos y salones y poner el enlace ?consulta en la web, Instagram y Google Business', 'Recibir consultas'],

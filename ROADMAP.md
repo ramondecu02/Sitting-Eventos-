@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.83** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.84** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.84
+- **Revisión de los datos de Parámetros.** Repasé los 151 platos del catálogo y la vajilla: el catálogo está completo salvo tres platos que **siguen necesitando datos tuyos** y que ahora salen como aviso: «TABLA DE QUESOS» y «tarta tatin» (**sin escandallo**) y «Sopa fría de tomate con langostinos» (**seis ingredientes sin cantidad**). Un plato con ingredientes sin cantidad ya cuenta como **«con avisos»** y su ficha dice cuáles son («en Producción y Qué preparar saldrá "pendiente"»). El «Helado de chocolate y vainilla» del menú infantil no tiene vajilla (puede ser a propósito, p. ej. si va en cucurucho).
+- **«Para revisar» también avisa de los alérgenos:** hoy **0 de 346 ingredientes** están confirmados por cocina, y mientras no lo estén los platos salen «a revisar» en Alergias. Es lo más importante de repasar con cocina; el botón lleva a la pantalla de Alérgenos.
+- **Mejor con los dedos:** en móviles y tabletas los controles pequeños (las × de las listas, las etiquetas de alérgenos —eran 2.100 a 22 px—, los chips de la minuta, los botones de ordenar y «No hace falta») miden al menos 36 px.
+- Revisión automática de todas las pantallas del equipo en móvil, tableta y portátil: **ninguna se desborda de lado, no hay errores y la que más tarda en pintar son 150 ms** (Alergias y sustituciones).
 
 ### Novedad de la versión 01.83
 - **Buscar y saltar (Ctrl + K).** Una sola caja para llegar a cualquier sitio de la app sin acordarse de en qué menú está: **secciones** («escaleta», «alergias», «param plat»), **eventos**, **platos** (solo administración: lleva a su ficha abierta en Parámetros) y **acciones** («Nuevo evento»). Se abre con **Ctrl + K** (⌘ K en Mac), con **«/»** (si no estás escribiendo) o con el botón **«Buscar…»** del menú lateral; en el móvil, con **«Buscar»** en la barra de abajo. Escribir sin tildes ni mayúsculas vale, se mueve con ↑ ↓ y se entra con Intro. **Cada persona solo ve lo que su rol puede ver**: cocina no ve Parámetros ni los platos del catálogo.
@@ -410,9 +416,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros y buscador global (Ctrl + K) | 01.69–01.83 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros | 01.69–01.84 |
 
-**Estado: todo entregado (01.54 → 01.83).**
+**Estado: todo entregado (01.54 → 01.84).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
@@ -435,6 +441,7 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 | 4 | **Contrato:** que el administrador lea el **texto base** (es vuestro contrato de siempre, castellano y català, tal cual el Word; las erratas del Word siguen ahí: «Efectivida», dos «Tercera» en catalán…, se corrigen con «Editar sobre el papel») en Parámetros → Contrato y propuesta —idealmente tras enseñárselo al asesor—, lo marque como «revisado» y confirme los **datos de la empresa** y el **IBAN** (vienen del contrato que pasaste); decidir si basta la **firma electrónica simple** o quieres un proveedor de firma | Tú + asesor | Poder publicar contratos a los clientes |
 | 4b | **Documentos de los clientes:** decidir **cuántos días** se guardan los documentos de identidad tras el evento (hoy **90**, en Parámetros → Privacidad y datos) y **cuánto** los justificantes de pago (hoy hasta anonimizar el evento; la contabilidad suele exigir guardarlos años). Y que el **primer pago** del contrato (3 semanas antes) coincida con el aviso de la agenda con el cliente (hoy 18 días) | Tú + asesor | Cumplir RGPD y obligaciones contables, y que el cliente no reciba dos fechas distintas |
 | 4c | **Portal del cliente:** decidir **cuántos días después del evento se cierra** el portal (hoy **30**; Parámetros → Privacidad y datos) y **crear enlace nuevo** en los eventos que aún tengan un enlace antiguo y corto (esa misma pantalla los lista) | Tú | Que el IBAN, el presupuesto y el contrato no queden abiertos para siempre, y que ningún enlace sea fácil de adivinar |
+| 4d | **Platos por completar:** «TABLA DE QUESOS» y «Nuestra versión del tarta tatin» (sin escandallo) y «Sopa fría de tomate con langostinos» (ingredientes sin cantidad), en Parámetros → Platos y escandallo → filtro «Con avisos». Y confirmar con cocina los **alérgenos de los 346 ingredientes** (Parámetros → Alérgenos) | Cocina | Producción, Qué preparar y Alergias al día y sin «pendiente» |
 | 5 | **Datos del responsable de privacidad** en Parámetros → Privacidad y datos, y que el asesor revise los textos del aviso y del consentimiento | Tú + asesor | Cumplir RGPD con los textos propios del restaurante |
 | 6 | **Proveedores de compra:** darlos de alta (nombre, teléfono, correo) y asignarles los artículos **la primera vez** (después se recuerda) | Quien compra | Pedidos agrupados por proveedor |
 | 7 | **Consultas web:** activar el formulario en Parámetros → Consultas web, decidir tipos, salones y si dice «fecha libre», y poner el enlace `…/?consulta` en tu web, Instagram y Google Business | Tú | Recibir consultas |
