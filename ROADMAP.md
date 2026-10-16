@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.88** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.89** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,9 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.89
+- **Croquetas y buñuelos de 8 en 8.** Antes el check list contaba **un plato por comensal** para las croquetas (174 platos para 174 comensales); en realidad **caben 8 en cada plato**, así que los platos son «comensales × unidades por persona ÷ 8», redondeado hacia arriba (**58 comensales → 8 platos**). Nuevo campo **«Uds por plato»** en **Parámetros → Platos → Cómo se sirve** (tabla y ficha): croquetas y buñuelos del aperitivo vienen ya con **8 automático**; puedes poner otro número, **1** para que cada unidad lleve su plato, o dejarlo vacío para volver al automático. Solo vale para lo que se sirve **por persona** (lo compartido por mesa sigue siendo un plato por mesa y el campo se desactiva). El **check list** dice «1 plato cada 8 uds (58 uds)», la **escaleta** añade «7 platos de 8 uds» bajo cada croqueta y la ficha, la tabla y el ejemplo de Parámetros explican la cuenta. Los cubiertos y utensilios siguen yendo por persona.
 
 ### Novedad de la versión 01.88
 - **Botón «Pasar a detalle de servicio»** en cada plato de «Se le sirve» (Alergias y sustituciones). Para lo que se apuntó como sustituto pero no lo es («Tarta número 50», una dedicatoria): pulsas el botón, la app **propone el momento** (la tarta si habla de tarta, vela o cumpleaños; si no, el tiempo del plato) y lo pasa a **Detalles de servicio**, de modo que **deja de restar plato** y de salir en rojo. Si la persona tenía una **«alergia» que no es ningún alérgeno conocido** (p. ej. «tarta número 50»), se ofrece **quitarla del plano** (ya marcada si se parece al detalle; una alergia de verdad, como celíaca, nunca se ofrece). Sale un aviso con **«Deshacer»** que lo devuelve todo como estaba. El botón solo aparece en las filas con algo escrito.
@@ -435,9 +438,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.88 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.89 |
 
-**Estado: todo entregado (01.54 → 01.88).**
+**Estado: todo entregado (01.54 → 01.89).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 

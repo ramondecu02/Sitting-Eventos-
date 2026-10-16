@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.88 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.89 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.88".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.89".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4292,7 +4292,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.88</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.89</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9723,7 +9723,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.88</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.89</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -14188,7 +14188,9 @@ function renderServicio(){
          no por comensal; los cubiertos y utensilios siguen por persona. La vajilla del menú infantil, en lo demás, va por niños, no por todos los comensales. */
       if(base==="COMENSAL"&&mesaDish&&cat.categoria==="PLATO"){ base=kid?"MESA NIÑOS":"MESA APERITIVO"; conv=true; }
       else if(kid&&base==="MESA APERITIVO") base="MESA NIÑOS";
-      if(base==="COMENSAL"){ var nc=kid?cc.ninos:t.conCubierto+(apU[d._uid]?(cc.soloAper||0):0); qty=nc*cat.unidades; por=(cat.unidades===1?"1":fmtNum(cat.unidades,0))+" por "+(kid?"niño":"comensal"); }
+      if(base==="COMENSAL"){ var nc=kid?cc.ninos:t.conCubierto+(apU[d._uid]?(cc.soloAper||0):0), pN=(cat.categoria==="PLATO"&&!conv)?escPlatoN(d):0;
+        if(pN>1){ var uds=Math.round(nc*nPor*100)/100; qty=Math.ceil(nc*nPor/pN-1e-9)*cat.unidades; por="1 plato cada "+pN+" uds ("+fmtNum(uds,0)+" uds)"; }
+        else { qty=nc*cat.unidades; por=(cat.unidades===1?"1":fmtNum(cat.unidades,0))+" por "+(kid?"niño":"comensal"); } }
       else if(base==="MESA APERITIVO"){ var u1=cat.unidades*(conv?nPor:1); qty=t.mesasAper*u1; por=fmtNum(u1,0)+" por mesa de aperitivo"; }
       else if(base==="MESA NIÑOS"){ var u2=cat.unidades*(conv?nPor:1); qty=cc.mesasNinos*u2; por=fmtNum(u2,0)+" por mesa de niños"; }
       else if(base==="MESA BANQUETE"){ qty=t.mesasBanq*cat.unidades; por=fmtNum(cat.unidades,0)+" por mesa de banquete"; }
@@ -15777,9 +15779,14 @@ function escUnidad(d){
    «mesa» = compartido, N platos en cada mesa de aperitivo (o de niños, si es del menú infantil). auto = lo decide la app
    por el nombre del plato; si se marca a mano, manda lo marcado. */
 function servirPor(fam,d){
-  var o={name:d.name,_famKey:fam,escUd:d.escUd,escN:d.escN}, ud=escUnidad(o), n=escPor(o);
-  return {ud:ud,n:n,auto:!d.escUd,kid:fam==="NIÑOS",aper:fam==="APERITIVOS"};
+  var o={name:d.name,_famKey:fam,escUd:d.escUd,escN:d.escN,escPlato:d.escPlato}, ud=escUnidad(o), n=escPor(o), pl=(ud==="mesa")?0:escPlatoN(o);
+  return {ud:ud,n:n,auto:!d.escUd,kid:fam==="NIÑOS",aper:fam==="APERITIVOS",plato:pl,platoAuto:!(+d.escPlato>0)&&pl>0};
 }
+/* v01.89 · unidades que caben en cada plato (croquetas y buñuelos: 8 por plato): los platos de vajilla son
+   ceil(comensales × unidades por persona ÷ unidades por plato). Sin marcar a mano, croquetas y buñuelos del aperitivo
+   van de 8 en 8; un 1 a mano lo desactiva (cada unidad en su plato). Solo vale para lo que se sirve por persona. */
+function escPlatoAuto(d){ return (d._famKey==="APERITIVOS"&&/^\W*(croqueta|bunuelo|bunyol)/.test(escNorm(d.name)))?8:0; }
+function escPlatoN(d){ var n=+d.escPlato; if(n>0) return n>1?Math.round(n):0; return escPlatoAuto(d); }
 function escPor(d){ if(d.escN>0) return +d.escN; return (d._famKey==="NIÑOS"&&/croquet/.test(escNorm(d.name)))?2:1; }
 function escEsEstacion(d){
   if(d.escBloque) return d.escBloque==="est";
@@ -16115,7 +16122,7 @@ function escModelo(){
       /* el jamón se calcula para TODOS los adultos, también los adaptados */
       if(esDishJamon(d)){ var gr2=0; d.ingredients.forEach(function(ig){ if(/jam[oó]n/i.test(ig.name)&&ig.qty!=null) gr2+=ig.qty*adTot; }); calc=gr2>0?jamonAmount(gr2):comen; sub=(marcaJamon?marcaJamon+" · ":"")+"a cortar"+(escUnidad(d)==="mesa"?" · "+(c.mesasAper*escPor(d))+((c.mesasAper*escPor(d))===1?" plato":" platos")+" ("+fmtNum(escPor(d),0)+" por mesa)":""); }
       else if(escUnidad(d)==="mesa"){ calc=c.mesasAper*escPor(d); sub="por mesa"; }
-      else calc=comen*escPor(d);
+      else { calc=comen*escPor(d); var pN=escPlatoN(d); if(pN>1){ var npl=Math.ceil(calc/pN-1e-9); sub=npl+(npl===1?" plato":" platos")+" de "+pN+" uds"; } }
       return fila((i+1)+". "+d.name,sub,Q("ap:"+d._uid,calc)); });
     if(marcaJamon&&!AP.std.some(esDishJamon)) fa2.push(fila("Jamón · "+marcaJamon,"a cortar",null));
     md.secs.push({t:"Aperitivos",sub:c.mesasAper+" mesas · "+adTot+" adultos",filas:fa2});
@@ -17366,7 +17373,7 @@ BR.rent={
 BR.menuParams={
   fabrica:function(){ return {platos:{fams:clon(DEF_MENU)}, catalogo:{items:clon(DEF_CATALOGO)}, bebidas:{cats:DEF_BEBIDAS.reduce(function(o,c){ o[c.key]=clon(c); return o; },{})}, montaje:{reglas:clon(DEF_MOBILIARIO)}}; },
   actual:function(){ return {
-    platos:{fams:MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f.dishes.map(function(d){ var o={uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; ["escUd","escN","escBloque"].forEach(function(k){ if(d[k]!=null) o[k]=d[k]; }); return o; })}; })},
+    platos:{fams:MENU_DATA.map(function(f){ return {key:f.key,label:f.label,dishes:f.dishes.map(function(d){ var o={uid:d._uid,name:d.name,servicio:d.servicio,cubiertos:d.cubiertos,station:d.station,ingredients:clon(d.ingredients||[]),steps:clon(d.steps||[])}; ["escUd","escN","escPlato","escBloque"].forEach(function(k){ if(d[k]!=null) o[k]=d[k]; }); return o; })}; })},
     catalogo:{items:clon(CATALOGO_DATA)},
     bebidas:{cats:BEBIDA_CATS.reduce(function(o,c){ o[c.key]=clon(c); return o; },{})},
     montaje:{reglas:clon(MOBILIARIO_DATA)} }; },
@@ -23495,16 +23502,19 @@ function ejServir(f,x,arts){
   var sv=M&&M.servirPor?M.servirPor(f.key,x):null, ej=M&&M.ejemplo?M.ejemplo():null; if(!sv||!ej||!ej.hay) return "";
   var vaj=String(x.servicio||"").split("+").map(function(v){ return v.trim(); }).filter(function(v){ return v&&v!=="—"&&arts[v]==="PLATO"; });
   if(sv.ud==="mesa"){ var m=sv.kid?ej.mesasNinos:ej.mesasAper, q=Math.round(m*sv.n*100)/100; return q+" × "+(vaj.length?vaj.join(" + "):"unidades")+' <small>('+m+(sv.kid?" mesas de niños":" mesas de aperitivo")+')</small>'; }
-  var c=sv.kid?ej.ninos:ej.conCubierto; return c+" × "+(vaj.length?vaj.join(" + "):"unidades")+' <small>('+(sv.kid?(c===1?"niño":"niños"):"comensales")+')</small>';
+  var c=sv.kid?ej.ninos:ej.conCubierto;
+  if(sv.plato>1){ var u=Math.round(c*sv.n*100)/100, np=Math.ceil(u/sv.plato-1e-9); return np+" × "+(vaj.length?vaj.join(" + "):"platos")+' <small>('+u+" uds ÷ "+sv.plato+" por plato)</small>"; }
+  return c+" × "+(vaj.length?vaj.join(" + "):"unidades")+' <small>('+(sv.kid?(c===1?"niño":"niños"):"comensales")+')</small>';
 }
 function tablaSirve(lista,arts,conFam){
   var ej=M&&M.ejemplo?M.ejemplo():null;
-  return '<div class="dtable-wrap"><table class="dtable pp-sirve"><thead><tr><th>Plato</th><th>Vajilla</th><th>Cómo se sirve</th><th class="rnum">Por mesa / persona</th><th>'+(ej&&ej.hay?'En «'+esc(ej.nombre.replace(/\s+—.*$/,""))+'»':'En el evento abierto')+'</th></tr></thead><tbody>'+
+  return '<div class="dtable-wrap"><table class="dtable pp-sirve"><thead><tr><th>Plato</th><th>Vajilla</th><th>Cómo se sirve</th><th class="rnum">Por mesa / persona</th><th class="rnum">Uds por plato</th><th>'+(ej&&ej.hay?'En «'+esc(ej.nombre.replace(/\s+—.*$/,""))+'»':'En el evento abierto')+'</th></tr></thead><tbody>'+
     lista.map(function(it){ var f=it.f, x=it.d, sv=M.servirPor(f.key,x), puedeMesa=(f.key==="APERITIVOS"||f.key==="NIÑOS"||x.escUd==="mesa");
       return '<tr data-uid="'+esc(x.uid)+'"><td><b>'+esc(x.name||"(sin nombre)")+'</b>'+(conFam?' <span class="pp-fam">'+esc(f.label)+'</span>':'')+'</td>'+
         '<td class="pp-vaj">'+esc(x.servicio&&x.servicio!=="—"?x.servicio:"—")+'</td>'+
         '<td><select data-pp="dish" data-k="escUd" aria-label="Cómo se sirve '+esc(x.name)+'"><option value=""'+(!x.escUd?" selected":"")+'>Automático ('+(sv.ud==="mesa"?"compartido":"por persona")+')</option><option value="persona"'+(x.escUd==="persona"?" selected":"")+'>Por persona</option>'+(puedeMesa?'<option value="mesa"'+(x.escUd==="mesa"?" selected":"")+'>Compartido por mesa</option>':'')+'</select></td>'+
         '<td class="rnum"><input type="text" inputmode="decimal" data-pp="dish" data-k="escN" value="'+esc(x.escN||"")+'" placeholder="1" aria-label="'+(sv.ud==="mesa"?"Platos por mesa":"Unidades por persona")+' de '+esc(x.name)+'" style="width:64px;text-align:right"></td>'+
+        '<td class="rnum"><input type="text" inputmode="numeric" data-pp="dish" data-k="escPlato" value="'+esc(x.escPlato||"")+'" placeholder="'+(sv.ud==="mesa"?"—":sv.plato>1?String(sv.plato):"1")+'"'+(sv.ud==="mesa"?" disabled":"")+' aria-label="Unidades en cada plato de '+esc(x.name)+(sv.platoAuto?" (automático: "+sv.plato+")":"")+'" style="width:64px;text-align:right"></td>'+
         '<td class="pp-ej">'+(ejServir(f,x,arts)||'<span class="pp-dim">—</span>')+'</td></tr>'; }).join("")+'</tbody></table></div>';
 }
 function avisosPlato(x,arts){
@@ -23524,16 +23534,18 @@ function svBloque(f,x,arts){
   var sv=M.servirPor(f.key,x), puedeMesa=(f.key==="APERITIVOS"||f.key==="NIÑOS"||x.escUd==="mesa"), kid=f.key==="NIÑOS", ej=ejServir(f,x,arts), ejc=M.ejemplo?M.ejemplo():null;
   var expl=sv.ud==="mesa"
     ? 'Se sirve <b>compartido</b>: '+(sv.n===1?'<b>un plato</b>':'<b>'+sv.n+' platos</b>')+' en cada mesa de '+(kid?'niños':'aperitivo')+'.'+(ej?' En «'+esc(ejc.nombre.replace(/\s+—.*$/,""))+'» salen <b>'+ej+'</b>.':'')+' La cantidad de producto del escandallo (abajo) sigue siendo <b>por comensal</b>.'
-    : 'Cada '+(kid?'niño':'comensal')+' recibe <b>su ración</b> y su vajilla.'+(ej?' En «'+esc(ejc.nombre.replace(/\s+—.*$/,""))+'» salen <b>'+ej+'</b>.':'');
+    : (sv.plato>1?'Cada '+(kid?'niño':'comensal')+' toma <b>'+(sv.n===1?'una unidad':sv.n+' unidades')+'</b> y en cada plato caben <b>'+sv.plato+'</b>: los platos son <b>comensales × unidades ÷ '+sv.plato+'</b>, redondeado hacia arriba.'+(sv.platoAuto?' (Es el valor automático de croquetas y buñuelos; pon un número para cambiarlo o 1 para que cada unidad lleve su plato.)':''):'Cada '+(kid?'niño':'comensal')+' recibe <b>su ración</b> y su vajilla.')+(ej?' En «'+esc(ejc.nombre.replace(/\s+—.*$/,""))+'» salen <b>'+ej+'</b>.':'');
   return '<div class="fldset">'+
       '<label class="fld"><span class="lbl">Se sirve</span><select data-pp="dish" data-k="escUd"><option value=""'+(!x.escUd?" selected":"")+'>Automático (ahora: '+(sv.ud==="mesa"?"compartido por mesa":"por persona")+')</option><option value="persona"'+(x.escUd==="persona"?" selected":"")+'>Por persona: cada comensal su ración y su vajilla</option>'+(puedeMesa?'<option value="mesa"'+(x.escUd==="mesa"?" selected":"")+'>Compartido: uno en cada mesa de '+(kid?'niños':'aperitivo')+'</option>':'')+'</select></label>'+
       '<label class="fld"><span class="lbl">'+(sv.ud==="mesa"?'Platos en cada mesa':'Unidades por persona')+'</span><input type="text" inputmode="decimal" data-pp="dish" data-k="escN" value="'+esc(x.escN||"")+'" placeholder="1"></label>'+
+      (sv.ud==="mesa"?'':'<label class="fld"><span class="lbl">Unidades en cada plato <small>(croquetas, buñuelos…: 8 por plato)</small></span><input type="text" inputmode="numeric" data-pp="dish" data-k="escPlato" value="'+esc(x.escPlato||"")+'" placeholder="'+(sv.plato>1?sv.plato+" (automático)":"1")+'"></label>')+
       (f.key==="APERITIVOS"?'<label class="fld"><span class="lbl">Bloque de la escaleta</span><select data-pp="dish" data-k="escBloque"><option value=""'+(!x.escBloque?" selected":"")+'>Automático</option><option value="aper"'+(x.escBloque==="aper"?" selected":"")+'>Aperitivo</option><option value="est"'+(x.escBloque==="est"?" selected":"")+'>Estaciones y recena</option></select></label>':'')+
     '</div><p class="pp-sv-ej" role="status">'+expl+'</p>';
 }
 function svChip(f,x){
   var sv=M&&M.servirPor?M.servirPor(f.key,x):null; if(!sv) return "";
   if(sv.ud==="mesa") return '<span class="pp-sv" title="Compartido: '+(sv.n===1?"un plato":sv.n+" platos")+' en cada mesa de '+(sv.kid?"niños":"aperitivo")+'">'+(sv.n===1?"1":sv.n)+' por mesa</span> ';
+  if(sv.plato>1) return '<span class="pp-sv alt" title="En cada plato caben '+sv.plato+' unidades">'+sv.plato+' uds por plato</span> ';
   if(sv.n!==1) return '<span class="pp-sv alt" title="'+sv.n+' unidades por persona">×'+sv.n+' por persona</span> ';
   return "";
 }
@@ -23998,6 +24010,7 @@ function onChange(ev){
       else if(k==="station") x.station=v.trim()||null;
       else if(k==="escUd"||k==="escBloque"){ if(v) x[k]=v; else delete x[k]; }
       else if(k==="escN"){ var en=num(v); if(v.trim()&&!(en>0)){ toastP("Tiene que ser un número mayor que 0."); render(); return; } if(en>0) x.escN=en; else delete x.escN; }
+      else if(k==="escPlato"){ var ep=num(v); if(v.trim()&&!(ep>=1)){ toastP("Tiene que ser un número entero, 1 o más (1 = cada unidad en su plato)."); render(); return; } if(ep>=1) x.escPlato=Math.round(ep); else delete x.escPlato; }
       else if(k==="steps") x.steps=lineas(v);
       else if(k==="fam"){ var dest=d.fams.filter(function(f){ return f.key===v; })[0]; if(dest&&dest!==hit.f){ hit.f.dishes.splice(hit.xi,1); dest.dishes.push(x); ui.fam=v; } }
     } else {
