@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.92 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.93 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.92".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.93".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3883,6 +3883,22 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-badge{font:700 11px/1 var(--font-text); letter-spacing:.05em; text-transform:uppercase; padding:4px 9px; border-radius:99px; background:var(--bg-2); color:var(--c-mut)}
 .av-badge.enviado{background:var(--success-soft); color:var(--success)} .av-badge.simulado{background:var(--warning-soft); color:var(--warning-tx)} .av-badge.error{background:var(--danger-soft); color:var(--danger)}
 .av-err{color:var(--danger)}
+.av-badge.programado{background:var(--bg-2); color:var(--c-ink); box-shadow:inset 0 0 0 1px var(--gold)} .av-badge.cancelado{background:var(--bg-2); color:var(--c-mut); text-decoration:line-through}
+.av-badge.ent-ok{background:var(--success-soft); color:var(--success)} .av-badge.ent-mal{background:var(--danger-soft); color:var(--danger)} .av-badge.ent-esp{background:var(--bg-2); color:var(--c-mut)}
+.av-estl{display:flex; flex-direction:column; align-items:flex-start; gap:5px}
+.av-meta2{display:block; margin-top:3px; color:var(--c-mut); font-size:12.5px; line-height:1.45}
+.av-adj{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.av-fil{display:inline-flex; align-items:center; gap:6px; background:var(--bg-2); border:1px solid var(--c-line); border-radius:99px; padding:3px 4px 3px 12px; font-size:13px}
+.av-fil button{border:0; background:transparent; cursor:pointer; min-width:32px; min-height:32px; border-radius:99px; font-size:15px; color:var(--c-mut)}
+.av-fil button:hover{background:var(--danger-soft); color:var(--danger)}
+.av-prog{display:flex; flex-wrap:wrap; align-items:center; gap:10px}
+.av-meta{margin:0; font-size:12.5px; color:var(--c-mut); line-height:1.5}
+.av-comp label.av-chk,.av-comp label.av-file{flex-direction:row; align-items:center; text-transform:none; letter-spacing:0; color:var(--c-ink); font:600 14px/1.3 var(--font-text,system-ui); cursor:pointer}
+.av-comp input[type=checkbox]{width:20px; height:20px; padding:0; flex:none}
+.av-comp input[type=datetime-local]{width:auto; min-width:230px}
+.av-vprev{border:1px solid var(--c-line); border-radius:12px; overflow:hidden; background:#f3efe6}
+.av-vprev iframe{display:block; width:100%; height:480px; border:0; background:#f3efe6}
+.av-vprev-h{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px 6px 14px; background:var(--panel); border-bottom:1px solid var(--c-line); font-size:12.5px; color:var(--c-mut)}
 .av-fila-ficha{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 0; grid-column:1/-1}
 /* Parámetros → Correo y avisos */
 .av-estado{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin:0 0 14px}
@@ -4341,7 +4357,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.92</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.93</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -9837,7 +9853,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.92</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.93</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -21856,9 +21872,18 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!backend()){ U.estado=null; if(cb) cb(); return; }
     var e=evActual(); U.cargando=true;
     api("/api/correo?n=60"+(U.alcance==="evento"&&e?"&ev="+encodeURIComponent(e.id):""),"GET").then(function(j){
-      if(j._status===200){ U.estado=j; U.err=""; if(j.plantillas){ T.plant=Object.assign({},DEF,j.plantillas); T.firma=(j.cfg&&j.cfg.firma)||T.firma; T.cargado=true; } }
+      if(j._status===200){ U.estado=j; U.err=""; if(j.plantillas){ T.plant=Object.assign({},DEF,j.plantillas); T.firma=(j.cfg&&j.cfg.firma)||T.firma; T.cargado=true; }
+        if(j.proveedor&&j.proveedor.listo&&Date.now()-(U.entregaTs||0)>60e3&&(j.bandeja||[]).some(function(r){ return (r.estado==="enviado"||r.estado==="programado")&&["delivered","opened","clicked","bounced","complained","failed","suppressed","canceled"].indexOf(r.entrega)<0; })) comprobarEntrega(false); }
       else U.err=(j._status===403?"Tu rol no puede ver el correo.":(j.message||"No se ha podido cargar el estado del correo."));
     }).catch(function(){ U.err="Sin conexión con el servidor."; }).finally(function(){ U.cargando=false; if(cb) cb(); });
+  }
+  function comprobarEntrega(aMano){
+    if(U.comprobando) return; U.entregaTs=Date.now(); U.comprobando=!!aMano; if(aMano) pintar();
+    api("/api/correo/estado","POST",{}).then(function(j){
+      U.comprobando=false;
+      if(aMano) toast(j._status!==200?(j.message||"No se ha podido comprobar."):j.cambios?j.cambios+(j.cambios===1?" correo ha cambiado de estado.":" correos han cambiado de estado."):"Sin novedades: todo sigue igual.",j._status!==200);
+      if(j._status===200&&(j.cambios||aMano)) cargarEstado(pintar); else if(aMano) pintar();
+    }).catch(function(){ U.comprobando=false; if(aMano){ toast("Sin conexión con el servidor.",true); pintar(); } });
   }
   function aviso(){
     if(!backend()) return '<div class="av-aviso"><b>Sin servidor.</b> Aquí el correo no se puede enviar; WhatsApp sí funciona.</div>';
@@ -21905,12 +21930,45 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       return '<div class="av-fila"><div class="av-q"><b>'+esc(p.servicio||"")+(p.empresa?" · "+esc(p.empresa):"")+'</b><small>'+(p.contacto?esc(p.contacto)+" · ":"")+(p.telefono?esc(p.telefono):"sin teléfono")+' · '+esc(p.estado||"")+'</small></div><div class="av-b">'+waBtn(m.tel,m.text,"WhatsApp","Escribir a "+(p.empresa||p.servicio)+" por WhatsApp")+'</div></div>'; }).join("")+'</section>';
   }
   /* el redactado de un correo, antes de enviarlo */
+  var ADJ_EXT=["pdf","png","jpg","jpeg","webp","docx","xlsx","txt","csv"];
+  function kb(n){ return n>=1048576?(Math.round(n/104857.6)/10).toString().replace(".",",")+" MB":Math.max(1,Math.round(n/1024))+" KB"; }
+  function localISO(d){ return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes()); }
+  function progSugerida(){ var d=new Date(); d.setDate(d.getDate()+1); d.setHours(9,0,0,0); return localISO(d); }
+  function copiasDe(kind){
+    var cfg=(U.estado&&U.estado.cfg)||{}, cp=cfg.copia||{}, l=[], mio=String(yo().email||"").trim();
+    if(mio&&cp.yo&&["cliente","camarero","proveedor","libre"].indexOf(kind)>=0) l.push(mio);
+    if(kind==="cliente"&&cp.lista) String(cp.lista).split(/[\s,;]+/).forEach(function(x){ if(x) l.push(x); });
+    return l.filter(function(x,i,a){ return a.indexOf(x)===i; });
+  }
+  function respuestaA(){ var cfg=(U.estado&&U.estado.cfg)||{}, mio=String(yo().email||"").trim(); return cfg.respuesta==="general"?(cfg.responder||""):(mio||cfg.responder||""); }
   function compHTML(){
-    var c=U.comp, r=U.res.comp;
+    var c=U.comp, r=U.res.comp, st=U.estado||{}, listo=!!(st.proveedor&&st.proveedor.listo), cop=copiasDe(c.kind), resp=respuestaA();
+    var adj=(c.adj||[]).map(function(a,i){ return '<span class="av-fil">📎 '+esc(a.nombre)+' <small>'+kb(a.tam)+'</small><button type="button" data-av="adj-quita" data-i="'+i+'" aria-label="Quitar el adjunto '+esc(a.nombre)+'">✕</button></span>'; }).join("");
+    var mn=new Date(Date.now()+10*60e3), mx=new Date(Date.now()+29*864e5);
     return '<div class="av-comp" role="group" aria-label="Redactar correo"><label>Para<input type="email" data-av-c="to" value="'+esc(c.to)+'" autocomplete="off"></label><label>Asunto<input type="text" data-av-c="subject" value="'+esc(c.subject)+'" maxlength="200"></label>'+
       '<label>Texto<textarea data-av-c="text" rows="9" maxlength="8000">'+esc(c.text)+'</textarea></label>'+
+      '<div class="av-adj"><label class="btn sm av-file" for="av-adj-in">📎 Adjuntar un archivo</label><input type="file" id="av-adj-in" data-av-adj multiple hidden accept=".pdf,.png,.jpg,.jpeg,.webp,.docx,.xlsx,.txt,.csv">'+adj+(adj?'':'<small class="av-meta">PDF, imágenes, Word o Excel · hasta 3 archivos de 3 MB</small>')+'</div>'+
+      (c.errAdj?'<p class="av-res mal" role="alert">'+esc(c.errAdj)+'</p>':'')+
+      (listo?'<div class="av-prog"><label class="av-chk"><input type="checkbox" data-av-prog'+(c.prog?" checked":"")+'> Programar el envío</label>'+(c.prog?'<input type="datetime-local" data-av-c="progFecha" value="'+esc(c.progFecha||progSugerida())+'" min="'+localISO(mn)+'" max="'+localISO(mx)+'" aria-label="Día y hora del envío">':'')+'</div>':'')+
+      (cop.length||resp?'<p class="av-meta">'+(cop.length?'Copia oculta a: <b>'+esc(cop.join(", "))+'</b>. ':'')+(resp?'Si contestan, la respuesta llega a: <b>'+esc(resp)+'</b>.':'')+'</p>':'')+
       (r?'<p class="av-res '+(r.ok?(r.estado==="simulado"?"sim":"ok"):"mal")+'" role="status">'+esc(r.msg)+'</p>':'')+
-      '<div class="av-cb"><button type="button" class="btn gold" data-av="enviar"'+(U.enviando?" disabled":"")+'>'+(U.enviando?"Enviando…":(c.repetido?"Enviarlo otra vez":"Enviar correo"))+'</button><button type="button" class="btn" data-av="cerrar-comp">'+(r&&r.ok?"Cerrar":"Cancelar")+'</button></div></div>';
+      '<div class="av-cb"><button type="button" class="btn gold" data-av="enviar"'+(U.enviando?" disabled":"")+'>'+(U.enviando?"Enviando…":(c.repetido?"Enviarlo otra vez":(c.prog?"Programar el envío":"Enviar correo")))+'</button><button type="button" class="btn" data-av="vista">'+(c.vista?"Actualizar la vista previa":"Ver cómo llega")+'</button><button type="button" class="btn" data-av="cerrar-comp">'+(r&&r.ok?"Cerrar":"Cancelar")+'</button></div>'+
+      (c.vista?'<div class="av-vprev"><div class="av-vprev-h"><span>Así lo verá quien lo reciba</span><button type="button" class="btn sm" data-av="vista-cierra">Cerrar</button></div><iframe sandbox="" title="Vista previa del correo" srcdoc="'+esc(c.vista)+'"></iframe></div>':'')+'</div>';
+  }
+  function leerAdj(files){
+    var c=U.comp; if(!c||!files||!files.length) return; c.adj=c.adj||[]; c.errAdj="";
+    var l=[].slice.call(files), pend=l.length;
+    function fin(){ if(--pend<=0) pintar(); }
+    l.forEach(function(f){
+      var ext=(f.name.split(".").pop()||"").toLowerCase();
+      if(ADJ_EXT.indexOf(ext)<0){ c.errAdj="«"+f.name+"»: solo se pueden adjuntar PDF, imágenes (JPG, PNG, WebP), Word, Excel, TXT o CSV."; return fin(); }
+      if(f.size>3145728){ c.errAdj="«"+f.name+"» pesa más de 3 MB."; return fin(); }
+      if(c.adj.length+pend>3&&c.adj.length>=3){ c.errAdj="Se pueden adjuntar hasta 3 archivos."; return fin(); }
+      var fr=new FileReader();
+      fr.onload=function(){ var b64=String(fr.result||"").replace(/^data:[^,]*,/,""); if(c.adj.length<3) c.adj.push({nombre:f.name,tam:f.size,b64:b64}); else c.errAdj="Se pueden adjuntar hasta 3 archivos."; fin(); };
+      fr.onerror=function(){ c.errAdj="No se ha podido leer «"+f.name+"»."; fin(); };
+      fr.readAsDataURL(f);
+    });
   }
   function bloqueResumen(){
     if(!backend()) return "";
@@ -21922,13 +21980,29 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       (U.res.resumen?'<p class="av-res '+(U.res.resumen.ok?(U.res.resumen.estado==="simulado"?"sim":"ok"):"mal")+'" role="status">'+esc(U.res.resumen.msg)+'</p>':'')+
       (U.vista?'<pre class="av-vista" tabindex="0" aria-label="Vista previa del resumen">'+esc(U.vista.asunto+"\n\n"+U.vista.texto)+'</pre>':'')+'</section>';
   }
-  var EST_T={enviado:"Enviado",simulado:"Simulado",error:"Con error",pendiente:"Pendiente"};
+  var EST_T={enviado:"Enviado",simulado:"Simulado",error:"Con error",pendiente:"Pendiente",programado:"Programado",cancelado:"Cancelado"};
+  var ENT_T={sent:"En camino",queued:"En cola",scheduled:"Programado",delivered:"Entregado",opened:"Entregado y abierto",clicked:"Entregado y abierto",delivery_delayed:"Retrasado",bounced:"Rebotado",complained:"Marcado como spam",failed:"Fallido",suppressed:"Dirección bloqueada"};
+  var ENT_MAL={bounced:1,complained:1,failed:1,suppressed:1}, ENT_OK={delivered:1,opened:1,clicked:1};
+  var ENT_AYUDA={bounced:"La dirección no existe o su buzón está lleno: revisa el correo en la ficha.",complained:"La persona lo ha marcado como spam.",failed:"El servicio de correo no ha podido entregarlo.",suppressed:"Esa dirección está bloqueada por rebotes anteriores."};
+  function celdaEstado(r){
+    var h='<div class="av-estl"><span class="av-badge '+esc(r.estado)+'">'+esc(EST_T[r.estado]||r.estado)+'</span>';
+    if(r.estado==="programado"&&r.progTs) h+='<small>para el '+esc(fechaHora(r.progTs))+'</small>';
+    else if(r.estado==="simulado"&&r.progTs) h+='<small>era para el '+esc(fechaHora(r.progTs))+'</small>';
+    else if(r.estado==="enviado"&&r.entrega&&ENT_T[r.entrega]) h+='<span class="av-badge '+(ENT_MAL[r.entrega]?"ent-mal":ENT_OK[r.entrega]?"ent-ok":"ent-esp")+'" title="'+esc(ENT_AYUDA[r.entrega]||"")+'">'+esc(ENT_T[r.entrega])+'</span>';
+    if(r.intentos>1) h+='<small>'+r.intentos+' intentos</small>';
+    return h+'</div>';
+  }
   function bloqueBandeja(){
     if(!backend()||!U.estado) return "";
-    var s=U.estado, rows=s.bandeja||[];
+    var s=U.estado, rows=s.bandeja||[], mal=rows.filter(function(r){ return ENT_MAL[r.entrega]; });
     return '<section class="av-sec"><h2>Bandeja de salida <small>'+rows.length+' últimos</small></h2><div class="av-tog" role="group" aria-label="Qué enseñar"><button type="button" class="'+(U.alcance==="evento"?"on":"")+'" data-av="alcance" data-v="evento" aria-pressed="'+(U.alcance==="evento")+'">Este evento</button><button type="button" class="'+(U.alcance==="todo"?"on":"")+'" data-av="alcance" data-v="todo" aria-pressed="'+(U.alcance==="todo")+'">Todo</button></div>'+
-      (rows.length?'<div class="av-tabla"><table><thead><tr><th>Cuándo</th><th>Para</th><th>Asunto</th><th>Estado</th><th></th></tr></thead><tbody>'+rows.map(function(r){
-        return '<tr><td>'+esc(fechaHora(r.ts))+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.subject)+(r.error?'<br><small class="av-err">'+esc(r.error)+'</small>':'')+'</td><td><span class="av-badge '+esc(r.estado)+'">'+esc(EST_T[r.estado]||r.estado)+'</span>'+(r.intentos>1?' <small>'+r.intentos+' intentos</small>':'')+'</td><td>'+(r.estado==="error"||r.estado==="simulado"&&s.proveedor.listo?'<button type="button" class="btn sm" data-av="reintentar" data-id="'+r.id+'">'+(r.estado==="error"?"Reintentar":"Enviar ahora")+'</button>':'')+'</td></tr>'; }).join("")+'</tbody></table></div>':'<p class="av-vacio">Todavía no se ha enviado nada'+(U.alcance==="evento"?" de este evento":"")+'.</p>')+'</section>';
+      (s.proveedor&&s.proveedor.listo?' <button type="button" class="btn sm" data-av="comprobar"'+(U.comprobando?" disabled":"")+'>'+(U.comprobando?"Comprobando…":"Comprobar si han llegado")+'</button>':'')+
+      (mal.length?'<div class="av-aviso mal" role="alert"><b>'+mal.length+(mal.length===1?" correo no ha llegado":" correos no han llegado")+':</b> '+mal.slice(0,3).map(function(r){ return esc(r.to)+' ('+esc((ENT_T[r.entrega]||"").toLowerCase())+')'; }).join(" · ")+(mal.length>3?" …":"")+'. Revisa la dirección en la ficha y vuelve a escribir (también por WhatsApp).</div>':'')+
+      (rows.length?'<div class="av-tabla"><table><thead><tr><th>Cuándo</th><th>Para</th><th>Asunto</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead><tbody>'+rows.map(function(r){
+        var extra=[]; if(r.adj&&r.adj.length) extra.push("📎 "+r.adj.length+(r.adj.length===1?" adjunto":" adjuntos")); if(r.bcc) extra.push("copia oculta a "+esc(r.bcc)); if(r.replyTo) extra.push("respuestas a "+esc(r.replyTo));
+        var acc=(r.estado==="error"||r.estado==="simulado"&&s.proveedor.listo&&!(r.adj&&r.adj.length)?'<button type="button" class="btn sm" data-av="reintentar" data-id="'+r.id+'">'+(r.estado==="error"?"Reintentar":"Enviar ahora")+'</button>':'')+
+          ((r.estado==="programado"||(r.estado==="simulado"&&r.progTs&&r.progTs>Date.now()))?'<button type="button" class="btn sm" data-av="cancelar-prog" data-id="'+r.id+'">Cancelar el envío</button>':'');
+        return '<tr><td>'+esc(fechaHora(r.ts))+'</td><td>'+esc(r.to)+'</td><td>'+esc(r.subject)+(r.error?'<br><small class="av-err">'+esc(r.error)+'</small>':'')+(extra.length?'<small class="av-meta2">'+extra.join(" · ")+'</small>':'')+'</td><td>'+celdaEstado(r)+'</td><td>'+acc+'</td></tr>'; }).join("")+'</tbody></table></div>':'<p class="av-vacio">Todavía no se ha enviado nada'+(U.alcance==="evento"?" de este evento":"")+'.</p>')+'</section>';
   }
   function pintar(){
     var host=U.host, e=evActual(); if(!host) return;
@@ -21940,7 +22014,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<p class="pv-guide">A quién escribir y con qué mensaje, ya redactado: por correo (sale desde aquí y queda apuntado) o por WhatsApp (se abre la conversación con el texto puesto).</p></div></header>'+
       aviso()+(U.err?'<div class="av-aviso mal">'+esc(U.err)+'</div>':'')+bloqueCliente(e)+bloqueCamareros(e)+bloqueProv(e)+bloqueResumen()+bloqueBandeja()+'</div>';
     host.scrollTop=y;
-    var root=host.querySelector(".av-wrap"); ["click","input"].forEach(function(t){ root.addEventListener(t,manejar); });
+    var root=host.querySelector(".av-wrap"); ["click","input","change"].forEach(function(t){ root.addEventListener(t,manejar); });
   }
   function abrirComp(bloque,m,extra){
     U.comp=Object.assign({bloque:bloque,to:m.to,subject:m.subject,text:m.text},extra||{}); U.res.comp=null; pintar();
@@ -21948,12 +22022,16 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function enviarComp(){
     var c=U.comp, e=evActual(); if(!c||!e||U.enviando) return;
-    var root=U.host; ["to","subject","text"].forEach(function(k){ var el=root.querySelector('[data-av-c="'+k+'"]'); if(el) c[k]=el.value; });
+    var root=U.host; ["to","subject","text","progFecha"].forEach(function(k){ var el=root.querySelector('[data-av-c="'+k+'"]'); if(el) c[k]=el.value; });
+    var cuerpo={kind:c.kind,ev:e.id,to:c.to,subject:c.subject,text:c.text,ref:c.repetido?null:c.ref||null};
+    if(c.adj&&c.adj.length) cuerpo.adjuntos=c.adj.map(function(a){ return {nombre:a.nombre,b64:a.b64}; });
+    var cuando=null;
+    if(c.prog){ cuando=new Date(c.progFecha||""); if(!c.progFecha||isNaN(cuando.getTime())){ U.res.comp={ok:false,msg:"Elige el día y la hora del envío programado."}; pintar(); return; } cuerpo.programar=cuando.toISOString(); }
     U.enviando=true; U.res.comp=null; pintar();
-    api("/api/correo/enviar","POST",{kind:c.kind,ev:e.id,to:c.to,subject:c.subject,text:c.text,ref:c.repetido?null:c.ref||null}).then(function(j){
+    api("/api/correo/enviar","POST",cuerpo).then(function(j){
       U.enviando=false;
       if(j._status===200&&j.repetido){ c.repetido=true; U.res.comp={ok:false,msg:"Este aviso ya se envió antes. Si quieres mandarlo otra vez, pulsa «Enviarlo otra vez»."}; }
-      else if(j._status===200) { U.res.comp={ok:true,estado:j.estado,msg:j.estado==="simulado"?"Guardado en la bandeja como SIMULADO: el correo todavía no está activado, no ha salido.":"Enviado a "+c.to+"."}; if(c.alEnviar) c.alEnviar(); }
+      else if(j._status===200) { U.res.comp={ok:true,estado:j.estado,msg:j.estado==="simulado"?"Guardado en la bandeja como SIMULADO: el correo todavía no está activado, no ha salido.":j.estado==="programado"?"Programado para el "+fechaHora(cuando.getTime())+". Saldrá solo a esa hora; mientras tanto lo puedes cancelar desde la bandeja de abajo.":"Enviado a "+c.to+(c.adj&&c.adj.length?" con "+c.adj.length+(c.adj.length===1?" archivo adjunto":" archivos adjuntos"):"")+"."}; if(c.alEnviar) c.alEnviar(); }
       else U.res.comp={ok:false,msg:j.message||"No se ha podido enviar."};
       cargarEstado(pintar);
     }).catch(function(){ U.enviando=false; U.res.comp={ok:false,msg:"Sin conexión con el servidor."}; pintar(); });
@@ -21963,6 +22041,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     ev.stopPropagation();
     var e=evActual(); if(!e) return;
     var t=ev.target;
+    if(ev.type==="change"){
+      if(t.hasAttribute&&t.hasAttribute("data-av-adj")){ var fl=t.files; leerAdj(fl); setTimeout(function(){ t.value=""; },0); }
+      else if(t.hasAttribute&&t.hasAttribute("data-av-prog")&&U.comp){ U.comp.prog=!!t.checked; if(U.comp.prog&&!U.comp.progFecha) U.comp.progFecha=progSugerida(); pintar(); }
+      return;
+    }
     if(ev.type==="input"){ var k=t.getAttribute&&t.getAttribute("data-av-c"); if(k&&U.comp) U.comp[k]=t.value; return; }
     var b=t.closest?t.closest("[data-av]"):null; if(!b) return;
     var a=b.getAttribute("data-av"), id=b.getAttribute("data-id");
@@ -21995,6 +22078,14 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       });
     }
     else if(a==="alcance"){ U.alcance=b.getAttribute("data-v"); cargarEstado(pintar); }
+    else if(a==="adj-quita"){ if(U.comp&&U.comp.adj){ U.comp.adj.splice(+b.getAttribute("data-i"),1); U.comp.errAdj=""; pintar(); } }
+    else if(a==="vista-cierra"){ if(U.comp){ U.comp.vista=null; pintar(); } }
+    else if(a==="vista"){
+      var cv=U.comp; if(!cv) return; var rt=U.host; ["to","subject","text"].forEach(function(k2){ var el=rt.querySelector('[data-av-c="'+k2+'"]'); if(el) cv[k2]=el.value; });
+      b.disabled=true; api("/api/correo/vista","POST",{kind:cv.kind,subject:cv.subject,text:cv.text}).then(function(j){ if(j._status===200) cv.vista=j.html; else U.res.comp={ok:false,msg:j.message||"No se ha podido preparar la vista previa."}; pintar(); });
+    }
+    else if(a==="comprobar"){ comprobarEntrega(true); }
+    else if(a==="cancelar-prog"){ b.disabled=true; api("/api/correo/cancelar","POST",{id:+id}).then(function(j){ toast(j._status===200?"Envío cancelado: no saldrá.":(j.message||"No se ha podido cancelar."),j._status!==200); cargarEstado(pintar); }); }
     else if(a==="reintentar"){ b.disabled=true; api("/api/correo/reintentar","POST",{id:+id}).then(function(j){ toast(j._status===200?(j.estado==="simulado"?"Sigue simulado: el correo no está activado.":"Enviado."):(j.message||"No se ha podido enviar."),j._status!==200); cargarEstado(pintar); }); }
   }
   window.LM_renderAvisos=function(host){
@@ -22040,7 +22131,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var h='<div class="pv-inner av-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1><p class="pv-guide">El servicio de correo, lo que se envía solo y los textos de los avisos.</p></div></header>';
     h+='<div class="av-estado '+(s.proveedor.listo?"ok":"no")+'"><div><span>Envío de correo</span><b>'+(s.proveedor.listo?"Activado":"Sin activar")+'</b><small>'+(s.proveedor.listo?"Sale desde "+esc(s.proveedor.from):esc(s.proveedor.motivo)+" Mientras tanto los correos se guardan como «simulado» y no salen.")+'</small></div>'+
       '<div><span>Envíos automáticos</span><b>'+(s.cron.token?"Con llave":"Sin llave")+'</b><small>'+(s.cron.token?"El servidor acepta la llamada programada (CRON_TOKEN).":"Falta CRON_TOKEN: el resumen y los recordatorios no pueden salir solos.")+'</small></div>'+
-      '<div><span>Errores (24 h)</span><b>'+(s.errores24h||0)+'</b><small>'+(s.errores24h?"Mira la bandeja en «Avisos y correo».":"Sin problemas.")+'</small></div></div>'+guia(location.origin);
+      '<div><span>Errores y rebotes</span><b>'+(s.errores24h||0)+'</b><small>'+(s.errores24h?"No han salido (24 h) o no han llegado (7 días): mira la bandeja en «Avisos y correo».":"Sin problemas.")+'</small></div></div>'+guia(location.origin);
     h+='<h2 class="av-h2">Resumen del equipo</h2><div class="pcard"><div class="fldset">'+chk("resumen.on",rs.on,"Enviar el resumen")+
       '<label class="fld"><span class="lbl">Cada</span><select data-cf="resumen.freq"><option value="semanal"'+(rs.freq==="semanal"?" selected":"")+'>Semana</option><option value="diario"'+(rs.freq==="diario"?" selected":"")+'>Día</option><option value="off"'+(rs.freq==="off"?" selected":"")+'>(apagado)</option></select></label>'+
       '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="resumen.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+rs.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
@@ -22050,8 +22141,16 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     h+='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
       chk("cliente.on",cl.on,"Enviar recordatorios automáticos a los clientes")+chk("cliente.lista",cl.lista,"La lista de invitados")+chk("cliente.pago",cl.pago,"Los pagos")+chk("cliente.reunion",cl.reunion,"Las reuniones")+
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("cliente.hora",cl.hora,0,23)+'</label></div></div>';
-    h+='<h2 class="av-h2">Firma y respuestas</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Firma de los mensajes</span><input type="text" data-cf="firma" value="'+esc(cfg.firma)+'" maxlength="200"></label>'+
-      '<label class="fld"><span class="lbl">Si contestan al correo, la respuesta va a…</span><input type="email" data-cf="responder" value="'+esc(cfg.responder)+'" placeholder="info@lesmoles.com"></label></div></div>';
+    var cp=cfg.copia||{yo:false,lista:""};
+    h+='<h2 class="av-h2">Firma, respuestas y aspecto</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Firma de los mensajes</span><input type="text" data-cf="firma" value="'+esc(cfg.firma)+'" maxlength="200"></label>'+
+      '<label class="fld"><span class="lbl">Si contestan a un correo escrito desde la app, la respuesta va a…</span><select data-cf="respuesta"><option value="quien"'+(cfg.respuesta!=="general"?" selected":"")+'>Quien lo ha enviado (su correo de acceso)</option><option value="general"'+(cfg.respuesta==="general"?" selected":"")+'>Siempre al correo general de aquí abajo</option></select></label>'+
+      '<label class="fld"><span class="lbl">Correo general para las respuestas <small>(y para lo que sale solo)</small></span><input type="email" data-cf="responder" value="'+esc(cfg.responder)+'" placeholder="info@lesmoles.com"></label>'+
+      chk("marca",cfg.marca!==false,"Correos con el diseño de la casa (nombre, botón al enlace privado y pie). Apagado: salen como texto sencillo.")+
+      '<label class="fld wide"><span class="lbl">Línea del pie del correo</span><input type="text" data-cf="pie" value="'+esc(cfg.pie==null?"":cfg.pie)+'" maxlength="200" placeholder="Les Moles Events · Ulldecona"></label>'+
+      chk("copia.yo",!!cp.yo,"Mandarme una copia oculta de lo que escribo a clientes, camareros y proveedores")+
+      '<label class="fld wide"><span class="lbl">Copia oculta fija de lo que sale a los clientes <small>(hasta 4 correos, separados por comas; también los recordatorios automáticos)</small></span><input type="text" data-cf="copia.lista" value="'+esc(cp.lista||"")+'" placeholder="administracion@lesmoles.com"></label></div>'+
+      '<div class="av-acciones"><button type="button" class="btn" data-cfa="vista">Ver cómo llega un correo al cliente</button></div>'+
+      (C.vista?'<div class="av-vprev"><div class="av-vprev-h"><span>Ejemplo con la plantilla «la lista de invitados»</span><button type="button" class="btn sm" data-cfa="vista-cierra">Cerrar</button></div><iframe sandbox="" title="Vista previa del correo" srcdoc="'+esc(C.vista)+'"></iframe></div>':'')+'</div>';
     h+='<h2 class="av-h2">Plantillas</h2><p class="av-peq">Las variables entre llaves se rellenan solas con los datos del evento. WhatsApp usa los mismos textos.</p>'+PL_TXT.map(function(p){
       var largo=!/asunto|intro/.test(p[0]), mod=C.plant[p[0]]!==(C.estado.plantillasPorDefecto||{})[p[0]];
       return '<div class="pcard av-pl"><label class="fld wide"><span class="lbl">'+esc(p[1])+(p[2]?' <small>'+esc(p[2])+'</small>':'')+(mod?' <em>personalizada</em>':'')+'</span>'+(largo?'<textarea rows="'+(p[0]==="camarero"||p[0]==="cliente_lista"||p[0]==="cliente_pago"?7:5)+'" data-pl="'+p[0]+'">'+esc(C.plant[p[0]])+'</textarea>':'<input type="text" data-pl="'+p[0]+'" value="'+esc(C.plant[p[0]])+'">')+'</label>'+(mod?'<button type="button" class="btn sm" data-cfa="restaurar" data-k="'+p[0]+'">Volver a la de fábrica</button>':'')+'</div>'; }).join("");
@@ -22075,9 +22174,14 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(a==="guardar"){ C.guardando=true; C.msg=null; pintarCfg();
       api("/api/correo","PUT",{cfg:C.cfg,plantillas:C.plant}).then(function(j){ C.guardando=false;
         if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:j.message||"No se ha podido guardar."}; pintarCfg(); } }); }
+    else if(a==="vista-cierra"){ C.vista=null; pintarCfg(); }
+    else if(a==="vista"){ b.disabled=true;
+      var v={nombre:"Marta y Jordi",evento:"Boda de Marta i Jordi",fecha:"sábado 12 de diciembre de 2026",enlace:location.origin+"/?cliente=ejemplo",firma:C.cfg.firma||""};
+      var tx=String(C.plant.cliente_lista||"").replace(/\{(\w+)\}/g,function(m,k3){ return Object.prototype.hasOwnProperty.call(v,k3)?v[k3]:m; });
+      api("/api/correo/vista","POST",{kind:"cliente",subject:"La lista de invitados de "+v.evento,text:tx,cfg:C.cfg}).then(function(j){ if(j._status===200) C.vista=j.html; else C.msg={ok:false,txt:j.message||"No se ha podido preparar la vista previa."}; pintarCfg(); }); }
     else if(a==="restaurar"){ var k2=b.getAttribute("data-k"); C.plant[k2]=(C.estado.plantillasPorDefecto||{})[k2]; api("/api/correo","PUT",{plantillas:(function(){ var o={}; o[k2]=null; return o; })()}).then(function(){ cargarCfg(); }); }
     else if(a==="prueba"){ b.disabled=true; C.msg=null;
-      api("/api/correo/enviar","POST",{kind:"prueba",to:(yo().email||""),subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona.\n\n"+(C.cfg.firma||"")}).then(function(j){
+      api("/api/correo/enviar","POST",{kind:"prueba",to:(yo().email||""),subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona. Así se ve un botón a un enlace:\n"+location.origin+"/\n\n"+(C.cfg.firma||"")}).then(function(j){
         C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(yo().email||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:j.message||"No se ha podido enviar."}; cargarCfg(); }); }
     else if(a==="simular"){ b.disabled=true; api("/api/correo/cron","POST",{simular:true}).then(function(j){
       var l=["Hoy es "+dmy(j.hoy)+"."]; l.push(j.resumen?"Resumen del equipo: se mandaría a "+j.resumen.destinatarios+(j.resumen.destinatarios===1?" persona":" personas")+" («"+j.resumen.asunto+"»)."+(j.resumen.texto?"\n\n"+j.resumen.texto:""):"Resumen del equipo: hoy no toca (o ya se envió).");

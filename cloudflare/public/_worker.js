@@ -50,7 +50,11 @@
  *   PUT  /api/correo            {cfg?, plantillas?} ajustes y plantillas (solo admin)
  *   GET  /api/correo/plantillas plantillas y firma (cualquier rol: las usan los botones de WhatsApp)
  *   POST /api/correo/enviar     {kind, ev?, to, subject, text, ref?} envía (o guarda como «simulado» si no hay servicio de correo)
+ *   POST /api/correo/enviar     también: adjuntos [{nombre,b64}] (hasta 3 · 3 MB) y programar (ISO, entre 5 min y 30 días)
  *   POST /api/correo/reintentar {id}      vuelve a intentar un envío con error
+ *   POST /api/correo/vista      {kind?, subject?, text} el correo tal como llegará (HTML con la marca), para la vista previa
+ *   POST /api/correo/estado     comprueba en el servicio de correo si lo enviado ha llegado (entregado, rebotado…)
+ *   POST /api/correo/cancelar   {id}      cancela un envío programado que aún no ha salido
  *   POST /api/correo/resumen    {modo: vista|yo|equipo}  el resumen del equipo a mano
  *   POST /api/correo/cron       lo que se manda solo (resumen y recordatorios); con «Authorization: Bearer CRON_TOKEN» o el administrador
  *   GET  /api/health            ¿vivo? (público, sin datos; para un vigilante externo tipo UptimeRobot)
@@ -188,6 +192,9 @@ async function api(request, env, url) {
   if (p === "/api/correo/reintentar" && m === "POST") return correoReintentar(request, env);
   if (p === "/api/correo/resumen" && m === "POST") return correoResumenRoute(request, env);
   if (p === "/api/correo/cron" && m === "POST") return correoCron(request, env);
+  if (p === "/api/correo/vista" && m === "POST") return correoVista(request, env);
+  if (p === "/api/correo/estado" && m === "POST") return correoEstadoRoute(request, env);
+  if (p === "/api/correo/cancelar" && m === "POST") return correoCancelar(request, env);
   if (p === "/api/consulta/form" && m === "GET") return consForm(request, env);
   if (p === "/api/consulta/disp" && m === "GET") return consDispRoute(request, env, url);
   if (p === "/api/consulta" && m === "POST") return consNueva(request, env);
@@ -617,7 +624,7 @@ async function estadoRoute(request, env) {
   const po0 = await q("SELECT COUNT(*) AS n, COALESCE(SUM(bytes),0) AS b FROM portal_arch");
   const dc = await q("SELECT COUNT(*) AS n, COALESCE(SUM(bytes),0) AS b FROM evento_docs");
   const po = { n: ((po0 && po0.n) || 0) + ((dc && dc.n) || 0), b: ((po0 && po0.b) || 0) + ((dc && dc.b) || 0) };
-  const co = await q("SELECT COALESCE(SUM(CASE WHEN estado='error' AND ts>?1 THEN 1 ELSE 0 END),0) AS err, COALESCE(SUM(CASE WHEN estado='enviado' AND ts>?2 THEN 1 ELSE 0 END),0) AS ok7, COALESCE(SUM(CASE WHEN estado='simulado' AND ts>?2 THEN 1 ELSE 0 END),0) AS sim7 FROM outbox", ahora - 864e5, ahora - 7 * 864e5);
+  const co = await q("SELECT COALESCE(SUM(CASE WHEN (estado='error' AND ts>?1) OR (entrega IN ('bounced','complained','failed','suppressed') AND ts>?2) THEN 1 ELSE 0 END),0) AS err, COALESCE(SUM(CASE WHEN estado='enviado' AND ts>?2 THEN 1 ELSE 0 END),0) AS ok7, COALESCE(SUM(CASE WHEN estado='simulado' AND ts>?2 THEN 1 ELSE 0 END),0) AS sim7 FROM outbox", ahora - 864e5, ahora - 7 * 864e5);
   const { results } = await env.DB.prepare("SELECT ts, origen, donde, msg, name FROM errores ORDER BY id DESC LIMIT 25").all();
   const ult = st ? +st.updated : 0, bytes = st ? +st.bytes : 0, pct = Math.round(bytes / DOC_LIMITE * 100);
   const avisos = [];
@@ -629,7 +636,7 @@ async function estadoRoute(request, env) {
   if (eh && eh.n > 0) add("mal", eh.n + (eh.n === 1 ? " error en la última hora." : " errores en la última hora."), "Mira el detalle más abajo; si se repite, envíalo a quien lleva la herramienta.");
   else if (ed && ed.n > 0) add("aviso", ed.n + (ed.n === 1 ? " error en las últimas 24 horas." : " errores en las últimas 24 horas."), "");
   if (po && po.b > 250e6) add("aviso", "Las fotos y logos que mandan los clientes ocupan " + Math.round(po.b / 1e6) + " MB.", "La base de datos gratuita admite 500 MB en total. Anonimiza eventos antiguos (Parámetros → Privacidad) para liberar espacio.");
-  if (co && co.err > 0) add("aviso", co.err + (co.err === 1 ? " correo no ha salido" : " correos no han salido") + " en las últimas 24 horas.", "Míralo en la bandeja de «Avisos y correo»; se puede reintentar desde ahí.");
+  if (co && co.err > 0) add("aviso", co.err + (co.err === 1 ? " correo no ha salido o no ha llegado" : " correos no han salido o no han llegado") + " (últimas 24 horas; rebotes, de la última semana).", "Míralo en la bandeja de «Avisos y correo»; se puede reintentar desde ahí.");
   if (!avisos.length) add("ok", "Todo en orden: sin errores recientes, con copias al día y espacio de sobra.", "");
   return json({
     ahora,
@@ -1769,7 +1776,10 @@ const COR_PURGA_DIAS = 180;
 const COR_CFG_DEF = {
   resumen: { on: true, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
   cliente: { on: false, hora: 9, lista: true, pago: true, reunion: true },
-  firma: "Les Moles Events", responder: ""
+  firma: "Les Moles Events", responder: "",
+  respuesta: "quien",                       /* quien = si contestan, le llega a quien lo ha enviado · general = al correo de «responder» */
+  copia: { yo: false, lista: "" },          /* copia oculta: a quien lo envía y/o a una lista (esta, solo en lo que sale a clientes) */
+  marca: true, pie: "Les Moles Events · Ulldecona"   /* correo con el diseño de la casa · línea del pie */
 };
 const COR_PLANT = {
   resumen_asunto: "Resumen de {periodo} · Les Moles Events",
@@ -1791,7 +1801,14 @@ const COR_PLANT = {
 };
 async function ensureCorreo(env) {
   if (COR_OK) return;
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS outbox (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, kind TEXT NOT NULL, ev TEXT, to_addr TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL, estado TEXT NOT NULL, intentos INTEGER NOT NULL DEFAULT 0, error TEXT, sent_ts INTEGER, ref TEXT, by_name TEXT, prov_id TEXT)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS outbox (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, kind TEXT NOT NULL, ev TEXT, to_addr TEXT NOT NULL, subject TEXT NOT NULL, body TEXT NOT NULL, estado TEXT NOT NULL, intentos INTEGER NOT NULL DEFAULT 0, error TEXT, sent_ts INTEGER, ref TEXT, by_name TEXT, prov_id TEXT, bcc TEXT, reply_to TEXT, entrega TEXT, entrega_ts INTEGER, adj TEXT, prog_ts INTEGER)").run();
+  /* tablas de antes de la 01.93: las columnas nuevas se añaden una sola vez */
+  let tiene = null;
+  try { const r = await env.DB.prepare("PRAGMA table_info(outbox)").all(); tiene = (r.results || []).map((c) => c.name); } catch (_) {}
+  for (const c of ["bcc TEXT", "reply_to TEXT", "entrega TEXT", "entrega_ts INTEGER", "adj TEXT", "prog_ts INTEGER"]) {
+    if (tiene && tiene.indexOf(c.split(" ")[0]) >= 0) continue;
+    try { await env.DB.prepare("ALTER TABLE outbox ADD COLUMN " + c).run(); } catch (_) {}
+  }
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS outbox_ts ON outbox (ts)").run();
   await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS outbox_ref ON outbox (ref) WHERE ref IS NOT NULL").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS outbox_ev ON outbox (ev)").run();
@@ -1821,29 +1838,84 @@ function corProveedor(env) {
   return { listo: true, from, motivo: "" };
 }
 function corRellenar(t, v) { return String(t == null ? "" : t).replace(/\{(\w+)\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(v, k) && v[k] != null ? String(v[k]) : m)); }
-function corHtml(texto) {
-  const esc = String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const lk = esc.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>');
-  return '<div style="font:15px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#222;max-width:620px">' + lk.replace(/\n/g, "<br>") + "</div>";
+/* el correo tal como llega: con el diseño de la casa (o sencillo si se apaga). Siempre se manda también el texto plano. */
+const COR_FUENTE = "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
+function corEsc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function corEnlazar(raw) {
+  let out = "", ult = 0, m; const re = /https?:\/\/[^\s<>"]+/g;
+  while ((m = re.exec(raw))) {
+    const mm = /^(.*?)([.,;:!?)»\]]*)$/.exec(m[0]), u = mm[1], resto = mm[2];
+    out += corEsc(raw.slice(ult, m.index)) + '<a href="' + corEsc(u) + '" style="color:#8a6d3b;text-decoration:underline">' + corEsc(u) + "</a>" + corEsc(resto);
+    ult = m.index + m[0].length;
+  }
+  return out + corEsc(raw.slice(ult));
 }
-/* un envío: lo apunta en la bandeja y, si hay servicio de correo, lo manda. ref = clave para no repetir. */
+function corBoton(u) {
+  const etq = /[?&]cliente=/.test(u) ? "Abrir vuestro enlace privado" : "Abrir el enlace";
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px"><tr><td align="center" bgcolor="#1f2a24" style="border-radius:6px"><a href="' + corEsc(u) + '" style="display:inline-block;padding:13px 24px;font:600 14px/1 ' + COR_FUENTE + ';color:#ffffff;text-decoration:none;border-radius:6px">' + etq + '</a></td></tr></table>' +
+    '<div style="margin:0 0 16px;font:12px/1.4 ' + COR_FUENTE + ';color:#8b8b8b;word-break:break-all">' + corEsc(u) + "</div>";
+}
+function corHtml(texto, o) {
+  o = o || {};
+  const t = String(texto == null ? "" : texto).replace(/\r/g, "").trim();
+  if (o.marca === false) return '<div style="font:15px/1.5 ' + COR_FUENTE + ';color:#222;max-width:620px">' + corEnlazar(t).replace(/\n/g, "<br>") + "</div>";
+  const partes = []; let par = [];
+  const cierra = () => { if (par.length) { const trasLista = partes.length && /^<div style="margin:0 0 7px/.test(partes[partes.length - 1]); partes.push('<p style="margin:' + (trasLista ? "18px" : "0") + ' 0 14px;font:15px/1.65 ' + COR_FUENTE + ';color:#2b2b2b">' + par.map(corEnlazar).join("<br>") + "</p>"); par = []; } };
+  t.split("\n").forEach((l) => {
+    const s = l.trim();
+    if (!s) { cierra(); return; }
+    if (/^https?:\/\/\S+$/.test(s)) { cierra(); partes.push(corBoton(s)); return; }
+    if (/^[·•]\s+/.test(s)) { cierra(); partes.push('<div style="margin:0 0 7px;padding-left:16px;text-indent:-16px;font:15px/1.55 ' + COR_FUENTE + ';color:#2b2b2b">· ' + corEnlazar(s.replace(/^[·•]\s+/, "")) + "</div>"); return; }
+    if (o.kind === "resumen" && /^[A-ZÁÉÍÓÚÜÑ ]{4,}(\(.*\))?$/.test(s)) { cierra(); partes.push('<div style="margin:24px 0 10px;padding-top:14px;border-top:1px solid #e8e2d4;font:700 12px/1.3 ' + COR_FUENTE + ';letter-spacing:.12em;color:#8a6d3b">' + corEsc(s) + "</div>"); return; }
+    par.push(s);
+  });
+  cierra();
+  const pre = corEsc(t.replace(/https?:\/\/\S+/g, "").replace(/\s+/g, " ").trim().slice(0, 110));
+  const logo = o.origen && /^https:\/\//.test(o.origen) ? '<img src="' + corEsc(o.origen) + '/icons/icon-192.png" width="38" height="38" alt="" style="border-radius:50%;vertical-align:middle;margin-right:12px;border:0">' : "";
+  return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>' + corEsc(o.subject || "Les Moles Events") + '</title></head>' +
+    '<body style="margin:0;padding:0;background:#f3efe6"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + pre + '</div>' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3efe6"><tr><td align="center" style="padding:26px 12px">' +
+    '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">' +
+    '<tr><td style="padding:0 6px 14px">' + logo + '<span style="vertical-align:middle;font:22px/1 Georgia,\'Times New Roman\',serif;color:#1f2a24">Les Moles</span> <span style="vertical-align:middle;font:600 10px/1 ' + COR_FUENTE + ';letter-spacing:.32em;color:#8a6d3b;margin-left:6px">EVENTS</span></td></tr>' +
+    '<tr><td style="background:#ffffff;border-top:3px solid #b8924a;border-radius:8px;padding:30px 30px 18px">' + partes.join("") + '</td></tr>' +
+    '<tr><td style="padding:16px 8px 4px;font:12px/1.6 ' + COR_FUENTE + ';color:#8b8b8b">' + corEsc(o.pie || "") + '</td></tr>' +
+    '</table></td></tr></table></body></html>';
+}
+/* direcciones válidas, sin repetir y sin la del destinatario (para la copia oculta) */
+function corLista(l, excepto) {
+  const out = [], ex = String(excepto || "").trim().toLowerCase();
+  (Array.isArray(l) ? l : String(l || "").split(/[\s,;]+/)).forEach((x) => { x = String(x || "").trim(); if (corEmailOk(x) && x.toLowerCase() !== ex && out.map((y) => y.toLowerCase()).indexOf(x.toLowerCase()) < 0) out.push(x); });
+  return out.slice(0, 6);
+}
+/* quién recibe copia oculta: a quien lo envía a mano (si se pide) y la lista fija, solo en lo que sale a clientes */
+function corCopias(cfg, kind, emailQuien) {
+  const l = [];
+  if (emailQuien && cfg.copia && cfg.copia.yo && ["cliente", "camarero", "proveedor", "libre"].indexOf(kind) >= 0) l.push(emailQuien);
+  if (kind === "cliente" && cfg.copia && cfg.copia.lista) String(cfg.copia.lista).split(/[\s,;]+/).forEach((x) => l.push(x));
+  return l;
+}
+/* un envío: lo apunta en la bandeja y, si hay servicio de correo, lo manda. ref = clave para no repetir.
+   m: kind, ev, to, subject, text, ref, by · replyTo, bcc[] · adjuntos[{filename,content}] · programar (ms) · origen */
 async function correoEnviar(env, m) {
   await ensureCorreo(env);
   const prov = corProveedor(env), { cfg } = await correoCfg(env), ahora = Date.now();
   const to = String(m.to || "").trim(), subject = String(m.subject || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200), body = String(m.text || "").slice(0, 8000);
   if (!corEmailOk(to)) return { ok: false, error: "invalid", message: "El correo del destinatario no es válido." };
   if (!subject || !body.trim()) return { ok: false, error: "invalid", message: "Falta el asunto o el texto." };
+  const bcc = corLista(m.bcc, to), adj = Array.isArray(m.adjuntos) ? m.adjuntos : [], prog = +m.programar > ahora ? Math.floor(+m.programar) : 0;
+  const replyTo = corEmailOk(m.replyTo) ? String(m.replyTo).trim() : (corEmailOk(cfg.responder) ? String(cfg.responder).trim() : "");
+  const bccTxt = bcc.join(", ") || null, adjTxt = adj.length ? JSON.stringify(adj.map((x) => String(x.filename).slice(0, 80))) : null;
   let row = null;
   if (m.ref) {
     row = await env.DB.prepare("SELECT * FROM outbox WHERE ref=?1").bind(String(m.ref).slice(0, 200)).first();
-    if (row && (row.estado === "enviado" || row.estado === "simulado")) return { ok: true, repetido: true, id: row.id, estado: row.estado };
+    if (row && (row.estado === "enviado" || row.estado === "simulado" || row.estado === "programado")) return { ok: true, repetido: true, id: row.id, estado: row.estado };
     if (row && row.intentos >= 3) return { ok: false, error: "max-intentos", message: "Este aviso ya falló 3 veces.", id: row.id, estado: row.estado };
   }
   let id;
-  if (row) { id = row.id; await env.DB.prepare("UPDATE outbox SET to_addr=?1, subject=?2, body=?3, estado='pendiente', error=NULL WHERE id=?4").bind(to, subject, body, id).run(); }
+  if (row) { id = row.id; await env.DB.prepare("UPDATE outbox SET to_addr=?1, subject=?2, body=?3, estado='pendiente', error=NULL, bcc=?4, reply_to=?5, adj=?6, prog_ts=?7, entrega=NULL WHERE id=?8").bind(to, subject, body, bccTxt, replyTo || null, adjTxt, prog || null, id).run(); }
   else {
-    const r = await env.DB.prepare("INSERT INTO outbox (ts, kind, ev, to_addr, subject, body, estado, intentos, ref, by_name) VALUES (?1,?2,?3,?4,?5,?6,'pendiente',0,?7,?8)")
-      .bind(ahora, String(m.kind || "libre").slice(0, 20), m.ev ? String(m.ev).slice(0, 80) : null, to, subject, body, m.ref ? String(m.ref).slice(0, 200) : null, String(m.by || "").slice(0, 80)).run();
+    const r = await env.DB.prepare("INSERT INTO outbox (ts, kind, ev, to_addr, subject, body, estado, intentos, ref, by_name, bcc, reply_to, adj, prog_ts) VALUES (?1,?2,?3,?4,?5,?6,'pendiente',0,?7,?8,?9,?10,?11,?12)")
+      .bind(ahora, String(m.kind || "libre").slice(0, 20), m.ev ? String(m.ev).slice(0, 80) : null, to, subject, body, m.ref ? String(m.ref).slice(0, 200) : null, String(m.by || "").slice(0, 80), bccTxt, replyTo || null, adjTxt, prog || null).run();
     id = (r.meta && r.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM outbox").first()).id;
   }
   if (!prov.listo) {
@@ -1851,13 +1923,17 @@ async function correoEnviar(env, m) {
     return { ok: true, id, estado: "simulado", message: "El servicio de correo no está configurado: se ha guardado en la bandeja pero NO se ha enviado." };
   }
   try {
-    const payload = { from: prov.from, to: [to], subject, text: body, html: corHtml(body) };
-    if (cfg.responder && corEmailOk(cfg.responder)) payload.reply_to = cfg.responder;
+    const payload = { from: prov.from, to: [to], subject, text: body, html: corHtml(body, { marca: cfg.marca !== false, pie: cfg.pie, origen: m.origen, subject, kind: m.kind }) };
+    if (replyTo) payload.reply_to = replyTo;
+    if (bcc.length) payload.bcc = bcc;
+    if (adj.length) payload.attachments = adj.map((x) => ({ filename: x.filename, content: x.content }));
+    if (prog) payload.scheduled_at = new Date(prog).toISOString();
     const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim(), "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     let j = {}; try { j = await r.json(); } catch (_) {}
     if (r.ok && j && j.id) {
-      await env.DB.prepare("UPDATE outbox SET estado='enviado', intentos=intentos+1, sent_ts=?1, prov_id=?2, error=NULL WHERE id=?3").bind(Date.now(), String(j.id).slice(0, 80), id).run();
-      return { ok: true, id, estado: "enviado" };
+      const est = prog ? "programado" : "enviado";
+      await env.DB.prepare("UPDATE outbox SET estado=?1, intentos=intentos+1, sent_ts=?2, prov_id=?3, error=NULL, entrega=?4, entrega_ts=?5 WHERE id=?6").bind(est, prog || Date.now(), String(j.id).slice(0, 80), prog ? "scheduled" : "sent", Date.now(), id).run();
+      return { ok: true, id, estado: est, programado: prog || null };
     }
     const msg = ((j && (j.message || j.error)) || ("HTTP " + r.status)).toString().slice(0, 300);
     await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+1, error=?1 WHERE id=?2").bind(msg, id).run();
@@ -1867,6 +1943,58 @@ async function correoEnviar(env, m) {
     await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+1, error=?1 WHERE id=?2").bind(msg, id).run();
     return { ok: false, id, estado: "error", error: "red", message: "No se ha podido contactar con el servicio de correo: " + msg };
   }
+}
+/* ¿ha llegado? El servicio de correo sabe qué ha pasado con cada envío (entregado, rebotado, spam…): se le pregunta por los de los
+   últimos 7 días que aún no tienen un final. Lo llaman la bandeja (al abrirla) y la tarea programada. */
+const COR_ENT_FINAL = ["delivered", "opened", "clicked", "bounced", "complained", "failed", "suppressed", "canceled"];
+const COR_ENT_MAL = ["bounced", "complained", "failed", "suppressed"];
+let COR_ENT_ULT = 0;
+async function corEntregaRefrescar(env, opt) {
+  opt = opt || {};
+  const prov = corProveedor(env); if (!prov.listo) return { revisados: 0, cambios: 0, sinServicio: true };
+  const ahora = Date.now();
+  if (!opt.forzar && ahora - COR_ENT_ULT < 20e3) return { revisados: 0, cambios: 0, saltado: true };
+  COR_ENT_ULT = ahora;
+  const lim = Math.min(40, Math.max(1, Math.floor(+opt.limite) || 20));
+  const { results } = await env.DB.prepare("SELECT id, prov_id, estado, entrega FROM outbox WHERE prov_id IS NOT NULL AND estado IN ('enviado','programado') AND COALESCE(entrega,'') NOT IN (" + COR_ENT_FINAL.map((x) => "'" + x + "'").join(",") + ") AND ts>?1 ORDER BY id DESC LIMIT ?2").bind(ahora - 7 * 864e5, lim).all();
+  let rev = 0, cambios = 0;
+  for (const r of (results || [])) {
+    let j = null;
+    try {
+      const x = await fetch("https://api.resend.com/emails/" + encodeURIComponent(r.prov_id), { headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim() } });
+      if (x.status === 429) break;
+      if (x.ok) j = await x.json();
+    } catch (_) { break; }
+    rev++;
+    const ev = j ? String(j.last_event || "").toLowerCase().replace(/[^a-z_]/g, "").slice(0, 30) : "";
+    if (!ev || ev === r.entrega) continue;
+    let est = r.estado;
+    if (ev === "canceled") est = "cancelado"; else if (r.estado === "programado" && ev !== "scheduled" && ev !== "queued") est = "enviado";
+    await env.DB.prepare("UPDATE outbox SET entrega=?1, entrega_ts=?2, estado=?3 WHERE id=?4").bind(ev, Date.now(), est, r.id).run();
+    cambios++;
+  }
+  return { revisados: rev, cambios };
+}
+/* archivos adjuntos: hasta 3, de 3 MB, solo de los tipos de oficina; no se guardan, solo van en ese correo */
+const COR_ADJ_EXT = { pdf: "%PDF", png: "\x89PNG", jpg: "\xFF\xD8\xFF", jpeg: "\xFF\xD8\xFF", webp: "RIFF", docx: "PK", xlsx: "PK", txt: "", csv: "" };
+function corAdjuntos(l) {
+  if (l == null || (Array.isArray(l) && !l.length)) return { ok: true, lista: [] };
+  if (!Array.isArray(l) || l.length > 3) return { ok: false, message: "Se pueden adjuntar hasta 3 archivos." };
+  let total = 0; const lista = [];
+  for (const a of l) {
+    const nombre = String((a && a.nombre) || "").replace(/[\\/:*?"<>|\x00-\x1f]/g, "_").trim().slice(0, 80), ext = (nombre.split(".").pop() || "").toLowerCase();
+    if (!nombre || !Object.prototype.hasOwnProperty.call(COR_ADJ_EXT, ext)) return { ok: false, message: "«" + (nombre || "archivo") + "»: solo se pueden adjuntar PDF, imágenes (JPG, PNG, WebP), Word, Excel, TXT o CSV." };
+    const b64 = String((a && a.b64) || "").replace(/^data:[^,]*,/, "").replace(/\s+/g, "");
+    if (!b64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) return { ok: false, message: "«" + nombre + "»: el archivo no se ha leído bien. Vuelve a adjuntarlo." };
+    const bytes = Math.floor(b64.length * 3 / 4) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0);
+    if (bytes > 3 * 1048576) return { ok: false, message: "«" + nombre + "» pesa más de 3 MB." };
+    total += bytes; if (total > 6 * 1048576) return { ok: false, message: "Entre todos los adjuntos no pueden pasar de 6 MB." };
+    let cab = ""; try { cab = atob(b64.slice(0, 16)); } catch (_) { return { ok: false, message: "«" + nombre + "»: el archivo no se ha leído bien." }; }
+    const firma = COR_ADJ_EXT[ext];
+    if (firma && cab.slice(0, firma.length) !== firma) return { ok: false, message: "«" + nombre + "» no parece un archivo ." + ext + " de verdad." };
+    lista.push({ filename: nombre, content: b64 });
+  }
+  return { ok: true, lista };
 }
 /* ── fechas en hora de Madrid ── */
 function corMadrid(d) {
@@ -1941,7 +2069,7 @@ async function correoAutomatico(env, ahora, origen, opt) {
     const periodo = rs.freq === "diario" ? M.iso : corSemana(M.iso), R = corResumen(doc, M.iso, cfg, plant), dest = await corDestinatarios(env, cfg);
     out.resumen = { periodo, destinatarios: dest.length, asunto: R.asunto, eventos: R.eventos, enviados: 0 };
     if (opt.simular) out.resumen.texto = R.texto;
-    else for (const to of dest) { const r = await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen:" + periodo + ":" + to, by: "automático" }); cuenta(r); if (r.ok && !r.repetido) out.resumen.enviados++; }
+    else for (const to of dest) { const r = await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen:" + periodo + ":" + to, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) out.resumen.enviados++; }
   }
   /* 2 · recordatorios a los clientes (apagados de fábrica) */
   if (cfg.cliente.on && M.h >= (+cfg.cliente.hora || 0)) {
@@ -1954,12 +2082,15 @@ async function correoAutomatico(env, ahora, origen, opt) {
         if (!tipo || !cfg.cliente[tipo] || h.done || h.fecha !== M.iso) continue;
         const m = corMensajeCliente(e, h, tipo, cfg, plant, portal, origen), ref = "cli:" + e.id + ":" + h.id + ":" + h.fecha;
         out.clientes.push({ ev: e.id, evento: corNombreEv(e), hito: h.id, tipo, a: m.to });
-        if (!opt.simular) cuenta(await correoEnviar(env, { kind: "cliente", ev: e.id, to: m.to, subject: m.subject, text: m.text, ref, by: "automático" }));
+        if (!opt.simular) cuenta(await correoEnviar(env, { kind: "cliente", ev: e.id, to: m.to, subject: m.subject, text: m.text, ref, by: "automático", origen, bcc: corCopias(cfg, "cliente", ""), replyTo: cfg.responder }));
       }
     }
   }
-  /* 3 · limpieza de lo antiguo */
-  if (!opt.simular) { try { await env.DB.prepare("DELETE FROM outbox WHERE ts < ?1").bind(ahora.getTime() - COR_PURGA_DIAS * 864e5).run(); } catch (_) {} }
+  /* 3 · limpieza de lo antiguo y qué ha pasado con lo enviado (¿ha llegado?) */
+  if (!opt.simular) {
+    try { await env.DB.prepare("DELETE FROM outbox WHERE ts < ?1").bind(ahora.getTime() - COR_PURGA_DIAS * 864e5).run(); } catch (_) {}
+    try { out.entregas = await corEntregaRefrescar(env, { limite: 30, forzar: true }); } catch (_) {}
+  }
   return out;
 }
 function corMensajeCliente(e, h, tipo, cfg, plant, portal, origen) {
@@ -1982,11 +2113,11 @@ async function correoGet(request, env, url) {
   const { cfg, plant, custom } = await correoCfg(env), prov = corProveedor(env);
   const lim = Math.min(200, Math.max(10, +url.searchParams.get("n") || 60)), ev = url.searchParams.get("ev") || "";
   const { results } = ev
-    ? await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name FROM outbox WHERE ev=?1 ORDER BY id DESC LIMIT ?2").bind(ev.slice(0, 80), lim).all()
-    : await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name FROM outbox ORDER BY id DESC LIMIT ?1").bind(lim).all();
-  const c24 = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE estado='error' AND ts>?1").bind(Date.now() - 864e5).first();
+    ? await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name, bcc, reply_to, entrega, entrega_ts, adj, prog_ts FROM outbox WHERE ev=?1 ORDER BY id DESC LIMIT ?2").bind(ev.slice(0, 80), lim).all()
+    : await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name, bcc, reply_to, entrega, entrega_ts, adj, prog_ts FROM outbox ORDER BY id DESC LIMIT ?1").bind(lim).all();
+  const c24 = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE (estado='error' AND ts>?1) OR (entrega IN ('bounced','complained','failed','suppressed') AND ts>?2)").bind(Date.now() - 864e5, Date.now() - 7 * 864e5).first();
   return json({ cfg, plantillas: plant, plantillasPorDefecto: COR_PLANT, personalizadas: Object.keys(custom || {}), proveedor: { listo: prov.listo, from: prov.from, motivo: prov.motivo }, cron: { token: !!String(env.CRON_TOKEN || "").trim() },
-    errores24h: (c24 && c24.n) || 0, bandeja: (results || []).map((r) => ({ id: r.id, ts: +r.ts, kind: r.kind, ev: r.ev || "", to: r.to_addr, subject: r.subject, estado: r.estado, intentos: r.intentos, error: r.error || "", sentTs: r.sent_ts ? +r.sent_ts : null, by: r.by_name || "" })) });
+    errores24h: (c24 && c24.n) || 0, bandeja: (results || []).map((r) => ({ id: r.id, ts: +r.ts, kind: r.kind, ev: r.ev || "", to: r.to_addr, subject: r.subject, estado: r.estado, intentos: r.intentos, error: r.error || "", sentTs: r.sent_ts ? +r.sent_ts : null, by: r.by_name || "", bcc: r.bcc || "", replyTo: r.reply_to || "", entrega: r.entrega || "", entregaTs: r.entrega_ts ? +r.entrega_ts : null, adj: (() => { try { return r.adj ? JSON.parse(r.adj) : []; } catch (_) { return []; } })(), progTs: r.prog_ts ? +r.prog_ts : null })) });
 }
 /* las plantillas y la firma las puede leer cualquier rol (para los botones de WhatsApp); no llevan nada privado */
 async function correoPlantillas(request, env) {
@@ -2016,6 +2147,18 @@ async function correoPut(request, env) {
   }
   if (c.firma != null) out.firma = String(c.firma).slice(0, 200);
   if (c.responder != null) { const r = String(c.responder).trim(); if (r && !corEmailOk(r)) return json({ error: "invalid", message: "El correo para las respuestas no es válido." }, 400); out.responder = r; }
+  if (c.respuesta === "quien" || c.respuesta === "general") out.respuesta = c.respuesta;
+  if (c.marca != null) out.marca = !!c.marca;
+  if (c.pie != null) out.pie = String(c.pie).replace(/[\r\n]+/g, " ").trim().slice(0, 200);
+  if (c.copia) {
+    if (c.copia.yo != null) out.copia.yo = !!c.copia.yo;
+    if (c.copia.lista != null) {
+      const l = String(c.copia.lista).split(/[\s,;]+/).filter(Boolean);
+      if (l.some((x) => !corEmailOk(x))) return json({ error: "invalid", message: "Algún correo de la lista de copia no es válido." }, 400);
+      if (l.length > 4) return json({ error: "invalid", message: "La lista de copia admite hasta 4 correos." }, 400);
+      out.copia.lista = l.join(", ");
+    }
+  }
   const pl = Object.assign({}, cur.custom || {});
   if (b.plantillas && typeof b.plantillas === "object") Object.keys(b.plantillas).forEach((k) => { if (COR_PLANT[k] == null) return; const v = b.plantillas[k]; if (v == null || !String(v).trim() || String(v) === COR_PLANT[k]) delete pl[k]; else pl[k] = String(v).slice(0, 4000); });
   await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('correo', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(out)).run();
@@ -2035,8 +2178,17 @@ async function correoEnviarRoute(request, env) {
   /* tope por persona: 40 envíos a la hora */
   const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE by_name=?1 AND ts>?2").bind(String(a.s.name || a.s.email || "").slice(0, 80), Date.now() - 3600e3).first();
   if (n && n.n >= 40) return json({ error: "limit", message: "Demasiados correos en la última hora. Espera un poco." }, 429);
-  const r = await correoEnviar(env, { kind, ev: b.ev, to: kind === "prueba" ? (b.to || a.s.email) : b.to, subject: b.subject, text: b.text, ref: b.ref, by: a.s.name || a.s.email });
-  if (r.ok) await logAct(env, a.s, "correo_enviado", (r.estado === "simulado" ? "(simulado) " : "") + kind + " → " + String(b.to || a.s.email).slice(0, 80));
+  const { cfg } = await correoCfg(env);
+  const ad = corAdjuntos(b.adjuntos); if (!ad.ok) return json({ error: "invalid", message: ad.message }, 400);
+  let prog = 0;
+  if (b.programar) {
+    prog = Date.parse(String(b.programar));
+    if (!(prog >= Date.now() + 4 * 60e3) || prog > Date.now() + 30 * 864e5) return json({ error: "invalid", message: "Para programar el envío elige una fecha y hora entre dentro de 5 minutos y 30 días." }, 400);
+  }
+  const quien = corEmailOk(a.s.email) ? String(a.s.email).trim() : "";
+  const r = await correoEnviar(env, { kind, ev: b.ev, to: kind === "prueba" ? (b.to || a.s.email) : b.to, subject: b.subject, text: b.text, ref: b.ref, by: a.s.name || a.s.email, origen: new URL(request.url).origin,
+    bcc: kind === "prueba" ? [] : corCopias(cfg, kind, quien), replyTo: kind === "prueba" ? "" : (cfg.respuesta === "quien" && quien ? quien : cfg.responder), adjuntos: ad.lista, programar: prog });
+  if (r.ok) await logAct(env, a.s, "correo_enviado", (r.estado === "simulado" ? "(simulado) " : r.estado === "programado" ? "(programado) " : "") + kind + " → " + String(b.to || a.s.email).slice(0, 80) + (ad.lista.length ? " · " + ad.lista.length + " adjuntos" : ""));
   return json(r, r.ok ? 200 : (r.error === "invalid" ? 400 : 502));
 }
 async function correoReintentar(request, env) {
@@ -2044,8 +2196,9 @@ async function correoReintentar(request, env) {
   await ensureCorreo(env);
   const b = await body(request), row = await env.DB.prepare("SELECT * FROM outbox WHERE id=?1").bind(Math.floor(+b.id || 0)).first();
   if (!row) return json({ error: "not-found" }, 404);
-  if (row.estado === "enviado") return json({ ok: true, repetido: true, id: row.id, estado: row.estado });
-  const r = await correoEnviar(env, { kind: row.kind, ev: row.ev, to: row.to_addr, subject: row.subject, text: row.body, ref: row.ref || ("reintento:" + row.id), by: a.s.name || a.s.email });
+  if (row.estado === "enviado" || row.estado === "programado") return json({ ok: true, repetido: true, id: row.id, estado: row.estado });
+  if (row.adj) return json({ error: "adjuntos", message: "Este correo llevaba archivos adjuntos y no se guardan: vuelve a redactarlo y adjuntarlos." }, 400);
+  const r = await correoEnviar(env, { kind: row.kind, ev: row.ev, to: row.to_addr, subject: row.subject, text: row.body, ref: row.ref || ("reintento:" + row.id), by: a.s.name || a.s.email, origen: new URL(request.url).origin, bcc: row.bcc || "", replyTo: row.reply_to || "" });
   return json(r, r.ok ? 200 : 502);
 }
 /* resumen a mano: vista previa, prueba a uno mismo o envío al equipo ahora */
@@ -2063,6 +2216,43 @@ async function correoResumenRoute(request, env) {
     return json({ ok: res.every((r) => r.ok), enviados: res.filter((r) => r.estado === "enviado").length, simulados: res.filter((r) => r.estado === "simulado").length, errores: res.filter((r) => !r.ok).length, destinatarios: dest.length });
   }
   return json({ error: "invalid" }, 400);
+}
+/* el correo tal como llegará (vista previa) */
+async function correoVista(request, env) {
+  const s0 = await session(request, env); if (!s0) return json({ error: "unauth" }, 401);
+  if (s0.role !== "admin" && s0.role !== "eventos" && s0.role !== "compras") return json({ error: "forbidden" }, 403);
+  const b = await body(request), { cfg: cfg0 } = await correoCfg(env), texto = String(b.text || "").slice(0, 8000);
+  /* el administrador puede ver cómo quedaría con ajustes que aún no ha guardado */
+  const cfg = Object.assign({}, cfg0);
+  if (s0.role === "admin" && b.cfg && typeof b.cfg === "object") { if (b.cfg.marca != null) cfg.marca = !!b.cfg.marca; if (b.cfg.pie != null) cfg.pie = String(b.cfg.pie).replace(/[\r\n]+/g, " ").slice(0, 200); }
+  const kind = ["cliente", "camarero", "libre", "prueba", "proveedor", "resumen"].indexOf(b.kind) >= 0 ? b.kind : "libre", subject = String(b.subject || "").replace(/[\r\n]+/g, " ").slice(0, 200);
+  return json({ ok: true, html: corHtml(texto, { marca: cfg.marca !== false, pie: cfg.pie, origen: new URL(request.url).origin, subject, kind }), marca: cfg.marca !== false });
+}
+/* ¿ha llegado lo enviado? */
+async function correoEstadoRoute(request, env) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const r = await corEntregaRefrescar(env, { limite: 25 });
+  return json({ ok: true, ...r });
+}
+/* cancelar un envío programado que aún no ha salido */
+async function correoCancelar(request, env) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const b = await body(request), row = await env.DB.prepare("SELECT * FROM outbox WHERE id=?1").bind(Math.floor(+b.id || 0)).first();
+  if (!row) return json({ error: "not-found" }, 404);
+  const prog = row.estado === "programado" || (row.estado === "simulado" && row.prog_ts && +row.prog_ts > Date.now());
+  if (!prog) return json({ error: "invalid", message: "Este correo no está programado." }, 400);
+  if (row.estado === "programado") {
+    if (row.prog_ts && +row.prog_ts <= Date.now() + 30e3) return json({ error: "invalid", message: "Ya está a punto de salir: no se puede cancelar." }, 400);
+    try {
+      const x = await fetch("https://api.resend.com/emails/" + encodeURIComponent(row.prov_id) + "/cancel", { method: "POST", headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim() } });
+      if (!x.ok) { let j = {}; try { j = await x.json(); } catch (_) {} return json({ error: "proveedor", message: "El servicio de correo no ha podido cancelarlo: " + String((j && j.message) || ("HTTP " + x.status)).slice(0, 200) }, 502); }
+    } catch (err) { return json({ error: "red", message: "No se ha podido contactar con el servicio de correo." }, 502); }
+  }
+  await env.DB.prepare("UPDATE outbox SET estado='cancelado', entrega='canceled', entrega_ts=?1 WHERE id=?2").bind(Date.now(), row.id).run();
+  await logAct(env, a.s, "correo_cancelado", "Canceló un correo programado → " + String(row.to_addr).slice(0, 80));
+  return json({ ok: true, id: row.id, estado: "cancelado" });
 }
 /* lo llama una tarea programada (con el token) o el administrador desde la pantalla */
 async function correoCron(request, env) {

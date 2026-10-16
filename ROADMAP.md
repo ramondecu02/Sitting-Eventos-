@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.92** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.93** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,16 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.93
+- **Los correos que salen de la app, trabajados de arriba abajo.** Todo esto sirve para los avisos a clientes, camareros y proveedores, el resumen del equipo y los recordatorios automáticos (los correos se siguen guardando como «simulado» mientras no esté activado el servicio de correo):
+  - **Diseño de la casa:** el correo llega con el nombre «Les Moles Events», el texto bien compuesto y, cuando lleva un enlace al portal, **un botón «Abrir vuestro enlace privado»** (con el enlace escrito debajo por si el botón no se ve). Las líneas «· …» salen como lista y los títulos del resumen del equipo en dorado. Siempre se manda también la versión en texto sencillo. Se puede apagar (salen como antes) y la **línea del pie** se escribe en Parámetros.
+  - **Ver cómo llega antes de enviar:** el botón **«Ver cómo llega»** del redactado enseña el correo tal cual lo verá quien lo reciba. En Parámetros, «Ver cómo llega un correo al cliente» lo enseña con los ajustes aunque aún no estén guardados.
+  - **Respuestas y copias:** si el cliente contesta a un correo escrito desde la app, **le llega a quien lo envió** (o, si se prefiere, siempre a un correo general). **Copia oculta** a quien escribe (opcional) y a una **lista fija** (hasta 4 correos) en lo que sale a los clientes, incluidos los recordatorios automáticos. El redactado dice a quién irá la copia y la respuesta antes de enviar.
+  - **¿Ha llegado?** La bandeja de salida enseña, junto a «Enviado», si **se ha entregado, se ha retrasado, ha rebotado, lo han marcado como spam** o la dirección está bloqueada; se comprueba al abrir la bandeja, con «Comprobar si han llegado» y cada hora con la tarea programada. Si un correo **no llega**, sale un aviso rojo con la dirección (para corregirla en la ficha o escribir por WhatsApp) y también en el estado del sistema del administrador.
+  - **Archivos adjuntos:** hasta **3 archivos de 3 MB** (PDF, imágenes, Word, Excel, TXT o CSV) en cada correo. Se comprueba que el archivo es de verdad lo que dice ser. **No se guardan** en la base de datos: la bandeja solo apunta su nombre (por eso un correo con adjuntos que falla hay que volver a redactarlo).
+  - **Programar el envío:** «Programar el envío» elige día y hora (desde dentro de 5 minutos hasta 30 días); sale solo a esa hora y se puede **cancelar** desde la bandeja mientras no haya salido.
+- **Tu parte:** nada nuevo; si ya tienes activado el correo (sección 8), todo esto funciona solo. El plan gratuito de Resend tiene un tope de envíos al día y al mes: conviene mirarlo si se activan las copias.
 
 ### Novedad de la versión 01.92
 - **El logo que mandan los novios se lee como un logo propio del evento.** En el diseñador de la minuta, pestaña **«Logo»** (aparece sola en las bodas y en cuanto hay un logo guardado), sección **«El logo que nos han mandado»**:
@@ -461,9 +471,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.92 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.93 |
 
-**Estado: todo entregado (01.54 → 01.92).**
+**Estado: todo entregado (01.54 → 01.93).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
