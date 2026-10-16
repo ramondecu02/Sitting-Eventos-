@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.94** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.95** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,13 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.95
+- **La nueva Guía Michelin es el único logo de distinción de las minutas.** Como la estrella verde se retira, el diseñador ya no ofrece ni usa la tira «Las tres distinciones», el Michelin con la estrella verde, el «2 Soles Guía Repsol» ni el «Sol Sostenible 2026». En su lugar hay **un solo logo: la Guía Michelin nueva** (el trébol rojo con el corazón), que se pinta con transparencia sobre cualquier fondo.
+  - **Qué se puede añadir:** en la pestaña «Iconos», el grupo «Logos de la casa y Guía Michelin» tiene ahora tres: **Les Moles**, **Les Moles Events** y **Guía Michelin**. En «Añadir», el botón del conjunto se llama «Michelin y Les Moles».
+  - **Todas las plantillas** (pie, cabeceras y esquinas) llevan la Guía Michelin nueva en lugar de la tira de tres; el texto del menú se ajusta solo al espacio que ocupa.
+  - **Los formatos antiguos** de la minuta (hoja y doble) también llevan ya la imagen nueva (Michelin y Les Moles).
+  - **Las minutas ya hechas se arreglan solas:** al abrirlas, la tira de distinciones y el Michelin antiguo pasan a la Guía Michelin nueva (en el mismo sitio, sin pisar nada) y el Sol y el Repsol se quitan. Las «Mis plantillas» guardadas se arreglan al aplicarlas.
 
 ### Novedad de la versión 01.94
 - **Botón «Solo nombre» (sin apellidos).** En la barra de **Plano de sala, Listado por mesas y Marcasitios** hay ahora un botón doble **«Nombre completo | Solo nombre»** (antes era una casilla que solo valía para el plano). Con «Solo nombre» cada invitado sale **solo con su nombre de pila**: *Marta Vidal Ferré* → *Marta*.
@@ -479,9 +486,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.94 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.95 |
 
-**Estado: todo entregado (01.54 → 01.94).**
+**Estado: todo entregado (01.54 → 01.95).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 
