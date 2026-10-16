@@ -54,7 +54,7 @@ export const hecho = [
   'Logo de los novios: el que mandan por el portal, WhatsApp o correo se recorta, se le quita el fondo (blanco o negro) y se cambia de color (original, negro, blanco, el del diseño o cualquiera); queda como «Logo de la pareja» del evento y se usa en todas las minutas · v01.92',
   'Correos: diseño de la casa con botón al portal y vista previa, respuesta a quien lo envía y copia oculta, estado de entrega (entregado, rebotado, spam) con aviso, adjuntos (3 × 3 MB) y envío programado cancelable · v01.93',
   'Botón «Nombre completo | Solo nombre» en el plano, el listado y los marcasitios (pantalla y PDF): solo el nombre de pila, con compuestos enteros (Maria Carmen, Josep Maria) y la inicial del apellido si hay dos iguales en la mesa · v01.94',
-  'Minutas: la Guía Michelin nueva es el único logo de distinción (sin estrella verde, Sol Sostenible ni Repsol) en el catálogo, las plantillas y los formatos antiguos; las minutas ya hechas se actualizan solas · v01.95',
+  'Minutas: el Michelin de la estrella verde se sustituye por el Michelin nuevo (trébol rojo con corazón) y se mantienen el 2 Soles Guía Repsol y el Sol Sostenible; catálogo, plantillas y formatos antiguos actualizados, y las minutas ya hechas se arreglan solas · v01.96',
 ];
 
 export const decisiones = [
@@ -69,7 +69,7 @@ export const calendario = [
   ['4–9', 'Modo servicio · turnos y horas · cierre de evento', '01.62–01.63'],
   ['10–14', 'Avisos por correo · WhatsApp · portal ampliado', '01.64–01.65'],
   ['15–28', 'Contrato y firma · compras por proveedor · consultas', '01.66–01.68'],
-  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta', '01.69–01.95'],
+  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta', '01.69–01.96'],
 ];
 
 export const fases = [
