@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.90 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.91 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.90".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.91".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2903,6 +2903,30 @@ select:not([multiple]){background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .mj-step-c input,.mj-sb{height:42px}
 .mj-vacio .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
 .mj-mesa.mj-ancha{grid-column:1 / -1}
+.mj-ed-vis{margin:4px 0 8px}
+.mjv-ovl .mjv-box{width:min(1100px,96vw); max-width:none; max-height:94vh; display:flex; flex-direction:column}
+.mjv-body{overflow:auto; padding:12px 16px 16px; display:flex; flex-direction:column; gap:12px}
+.mjv-body>*{flex-shrink:0; align-self:stretch; width:100%; box-sizing:border-box}
+.mjv-stage{display:grid; grid-template-columns:auto minmax(0,1fr) auto; grid-template-rows:auto auto auto; grid-template-areas:". top ." "left cv right" ". bottom ."; gap:8px 12px; align-items:center; justify-items:center}
+.mjv-stage.sin{grid-template-columns:1fr; grid-template-rows:auto; grid-template-areas:"cv"}
+.mjv-p.top{grid-area:top} .mjv-p.bottom{grid-area:bottom} .mjv-p.left{grid-area:left} .mjv-p.right{grid-area:right}
+.mjv-p{display:flex; flex-direction:column; align-items:center; gap:4px}
+.mjv-st{display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--c-line); border-radius:99px; padding:4px 8px}
+.mjv-st b{min-width:26px; text-align:center; font:700 18px var(--font-text)}
+.mjv-st .btn.ico{min-width:36px; min-height:36px}
+.mjv-l{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--c-mut); font-weight:650}
+.mjv-canvas{grid-area:cv; position:relative; width:100%; min-height:280px; background:var(--bg-2,#F2EFE8); border-radius:12px; padding:34px 44px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; touch-action:none}
+.mjv-canvas svg{width:100%; height:auto; max-height:46vh; display:block}
+.mjv-canvas .seat{cursor:pointer}
+.mjv-canvas .seat.mjv-sel circle.ring{stroke:var(--accent,#6E7D50); stroke-width:3.5}
+.mjv-canvas .seat:hover circle.ring{stroke:var(--accent,#6E7D50)}
+.mjv-h{position:absolute; width:30px; height:30px; margin:-15px 0 0 -15px; border-radius:50%; border:3px solid #fff; background:var(--olive,#6E7D50); box-shadow:0 1px 6px rgba(0,0,0,.35); cursor:ew-resize; padding:0; touch-action:none}
+.mjv-h.v{cursor:ns-resize}
+.mjv-h:hover,.mjv-h.on,.mjv-h:focus-visible{background:var(--gold-p,#9A722A); outline:3px solid color-mix(in srgb,var(--gold-p,#9A722A) 40%,transparent)}
+.mjv-ayuda{margin:0}
+.mjv-ctl{display:flex; flex-direction:column; gap:10px}
+.mjv-rg{display:flex; align-items:center; gap:8px} .mjv-rg input[type=range]{flex:1}
+@media (max-width:720px){ .mjv-canvas{padding:26px 34px; min-height:220px} .mjv-stage{grid-template-columns:auto minmax(0,1fr) auto; gap:6px} }
 .mj-edit{margin-top:6px; border-top:1px solid var(--c-hair); padding-top:6px}
 .mj-edit>summary{cursor:pointer; font-size:12px; font-weight:650; color:var(--c-ink); padding:6px 0; list-style:none}
 .mj-edit>summary::-webkit-details-marker{display:none}
@@ -4308,7 +4332,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.90</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.91</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4543,6 +4567,7 @@ Lluc (trona)</div>
           <span class="mini" id="p-pct">100%</span>
         </div></div>
       <div class="prop-actions">
+        <button class="btn sm gold" id="p-edit" type="button">Editar a mi gusto</button>
         <button class="btn sm" id="p-rot" type="button">↻ Girar</button>
         <button class="btn sm danger" id="p-del" type="button">Eliminar mesa</button>
       </div>
@@ -5583,10 +5608,12 @@ function geoLados(t,def){
   var n=t.guests.length, g=t.geo&&t.geo.seats;
   if(!Array.isArray(g)||g.length!==4) return def;
   var o=g.map(function(x){ return Math.max(0,Math.min(40,Math.round(+x||0))); }), s=o[0]+o[1]+o[2]+o[3], k=0;
-  while(s>n&&k<400){ var j=3-(k%4); if(o[j]>0){ o[j]--; s--; } k++; }
-  k=0; while(s<n&&k<400){ o[k%2]++; s++; k++; }
+  /* si sobran sillas se quitan del lado largo más lleno (las cabeceras no se tocan); si faltan, se ponen en el largo con menos gente */
+  while(s>n&&k++<400){ var j=o[0]>=o[1]?0:1; if(o[j]<=0){ j=o[2]>=o[3]?2:3; if(o[j]<=0) break; } o[j]--; s--; }
+  k=0; while(s<n&&k++<400){ var j2=o[0]<=o[1]?0:1; o[j2]++; s++; }
   return o;
 }
+function geoWid(t,def){ var m=t.geo&&+t.geo.wid; return m>0?Math.max(32,Math.min(200,Math.round(m*REF_PXM))):def; }
 function geoLen(t,auto){ var m=t.geo&&+t.geo.len; return m>0?Math.max(90,Math.round(m*REF_PXM)):auto; }
 /* lo que se dibuja de verdad en una mesa: reparto por lados y largo en px (auto = lo que saldría sin tocar nada) */
 function geoEfe(t){
@@ -5595,7 +5622,7 @@ function geoEfe(t){
   else if(sh==="presid"){ step=hasAler(t)?60:48; S=geoLados(t,[real,0,0,0]); auto=Math.max(300,Math.max(real,1)*step); len=geoLen(t,Math.max(300,Math.max(S[0],S[1],1)*step)); }
   else if(sh==="square"){ var n=Math.max(real,1), b=Math.floor(n/4), r=n%4, q=[b,b,b,b], i; for(i=0;i<r;i++) q[i]++; S=geoLados(t,[q[0],q[2],q[3],q[1]]); }
   else if(sh==="oval"){ var Rr=Math.max(62,(Math.max(real,1)*42)/7.35); auto=Rr*1.45*2; len=geoLen(t,auto); }
-  return {S:S,len:len,auto:auto};
+  return {S:S,len:len,auto:auto,th:(sh==="rect"?geoWid(t,78):sh==="presid"?geoWid(t,62):null)};
 }
 function bOval(t,L,full){
   var n=Math.max(t.guests.length,1),Rr=Math.max(62,(n*42)/7.35),rx=geoEfe(t).len/2,ry=Rr*0.85,it=[];
@@ -5609,7 +5636,8 @@ function bOval(t,L,full){
   return {p:it.concat(centerItems(t,L)),w:2*(rx+64),h:2*(ry+44)};
 }
 function bRect(t,L,full,vert){
-  var E=geoEfe(t), S=E.S, len=E.len, th=78, it=[], cab=(S[2]||S[3])?44:0;
+  var E=geoEfe(t), S=E.S, len=E.len, th=E.th, it=[], cab=(S[2]||S[3])?44:0;
+  var hsH=function(n){ return Math.max(26,Math.min(48,th/Math.max(n,1))); }, hsV=function(n){ return Math.max(46,Math.min(70,th/Math.max(n,1))); };
   var o1=S[0], o2=S[0]+S[1], o3=o2+S[2], gA=t.guests.slice(0,o1), gB=t.guests.slice(o1,o2), gC=t.guests.slice(o2,o3), gD=t.guests.slice(o3);
   if(!vert){
     it.push(plate(-len/2,-th/2,len,th,7));
@@ -5625,7 +5653,7 @@ function bRect(t,L,full,vert){
     [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){
       var list=pp[0],side=pp[1],off=pp[2];
       list.forEach(function(g,i){
-        var x=side*(len/2+18),y=(i-(list.length-1)/2)*26;
+        var x=side*(len/2+18),y=(i-(list.length-1)/2)*hsH(list.length);
         it.push(seatItems(g,t.num,off+i,x,y,side>0?-0.9:0.9,0,x+(side<0?-13:13),y+3.2,side<0?"end":"start",true,full));
       });
     });
@@ -5643,14 +5671,15 @@ function bRect(t,L,full,vert){
   [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){
     var list=pp[0],side=pp[1],off=pp[2];
     list.forEach(function(g,i){
-      var x=(i-(list.length-1)/2)*52,y=side*(len/2+18);
+      var x=(i-(list.length-1)/2)*hsV(list.length),y=side*(len/2+18);
       it.push(seatItems(g,t.num,off+i,x,y,-0.8,side>0?-0.8:0.8,x,y+(side<0?-13:15),"middle",side>0,full));
     });
   });
-  return {p:it.concat(centerItems(t,L)),w:th+190,h:len+50+2*cab};
+  return {p:it.concat(centerItems(t,L)),w:Math.max(th+190,Math.max(S[2],S[3])*70+60),h:len+50+2*cab};
 }
 function bPresid(t,L,full,vert){
-  var E=geoEfe(t), S=E.S, len=E.len, th=62, it=[], cab=(S[2]||S[3])?44:0, nB=S[1]?30:0;
+  var E=geoEfe(t), S=E.S, len=E.len, th=E.th, it=[], cab=(S[2]||S[3])?44:0, nB=S[1]?30:0;
+  var hsH=function(n){ return Math.max(26,Math.min(48,th/Math.max(n,1))); }, hsV=function(n){ return Math.max(46,Math.min(70,th/Math.max(n,1))); };
   var o1=S[0], o2=S[0]+S[1], o3=o2+S[2], gA=t.guests.slice(0,o1), gB=t.guests.slice(o1,o2), gC=t.guests.slice(o2,o3), gD=t.guests.slice(o3);
   var n=Math.max(t.guests.length,1);
   if(!vert){
@@ -5663,7 +5692,7 @@ function bPresid(t,L,full,vert){
       it.push(seatItems(g,t.num,o1+i,x,y,-0.8,-0.8,x,y+15,"middle",true,full));
     });
     [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){ var list=pp[0],side=pp[1],off=pp[2];
-      list.forEach(function(g,i){ var x=side*(len/2+18),y=(i-(list.length-1)/2)*26;
+      list.forEach(function(g,i){ var x=side*(len/2+18),y=(i-(list.length-1)/2)*hsH(list.length);
         it.push(seatItems(g,t.num,off+i,x,y,side>0?-0.9:0.9,0,x+(side<0?-13:13),y+3.2,side<0?"end":"start",true,full)); }); });
     it.push(plate(-len/2,-th/2,len,th,4,1.3));
     it.push(R(-len/2+4,-th/2+4,len-8,th-8,2,"none",TSTROKE,0.4));
@@ -5682,7 +5711,7 @@ function bPresid(t,L,full,vert){
     it.push(seatItems(g,t.num,o1+i,x,y,-0.9,0,x+13,y+3.2,"start",true,full));
   });
   [[gC,-1,o2],[gD,1,o3]].forEach(function(pp){ var list=pp[0],side=pp[1],off=pp[2];
-    list.forEach(function(g,i){ var x=(i-(list.length-1)/2)*52,y=side*(len/2+18);
+    list.forEach(function(g,i){ var x=(i-(list.length-1)/2)*hsV(list.length),y=side*(len/2+18);
       it.push(seatItems(g,t.num,off+i,x,y,-0.8,side>0?-0.8:0.8,x,y+(side<0?-13:15),"middle",side>0,full)); }); });
   it.push(plate(-th/2,-len/2,th,len,4,1.3));
   it.push(R(-th/2+4,-len/2+4,th-8,len-8,2,"none",TSTROKE,0.4));
@@ -7031,6 +7060,8 @@ var drag=null, chip=null;
 function svgPoint(svg,e){var pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse());}
 function bindRoom(){
   var svg=$("room"); if(!svg) return;
+  /* doble clic en una mesa: el editor visual (alargarla, poner gente a los lados y en las cabeceras…) */
+  svg.addEventListener("dblclick",function(e){ var el=document.elementFromPoint(e.clientX,e.clientY)||e.target, tb=el.closest&&el.closest(".tbl"); if(!tb||el.closest(".seat")) return; if(window.LM_editorMesa) window.LM_editorMesa(+tb.dataset.t); });
   svg.addEventListener("pointerdown",function(e){
     /* preventDefault impide el blur automático: al venir del textarea, Supr y Ctrl+Z quedaban muertos */
     var ae=document.activeElement;
@@ -7101,7 +7132,12 @@ function bindRoom(){
     }
     if(d.type==="table"){
       d.el.classList.remove("dragging");
-      if(!d.moved){sel=d.t;renderPlan();showProp();} else {pushUndo(d.snap);bringFront(d.t);save();}
+      if(!d.moved){
+        sel=d.t; renderPlan(); showProp();
+        /* dos toques seguidos en la misma mesa (doble clic o doble toque): el editor visual */
+        var ahoraT=Date.now(); if(window.__ultTap&&window.__ultTap.t===d.t&&ahoraT-window.__ultTap.ts<450){ window.__ultTap=null; if(window.LM_editorMesa) window.LM_editorMesa(d.t); }
+        else window.__ultTap={t:d.t,ts:ahoraT};
+      } else {pushUndo(d.snap);bringFront(d.t);save();}
       return;
     }
     var el=document.elementFromPoint(e.clientX,e.clientY);
@@ -9416,6 +9452,7 @@ $("p-size").addEventListener("change",function(){commitSizeUndo();save();});
 $("p-minus").addEventListener("click",function(){setTableSize(Math.round((plan().size[sel]||1)*100)-10);commitSizeUndo();save();});
 $("p-plus").addEventListener("click",function(){setTableSize(Math.round((plan().size[sel]||1)*100)+10);commitSizeUndo();save();});
 $("p-rot").addEventListener("click",function(){pushUndo();var p=plan();p.vert[sel]=!p.vert[sel];renderPlan();save();});
+$("p-edit").addEventListener("click",function(){ if(sel!==null&&window.LM_editorMesa) window.LM_editorMesa(sel); else toast("El editor de mesas no está disponible.",true); });
 $("p-close").addEventListener("click",function(){sel=null;renderPlan();showProp();});
 /* Devuelve el evento a un estado concreto. El «Deshacer» del aviso de mesa borrada usa esto
    y no el deshacer global: si entre medias movías otra mesa, el global deshacía ESE
@@ -9791,7 +9828,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.90</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.91</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -13348,13 +13385,14 @@ window.SITTING_BRIDGE={
     var e=current(), p=plan(); t.geo=(e.mesaGeo&&e.mesaGeo[num])||null;
     var gs=t.guests.filter(function(g){ return !g.soloAper; }), proxy=Object.assign({},t,{guests:gs}), E=geoEfe(proxy), vert=!!p.vert[num];
     return {num:t.num,name:t.name||"",shape:t.shape,cap:t.cap||null,sent:gs.length,aper:t.guests.length-gs.length,vert:vert,size:Math.round((p.size[num]||1)*100),
-      geo:t.geo?{len:t.geo.len||null,seats:Array.isArray(t.geo.seats)?t.geo.seats.slice():null}:null,
-      efe:{seats:E.S?E.S.slice():null,lenM:E.len?Math.round(E.len/REF_PXM*100)/100:null,autoM:E.auto?Math.round(E.auto/REF_PXM*100)/100:null},
+      geo:t.geo?{len:t.geo.len||null,wid:t.geo.wid||null,seats:Array.isArray(t.geo.seats)?t.geo.seats.slice():null}:null,
+      efe:{seats:E.S?E.S.slice():null,lenM:E.len?Math.round(E.len/REF_PXM*100)/100:null,autoM:E.auto?Math.round(E.auto/REF_PXM*100)/100:null,widM:E.th?Math.round(E.th/REF_PXM*100)/100:null},
+      nombres:t.guests.filter(function(g){ return !g.soloAper; }).map(function(g){ return g.short||g.name; }),
       svg:window.SITTING_BRIDGE.mesaSVG(num)};
   },
-  mesaSVG:function(num){
+  mesaSVG:function(num,geoOv){
     if(!doc) doc=parse(current()?current().text:"");
-    var t=findTable(num); if(!t) return ""; var e=current(), p=plan(); t.geo=(e.mesaGeo&&e.mesaGeo[num])||null;
+    var t=findTable(num); if(!t) return ""; var e=current(), p=plan(); t.geo=geoOv||(e.mesaGeo&&e.mesaGeo[num])||null;
     var b=buildTable(t,I18N.es,false,!!p.vert[num]), w=Math.round(b.w), h=Math.round(b.h);
     return '<svg class="mj-prev-svg" viewBox="'+(-w/2)+' '+(-h/2)+' '+w+' '+h+'" role="img" aria-label="Así queda la mesa '+num+' en el plano">'+toSVG(b.p)+'</svg>';
   },
@@ -13367,8 +13405,9 @@ window.SITTING_BRIDGE={
     if(patch.cap!==undefined){ var v=parseInt(patch.cap,10); t.cap=v>0?v:null; t.edited=1; }
     if(patch.vert!==undefined) p.vert[num]=!!patch.vert;
     if(patch.size!==undefined){ var pc=Math.max(50,Math.min(200,+patch.size||100)); p.size[num]=pc/100; }
-    if(patch.len!==undefined||patch.seats!==undefined){
+    if(patch.len!==undefined||patch.seats!==undefined||patch.wid!==undefined){
       e.mesaGeo=(e.mesaGeo&&typeof e.mesaGeo==="object")?e.mesaGeo:{}; var g=e.mesaGeo[num]||{};
+      if(patch.wid!==undefined){ var Wm=+patch.wid; if(Wm>0) g.wid=Math.max(0.5,Math.min(3,Math.round(Wm*20)/20)); else delete g.wid; }
       if(patch.len!==undefined){ var Lm=+patch.len; if(Lm>0) g.len=Math.max(1,Math.min(15,Math.round(Lm*10)/10)); else delete g.len; }
       if(patch.seats!==undefined){ if(Array.isArray(patch.seats)&&patch.seats.length===4) g.seats=patch.seats.map(function(x){ return Math.max(0,Math.min(40,Math.round(+x||0))); }); else delete g.seats; }
       if(Object.keys(g).length) e.mesaGeo[num]=g; else delete e.mesaGeo[num];
@@ -13377,6 +13416,13 @@ window.SITTING_BRIDGE={
     e.updated=Date.now(); commit(); return true;
   },
   irAMesa:function(num){ sel=num; },
+  /* dos personas de una mesa se cambian de silla (la una por la otra) */
+  intercambiarInvitados:function(num,i,j){
+    if(!doc) doc=parse(current()?current().text:"");
+    var t=findTable(num); if(!t||i===j||!t.guests[i]||!t.guests[j]) return false;
+    pushUndo(); var x=t.guests[i]; t.guests[i]=t.guests[j]; t.guests[j]=x; current().updated=Date.now(); commit(); return true;
+  },
+  deshacerPlano:function(){ undo(); },
   /* las marcas de un comensal tal como están escritas en el plano, y entre ellas las «alergias» que no encajan con ningún alérgeno
      conocido (p. ej. «tarta número 50»): sirve para pasar a «detalle de servicio» lo que no es una alergia y poder deshacerlo */
   marcasDe:function(mesa,i){
@@ -25847,13 +25893,14 @@ function editorMesa(f,P){
   var sum=S?S[0]+S[1]+S[2]+S[3]:0;
   var cm=null, est=null;
   if(larga&&I.efe.lenM&&S){ var porLado=Math.max(S[0],S[1],1); cm=Math.round(I.efe.lenM*100/porLado); est=cm<P.larga.min?"no":cm<P.larga.ideal?"justo":"bien"; }
-  var h='<details class="mj-edit" data-n="'+n+'"'+(ui.ed[n]?' open':'')+'><summary>Editar la mesa: forma, largo, gente a cada lado</summary><div class="mj-ed">'+
+  var h='<details class="mj-edit" data-n="'+n+'"'+(ui.ed[n]?' open':'')+'><summary>Editar la mesa: forma, largo, gente a cada lado</summary><div class="mj-ed-vis"><button type="button" class="btn gold sm" data-mj="ed-vis" data-n="'+n+'">Abrir el editor visual (arrastrar, +, −)</button></div><div class="mj-ed">'+
     '<div class="mj-ed-prev">'+I.svg+'<p class="mj-sub">Así sale en el plano de sala'+(I.aper?' ('+I.aper+(I.aper===1?' persona solo aperitivo sin silla':' personas solo aperitivo sin silla')+')':'')+'.</p></div><div class="mj-ed-f">'+
     '<div class="fldset">'+
       fld("Nombre",inp("name",I.name,"p. ej. Familia de la novia"))+
       fld("Forma",'<select data-mj="ed" data-k="shape" data-f="shape'+n+'" data-n="'+n+'">'+ED_FORMAS.map(function(x){ return '<option value="'+x[0]+'"'+(I.shape===x[0]?' selected':'')+'>'+x[1]+'</option>'; }).join("")+'</select>')+
       fld("Plazas",inp("cap",I.cap||"",String(I.sent)+" sentados"," aria-describedby=\"mj-cap-"+n+"\""))+
       (conLen?fld("Largo (m)",inp("len",I.geo&&I.geo.len?coma(I.geo.len):"","automático · "+coma(I.efe.autoM||I.efe.lenM||"")+" m")):"")+
+      (larga?fld("Ancho (m)",inp("wid",I.geo&&I.geo.wid?coma(I.geo.wid):"","automático · "+coma(I.efe.widM||"")+" m")):"")+
       (larga?fld("Giro",'<select data-mj="ed" data-k="vert" data-f="vert'+n+'" data-n="'+n+'"><option value="0"'+(!I.vert?' selected':'')+'>Horizontal</option><option value="1"'+(I.vert?' selected':'')+'>Vertical</option></select>'):"")+
       fld("Tamaño en el plano (%)",inp("size",I.size,"100"))+
     '</div>'+
@@ -25869,6 +25916,137 @@ function editorMesa(f,P){
     '</div></div></details>';
   return h;
 }
+/* ═══ EDITOR VISUAL DE UNA MESA ═══
+   Una pantalla grande con la mesa dibujada como saldrá en el plano: se arrastra el borde para alargarla o acortarla, se pone
+   o se quita gente en cada lado y en las cabeceras con + y − (la persona sale de, o va a, los lados largos), se cambian dos
+   personas de silla tocándolas, y se cambia la forma, el ancho, el giro y el tamaño. Todo se guarda y se ve en el plano. */
+function abrirEditor(n){
+  if(!BR.mesaInfo||document.querySelector(".mjv-ovl")) return; var I=BR.mesaInfo(n); if(!I){ aviso("Esa mesa ya no está en el plano."); return; }
+  var ovl=document.createElement("div"); ovl.className="ovl mjv-ovl"; document.body.appendChild(ovl);
+  var selSilla=-1, drag=null, previo=document.activeElement;
+  function pos(I2){
+    if(I2.shape==="square") return {top:[0,"Arriba"],bottom:[1,"Abajo"],left:[2,"Izquierda"],right:[3,"Derecha"]};
+    return I2.vert?{left:[0,"Lado izquierdo"],right:[1,"Lado derecho"],top:[2,"Cabecera de arriba"],bottom:[3,"Cabecera de abajo"]}
+                  :{top:[0,"Lado de arriba"],bottom:[1,"Lado de abajo"],left:[2,"Cabecera izquierda"],right:[3,"Cabecera derecha"]};
+  }
+  function ste(S,i,l,lado){ var total=S[0]+S[1]+S[2]+S[3], hayDonante=total-S[i]>0;
+    return '<div class="mjv-p '+lado+'"><div class="mjv-st" role="group" aria-label="'+esc(l)+'"><button type="button" class="btn ico" data-mjv="lado" data-i="'+i+'" data-d="-1" aria-label="Una persona menos en '+esc(l)+'"'+(S[i]<=0?' disabled':'')+'>−</button><b aria-live="polite">'+S[i]+'</b>'+
+      '<button type="button" class="btn ico" data-mjv="lado" data-i="'+i+'" data-d="1" aria-label="Una persona más en '+esc(l)+'"'+(hayDonante?'':' disabled')+'>+</button></div><span class="mjv-l">'+esc(l)+'</span></div>'; }
+  function pinta(){
+    I=BR.mesaInfo(n); if(!I){ cierra(); return; }
+    var larga=I.shape==="rect"||I.shape==="presid", lados=larga||I.shape==="square", conLen=larga||I.shape==="oval", S=I.efe.seats, P=pos(I), a11yFoco=document.activeElement&&ovl.contains(document.activeElement)?document.activeElement.getAttribute("data-f"):null;
+    var h='<div class="ovl-box mp-box mjv-box" role="dialog" aria-modal="true" aria-labelledby="mjv-h"><div class="ovl-head"><h3 id="mjv-h">Editar la mesa '+esc(I.num)+(I.name?' · '+esc(I.name):'')+'</h3><div class="spacer"></div>'+
+      '<button type="button" class="btn sm" data-mjv="undo">↶ Deshacer</button><button type="button" class="btn gold sm" data-mjv="ok" data-f="ok">Hecho</button></div><div class="ovl-body mjv-body">';
+    h+='<div class="mjv-stage'+(lados?'':' sin')+'">'+
+      (lados?Object.keys(P).map(function(k){ return ste(S,P[k][0],P[k][1],k); }).join(""):'')+
+      '<div class="mjv-canvas" id="mjv-cv">'+I.svg+'</div></div>';
+    h+='<p class="mj-sub mjv-ayuda">'+(lados?'<b>'+I.sent+'</b> sentados · '+S.join(" + ")+'. ':'')+(conLen?'<b>Arrastra los puntos de los extremos</b> para alargar o acortar la mesa. ':'')+(lados?'Con + y − pones o quitas gente en cada lado y en las cabeceras. ':'Las redondas se dibujan en círculo: para poner gente en los lados o en las cabeceras, cambia la forma a rectangular, presidencial o cuadrada. ')+'Toca una silla y luego otra para que dos personas se cambien de sitio.</p>';
+    h+='<div class="mjv-ctl"><div class="fldset">'+
+      '<label class="fld"><span class="lbl">Nombre</span><input type="text" data-mjv="name" data-f="name" value="'+esc(I.name)+'" placeholder="p. ej. Familia de la novia"></label>'+
+      '<label class="fld"><span class="lbl">Forma</span><select data-mjv="shape" data-f="shape">'+ED_FORMAS.map(function(x){ return '<option value="'+x[0]+'"'+(I.shape===x[0]?' selected':'')+'>'+x[1]+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">Plazas</span><input type="text" inputmode="numeric" data-mjv="cap" data-f="cap" value="'+esc(I.cap||"")+'" placeholder="'+I.sent+' sentados"></label>'+
+      '<label class="fld"><span class="lbl">Tamaño en el plano · <output id="mjv-o-size">'+I.size+'</output> %</span><input type="range" min="50" max="200" step="5" data-mjv="size" data-f="size" value="'+I.size+'"></label>'+
+      (conLen?'<label class="fld"><span class="lbl">Largo · <output id="mjv-o-len">'+coma(I.efe.lenM)+'</output> m</span><div class="mjv-rg"><button type="button" class="btn ico" data-mjv="len-" aria-label="Acortar la mesa 20 cm">−</button><input type="range" min="1" max="14" step="0.1" data-mjv="len" data-f="len" value="'+I.efe.lenM+'"><button type="button" class="btn ico" data-mjv="len+" aria-label="Alargar la mesa 20 cm">+</button></div></label>':'')+
+      (larga?'<label class="fld"><span class="lbl">Ancho · <output id="mjv-o-wid">'+coma(I.efe.widM)+'</output> m</span><input type="range" min="0.5" max="3" step="0.05" data-mjv="wid" data-f="wid" value="'+I.efe.widM+'"></label>':'')+
+      '</div><div class="mj-ed-btns">'+
+      (larga?'<button type="button" class="btn sm" data-mjv="giro">↻ Girar la mesa</button>':'')+
+      (lados?'<button type="button" class="btn sm" data-mjv="igual">Repartir por igual</button>'+(larga?'<button type="button" class="btn sm" data-mjv="cab">Una persona en cada cabecera</button><button type="button" class="btn sm" data-mjv="cab2">Dos personas en cada cabecera</button>':''):'')+
+      ((I.geo&&(I.geo.len||I.geo.wid||I.geo.seats))?'<button type="button" class="btn sm" data-mjv="auto">Volver a lo automático</button>':'')+'</div></div>';
+    h+='</div></div>';
+    ovl.innerHTML=h; colocaAsas();
+    if(a11yFoco){ var ee=ovl.querySelector('[data-f="'+a11yFoco+'"]'); if(ee){ try{ ee.focus(); if(ee.setSelectionRange&&ee.type==="text") ee.setSelectionRange(ee.value.length,ee.value.length); }catch(_){} } }
+    else { var ok=ovl.querySelector('[data-f="ok"]'); if(ok&&!ovl.__ya){ ok.focus(); } }
+    ovl.__ya=true;
+    if(selSilla>=0){ var g=ovl.querySelector('.seat[data-i="'+selSilla+'"]'); if(g) g.classList.add("mjv-sel"); }
+  }
+  /* los puntos de arrastre, en los extremos de la mesa tal como está dibujada */
+  function colocaAsas(){
+    var cv=ovl.querySelector("#mjv-cv"), svg=cv&&cv.querySelector("svg"); if(!svg) return; svg.style.overflow="visible";
+    ovl.querySelectorAll(".mjv-h").forEach(function(x){ x.remove(); });
+    if(!(I.shape==="rect"||I.shape==="presid"||I.shape==="oval")) return;
+    var pl=svg.querySelector(".plate"); if(!pl) return;
+    var r=pl.getBoundingClientRect(), c=cv.getBoundingClientRect(), v=I.vert&&(I.shape==="rect"||I.shape==="presid");
+    var pts=v?[[r.left+r.width/2,r.top],[r.left+r.width/2,r.bottom]]:[[r.left,r.top+r.height/2],[r.right,r.top+r.height/2]];
+    pts.forEach(function(q,i){ var b=document.createElement("button"); b.type="button"; b.className="mjv-h"+(v?" v":""); b.setAttribute("data-mjv-h",String(i)); b.setAttribute("aria-label","Alargar o acortar la mesa: arrástralo o usa las flechas del teclado"); b.setAttribute("data-f","h"+i);
+      b.style.left=(q[0]-c.left)+"px"; b.style.top=(q[1]-c.top)+"px"; cv.appendChild(b); });
+  }
+  function aplica(patch,msg){ if(!BR.editarMesa(n,patch)){ aviso("No he podido cambiar esa mesa."); return false; } if(patch.seats!==undefined) sincLados(n,patch.seats); pinta(); return true; }
+  function cierra(){ document.removeEventListener("keydown",tecla,true); ovl.remove(); if(enMtj()) render(); try{ if(previo&&previo.focus&&document.body.contains(previo)) previo.focus(); }catch(_){} }
+  function tecla(e){
+    if(!document.body.contains(ovl)) return;
+    if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); cierra(); return; }
+    var h=e.target&&e.target.closest&&e.target.closest("[data-mjv-h]");
+    if(h&&(e.key==="ArrowLeft"||e.key==="ArrowRight"||e.key==="ArrowUp"||e.key==="ArrowDown")){ e.preventDefault(); var d=(e.key==="ArrowRight"||e.key==="ArrowDown")?0.1:-0.1; if(h.getAttribute("data-mjv-h")==="0") d=-d; aplica({len:Math.max(1,Math.min(14,Math.round((I.efe.lenM+d)*10)/10))}); var nh=ovl.querySelector('[data-f="'+h.getAttribute("data-f")+'"]'); if(nh) nh.focus(); return; }
+    if(e.key!=="Tab") return;
+    var f=Array.prototype.filter.call(ovl.querySelectorAll('button:not([disabled]),input:not([disabled]),select'),function(x){ return x.offsetParent!==null; });
+    if(!f.length) return; var k=f.indexOf(document.activeElement);
+    if(e.shiftKey){ if(k<=0){ e.preventDefault(); f[f.length-1].focus(); } } else if(k===f.length-1){ e.preventDefault(); f[0].focus(); }
+  }
+  document.addEventListener("keydown",tecla,true);
+  ovl.addEventListener("click",function(e){
+    if(e.target===ovl){ cierra(); return; }
+    var sl=e.target.closest&&e.target.closest(".seat");
+    if(sl&&ovl.contains(sl)){ var i=+sl.getAttribute("data-i");
+      if(selSilla<0){ selSilla=i; sl.classList.add("mjv-sel"); }
+      else if(selSilla===i){ selSilla=-1; sl.classList.remove("mjv-sel"); }
+      else { var a=selSilla; selSilla=-1; var nm=I.nombres||[]; if(BR.intercambiarInvitados&&BR.intercambiarInvitados(n,a,i)) aviso("Se han cambiado de silla."); pinta(); }
+      return; }
+    var b=e.target.closest&&e.target.closest("[data-mjv]"); if(!b||b.tagName!=="BUTTON") return;
+    var k=b.getAttribute("data-mjv"), S=I.efe.seats;
+    if(k==="ok"){ cierra(); return; }
+    if(k==="undo"){ if(BR.deshacerPlano) BR.deshacerPlano(); pinta(); return; }
+    if(k==="lado"&&S){ var i2=+b.getAttribute("data-i"), d2=+b.getAttribute("data-d"); aplica({seats:balancea(S,i2,S[i2]+d2,I.shape==="square"?[0,1,2,3]:[0,1])}); return; }
+    if(k==="igual"&&S){ var t=I.sent, a2=Math.ceil(t/2); aplica({seats:I.shape==="square"?balanceaCuadrada(t):[a2,t-a2,0,0]}); return; }
+    if(k==="cab"&&S){ var t2=I.sent, r2=Math.max(0,t2-2), a3=Math.ceil(r2/2); aplica({seats:[a3,r2-a3,t2>=2?1:t2,t2>=2?1:0]}); return; }
+    if(k==="cab2"&&S){ var t3=I.sent, hc=Math.min(2,Math.floor(t3/2)), hd=Math.min(2,t3-hc), r3=t3-hc-hd, a4=Math.ceil(r3/2); aplica({seats:[a4,r3-a4,hc,hd]}); return; }
+    if(k==="giro"){ aplica({vert:!I.vert}); return; }
+    if(k==="auto"){ aplica({len:null,wid:null,seats:null}); return; }
+    if(k==="len-"||k==="len+"){ aplica({len:Math.max(1,Math.min(14,Math.round((I.efe.lenM+(k==="len+"?0.2:-0.2))*10)/10))}); return; }
+  });
+  function balanceaCuadrada(t){ var b=Math.floor(t/4), r=t%4, q=[b,b,b,b]; for(var i=0;i<r;i++) q[i]++; return [q[0],q[2],q[3],q[1]]; }
+  ovl.addEventListener("change",function(e){
+    var el=e.target, k=el.getAttribute&&el.getAttribute("data-mjv"); if(!k) return; var raw=String(el.value||"").trim();
+    if(k==="name") aplica({name:raw});
+    else if(k==="shape") aplica({shape:el.value});
+    else if(k==="cap"){ if(raw&&!(+raw>0)){ aviso("Las plazas tienen que ser un número mayor que 0."); pinta(); return; } aplica({cap:raw?Math.round(+raw):null}); }
+    else if(k==="size") aplica({size:+el.value});
+    else if(k==="len") aplica({len:+el.value});
+    else if(k==="wid") aplica({wid:+el.value});
+  });
+  ovl.addEventListener("input",function(e){
+    var el=e.target, k=el.getAttribute&&el.getAttribute("data-mjv"); if(!k) return;
+    if(k==="size"){ var o=ovl.querySelector("#mjv-o-size"); if(o) o.textContent=el.value; }
+    else if(k==="len"||k==="wid"){ var o2=ovl.querySelector("#mjv-o-"+(k==="len"?"len":"wid")); if(o2) o2.textContent=coma(+el.value); vistaPrevia(k==="len"?{len:+el.value}:{wid:+el.value}); }
+  });
+  /* una vista previa sin guardar mientras se arrastra (la mesa cambia al momento) */
+  function vistaPrevia(ov,fijaVB){
+    var cv=ovl.querySelector("#mjv-cv"), svg=cv&&cv.querySelector("svg"); if(!svg) return; var vb=fijaVB||svg.getAttribute("viewBox");
+    var g=Object.assign({},I.geo||{},ov), nuevo=BR.mesaSVG(n,g); if(!nuevo) return; var tmp=document.createElement("div"); tmp.innerHTML=nuevo; var ns=tmp.firstChild;
+    ns.setAttribute("viewBox",vb); ns.style.overflow="visible"; cv.replaceChild(ns,svg); colocaAsas();
+  }
+  /* arrastrar un extremo: la longitud sale de la distancia del puntero al centro de la mesa */
+  ovl.addEventListener("pointerdown",function(e){
+    var h=e.target.closest&&e.target.closest("[data-mjv-h]"); if(!h) return; e.preventDefault();
+    var cv=ovl.querySelector("#mjv-cv"), svg=cv.querySelector("svg"), sr=svg.getBoundingClientRect(), vb=svg.getAttribute("viewBox").split(/\s+/).map(Number);
+    var scale=Math.min(sr.width/vb[2],sr.height/vb[3]); drag={cx:sr.left+sr.width/2,cy:sr.top+sr.height/2,scale:scale,v:I.vert&&(I.shape==="rect"||I.shape==="presid"),vb:svg.getAttribute("viewBox"),m:I.efe.lenM,id:e.pointerId,el:h};
+    try{ h.setPointerCapture(e.pointerId); }catch(_){} h.classList.add("on");
+  });
+  ovl.addEventListener("pointermove",function(e){
+    if(!drag||e.pointerId!==drag.id) return;
+    var half=drag.v?Math.abs(e.clientY-drag.cy):Math.abs(e.clientX-drag.cx), m=Math.round((2*half/drag.scale/65)*(e.shiftKey?20:10))/(e.shiftKey?20:10);
+    m=Math.max(1,Math.min(14,m)); if(m===drag.m) return; drag.m=m;
+    var o=ovl.querySelector("#mjv-o-len"); if(o) o.textContent=coma(m);
+    var rg=ovl.querySelector('input[data-mjv="len"]'); if(rg) rg.value=m;
+    var cv=ovl.querySelector("#mjv-cv"), svg=cv.querySelector("svg"), vb=drag.vb, nuevo=BR.mesaSVG(n,Object.assign({},I.geo||{},{len:m}));
+    if(nuevo){ var tmp=document.createElement("div"); tmp.innerHTML=nuevo; var ns=tmp.firstChild; ns.setAttribute("viewBox",vb); ns.style.overflow="visible"; cv.replaceChild(ns,svg);
+      var asas=ovl.querySelectorAll(".mjv-h"); var pl=ns.querySelector(".plate"); if(pl){ var r=pl.getBoundingClientRect(), c=cv.getBoundingClientRect();
+        asas.forEach(function(x,i){ var q=drag.v?[r.left+r.width/2,i?r.bottom:r.top]:[i?r.right:r.left,r.top+r.height/2]; x.style.left=(q[0]-c.left)+"px"; x.style.top=(q[1]-c.top)+"px"; }); } }
+  });
+  function suelta(e){ if(!drag||(e&&e.pointerId!==drag.id)) return; var m=drag.m, ant=I.efe.lenM; drag=null; if(Math.abs(m-ant)>0.001) aplica({len:m}); else pinta(); }
+  ovl.addEventListener("pointerup",suelta); ovl.addEventListener("pointercancel",suelta);
+  pinta();
+}
+window.LM_editorMesa=abrirEditor;
 function vHoja(e,P,INV){
   var H=mjHojaEv(e,P,INV);
   if(!H.filas.length) return '<div class="pcard mj-vacio"><p class="pp-empty">Este evento todavía no tiene mesas en el plano. Cuando las tenga, aquí sale qué montar en cada una y el material que hace falta.</p><div class="row"><button type="button" class="btn gold sm" onclick="window.irASeccion&&window.irASeccion(\'plan\')">Ir al plano de sala</button><button type="button" class="btn sm" data-mj="calc">Usar la calculadora</button></div></div>';
@@ -26003,12 +26181,22 @@ function onInput(ev){ if(!enMtj()) return; var k=ev.target.getAttribute&&ev.targ
     ui[k]=Math.max(0,Math.min(999,+raw)); render(); } }
 function evMontaje(e){ e.montaje=e.montaje&&typeof e.montaje==="object"?e.montaje:{}; e.montaje.mesas=e.montaje.mesas||{}; return e.montaje.mesas; }
 /* aplicar un cambio de la mesa al plano real y a lo que se monta */
+/* repartir a la gente de una mesa: si se cambia un lado, lo que falta o sobra sale de (o va a) los lados largos; las cabeceras no se recortan */
+function balancea(S,i,v,largos){
+  var o=S.slice(), total=o[0]+o[1]+o[2]+o[3], L=largos||[0,1]; v=Math.max(0,Math.min(total,Math.round(v)));
+  var d=v-o[i]; o[i]=v;
+  /* la persona que falta sale del lado largo más lleno (y, si no hay, de una cabecera); la que sobra va al lado largo con menos gente */
+  while(d>0){ var j=-1,best=-1; [0,1,2,3].forEach(function(k){ if(k===i||o[k]<=0) return; var sc=o[k]+(L.indexOf(k)>=0?100:0); if(sc>best){ best=sc; j=k; } }); if(j<0) break; o[j]--; d--; }
+  while(d<0){ var r=-1,mn=1e9; [0,1,2,3].forEach(function(k){ if(k===i) return; var sc=o[k]+(L.indexOf(k)>=0?0:100); if(sc<mn){ mn=sc; r=k; } }); if(r<0) break; o[r]++; d++; }
+  return o;
+}
+function sincLados(n,seats){ var e=BR.current(); if(!e) return; var M=evMontaje(e), o=M[n]||{};
+  if(Array.isArray(seats)) o.lados=(+seats[1]||0)===0?1:2; else delete o.lados;
+  if(Object.keys(o).length) M[n]=o; else delete M[n]; e.updated=Date.now(); BR.save(); }
 function aplicarMesa(n,patch,msg){
   if(!BR.editarMesa||!BR.editarMesa(n,patch)){ aviso("No he podido cambiar esa mesa."); render(); return; }
   /* si se reparte la gente a un solo lado, el montaje también cuenta un solo lado */
-  if(patch.seats!==undefined){ var e=BR.current(); if(e){ var M=evMontaje(e), o=M[n]||{};
-    if(Array.isArray(patch.seats)){ var b=+patch.seats[1]||0; o.lados=b===0?1:2; } else delete o.lados;
-    if(Object.keys(o).length) M[n]=o; else delete M[n]; e.updated=Date.now(); BR.save(); } }
+  if(patch.seats!==undefined) sincLados(n,patch.seats);
   ui.ed[n]=true; aviso(msg||("Mesa "+n+" cambiada en el plano.")); render();
 }
 function onChange(ev){ if(!enMtj()) return; var el=ev.target, k=el.getAttribute&&el.getAttribute("data-mj"); if(!k) return;
@@ -26019,7 +26207,8 @@ function onChange(ev){ if(!enMtj()) return; var el=ev.target, k=el.getAttribute&
     else if(kk==="vert") patch.vert=el.value==="1";
     else if(kk==="size"){ var sz=num(raw); if(raw&&!(sz>=50&&sz<=200)){ aviso("El tamaño va de 50 a 200 %."); render(); return; } patch.size=raw?sz:100; }
     else if(kk==="len"){ var Lm=num(raw); if(raw&&!(Lm>=1&&Lm<=15)){ aviso("Pon el largo en metros, entre 1 y 15 (por ejemplo 3,6)."); render(); return; } patch.len=raw?Lm:null; }
-    else if(kk==="s"){ patch.seats=[].map.call(host.querySelectorAll('[data-mj="ed"][data-k="s"][data-n="'+n+'"]'),function(i2){ return Math.max(0,Math.round(+i2.value||0)); }); }
+    else if(kk==="s"){ var I0=BR.mesaInfo(n); if(!I0||!I0.efe.seats) return; patch.seats=balancea(I0.efe.seats,+el.getAttribute("data-i"),Math.max(0,Math.round(+el.value||0)),I0.shape==="square"?[0,1,2,3]:[0,1]); }
+    else if(kk==="wid"){ var Wm=num(raw); if(raw&&!(Wm>=0.5&&Wm<=3)){ aviso("Pon el ancho en metros, entre 0,5 y 3 (por ejemplo 1,2)."); render(); return; } patch.wid=raw?Wm:null; }
     else return;
     aplicarMesa(n,patch); return; }
   if(k==="pax"||k==="ntab"||k==="ntab2"){ if(ui[k]===""){ ui[k]=k==="ntab2"?0:1; el.value=ui[k]; } return; }
@@ -26064,6 +26253,7 @@ function imprimir(){ var e=BR.current(); if(!e) return; var P=mjP(), INV=mjInven
 }
 function onClick(ev){ if(!enMtj()) return; var b=ev.target.closest&&ev.target.closest("[data-mj]"); if(!b||b.tagName!=="BUTTON") return;
   var k=b.getAttribute("data-mj");
+  if(k==="ed-vis"){ abrirEditor(+b.getAttribute("data-n")); return; }
   if(k==="ed-act"){ var n=+b.getAttribute("data-n"), x=b.getAttribute("data-x"), I=BR.mesaInfo?BR.mesaInfo(n):null; if(!I) return; var sent=I.sent;
     if(x==="igual"){ var a=Math.ceil(sent/2); aplicarMesa(n,{seats:[a,sent-a,0,0]}); }
     else if(x==="uno"){ aplicarMesa(n,{seats:[sent,0,0,0]}); }
