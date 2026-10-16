@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.84 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.85 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.84".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.85".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4258,7 +4258,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.84</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.85</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4365,7 +4365,7 @@ html.cne-abierto{overflow:hidden}
         <div class="help-body">
           <p>Empieza con <code># Título</code> del evento y <code>@ subtítulo</code> (fecha, lugar). La fecha (<code>26/09/2026</code>) puede ir en cualquiera de las dos líneas: se copia sola a la ficha del evento y al calendario. También puedes escribirlos haciendo clic sobre el título del propio plano.</p>
           <p>Cada mesa empieza por <code>M1</code>, <code>MESA 1</code> o <code>TAULA 1</code>, seguida de la forma y el nombre separados por <code>|</code>. Formas: <code>redonda</code>, <code>rectangular</code>, <code>presidencial</code>, <code>cuadrada</code>, <code>ovalada</code>. Una mesa sin número (<code>MESA PRESIDENCIAL</code>) se nombra por su nombre y no le quita el número a ninguna otra. Si el nombre dice <code>STAFF</code> o <code>PERSONAL</code>, quien se sienta ahí cuenta como staff (menú y precio de staff).</p>
-          <p>Debajo, un comensal por línea. Entre paréntesis las marcas: alergias (<code>celíaca</code>, <code>alergia: marisco</code>, <code>sin gluten</code>, <code>no lácteos</code> — cada alergia sale con su color), <code>pescetariana</code>, <code>niño</code>, <code>trona</code>, <code>vegetariano</code>, <code>vegano</code>, <code>embarazada</code>, o el segundo plato (<code>carne</code>, <code>pescado</code>). Un <code>*</code> al final marca a los protagonistas. Dos personas en una línea: <code>Joan + Maria</code>.</p>
+          <p>Debajo, un comensal por línea. Entre paréntesis las marcas: alergias (<code>celíaca</code>, <code>alergia: marisco</code>, <code>sin gluten</code>, <code>no lácteos</code> — cada alergia sale con su color), <code>pescetariana</code>, <code>niño</code>, <code>trona</code>, <code>vegetariano</code>, <code>vegano</code>, <code>embarazada</code>, <code>solo aperitivo</code> (viene al aperitivo pero no se sienta ni lleva menú: cuenta en aperitivos y estaciones, no en el sitting ni en los platos del banquete), o el segundo plato (<code>carne</code>, <code>pescado</code>). Un <code>*</code> al final marca a los protagonistas. Dos personas en una línea: <code>Joan + Maria</code>.</p>
           <div class="ex"># Boda María y Juan — 15/08/2026
 @ Les Moles Events
 
@@ -5254,6 +5254,8 @@ function classify(raw){
   if(/^(tercero?|tercer|3r|3er|3o|3º|tercer plato)\s*[:=]/.test(n)) return {type:"menu",curso:"tercero",text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/^(segundo|segon|2n|2on|2o|2º|principal)\s*[:=]/.test(n)) return {type:"menu",curso:"segundo",text:t.replace(/^[^:=]*[:=]\s*/,"")};
   if(/^(menu|men|plat|plato)\s*[:=]/.test(n)) return {type:"menu",curso:null,text:t.replace(/^[^:=]*[:=]\s*/,"")};
+  /* quien solo viene al aperitivo: cuenta en aperitivos y estaciones, pero ni se sienta ni lleva menú */
+  if(/^(solo|nomes|solament|only|just)\s+(el\s+|l\s*['’]?\s*|a\s+l\s*['’]?\s*)?aperi|^aperi\w*\s+(solo|nomes|solament)$|^aperitiv?[ou]?$|^(no|sin|sense)\s+(se\s+queda\s+a\s+|es\s+queda\s+a\s+)?(cena\w*|sopar|banquete|banquet)\b/.test(n)) return {type:"aper",text:"Solo aperitivo"};
   if(/(nen|nena|nin[oa]|infantil|kid|child)/.test(n)) return {type:"child",text:t};
   if(/(trona|nado|bebe|baby|lactant|sense menu|sin menu)/.test(n)) return {type:"baby",text:t};
   /* vegetariano y vegano son cosas distintas para quien cocina (el vegano no
@@ -5323,6 +5325,7 @@ function parseGuest(raw){
       else { g.aler.push(c.text); g.alerFams.push("otras"); }
     }
     else if(c.type==="menu"){ g.menus.push(c.text); g.menusC.push(c.curso||null); }
+    else if(c.type==="aper"){ g.soloAper=true; g.notes.push(c.text); }
     else if(c.type==="child") g.kind="child";
     else if(c.type==="baby") g.kind="baby";
     else if(c.type==="veg"){ if(g.kind==="adult") g.kind="veg"; g.notes.push(c.text); }
@@ -5432,8 +5435,11 @@ function serialize(d){
   return out.join("\n").replace(/^\n+/,"")+"\n";
 }
 function totals(d){
-  var t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0,preg:0,espec:0,tables:d.tables.length};
+  var t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0,preg:0,espec:0,soloAper:0,tables:d.tables.length};
   d.tables.forEach(function(m){m.guests.forEach(function(g){
+    /* quien solo viene al aperitivo no se sienta ni lleva menú: se cuenta aparte (aperitivos y estaciones);
+       sus alergias sí se anotan, porque el aperitivo hay que adaptárselo */
+    if(g.soloAper){ t.soloAper++; if(g.aler.length)t.aler++; if(g.kind==="veg")t.veg++; if(g.kind==="vegan")t.vegan++; if(g.preg)t.preg++; return; }
     t.pax++;
     /* el staff cuenta como adulto para todo lo general (agua, servicio, plano),
        y además se lleva su propio recuento para el presupuesto (precio staff). */
@@ -5452,6 +5458,8 @@ function totals(d){
   return t;
 }
 
+/* los que de verdad se sientan en la mesa: quien solo viene al aperitivo no ocupa silla */
+function nSent(t){ var n=0; t.guests.forEach(function(g){ if(!g.soloAper) n++; }); return n; }
 /* ══ mesas como primitivas ══════════════════════════════════════════ */
 /* letra dentro del círculo para niño/nadó/vegetariano/vegano: quien mire una fotocopia
    en blanco y negro (o no distinga bien los colores) tiene que poder diferenciarlos
@@ -5482,7 +5490,7 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
   /* los platos (primero/segundo/tercero/postre) ya NO salen en el sitting: recargaban
      el plano y lo que de verdad se consulta aquí es la alergia. Los platos, con
      su color por tiempo, salen en el LISTADO por mesas (petición de Ramon). */
-  return GR(it,{seat:{t:tnum,i:idx}});
+  return GR(it,{seat:{t:tnum,i:(g._i!=null?g._i:idx)}});
 }
 function centerItems(t,L){
   var it=[],ny=t.name?7:3;
@@ -5491,6 +5499,7 @@ function centerItems(t,L){
     if(t.name) it.push(TX(0,ny,clip(t.name,22),{size:12.5,fo:"seri",a:"middle",c:SOFT}));
   } else it.push(TX(0,1,clip(t.name,16),{size:16,fo:"ser",a:"middle",c:INK}));
   it.push(TX(0,ny+11,((L.shapes[t.shape]||"")+" · "+(t.cap||t.guests.length)).toUpperCase(),{size:7,fo:"sans",a:"middle",c:FADE,ls:1.6}));
+  if(t.nAper) it.push(TX(0,ny+21,"+"+t.nAper+" SOLO APERITIVO",{size:6.2,fo:"sans",a:"middle",c:FADE,ls:1}));
   return it;
 }
 function hasAler(t){for(var i=0;i<t.guests.length;i++)if(t.guests[i].aler.length)return true;return false;}
@@ -5594,6 +5603,12 @@ function bSquare(t,L,full){
   return {p:it.concat(centerItems(t,L)),w:S+150,h:S+56};
 }
 function buildTable(t,L,full,vert){
+  /* quien solo viene al aperitivo no tiene silla en la mesa; el índice real de cada uno se conserva para arrastrar/editar */
+  t.guests.forEach(function(g,i){ g._i=i; });
+  if(t.guests.some(function(g){ return g.soloAper; })){
+    var nA=t.guests.filter(function(g){ return g.soloAper; }).length;
+    t=Object.assign({},t,{guests:t.guests.filter(function(g){ return !g.soloAper; }),nAper:nA});
+  }
   if(t.shape==="rect")return bRect(t,L,full,vert);
   if(t.shape==="presid")return bPresid(t,L,full,vert);
   if(t.shape==="square")return bSquare(t,L,full);
@@ -7157,10 +7172,10 @@ function showProp(){
   var t=findTable(sel); if(!t){bar.classList.remove("on");return;}
   bar.classList.add("on");
   $("p-num").textContent=mesaMark(t);
-  var gc=t.guests.length, ps=$("p-sub"); if(ps) ps.textContent=gc+(gc===1?" invitado sentado":" invitados sentados");
+  var gc=nSent(t), ga=t.guests.length-gc, ps=$("p-sub"); if(ps) ps.textContent=gc+(gc===1?" invitado sentado":" invitados sentados")+(ga?" · +"+ga+" solo aperitivo":"");
   $("p-name").value=t.name||"";
   $("p-shape").value=t.shape;
-  $("p-cap").value=t.cap||t.guests.length;
+  $("p-cap").value=t.cap||nSent(t);
   $("p-rot").disabled=!(t.shape==="rect"||t.shape==="presid");
   var pct=Math.round((plan().size[sel]||1)*100);
   $("p-size").value=pct; $("p-pct").textContent=pct+"%";
@@ -7187,6 +7202,7 @@ function metaLine(T,L){
   if(T.child)b.push(T.child+" "+L.nens);
   if(T.baby)b.push(T.baby+" "+L.nadons);
   if(T.espec)b.push(T.espec+" "+L.alerDieta);
+  if(T.soloAper)b.push(T.soloAper+" solo aperitivo");
   return esc(b.join("  ·  "));
 }
 function guestRow(g,L){
@@ -7240,8 +7256,8 @@ function sheetList(L){
   var cards=doc.tables.map(function(t){
     return '<article class="lcard'+(t.guests.length>12||t.shape==="presid"?" wide":"")+'">'+
       '<div class="lc-head"><div class="num">'+esc(mesaMark(t))+'</div><div><div class="lc-title">'+esc(t.name||mesaTxt(t,L))+'</div>'+
-      '<div class="lc-shape">'+esc((L.shapes[t.shape]+" · "+(t.cap||t.guests.length)).toUpperCase())+'</div></div>'+
-      '<div class="lc-pax"><b>'+t.guests.length+'</b><span>'+esc(L.pax)+'</span></div></div>'+
+      '<div class="lc-shape">'+esc((L.shapes[t.shape]+" · "+(t.cap||nSent(t))).toUpperCase())+'</div></div>'+
+      '<div class="lc-pax"><b>'+nSent(t)+'</b><span>'+esc(L.pax)+'</span></div></div>'+
       '<div class="guests">'+t.guests.map(function(g){return guestRow(g,L);}).join("")+'</div></article>';
   }).join("");
   var al=[];
@@ -7347,8 +7363,8 @@ function listPages(L,pw,ph){
       cur.push(C(M+18,y0+18,9,"none",GOLD,0.7));
       cur.push(TX(M+18,y0+21.5,mesaMark(t),{size:11,fo:"ser",a:"middle",c:GOLD}));
       cur.push(TX(M+34,y0+18,(t.name||mesaTxt(t,L))+(ci?" ("+L.cont+")":""),{size:15,fo:"ser",a:"start",c:INK}));
-      cur.push(TX(M+34,y0+27,(L.shapes[t.shape]+" · "+(t.cap||t.guests.length)).toUpperCase(),{size:6.5,fo:"sans",a:"start",c:GOLD,ls:1.4}));
-      cur.push(TX(pw-M-10,y0+20,gs.length,{size:17,fo:"ser",a:"end",c:INK}));
+      cur.push(TX(M+34,y0+27,(L.shapes[t.shape]+" · "+(t.cap||nSent(t))).toUpperCase(),{size:6.5,fo:"sans",a:"start",c:GOLD,ls:1.4}));
+      cur.push(TX(pw-M-10,y0+20,nSent({guests:gs}),{size:17,fo:"ser",a:"end",c:INK}));
       cur.push(TX(pw-M-10,y0+28,L.pax.toUpperCase(),{size:6,fo:"sans",a:"end",c:FADE,ls:1.4}));
       cur.push(LN(M+10,y0+32,pw-M-10,y0+32,"#E0D7C5",0.6));
       gs.forEach(function(g,i){
@@ -7486,7 +7502,7 @@ function listPages(L,pw,ph){
 function cardPages(L,pw,ph){
   var M=28, cols=2, rows=5, cw=(pw-2*M)/cols, chh=(ph-2*M)/rows, pages=[], cur=[], n=0;
   doc.tables.forEach(function(t){t.guests.forEach(function(g){
-    if(g.kind==="baby") return;
+    if(g.kind==="baby"||g.soloAper) return;
     var i=n%(cols*rows);
     if(i===0&&n>0){pages.push(cur);cur=[];}
     var x=M+(i%cols)*cw, y=M+Math.floor(i/cols)*chh;
@@ -9667,7 +9683,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.84</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.85</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -9979,7 +9995,7 @@ function planoEsquema(e){
   var w=Math.round(L.rw||1400), h=Math.round(L.rh||960), sc=L.scale||1, us=+e.userSize||1, mesas=[];
   d.tables.forEach(function(t){
     var p=L.pos[t.num]; if(!p) return;
-    var pax=t.guests.length, k=sc*us*((L.size&&L.size[t.num])||1), rect=(t.shape==="rect"||t.shape==="presid"), r0=null;
+    var pax=nSent(t), k=sc*us*((L.size&&L.size[t.num])||1), rect=(t.shape==="rect"||t.shape==="presid"), r0=null;
     /* la caja real de la mesa en el plano del equipo (con sus sillas y etiquetas): el dibujo del cliente queda siempre dentro de ella,
        así dos mesas que no se tocan en el plano tampoco se tocan aquí */
     try{ r0=buildTable(t,I18N.es,false,!!(L.vert&&L.vert[t.num])); }catch(_){ r0=null; }
@@ -10715,7 +10731,7 @@ function resumenDoc(e){
   var conf=[], pers=[]; try{ pers=(store.camareros&&store.camareros.personas)||[]; var cam=e.camareros||{}; conf=pers.filter(function(p){ return p&&!p.borrado&&cam[p.id]==="si"; }); }catch(_){}
   if(nCam&&conf.length<nCam) pend.push("Camareros: "+conf.length+" confirmados de "+nCam+" necesarios.");
   function num(n,l,cls){ return '<div class="n '+(cls||"")+'"><b>'+n+'</b><span>'+escH(l)+'</span></div>'; }
-  var numsHTML=num(t.pax,"invitados","gr")+num(adultos,"adultos")+num(ninos,"niños")+(tronas?num(tronas,"bebés en trona"):"")+(staff?num(staff,"staff"):"")+num(conf.length+"<small>/"+nCam+"</small>","camareros",conf.length<nCam?"mal":"");
+  var numsHTML=num(t.pax,"invitados","gr")+num(adultos,"adultos")+num(ninos,"niños")+(tronas?num(tronas,"bebés en trona"):"")+(staff?num(staff,"staff"):"")+(c&&c.soloAper?num(c.soloAper,"solo aperitivo"):"")+num(conf.length+"<small>/"+nCam+"</small>","camareros",conf.length<nCam?"mal":"");
   /* ── contacto ── */
   var cont=[]; var quien=[F.parejaA,F.parejaB].filter(Boolean).join(" & ");
   var cn=F.contacto||F.parejaA||"";
@@ -11061,7 +11077,7 @@ function textoDesdeLista(e,data){
       var v=viejos[nomKey(g.n)], marcas=[], platos=[];
       if(g.t==="nino") marcas.push("niño"); else if(g.t==="bebe") marcas.push("trona");
       String(g.a||"").split(/\s*,\s*/).forEach(function(x){ x=x.trim(); if(!x) return; var c=classify(x); marcas.push(c&&c.type==="note"?"alergia: "+x:x); });
-      if(v) (v.raw||[]).forEach(function(tag){ var c=classify(tag); if(!c) return; if(c.type==="menu") platos.push(tag.trim()); else if(c.type==="note") marcas.push(tag.trim()); });
+      if(v) (v.raw||[]).forEach(function(tag){ var c=classify(tag); if(!c) return; if(c.type==="menu") platos.push(tag.trim()); else if(c.type==="note"||c.type==="aper") marcas.push(tag.trim()); });
       lines.push(String(g.n).trim()+(marcas.length?" ("+marcas.join(", ")+")":"")+platos.map(function(p){ return " ("+p+")"; }).join("")+(v&&v.star?" *":""));
     });
     bloques.push(lines.join("\n"));
@@ -11153,7 +11169,7 @@ function getPath(o,path){ var ks=path.split("."); for(var i=0;i<ks.length;i++){ 
 function planSave(){ var e=current(); if(e){ e.updated=Date.now(); if(typeof save==="function") save(); } }
 function planCounts(e){
   var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0}; d={tables:[]}; }
-  return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,staff:(t.staff||0),mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.espec||0};
+  return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,staff:(t.staff||0),soloAper:(t.soloAper||0),mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.espec||0};
 }
 /* menús staff del evento: los de la mesa de staff del plano y «Menús staff» de
    la ficha son la MISMA gente contada dos veces, no se suman: manda el mayor
@@ -11164,7 +11180,7 @@ function staffMenus(e,c){ c=c||planCounts(e); return Math.max(c.staff||0, Math.m
    por mesa de aperitivo de ese evento) — van ANTES que las de banquete */
 /* las mesas de aperitivo son para los menús adultos (los mismos que comen el
    aperitivo en la escaleta): el staff no está en el aperitivo */
-function mesasAperitivo(e,c){ c=c||planCounts(e); var pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7), ad=Math.max(0,c.adultos-(c.staff||0)); return ad>0?Math.ceil(ad/pma):0; }
+function mesasAperitivo(e,c){ c=c||planCounts(e); var pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7), ad=Math.max(0,c.adultos-(c.staff||0))+(c.soloAper||0); return ad>0?Math.ceil(ad/pma):0; }
 function presupTotals(e){
   var P=e.presupuesto||{}, c=planCounts(e);
   /* el staff sentado en la mesa de staff se cobra a precio staff, no de adulto:
@@ -11250,7 +11266,7 @@ function eventoAlertas(e){
   try{ var pk2=null; try{ pk2=window.SITTING_BRIDGE.conEvento?window.SITTING_BRIDGE.conEvento(e,function(){ return window.SITTING_BRIDGE.alerPendientes?window.SITTING_BRIDGE.alerPendientes():null; }):null; }catch(_){ pk2=null; }
     if(pk2) alerSinPlato=pk2.length;
     else parse(e.text||"").tables.forEach(function(tb){ tb.guests.forEach(function(g){
-      if((g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)&&!(g.menus&&g.menus.length)&&!(e.menu&&e.menu.alerOk&&e.menu.alerOk[tb.num+"|"+g.name])) alerSinPlato++; }); }); }catch(_){}
+      if(!g.soloAper&&(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)&&!(g.menus&&g.menus.length)&&!(e.menu&&e.menu.alerOk&&e.menu.alerOk[tb.num+"|"+g.name])) alerSinPlato++; }); }); }catch(_){}
   if(!(e.ficha&&e.ficha.fecha)) a.push({t:"Falta la fecha del evento: no aparecerá en el calendario.",k:"crm",sev:"urgent"});
   if(c.pax===0) add("Todavía no hay invitados en el plano de mesas.","plan",true);
   if(dishes===0) add("El menú del banquete está sin definir.","m-sel",true);
@@ -13186,7 +13202,7 @@ window.SITTING_BRIDGE={
         if(!g.aler.length&&g.kind!=="veg"&&g.kind!=="vegan"&&!g.preg) return;
         out.push({mesa:m.num, mesaNombre:m.name||"", mesaLbl:mesaTxt(m,I18N.es), i:i, nombre:g.name,
                   aler:g.aler.slice(), alerFams:(g.alerFams||[]).slice(), sustitutos:(g.menus||[]).slice(),
-                  sustitutosC:(g.menusC||[]).slice(), kind:g.kind, preg:!!g.preg});
+                  sustitutosC:(g.menusC||[]).slice(), kind:g.kind, preg:!!g.preg, aper:!!g.soloAper});
       });
     });
     return out;
@@ -13234,10 +13250,10 @@ window.SITTING_BRIDGE={
     var e=current(); if(!e) return null;
     var d=parse(e.text||""), t=totals(d);
     return {
-      pax:t.pax, adults:t.adults, child:t.child, baby:t.baby, staff:t.staff,
+      pax:t.pax, adults:t.adults, child:t.child, baby:t.baby, staff:t.staff, soloAper:t.soloAper||0,
       aler:t.aler, veg:t.veg, vegan:t.vegan, tables:d.tables.length,
       mesas:d.tables.map(function(m){
-        return {num:m.num, name:m.name||"", label:mesaTxt(m,I18N.es), pax:m.guests.length, cap:m.cap||0};
+        return {num:m.num, name:m.name||"", label:mesaTxt(m,I18N.es), pax:nSent(m), cap:m.cap||0};
       })
     };
   }
@@ -13333,9 +13349,10 @@ function evTotals(){
   return {
     adultos:adultos, ninos:ninos, tronas:tronas, total:total,
     staff: delPlano?(pt.staff||0):0,
+    soloAper: delPlano?(pt.soloAper||0):0,
     conCubierto: total-tronas,
     /* como mesasAperitivo(): sobre los menús adultos, sin el staff */
-    mesasAper: (adultos-(delPlano?(pt.staff||0):0))>0?Math.ceil((adultos-(delPlano?(pt.staff||0):0))/pma):0,
+    mesasAper: (adultos-(delPlano?(pt.staff||0):0)+(delPlano?(pt.soloAper||0):0))>0?Math.ceil((adultos-(delPlano?(pt.staff||0):0)+(delPlano?(pt.soloAper||0):0))/pma):0,
     mesasBanq: mesasBanq, delPlano:delPlano, mesas:mesas, camareros:camareros
   };
 }
@@ -13754,7 +13771,8 @@ function esDishJamon(d){ return /jam[oó]n/i.test(d.servicio||"") || /^\s*jam[o�
    en trona no comen); los de «Niños», por los niños; y de cada plato del
    banquete se descuentan los que llevan un plato sustitutivo. */
 function prodCtx(){
-  var cfg=escCfg(), c=escCuentas(), ban=escBanquete(c,cfg), fuera={}, subs=[];
+  var cfg=escCfg(), c=escCuentas(), ban=escBanquete(c,cfg), fuera={}, subs=[], apU={};
+  try{ var _ae=escAperYEst(cfg); _ae.aper.concat(_ae.est).forEach(function(d0){ apU[d0._uid]=1; }); }catch(_){}
   ban.forEach(function(ti){ ti.platos.forEach(function(x){ fuera[x.uid]=x.fuera;
     Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; subs.push({txt:sb.txt,de:x.name,n:sb.gente.length,para:escNombres(sb.gente)}); }); }); });
   /* los aperitivos adaptados, además de los normales (igual que en la escaleta) */
@@ -13767,13 +13785,15 @@ function prodCtx(){
     Object.keys(NS.fuera).forEach(function(u){ fuera[u]=(fuera[u]||0)+NS.fuera[u]; });
     NS.subs.forEach(function(x){ var kk=escNorm(x.txt)+"|"+x.de; if(!gr[kk]){ gr[kk]={txt:x.txt,de:x.de+" (menú infantil)",gente:[]}; go.push(kk); } gr[kk].gente.push({nombre:x.nombre,mesa:x.mesa}); });
     go.forEach(function(kk){ subs.push({txt:gr[kk].txt,de:gr[kk].de,n:gr[kk].gente.length,para:escNombres(gr[kk].gente)}); }); }catch(_){}
-  return {ad:c.adultos, ninos:c.ninos, staff:c.staff, fuera:fuera, subs:subs};
+  return {ad:c.adultos, solo:c.soloAper||0, apU:apU, ninos:c.ninos, staff:c.staff, fuera:fuera, subs:subs};
 }
 function racionesDe(d,t){
-  var x=t&&t.esc; if(!x) return esDishJamon(d)?t.adultos:t.total;
+  var x=t&&t.esc; if(!x) return esDishJamon(d)?t.adultos+(t.soloAper||0):t.total;
   if(d._famKey==="NIÑOS") return Math.max(0,x.ninos-(x.fuera[d._uid]||0));
-  if(x.fuera[d._uid]!=null) return Math.max(0,x.ad-x.fuera[d._uid]);
-  return x.ad;
+  /* aperitivos y estaciones: también para quien solo viene al aperitivo; el banquete, no */
+  var ap=(x.apU&&x.apU[d._uid])?(x.solo||0):0;
+  if(x.fuera[d._uid]!=null) return Math.max(0,x.ad+ap-x.fuera[d._uid]);
+  return x.ad+ap;
 }
 /* ══ Producción: por plato, con ingredientes escalados a comensales ══ */
 function prodDishBlock(d,t){
@@ -14101,7 +14121,8 @@ function renderServicio(){
   /* el material de un plato: su vajilla y sus cubiertos del catálogo, con la
      MISMA cuenta de siempre (por comensal, por mesa o fija) */
   var tot={}, aMano=[];
-  var cc=escCuentas();
+  var cc=escCuentas(), apU={};
+  try{ var _ae=escAperYEst(escCfg()); _ae.aper.concat(_ae.est).forEach(function(d0){ apU[d0._uid]=1; }); }catch(_){}
   function lineas(d){
     var out=[], kid=(d._famKey==="NIÑOS"), mesaDish=((d._famKey==="APERITIVOS"||kid)&&escUnidad(d)==="mesa"), nPor=escPor(d);
     splitArticles(d.servicio).concat(splitArticles(d.cubiertos)).forEach(function(a){
@@ -14113,7 +14134,7 @@ function renderServicio(){
          no por comensal; los cubiertos y utensilios siguen por persona. La vajilla del menú infantil, en lo demás, va por niños, no por todos los comensales. */
       if(base==="COMENSAL"&&mesaDish&&cat.categoria==="PLATO"){ base=kid?"MESA NIÑOS":"MESA APERITIVO"; conv=true; }
       else if(kid&&base==="MESA APERITIVO") base="MESA NIÑOS";
-      if(base==="COMENSAL"){ var nc=kid?cc.ninos:t.conCubierto; qty=nc*cat.unidades; por=(cat.unidades===1?"1":fmtNum(cat.unidades,0))+" por "+(kid?"niño":"comensal"); }
+      if(base==="COMENSAL"){ var nc=kid?cc.ninos:t.conCubierto+(apU[d._uid]?(cc.soloAper||0):0); qty=nc*cat.unidades; por=(cat.unidades===1?"1":fmtNum(cat.unidades,0))+" por "+(kid?"niño":"comensal"); }
       else if(base==="MESA APERITIVO"){ var u1=cat.unidades*(conv?nPor:1); qty=t.mesasAper*u1; por=fmtNum(u1,0)+" por mesa de aperitivo"; }
       else if(base==="MESA NIÑOS"){ var u2=cat.unidades*(conv?nPor:1); qty=cc.mesasNinos*u2; por=fmtNum(u2,0)+" por mesa de niños"; }
       else if(base==="MESA BANQUETE"){ qty=t.mesasBanq*cat.unidades; por=fmtNum(cat.unidades,0)+" por mesa de banquete"; }
@@ -14926,11 +14947,11 @@ function jamonDelMenu(){
   platos.forEach(function(d){
     d.ingredients.forEach(function(ing){
       if(/jam[oó]n/i.test(ing.name)){
-        if(ing.qty==null) pend=true; else gr+=ing.qty*t.adultos;
+        if(ing.qty==null) pend=true; else gr+=ing.qty*(t.adultos+(t.soloAper||0));
       }
     });
   });
-  return {platos:platos.map(function(d){return d.name;}), gramos:gr, adultos:t.adultos,
+  return {platos:platos.map(function(d){return d.name;}), gramos:gr, adultos:t.adultos+(t.soloAper||0),
           marcado:platos.length>0, pendiente:pend};
 }
 /* el jamón se cuenta en kg TRUNCANDO a dos decimales, no redondeando: 71
@@ -15629,10 +15650,12 @@ function escEsEstacion(d){
 /* quién come qué, contado sobre el plano */
 function escCuentas(){
   var doc=BR.planDoc?BR.planDoc():{tables:[]}, t=evTotals();
-  var c={adultos:0,adapt:0,ninos:0,ninosAdapt:0,staff:0,staffAdapt:0,tronas:0,mesasNinos:0,gente:[],delPlano:false};
+  var c={adultos:0,adapt:0,ninos:0,ninosAdapt:0,staff:0,staffAdapt:0,tronas:0,mesasNinos:0,soloAper:0,gente:[],soloGente:[],delPlano:false};
   doc.tables.forEach(function(tb){ var kids=0, lbl=BR.mesaLbl?BR.mesaLbl(tb):("Mesa "+tb.num);
     tb.guests.forEach(function(g){
       var ad=!!(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg);
+      /* solo aperitivo: ni silla ni menú ni plato del banquete; sí aperitivos, estaciones y su adaptación si tiene alergia */
+      if(g.soloAper){ c.soloAper++; c.soloGente.push({g:g,mesa:lbl,mesaNum:tb.num}); return; }
       if(g.kind==="child"){ c.ninos++; if(ad) c.ninosAdapt++; kids++; }
       else if(g.kind==="baby"){ c.tronas++; kids++; }
       else if(g.kind==="staff"){ c.staff++; if(ad) c.staffAdapt++; }
@@ -15640,7 +15663,7 @@ function escCuentas(){
       c.gente.push({g:g,mesa:lbl,mesaNum:tb.num});
     });
     if(kids) c.mesasNinos++; });
-  if(c.gente.length) c.delPlano=true;
+  if(c.gente.length||c.soloAper) c.delPlano=true;
   else { c.adultos=t.adultos; c.ninos=t.ninos; c.mesasNinos=t.ninos?1:0; }
   var e=ev(); c.staff=Math.max(c.staff,Math.max(0,+(e&&e.ficha&&e.ficha.staff)||0));
   c.mesasAper=t.mesasAper;
@@ -15836,11 +15859,11 @@ function escAperitivos(c,cfg){
   /* salen solos los adultos y el staff con alergia o dieta; cualquier otro
      (un niño, alguien sin alergia…) se añade a mano y entonces también cuenta */
   var man=cfg.aperPers||{}, no=cfg.aperNo||{};
-  var pers=c.gente.filter(function(p){ var g=p.g, k=escKey(p); if(g.kind==="baby") return false;
+  var pers=c.gente.concat(c.soloGente||[]).filter(function(p){ var g=p.g, k=escKey(p); if(g.kind==="baby") return false;
       if(man[k]) return true; if(no[k]||g.kind==="child") return false;
       return escRestringido(g)||(g.kind!=="staff"&&enCard[k]); })
     .map(function(p){ var r=escAperPersona(p,std,cards,cfg); r.p=p; r.aMano=!escRestringido(p.g)||p.g.kind==="child"; return r; });
-  return {std:std, est:ae.est, cards:cards, pers:pers, resto:Math.max(0,c.adultos-pers.length)};
+  return {std:std, est:ae.est, cards:cards, pers:pers, resto:Math.max(0,c.adultos+(c.soloAper||0)-pers.length)};
 }
 /* grupo de alergia/dieta para ordenar la lista por tipo */
 var ESC_GRUPOS={gluten:"Celíacos · sin gluten",lacteos:"Sin lácteos",marisco:"Sin marisco",frutosSecos:"Sin frutos secos",huevo:"Sin huevo",pescado:"Sin pescado",pescetariano:"Pescetarianos",soja:"Sin soja",sesamo:"Sin sésamo",mostaza:"Sin mostaza",apio:"Sin apio",sulfitos:"Sin sulfitos",legumbres:"Sin legumbres",picante:"Sin picante"};
@@ -15900,21 +15923,30 @@ function escModelo(){
   if(F.ceremoniaHora||F.ceremoniaLugar) horas.push({l:"Ceremonia",sub:F.ceremoniaLugar||"",v:F.ceremoniaHora||"—"});
   if(F.horaAperitivo) horas.push({l:"Aperitivo",v:F.horaAperitivo}); if(F.horaBanquete) horas.push({l:"Banquete",v:F.horaBanquete}); if(F.horaBarra) horas.push({l:"Barra libre",v:F.horaBarra});
   var md={titulo:String(e.name||"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim(), fecha:fecha, horas:horas, llegada:F.horaBriefing||"", secs:[], avisos:[], cuentas:c, ban:ban, cfg:cfg};
-  var adTot=c.adultos;
+  /* adTot = los del aperitivo y las estaciones: los menús adultos del plano MÁS quien solo viene al aperitivo;
+     adB / kidsB / staffB = los menús reales una vez corregidas a mano las cantidades de «Menús»
+     (quien solo hace el aperitivo se quita ahí y baja el banquete, los postres, los cafés y el ressopó) */
+  var adTot=c.adultos+(c.soloAper||0);
+  function efN(k,calc){ var o=Q(k,calc), n=parseFloat(String(o.q).replace(",",".")); return isFinite(n)&&n>=0?Math.round(n):+calc; }
+  var adB=efN("n:ad",c.adultos-c.adapt)+efN("n:ada",c.adapt);
+  var kidsB=efN("n:in",c.ninos-c.ninosAdapt)+(c.ninosAdapt?efN("n:ina",c.ninosAdapt):0);
+  var staffB=efN("n:st",c.staff-c.staffAdapt)+(c.staffAdapt?efN("n:sta",c.staffAdapt):0);
+  md.menus={adultos:adB,ninos:kidsB,staff:staffB,total:adB+kidsB+staffB,plano:c.adultos+c.ninos+c.staff};
   /* puntos del servicio tras los que puede haber una parada (regalos, discursos…): en el orden en que salen */
   var ANC=[]; function anc(id,label,cor,sec,row){ ANC.push({id:id,label:label,cor:cor,sec:sec,row:row||null}); }
   if(cfg.notas) md.secs.push({t:"Notas",filas:[{txt:cfg.notas,nota:true}]});
   /* recuento de menús */
-  var fm=[fila("Menú adulto",null,Q("n:ad",c.adultos-c.adapt)), fila("Menú adulto adaptado",null,Q("n:ada",c.adapt)), {txt:"Total menú adulto",q:String(adTot),tot:true},
+  var fm=[fila("Menú adulto",null,Q("n:ad",c.adultos-c.adapt)), fila("Menú adulto adaptado",null,Q("n:ada",c.adapt)), {txt:"Total menú adulto",q:String(adB),tot:true,sub:adB!==c.adultos?"el plano tiene "+c.adultos:""},
     fila("Menú infantil",null,Q("n:in",c.ninos-c.ninosAdapt))];
   if(c.ninosAdapt) fm.push(fila("Menú infantil adaptado",null,Q("n:ina",c.ninosAdapt)));
   fm.push(fila("Menú staff",null,Q("n:st",c.staff-c.staffAdapt)));
   if(c.staffAdapt) fm.push(fila("Menú staff adaptado",null,Q("n:sta",c.staffAdapt)));
-  fm.push({txt:"Total menús",q:String(c.adultos+c.ninos+c.staff),tot:true});
+  fm.push({txt:"Total menús",q:String(md.menus.total),tot:true,sub:md.menus.total!==md.menus.plano?"el plano tiene "+md.menus.plano:""});
   if(c.tronas) fm.push({txt:"Bebés en trona (sin menú)",q:String(c.tronas)});
+  if(c.soloAper) fm.push({txt:"Solo aperitivo (sin silla ni menú)",q:String(c.soloAper),sub:"cuentan en aperitivos y estaciones, no en el banquete"});
   md.secs.push({t:"Menús",filas:fm});
   /* alergias: por tipo (todos los vegetarianos juntos…) o por nombre */
-  var al=c.gente.filter(function(p){ return escRestringido(p.g); });
+  var al=c.gente.concat(c.soloGente||[]).filter(function(p){ return escRestringido(p.g); });
   if(al.length){
     if(cfg.alerPor==="nombre") md.secs.push({t:"Alergias",sub:"por nombre",filas:al.map(function(p){
       return {txt:p.g.name+" ("+p.mesa+")", sub:escGruposDe(p.g).join(", "), alerg:true}; })});
@@ -15971,14 +16003,14 @@ function escModelo(){
   /* ── menú (1º, 2º, 3º…) con los sustitutos debajo de cada plato ── */
   var fb=[], nPlato=0;
   [ban[0],ban[1]].forEach(function(ti){ ti.platos.forEach(function(x){
-    fb.push({head:x.sorbete?"Sorbete":(++nPlato)+"º plato", hq:String(adTot), hqTxt:" en total", plato:true});
-    fb.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
+    fb.push({head:x.sorbete?"Sorbete":(++nPlato)+"º plato", hq:String(adB), hqTxt:" en total", plato:true});
+    fb.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adB-x.fuera))));
     Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; fb.push(f); });
     var nom1=x.sorbete?"Sorbete":nPlato+"º plato"; anc("pl:"+x.uid,nom1+" · "+x.name,"el "+nom1.toLowerCase(),"Menú",fb[fb.length-1]);
   }); });
   var okM=(menu()&&menu().alerOk)||{};
   var pendK=null, detK={}; try{ pendK={}; alerPendDetalle().forEach(function(x){ pendK[x.key]=1; detK[x.key]=x; }); }catch(_){ pendK=null; }
-  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&(pendK?pendK[escKey(p)]:(!(g.menus&&g.menus.length)&&!okM[escKey(p)])); });
+  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&!g.soloAper&&(pendK?pendK[escKey(p)]:(!(g.menus&&g.menus.length)&&!okM[escKey(p)])); });
   if(fb.length&&sinSust.length){
     /* los que no tienen ningún plato decidido van juntos; los que ya tienen alguno pero siguen pendientes se agrupan por lo que les
        falta, para que se vea POR QUÉ salen aquí (y qué hay que decidir para que dejen de salir) */
@@ -15991,7 +16023,7 @@ function escModelo(){
     parcO.forEach(function(kk){ var q2=parc[kk]; filasP.push(filaPend("Con plato decidido, pero les falta: "+q2.falta.map(function(t){ return t.charAt(0).toLowerCase()+t.slice(1); }).join(" · "),q2.gente)); });
     Array.prototype.unshift.apply(fb,filasP);
   }
-  if(fb.length) md.secs.push({t:"Menú",sub:adTot+" adultos",filas:fb,leyenda:fb.some(function(f){ return f.sust; })?"En color: plato sustitutivo, para quién y en qué mesa":""});
+  if(fb.length) md.secs.push({t:"Menú",sub:adB+" adultos",filas:fb,leyenda:fb.some(function(f){ return f.sust; })?"En color: plato sustitutivo, para quién y en qué mesa":""});
   /* ── menú infantil: aperitivo, primeros, segundos, postre y lo que se añada ── */
   var INF=escInfantil(cfg); md.inf=INF;
   if(c.ninos>0){
@@ -16001,12 +16033,12 @@ function escModelo(){
     var ORD=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
     function subsDe(k){ var o=NS.bandas[k]||{}; Object.keys(o).forEach(function(kk){ var f=fila(o[kk].txt,escNombres(o[kk].gente),Q("isb:"+kk.slice(0,40),o[kk].gente.length)); f.sust=true; f.gente=o[kk].gente; fi.push(f); }); }
     stO.forEach(function(k){ fi.push({head:k, plato:true});
-      (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,m?c.mesasNinos*escPor(d):Math.max(0,c.ninos-(NS.fuera[d._uid]||0))*escPor(d)))); });
+      (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,m?c.mesasNinos*escPor(d):Math.max(0,kidsB-(NS.fuera[d._uid]||0))*escPor(d)))); });
       subsDe(k); });
-    if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),c.ninos))); }); }
+    if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),kidsB))); }); }
     if(NS.bandas.Otros&&!porSt.Otros){ fi.push({head:"Sustitutos sin tiempo"}); subsDe("Otros"); }
-    if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(c.ninos); fx.sust=true; fx.pend=true; fi.unshift(fx); }
-    md.secs.push({t:"Menú infantil",sub:c.ninos+(c.ninos===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
+    if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(kidsB); fx.sust=true; fx.pend=true; fi.unshift(fx); }
+    md.secs.push({t:"Menú infantil",sub:kidsB+(kidsB===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
   /* ── menú staff: el suyo, no una copia del de los invitados ── */
   var STM=escStaffMenu(cfg,ban); md.staffMenu=STM;
@@ -16016,35 +16048,35 @@ function escModelo(){
     if(iPost<0) iPost=STM.length-1;
     var nT=ban.staffTarta.length;
     var fs=STM.map(function(t,i){ var quita=(i===iPost)?nT:0;
-      return fila(t,quita?(quita===1?"1 lleva tarta adaptada (en Postres): ":quita+" llevan tarta adaptada (en Postres): ")+escNombres(ban.staffTarta):null,Q("st:"+escNorm(t).slice(0,30),Math.max(0,c.staff-quita))); });
+      return fila(t,quita?(quita===1?"1 lleva tarta adaptada (en Postres): ":quita+" llevan tarta adaptada (en Postres): ")+escNombres(ban.staffTarta):null,Q("st:"+escNorm(t).slice(0,30),Math.max(0,staffB-quita))); });
     var gs={}, so=[]; ban.staff.forEach(function(x){ var kk=escNorm(x.txt); if(!gs[kk]){ gs[kk]={txt:x.txt,gente:[]}; so.push(kk); } gs[kk].gente.push(x); });
     so.forEach(function(kk){ var f=fila(gs[kk].txt,escNombres(gs[kk].gente),Q("ssb:"+kk.slice(0,40),gs[kk].gente.length)); f.sust=true; f.gente=gs[kk].gente; fs.push(f); });
-    if(!STM.length){ var fz=fila("Menú staff sin configurar","escríbelo en «Datos de la escaleta», apartado Menú staff",null); fz.q=String(c.staff); fz.sust=true; fz.pend=true; fs.unshift(fz); }
-    md.secs.push({t:"Menú staff",sub:c.staff+(c.staff===1?" persona":" personas"),filas:fs});
+    if(!STM.length){ var fz=fila("Menú staff sin configurar","escríbelo en «Datos de la escaleta», apartado Menú staff",null); fz.q=String(staffB); fz.sust=true; fz.pend=true; fs.unshift(fz); }
+    md.secs.push({t:"Menú staff",sub:staffB+(staffB===1?" persona":" personas"),filas:fs});
   }
   /* ── postres (y tarta) con sus sustitutos ── */
   var fpo=[], fta=[];
   ban[2].platos.forEach(function(x){
     var dest=x.tarta?fta:fpo;
-    dest.push({head:x.tarta?"Tarta":"Postre", hq:String(adTot), hqTxt:" en total", plato:true});
-    dest.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adTot-x.fuera))));
+    dest.push({head:x.tarta?"Tarta":"Postre", hq:String(adB), hqTxt:" en total", plato:true});
+    dest.push(fila(x.name,null,Q("pl:"+x.uid,Math.max(0,adB-x.fuera))));
     Object.keys(x.subs).forEach(function(kk){ var sb=x.subs[kk]; var f=fila(sb.txt,escNombres(sb.gente),Q("sb:"+x.uid+":"+kk.slice(0,40),sb.gente.length)); f.sust=true; f.gente=sb.gente; dest.push(f); });
     anc("pl:"+x.uid,(x.tarta?"Tarta":"Postre")+" · "+x.name,x.tarta?"la tarta":"el postre",x.tarta?"Tarta":"Postres",dest[dest.length-1]);
   });
-  if(fpo.length) md.secs.push({t:"Postres",sub:adTot+" adultos",filas:fpo});
-  if(fta.length) md.secs.push({t:"Tarta",sub:adTot+" adultos",filas:fta});
+  if(fpo.length) md.secs.push({t:"Postres",sub:adB+" adultos",filas:fpo});
+  if(fta.length) md.secs.push({t:"Tarta",sub:adB+" adultos",filas:fta});
   /* ── cafés ── */
   var fc=[];
-  cafEst.forEach(function(d){ fc.push(fila(d.name,escEtqStation(d.station),Q("es:"+escNorm(d.name),adTot*escPor(d)))); });
+  cafEst.forEach(function(d){ fc.push(fila(d.name,escEtqStation(d.station),Q("es:"+escNorm(d.name),adB*escPor(d)))); });
   if(cfg.cafes!==false) fc.push({txt:"Cafés y licores"});
   if(cfg.bombones) fc.push({txt:"Cajita de bombones personalizados"});
   if(fc.length){ md.secs.push({t:"Cafés",filas:fc}); anc("caf","Cafés y licores","los cafés","Cafés"); }
   /* ── ressopó: siempre lo último ── */
   var rec=escOrdenar(sel.filter(function(d){ return d._famKey==="RECENA"; }),cfg), rg={}, ro=[];
   rec.forEach(function(d){ var k=d.station?escEtqStation(d.station):d.name; if(!rg[k]){ rg[k]=[]; ro.push(k); } rg[k].push(d); });
-  var fr=ro.map(function(k){ var ds=rg[k]; return fila(ds.map(function(d){ return d.name; }).join(" · "),ro.length>1?k:null,Q("rs:"+escNorm(k),adTot)); });
-  String(cfg.ressopo||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(t){ fr.push(fila(t,null,Q("rsx:"+escNorm(t).slice(0,30),adTot))); });
-  if(fr.length){ md.secs.push({t:"Ressopó",sub:adTot+" menús adultos (el staff va aparte)",filas:fr}); anc("res","Ressopó","el ressopó","Ressopó"); }
+  var fr=ro.map(function(k){ var ds=rg[k]; return fila(ds.map(function(d){ return d.name; }).join(" · "),ro.length>1?k:null,Q("rs:"+escNorm(k),adB)); });
+  String(cfg.ressopo||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(t){ fr.push(fila(t,null,Q("rsx:"+escNorm(t).slice(0,30),adB))); });
+  if(fr.length){ md.secs.push({t:"Ressopó",sub:adB+" menús adultos (el staff va aparte)",filas:fr}); anc("res","Ressopó","el ressopó","Ressopó"); }
   /* orden de la hoja: primero todo lo del menú adulto y su horario (aperitivos, estaciones, platos, postres, tarta, cafés, ressopó)
      y, juntos y al final, el menú infantil y el del staff */
   (function(){ var fin=["Menú infantil","Menú staff"]; var cola=md.secs.filter(function(x){ return fin.indexOf(x.t)>=0; });
@@ -16634,7 +16666,7 @@ function alerDecidido(g,fal,okM){ return !!okM[aaKey(g)]||(!fal&&!!((g.sustituto
 /* los que siguen por decidir, con lo que les falta (los tiempos que chocan sin sustituto) y cuántos platos tienen ya */
 function alerPendDetalle(){
   var lista=BR.alergias?BR.alergias():[], sel=selectedDishes(), cur=algCursos(sel), okM=(menu()&&menu().alerOk)||{};
-  return lista.map(function(g){ var fl=[]; if(sel.length){ try{ fl=noComeFaltas(g,sel,cur); }catch(_){ fl=[]; } }
+  return lista.filter(function(g){ return !g.aper; }).map(function(g){ var fl=[]; if(sel.length){ try{ fl=noComeFaltas(g,sel,cur); }catch(_){ fl=[]; } }
       return {g:g,key:aaKey(g),falta:fl,subs:(g.sustitutos||[]).filter(Boolean).length+Object.keys(alerSinDe(g)).length}; })
     .filter(function(x){ return !alerDecidido(x.g,x.falta.length,okM); });
 }
@@ -25369,7 +25401,7 @@ function mjOtrosDia(e,P,INV){
 function mjHojaEv(e,P,INV){ return mjHoja(e,P,INV,mjOtrosDia(e,P,INV)); }
 /* mesas de aperitivo: las mismas que en el Resumen (adultos sin staff entre
    las personas por mesa de aperitivo del evento) */
-function mjMesasAper(e){ try{ var c=BR.planCounts(e), pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7), ad=Math.max(0,c.adultos-(c.staff||0)); return ad>0?Math.ceil(ad/pma):0; }catch(_){ return 0; } }
+function mjMesasAper(e){ try{ var c=BR.planCounts(e), pma=Math.max(1,+(e.menu&&e.menu.pMesaAper)||7), ad=Math.max(0,c.adultos-(c.staff||0))+(c.soloAper||0); return ad>0?Math.ceil(ad/pma):0; }catch(_){ return 0; } }
 function mjHoja(e,P,INV,otros){
   var doc; try{ doc=BR.conEvento(e,function(){ return BR.planDoc(); }); }catch(_){ doc={tables:[]}; }
   if(!doc||!doc.tables) doc={tables:[]};
@@ -25378,7 +25410,7 @@ function mjHoja(e,P,INV,otros){
   function hay(it){ return Math.max(0,it.cant-(ot.uso[it.id]||0)); }
   function libre(it){ return hay(it)-(usado[it.id]||0); }
   doc.tables.forEach(function(t){
-    var gs=t.guests||[], bebes=gs.filter(function(g){ return g.kind==="baby"; }).length, sent=gs.length;
+    var gs=(t.guests||[]).filter(function(g){ return !g.soloAper; }), bebes=gs.filter(function(g){ return g.kind==="baby"; }).length, sent=gs.length;
     /* plazas: las que se ven en el plano («Redonda 10» o «Plazas» del panel) o
        las sentadas, lo que sea mayor: se monta para las plazas */
     var n=Math.max(sent,+t.cap||0);
