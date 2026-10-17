@@ -1,7 +1,9 @@
 # Rediseño visual · Les Moles Events
 
-Estado: **prototipo v4 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
+Estado: **prototipo v5 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app: **no se ha tocado nada de la app real** (orden expresa de Ramon).
 Código del prototipo (referencia para portar): `rediseno/prototipo.html` (un solo archivo, sin dependencias salvo Google Fonts).
+Comparación con la app real (53 pantallas + equipo, con deslizador y cobertura): https://claude.ai/artifact/QbuN9cSQDD8h69UFHhdFug
+Herramientas para regenerar el prototipo a partir de la app: `rediseno/herramientas/` (ver su README).
 Prototipo: https://claude.ai/artifact/PxPhJMLGyhNRo5RAejTwt5 (privado; se comparte desde su menú «Compartir»).
 
 ## A) Skills
@@ -52,6 +54,19 @@ Medidas:
 - **Primer uso**: invitación → contraseña (medidor, mostrar/ocultar, coincidencia) → puesto (5 roles, «Verás…») → **recorrido guiado** con foco que se desliza entre elementos (5 pasos en escritorio, 4 en móvil; flechas, Esc) → **«Primeros pasos»** en el Resumen (5 tareas con anillo de progreso: restaurante, equipo, platos, primer evento, portal) → **asistente de nuevo evento** de 4 pasos que crea el evento de verdad. Entradas: «Tengo una invitación» en el acceso o «▶ Primer uso» en la barra del prototipo.
 - Antes y después ampliado a 9 pantallas, con las funcionales y el acceso.
 - Pruebas: 53 pantallas × datos normales/extremos/vacíos × escritorio/móvil × claro/oscuro sin errores ni desbordes, y baterías de interacción por área (editor, diseñador, escaleta, montaje, primer uso).
+
+**v5** («no veo bien la funcionalidad de nada comparado con la app real»; «prototipo y comparación con la app real»), mismo enlace, versión 6. Se dejó de **inventar** pantallas y se pasó a **reproducir las reales**:
+- **Traductor** (`rediseno/herramientas/`): lee en el navegador cada pantalla de la app real (solo lectura, en una copia local con datos de ejemplo) y conserva su estructura, campos, opciones, botones, tablas, columnas y textos; solo cambia lo visual (tipografía, color, tarjetas, píldoras, botones, casillas, tamaños mínimos). Sale de ahí el 80 % del prototipo, sin olvidar ningún campo.
+- **44 pantallas traducidas** + **Resumen del evento** y **Inicio** (en la real son dos cosas distintas; el «Evento activo» abre el Inicio) + **Equipo y accesos** (personas, matriz de permisos por rol, registro de actividad), que no estaba.
+- **Cinco pantallas con doble versión** (Alergias, Escaleta, Menú para invitados, Seatings, Montaje): por defecto «Como la app» (réplica completa) y, arriba a la derecha, «Propuesta interactiva» (los diseñadores de la v4).
+- **Plano de sala**: la barra lleva ya los controles de la real (plantilla, entrada, tamaño de mesas, orientación y tamaño de sala, zoom Ancho/Todo, idioma, papel, elementos de sala reales y la línea de ayuda). Listado y marcasitios siguen siendo editores vivos.
+- **Selectores de vista** que cambian de verdad el contenido en 12 pantallas (Previsión, Montaje, Alergias, Rentabilidad…): se capturó cada vista con la app.
+- **Datos**: los tres conjuntos de «Datos» salen ahora de la app real: normales (evento rico), extremos (nombres de 80 caracteres, 12 proveedores, importes de seis cifras) y vacío (app recién estrenada).
+- **Oscuro y móvil** de todo lo traducido; el título grande y las columnas que crecen se adaptan al ancho.
+- **Pruebas**: 53 pantallas × 3 datos × escritorio/móvil × claro/oscuro sin errores de JavaScript ni desbordes; baterías de interacción (plano, diseñador, escaleta y montaje, primer uso y la nueva de v5) en verde.
+- **Cobertura medida**: 2.110 controles contados en la app real; **1.783 (85 %)** con equivalente en el prototipo. Lo que falta son sobre todo listas largas que se abrevian («… y N más») y los controles del papel del diseñador.
+- **Lo que no es igual todavía**: los papeles que acaban en PDF (Cormorant, tarjetas, etiquetas de alérgeno) no se rediseñan; lo que se escribe en el prototipo no se guarda.
+- Se descubrió y arregló al comparar: fallos de agrupación de botones y de accesibilidad (nombres de los botones de solo icono), el enlace del portal con código local en un campo, y la altura de barras de progreso.
 
 ## Pendiente de Ramon
 1. Elegir letra entre las 10 (o decir qué le gusta de cada una) y qué cambiaría del prototipo.
