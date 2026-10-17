@@ -1,6 +1,7 @@
 # Rediseño visual · Les Moles Events
 
-Estado: **prototipo hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
+Estado: **prototipo v2 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
+Código del prototipo (referencia para portar): `rediseno/prototipo-v2.html` (un solo archivo, sin dependencias salvo Google Fonts).
 Prototipo: https://claude.ai/artifact/PxPhJMLGyhNRo5RAejTwt5 (privado; se comparte desde su menú «Compartir»).
 
 ## A) Skills
@@ -23,10 +24,18 @@ Medidas:
 - Contraste: la paleta del prototipo cumple AA en claro y oscuro (comprobado).
 
 ## C) Prototipo
-Acceso, panel, plano (vista), elegir platos, alergias (con estado único «por decidir / decidido / confirmado por cocina»), check list (tres pestañas), previsión (calendario, lista, por local) y montaje. Claro/oscuro, escritorio/móvil, movimiento (CSS puro, ease-out, ≤ 300 ms, View Transitions con respaldo, escalonado de 8 elementos, `prefers-reduced-motion`), buscador Ctrl K, selector temporal de letra: Actual, A (Newsreader + IBM Plex Sans), B (Source Serif 4 + Source Sans 3), C (Fraunces + Hanken Grotesk). Fotos: marcadores neutros salvo la del acceso.
+**v1** (descartado por Ramon: «no me gusta ninguno, no veo animaciones, no veo movimiento, faltan cosas de la interfaz»).
+
+**v2** (mismo enlace, versión 2):
+- **Toda la navegación de la app**: Resumen + 9 grupos y 52 pantallas (Planificación 10, Servicio 2, Plano 5, Menú 9, Camareros 3, Recursos 2, Inventario 1, Parámetros 15, Rentabilidad 3, Previsión 2), con datos de ejemplo coherentes (la boda de Marta i Jordi, 59 invitados, 6 mesas, 9 personas con alergia o dieta).
+- **Movimiento visible y con selector «Movimiento: Con / Sistema / Sin»** (por defecto «Con», porque el v1 se veía quieto si el sistema pedía reducir movimiento): pantallas que entran con dirección, listas escalonadas, cifras que cuentan, barras que se llenan, indicador que se desliza en barra lateral, pestañas y barra inferior móvil, grupos que se pliegan, casillas que se dibujan y tachan, mesas que aparecen, anillos en las alergias, hojas desde abajo en móvil, avisos con resorte, foto del acceso con zoom lento. Solo `transform` y `opacity`, ease-out, ≤ 300–460 ms (entradas), nada de `transition: all`, y «Sistema»/«Sin» lo suavizan o lo quitan.
+- **10 pares de letras** para elegir con vista previa: La de hoy (Bodoni Moda + Hanken Grotesk), Moderna (Bricolage Grotesque + Instrument Sans), Clásica de restaurante (DM Serif Display + DM Sans), Libro (Libre Baskerville + Work Sans), Editorial sobria (Spectral + Public Sans), Una sola geométrica (Jost), Mayúsculas romanas (Marcellus + Mulish), Cálida (Young Serif + Figtree), Técnica (IBM Plex Serif + Sans), Una sola neutra (Albert Sans).
+- Claro / oscuro / auto, escritorio / móvil (el móvil responde al ancho del contenedor), tamaño 100/112/125 %, buscador Ctrl K con sinónimos, tabla antes/después de textos al final.
+- Fotos: recortes de la única foto de Ramon que hay (la del acceso) en los huecos previstos (cabecera del Resumen, tarjetas de evento, secciones del menú, montaje, galería). Las suyas irán en esos mismos huecos.
+- Comprobado con navegador: las 53 pantallas en escritorio y móvil, claro y oscuro, sin errores de JavaScript ni desbordes; recorrido de interacciones (entrar, mesa → panel / hoja, nombres en el plano, estados de alergia con Deshacer, filtros, marcar platos, tareas, calendario, buscador, letras, movimiento, barra lateral).
 
 ## Pendiente de Ramon
-1. Elegir letra (A, B, C o quedarse con la actual) y decir qué cambiaría del prototipo.
+1. Elegir letra entre las 10 (o decir qué le gusta de cada una) y qué cambiaría del prototipo.
 2. Mandar las fotos (exterior, salones, mesas y montajes, estaciones, platos, equipo).
 3. Vetar textos de la tabla antes/después (está al final del prototipo; al portar se entregará la completa).
 
