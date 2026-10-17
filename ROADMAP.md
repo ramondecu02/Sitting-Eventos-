@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.97** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.99** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,19 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.99
+- **Seatings: un cartel por mesa con quién se sienta en ella** (Plano de mesas → **Seatings**). Para ponerlos en el mueble del seating y que cada invitado vea su mesa. Es el **mismo diseñador de las minutas** (lienzo), con el papel de un **A5 vertical** y los textos que se rellenan solos desde el plano:
+  - **18 diseños**: los 7 del PDF de ejemplo (hojas de acuarela, amapola rosa, peonía, ginkgo dorado, eucalipto, gastronómico con ilustraciones de comida y rama) y 11 más (clásico dorado, jardín, rosa, mar, deco, kraft, minimal, flor, burdeos, acuarela, guirnalda), con filtros por estilo. Letras de la casa (Rouge Script, Monsieur La Doulaise, Antonio, máquina de escribir…).
+  - **Cada cartel sale solo del plano:** título = nombre de la mesa («Olivera») o «Taula 2» / «Mesa 2» según el idioma del plano; lista de comensales de esa mesa (sin los de «solo aperitivo», sin el personal salvo que lo pidas; los niños y bebés se pueden incluir o no); nombres de la pareja y fecha abajo, si quieres.
+  - **Siempre cabe:** los nombres se ajustan solos (primero se junta el interlineado, luego baja la letra y, si no cabe en una columna, pasa a **dos columnas**). También en una sola línea para los títulos largos.
+  - **Todo lo del diseñador de minutas:** galería de diseños, **«Mis plantillas»** propias (se guardan aparte de las de minutas), añadir texto, imágenes, formas, iconos (con un grupo nuevo de seating: hojas, flores, comida…), logo y monograma de la pareja, color de fondo, tipografías, alinear y duplicar, deshacer / rehacer, zoom y mano, teclado y móvil.
+  - **Barra de mesas:** elegir la mesa (o ‹ ›), ver cuántos carteles y personas salen, «Actualizar desde el plano», y en la pestaña **Mesas** ajustar por cartel: nombre del cartel, lista a mano, «No imprimir esta mesa» y «Volver a lo que dice el plano». Lo escrito sobre el papel (doble clic) es de **esa mesa** y las demás no cambian.
+  - **Ajustes:** nombre completo o solo nombre de pila, orden del plano o alfabético, 1 / 2 columnas o automático, incluir niños, bebés y personal, título «Mesa / Taula», prefijo y idioma.
+  - **Descargar:** PDF de **todas** las mesas (A5 · una por página), **A4**, **dos por hoja** (A5 en A4 apaisado) o **cuatro por hoja** (A6, con marcas de corte), calidad normal o alta; PDF o **PNG** de **una** mesa (300 ppp).
+  - Se guarda con el evento y viaja con él al duplicarlo; solo lo ven administración y eventos.
+- **Pequeños arreglos del diseñador:** al pasar de Minutas a Seatings (o al revés) ya no queda oculta en la página la pantalla anterior con los mismos identificadores; el campo «Nº de personas» se añade encima del pie, no en medio del cartel.
+- **Lo que no incluye (a propósito):** publicar los seatings en el portal del cliente para que los apruebe. Se puede añadir como la minuta si lo pedís.
 
 ### Novedad de la versión 01.98
 - **Segunda tanda de arreglos de la revisión completa.** Lo que sigue pendiente de tu confirmación está en `AUDITORIA.md` (plan paso a paso). Corregido ahora:
