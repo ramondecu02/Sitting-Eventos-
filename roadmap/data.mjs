@@ -60,6 +60,7 @@ export const hecho = [
   'Seatings (Plano de mesas): diseñador como el de las minutas con un cartel A5 por mesa y sus comensales, 18 diseños (los 7 del PDF de ejemplo y 11 más), textos que se rellenan solos desde el plano, ajuste automático a una o dos columnas, plantillas propias, ajustes por mesa y PDF de todas las mesas (A5, A4, dos o cuatro por hoja) o PNG de una · v01.99',
   'Seguridad (Fase A, 1.ª parte): cerrar sesión y cambiar la contraseña cierran las sesiones en el servidor, contraseña temporal obligatoria también en el servidor, cierre por inactividad en el servidor, bloqueo de entrada por equipo (no por correo) y respuesta única, y tope y orden del documento compartido (aviso desde 1,4 MB, límite 1,9 MB) · v02.00',
   'RGPD completo (Fase A, 2.ª parte): anonimizar con lista blanca (también seatings, logos y diseños), un evento anonimizado no resucita con una copia vieja, «Quitar a una persona» quita título, ficha y portal del cliente, bandeja de salida y registro de actividad, panel «Qué queda todavía», copias hechas a mano que caducan y limpieza diaria automática · v02.01',
+  'Permisos reales por rol en el servidor (Fase A, 3.ª parte): enlace privado del portal, contrato, presupuesto, ficha de contacto, comunicaciones y Previsión solo para quien tiene esa pantalla, y no se pueden escribir a mano desde otro rol · v02.02',
 ];
 
 export const decisiones = [
@@ -74,7 +75,7 @@ export const calendario = [
   ['4–9', 'Modo servicio · turnos y horas · cierre de evento', '01.62–01.63'],
   ['10–14', 'Avisos por correo · WhatsApp · portal ampliado', '01.64–01.65'],
   ['15–28', 'Contrato y firma · compras por proveedor · consultas', '01.66–01.68'],
-  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta', '01.69–02.01'],
+  ['Después', 'Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word, editable sobre el papel · «Qué preparar» por plato y copiar alergias · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil y «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta', '01.69–02.02'],
 ];
 
 export const fases = [

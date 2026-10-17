@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.01** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.02** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,14 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.02
+- **Fase A del plan de la revisión, tercera parte: permisos reales por rol en el servidor.** Hasta ahora el menú ocultaba pantallas, pero cocina, servicio, compras y contabilidad podían leer **todo** el documento (precios, pagos, DNI, enlaces privados de los clientes) y reescribir precios y pagos con una petición a mano. Ahora el servidor aplica la misma matriz que el menú (la de «Equipo y accesos»; si el administrador la cambia, el cambio vale también para el servidor):
+  - **Lo que no es de tu rol, no te llega.** El **enlace privado del portal del cliente** y lo que ve el cliente solo lo reciben quienes tienen «Portal» (administración y eventos); el **contrato** (con los documentos de identidad), quienes tienen «Portal»; el **presupuesto y los pagos**, quienes tienen «Presupuesto» (eventos, compras, contabilidad); **teléfono, correo, notas y «cómo nos conoció»** de la ficha, quienes tienen «Ficha y contacto» o «Portal»; la **Previsión de banquetes**, quienes tienen «Previsión»; las **comunicaciones** con el cliente, quienes tienen «Comunicación» (de fábrica, solo administración). Quien no tiene el portal sí sabe si está activo.
+  - **Lo que no es de tu rol, no se escribe.** Aunque alguien se salte la pantalla y mande el documento a mano, lo que mande de esas partes se ignora y se conserva lo guardado; un evento nuevo de un rol sin esas puertas no puede traer presupuesto, contrato ni portal. Con el enlace del cliente ya no se puede escribir «como si fueras él»: quien no gestiona el portal nunca llega a verlo.
+  - **Lo que sí es de tu rol sigue igual:** cocina sigue editando menú, alergias y escaleta; servicio, montaje y camareros; compras, el presupuesto; etc. La app deja de recalcular, en los navegadores de quien no ve el presupuesto o el portal, las cifras derivadas que viajan con el evento (importes del resumen semanal y de los recordatorios, y la «foto» del portal), y de sincronizar la Previsión (rompería los enlaces de los demás): se refrescan cuando las abre alguien que sí las ve.
+- **Lo que NO he cambiado, a propósito:** la matriz de permisos es la de siempre («Comunicación» solo para administración, eventos sin «Inventario»…): dime si quieres otra y se cambia en Equipo y accesos, ya con efecto en el servidor. `/api/propuestas` (listas de invitados enviadas por los clientes) ya era solo para administración y eventos desde la 01.98 y sigue devolviendo el identificador del enlace, que esos dos roles ya ven en el evento; quitarlo no añadiría seguridad.
+- **Con esto queda cerrada la Fase A.** Siguiente en el orden recomendado: Fase B (seguridad alimentaria y cuadre de cocina).
 
 ### Novedad de la versión 02.01
 - **Fase A del plan de la revisión, segunda parte: RGPD completo** (Parámetros → Privacidad y datos).

@@ -537,7 +537,9 @@ async function storeGet(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
   const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
-  const data = row && row.data ? row.data : JSON.stringify({ events: [], active: null, prefs: {} });
+  let data = row && row.data ? row.data : JSON.stringify({ events: [], active: null, prefs: {} });
+  const v = await vetosDe(env, s.role);
+  if (v) { try { data = JSON.stringify(recortaDoc(JSON.parse(data), v)); } catch (_) {} }
   return new Response(data, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", "X-Store-Version": String((row && row.updated) || 0) } });
 }
 
@@ -546,6 +548,73 @@ async function storeGet(request, env) {
    · por encima de ~1,9 MB no se acepta un guardado que haga crecer el documento (los que lo reducen sí: así se puede limpiar) y se dice por qué;
    · a partir de 1,4 MB cada guardado avisa de que se acerca el límite;
    · solo entran las claves que la app usa (una clave inventada ya no se queda para siempre) y cada evento tiene que traer un identificador. */
+/* v02.02 · PERMISOS REALES POR ROL. Cada rol ve unas pantallas (la matriz de abajo, la misma que usa la app y que el administrador puede cambiar en
+   Equipo y accesos); ahora el servidor también lo aplica con el documento: a quien no tiene la pantalla que lo gestiona NO se le envía y,
+   aunque lo intente con una petición a mano, NO se le deja escribirlo (lo que mande de esas partes se ignora y se conserva lo guardado):
+   · portal (enlace privado del cliente, lo que ve en su portal) y contrato (documentos de identidad) → quien tenga «portal»;
+   · presupuesto, pagos y lo derivado (_snap) → quien tenga «presup»;
+   · comunicaciones con el cliente → quien tenga «comm»; teléfono, correo, notas… de la ficha → «crm» o «portal»;
+   · Previsión de banquetes → «prev». */
+const ROLES_DEF = {
+  eventos: ["resumen", "crm", "timeline", "tareas", "presup", "hist", "plan", "list", "card", "seat", "montaje", "m-sel", "m-prod", "m-compra", "pedidos", "m-aler", "m-serv", "m-bebida", "m-esc", "m-card", "cam", "cam-rep", "cam-horas", "cierre", "avisos", "portal", "fotos", "docs", "prev", "consultas"],
+  cocina: ["resumen", "m-sel", "m-prod", "m-aler", "m-serv", "m-esc", "inv", "docs"],
+  compras: ["resumen", "m-compra", "pedidos", "prov", "presup", "inv", "docs"],
+  contabilidad: ["resumen", "crm", "presup", "prov", "pedidos", "cam-horas", "cierre", "prev", "docs"],
+  servicio: ["resumen", "cam", "cam-rep", "cam-horas", "m-serv", "m-esc", "plan", "list", "montaje", "docs"],
+};
+const SEC_NUEVAS = ["cam-horas", "cierre", "avisos", "portal", "pedidos", "consultas", "presup", "seat"];   /* igual que en la app: llegan solas a quien las tiene de fábrica */
+const PUERTAS = [
+  { sec: ["portal"], ev: ["share", "contrato"] },
+  { sec: ["presup"], ev: ["presupuesto", "_snap"] },
+  { sec: ["comm"], ev: ["comunicaciones"] },
+  { sec: ["crm", "portal"], ficha: ["contacto", "telefono", "email", "origen", "comoNos", "notas", "foto"] },
+  { sec: ["prev"], top: ["prevision"] },
+];
+let ROLES_CACHE = { m: null, t: 0 };
+async function rolesGuardados(env) {
+  const ahora = Date.now();
+  if (ahora - ROLES_CACHE.t < 20e3) return ROLES_CACHE.m;
+  let m = null;
+  try { await ensureUsers(env); const r = await env.DB.prepare("SELECT v FROM meta WHERE k='roles'").first(); if (r) m = JSON.parse(r.v); } catch (_) {}
+  ROLES_CACHE = { m, t: ahora };
+  return m;
+}
+async function seccionesDe(env, role) {
+  const def = ROLES_DEF[role] || [], m = await rolesGuardados(env), o = m && Array.isArray(m[role]) ? m[role] : null;
+  if (!o) return def;
+  const lista = o.indexOf("resumen") < 0 ? ["resumen"].concat(o) : o.slice(), known = Array.isArray(m._known) ? m._known : [];
+  SEC_NUEVAS.forEach((sx) => { if (known.indexOf(sx) < 0 && def.indexOf(sx) >= 0 && lista.indexOf(sx) < 0) lista.push(sx); });
+  return lista;
+}
+/* lo que NO puede tener un rol: null = nada vetado (administrador y quien tiene todas las puertas) */
+async function vetosDe(env, role) {
+  if (role === "admin") return null;
+  const secs = await seccionesDe(env, role), v = { ev: [], ficha: [], top: [] };
+  PUERTAS.forEach((g) => { if (g.sec.some((x) => secs.indexOf(x) >= 0)) return; (g.ev || []).forEach((k) => v.ev.push(k)); (g.ficha || []).forEach((k) => v.ficha.push(k)); (g.top || []).forEach((k) => v.top.push(k)); });
+  return v.ev.length || v.ficha.length || v.top.length ? v : null;
+}
+function recortaDoc(doc, v) {
+  (doc.events || []).forEach((e) => {
+    if (!e || typeof e !== "object") return;
+    v.ev.forEach((k) => { if (k === "share") { if (e.share) e.share = { on: !!e.share.on, id: "" }; } else delete e[k]; });
+    if (e.ficha && typeof e.ficha === "object") v.ficha.forEach((k) => { delete e.ficha[k]; });
+  });
+  v.top.forEach((k) => { delete doc[k]; });
+  return doc;
+}
+/* lo que llega de un rol con vetos: de las partes vetadas se conserva lo guardado (nunca lo que mande) */
+function restauraVetos(prev, inc, v) {
+  const out = Object.assign({}, inc), pe = {};
+  (prev.events || []).forEach((e) => { if (e && e.id != null) pe[e.id] = e; });
+  v.top.forEach((k) => { if (prev[k] !== undefined) out[k] = prev[k]; else delete out[k]; });
+  out.events = (inc.events || []).map((e) => {
+    const p = pe[e.id], c = Object.assign({}, e);
+    v.ev.forEach((k) => { if (p && p[k] !== undefined) c[k] = p[k]; else delete c[k]; });
+    if (v.ficha.length) { c.ficha = Object.assign({}, c.ficha && typeof c.ficha === "object" ? c.ficha : {}); v.ficha.forEach((k) => { if (p && p.ficha && p.ficha[k] !== undefined) c.ficha[k] = p.ficha[k]; else delete c.ficha[k]; }); }
+    return c;
+  });
+  return out;
+}
 const STORE_MAX = 1900000, STORE_AVISO = 1400000, STORE_PET_MAX = 6e6;
 const DOC_CLAVES = ["events", "active", "prefs", "borrados", "inventario", "invExtra", "camareros", "compras", "prevision", "params", "fotos"];
 const DOC_OBJETOS = ["prefs", "borrados", "inventario", "invExtra", "camareros", "compras", "prevision", "params", "fotos"];
@@ -586,11 +655,12 @@ async function storePut(request, env) {
     if (e._k && typeof e._k === "object") Object.keys(e._k).forEach((k) => { const t = +e._k[k]; if (!(t > 0)) delete e._k[k]; else if (t > ya + 600e3) e._k[k] = ya; });
     else if (e._k !== undefined) delete e._k;
   });
+  const vetos = await vetosDe(env, s.role);
   for (let intento = 0; intento < 6; intento++) {
     const row = await env.DB.prepare("SELECT data, updated FROM store WHERE id=1").first();
     let prev = {}; try { prev = JSON.parse((row && row.data) || "{}") || {}; } catch (_) { prev = {}; }
     const antes = row ? (+row.updated || 0) : 0;
-    const merged = mergeDoc(prev, incoming, s.role === "admin", tbs);
+    const merged = mergeDoc(prev, vetos ? restauraVetos(prev, incoming, vetos) : incoming, s.role === "admin", tbs);
     kPoda(merged, Date.now());
     const out = JSON.stringify(merged);
     const bytes = enc.encode(out).length;
@@ -3214,6 +3284,7 @@ async function rolesPut(request, env) {
   const a = await usersAdmin(request, env); if (a.err) return a.err;
   await ensureUsers(env);
   const b = await body(request);
+  ROLES_CACHE = { m: null, t: 0 };
   if (b.roles == null) { await env.DB.prepare("DELETE FROM meta WHERE k='roles'").run(); await logAct(env, a.s, "roles_cambiados", "Vuelven los permisos de fábrica"); return json({ ok: true }); }
   const out = {};
   Object.keys(b.roles || {}).forEach((r) => {
@@ -3224,6 +3295,7 @@ async function rolesPut(request, env) {
   /* las secciones que existían cuando se guardaron los permisos: las que se añadan después llegan solas a quien las tiene de fábrica */
   if (Array.isArray(b.known)) out._known = b.known.map(String).filter((k) => /^[a-z0-9-]{1,30}$/.test(k)).slice(0, 200);
   await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('roles', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(out)).run();
+  ROLES_CACHE = { m: out, t: Date.now() };
   await logAct(env, a.s, "roles_cambiados", Object.keys(out).filter((r) => r !== "_known").map((r) => rolTxt(r) + ": " + out[r].length + " secciones").join(" · "));
   return json({ ok: true, roles: out });
 }
