@@ -890,12 +890,15 @@ code{font:500 12.5px ui-monospace,Menlo,Consolas,monospace;background:var(--rais
   .doc{padding:22px 18px}
   .doc .doc-t{font-size:28px}
   .doc-g{grid-template-columns:1fr}
+  .doc-g>*{min-width:0}
+  .doc-c.wide ul{columns:1}
+  .edtb>.btn.pri{order:-1}
   .doc.cards{grid-template-columns:1fr;padding:12px}
 }
 </style>
 <style>
 /* ═════ diseñador de papel (seatings y minutas) ═════ */
-.dzpage{display:grid;grid-template-columns:minmax(0,1fr) 350px;min-height:0}
+.dzpage{display:grid;grid-template-columns:minmax(0,1fr) 384px;min-height:0}
 .dzmain{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
 .dztop{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:14px 16px 4px}
 .dztop .h2{font-size:22px}
@@ -935,7 +938,7 @@ code{font:500 12.5px ui-monospace,Menlo,Consolas,monospace;background:var(--rais
 .hintc{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);background:var(--ink);color:var(--panel);font-size:13px;padding:7px 12px;border-radius:999px;white-space:nowrap;animation:rise .5s var(--ease-out) .6s backwards;pointer-events:none}
 .dzpanel{border-left:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0;min-width:0}
 .dztabs{margin:14px 14px 0;flex:none;overflow-x:auto;scrollbar-width:none}
-.dztabs button{padding:0 9px;font-size:13px;flex:1 0 auto}
+.dztabs button{padding:0 8px;font-size:13px;flex:1 0 auto}
 .dzbody{flex:1;min-height:0;overflow:auto;padding:16px 14px 24px;overscroll-behavior:contain}
 .thumbs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
 .thumb{display:flex;flex-direction:column;gap:6px;align-items:stretch;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--field);text-align:left;font-size:13px;transition:border-color .2s,transform .2s var(--ease-out),box-shadow .2s;container-type:inline-size}
