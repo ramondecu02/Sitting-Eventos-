@@ -56,6 +56,7 @@ export const hecho = [
   'Botón «Nombre completo | Solo nombre» en el plano, el listado y los marcasitios (pantalla y PDF): solo el nombre de pila, con compuestos enteros (Maria Carmen, Josep Maria) y la inicial del apellido si hay dos iguales en la mesa · v01.94',
   'Minutas: el Michelin de la estrella verde se sustituye por el Michelin nuevo (trébol rojo con corazón) y se mantienen el 2 Soles Guía Repsol y el Sol Sostenible; catálogo, plantillas y formatos antiguos actualizados, y las minutas ya hechas se arreglan solas · v01.96',
   'Revisión completa (8 auditorías): alergias de quien solo viene al aperitivo en los avisos, parser más fiable (cuñado, «sin alergias», mesas con nombre de forma), PDF sin «?» ni alergias recortadas, modo oscuro, teclado y zoom, permisos de pantalla y datos que no quedan en el navegador al salir · v01.97',
+  'Segunda tanda de la revisión: el portal solo dice «enviado» si se ha guardado, duplicar evento sin datos del cliente, borrar mesa limpia su montaje, consulta → evento con contacto, euros e importes a la española en toda la app, presupuesto PDF en A4 con señal, dinero oculto a cocina y servicio, aviso de sesión caducada en cualquier pantalla · v01.98',
 ];
 
 export const decisiones = [

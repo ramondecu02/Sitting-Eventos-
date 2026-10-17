@@ -19,9 +19,15 @@ Revisión de toda la aplicación con **8 agentes de auditoría en paralelo**, ca
 
 ---
 
-## 1. Ya corregido (versión 01.97)
+## 1. Ya corregido (versiones 01.97 y 01.98)
 
-Ver «Novedad de la versión 01.97» en `ROADMAP.md`. Resumen: alergias de quien solo viene al aperitivo en todos los avisos · lista de alergias con comas · «cuñado», «Menéndez», «sin alergias», mesas «Directivos» / «Família Rodó» · PDF sin «?» y sin alergias recortadas, con la dieta junto a la alergia · Supr y Ctrl+Z solo en el plano · «faltan N días» con el cambio de hora · modo oscuro en Coordinación, Estado y diseñador · teclado (el editor del plano ya no estorba) · zoom permitido · avisos del móvil · icono de Servicio en directo · permisos de pantalla (portal, Borrar, atajos vetados) · cerrar sesión limpia el documento del dispositivo · servidor: 400 en vez de 500, fecha de modificación acotada.
+Ver «Novedad de la versión 01.97» y «Novedad de la versión 01.98» en `ROADMAP.md`. Resumen:
+
+**01.97** — alergias de quien solo viene al aperitivo en todos los avisos · lista de alergias con comas · «cuñado», «Menéndez», «sin alergias», mesas «Directivos» / «Família Rodó» · PDF sin «?» y sin alergias recortadas, con la dieta junto a la alergia · Supr y Ctrl+Z solo en el plano · «faltan N días» con el cambio de hora · modo oscuro en Coordinación, Estado y diseñador · teclado (el editor del plano ya no estorba) · zoom permitido · avisos del móvil · icono de Servicio en directo · permisos de pantalla (portal, Borrar, atajos vetados) · cerrar sesión limpia el documento del dispositivo · servidor: 400 en vez de 500, fecha de modificación acotada.
+
+**01.98** — portal que solo confirma lo guardado (envío de lista, archivos, justificantes con importe a la española, minuta a tamaño completo) · duplicar evento sin datos del cliente · borrar mesa limpia geometría y montaje · consulta web → evento con contacto y mensaje · euros y números a la española en toda la app (Cierre, Pedidos, Documentos, señal «1.000») · presupuesto PDF en A4, con señal, sin notas internas ni líneas a 0 · deshacer al quitar pagos y extras, sin «Primer pago» duplicado · avisos coherentes con el estado del evento y con `alta` · camareros quitados de la agenda · contrato con dos firmantes «aceptado» solo si firman los dos · dinero oculto a cocina y servicio · aviso de sesión caducada o rol cambiado en cualquier pantalla · plurales («1 mesa», «1 ud») · listado impreso con «solo aperitivo» y etiquetas con «+N» · `/api/propuestas` solo administración y eventos · importes y saludos de los correos · plano impreso con «+N» en vez de recortar alergias · nombres de pila con partículas · importar «Maria + Pere» como dos comensales · vaciar la fecha de un evento (ya no reaparece) · exportar sin invitados avisa.
+
+**Lo que NO he tocado a propósito:** las erratas del contrato (decisión tuya, punto 32), las reglas de redondeo y de cuenta entre pantallas (decisión tuya, punto 9) y todo lo que cambia la estructura (permisos en el servidor, sesiones, portal con identificadores por persona…): están en el plan de abajo, esperando tu confirmación.
 
 ---
 
@@ -35,7 +41,7 @@ Ordenado por importancia. **E** = esfuerzo (S pequeño, M medio, L grande); **R*
 2. **Sesiones de verdad.** Cerrar sesión o cambiar la contraseña invalida la sesión en el servidor (hoy la cookie sigue valiendo 14 días); contraseña temporal obligatoria también en el servidor; cierre por inactividad en el servidor; bloqueo del login por IP además de por correo (hoy cualquiera puede bloquear al administrador con 5 intentos); respuesta única ante usuario inexistente. *E: M · R: bajo.*
 3. **Tope y orden en el documento.** El servidor acepta documentos de cualquier tamaño y claves inventadas que luego no se pueden quitar; en D1 real, pasar de ~1-2 MB haría fallar todos los guardados. Propuesta: rechazo suave por encima de ~1,5 MB, claves conocidas, id de texto en cada evento, archivar eventos antiguos. *E: M · R: bajo.*
 4. **RGPD completo.** «Quitar a una persona» deja teléfono, notas, DNI, título del evento y el portal activo; el correo de una consulta borrada sigue en la bandeja hasta 180 días; el registro de actividad guarda correos; las copias manuales no caducan. Propuesta: borrar de verdad en todas las tablas, mostrar «qué queda», lista blanca al anonimizar, purgas diarias. *E: M · R: medio.*
-5. **Duplicar evento sin datos del cliente** (contrato firmado, DNI, aprobaciones, contacto): la copia conserva todo eso y, al activar su portal, lo enseña. *E: S · R: bajo.* (Entra en la siguiente tanda de arreglos.)
+5. ~~**Duplicar evento sin datos del cliente**~~ ✅ hecho en la 01.98.
 
 ### Fase B · Seguridad alimentaria y cuadre de cocina
 
@@ -55,7 +61,7 @@ Ordenado por importancia. **E** = esfuerzo (S pequeño, M medio, L grande); **R*
 
 ### Fase D · Portal del cliente y comunicaciones
 
-16. **Confirmaciones que no mientan.** El portal dice «Lista enviada» o «Recibido. Gracias.» aunque no se haya guardado nada (error de red, PDF de más de 600 KB, archivo no permitido). Propuesta: éxito solo si el servidor lo confirma, reintento al volver la conexión, «Sin guardar» visible, mensajes siempre en castellano. *E: S–M · R: bajo.* **Es el primero que haría de esta fase.**
+16. **Confirmaciones que no mientan.** ✅ Lo esencial está hecho en la 01.98 (el portal solo dice «enviado» o «recibido» si el servidor lo ha guardado). Queda: reintento al volver la conexión, «Sin guardar» visible y mensajes siempre en castellano. *E: S · R: bajo.*
 17. **Lista de invitados del cliente con identificador por persona y fusión.** Dos móviles con el mismo enlace se pisan (gana el último sin aviso); corregir una errata renombra a la persona y le pierde el `*`, el plato sustitutivo y su sitio; la × de una mesa del portal borra la mesa en el plano en 1 segundo. Propuesta: id estable por persona, fusión, y que el plano solo cambie al pulsar «Enviar» (con revisión de lo que se borra o renombra). *E: M–L · R: medio-alto.* **Decisión tuya:** ¿pasar al plano solo al «Enviar» y no cada vez que teclean?
 18. **Estados coherentes entre pantallas**: contrato con 2 firmantes y 1 firma sale «aceptado» en Avisos, Resumen y Portal; menú «aprobado» aunque haya cambiado; el paso «lista» significa a la vez «enviar el documento» y «recibir su lista» (el cron les pide la lista que ya enviaron); la minuta publicada es una imagen fija que no avisa de que cambió. *E: M · R: medio.*
 19. **Confirmar justificante → registrar el pago**; avisos por correo en ambos sentidos (equipo avisado cuando el cliente escribe o firma, cliente avisado cuando se le contesta); un solo IBAN/correo/concepto (portal, correo y contrato muestran cuentas distintas); saludo con nombres de pila («Hola Marta y Jordi»); importes siempre «4.660,00 €» y sin duplicar («pago de 1485 € («Primer pago… 1.485,00 €»)»). *E: M · R: bajo.*

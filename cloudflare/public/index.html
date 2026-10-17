@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.97 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.98 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.97".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.98".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4349,6 +4349,12 @@ html.cne-abierto{overflow:hidden}
   .alg-t{padding-block:7px}
   .rt-sort{padding-block:8px}
 }
+/* v01.98 · móvil apaisado (≤480 px de alto): el pie de la barra lateral ocupaba casi toda la pantalla y dejaba la lista de pantallas en una franja de 30 px */
+@media (max-height:480px) and (min-width:761px){
+  .side-foot{flex-direction:row; flex-wrap:wrap; align-items:center; gap:2px 14px; padding:6px 14px}
+  .side-foot .saveind{flex:1 0 100%}
+  .side-foot .side-ver{display:none}
+}
 /*V3-END*/
 </style>
 
@@ -4361,7 +4367,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.97</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.98</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4883,17 +4889,19 @@ var $=function(id){return document.getElementById(id);};
 
 /* ══ idiomas ════════════════════════════════════════════════════════ */
 var I18N={
- ca:{plan:"Plànol de la sala",list:"Distribució per taules",taula:"Taula",pax:"persones",comensals:"comensals",taules:"taules",nens:"nens",nadons:"nadons",cont:"continuació",
+ ca:{plan:"Plànol de la sala",list:"Distribució per taules",taula:"Taula",pax:"persones",comensals:"comensals",taules:"taules",nens:"nens",nadons:"nadons",comensal1:"comensal",taula1:"taula",nen1:"nen",nadó1:"nadó",cont:"continuació",
      aler:"Al·lèrgies i intoleràncies",alerDieta:"al·lèrgies i dietes",noAler:"Cap al·lèrgia registrada",aper:"Aperitius adaptats",thanks:"Gràcies per acompanyar-nos en aquest dia tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Rodona",rect:"Rectangular",presid:"Presidencial",square:"Quadrada",oval:"Ovalada"},
-     leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",staff:"Staff",aler:"Al·lèrgia / intolerància",veg:"Vegetarià",vegan:"Vegà",preg:"Embarassada",star:"Protagonistes"}},
- es:{plan:"Plano de la sala",list:"Distribución por mesas",taula:"Mesa",pax:"personas",comensals:"comensales",taules:"mesas",nens:"niños",nadons:"bebés",cont:"continuación",
+     leg:{adult:"Adult",child:"Menú infantil",baby:"Nadó amb trona",staff:"Staff",aler:"Al·lèrgia / intolerància",veg:"Vegetarià",vegan:"Vegà",preg:"Embarassada",star:"Protagonistes",aper:"Només aperitiu"}},
+ es:{plan:"Plano de la sala",list:"Distribución por mesas",taula:"Mesa",pax:"personas",comensals:"comensales",taules:"mesas",nens:"niños",nadons:"bebés",comensal1:"comensal",taula1:"mesa",nen1:"niño",nadó1:"bebé",cont:"continuación",
      aler:"Alergias e intolerancias",alerDieta:"alergias y dietas",noAler:"Ninguna alergia registrada",aper:"Aperitivos adaptados",thanks:"Gracias por acompañarnos en un día tan especial",
      interior:"Interior",exterior:"Exterior",
      shapes:{round:"Redonda",rect:"Rectangular",presid:"Presidencial",square:"Cuadrada",oval:"Ovalada"},
-     leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",staff:"Staff",aler:"Alergia / intolerancia",veg:"Vegetariano",vegan:"Vegano",preg:"Embarazada",star:"Protagonistas"}}
+     leg:{adult:"Adulto",child:"Menú infantil",baby:"Bebé con trona",staff:"Staff",aler:"Alergia / intolerancia",veg:"Vegetariano",vegan:"Vegano",preg:"Embarazada",star:"Protagonistas",aper:"Solo aperitivo"}}
 };
+/* «1 mesa» / «5 mesas»: el recuento de las cabeceras de los documentos */
+function lPl(n,L,k,k1){ return n+" "+(n===1&&L[k1]?L[k1]:L[k]); }
 var COL={adult:{f:"#FFFDF8",s:"#8C8477"},child:{f:"#E7CF9F",s:"#B99A55"},baby:{f:"#A9803F",s:"#7E5F2B"},
          aler:{f:"#8E2C48",s:"#6E1F37"},veg:{f:"#5E9A3F",s:"#3F6E27"},vegan:{f:"#127D6B",s:"#0C5A4D"},
          staff:{f:"#5B6B87",s:"#3E4A63"},star:"#6E7D50"};
@@ -5538,15 +5546,15 @@ function mesaTxt(t,L){ return mesaNumVisible(t)?((L&&L.taula)||"Mesa")+" "+t.num
 function mesaMark(t){ return mesaNumVisible(t)?String(t.num):(norm(t.name||"P").replace(/^[^a-z0-9]+/,"").charAt(0)||"·").toUpperCase(); }
 /* el nombre de pila de un invitado, sin apellidos: «Joan Puig» → «Joan»; «Maria Carmen Soler» → «Maria Carmen»;
    «Maria del Carmen López» → «Maria del Carmen»; «García López, Juan» → «Juan» */
-var NP_JUNTOS={maria:1,mari:1,"ma":1,"mª":1,jose:1,josep:1,joan:1,juan:1,luis:1,ana:1,anna:1,pere:1,miguel:1,miquel:1,carlos:1,carles:1,francisco:1,antonio:1,antoni:1,manuel:1,jesus:1,rosa:1};
-var NP_SEGUNDO={maria:1,jose:1,josep:1,joan:1,juan:1,luis:1,lluis:1,carlos:1,carles:1,carmen:1,carme:1,teresa:1,antonio:1,antoni:1,manuel:1,miguel:1,miquel:1,angel:1,angels:1,pau:1,pilar:1,isabel:1,francisco:1,javier:1,ramon:1,pedro:1,pere:1,jesus:1,rosa:1,dolores:1,lola:1,mercedes:1,cristina:1,victoria:1,concepcion:1,asuncion:1,montserrat:1,mar:1,nuria:1,ines:1};
+var NP_JUNTOS={maria:1,mari:1,"ma":1,"mª":1,m:1,jose:1,josep:1,joan:1,juan:1,luis:1,ana:1,anna:1,pere:1,miguel:1,miquel:1,carlos:1,carles:1,francisco:1,antonio:1,antoni:1,manuel:1,jesus:1,rosa:1};
+var NP_SEGUNDO={maria:1,jose:1,josep:1,joan:1,juan:1,luis:1,lluis:1,carlos:1,carles:1,carmen:1,carme:1,teresa:1,antonio:1,antoni:1,manuel:1,miguel:1,miquel:1,angel:1,angels:1,pau:1,pilar:1,isabel:1,francisco:1,javier:1,ramon:1,pedro:1,pere:1,jesus:1,rosa:1,dolores:1,lola:1,mercedes:1,cristina:1,victoria:1,concepcion:1,asuncion:1,montserrat:1,mar:1,nuria:1,ines:1,merce:1,lluisa:1,luisa:1,angeles:1,dolors:1,cinta:1,elena:1,rosario:1,assumpta:1,immaculada:1,concepcio:1,roser:1,nati:1,natividad:1,encarnacion:1,soledad:1,fatima:1,amparo:1,remedios:1,consuelo:1,esperanza:1};
 function nombrePila(nombre){
   var t=String(nombre||"").trim(), c=t.indexOf(",");
   if(c>0&&t.slice(c+1).trim()) t=t.slice(c+1).trim();      /* «Apellidos, Nombre» */
   var p=t.split(/\s+/); if(p.length<2) return p[0]||"";
   var a=norm(p[0]).replace(/\./g,""), b=norm(p[1]);
   if(NP_JUNTOS[a]){
-    if((b==="del"||b==="de")&&p.length>2){ if(norm(p[2])==="la"&&p.length>3) return p.slice(0,4).join(" "); return p.slice(0,3).join(" "); }
+    if((b==="del"||b==="de"||b==="dels"||b==="des")&&p.length>2){ if(/^(la|las|los|les|l')$/.test(norm(p[2]))&&p.length>3) return p.slice(0,4).join(" "); return p.slice(0,3).join(" "); }
     if(NP_SEGUNDO[b]) return p[0]+" "+p[1];
   }
   return p[0];
@@ -5638,7 +5646,15 @@ function seatItems(g,tnum,idx,x,y,sx,sy,lx,ly,anchor,alerBelow,full,halfGap){
   function recorta(txt,charLim){
     return halfGap?clipW(txt.toUpperCase(),anchor==="middle"?2*halfGap:halfGap,"sansb",7.6,.2):clip(txt,charLim).toUpperCase();
   }
-  if(g.aler.length) it.push(TX(lx,alerBelow?ly+9:ly-9,recorta(g.aler.join(" · "),anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:alc,ls:.2}));
+  /* nunca se recorta una alergia en silencio: si no caben todas, salen las que caben y «+N» con las que faltan */
+  function etiquetaAler(arr,charLim){
+    var full=arr.join(" · ");
+    function cabe(t){ return halfGap?textW({s:t.toUpperCase(),fo:"sansb",size:7.6,ls:.2})<=(anchor==="middle"?2*halfGap:halfGap):t.length<=charLim; }
+    if(cabe(full)) return full.toUpperCase();
+    for(var n=arr.length-1;n>=1;n--){ var t=arr.slice(0,n).join(" · ")+" +"+(arr.length-n); if(cabe(t)) return t.toUpperCase(); }
+    return arr.length>1?recorta(arr[0],charLim)+" +"+(arr.length-1):recorta(arr[0],charLim);
+  }
+  if(g.aler.length) it.push(TX(lx,alerBelow?ly+9:ly-9,etiquetaAler(g.aler,anchor==="middle"?13:20),{size:7.6,fo:"sansb",a:anchor,c:alc,ls:.2}));
   /* los platos (primero/segundo/tercero/postre) ya NO salen en el sitting: recargaban
      el plano y lo que de verdad se consulta aquí es la alergia. Los platos, con
      su color por tiempo, salen en el LISTADO por mesas (petición de Ramon). */
@@ -6521,7 +6537,9 @@ function textoSinConexion(){
   return t.length?"Sin conexión · "+t.join(" y ")+" sin subir (se subirán solos)":"Sin conexión · todo está guardado en este dispositivo";
 }
 var SAVE_TXT={ok:"Guardado",saving:"Guardando…",local:"Guardado en este dispositivo",off:"Sin conexión · guardado aquí, se subirá solo"};
-function setSaveState(st){ var el=$("saveind"); if(!el) return; el.setAttribute("data-st",st); var sp=el.querySelector("span"); if(sp) sp.textContent=st==="off"?textoSinConexion():(SAVE_TXT[st]||"");
+/* por qué no se sube: "auth" (sesión caducada), "srv" (el servidor no lo acepta) o "" (sin red). El indicador de la barra lateral lo dice en cualquier pantalla */
+var remoteWhy="";
+function setSaveState(st){ var el=$("saveind"); if(!el) return; el.setAttribute("data-st",st); var sp=el.querySelector("span"); if(sp) sp.textContent=st==="off"?(remoteWhy==="auth"?"Sesión caducada · recarga y entra de nuevo":remoteWhy==="srv"?"El servidor no acepta los cambios · guardados aquí":textoSinConexion()):(SAVE_TXT[st]||"");
   el.title=st==="ok"?"Los cambios están guardados en el servidor de Les Moles y los ve todo el equipo.":st==="local"?"Sin servidor: los cambios se guardan en este navegador.":st==="off"?"No hay conexión con el servidor. Los cambios están a salvo en este navegador y se subirán solos.":""; }
 window.addEventListener("online",function(){ if(remoteFail) pushRemote(); });
 window.addEventListener("offline",function(){ if(hayServidor()){ remoteFail=true; setSaveState("off"); } });
@@ -6561,6 +6579,7 @@ function pushRemote(){
       if(r.status===401){ var e401=new Error("401"); e401.auth=true; throw e401; }
       if(!r.ok) throw new Error("http "+r.status);
       if(remoteFail){ remoteFail=false; flagRemote(null); }
+      remoteWhy="";
       setSaveState("ok");
       /* lo enviado ya está en el servidor (salvo lo que se haya vuelto a tocar mientras tanto) */
       Object.keys(subiendo).forEach(function(id){ if(DIRTY[id]===subiendo[id]) delete DIRTY[id]; }); guardarDirty();
@@ -6575,10 +6594,13 @@ function pushRemote(){
       if(j&&j.v){ var otros=j.otros; srvV=j.v; if(otros) setTimeout(function(){ hydrateFromServer(); },50); }
     })
     .catch(function(err){
+      var antes=remoteWhy;
+      remoteWhy=(err&&err.auth)?"auth":(err&&/^http \d+/.test(err.message||"")?"srv":"");
       remoteFail=true; setSaveState("off");
       /* solo se avisa en grande si hay que hacer algo (volver a entrar); si es
          la conexión, basta el indicador: se reintenta solo cada 20 s */
-      if(err&&err.auth) flagRemote("La sesión ha caducado: recarga la página y vuelve a entrar. Tus cambios siguen a salvo en este navegador.");
+      if(err&&err.auth){ flagRemote("La sesión ha caducado: recarga la página y vuelve a entrar. Tus cambios siguen a salvo en este navegador.");
+        if(antes!=="auth") toast("La sesión ha caducado: recarga la página y vuelve a entrar. Tus cambios siguen a salvo en este navegador.",true); }
       clearTimeout(retryTimer); retryTimer=setTimeout(pushRemote,20000);
     })
     .finally(function(){
@@ -6740,6 +6762,7 @@ function undo(){
   var st=JSON.parse(undoStack.pop()), e=current();
   if(st.id&&st.id!==e.id){ undoStack=[]; refreshUndo(); toast("El deshacer era de otro evento; se ha descartado.",true); return; }
   e.text=st.text; e.plans=st.plans; e.loc=st.loc; if(st.mesaGeo) e.mesaGeo=st.mesaGeo; else delete e.mesaGeo;
+  if(st.mm){ e.montaje=e.montaje&&typeof e.montaje==="object"?e.montaje:{}; e.montaje.mesas=e.montaje.mesas||{}; e.montaje.mesas[st.mm.n]=st.mm.v; }
   $("src").value=e.text; prevText=e.text; sel=null; fillSelect(); render(); save(); refreshUndo();
   toast("Deshecho.");
 }
@@ -6778,6 +6801,12 @@ function dateISOFromTitle(text){
 }
 /* reescribe (o añade) la fecha en la línea de título del sitting, dejando el
    resto del nombre igual. Devuelve el texto nuevo. */
+/* vaciar la fecha en la ficha: también se quita del título y de la línea «@» (si no, al recargar volvía a leerse sola) */
+function quitaFechaTexto(text){
+  var DRX=/\s*\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\s*\d{4}-\d{1,2}-\d{1,2}/g;
+  return String(text||"").split("\n").map(function(l){
+    return /^[#@]/.test(l)?l.replace(DRX,"").replace(/[\s·|,\-–—]+$/,"").replace(/^@[\s·|,\-–—]+/,"@ "):l; }).join("\n");
+}
 function setTitleDate(text,iso){
   var dmy=dmyFromISO(iso); if(!dmy) return text;
   var lines=(text||"").split(/\n/), done=false, DRX=/\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2}/;
@@ -7056,9 +7085,9 @@ function planPrims(L,full,forExport){
       lx+=it.w+gap;
     });
   });
-  var bits=[T.pax+" "+L.comensals,T.tables+" "+L.taules];
-  if(T.child)bits.push(T.child+" "+L.nens);
-  if(T.baby)bits.push(T.baby+" "+L.nadons);
+  var bits=[lPl(T.pax,L,"comensals","comensal1"),lPl(T.tables,L,"taules","taula1")];
+  if(T.child)bits.push(lPl(T.child,L,"nens","nen1"));
+  if(T.baby)bits.push(lPl(T.baby,L,"nadons","nadó1"));
   if(T.espec)bits.push(T.espec+" "+L.alerDieta);
   bits.push(L[loc()]);
   list.push(TX(RW/2,RH-22,bits.join("  ·  ").toUpperCase(),{size:9.5,fo:"sans",a:"middle",c:FADE,ls:2}));
@@ -7420,9 +7449,9 @@ function head(eyebrow,title,sub,meta){
     (sub?'<div class="doc-sub">'+esc(sub)+'</div>':'')+'<div class="orn"></div><div class="doc-meta">'+meta+'</div></header>';
 }
 function metaLine(T,L){
-  var b=[T.pax+" "+L.comensals,T.tables+" "+L.taules];
-  if(T.child)b.push(T.child+" "+L.nens);
-  if(T.baby)b.push(T.baby+" "+L.nadons);
+  var b=[lPl(T.pax,L,"comensals","comensal1"),lPl(T.tables,L,"taules","taula1")];
+  if(T.child)b.push(lPl(T.child,L,"nens","nen1"));
+  if(T.baby)b.push(lPl(T.baby,L,"nadons","nadó1"));
   if(T.espec)b.push(T.espec+" "+L.alerDieta);
   if(T.soloAper)b.push(T.soloAper+" solo aperitivo");
   return esc(b.join("  ·  "));
@@ -7545,9 +7574,9 @@ function listPages(L,pw,ph){
   cur.push(TX(pw/2,y,(doc.title||L.list).replace(/_/g,""),{size:26,fo:"ser",a:"middle",c:INK})); y+=18;
   if(doc.sub){ cur.push(TX(pw/2,y,doc.sub,{size:12,fo:"seri",a:"middle",c:SOFT})); y+=14; }
   cur.push(LN(pw/2-70,y,pw/2+70,y,"#D8C8A8",0.7)); y+=12;
-  var meta=[T.pax+" "+L.comensals,T.tables+" "+L.taules];
-  if(T.child)meta.push(T.child+" "+L.nens);
-  if(T.baby)meta.push(T.baby+" "+L.nadons);
+  var meta=[lPl(T.pax,L,"comensals","comensal1"),lPl(T.tables,L,"taules","taula1")];
+  if(T.child)meta.push(lPl(T.child,L,"nens","nen1"));
+  if(T.baby)meta.push(lPl(T.baby,L,"nadons","nadó1"));
   if(T.espec)meta.push(T.espec+" "+L.alerDieta);
   meta.push(L[loc()]);
   cur.push(TX(pw/2,y,meta.join("  ·  ").toUpperCase(),{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1.6})); y+=22;
@@ -7601,14 +7630,19 @@ function listPages(L,pw,ph){
         if(g.kind==="baby")tags.push({s:L.leg.baby.toUpperCase(),bg:"#9A7538",fg:"#FFFFFF"});
         if(g.kind==="veg")tags.push({s:L.leg.veg.toUpperCase(),bg:"#5E9A3F",fg:"#FFFFFF"});
         if(g.kind==="vegan")tags.push({s:L.leg.vegan.toUpperCase(),bg:"#127D6B",fg:"#FFFFFF"});
+        if(g.soloAper)tags.unshift({s:L.leg.aper.toUpperCase(),bg:"#E9E2D0",fg:"#4F4A3F"});   /* sin silla ni menú: la pantalla lo dice y el PDF también */
         (g.menus||[]).forEach(function(p,pi){tags.push({s:p.toUpperCase(),bg:null,fg:cursoColor((g.menusC||[])[pi])});});
-        tags.forEach(function(tg){
-          var w=textW({s:tg.s,fo:"sansb",size:7,ls:.4})+9;
-          if(tx+w>M+16+((i%cols)+1)*(W-24)/cols-6) return;
+        var limX=M+16+((i%cols)+1)*(W-24)/cols-6;
+        for(var ti=0;ti<tags.length;ti++){
+          var tg=tags[ti], w=textW({s:tg.s,fo:"sansb",size:7,ls:.4})+9;
+          if(tx+w>limX){   /* lo que no cabe no se pierde en silencio: «+N» */
+            var mas="+"+(tags.length-ti), wm=textW({s:mas,fo:"sansb",size:7,ls:.4})+9;
+            if(tx+wm<=limX){ cur.push(R(tx,cy-7.5,wm,11,1.6,"none",SOFT,0.7)); cur.push(TX(tx+wm/2,cy,mas,{size:7,fo:"sansb",a:"middle",c:SOFT,ls:.4})); }
+            break; }
           cur.push(R(tx,cy-7.5,w,11,1.6,tg.bg||"none",tg.bg?null:tg.fg,0.7));
           cur.push(TX(tx+w/2,cy,tg.s,{size:7,fo:"sansb",a:"middle",c:tg.fg,ls:.4}));
           tx+=w+4;
-        });
+        }
       });
       y=y0+bh+12;
     });
@@ -8565,7 +8599,7 @@ function presupPages(e,pw,ph){
     {n:"Menú adulto",q:adultos,p:+P.precioAdulto||0},
     {n:"Menú infantil",q:c.ninos,p:+P.precioInfantil||0},
     {n:"Menú staff",q:staff,p:+P.precioStaff||0}
-  ].filter(function(l){ return l.q>0||l.p>0; });
+  ].filter(function(l){ return l.q>0; });   /* sin líneas a 0 (un menú con precio pero sin comensales no se enseña) */
   var menus=0; lineas.forEach(function(l){ menus+=l.q*l.p; });
   var extras=(P.extras||[]).filter(function(x){ return x.concepto||+x.importe; }), totExtras=0; extras.forEach(function(x){ totExtras+=+x.importe||0; });
   var total=menus+totExtras;
@@ -8611,8 +8645,9 @@ function presupPages(e,pw,ph){
   cur.push(TX(M+12,y+3,"TOTAL DEL EVENTO",{size:10,fo:"sansb",a:"start",c:INK,ls:1.6}));
   cur.push(TX(xI-12,y+4,fmtEur(total),{size:15,fo:"sansb",a:"end",c:INK})); y+=34;
   /* plan de pagos */
-  var ps=pctSenal();
-  if(total>0){ cur.push(TX(M,y,"Plan de pagos: primer pago "+ps+"% "+fmtEur(total*ps/100)+" · segundo pago "+(100-ps)+"% "+fmtEur(total*(100-ps)/100),{size:9.5,fo:"sans",a:"start",c:SOFT})); y+=6; }
+  /* igual que la agenda, el contrato y el portal: señal + primer pago (% del total) + lo que queda */
+  var ps=pctSenal(), sen=Math.max(0,+agendaCfg().senal||0), pp=Math.round(total*ps)/100, ult=Math.max(0,Math.round((total-sen-pp)*100)/100);
+  if(total>0){ partir("Plan de pagos: "+(sen>0?"señal "+fmtEur(sen)+" · ":"")+"primer pago "+ps+" % "+fmtEur(pp)+" · último pago "+fmtEur(ult),W,"sans",9.5,0).forEach(function(l){ cur.push(TX(M,y,l,{size:9.5,fo:"sans",a:"start",c:SOFT})); y+=12; }); y-=6; }
   /* pagos hechos */
   sec("Pagos realizados");
   if(pagos.length){
@@ -8626,7 +8661,7 @@ function presupPages(e,pw,ph){
   cur.push(TX(M+12,y+4,over?"COBRADO DE MÁS":zero?"TODO COBRADO":"IMPORTE PENDIENTE",{size:10.5,fo:"sansb",a:"start",c:over?RUBY:INK,ls:1.6}));
   cur.push(TX(xI-12,y+5,fmtEur(Math.abs(pend)),{size:16,fo:"sansb",a:"end",c:over?RUBY:INK}));
   y+=36;
-  if(F.notas){ sec("Observaciones"); partir(F.notas.replace(/\s+/g," "),W,"ser",10.5,0).forEach(function(l){ sitio(14); cur.push(TX(M,y,l,{size:10.5,fo:"ser",a:"start",c:INK})); y+=14; }); }
+  /* «Cosas a tener en cuenta» (ficha.notas) es una nota interna: no sale en un documento para el cliente */
   pages.push(cur);
   return pages;
 }
@@ -8695,6 +8730,9 @@ function openExport(kind){
   try{ built=buildPages(kind); }
   catch(err){ toast("No se ha podido preparar la exportación: "+err.message,true); return; }
   if(!built.pages.length){ toast("No hay nada que exportar todavía.",true); return; }
+  /* sin ninguna mesa ni invitado el plano y el listado saldrían como una hoja vacía: se avisa igual que en los marcasitios */
+  try{ var vacio=kind==="plan"?!doc.tables.length:!doc.tables.some(function(t){ return t.guests.length; });
+    if(vacio){ toast(kind==="plan"?"Todavía no hay mesas en el plano.":"Todavía no hay invitados en el plano: escribe la lista de invitados y vuelve a exportar.",true); return; } }catch(_){}
   ovlOpen=true;
 
   var ovl=document.createElement("div"); ovl.className="ovl";
@@ -9063,8 +9101,12 @@ function impConstruye(rows,roles){
   function get(r,k){ var out=[]; roles.forEach(function(ro,j){ if(ro===k&&r[j]) out.push(r[j]); }); return out.join(" ").trim(); }
   function limpia(t){ return String(t||"").replace(/[()\[\]|·]/g," ").replace(/\s+[-–\/]\s+/g," ").replace(/\s+/g," ").trim(); }
   rows.forEach(function(r){
-    var nombre=limpia((get(r,"nombre")+" "+get(r,"apellidos")).replace(/\s*[+&]\s*/g," y "));
-    if(!nombre){ sinNombre++; return; }
+    /* «Maria + Pere» (Puig) son DOS comensales: «Maria Puig» y «Pere Puig» (antes salía una sola persona «Maria y Pere Puig»);
+       si el + va en los apellidos o no hay forma de repartirlos, se queda como una línea */
+    var nomR=get(r,"nombre"), apeR=get(r,"apellidos"), partesN=nomR.split(/\s*[+&]\s*/).map(limpia).filter(Boolean), apeL=limpia(apeR);
+    var nombres=(partesN.length>1&&!/[+&]/.test(apeR))?partesN.map(function(n1){ return limpia(n1+" "+apeL); }):[limpia((nomR+" "+apeR).replace(/\s*[+&]\s*/g," y "))];
+    nombres=nombres.filter(Boolean);
+    if(!nombres.length){ sinNombre++; return; }
     var mesaV=limpia(get(r,"mesa")), mesaN=limpia(get(r,"mesaNombre")), tipo=norm(get(r,"tipo"));
     var staff=/staff|personal|proveedor/.test(tipo), num=(mesaV.match(/\d+/)||[])[0], clave, cab;
     if(num){ clave="n"+(+num); cab="MESA "+(+num); }
@@ -9079,7 +9121,7 @@ function impConstruye(rows,roles){
     if(/trona|bebe/.test(tipo)) marcas.push("trona"); else if(/nin|infant|nen|kid|child/.test(tipo)) marcas.push("niño");
     if(/carn/.test(mn)) marcas.push("carne"); else if(/pesc|peix|pez/.test(mn)) marcas.push("pescado"); else if(/vegan/.test(mn)) marcas.push("vegano"); else if(/veget/.test(mn)) marcas.push("vegetariano");
     if(obs) marcas.push(obs);
-    m.gs.push(nombre+(marcas.length?" ("+marcas.join(") (")+")":"")); pax++;
+    nombres.forEach(function(nombre){ m.gs.push(nombre+(marcas.length?" ("+marcas.join(") (")+")":"")); pax++; });
   });
   function orden(m){ var n=norm(m.cab+" "+m.nom); if(m.clave==="sin") return 4; if(m.clave==="staff"||/staff|personal/.test(n)) return 3; if(/presid|novios|nuvis/.test(n)) return 0; return m.num!=null?1:2; }
   mesas.sort(function(a,b){ var d=orden(a)-orden(b); if(d) return d; if(a.num!=null&&b.num!=null) return a.num-b.num; return 0; });
@@ -9561,14 +9603,19 @@ function restoreSnap(snap){
   var e=current();
   if(!e||(st.id&&st.id!==e.id)){ toast("Ese cambio era de otro evento y ya no se puede deshacer."); return; }
   e.text=st.text; e.plans=st.plans; e.loc=st.loc; if(st.mesaGeo) e.mesaGeo=st.mesaGeo; else delete e.mesaGeo;
+  if(st.mm){ e.montaje=e.montaje&&typeof e.montaje==="object"?e.montaje:{}; e.montaje.mesas=e.montaje.mesas||{}; e.montaje.mesas[st.mm.n]=st.mm.v; }
   $("src").value=e.text; prevText=e.text; sel=null; fillSelect(); render(); save();
   toast("Deshecho.");
 }
 function deleteTable(n){
   var t=findTable(n); if(!t) return;
-  var pax=t.guests.length, snap=snapshot();
+  var pax=t.guests.length, snap=snapshot(), ev=current(), mm=ev.montaje&&ev.montaje.mesas&&ev.montaje.mesas[n];
+  if(mm){ var sn0=JSON.parse(snap); sn0.mm={n:n,v:mm}; snap=JSON.stringify(sn0); }   /* el montaje de esa mesa también vuelve con «Deshacer» */
   pushUndo(snap);
   doc.tables=doc.tables.filter(function(x){return x.num!==n;});
+  /* sin esto, la mesa nueva que reciba ese número heredaba el largo, los lados y el montaje de la borrada */
+  if(ev.mesaGeo&&ev.mesaGeo[n]){ delete ev.mesaGeo[n]; if(!Object.keys(ev.mesaGeo).length) delete ev.mesaGeo; }
+  if(mm) delete ev.montaje.mesas[n];
   ["interior","exterior"].forEach(function(k){
     var pl=current().plans[k];
     delete pl.pos[n]; delete pl.size[n]; delete pl.vert[n];
@@ -9934,7 +9981,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.97</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.98</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10097,7 +10144,7 @@ function renderHomeStats(){
         '<p class="hd-next-sub"><span class="hd-est">'+escH(CICLO_T[est0]||"Planificación")+'</span>'+escH(eventoTipo(next))+(lugar?" · "+escH(lugar):"")+'</p></div></div>'+
       '<div class="hd-next-foot">'+
         (function(){ var pv=paxVisible(next,t0); return '<span class="hd-fig"><b>'+(pv.prev?"~":"")+pv.n+'</b>'+(pv.prev?"previstos":"invitados")+'</span>'; })()+
-        '<span class="hd-fig"><b>'+(d0?d0.tables.length:0)+'</b>mesas</span>'+
+        '<span class="hd-fig"><b>'+(d0?d0.tables.length:0)+'</b>'+(d0&&d0.tables.length===1?"mesa":"mesas")+'</span>'+
         '<span class="hd-prog" title="Preparación del evento"><i style="width:'+pct0+'%"></i></span><span class="hd-pct">'+pct0+'% preparado</span>'+
         '<span class="hd-go">Abrir evento '+ICONS.caret+'</span></div>'+
       '<ul class="hd-steps">'+eventoProgreso(next).steps.map(function(st){ return '<li class="'+(st.done?"ok":"")+'"><i aria-hidden="true"></i>'+escH(st.label)+'<span class="sr-only">'+(st.done?": hecho":": pendiente")+'</span></li>'; }).join("")+'</ul>'+
@@ -10109,12 +10156,12 @@ function renderHomeStats(){
   var cob=previsto>0?Math.min(100,Math.round(cobrado/previsto*100)):0;
   var html='<div class="hd">'+nextHTML+
     '<section class="hd-ledger" aria-label="Cifras de los eventos">'+cells.map(function(c){ return '<div class="hstat'+(c.a?" accent":"")+'"><b>'+c.n+'</b><span>'+c.l+'</span></div>'; }).join("")+'</section>'+
-    '<section class="hd-money" aria-label="Cobros">'+
+    (puedeVer("presup")?'<section class="hd-money" aria-label="Cobros">'+
       '<div class="hstat money"><span>Ingresos previstos</span><b>'+fmtEur(previsto)+'</b></div>'+
       '<div class="hstat money paid"><span>Cobrado</span><b>'+fmtEur(cobrado)+'</b></div>'+
       '<div class="hstat money due"><span>Pendiente de cobro</span><b>'+fmtEur(pend)+'</b></div>'+
       '<div class="hd-bar" role="img" aria-label="Cobrado el '+cob+' % de lo previsto"><i style="width:'+cob+'%"></i><span>'+cob+' % cobrado</span></div>'+
-    '</section></div>';
+    '</section>':'')+'</div>';
   /* análisis por tipo de evento (cuántos hay de cada uno), con su color */
   var tipos={}; store.events.forEach(function(e){ var t=eventoTipo(e); tipos[t]=(tipos[t]||0)+1; });
   var tk=Object.keys(tipos).sort(function(a,c){ return tipos[c]-tipos[a]; });
@@ -10182,11 +10229,12 @@ function duplicarEvento(id,quedarse){
   if(!titulado) c.text="# "+(nombreLimpio(src.name)||"Evento")+" (copia)\n"+c.text;
   c.name=eventName(c.text);
   var F=c.ficha=c.ficha||{};
-  ["fecha","parejaA","parejaB","telefono","email","hora","notas"].forEach(function(k){ delete F[k]; });
+  ["fecha","parejaA","parejaB","telefono","email","hora","notas","contacto","origen","comoNos"].forEach(function(k){ delete F[k]; });
   F.estado="contacto";
   c.presupuesto=c.presupuesto||{}; c.presupuesto.pagos=[];
   (c.tareas||[]).forEach(function(t){ t.estado="pendiente"; delete t.hecha; delete t.fechaHecha; });
-  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","camarerosAvisar","hitos"].forEach(function(k){ delete c[k]; });
+  /* contrato firmado (con DNI), justificantes, aprobaciones del cliente, cierre y fichajes del día: son del evento original */
+  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","camarerosAvisar","hitos","contrato","docs","aprobaciones","cierre","cierreServicio","turnos"].forEach(function(k){ delete c[k]; });
   c.comunicaciones=[]; c.hitos={}; c.camareros={}; c.camarerosHora={}; c.camarerosAvisar={};
   c.updated=Date.now();
   /* planos de fondo propios del evento (catering), si los tiene */
@@ -10313,13 +10361,16 @@ var PORTAL_J={};
    evento en «_snap». No tocan e.updated ni salen en el historial (las claves con «_» no cuentan). Se recalculan solo cuando el
    evento o la agenda cambian. */
 var SNAP_J={};
+/* camareros de un evento que siguen en la agenda: uno quitado de la agenda ya no cuenta como asignado ni como «por avisar» */
+function camVivo(id){ var per=store.camareros&&store.camareros.personas; if(!per||!per.length) return true; for(var i=0;i<per.length;i++){ if(per[i].id===id) return !per[i].borrado; } return false; }
+function camSiN(e){ var cam=(e&&e.camareros)||{}; return Object.keys(cam).filter(function(k){ return cam[k]==="si"&&camVivo(k); }).length; }
+function camAvisarN(e){ var av=(e&&e.camarerosAvisar)||{}; return Object.keys(av).filter(function(k){ return av[k]==="avisar"&&camVivo(k); }).length; }
+window.LM_camSiN=camSiN;
 function snapDe(e){
   var c, pt; try{ c=planCounts(e); pt=presupTotals(e); }catch(_){ return null; }
-  var cam=e.camareros||{}, av=e.camarerosAvisar||{}, camSi=0, camAv=0, B=window.SITTING_BRIDGE, nec=0, sin=0;
-  Object.keys(cam).forEach(function(k){ if(cam[k]==="si") camSi++; });
-  Object.keys(av).forEach(function(k){ if(av[k]==="avisar") camAv++; });
+  var camSi=camSiN(e), camAv=camAvisarN(e), B=window.SITTING_BRIDGE, nec=0, sin=0;
   try{ if(B&&B.conEvento) B.conEvento(e,function(){ try{ nec=(B.evTotals&&B.evTotals().camareros)||0; }catch(_){} try{ sin=((B.alerPendientes&&B.alerPendientes())||[]).length; }catch(_){} }); }catch(_){}
-  var hitos=[]; try{ hitos=hitosAuto(e).map(function(h){ var q=(!h.done&&h.pendiente!=null)?Object.assign({},h,{importe:h.pendiente}):h; return {id:h.id,tipo:h.tipo,t:hitoTxt(q),fecha:h.fecha,importe:q.importe!=null?Math.round(q.importe*100)/100:null,done:!!h.done}; }); }catch(_){}
+  var hitos=[]; try{ hitos=hitosAuto(e).map(function(h){ var q=(!h.done&&h.pendiente!=null)?Object.assign({},h,{importe:h.pendiente}):h; return {id:h.id,tipo:h.tipo,t:q.t,fecha:h.fecha,importe:q.importe!=null?Math.round(q.importe*100)/100:null,done:!!h.done}; }); }catch(_){}
   return {u:e.updated||0, adultos:c.adultos||0, ninos:c.ninos||0, staff:c.staff||0, tot:c.pax||0, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100,
     pend:Math.max(0,Math.round(pt.pend*100)/100), camSi:camSi, camNec:nec, camAvisar:camAv, sinSust:sin, hitos:hitos};
 }
@@ -10501,6 +10552,8 @@ function pvCrearEvento(f){
   e.alta=pvHoy();
   F.fecha=f.fecha; F.tipo=pvTipoEvento(f); F.estado="confirmada"; F.ubicacion=esp||"Les Moles";
   if(f.telefono) F.telefono=f.telefono; if(f.localidad) F.origen=f.localidad; if(f.origen) F.comoNos=f.origen;
+  if(f.contacto) F.contacto=f.contacto; if(f.email) F.email=f.email;
+  if(f.mensaje) F.notas="Consulta web: "+f.mensaje;
   var pax=pvComensales(f); if(pax) F.paxPrev=pax;
   return e;
 }
@@ -10934,7 +10987,7 @@ function eventoProgreso(e){
   var m=e.menu||{};
   var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}; var beb=Object.keys(bebs).some(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty||r.q!=null); })||(m.bebidasExtra||[]).some(function(x){ return x&&(x.label||x.prod); });
-  var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
+  var camSi=camSiN(e);
   var steps=[
     {k:"plan",     label:"Invitados y mesas", hint:"Monta el plano con los invitados", done:t.pax>0},
     {k:"m-sel",    label:"Menú del banquete", hint:"Elige los platos del evento",       done:dishes>0},
@@ -11098,7 +11151,7 @@ function renderResumen(){
   var mesas=d.tables.length, pax=t.pax, mesasAper=mesasAperitivo(e);
   var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}; var bebCount=Object.keys(bebs).filter(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty||r.q!=null); }).length+(m.bebidasExtra||[]).filter(function(x){ return x&&(x.label||x.prod); }).length;
-  var cam=e.camareros||{}; var camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
+  var camSi=camSiN(e);
   var camNeed=pax>0?Math.ceil(pax/ratioCamarero()):0;
   var prog=eventoProgreso(e);
   var cat=eventoCategoria((d.title||"")+" "+(e.name||""));
@@ -11110,7 +11163,7 @@ function renderResumen(){
 
   function badge(done,prog2){ return done?'<span class="badge done">Completo</span>':(prog2?'<span class="badge prog">En curso</span>':'<span class="badge todo">Pendiente</span>'); }
   var cards=[
-    {k:"plan",    ic:"Plano de mesas", lbl:"Plano de sala", hint:mesas+" mesa"+(mesas===1?"":"s")+" · "+pax+" invitado"+(pax===1?"":"s"), bd:badge(mesas>0)},
+    {k:"plan",    ic:"Plano de mesas", lbl:"Plano de sala", hint:mesas+" mesa"+(mesas===1?"":"s")+" · "+pax+" invitado"+(pax===1?"":"s"), bd:badge(mesas>0&&pax>0)},   /* un plano sin invitados no está «completo» */
     {k:"list",    ic:"guests",         lbl:"Invitados",     hint:pax>0?(pax+" invitado"+(pax===1?"":"s")+(t.espec?" · "+t.espec+" con alergia o dieta":"")):"Sin invitados aún", bd:badge(pax>0)},
     {k:"m-sel",   ic:"Menú del evento",lbl:"Banquete",      hint:dishes>0?(dishes+" plato"+(dishes===1?"":"s")+" del menú"):"Menú por definir", bd:badge(dishes>0)},
     {k:"m-prod",  ic:"prod",           lbl:"Producción",    hint:dishes>0?(dishes+" plato"+(dishes===1?"":"s")+" a preparar"):"Sin platos aún", bd:dishes>0?'<span class="badge prog">Preparar</span>':'<span class="badge todo">Pendiente</span>'},
@@ -11134,7 +11187,7 @@ function renderResumen(){
     '<div class="kpi"><div class="k-lbl">Mesas banquete</div><div class="k-num">'+mesas+'</div><div class="k-sub">del plano de mesas</div></div>'+
     '<div class="kpi"><div class="k-lbl">Menú</div><div class="k-num">'+dishes+'</div><div class="k-sub">plato'+(dishes===1?"":"s")+' elegido'+(dishes===1?"":"s")+'</div></div>'+
     '<div class="kpi"><div class="k-lbl">Personal</div><div class="k-num">'+camSi+(camNeed?' <small>/ '+camNeed+'</small>':"")+'</div><div class="k-sub">camarero'+(camSi===1?"":"s")+' asignado'+(camSi===1?"":"s")+'</div></div>'+
-    '<div class="kpi"><div class="k-lbl">Presupuesto</div><div class="k-num" style="font-size:27px;white-space:nowrap">'+(pt.total>0?fmtEur(pt.total):"—")+'</div><div class="k-sub">'+(pt.total>0?("pendiente "+fmtEur(pt.pend)):"sin precios aún")+'</div></div>'+
+    (puedeVer("presup")?'<div class="kpi"><div class="k-lbl">Presupuesto</div><div class="k-num" style="font-size:27px;white-space:nowrap">'+(pt.total>0?fmtEur(pt.total):"—")+'</div><div class="k-sub">'+(pt.total>0?("pendiente "+fmtEur(pt.pend)):"sin precios aún")+'</div></div>':'')+
     '<div class="kpi"><div class="k-lbl">Tareas</div><div class="k-num">'+(tkPend==null?"—":tkPend)+'</div><div class="k-sub">'+(tkPend==null?"checklist sin abrir":(tkPend===0?"todo al día":"pendiente"+(tkPend===1?"":"s")))+'</div></div>';
 
   var checklist=prog.steps.map(function(s){
@@ -11417,6 +11470,19 @@ function uid(){ return "x"+Date.now().toString(36)+Math.floor(Math.random()*1e4)
 function fmtMiles(n,dec){ n=+n||0; var neg=n<0, p=Math.abs(n).toFixed(dec).split(".");
   return (neg?"−":"")+p[0].replace(/\B(?=(\d{3})+(?!\d))/g,".")+(dec?","+p[1]:""); }
 function fmtEur(n){ return fmtMiles(n,2)+" €"; }
+window.LM_fmtMiles=fmtMiles; window.LM_fmtEur=fmtEur;   /* para las otras pantallas: un solo formato de euros en toda la app */
+/* Número escrito a la española: «1.000» y «1 000» son mil, «1.234,5» es 1234,5, «12,5» es 12,5, «1485.50» es 1485,5.
+   Devuelve null si no se entiende (antes «1.000» en la señal se guardaba como 1 €). */
+window.LM_numEs=function(v){
+  if(typeof v==="number") return isFinite(v)?v:null;
+  var x=String(v==null?"":v).replace(/[€\s\u00a0]/g,"").replace(/\u2212/g,"-"); if(!x||!/^-?[0-9.,]+$/.test(x)) return null;
+  var neg=x.charAt(0)==="-"; if(neg) x=x.slice(1); if(!x) return null;
+  var c=(x.match(/,/g)||[]).length, d=(x.match(/\./g)||[]).length;
+  if(c>1) return null;
+  if(c===1){ if(/,.*\./.test(x)) return null; x=x.replace(/\./g,"").replace(",","."); }
+  else if(d>1||(d===1&&/^[1-9]\d{0,2}\.\d{3}$/.test(x))) x=x.replace(/\./g,"");
+  var n=parseFloat(x); return isFinite(n)?(neg?-n:n):null;
+};
 function setPath(o,path,v){ var ks=path.split("."); for(var i=0;i<ks.length-1;i++){ o[ks[i]]=o[ks[i]]||{}; o=o[ks[i]]; } o[ks[ks.length-1]]=v; }
 function getPath(o,path){ var ks=path.split("."); for(var i=0;i<ks.length;i++){ if(o==null) return undefined; o=o[ks[i]]; } return o; }
 function planSave(){ var e=current(); if(e){ e.updated=Date.now(); if(typeof save==="function") save(); } }
@@ -11508,8 +11574,8 @@ function eventoAlertas(e){
   var a=[], c=planCounts(e), m=e.menu||{}, P=e.presupuesto||{};
   var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}, beb=Object.keys(bebs).some(function(k){var r=bebs[k];return r&&(r.prod||r.qty||r.q!=null);})||(m.bebidasExtra||[]).some(function(x){ return x&&(x.label||x.prod); });
-  var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){return cam[k]==="si";}).length;
-  var dr=diasRestantes(e);
+  var camSi=camSiN(e);
+  var dr=diasRestantes(e), verDinero=puedeVer("presup");   /* cobros, señal y precios solo se avisan a quien ve el Presupuesto */
   /* "cerca" = quedan 30 días o menos: lo pendiente pasa a ser urgente (rojo). */
   var cerca=(dr!=null&&dr>=0&&dr<=30);
   function add(t,k,urgentIfNear){ a.push({t:t,k:k,sev:(urgentIfNear&&cerca)?"urgent":"warn"}); }
@@ -11523,29 +11589,32 @@ function eventoAlertas(e){
   if(!(e.ficha&&e.ficha.fecha)) a.push({t:"Falta la fecha del evento: no aparecerá en el calendario.",k:"crm",sev:"urgent"});
   if(c.pax===0) add("Todavía no hay invitados en el plano de mesas.","plan",true);
   if(dishes===0) add("El menú del banquete está sin definir.","m-sel",true);
-  if(c.pax>0&&!(+P.precioAdulto)) add("Precios del menú sin definir: el presupuesto no cuadra.","presup",false);
+  if(verDinero&&c.pax>0&&!(+P.precioAdulto)) add("Precios del menú sin definir: el presupuesto no cuadra.","presup",false);
   if(alerSinPlato>0) add(alerSinPlato+(alerSinPlato===1?" invitado con alergia o dieta especial sin plato adaptado.":" invitados con alergia o dieta especial sin plato adaptado."),"m-aler",true);
   if(!beb) add("Las bebidas del evento no están definidas.","m-bebida",true);
   if(c.pax>0&&camSi===0) add("No hay camareros asignados al servicio.","cam",true);
-  var camAv=Object.keys(e.camarerosAvisar||{}).filter(function(k){ return e.camarerosAvisar[k]==="avisar"; }).length;
+  var camAv=camAvisarN(e);
   if(camAv>0) add(camAv===1?"Hay 1 camarero por avisar.":"Hay "+camAv+" camareros por avisar.","cam",true);
   var pt=presupTotals(e);
   /* la señal fija (1.000 €) es lo primero que se cobra, al reservar */
-  var _cfg=agendaCfg();
-  if(+_cfg.senal>0&&pt.pagado<+_cfg.senal-0.5&&(dr==null||dr>=0)) a.push({t:"Señal de "+fmtEur(+_cfg.senal)+" sin cobrar (se cobra al reservar).",k:"presup",sev:"urgent"});
-  try{ var _cs=conEstado(e); if(_cs.pub&&!_cs.ok&&_cs.ts){ var _dd=Math.floor((Date.now()-_cs.ts)/864e5); if(_dd>=7) a.push({t:(_cs.tipo==="propuesta"?"La propuesta":"El contrato")+" lleva "+_dd+" días publicado y el cliente no lo ha aceptado.",k:"presup",sev:"warn"}); } }catch(_){}
+  var _cfg=agendaCfg(), _est=(e.ficha&&e.ficha.estado)||"", _preRes=["contacto","propuesta","visita"].indexOf(_est)>=0, _pasado=(_est==="celebrada"||_est==="cerrada");
+  /* antes de la reserva no se cobra señal ni vencen pagos; y una celebración ya hecha no avisa de plazos */
+  if(+_cfg.senal>0&&pt.pagado<+_cfg.senal-0.5&&(dr==null||dr>=0)&&!_preRes&&!_pasado&&verDinero) a.push({t:"Señal de "+fmtEur(+_cfg.senal)+" sin cobrar (se cobra al reservar).",k:"presup",sev:"urgent"});
+  try{ var _cs=verDinero?conEstado(e):{}; if(_cs.pub&&!_cs.ok&&_cs.ts){ var _dd=Math.floor((Date.now()-_cs.ts)/864e5); if(_dd>=7) a.push({t:(_cs.tipo==="propuesta"?"La propuesta":"El contrato")+" lleva "+_dd+" días publicado y el cliente no lo ha aceptado.",k:"presup",sev:"warn"}); } }catch(_){}
   try{ var _pe=window.LM_pedidosEstado&&window.LM_pedidosEstado(e); if(_pe&&_pe.pendRecib.length) a.push({t:"Pedido sin recibir (la entrega prevista ya pasó): "+_pe.pendRecib.join(", ")+".",k:"pedidos",sev:"warn"});
     if(_pe&&_pe.n>_pe.enviados&&dr!=null&&dr>=0&&dr<=5) a.push({t:"Hay "+(_pe.n-_pe.enviados)+(_pe.n-_pe.enviados===1?" pedido preparado":" pedidos preparados")+" sin enviar al proveedor.",k:"pedidos",sev:"urgent"}); }catch(_){}
   /* agenda automática: lo vencido, urgente; lo de las próximas 2 semanas, aviso */
-  if(dr==null||dr>=0) hitosAuto(e).forEach(function(h){
+  if((dr==null||dr>=0)&&!_preRes&&!_pasado) hitosAuto(e).forEach(function(h){
     if(h.done) return;
+    if(e.alta&&h.fecha<e.alta) return;   /* pasos anteriores al día en que el evento entró en la app: se hicieron fuera */
+    if(h.tipo==="pago"&&!verDinero) return;
     var k=h.tipo==="pago"?"presup":"timeline";
     if(h.falta<0) a.push({t:"Vencido el "+dmyFromISO(h.fecha)+": "+hitoTxt(h)+".",k:k,sev:"urgent"});
     else if(h.falta<=14) a.push({t:(h.falta===0?"Hoy":h.falta===1?"Mañana":"El "+dmyFromISO(h.fecha)+" (en "+h.falta+" días)")+": "+hitoTxt(h)+".",k:k,sev:h.falta<=3?"urgent":"warn"});
   });
   var _cc=cambiosCerrados(e);
   if(_cc) a.push({t:"Cambios cerrados desde el "+dmyFromISO(_cc.fecha)+": cualquier cambio de mesas o menú, confirmarlo con cocina y sala.",k:"timeline",sev:"warn"});
-  if(pt.total>0){
+  if(pt.total>0&&verDinero){
     if(pt.pend>0.5) add("Pendiente de cobro "+fmtEur(pt.pend)+".","presup",true);
     else if(pt.pend<-0.5) a.push({t:"Se ha cobrado "+fmtEur(-pt.pend)+" más de lo presupuestado: revisa pagos o extras.",k:"presup",sev:"warn"});
   }
@@ -11683,6 +11752,9 @@ function onPlanEdit(ev){
     /* cambiar la fecha en la ficha reescribe también la del título del sitting,
        para que el plano impreso y el calendario muestren siempre lo mismo. */
     if(_f==="ficha.fecha"&&val()){ e.text=setTitleDate(e.text,val()); e.name=eventName(e.text); var _src=$("src"); if(_src){ _src.value=e.text; prevText=e.text; } }
+    else if(_f==="ficha.fecha"&&ev.type==="change"){ e.text=quitaFechaTexto(e.text); e.name=eventName(e.text); var _src2=$("src"); if(_src2){ _src2.value=e.text; prevText=e.text; }
+      /* la fila de la Previsión enlazada también queda «sin fecha» (si no, le devolvía la fecha al evento al volver al Inicio) */
+      try{ var _pf=store.prevision&&store.prevision.filas; if(_pf) _pf.forEach(function(f){ if(f&&f.evento===e.id&&pvISO(f.fecha)){ f.fecha=""; f.fechaTxt=f.fechaTxt||"Sin fecha"; f.updated=Date.now(); } }); }catch(_){} }
     planSave(); if(el.hasAttribute("data-live")&&ev.type==="change") renderPlanV(planView);
   }
   else if(el.hasAttribute&&el.hasAttribute("data-arr")){
@@ -11706,15 +11778,18 @@ function onPlanClick(ev){
   else if(act==="prov-add"){ e.proveedores.push({id:uid(),servicio:"Otros",empresa:"",contacto:"",telefono:"",precio:0,estado:"Pendiente"}); }
   else if(act==="prov-del"){ borrarConUndo(e.proveedores,i,"Proveedor eliminado"); }
   else if(act==="extra-add"){ e.presupuesto.extras.push({id:uid(),concepto:"",importe:0}); }
-  else if(act==="extra-del"){ e.presupuesto.extras.splice(i,1); }
+  else if(act==="extra-del"){ borrarConUndo(e.presupuesto.extras,i,"Extra eliminado"); }
   else if(act==="pago-add"){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"",importe:0}); }
   /* importes al céntimo (como se cobran de verdad: 65% de 26.111,20 = 16.972,28) */
   else if(act==="pago-reserva"){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Señal (reserva)",importe:Math.max(0,+agendaCfg().senal||0)}); }
-  else if(act==="pago-senal"){ var _t1=presupTotals(e).total; e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Primer pago ("+pctSenal()+"%)",importe:Math.round(_t1*pctSenal())/100}); }
+  else if(act==="pago-senal"){ var _t1=presupTotals(e).total;
+    if(e.presupuesto.pagos.some(function(p){ return /^Primer pago/.test(p.concepto||""); })){ toast("Ya hay un «Primer pago» registrado. Para otro importe usa «+ Otro pago».",true); return; }
+    e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Primer pago ("+pctSenal()+"%)",importe:Math.round(_t1*pctSenal())/100}); }
   /* el 2º pago es lo que queda por cobrar (si hubo una señal aparte, el 35% no cuadraría) */
   else if(act==="pago-2"){ var _p2=presupTotals(e), _r=Math.max(0,Math.round(_p2.pend*100)/100), _35=Math.round(_p2.total*(100-pctSenal()))/100;
+    if(_r<=0){ toast("No queda nada por cobrar: no hace falta un último pago.",true); return; }
     e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:Math.abs(_r-_35)<0.02?"Último pago ("+(100-pctSenal())+"%)":"Último pago (lo que falta)",importe:_r}); }
-  else if(act==="pago-del"){ e.presupuesto.pagos.splice(i,1); }
+  else if(act==="pago-del"){ borrarConUndo(e.presupuesto.pagos,i,"Pago eliminado"); }
   else if(act==="comm-add"){
     var f=$("comm-fecha"),tp=$("comm-tipo"),nt=$("comm-nota");
     if(!(nt&&nt.value.trim())){ if(nt) nt.focus(); toast("Escribe la nota antes de registrarla."); return; }
@@ -11739,7 +11814,7 @@ function onPlanClick(ev){
   else if(act==="ag-toggle"){ var _k=b.getAttribute("data-k"); e.agendaHecho=e.agendaHecho||{}; if(e.agendaHecho[_k]) delete e.agendaHecho[_k]; else e.agendaHecho[_k]=hoyISO(); }
   else if(act==="ag-pago"){ var _h=hitosAuto(e).filter(function(x){ return x.id===b.getAttribute("data-k"); })[0];
     if(_h){ e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:_h.t,importe:Math.round((_h.importe||0)*100)/100}); toast("Pago registrado: "+_h.t+" · "+fmtEur(_h.importe||0)+". Revisa la fecha y el importe en Presupuesto."); } }
-  else if(act==="presu-pdf"){ descargarPresupuesto(e,($("paper")&&$("paper").value)||"A4"); return; }
+  else if(act==="presu-pdf"){ if(!puedeVer("presup")) return; descargarPresupuesto(e,"A4"); return; }
   else if(act==="con-pdf"){ conDescargar(e,b.getAttribute("data-t")); return; }
   else if(act==="con-ir"){ var _cc2=$("cn-card"); if(_cc2) _cc2.scrollIntoView({behavior:"smooth",block:"start"}); return; }
   else if(act==="con-pub"){ var _ct=$("con-tipo"); if(conPublicar(e,_ct&&_ct.value)===false) return; }
@@ -12603,7 +12678,7 @@ var CON_LAB={cliente:"el nombre del cliente",fecha_evento:"la fecha del evento",
   referencia:"la referencia del contrato (en «Datos y cláusulas de este contrato»)",partes_clientes:"el nombre de los clientes (Ficha y contacto)",fecha_evento_corta:"la fecha del evento",
   reserva:"la señal de reserva (Parámetros → Agenda con el cliente)",banco:"el banco de la empresa",rep_doc:"el documento de quien firma por la empresa",cargo:"el cargo de quien firma por la empresa",
   mail_eventos:"el correo de eventos de la empresa",whatsapp:"el WhatsApp de la empresa",celebracion:"el tipo de evento",lugar_txt:"el lugar",
-  iban_compacto:"el IBAN para los pagos",rep_doc_firma:"el documento de quien firma por la empresa",de_cargo:"el cargo de quien firma por la empresa",cliente1:"el nombre del cliente",concepto_reserva:"el concepto de la reserva"};
+  iban_compacto:"el IBAN para los pagos",rep_doc_firma:"el documento de quien firma por la empresa",de_cargo:"el cargo de quien firma por la empresa",cliente1:"el nombre del cliente",concepto_reserva:"el concepto de la reserva",doc1_num:"el DNI, NIE o pasaporte de la primera persona (Presupuesto → Propuesta y contrato)",doc2_num:"el DNI, NIE o pasaporte de la segunda persona (Presupuesto → Propuesta y contrato)"};
 /* cuántos días son: la agenda lo sabe (el cierre de cambios) */
 var CON_VARS_AYUDA=[["cliente","el nombre del cliente (de la ficha)"],["tipo","boda, comunión…"],["fecha_evento","fecha completa del evento"],["lugar","lugar del evento"],
   ["personas","comensales en total"],["desglose","«155 adultos, 4 niños y 8 de staff»"],["adultos","adultos"],["ninos","niños"],["bebes","bebés"],["staff","staff"],["total","importe total"],["senal","importe de la señal"],["iban","IBAN de los pagos"],
@@ -13263,7 +13338,7 @@ function contratoCard(e){
     '<div class="pcard cn-card" id="cn-card"><ol class="cn-steps">'+s1+s2+s3+s4+'</ol>'+av+aj+botones+pub+ver+
     '<p class="cn-nota">Firma electrónica simple: nombre, documento, fecha y hora, y una huella del texto aceptado (cada cliente firma por separado). El PDF firmado se puede descargar siempre.</p></div>';
 }
-window.LM_CONTRATO={ed:{abrir:conEdAbrir,serializar:conEdSerializar,cerrar:conEdCerrar,estado:function(){ return CNE; }},descargar:conDescargar,defs:{propuesta:CON_PROP_DEF,contrato:CON_CONT_DEF,contratoCa:CON_CONT_CA},sugerirRef:conSugerirRef,extras:conExtras,ayuda:CON_VARS_AYUDA,cfg:conCfg,tplHash:conTplHash,revisado:conRevisado,render:conRender,html:conHtml,hash:conHashTxt,
+window.LM_CONTRATO={estadoDe:conEstado,ed:{abrir:conEdAbrir,serializar:conEdSerializar,cerrar:conEdCerrar,estado:function(){ return CNE; }},descargar:conDescargar,defs:{propuesta:CON_PROP_DEF,contrato:CON_CONT_DEF,contratoCa:CON_CONT_CA},sugerirRef:conSugerirRef,extras:conExtras,ayuda:CON_VARS_AYUDA,cfg:conCfg,tplHash:conTplHash,revisado:conRevisado,render:conRender,html:conHtml,hash:conHashTxt,
   pdfTexto:conPdfDeTexto,fechaHora:conFechaHora,estado:conEstado};
 
 function viewComm(e){
@@ -13323,7 +13398,7 @@ function viewDocs(e){
     {k:"fotos",t:"Fotografías",s:"Espacios, montajes y gastronomía"}
   ];
   var cards='<button type="button" class="doc-card doc-main" data-act="doc-resumen"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Hoja de ruta del evento</b><span>Una hoja A4: cuántos son, hora, contacto, bebida, jamón, mesas y alergias · sin presupuesto</span></span></button>'+
-    '<button type="button" class="doc-card doc-main" data-act="presu-pdf"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Presupuesto</b><span>Menús × precio, extras, pagos y pendiente · PDF</span></span></button>'+links.map(function(l){ return '<button type="button" class="doc-card" data-act="goto" data-k="'+l.k+'"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>'+escH(l.t)+'</b><span>'+escH(l.s)+'</span></span></button>'; }).join("");
+    (puedeVer("presup")?'<button type="button" class="doc-card doc-main" data-act="presu-pdf"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>Presupuesto</b><span>Menús × precio, extras, pagos y pendiente · PDF</span></span></button>':'')+links.map(function(l){ return '<button type="button" class="doc-card" data-act="goto" data-k="'+l.k+'"><span class="doc-ic">'+ICONS.doc+'</span><span class="doc-tx"><b>'+escH(l.t)+'</b><span>'+escH(l.s)+'</span></span></button>'; }).join("");
   var extra=e.docs.map(function(dc,i){ return '<div class="comm"><span class="comm-ic">'+ICONS.doc+'</span><div class="comm-b"><div class="comm-top"><b>'+escH(dc.nombre)+'</b></div><a class="comm-tx" style="word-break:break-all" href="'+escH(/^https?:\/\//i.test(dc.url)?dc.url:"https://"+dc.url)+'" target="_blank" rel="noopener">'+escH(dc.url)+'</a></div><button type="button" class="row-del" data-act="doc-del" data-i="'+i+'" aria-label="Quitar «'+escH(dc.nombre)+'»">×</button></div>'; }).join("");
   if(!e.docs.length) extra='<p style="color:var(--c-mut);font-style:italic;padding:6px 2px">Sin enlaces. Aquí puedes añadir otros documentos que vivan fuera (una URL); el contrato, los justificantes y los documentos de identidad están arriba.</p>';
   try{ if(window.LM_docsCargar) window.LM_docsCargar(); }catch(_){}
@@ -13596,7 +13671,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 function isDash(v){return !v||v==="—";}
 function fmtNum(n,dec){ var r=Number(n.toFixed(dec)); return String(r).replace(".",","); }
 function fmtAmount(total,unit){
-  if(unit==="uds") return fmtNum(Math.round(total),0)+" uds";
+  if(unit==="uds"){ var nu=Math.round(total); return fmtNum(nu,0)+(nu===1?" ud":" uds"); }
   if(unit==="gr"){ return total>=1000 ? fmtNum(total/1000,2)+" kg" : fmtNum(Math.round(total),0)+" gr"; }
   return fmtNum(total,2)+" "+(unit||"");
 }
@@ -14434,7 +14509,7 @@ function renderServicio(){
   var svOv=(menu()?(menu().svOv=menu().svOv||{}):{});
   function ovq(k,calc){ var v=svOv[k]; if(v==null||String(v).trim()==="") return {q:calc,ov:false}; var n=+String(v).replace(",","."); return {q:(isFinite(n)?n:String(v)),ov:true}; }
   function qcel(k,calc,q,ov){ return '<td class="q sv-q'+(ov?' ov':'')+'" data-sv-k="'+esc(k)+'" data-sv-calc="'+(calc==null?'':esc(Math.round(calc)))+'" tabindex="0" title="Pulsa para corregir la cantidad" role="button" aria-label="Cantidad: pulsa para corregirla">'+uds(q)+'</td>'; }
-  function baseTxt(b,n){ return b==="EVENTO"?"una vez por evento":b==="COMENSAL"?("× "+n+" comensales"):b==="MESA BANQUETE"?("× "+n+" mesas de banquete"):b==="MESA APERITIVO"?("× "+n+" mesas de aperitivo"):b==="MESA NIÑOS"?("× "+n+" mesas de niños"):b==="PLATO"?"fijo":""; }
+  function baseTxt(b,n){ return b==="EVENTO"?"una vez por evento":b==="COMENSAL"?("× "+n+(n===1?" comensal":" comensales")):b==="MESA BANQUETE"?("× "+n+(n===1?" mesa de banquete":" mesas de banquete")):b==="MESA APERITIVO"?("× "+n+(n===1?" mesa de aperitivo":" mesas de aperitivo")):b==="MESA NIÑOS"?("× "+n+(n===1?" mesa de niños":" mesas de niños")):b==="PLATO"?"fijo":""; }
   /* el material de un plato: su vajilla y sus cubiertos del catálogo, con la
      MISMA cuenta de siempre (por comensal, por mesa o fija) */
   var tot={}, aMano=[];
@@ -14494,7 +14569,7 @@ function renderServicio(){
     bMesaAper.map(function(b){ return b.items.map(function(i){ var k="b:"+b.nombre+":"+i.art, o=ovq(k,i.uds); return '<tr><td><span class="chk">☐</span>'+esc(i.art)+' <span class="mnu-base">'+(i.mob?'mobiliario · ':'')+(i.exterior?'al aire libre · ':'')+esc(b.nombre)+'</span></td>'+qcel(k,i.uds,o.q,o.ov)+'</tr>'; }).join(""); }).join("");
   var notaMesa=bMesaAper.map(function(b){ return b.nota; }).filter(Boolean);
   var s1=(aper.length||mesaRows)?'<h2 class="mnu-sheet-sec">1 · Aperitivo</h2>'+
-    (mesaRows?'<h3 class="mnu-sheet-fam">En cada mesa de aperitivo <span class="mnu-base">× '+t.mesasAper+' mesas · se cuenta por mesa, no por comensal</span></h3><table class="mnu-ing-table"><tbody>'+mesaRows+'</tbody></table>'+notaMesa.map(function(n){ return '<p class="mnu-note">'+esc(n)+'</p>'; }).join(""):'')+
+    (mesaRows?'<h3 class="mnu-sheet-fam">En cada mesa de aperitivo <span class="mnu-base">× '+t.mesasAper+(t.mesasAper===1?' mesa':' mesas')+' · se cuenta por mesa, no por comensal</span></h3><table class="mnu-ing-table"><tbody>'+mesaRows+'</tbody></table>'+notaMesa.map(function(n){ return '<p class="mnu-note">'+esc(n)+'</p>'; }).join(""):'')+
     (aper.length?'<h3 class="mnu-sheet-fam">Por aperitivo <span class="mnu-base">en el orden de la escaleta · por comensal</span></h3>'+h1:''):'';
   /* ── 2 · MESAS DE BANQUETE ── */
   var bMesa=bloques.filter(function(b){ return b.cuando.tipo==="evento"&&(b.base==="MESA BANQUETE"||b.base==="COMENSAL"); });
@@ -16388,7 +16463,7 @@ function escModelo(){
       else { calc=comen*escPor(d); var pN=escPlatoN(d); if(pN>1){ var npl=Math.ceil(calc/pN-1e-9); sub=npl+(npl===1?" plato":" platos")+" de "+pN+" uds"; } }
       return fila((i+1)+". "+d.name,sub,Q("ap:"+d._uid,calc)); });
     if(marcaJamon&&!AP.std.some(esDishJamon)) fa2.push(fila("Jamón · "+marcaJamon,"a cortar",null));
-    md.secs.push({t:"Aperitivos",sub:c.mesasAper+" mesas · "+adTot+" adultos",filas:fa2});
+    md.secs.push({t:"Aperitivos",sub:c.mesasAper+(c.mesasAper===1?" mesa":" mesas")+" · "+adTot+(adTot===1?" adulto":" adultos"),filas:fa2});
   }
   /* los adaptados, en el orden en que salen, con cuántos y para quién */
   var adap={}, adO=[];
@@ -17405,7 +17480,7 @@ function rentUdArt(s){
   if(/^(ud|uds|u|un|und|unid|unidad|unidades|pieza|piezas|pz|botella|botellas|bot)$/.test(n)) return "ud";
   return "";
 }
-function rentNum(v){ if(typeof v==="number") return v; var s=String(v==null?"":v).replace(/[€\s]/g,""); if(!s) return null;
+function rentNum(v){ if(typeof v==="number") return v; var n0=window.LM_numEs?window.LM_numEs(v):null; if(n0!=null) return n0; var s=String(v==null?"":v).replace(/[€\s]/g,""); if(!s) return null;
   if(s.indexOf(",")>-1&&s.indexOf(".")>-1) s=s.lastIndexOf(",")>s.lastIndexOf(".")?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");
   else s=s.replace(",","."); var n=parseFloat(s); return isFinite(n)?n:null; }
 function rentArtMap(P){ var m={}; P.arts.forEach(function(a){ if(a.manual) m["m:"+a.id]=a; [a.n,a.o].forEach(function(x){ var k=rentClave(x); if(k&&!m[k]) m[k]=a; }); }); return m; }
@@ -17569,7 +17644,7 @@ function rentCalc(){
     beb.push({txt:l.label, marca:marca, q:l.q, cu:pu||0, total:(pu||0)*l.q, fuente:pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!l.q}); });
   var bebTotal=beb.reduce(function(s,x){ return s+x.total; },0);
   /* 3 · personal: los camareros que vienen (o los previstos) × horas × €/hora */
-  var cam=e.camareros||{}, camSi=Object.keys(cam).filter(function(k){ return cam[k]==="si"; }).length;
+  var camSi=window.LM_camSiN?window.LM_camSiN(e):Object.keys(e.camareros||{}).filter(function(k){ return e.camareros[k]==="si"; }).length;
   var nCam=(R.camareros!=null&&R.camareros!=="")?+R.camareros:(camSi||t.camareros), camEst=!(R.camareros!=null&&R.camareros!=="")&&!camSi;
   var horas=(R.horas!=null&&R.horas!=="")?+R.horas:+RP.horasCamarero;
   var perPrev=nCam*horas*(+RP.horaCamarero||0), perTotal=perPrev, hReal=null, faltanH=0;
@@ -18196,7 +18271,8 @@ function renderBody(){
 function numero(t){
   t=String(t==null?"":t).trim();
   if(t==="") return null;
-  var n=parseFloat(t.replace(",","."));
+  var n=window.LM_numEs?window.LM_numEs(t):null;
+  if(n==null) n=parseFloat(t.replace(",","."));
   return isNaN(n)?t:n;          /* si escriben «++» se guarda tal cual */
 }
 
@@ -18436,6 +18512,8 @@ function marcarDisponibilidad(id,estado){
   var e=BR.current(); if(!e) return;
   e.camareros=e.camareros||{};
   e.camareros[id]=estado;
+  /* quien no puede venir no se avisa: se quita la marca «por avisar» (la de «avisado» se queda como historial) */
+  if(estado==="no"&&e.camarerosAvisar&&e.camarerosAvisar[id]==="avisar") delete e.camarerosAvisar[id];
   e.updated=Date.now(); BR.save();
 }
 /* a quién hay que avisar en este evento: "" (no) | "avisar" | "avisado" */
@@ -19182,7 +19260,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     function chips(l){ return l.map(function(k){ return '<span class="co-dp '+k+'">'+esc(DEP_T[k])+'</span>'; }).join(""); }
     var filas=[
       ["Fecha del evento", f.fecha?fechaTxt(f.fecha):'<span class="co-vacio">sin fecha</span>',"eventos",["cocina","compras","servicio","contabilidad"]],
-      ["Comensales", '<b>'+pax+'</b> en total · '+f.adultos+' adultos · '+f.ninos+' niños · '+f.bebes+' bebés'+(f.staff?' · '+f.staff+' de staff (incluidos en adultos)':''),"eventos",["cocina","compras","servicio","contabilidad"]],
+      ["Comensales", '<b>'+pax+'</b> en total · '+f.adultos+' adultos · '+f.ninos+(f.ninos===1?' niño':' niños')+' · '+f.bebes+(f.bebes===1?' bebé':' bebés')+(f.staff?' · '+f.staff+' de staff (incluidos en adultos)':''),"eventos",["cocina","compras","servicio","contabilidad"]],
       ["Mesas de banquete", String(f.mesas||0),"eventos",["compras","servicio"]],
       ["Alergias y dietas", lista("Personas",f.alergias,"al")+(f.sinSustituto?'<span class="co-warn">'+f.sinSustituto+(f.sinSustituto===1?" sin plato sustitutivo decidido":" sin plato sustitutivo decidido")+'</span>':''),"eventos",["cocina","compras","servicio"]],
       ["Platos sustitutivos", lista("Decididos",f.sustitutos,"su"),"cocina",["eventos","compras","servicio"]],
@@ -20285,8 +20363,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function yo(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user(); return (u&&(u.name||u.email))||"Equipo"; }catch(_){ return "Equipo"; } }
   function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
   function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
-  function eur(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
-  function eur0(n){ return Math.round(+n||0).toLocaleString("es-ES")+" €"; }
+  function eur(n){ var v=Math.round((+n||0)*100)/100; return window.LM_fmtMiles?window.LM_fmtMiles(v,2)+" €":v.toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:"always"})+" €"; }
+  function eur0(n){ var v=Math.round(+n||0); return window.LM_fmtMiles?window.LM_fmtMiles(v,0)+" €":v.toLocaleString("es-ES",{useGrouping:"always"})+" €"; }
   function fechaHora(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
   function hhmm(ms){ var d=new Date(ms); return z(d.getHours())+":"+z(d.getMinutes()); }
   function dm(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
@@ -20535,7 +20613,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function fechaLarga(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return "(fecha por confirmar)"; try{ return new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }catch(_){ return dmy(iso); } }
   function masDias(iso,n){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return ""; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); d.setUTCDate(d.getUTCDate()+n); return d.getUTCFullYear()+"-"+z(d.getUTCMonth()+1)+"-"+z(d.getUTCDate()); }
   function fN(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{maximumFractionDigits:2}); }
-  function eur(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
+  function eur(n){ var v=Math.round((+n||0)*100)/100; return window.LM_fmtMiles?window.LM_fmtMiles(v,2)+" €":v.toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:"always"})+" €"; }
   function fHora(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+" "+z(d.getHours())+":"+z(d.getMinutes()); }
   function uid(){ return "pv"+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
   function api(path,method,body){
@@ -20617,7 +20695,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     guardaEv(e);
   }
   function textoPedido(e,pid){
-    var P=pedido(e,pid), pr=provDe(pid)||{}, F=e.ficha||{}, nom=String(pr.contacto||pr.nombre||"").split(" ")[0]||"buenas";
+    var P=pedido(e,pid), pr=provDe(pid)||{}, F=e.ficha||{}, nom=String(pr.contacto||"").trim().split(" ")[0]||String(pr.nombre||"").trim()||"buenas";   /* «Hola La,» salía de «La Tienda de…» */
     var L=["Hola "+nom+",","","Os hacemos el pedido para "+nombreEv(e)+(F.fecha?" ("+fechaLarga(F.fecha)+")":"")+".","Entrega: "+(P.entrega?fechaLarga(P.entrega):"(por confirmar)")+" en Les Moles, Ulldecona.",""];
     P.lineas.forEach(function(l){ L.push("- "+l.n+": "+fq(l.q,l.u)); });
     if(P.notas&&String(P.notas).trim()) L.push("",String(P.notas).trim());
@@ -21114,6 +21192,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!f){ f={id:id,anio:fe?+fe.slice(0,4):new Date().getFullYear(),mes:fe?+fe.slice(5,7):0,nombre:(c.tipo?c.tipo+" — ":"")+c.nombre,tipo:c.tipo||"",estado:"pendiente",fecha:fe,fechaTxt:fe?"":(c.fechaTxt||""),
       espacio:espacioDe(c.salon),pax:"",paxPrev:c.pax?String(c.pax):"",origen:"Web (consulta)",telefono:c.tel||"",localidad:"",consultaId:c.id,updated:Date.now()}; S.prevision.filas.push(f); }
     else { f.borrado=false; f.updated=Date.now(); }
+    /* quién escribe, su correo y lo que cuenta pasan al evento cuando se crea (antes se perdían) */
+    if(!f.contacto&&c.nombre) f.contacto=String(c.nombre).slice(0,120);
+    if(!f.email&&c.email) f.email=String(c.email).slice(0,160);
+    if(!f.telefono&&c.tel) f.telefono=c.tel;
+    if(!f.mensaje&&c.mensaje) f.mensaje=String(c.mensaje).slice(0,1500);
     try{ BR.save(); }catch(_){}
     return f;
   }
@@ -21697,7 +21780,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function z(n){ return (n<10?"0":"")+n; }
   function fch(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+"/"+d.getFullYear()+" "+z(d.getHours())+":"+z(d.getMinutes()); }
   function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
-  function eur(n){ return (+n||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"; }
+  function eur(n){ var v=+n||0; return window.LM_fmtMiles?window.LM_fmtMiles(v,2)+" €":v.toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:"always"})+" €"; }
   function kb(n){ return n>=1048576?(n/1048576).toFixed(1)+" MB":Math.max(1,Math.round(n/1024))+" KB"; }
   function api(path,method,body){
     return fetch(path,{method:method||"GET",credentials:"same-origin",headers:body?{"Content-Type":"application/json","Accept":"application/json"}:{"Accept":"application/json"},body:body?JSON.stringify(body):undefined})
@@ -21864,7 +21947,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function yo(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user(); return u||{}; }catch(_){ return {}; } }
   function backend(){ return !!(window.LM_backend&&window.LM_backend()); }
   function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
-  function eur(n){ return (Math.round((+n||0)*100)/100).toLocaleString("es-ES",{minimumFractionDigits:(+n||0)%1?2:0,maximumFractionDigits:2})+" €"; }
+  function eur(n){ var v=Math.round((+n||0)*100)/100, d=v%1?2:0; return window.LM_fmtMiles?window.LM_fmtMiles(v,d)+" €":v.toLocaleString("es-ES",{minimumFractionDigits:d,maximumFractionDigits:2,useGrouping:"always"})+" €"; }
   function dmy(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); return m?m[3]+"/"+m[2]+"/"+m[1]:""; }
   function fechaLarga(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||""); if(!m) return "(fecha por confirmar)"; var d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])), N=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"], D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"]; return D[d.getUTCDay()]+" "+(+m[3])+" de "+N[+m[2]-1]+" de "+m[1]; }
   function hoyISO(){ var d=new Date(); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
@@ -21915,6 +21998,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   /* ── los mensajes de cada caso ── */
   function nombreCliente(e){ var F=e.ficha||{}; return (F.parejaA&&F.parejaB)?F.parejaA+" y "+F.parejaB:(F.contacto||F.parejaA||"equipo"); }
+  /* el saludo va con el nombre de pila («Hola Marta y Jordi»), no con los apellidos; el servidor hace lo mismo */
+  function pilaDe(n){ var w=String(n||"").trim().split(/\s+/).filter(Boolean); if(!w.length) return ""; return (w.length>1&&(w[0].length<=2||/\.$/.test(w[0])))?w[0]+" "+w[1]:w[0]; }
+  function saludoCliente(e){ var F=e.ficha||{}; return (F.parejaA&&F.parejaB)?pilaDe(F.parejaA)+" y "+pilaDe(F.parejaB):(F.parejaA?pilaDe(F.parejaA):(F.contacto||"equipo")); }
   function enlaceCliente(e){ return e.share&&e.share.on&&e.share.id?location.origin+"/?cliente="+e.share.id:""; }
   function datosPago(){ try{ var d=BR.param("portal")||{}; return d.iban?"Podéis hacer la transferencia a "+d.iban+" indicando el nombre del evento.":""; }catch(_){ return ""; } }
   function funcionesDe(e,id){
@@ -21924,7 +22010,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function msgCliente(e,h){
     var tipo=!h?"libre":h.tipo==="contrato"?"contrato":h.tipo==="documento"?"lista":h.tipo==="pago"?"pago":h.tipo==="reunion"?"reunion":"libre", F=e.ficha||{}, prop=!!(e.contrato&&e.contrato.tipo==="propuesta");
-    var v={documento:prop?"la propuesta":"el contrato",doc_titulo:prop?"Propuesta":"Contrato",nombre:nombreCliente(e),evento:nombreEv(e),fecha:fechaLarga(F.fecha),vence:fechaLarga((h&&h.fecha)||F.fecha),importe:h&&h.importe!=null?eur(h.importe):"",concepto:h?h.t:"",enlace:enlaceCliente(e),firma:T.firma,datos_pago:datosPago()};
+    var v={documento:prop?"la propuesta":"el contrato",doc_titulo:prop?"Propuesta":"Contrato",nombre:saludoCliente(e),evento:nombreEv(e),fecha:fechaLarga(F.fecha),vence:fechaLarga((h&&h.fecha)||F.fecha),importe:h&&h.importe!=null?eur(h.importe):"",concepto:h?h.t:"",enlace:enlaceCliente(e),firma:T.firma,datos_pago:datosPago()};
     return {tipo:tipo,subject:rell(T.plant["cliente_"+tipo+"_asunto"],v),text:rell(T.plant["cliente_"+tipo],v),to:String(F.email||"").trim(),tel:F.telefono||""};
   }
   function msgCamarero(e,p){
@@ -21986,8 +22072,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       return '<div class="av-fila'+(x.done?" hecha":d!=null&&d<0?" tarde":d!=null&&d<=3?" pronto":"")+'"><div class="av-q"><b>'+esc(x.t)+'</b><small>'+esc(dmy(x.fecha))+(x.done?" · hecho":" · "+esc(relTxt(d)))+(x.importe!=null&&String(x.t).indexOf("€")<0?" · "+esc(eur(x.importe)):"")+'</small></div>'+
         '<div class="av-b">'+(x.done?'<span class="av-ok">✓ hecho</span>':'')+'<button type="button" class="btn sm" data-av="correo" data-i="'+i+'"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(m.tel,m.text,"WhatsApp","Avisar al cliente por WhatsApp: "+x.t)+'</div></div>'; }).join("");
     var m0=msgCliente(e,null), CT=(e.contrato&&e.contrato.texto)?e.contrato:null;
-    if(CT){ var hc={tipo:"contrato",id:"contrato",fecha:"v"+(CT.ver||1),t:"contrato"}, mc=msgCliente(e,hc), pr=CT.tipo==="propuesta", ap=(e.aprobaciones||{}).contrato, ok=!!(ap&&ap.ts&&window.LM_CONTRATO&&ap.h===window.LM_CONTRATO.hash(CT.texto));
-      filas+='<div class="av-fila'+(ok?" hecha":"")+'"><div class="av-q"><b>'+(pr?"La propuesta":"El contrato")+' para aceptar</b><small>Versión '+(CT.ver||1)+' · '+(ok?"ya aceptado":"avisarle de que lo tiene en su portal")+'</small></div>'+
+    if(CT){ var hc={tipo:"contrato",id:"contrato",fecha:"v"+(CT.ver||1),t:"contrato"}, mc=msgCliente(e,hc), pr=CT.tipo==="propuesta", cs=window.LM_CONTRATO.estadoDe(e), ok=cs.ok;
+      filas+='<div class="av-fila'+(ok?" hecha":"")+'"><div class="av-q"><b>'+(pr?"La propuesta":"El contrato")+' para aceptar</b><small>Versión '+(CT.ver||1)+' · '+(ok?"ya aceptado":cs.parcial?"falta la firma de la segunda persona":"avisarle de que lo tiene en su portal")+'</small></div>'+
         '<div class="av-b">'+(ok?'<span class="av-ok">✓ aceptado</span>':'')+'<button type="button" class="btn sm" data-av="correo" data-i="contrato"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(mc.tel,mc.text,"WhatsApp","Avisar al cliente por WhatsApp de que tiene "+(pr?"la propuesta":"el contrato"))+'</div></div>'; }
     h+=(filas||'<p class="av-vacio">Sin fecha del evento no hay pasos de la agenda con el cliente.</p>')+
       '<div class="av-fila"><div class="av-q"><b>Un mensaje libre</b><small>Para lo que no sea ninguno de los pasos de arriba</small></div><div class="av-b"><button type="button" class="btn sm" data-av="correo" data-i="libre"'+(mail?'':' disabled title="Falta el correo del cliente en la ficha"')+'>Correo</button>'+waBtn(m0.tel,m0.text,"WhatsApp","Escribir al cliente por WhatsApp")+'</div></div>';
@@ -22145,7 +22231,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     else if(a==="cam-avisado"){ guardarAviso(e,id,(e.camarerosAvisar&&e.camarerosAvisar[id])==="avisado"?"avisar":"avisado"); pintar(); }
     else if(a==="cam-todos"){
       var P=((BR.store.camareros&&BR.store.camareros.personas)||[]).filter(function(p){ return !p.borrado&&(e.camareros||{})[p.id]==="si"&&(e.camarerosAvisar||{})[p.id]==="avisar"&&/@/.test(p.email||""); });
-      var n=0, mal=0, sim=0; b.disabled=true;
+      var n=0, mal=0, sim=0, sinH=P.filter(function(p){ return !(e.camarerosHora||{})[p.id]; }).length;
+      if(!P.length) return;
+      if(!window.confirm("Se enviará el aviso por correo a "+P.length+(P.length===1?" persona":" personas")+":\n"+P.map(function(p){ return "· "+(p.nombre||p.email); }).join("\n")+(sinH?"\n\n"+(sinH===1?"1 no tiene":sinH+" no tienen")+" hora de entrada: el correo dirá «entrada a las (por confirmar)».":"")+"\n\n¿Enviar?")) return;
+      b.disabled=true;
       (function sig(i){
         if(i>=P.length){ toast(n+(n===1?" aviso enviado":" avisos enviados")+(sim?" ("+sim+" simulados: el correo no está activado)":"")+(mal?" · "+mal+" con error":"")+".",!!mal); cargarEstado(pintar); return; }
         var m=msgCamarero(e,P[i]);
@@ -22347,7 +22436,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var r=Q.res[e.id], ap=e.aprobaciones||{}, t=[];
     t.push("Menú: "+(ap.menu&&ap.menu.ts?"aprobado ("+esc(ap.menu.nombre||"")+")":"sin aprobar"));
     t.push("Minuta: "+(ap.minuta&&ap.minuta.ts?"aprobada ("+esc(ap.minuta.nombre||"")+")":"sin aprobar"));
-    if(e.contrato&&e.contrato.texto) t.push((e.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+": "+(ap.contrato&&ap.contrato.ts&&ap.contrato.h===window.LM_CONTRATO.hash(e.contrato.texto)?"aceptado ("+esc(ap.contrato.nombre||"")+")":"sin aceptar"));
+    if(e.contrato&&e.contrato.texto){ var cs=window.LM_CONTRATO.estadoDe(e), nm=[cs.ok1&&cs.ap?cs.ap.nombre:"",cs.firmantes===2&&cs.ok2&&cs.ap2?cs.ap2.nombre:""].filter(Boolean).join(" y ");
+      t.push((e.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+": "+(cs.ok?"aceptado ("+esc(nm)+")":cs.parcial?"falta la segunda firma ("+esc(nm)+" ya ha aceptado)":"sin aceptar")); }
     if(r&&r.msgs) t.push('<b>'+r.msgs+(r.msgs===1?" mensaje sin leer":" mensajes sin leer")+'</b>');
     if(r&&r.arch) t.push('<b>'+r.arch+(r.arch===1?" archivo nuevo":" archivos nuevos")+'</b>');
     if(r&&r.docs) t.push('<b>'+r.docs+(r.docs===1?" documento nuevo (justificante o identidad)":" documentos nuevos (justificantes o identidad)")+'</b>');
@@ -22367,9 +22457,18 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }).catch(function(){ Q.err="Sin conexión con el servidor."; }).finally(function(){ Q.cargando=false; if(activo()) pintar(); });
   }
   function marcarLeido(id){ api("/api/portal/leido","POST",{ev:id}).then(function(){ delete Q.res[id]; }); }
+  /* con dos firmantes el contrato solo está aceptado cuando firman los dos (lo mismo que dicen Avisos, Resumen y Presupuesto) */
+  function estadoContrato(e,s){
+    try{ var cs=window.LM_CONTRATO.estadoDe(e); if(cs.firmantes!==2) return s;
+      var n1=cs.ok1&&cs.ap?cs.ap.nombre:"", n2=cs.ok2&&cs.ap2?cs.ap2.nombre:"";
+      if(cs.ok) return {ok:true,nombre:[n1,n2].filter(Boolean).join(" y "),ts:Math.max((cs.ap&&cs.ap.ts)||0,(cs.ap2&&cs.ap2.ts)||0)};
+      if(n1||n2) return {ok:false,parcial:true,nombre:n1||n2,ts:((cs.ok1?cs.ap:cs.ap2)||{}).ts};
+      return s&&s.ok?{ok:false}:s;
+    }catch(_){ return s; } }
   function estadoFila(titulo,s,sinTxt,extra){
     var cls=s&&s.ok?"ok":s&&s.desactualizada?"viejo":"pend", txt;
-    if(s&&s.ok) txt='Aprobado por <b>'+esc(s.nombre)+'</b> el '+esc(fch(s.ts));
+    if(s&&s.parcial) txt='Ha aceptado <b>'+esc(s.nombre)+'</b> el '+esc(fch(s.ts))+'; <b>falta la otra persona</b>';
+    else if(s&&s.ok) txt='Aprobado por <b>'+esc(s.nombre)+'</b> el '+esc(fch(s.ts));
     else if(s&&s.desactualizada) txt='La aprobó <b>'+esc(s.nombre)+'</b> el '+esc(fch(s.ts))+', pero <b>ha cambiado después</b>: el cliente tiene que volver a aprobarla';
     else txt=sinTxt;
     return '<div class="pq-ap '+cls+'"><i aria-hidden="true">'+(s&&s.ok?"✓":s&&s.desactualizada?"!":"·")+'</i><div><b>'+esc(titulo)+'</b><span>'+txt+'</span>'+(extra||"")+'</div></div>';
@@ -22389,7 +22488,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     /* aprobaciones */
     h+='<section class="pq-sec"><h2>Aprobaciones</h2>'+
       estadoFila("El menú",st.menu,hayMenu?"Todavía no lo ha aprobado.":"Todavía no hay menú elegido: no hay nada que aprobar.")+
-      ((sh.portal||{}).contrato&&(sh.portal.contrato.texto)?estadoFila(sh.portal.contrato.tipo==="propuesta"?"La propuesta":"El contrato",st.contrato,"El cliente todavía no lo ha aceptado (lo ve en su pestaña «"+(sh.portal.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+"»)."):"")+
+      ((sh.portal||{}).contrato&&(sh.portal.contrato.texto)?estadoFila(sh.portal.contrato.tipo==="propuesta"?"La propuesta":"El contrato",estadoContrato(e,st.contrato),"El cliente todavía no lo ha aceptado (lo ve en su pestaña «"+(sh.portal.contrato.tipo==="propuesta"?"Propuesta":"Contrato")+"»)."):"")+
       estadoFila("La minuta",st.minuta,minu?"Todavía no la ha aprobado.":"Todavía no has publicado ninguna minuta para el cliente.",
         '<div class="pq-min">'+(minu?'<img src="/api/portal/img?id='+minu.id+'" alt="La minuta publicada" loading="lazy">':'')+
         '<div class="pq-acc"><button type="button" class="btn sm gold" data-pq="publicar"'+(Q.publicando?" disabled":"")+'>'+(Q.publicando?"Preparando…":minu?"Publicar la minuta actual":"Publicar la minuta para el cliente")+'</button>'+
@@ -22528,7 +22627,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-count span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9C9B92;font-weight:600}",
   "#novios .pn-tabs{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--pb) 92%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--pl)}",
   "#novios .pn-vista~.pn-tabs{top:46px}",
-  "@media (max-width:620px){#novios .pn-send .st{font-size:11.5px}#novios .pn-send{padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}}",
+  "@media (max-width:620px){#novios .pn-send .st{font-size:11.5px}#novios .pn-send{padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}#novios:has(input:focus,select:focus,textarea:focus) .pn-send{position:static}}",   /* con el teclado abierto la barra fija no tapa el campo */
   "#novios .pn-tabs .pn-wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-block:8px;background:linear-gradient(90deg,var(--pb),rgba(239,239,234,0)) left center/30px 100% no-repeat local,linear-gradient(270deg,var(--pb),rgba(239,239,234,0)) right center/30px 100% no-repeat local,linear-gradient(90deg,rgba(0,0,0,.14),rgba(0,0,0,0)) left center/10px 100% no-repeat scroll,linear-gradient(270deg,rgba(0,0,0,.14),rgba(0,0,0,0)) right center/10px 100% no-repeat scroll}",
   "#novios .pn-bd{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:4px;padding:0 5px;border-radius:99px;background:var(--oc);color:#fff;font-size:11px;font-weight:700;line-height:1;vertical-align:1px}#novios .pn-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
   "#novios .pn-falta{display:grid;gap:4px}#novios .pn-fl{list-style:none;margin:0;padding:0}#novios .pn-fi{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--ph)}#novios .pn-fi:first-child{border-top:0}",
@@ -22624,6 +22723,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-doc{padding:22px 18px 20px}#novios .pn-next{flex-wrap:wrap}#novios .pn-next .go{margin-left:0;width:100%}#novios .pn-fi{grid-template-columns:40px minmax(0,1fr)}#novios .pn-fi .go{grid-column:1/-1;width:100%}#novios .pn-step{grid-template-columns:26px 1fr}#novios .st-w{grid-column:2;text-align:left}}",
   "#novios .pn-peq{font-size:10px;letter-spacing:.1em;font-weight:600;color:var(--pfa);margin-left:8px;text-transform:none}",
   "#novios .pn-ap{display:flex;flex-direction:column;gap:14px}#novios .pn-menu-ap{padding:6px 4px;text-align:center}",
+  "#novios .pn-min-a{display:block}#novios .pn-min-t{text-align:center;margin:8px 0 0;font-size:13px;color:var(--pm)}#novios .pn-min-t a{color:inherit;text-decoration:underline}",
   "#novios .pn-min{display:block;max-width:100%;max-height:640px;margin:0 auto;border:1px solid var(--pl);border-radius:6px;box-shadow:0 14px 34px -20px rgba(0,0,0,.35);background:#fff}",
   "#novios .pn-aprob{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--ols);color:var(--olt)}#novios .pn-aprob svg{flex:none;width:20px;height:20px;margin-top:2px}#novios .pn-aprob b{display:block;color:var(--pi)}#novios .pn-aprob span{font-size:12.5px;color:var(--pm)}",
   "#novios .pn-aprob.viejo{background:var(--ocs);color:var(--oc)}",
@@ -22872,7 +22972,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var act=puedeActuar(), st=AP||{menu:{},minuta:{}}, mn=P().menu||[];
     var h='<div class="pn-head"><div><h2 class="pn-h2">Revisad y aprobad</h2><p class="pn-lead">Cuando el menú o la minuta estén como queréis, aprobadlos con vuestro nombre: queda apuntado con la fecha. Si después cambiamos algo, os lo volveremos a pedir.</p></div></div>';
     h+='<div class="pn-card pn-ap"><div class="pn-eb">El menú</div>'+(mn.length?'<div class="pn-menu pn-menu-ap">'+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>':'<p class="pn-lead">Todavía estamos preparando el menú.</p>')+aprobBloque("menu",st.menu,mn.length>0,act)+'</div>';
-    h+='<div class="pn-card pn-ap"><div class="pn-eb">La minuta <span class="pn-peq">la carta que irá en las mesas</span></div>'+(MIN?'<img class="pn-min" src="'+imgUrl(MIN.id)+'" alt="La minuta que os proponemos">':'<p class="pn-lead">Todavía no hay una minuta preparada. Os avisaremos cuando esté.</p>')+aprobBloque("minuta",st.minuta,!!MIN,act)+'</div>';
+    h+='<div class="pn-card pn-ap"><div class="pn-eb">La minuta <span class="pn-peq">la carta que irá en las mesas</span></div>'+(MIN?'<a class="pn-min-a" href="'+imgUrl(MIN.id)+'" target="_blank" rel="noopener" aria-label="Abrir la minuta a tamaño completo (se abre en otra pestaña)"><img class="pn-min" src="'+imgUrl(MIN.id)+'" alt="La minuta que os proponemos"></a><p class="pn-min-t"><a href="'+imgUrl(MIN.id)+'" target="_blank" rel="noopener">Ver la minuta a tamaño completo</a> para leer bien los nombres y los platos.</p>':'<p class="pn-lead">Todavía no hay una minuta preparada. Os avisaremos cuando esté.</p>')+aprobBloque("minuta",st.minuta,!!MIN,act)+'</div>';
     return h;
   }
   function vPlano(){
@@ -22921,8 +23021,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function subirArchivos(files,kind){
     var lista=Array.prototype.slice.call(files||[]); if(!lista.length) return;
     SUBIENDO=true; pintar();
-    lista.reduce(function(p,f){ return p.then(function(){ return imgComp(f,kind==="logo"?1000:1600,kind==="logo").then(function(o){ return accion({tipo:"archivo",kind:kind,nombre:o.nombre,src:o.src,w:o.w,h:o.h}); }).then(aplicar).catch(function(j){ aviso((j&&j.message)||"No se ha podido subir esa imagen."); }); }); },Promise.resolve())
-      .then(function(){ SUBIENDO=false; pintar(); aviso(lista.length===1?"Recibido. Gracias.":"Recibidas. Gracias."); });
+    var ok=0, mal="";
+    lista.reduce(function(p,f){ return p.then(function(){ return imgComp(f,kind==="logo"?1000:1600,kind==="logo").then(function(o){ return accion({tipo:"archivo",kind:kind,nombre:o.nombre,src:o.src,w:o.w,h:o.h}); }).then(function(j){ ok++; aplicar(j); }).catch(function(j){ mal=(j&&j.message)||"No se ha podido subir esa imagen."; }); }); },Promise.resolve())
+      /* el aviso va DESPUÉS de repintar (repintar borra el aviso anterior) y solo dice «Recibido» lo que de verdad se ha subido */
+      .then(function(){ SUBIENDO=false; pintar(); if(!mal) aviso(lista.length===1?"Recibido. Gracias.":"Recibidas. Gracias."); else if(!ok) aviso(mal); else aviso("Se han recibido "+ok+" de "+lista.length+". "+mal); });
   }
   function onExtra(ev){
     var b=ev.target.closest&&ev.target.closest("[data-pn-act]"), a=b&&b.getAttribute("data-pn-act");
@@ -22964,6 +23066,13 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return false;
   }
   /* ── documentos: justificantes de pago y documento de identidad ── */
+  /* «1.485,00», «1485,5», «1 485» o «1485.50» → número; si no se entiende, null (antes «3.679,00» se guardaba como 3,68 €) */
+  function importeEs(t){ var x=String(t==null?"":t).replace(/[€\s]/g,""); if(!x) return null; if(!/^[0-9.,]+$/.test(x)) return null;
+    var c=(x.match(/,/g)||[]).length, d=(x.match(/\./g)||[]).length;
+    if(c>1) return null;
+    if(c===1){ if(/,.*\./.test(x)) return null; x=x.replace(/\./g,"").replace(",","."); }
+    else if(d>1||(d===1&&/^[1-9]\d{0,2}\.\d{3}$/.test(x))) x=x.replace(/\./g,"");
+    var n=parseFloat(x); return isFinite(n)&&n>=0&&n<1e7?Math.round(n*100)/100:null; }
   function docsDe(kind,persona){ return DOCS.filter(function(d){ return d.kind===kind&&(persona==null||String(d.persona)===String(persona)); }); }
   function personasDoc(){ var n=nombres(), out=[{i:1,nom:n.fb?"Persona 1":n.a}]; if(!n.solo) out.push({i:2,nom:n.b}); return out; }
   function docsPend(){ return !!(puedeActuar()&&conDoc()&&personasDoc().some(function(p){ return !docsDe("dni",p.i).length; })); }
@@ -22978,8 +23087,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function subirDocs(files,base){
     var lista=Array.prototype.slice.call(files||[]); if(!lista.length) return;
     SUBIENDO=true; pintar();
-    lista.reduce(function(p,f){ return p.then(function(){ return archivoADoc(f).then(function(o){ return accion(Object.assign({tipo:"doc",nombre:o.nombre,src:o.src,por:nombres().a||""},base)); }).then(aplicar).catch(function(j){ aviso((j&&j.message)||"No se ha podido subir ese archivo."); }); }); },Promise.resolve())
-      .then(function(){ SUBIENDO=false; pintar(); aviso(lista.length===1?"Recibido. Gracias.":"Recibidos. Gracias."); });
+    var ok=0, mal="";
+    lista.reduce(function(p,f){ return p.then(function(){ return archivoADoc(f).then(function(o){ return accion(Object.assign({tipo:"doc",nombre:o.nombre,src:o.src,por:nombres().a||""},base)); }).then(function(j){ ok++; aplicar(j); }).catch(function(j){ mal=(j&&j.message)||"No se ha podido subir ese archivo."; }); }); },Promise.resolve())
+      .then(function(){ SUBIENDO=false; pintar(); if(!mal) aviso(lista.length===1?"Recibido. Gracias.":"Recibidos. Gracias."); else if(!ok) aviso(mal); else aviso("Se han recibido "+ok+" de "+lista.length+". "+mal); });
   }
   function vDocs(){
     var act=puedeActuar(), js=docsDe("justificante"), pagos=pasos().filter(function(p){ return p.tipo==="pago"&&p.importe&&!p.done; }), hoy=(D&&D.hoy)||"";
@@ -23032,24 +23142,24 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var b=t.querySelector("button"); if(b) b.onclick=function(){ deshacer(); t.classList.remove("on"); }; }
   function payload(enviar){ return {consent:consentido(),parejaA:S.parejaA||"",parejaB:S.parejaB||"",mesas:(S.mesas||[]).map(function(m){ return {k:m.k||null,nombre:m.nombre||"",staff:!!m.staff,g:(m.g||[]).map(function(g){ return {n:g.n||"",t:g.t||"adulto",a:g.a||""}; })}; }),enviar:!!enviar,base:BASE0,nuevo:NUEVO}; }
   function guardar(enviar){
-    if(soloMirar()){ if(enviar) aviso("En la vista del equipo no se envía nada."); return Promise.resolve(); }
-    if(!puedeEditar()) return Promise.resolve();
+    if(soloMirar()){ if(enviar) aviso("En la vista del equipo no se envía nada."); return Promise.resolve(false); }
+    if(!puedeEditar()) return Promise.resolve(false);
     var body=payload(enviar);
     if(!D.local&&hayAlergias()&&!consentido()){
       var pc=document.getElementById("pn-priv"); if(pc) pc.classList.add("falta");
       var ss=document.getElementById("pn-send-st"); if(ss) ss.innerHTML='<b>Falta aceptar la privacidad.</b> Marca la casilla de «Privacidad de vuestros invitados» para que se guarden las alergias.';
       if(enviar){ aviso("Para enviar las alergias, marcad la casilla de privacidad."); try{ if(pc) pc.scrollIntoView({block:"center",behavior:"smooth"}); }catch(_){} }
-      return Promise.resolve();
+      return Promise.resolve(false);
     }
     if(D.local){ try{ var loc=JSON.parse(localStorage.getItem("lm_novios_listas")||"{}"), now=Date.now(), prev=loc[TOKEN];
         var est=enviar?"enviada":(prev&&prev.estado==="enviada"?"enviada":"borrador");
         loc[TOKEN]={token:TOKEN,event_id:D.local,data:{parejaA:body.parejaA,parejaB:body.parejaB,mesas:body.mesas},base:(prev&&prev.base&&(prev.estado==="borrador"||prev.estado==="enviada"||(prev.estado==="aplicada"&&!NUEVO)))?prev.base:BASE0,estado:est,enviada:enviar?now:(prev?prev.enviada:null),updated:now,revisada:null};
-        localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); estado=est; NUEVO=false; if(enviar) enviadaTs=now; }catch(_){}
-      return Promise.resolve(); }
+        localStorage.setItem("lm_novios_listas",JSON.stringify(loc)); estado=est; NUEVO=false; if(enviar) enviadaTs=now; }catch(_){ return Promise.resolve(false); }
+      return Promise.resolve(true); }
     return fetch("/api/share?t="+encodeURIComponent(TOKEN),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
       .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw j; return j; }); })
-      .then(function(j){ estado=j.estado; NUEVO=false; if(CONSENT_CHK&&!CONSENT) CONSENT={ts:Date.now(),v:(PRIV&&PRIV.v)||1}; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); })
-      .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar. Revisad la conexión e intentadlo otra vez."); });
+      .then(function(j){ estado=j.estado; NUEVO=false; if(CONSENT_CHK&&!CONSENT) CONSENT={ts:Date.now(),v:(PRIV&&PRIV.v)||1}; if(j.enviada) enviadaTs=j.enviada; var s=document.getElementById("pn-send-st"); if(s) s.innerHTML=vSendSt(); return true; })
+      .catch(function(j){ aviso((j&&j.message)||"No se ha podido guardar. Revisad la conexión e intentadlo otra vez."); return false; });
   }
   function programar(){ clearTimeout(saveTm); saveTm=setTimeout(function(){ saveTm=null; guardar(false); },900); }
 
@@ -23068,7 +23178,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(a==="solo-al"){ SOLOAL=!SOLOAL; aplicaFiltro(); return; }
     if(a==="abrir-todas"||a==="cerrar-todas"){ var ab=a==="abrir-todas"; S.mesas.forEach(function(_,i){ ABIERTAS[i]=ab; }); BUSCA=""; SOLOAL=false; var qi=document.getElementById("pn-q"); if(qi) qi.value=""; aplicaFiltro(); return; }
     if(a==="add-mesa"){ S.mesas.push({k:null,nombre:"",g:[{n:"",t:"adulto",a:""}]}); ABIERTAS[S.mesas.length-1]=true; pintar(); var i=document.getElementById("pn-mesa-"+(S.mesas.length-1)); if(i) i.focus(); programar(); return; }
-    if(a==="enviar"){ var c=cuenta(); if(!c.total){ aviso("La lista está vacía. Añadid al menos una persona."); return; } guardar(true).then(function(){ if(soloMirar()) return; pintar(); aviso(P().auto!==false?"Lista enviada. Ya le llega al equipo de Les Moles.":"Lista enviada. El equipo de Les Moles la revisará."); }); return; }
+    if(a==="enviar"){ var c=cuenta(); if(!c.total){ aviso("La lista está vacía. Añadid al menos una persona."); return; } guardar(true).then(function(ok){ if(!ok||soloMirar()) return; pintar(); aviso(P().auto!==false?"Lista enviada. Ya le llega al equipo de Les Moles.":"Lista enviada. El equipo de Les Moles la revisará."); }); return; }
     var mEl=b.closest("[data-m]"); if(!mEl) return; var mi=+mEl.getAttribute("data-m");
     if(a==="mesa-ab"){ var cer=!mEl.classList.contains("cerr"); mEl.classList.toggle("cerr",cer); b.setAttribute("aria-expanded",String(!cer)); if(!(BUSCA||SOLOAL)) ABIERTAS[mi]=!cer; return; }
     if(a==="add-g"){ S.mesas[mi].g.push({n:"",t:"adulto",a:""}); pintar(); var ins=host.querySelectorAll('[data-m="'+mi+'"] .pn-g .nm'); if(ins.length) ins[ins.length-1].focus(); programar(); return; }
@@ -23126,7 +23236,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         var t0=ev.target, id0=t0&&t0.id||"";
         if(id0==="pn-just-ref"){ var op=t0.options[t0.selectedIndex], im=document.getElementById("pn-just-imp"); JUSTSEL=t0.value; if(im&&op&&op.getAttribute("data-imp")) im.value=String(op.getAttribute("data-imp")).replace(".",","); return; }
         if(id0==="pn-file-just"){ var sel=document.getElementById("pn-just-ref"), op2=sel&&sel.options[sel.selectedIndex], imp=(document.getElementById("pn-just-imp")||{}).value||"", fec=(document.getElementById("pn-just-fec")||{}).value||"";
-          subirDocs(t0.files,{kind:"justificante",ref:(sel&&sel.value)||"",concepto:(sel&&sel.value&&op2)?op2.textContent.split(" · ")[0]:"Pago",importe:imp.replace(",","."),fecha:fec}); t0.value=""; return; }
+          var impN=importeEs(imp);
+          if(imp.trim()&&impN==null){ aviso("No entiendo ese importe. Escribidlo con números, por ejemplo 1.485,00."); t0.value=""; var ii=document.getElementById("pn-just-imp"); if(ii) ii.focus(); return; }
+          subirDocs(t0.files,{kind:"justificante",ref:(sel&&sel.value)||"",concepto:(sel&&sel.value&&op2)?op2.textContent.split(" · ")[0]:"Pago",importe:impN==null?"":String(impN),fecha:fec}); t0.value=""; return; }
         if(/^pn-file-dni-[12]$/.test(id0)){ subirDocs(t0.files,{kind:"dni",persona:id0.slice(-1)}); t0.value=""; return; }
         if(ev.target&&(ev.target.id==="pn-file-logo"||ev.target.id==="pn-file-foto")){ var kd=ev.target.id==="pn-file-logo"?"logo":"foto", fl=ev.target.files; subirArchivos(fl,kd); ev.target.value=""; return; } if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute("data-f")==="t") onInput(ev);
       else if(ev.target&&ev.target.id==="pn-consent"){ CONSENT_CHK=ev.target.checked; var pc=document.getElementById("pn-priv"); if(pc) pc.classList.toggle("falta",hayAlergias()&&!consentido()); programar(); } }); }
@@ -23291,6 +23403,19 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       if(sinRed){ sinRed=false; if(!d.authed){ SESSION.logout(); showGate(); setMode("login"); showErr("Tu sesión había caducado mientras no había conexión. Vuelve a entrar; lo que hiciste sin conexión sigue guardado en este dispositivo y se subirá.",true); openLogin(); return; }
         try{ if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.toast) window.SITTING_BRIDGE.toast("Conexión recuperada: subiendo lo que hiciste sin conexión."); }catch(_){} } if(d.authed){ if(d.user){ setUser(Object.assign({},curUser||{},d.user)); } aplicarAjustes(d); if(d.user&&d.user.mustChange) abrirCambio(true); } }catch(_){}
   }
+  /* al volver a la pestaña se vuelve a leer quién eres: si el administrador te ha cambiado el rol o te ha desactivado, se nota enseguida
+     (el servidor ya aplica lo nuevo; antes la pantalla seguía con el menú de antes hasta recargar) */
+  var ultComp=Date.now();
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState!=="visible"||!backend||sinRed||!document.body.classList.contains("authed")||!SESSION.isAuthed()) return;
+    if(Date.now()-ultComp<60000) return; ultComp=Date.now();
+    (async function(){ try{ var r=await fetch("/api/me",{headers:{"Accept":"application/json"}}); if(!r.ok) return; var d=await r.json();
+      if(!d.authed){ SESSION.logout(); showGate(); setMode("login"); showErr("Tu sesión ha caducado o se ha desactivado. Vuelve a entrar.",true); openLogin(); return; }
+      var antes=curUser&&curUser.role;
+      if(d.user) setUser(Object.assign({},curUser||{},d.user)); aplicarAjustes(d);
+      if(antes&&d.user&&d.user.role&&d.user.role!==antes){ try{ if(window.SITTING_BRIDGE&&window.SITTING_BRIDGE.toast) window.SITTING_BRIDGE.toast("Tu rol ha cambiado. Se ha actualizado el menú."); }catch(_){} try{ if(window.showHome) window.showHome(); }catch(_){} }
+    }catch(_){} })();
+  });
   /* cierre de sesión por inactividad (sin tocar el ratón, el teclado ni la pantalla) */
   var ultAct=Date.now(), vigiliaPuesta=false, vigiliaTm=null;
   function vigilarInactividad(){
@@ -23692,7 +23817,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 var BR=window.SITTING_BRIDGE; if(!BR) return;
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function clon(x){ return JSON.parse(JSON.stringify(x)); }
-function num(v){ var n=parseFloat(String(v==null?"":v).replace(",",".")); return isFinite(n)?n:null; }
+function num(v){ var n=window.LM_numEs?window.LM_numEs(v):null; if(n!=null) return n; n=parseFloat(String(v==null?"":v).replace(",",".")); return isFinite(n)?n:null; }
 function lineas(t){ return String(t||"").split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean); }
 function norm(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); }
 function esAdmin(){ try{ var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); return !!u&&u.role==="admin"; }catch(_){ return false; } }

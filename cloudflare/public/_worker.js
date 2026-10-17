@@ -26,7 +26,7 @@
  *   PUT  /api/seguridad         {idleMin} cierre de sesión por inactividad (solo admin)
  *   GET  /api/share?t=..        portal del cliente: su evento, pagos, presupuesto (lectura) y su lista
  *   POST /api/share?t=..        el cliente guarda/envía SOLO sus nombres y su lista de invitados
- *   GET  /api/propuestas        listas enviadas por el cliente (equipo con sesión)
+ *   GET  /api/propuestas        listas enviadas por el cliente (administración y eventos)
  *   PATCH /api/propuestas       {token, estado:"aplicada"|"descartada"} (equipo con sesión)
  *   GET  /api/backups           copias de seguridad y papelera (solo admin)
  *   POST /api/backups           {nota?} hace una copia ahora (solo admin)
@@ -305,12 +305,12 @@ async function eventoCompartido(env, token) {
   const events = (doc && doc.events) || [];
   return events.find((e) => e && e.share && e.share.on && e.share.id === token) || null;
 }
-/* v01.80 · quien prueba enlaces al azar se queda sin poder probar más (25 fallos en 10 minutos por conexión; cada servidor lleva su cuenta,
+/* v01.80 · quien prueba enlaces al azar se queda sin poder probar más (60 fallos en 10 minutos por conexión: una red de salón o de oficina compartida no debe cortar a los clientes de verdad; cada servidor lleva su cuenta,
    así que es un freno, no una puerta cerrada: los enlaces nuevos son imposibles de adivinar) y el portal se cierra N días después
    del evento (Parámetros → Privacidad y datos; 0 = no se cierra hasta anonimizar). */
 const MALOS = new Map();
 function ipDe(request) { return request.headers.get("CF-Connecting-IP") || (request.headers.get("X-Forwarded-For") || "").split(",")[0].trim() || "?"; }
-function demasiados(ip) { const r = MALOS.get(ip); return !!r && r.n >= 25 && Date.now() - r.t < 600e3; }
+function demasiados(ip) { const r = MALOS.get(ip); return !!r && r.n >= 60 && Date.now() - r.t < 600e3; }
 function fallo(ip) {
   const n = Date.now(); let r = MALOS.get(ip);
   if (!r || n - r.t >= 600e3) r = { n: 0, t: n };
@@ -440,6 +440,8 @@ async function sharePost(request, env, url) {
 async function propuestasList(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
+  /* trae nombres, alergias y el enlace privado de cada cliente: solo quien puede aplicarlas (igual que el PATCH) */
+  if (s.role !== "admin" && s.role !== "eventos") return json({ error: "forbidden" }, 403);
   await ensureNovios(env);
   const { results } = await env.DB.prepare("SELECT token, event_id, data, estado, enviada, updated, revisada, base FROM novios_listas ORDER BY updated DESC LIMIT 300").all();
   return json({ listas: (results || []).map((r) => { let d = null, bs = null; try { d = JSON.parse(r.data); } catch (_) {} try { bs = r.base ? JSON.parse(r.base) : null; } catch (_) {}
@@ -2015,7 +2017,10 @@ function corSemana(iso) {
 const COR_DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
 function corFechaCorta(iso) { const t = new Date(iso + "T00:00:00Z"); return COR_DIAS[t.getUTCDay()] + " " + iso.slice(8, 10) + "/" + iso.slice(5, 7); }
 function corFechaLarga(iso) { const t = new Date(iso + "T00:00:00Z"), N = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"], D = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]; return D[t.getUTCDay()] + " " + (+iso.slice(8, 10)) + " de " + N[+iso.slice(5, 7) - 1] + " de " + iso.slice(0, 4); }
-function corEur(n) { return (Math.round((+n || 0) * 100) / 100).toLocaleString("es-ES", { minimumFractionDigits: (+n || 0) % 1 ? 2 : 0, maximumFractionDigits: 2 }) + " €"; }
+/* con punto de miles también en cifras de 4 dígitos («1.485 €»; es-ES no lo pone) */
+function corEur(n) { const v = Math.round((+n || 0) * 100) / 100, d = v % 1 ? 2 : 0, p = Math.abs(v).toFixed(d).split("."); return (v < 0 ? "-" : "") + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".") + (d ? "," + p[1] : "") + " €"; }
+/* nombre de pila para el saludo: «Marta Vidal» → «Marta» («M. Carmen» se queda con las dos primeras palabras) */
+function corPila(n) { const w = String(n || "").trim().split(/\s+/).filter(Boolean); if (!w.length) return ""; return (w.length > 1 && (w[0].length <= 2 || /\.$/.test(w[0]))) ? w[0] + " " + w[1] : w[0]; }
 function corNombreEv(e) { return String((e && e.name) || "Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/, "").trim() || "Evento"; }
 const COR_SIN_CONFIRMAR = { contacto: 1, propuesta: 1, visita: 1 };
 const COR_ESTADO_TX = { contacto: "contacto", propuesta: "propuesta", visita: "visita", reserva: "reserva", planificacion: "en planificación", confirmada: "confirmada", celebrada: "celebrada", cerrada: "cerrada" };
@@ -2044,7 +2049,7 @@ function corResumen(doc, hoy, cfg, plant) {
   if (sinS.length) cola.push("· Alergias o dietas sin plato sustituto: " + sinS.map((e) => corNombreEv(e) + " (" + sn(e).sinSust + ")").join(" · "));
   const hitos = [];
   prox30.forEach((e) => (sn(e).hitos || []).forEach((h) => { if (!h.done && h.fecha && corDias(hoy, h.fecha) <= 3) hitos.push({ e, h, d: corDias(hoy, h.fecha) }); }));
-  hitos.sort((a, b) => a.d - b.d).slice(0, 8).forEach((x) => cola.push("· " + x.h.t + " — " + corNombreEv(x.e) + (x.d < 0 ? " (vencido hace " + (-x.d) + (x.d === -1 ? " día)" : " días)") : x.d === 0 ? " (hoy)" : x.d === 1 ? " (mañana)" : " (en " + x.d + " días)")));
+  hitos.sort((a, b) => a.d - b.d).slice(0, 8).forEach((x) => cola.push("· " + x.h.t + (x.h.importe != null && x.h.importe > 0 ? " · " + corEur(x.h.importe) : "") + " — " + corNombreEv(x.e) + (x.d < 0 ? " (vencido hace " + (-x.d) + (x.d === -1 ? " día)" : " días)") : x.d === 0 ? " (hoy)" : x.d === 1 ? " (mañana)" : " (en " + x.d + " días)")));
   L.push("", "QUEDA POR HACER");
   if (!cola.length) L.push("· Nada pendiente a la vista."); else cola.forEach((x) => L.push(x));
   const mas = prox30.length - semana.length;
@@ -2097,7 +2102,7 @@ async function correoAutomatico(env, ahora, origen, opt) {
   return out;
 }
 function corMensajeCliente(e, h, tipo, cfg, plant, portal, origen) {
-  const F = e.ficha || {}, nombre = (F.parejaA && F.parejaB) ? F.parejaA + " y " + F.parejaB : (F.contacto || F.parejaA || "equipo");
+  const F = e.ficha || {}, nombre = (F.parejaA && F.parejaB) ? corPila(F.parejaA) + " y " + corPila(F.parejaB) : (F.parejaA ? corPila(F.parejaA) : (F.contacto || "equipo"));
   const enlace = e.share && e.share.on && e.share.id ? String(origen || "") + "/?cliente=" + e.share.id : "";
   const v = { nombre, evento: corNombreEv(e), fecha: corFechaLarga(F.fecha), vence: corFechaLarga(h.fecha || F.fecha), importe: h.importe != null ? corEur(h.importe) : "", concepto: h.t || "", enlace, firma: cfg.firma || "",
     datos_pago: portal.iban ? "Podéis hacer la transferencia a " + portal.iban + " indicando el nombre del evento." : "" };
@@ -2189,7 +2194,8 @@ async function correoEnviarRoute(request, env) {
     if (!(prog >= Date.now() + 4 * 60e3) || prog > Date.now() + 30 * 864e5) return json({ error: "invalid", message: "Para programar el envío elige una fecha y hora entre dentro de 5 minutos y 30 días." }, 400);
   }
   const quien = corEmailOk(a.s.email) ? String(a.s.email).trim() : "";
-  const r = await correoEnviar(env, { kind, ev: b.ev, to: kind === "prueba" ? (b.to || a.s.email) : b.to, subject: b.subject, text: b.text, ref: b.ref, by: a.s.name || a.s.email, origen: new URL(request.url).origin,
+  const r = await correoEnviar(env, { kind, ev: b.ev, to: kind === "prueba" ? (b.to || a.s.email) : b.to, subject: b.subject, text: b.text, ref: /^(resumen|cons-aviso|cons-resp|reintento)/i.test(String(b.ref || "")) ? "" : String(b.ref || "").slice(0, 200),   /* los identificadores del resumen semanal y de las consultas son del servidor: así nadie los ocupa de antemano */
+     by: a.s.name || a.s.email, origen: new URL(request.url).origin,
     bcc: kind === "prueba" ? [] : corCopias(cfg, kind, quien), replyTo: kind === "prueba" ? "" : (cfg.respuesta === "quien" && quien ? quien : cfg.responder), adjuntos: ad.lista, programar: prog });
   if (r.ok) await logAct(env, a.s, "correo_enviado", (r.estado === "simulado" ? "(simulado) " : r.estado === "programado" ? "(programado) " : "") + kind + " → " + String(b.to || a.s.email).slice(0, 80) + (ad.lista.length ? " · " + ad.lista.length + " adjuntos" : ""));
   return json(r, r.ok ? 200 : (r.error === "invalid" ? 400 : 502));
