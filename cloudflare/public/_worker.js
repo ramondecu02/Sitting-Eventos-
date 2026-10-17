@@ -129,9 +129,16 @@ export default {
   },
 };
 
+/* v02.00 · quien entra con una contraseña temporal solo puede cambiarla (o salir): el resto del servidor le contesta «must-change» aunque
+   se salte la pantalla de la app. Lo público (portal del cliente, formulario de consultas, invitaciones, vigilante) no pasa por aquí. */
+const SIN_SESION = /^\/api\/((me|setup|login|logout|invitacion|health|share|error)(\/|$)|consulta$|consulta\/(form|disp)$)/;
 async function api(request, env, url) {
   const p = url.pathname;
   const m = request.method.toUpperCase();
+  if (!SIN_SESION.test(p) && p !== "/api/me/password") {
+    const s0 = await session(request, env);
+    if (s0 && s0.mustChange) return json({ error: "must-change", message: "Tu contraseña es temporal: cámbiala para poder seguir." }, 403);
+  }
   if (p === "/api/me" && m === "GET") return meRoute(request, env);
   if (p === "/api/setup" && m === "POST") return setupRoute(request, env);
   if (p === "/api/login" && m === "POST") return loginRoute(request, env);
@@ -251,28 +258,40 @@ async function setupRoute(request, env) {
   return withSession(json({ ok: true, user: pubUser(user) }), env, user);
 }
 
+/* v02.00 · el bloqueo por intentos fallidos ya no deja fuera al administrador por culpa de otra persona: se cuenta por
+   correo + conexión (5 en 10 min), por conexión (20 con cualquier correo) y, mucho más alto, por correo desde cualquier sitio (40, contra quien
+   reparte los intentos). Un correo que no existe, una invitación sin aceptar y una contraseña mala contestan EXACTAMENTE igual y tardan lo mismo. */
+const LOGIN_VENTANA = 10 * 60e3, SAL_FALSA = "00112233445566778899aabbccddeeff";
 async function loginRoute(request, env) {
   await ensureUsers(env);
   const b = await body(request);
-  const email = norm(b.email), pass = b.password || "";
-  if (!email || !pass) return json({ error: "invalid" }, 400);
-  /* demasiados fallos seguidos con el mismo correo: se espera 10 minutos */
-  const f = await env.DB.prepare("SELECT COUNT(*) AS n FROM actividad WHERE tipo='login_fallido' AND detalle=?1 AND ts>?2").bind(email, Date.now() - 10 * 60e3).first();
-  if (f && f.n >= 5) return json({ error: "locked", message: "Demasiados intentos fallidos. Espera 10 minutos o pide a un administrador que te ponga una contraseña nueva." }, 429);
+  const email = norm(b.email), pass = typeof b.password === "string" ? b.password : "";
+  if (!email || !pass || email.length > 160 || pass.length > 300) return json({ error: "invalid" }, 400);
+  const ip = ipDe(request), ahora = Date.now();
+  const c = await env.DB.prepare("SELECT SUM(CASE WHEN email=?1 AND ip=?2 THEN 1 ELSE 0 END) AS par, SUM(CASE WHEN ip=?2 THEN 1 ELSE 0 END) AS conex, SUM(CASE WHEN email=?1 THEN 1 ELSE 0 END) AS correo FROM login_fallos WHERE ts>?3").bind(email, ip, ahora - LOGIN_VENTANA).first();
+  if (c && (+c.par >= 5 || +c.conex >= 20 || +c.correo >= 40)) return json({ error: "locked", message: "Demasiados intentos fallidos desde este equipo. Espera 10 minutos y vuelve a probar." }, 429);
   const row = await env.DB.prepare("SELECT * FROM users WHERE email=?").bind(email).first();
-  if (!row) { await logAct(env, null, "login_fallido", email); return json({ error: "credentials" }, 401); }
-  if (row.invite_token) return json({ error: "pending", message: "Todavía no has creado tu contraseña: usa el enlace de invitación que te enviaron." }, 403);
-  const hash = await pbkdf2(pass, row.pass_salt);
-  if (!timingSafeEqual(hash, row.pass_hash)) { await logAct(env, { uid: row.id, name: row.name }, "login_fallido", email); return json({ error: "credentials" }, 401); }
+  const hash = await pbkdf2(pass, (row && row.pass_salt) || SAL_FALSA);
+  if (!row || row.invite_token || !timingSafeEqual(hash, row.pass_hash)) {
+    try {
+      await env.DB.prepare("INSERT INTO login_fallos (ts, email, ip) VALUES (?1, ?2, ?3)").bind(ahora, email, ip).run();
+      if (Math.random() < 0.05) await env.DB.prepare("DELETE FROM login_fallos WHERE ts<?1").bind(ahora - 3600e3).run();
+    } catch (_) {}
+    await logAct(env, row ? { uid: row.id, name: row.name } : null, "login_fallido", email);
+    return json({ error: "credentials" }, 401);
+  }
   if (row.active === 0) { await logAct(env, { uid: row.id, name: row.name }, "login_fallido", email + " (acceso desactivado)"); return json({ error: "inactive", message: "Tu acceso está desactivado. Habla con un administrador." }, 403); }
-  const ahora = Date.now();
-  await env.DB.prepare("UPDATE users SET last_login=?1, login_count=COALESCE(login_count,0)+1, last_seen=?1 WHERE id=?2").bind(ahora, row.id).run();
+  try { await env.DB.prepare("DELETE FROM login_fallos WHERE email=?1 AND ip=?2").bind(email, ip).run(); } catch (_) {}
+  await env.DB.prepare("UPDATE users SET last_login=?1, login_count=COALESCE(login_count,0)+1, last_seen=?1, last_act=?1 WHERE id=?2").bind(ahora, row.id).run();
   await logAct(env, { uid: row.id, name: row.name }, "login", "");
   return withSession(json({ ok: true, user: Object.assign(pubUser(row), { mustChange: !!row.must_change }) }), env, row);
 }
 
 async function logoutRoute(request, env) {
-  try { const s = await session(request, env); if (s) await logAct(env, s, "logout", ""); } catch (_) {}
+  try {
+    const s = await session(request, env);
+    if (s) { await logAct(env, s, "logout", ""); await cierraSesion(env, request, s); }
+  } catch (_) {}
   const r = json({ ok: true });
   r.headers.append("Set-Cookie", `${COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`);
   return r;
@@ -522,15 +541,37 @@ async function storeGet(request, env) {
   return new Response(data, { headers: { "Content-Type": "application/json", "Cache-Control": "no-store", "X-Store-Version": String((row && row.updated) || 0) } });
 }
 
+/* v02.00 · tope y orden del documento. D1 no guarda una fila de más de 2 MB: pasado ese punto TODOS los guardados fallarían. Por eso:
+   · una petición de más de 6 MB ni se lee;
+   · por encima de ~1,9 MB no se acepta un guardado que haga crecer el documento (los que lo reducen sí: así se puede limpiar) y se dice por qué;
+   · a partir de 1,4 MB cada guardado avisa de que se acerca el límite;
+   · solo entran las claves que la app usa (una clave inventada ya no se queda para siempre) y cada evento tiene que traer un identificador. */
+const STORE_MAX = 1900000, STORE_AVISO = 1400000, STORE_PET_MAX = 6e6;
+const DOC_CLAVES = ["events", "active", "prefs", "borrados", "inventario", "invExtra", "camareros", "compras", "prevision", "params", "fotos"];
+const DOC_OBJETOS = ["prefs", "borrados", "inventario", "invExtra", "camareros", "compras", "prevision", "params", "fotos"];
+const CLAVES_AVISADAS = new Set();
+function saneaDoc(inc) {
+  const quita = [];
+  Object.keys(inc).forEach((k) => { if (DOC_CLAVES.indexOf(k) < 0) { quita.push(k); delete inc[k]; } });
+  DOC_OBJETOS.forEach((k) => { if (inc[k] !== undefined && (!inc[k] || typeof inc[k] !== "object" || Array.isArray(inc[k]))) delete inc[k]; });
+  if (inc.active !== undefined && inc.active !== null && typeof inc.active !== "string") delete inc.active;
+  if (Array.isArray(inc.events)) inc.events = inc.events.filter((e) => e && typeof e === "object" && !Array.isArray(e) && ((typeof e.id === "string" && e.id.length > 0 && e.id.length <= 80) || (typeof e.id === "number" && isFinite(e.id))));
+  if (inc.borrados) Object.keys(inc.borrados).forEach((k) => { if (!(+inc.borrados[k] > 0)) delete inc.borrados[k]; });
+  return quita;
+}
 async function storePut(request, env) {
   const s = await session(request, env);
   if (!s) return json({ error: "unauth" }, 401);
+  if (+(request.headers.get("Content-Length") || 0) > STORE_PET_MAX) return json({ error: "too-big", message: "Los cambios son demasiado grandes para guardarlos de una vez." }, 413);
   const txt = await request.text();
   if (!txt) return json({ error: "empty" }, 400);
+  if (txt.length > STORE_PET_MAX) return json({ error: "too-big", message: "Los cambios son demasiado grandes para guardarlos de una vez." }, 413);
   let incoming;
   try { incoming = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) return json({ error: "bad-doc" }, 400);
   if (incoming.events !== undefined && !Array.isArray(incoming.events)) return json({ error: "bad-doc" }, 400);
+  const raras = saneaDoc(incoming).filter((k) => !CLAVES_AVISADAS.has(k));
+  if (raras.length) { raras.forEach((k) => CLAVES_AVISADAS.add(k)); await logError(env, "servidor", "guardado de documento", "Se han descartado claves que la app no usa: " + raras.slice(0, 8).join(", "), s); }
   const base = +(request.headers.get("X-Store-Base") || 0);
   /* borrar eventos: solo administración y eventos (cocina, compras y servicio no pueden borrar nada, ni por error) */
   if (s.role !== "admin" && s.role !== "eventos") incoming.borrados = {};
@@ -552,6 +593,8 @@ async function storePut(request, env) {
     const merged = mergeDoc(prev, incoming, s.role === "admin", tbs);
     kPoda(merged, Date.now());
     const out = JSON.stringify(merged);
+    const bytes = enc.encode(out).length;
+    if (bytes > STORE_MAX && bytes >= enc.encode((row && row.data) || "").length) return json({ error: "too-big", bytes, limite: STORE_MAX, message: "El documento de eventos está lleno (" + (bytes / 1e6).toFixed(1).replace(".", ",") + " MB de " + (STORE_MAX / 1e6).toFixed(1).replace(".", ",") + "): no se pueden guardar más cambios que lo hagan crecer. Un administrador debe anonimizar o quitar eventos antiguos (Parámetros → Privacidad y datos)." }, 413);
     let v = Date.now(); if (v <= antes) v = antes + 1;
     let r;
     if (row) r = await env.DB.prepare("UPDATE store SET data=?1, updated=?2 WHERE id=1 AND updated=?3").bind(out, v, antes).run();
@@ -561,7 +604,7 @@ async function storePut(request, env) {
     if (ch > 0) {
       try { await hiTrasGuardar(env, s, prev, merged); } catch (e1) { await logError(env, "servidor", "historial al guardar", String(e1 && e1.message || e1), s); }
       try { await bkTrasGuardar(env, s, row, prev, merged); } catch (e2) { await logError(env, "servidor", "copia automática al guardar", String(e2 && e2.message || e2), s); }
-      return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes) });
+      return json({ ok: true, v, otros: !!(antes && base && antes !== base) || (!base && !!antes), bytes, aviso: bytes > STORE_AVISO });
     }
   }
   return json({ error: "busy", message: "Muchos guardados a la vez; se reintentará." }, 409);
@@ -2877,11 +2920,15 @@ async function ensureUsers(env) {
   if (US_OK) return;
   const { results } = await env.DB.prepare("SELECT name FROM pragma_table_info('users')").all();
   const tiene = {}; (results || []).forEach((r) => { tiene[r.name] = 1; });
-  const cols = [["phone", "TEXT"], ["puesto", "TEXT"], ["active", "INTEGER DEFAULT 1"], ["last_login", "INTEGER"], ["login_count", "INTEGER DEFAULT 0"], ["last_seen", "INTEGER"], ["must_change", "INTEGER DEFAULT 0"], ["invite_token", "TEXT"], ["invite_exp", "INTEGER"]];
+  const cols = [["phone", "TEXT"], ["puesto", "TEXT"], ["active", "INTEGER DEFAULT 1"], ["last_login", "INTEGER"], ["login_count", "INTEGER DEFAULT 0"], ["last_seen", "INTEGER"], ["must_change", "INTEGER DEFAULT 0"], ["invite_token", "TEXT"], ["invite_exp", "INTEGER"], ["sess_from", "INTEGER DEFAULT 0"], ["last_act", "INTEGER"]];
   for (const c of cols) if (!tiene[c[0]]) { try { await env.DB.prepare("ALTER TABLE users ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (_) {} }
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS actividad (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, uid TEXT, name TEXT, tipo TEXT NOT NULL, detalle TEXT)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS actividad_ts ON actividad (ts)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT NOT NULL)").run();
+  /* sesiones cerradas a mano (la firma de la cookie, hasta que caduque) e intentos de entrada fallidos (correo + conexión) */
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS sesiones_cerradas (k TEXT PRIMARY KEY, exp INTEGER NOT NULL)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS login_fallos (ts INTEGER NOT NULL, email TEXT NOT NULL, ip TEXT NOT NULL)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS login_fallos_ts ON login_fallos (ts)").run();
   US_OK = true;
 }
 /* registro de actividad: quién hizo qué (nunca debe hacer fallar lo que se estaba haciendo) */
@@ -2966,18 +3013,18 @@ async function usersPatch(request, env) {
     const act = b.active ? 1 : 0;
     if (!act && id === s.uid) return json({ error: "self", message: "No puedes desactivar tu propia cuenta." }, 400);
     if (!act && row.role === "admin" && !(await otrosAdmins(env, id))) return json({ error: "last-admin", message: "Tiene que quedar al menos un administrador activo." }, 400);
-    if ((row.active !== 0 ? 1 : 0) !== act) { await env.DB.prepare("UPDATE users SET active=? WHERE id=?").bind(act, id).run(); await logAct(env, s, act ? "usuario_activado" : "usuario_desactivado", quien); }
+    if ((row.active !== 0 ? 1 : 0) !== act) { await env.DB.prepare("UPDATE users SET active=?, sess_from=? WHERE id=?").bind(act, Date.now(), id).run(); await logAct(env, s, act ? "usuario_activado" : "usuario_desactivado", quien); }
   }
   if (b.password != null) {
     const pass = String(b.password);
     if (pass.length < 6) return json({ error: "invalid", message: "La contraseña debe tener 6 caracteres o más." }, 400);
     const salt = randomHex(16), hash = await pbkdf2(pass, salt);
     /* contraseña puesta por un administrador: es temporal, la persona elige la suya al entrar */
-    await env.DB.prepare("UPDATE users SET pass_hash=?, pass_salt=?, must_change=1, invite_token=NULL, invite_exp=NULL WHERE id=?").bind(hash, salt, id).run();
+    await env.DB.prepare("UPDATE users SET pass_hash=?, pass_salt=?, must_change=1, invite_token=NULL, invite_exp=NULL, sess_from=? WHERE id=?").bind(hash, salt, Date.now(), id).run();
     await logAct(env, s, "clave_restablecida", quien);
   }
   if (b.reinvitar) {
-    await env.DB.prepare("UPDATE users SET invite_token=?1, invite_exp=?2, pass_hash=?3, pass_salt=?4, must_change=0 WHERE id=?5").bind(randomHex(16), Date.now() + INVITE_DIAS * 864e5, randomHex(32), randomHex(16), id).run();
+    await env.DB.prepare("UPDATE users SET invite_token=?1, invite_exp=?2, pass_hash=?3, pass_salt=?4, must_change=0, sess_from=?6 WHERE id=?5").bind(randomHex(16), Date.now() + INVITE_DIAS * 864e5, randomHex(32), randomHex(16), id, Date.now()).run();
     await logAct(env, s, "usuario_invitado", quien + " (invitación nueva)");
   }
   const fresh = await env.DB.prepare("SELECT " + COLS_USER + " FROM users WHERE id=?1").bind(id).first();
@@ -3028,10 +3075,11 @@ async function mePassword(request, env) {
   if (nueva === actual) return json({ error: "invalid", message: "La contraseña nueva tiene que ser distinta de la actual." }, 400);
   const row = await env.DB.prepare("SELECT pass_hash, pass_salt FROM users WHERE id=?1").bind(s.uid).first();
   if (!row || !timingSafeEqual(await pbkdf2(actual, row.pass_salt), row.pass_hash)) return json({ error: "credentials", message: "La contraseña actual no es correcta." }, 400);
-  const salt = randomHex(16), hash = await pbkdf2(nueva, salt);
-  await env.DB.prepare("UPDATE users SET pass_hash=?1, pass_salt=?2, must_change=0 WHERE id=?3").bind(hash, salt, s.uid).run();
+  const salt = randomHex(16), hash = await pbkdf2(nueva, salt), t = Date.now();
+  /* cambiar la contraseña cierra las sesiones abiertas en otros sitios (por si alguien la tenía); esta sigue con una cookie nueva */
+  await env.DB.prepare("UPDATE users SET pass_hash=?1, pass_salt=?2, must_change=0, sess_from=?4 WHERE id=?3").bind(hash, salt, s.uid, t).run();
   await logAct(env, s, "clave_cambiada", "");
-  return json({ ok: true });
+  return withSession(json({ ok: true }), env, { id: s.uid, email: s.email, name: s.name, role: s.role }, t);
 }
 
 /* ── registro de actividad (solo admin) ── */
@@ -3077,6 +3125,7 @@ async function seguridadPut(request, env) {
   const b = await body(request), v = +b.idleMin;
   if (IDLE_VALS.indexOf(v) < 0) return json({ error: "invalid", message: "Valor no válido." }, 400);
   await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('idle_min', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(v)).run();
+  IDLE_CACHE = { v, t: Date.now() };
   await logAct(env, a.s, "seguridad", v ? "Cierre de sesión tras " + v + " min sin usar la app" : "Sin cierre de sesión por inactividad");
   return json({ ok: true, idleMin: v });
 }
@@ -3099,13 +3148,36 @@ async function createUser(env, { email, name, role, password, phone, puesto, mus
 function pubUser(u) { return { id: u.uid || u.id, email: u.email, name: u.name, role: u.role }; }
 
 /* ── sesión firmada (HMAC) ──────────────────────────────────────────── */
-async function withSession(resp, env, user) {
-  const exp = Date.now() + SESSION_DAYS * 864e5;
-  const token = await makeToken(await secret(env), { uid: user.id, email: user.email, name: user.name, role: user.role, exp });
+async function withSession(resp, env, user, iat0) {
+  const iat = iat0 || Date.now(), exp = iat + SESSION_DAYS * 864e5;
+  const token = await makeToken(await secret(env), { uid: user.id, email: user.email, name: user.name, role: user.role, iat, exp, sid: randomHex(6) });
   resp.headers.append("Set-Cookie", `${COOKIE}=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 86400}`);
   return resp;
 }
-async function session(request, env) {
+/* v02.00 · una cookie vale mientras: tenga firma buena y no haya caducado (14 días), el usuario exista y esté activo, no se haya cerrado esa sesión
+   (cerrar sesión), no sea anterior al último cambio de contraseña / desactivación de ese usuario («sess_from») y no lleve más del tiempo de
+   inactividad elegido por el administrador sin que la persona haga nada (las consultas automáticas de la app no cuentan: solo lo que escribe o toca). */
+const SES_MEMO = new WeakMap();
+function session(request, env) {
+  let p = SES_MEMO.get(request);
+  if (!p) { p = sesionLee(request, env); SES_MEMO.set(request, p); }
+  return p;
+}
+let IDLE_CACHE = { v: 480, t: 0 };
+async function idleActual(env) {
+  const ahora = Date.now();
+  if (ahora - IDLE_CACHE.t < 30e3) return IDLE_CACHE.v;
+  let v = 480;
+  try { const r = await env.DB.prepare("SELECT v FROM meta WHERE k='idle_min'").first(); if (r) { const n = +JSON.parse(r.v); if (isFinite(n) && n >= 0) v = n; } } catch (_) {}
+  IDLE_CACHE = { v, t: ahora };
+  return v;
+}
+function peticionActiva(request) {
+  const u = new URL(request.url), m = request.method.toUpperCase();
+  if (u.pathname === "/api/sync") return u.searchParams.get("act") === "1";
+  return m !== "GET" && m !== "HEAD";
+}
+async function sesionLee(request, env) {
   const token = cookie(request, COOKIE);
   if (!token) return null;
   const pl = await readToken(await secret(env), token);
@@ -3113,11 +3185,25 @@ async function session(request, env) {
   /* el usuario tiene que seguir existiendo, y manda su rol ACTUAL: si el admin
      lo borra o le cambia el rol, surte efecto ya, no cuando caduque la cookie */
   await ensureUsers(env);
-  const u = await env.DB.prepare("SELECT id, email, name, role, active, last_seen FROM users WHERE id=?").bind(pl.uid).first();
+  const sig = token.slice(token.lastIndexOf(".") + 1);
+  const u = await env.DB.prepare("SELECT id, email, name, role, active, last_seen, last_act, sess_from, must_change, (SELECT 1 FROM sesiones_cerradas WHERE k=?2) AS cerrada FROM users WHERE id=?1").bind(pl.uid, sig).first();
   if (!u || u.active === 0) return null;     /* borrado o desactivado: surte efecto ya */
-  const ahora = Date.now();
-  if (!u.last_seen || ahora - (+u.last_seen) > 5 * 60e3) { try { await env.DB.prepare("UPDATE users SET last_seen=?1 WHERE id=?2").bind(ahora, u.id).run(); } catch (_) {} }
-  return { uid: u.id, email: u.email, name: u.name, role: u.role, exp: pl.exp };
+  if (u.cerrada) return null;                /* esa sesión se cerró a mano */
+  const iat = +pl.iat || ((+pl.exp || 0) - SESSION_DAYS * 864e5);
+  if (iat < (+u.sess_from || 0)) return null;   /* anterior al último cambio de contraseña / desactivación */
+  const ahora = Date.now(), activa = peticionActiva(request);
+  const idle = await idleActual(env);
+  if (idle > 0 && +u.last_act > 0 && ahora - (+u.last_act) > idle * 60e3 + 120e3) return null;   /* demasiado rato sin hacer nada */
+  if (activa && (!u.last_act || ahora - (+u.last_act) > 30e3)) { try { await env.DB.prepare("UPDATE users SET last_act=?1, last_seen=?1 WHERE id=?2").bind(ahora, u.id).run(); } catch (_) {} }
+  else if (!u.last_seen || ahora - (+u.last_seen) > 5 * 60e3) { try { await env.DB.prepare("UPDATE users SET last_seen=?1 WHERE id=?2").bind(ahora, u.id).run(); } catch (_) {} }
+  return { uid: u.id, email: u.email, name: u.name, role: u.role, exp: pl.exp, mustChange: !!u.must_change };
+}
+/* cerrar sesión: la cookie (aunque alguien la hubiera copiado) deja de valer en el servidor */
+async function cierraSesion(env, request, s) {
+  const token = cookie(request, COOKIE); if (!token) return;
+  const sig = token.slice(token.lastIndexOf(".") + 1), ahora = Date.now();
+  await env.DB.prepare("INSERT OR IGNORE INTO sesiones_cerradas (k, exp) VALUES (?1, ?2)").bind(sig, +(s && s.exp) || ahora + SESSION_DAYS * 864e5).run();
+  if (Math.random() < 0.05) await env.DB.prepare("DELETE FROM sesiones_cerradas WHERE exp<?1").bind(ahora).run();
 }
 function cookie(request, name) {
   const c = request.headers.get("Cookie") || "";

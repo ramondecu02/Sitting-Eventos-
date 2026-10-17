@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.99** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.00** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,16 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.00
+- **Fase A del plan de la revisión (seguridad), primera parte: sesiones de verdad y orden en el documento.** Todo en el servidor; la app se ve igual.
+  - **Cerrar sesión cierra la sesión de verdad.** Antes la cookie seguía valiendo 14 días aunque se pulsara «Cerrar sesión»: ahora, si alguien tenía una copia, deja de funcionar al momento.
+  - **Cambiar la contraseña cierra las demás sesiones** (la tuya sigue abierta). Lo mismo si un administrador te pone una contraseña nueva, te desactiva o te vuelve a invitar: una cookie vieja no «resucita» al reactivarte.
+  - **Contraseña temporal obligatoria también en el servidor:** con una contraseña temporal solo se puede cambiarla (o salir); el resto de la API contesta «cámbiala para poder seguir» aunque alguien se salte la pantalla de la app.
+  - **Cierre por inactividad en el servidor** (lo que fija el administrador en Equipo y accesos): cuenta lo que haces (guardar, tocar, teclear), no las consultas automáticas de la app. Con «Nunca» no se cierra.
+  - **El bloqueo de entrada ya no deja fuera al administrador por culpa de otra persona:** se bloquea **ese equipo** (5 fallos con el mismo correo o 20 con cualquiera en 10 minutos), no el correo; desde otro sitio el administrador entra con normalidad. Un correo que no existe, una invitación sin aceptar y una contraseña mala contestan **exactamente igual** y tardan lo mismo; los correos mal escritos ya no se guardan en el registro de actividad (solo los de cuentas reales).
+  - **El documento compartido tiene tope y orden.** D1 no admite filas de más de 2 MB: por encima de **1,9 MB** no se acepta un guardado que haga crecer el documento (los que lo reducen sí, para poder limpiar) y se dice por qué y qué hacer; desde 1,4 MB cada guardado avisa de que se acerca el límite; una petición de más de 6 MB ni se lee. Solo entran las claves que la app usa (una clave inventada ya no se queda para siempre) y cada evento tiene que traer su identificador.
+- **Pendiente de la Fase A:** RGPD completo (v02.01) y permisos reales por rol en el servidor (v02.02).
 
 ### Novedad de la versión 01.99
 - **Seatings: un cartel por mesa con quién se sienta en ella** (Plano de mesas → **Seatings**). Para ponerlos en el mueble del seating y que cada invitado vea su mesa. Es el **mismo diseñador de las minutas** (lienzo), con el papel de un **A5 vertical** y los textos que se rellenan solos desde el plano:

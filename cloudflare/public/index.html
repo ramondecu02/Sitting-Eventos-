@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.99 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.00 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.99".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.00".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4375,7 +4375,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.99</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.00</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6585,6 +6585,7 @@ function pushRemote(){
   fetch("/api/store",{method:"PUT",headers:{"Content-Type":"application/json","X-Store-Base":String(srvV||0)},body:JSON.stringify(toSend)})
     .then(function(r){
       if(r.status===401){ var e401=new Error("401"); e401.auth=true; throw e401; }
+      if(r.status===413){ return r.json().catch(function(){ return {}; }).then(function(j){ var e413=new Error("http 413"); e413.msg=(j&&j.message)||""; throw e413; }); }
       if(!r.ok) throw new Error("http "+r.status);
       if(remoteFail){ remoteFail=false; flagRemote(null); }
       remoteWhy="";
@@ -6600,6 +6601,8 @@ function pushRemote(){
       /* el servidor ha juntado lo mío con lo de los demás: si había algo de otra
          persona que aquí aún no estaba, se trae ya */
       if(j&&j.v){ var otros=j.otros; srvV=j.v; if(otros) setTimeout(function(){ hydrateFromServer(); },50); }
+      /* el documento compartido se acerca al límite de la base de datos: se avisa una vez por sesión */
+      if(j&&j.aviso&&!window.__avisoDocGrande){ window.__avisoDocGrande=1; toast("El documento de eventos ya ocupa "+(j.bytes/1e6).toFixed(1).replace(".",",")+" MB y se acerca al límite (1,9 MB). Pide a un administrador que anonimice o quite eventos antiguos (Parámetros → Privacidad y datos).",true); }
     })
     .catch(function(err){
       var antes=remoteWhy;
@@ -6607,6 +6610,7 @@ function pushRemote(){
       remoteFail=true; setSaveState("off");
       /* solo se avisa en grande si hay que hacer algo (volver a entrar); si es
          la conexión, basta el indicador: se reintenta solo cada 20 s */
+      if(err&&err.msg&&antes!=="srv") toast(err.msg,true);
       if(err&&err.auth){ flagRemote("La sesión ha caducado: recarga la página y vuelve a entrar. Tus cambios siguen a salvo en este navegador.");
         if(antes!=="auth") toast("La sesión ha caducado: recarga la página y vuelve a entrar. Tus cambios siguen a salvo en este navegador.",true); }
       clearTimeout(retryTimer); retryTimer=setTimeout(pushRemote,20000);
@@ -6721,7 +6725,7 @@ function syncTick(){
   if(syncBusy||!hayServidor()||document.visibilityState!=="visible"||!document.body.classList.contains("authed")) return;
   syncBusy=true;
   var c=current();
-  fetch("/api/sync?tab="+encodeURIComponent(SYNC_TAB)+"&ev="+encodeURIComponent(c?c.id:""),{headers:{"Accept":"application/json"}})
+  fetch("/api/sync?tab="+encodeURIComponent(SYNC_TAB)+"&ev="+encodeURIComponent(c?c.id:"")+(window.LM_activo&&window.LM_activo()?"&act=1":""),{headers:{"Accept":"application/json"}})
     .then(function(r){ return r.ok?r.json():null; })
     .then(function(j){ if(!j) return;
       PRES=j.otros||[]; pintarPresencia();
@@ -6738,7 +6742,7 @@ var listaBusy=false;
 function listaTick(){
   if(listaBusy||!hayServidor()||document.visibilityState!=="visible"||!document.body.classList.contains("authed")) return;
   listaBusy=true;
-  fetch("/api/sync?l=1",{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
+  fetch("/api/sync?l=1"+(window.LM_activo&&window.LM_activo()?"&act=1":""),{headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
     .then(function(j){ if(j&&j.c!=null&&window.LM_portalC) window.LM_portalC(j.c); if(!j||j.l==null) return; if(j.l!==LISTA_V){ var primera=(LISTA_V==null); LISTA_V=j.l; if(j.l>0||!primera){ try{ cargarListasNovios(); }catch(_){} } } })
     .catch(function(){}).finally(function(){ listaBusy=false; });
 }
@@ -9998,7 +10002,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.99</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.00</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -23459,6 +23463,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   });
   /* cierre de sesión por inactividad (sin tocar el ratón, el teclado ni la pantalla) */
   var ultAct=Date.now(), vigiliaPuesta=false, vigiliaTm=null;
+  /* el servidor también cierra la sesión por inactividad: para eso cuenta como «actividad» lo que haces (guardar, tocar, teclear) y los latidos
+     de la app que van marcados con act=1 mientras has tocado algo en el último minuto y medio (las consultas automáticas no cuentan) */
+  window.LM_activo=function(){ return Date.now()-ultAct<90000; };
   function vigilarInactividad(){
     if(!vigiliaPuesta){ vigiliaPuesta=true;
       ["mousemove","mousedown","keydown","touchstart","scroll","wheel","click"].forEach(function(ev){ document.addEventListener(ev,function(){ ultAct=Date.now(); },{passive:true,capture:true}); }); }
@@ -23495,7 +23502,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     try{
       var r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email,password:pass})});
       if(r.status===200){ var d=await r.json(); backend=true; setUser(d.user); enterApp(); if(d.user&&d.user.mustChange) abrirCambio(true); return; }
-      if(r.status===401){ showErr("Email o contraseña incorrectos."); return; }
+      if(r.status===401){ showErr("Email o contraseña incorrectos. (Si te han invitado y aún no has creado tu contraseña, usa el enlace de la invitación.)"); return; }
       if(r.status===400){ showErr("Revisa el email y la contraseña."); return; }
       if(r.status===403||r.status===429){ var e403=await r.json().catch(function(){return {};}); showErr(e403.message||"No se puede entrar con esta cuenta."); return; }
       if(WEB_REAL){ showErr("El servidor ha contestado con un error ("+r.status+"). Vuelve a intentarlo en unos segundos."); return; }
