@@ -106,7 +106,7 @@ export default {
         return conSeguridad(await api(request, env, url), false);
       } catch (err) {
         await logError(env, "servidor", url.pathname + " (" + request.method + ")", String(err && err.message || err), null);
-        return conSeguridad(json({ error: "server", detail: String(err && err.message || err) }, 500), false);
+        return conSeguridad(json({ error: "server", message: "Ha fallado algo en el servidor. Si se repite, avisa a quien lleva la herramienta." }, 500), false);
       }
     }
     // Resto: la aplicación (assets estáticos). SPA de un solo HTML.
@@ -122,7 +122,7 @@ export default {
       else o.headers.set("Content-Type", "application/manifest+json; charset=utf-8");
       return o;
     }
-    if (ct.indexOf("text/html") === -1) return res;
+    if (ct.indexOf("text/html") === -1) return conSeguridad(res, false);
     const out = conSeguridad(res, true);
     out.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
     return out;
@@ -244,7 +244,7 @@ async function setupRoute(request, env) {
   const n = await countUsers(env);
   if (n > 0) return json({ error: "already-setup" }, 403);
   const b = await body(request);
-  const email = norm(b.email), name = (b.name || "").trim(), pass = b.password || "";
+  const email = norm(b.email), name = String(b.name == null ? "" : b.name).trim(), pass = typeof b.password === "string" ? b.password : "";
   if (!validEmail(email) || !name || pass.length < 6) return json({ error: "invalid", message: "Email válido, nombre y contraseña de 6+ caracteres." }, 400);
   const user = await createUser(env, { email, name, role: "admin", password: pass });
   await logAct(env, { uid: user.id, name }, "login", "Primer acceso: se creó la cuenta de administrador");
@@ -528,6 +528,7 @@ async function storePut(request, env) {
   let incoming;
   try { incoming = JSON.parse(txt); } catch (_) { return json({ error: "bad-json" }, 400); }
   if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) return json({ error: "bad-doc" }, 400);
+  if (incoming.events !== undefined && !Array.isArray(incoming.events)) return json({ error: "bad-doc" }, 400);
   const base = +(request.headers.get("X-Store-Base") || 0);
   /* borrar eventos: solo administración y eventos (cocina, compras y servicio no pueden borrar nada, ni por error) */
   if (s.role !== "admin" && s.role !== "eventos") incoming.borrados = {};
@@ -537,6 +538,8 @@ async function storePut(request, env) {
     if (!e || typeof e !== "object") return;
     if (typeof e._tb === "string") tbs[e.id] = e._tb;
     delete e._tb;
+    /* la hora de «última modificación» no puede ser del futuro: con una falsa el historial deja de anotar y el evento no se podría borrar */
+    if (!(+e.updated > 0)) delete e.updated; else if (+e.updated > ya + 600e3) e.updated = ya;
     if (e._k && typeof e._k === "object") Object.keys(e._k).forEach((k) => { const t = +e._k[k]; if (!(t > 0)) delete e._k[k]; else if (t > ya + 600e3) e._k[k] = ya; });
     else if (e._k !== undefined) delete e._k;
   });
@@ -2914,9 +2917,9 @@ async function usersList(request, env) {
 async function usersCreate(request, env) {
   const a = await usersAdmin(request, env); if (a.err) return a.err;
   const b = await body(request);
-  const email = norm(b.email), name = (b.name || "").trim(), pass = b.password ? String(b.password) : "";
+  const email = norm(b.email), name = String(b.name == null ? "" : b.name).trim(), pass = typeof b.password === "string" ? b.password : "";
   const phone = String(b.phone || "").trim().slice(0, 40), puesto = String(b.puesto || "").trim().slice(0, 80);
-  let role = (b.role || "eventos").trim();
+  let role = String(b.role || "eventos").trim();
   if (ROLES.indexOf(role) < 0) role = "eventos";
   if (!validEmail(email) || !name) return json({ error: "invalid", message: "Hace falta un nombre y un email válido." }, 400);
   if (pass && pass.length < 6) return json({ error: "invalid", message: "La contraseña debe tener 6 caracteres o más." }, 400);
@@ -2933,7 +2936,7 @@ function rolTxt(r) { return { admin: "administrador", eventos: "eventos", cocina
 async function usersPatch(request, env) {
   const a = await usersAdmin(request, env); if (a.err) return a.err;
   const s = a.s, b = await body(request);
-  const id = (b.id || "").trim();
+  const id = String(b.id == null ? "" : b.id).trim();
   if (!id) return json({ error: "invalid" }, 400);
   const row = await env.DB.prepare("SELECT " + COLS_USER + " FROM users WHERE id=?").bind(id).first();
   if (!row) return json({ error: "not-found", message: "Ese usuario ya no existe." }, 404);
@@ -3120,8 +3123,8 @@ function cookie(request, name) {
 function json(obj, status = 200, headers = {}) {
   return new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...headers } });
 }
-async function body(request) { try { return await request.json(); } catch (_) { return {}; } }
-function norm(s) { return (s || "").trim().toLowerCase(); }
+async function body(request) { try { const j = await request.json(); return j && typeof j === "object" && !Array.isArray(j) ? j : {}; } catch (_) { return {}; } }
+function norm(s) { return String(s == null ? "" : s).trim().toLowerCase(); }
 function validEmail(e) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e); }
 function timingSafeEqual(a, b) { if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
 function randomHex(bytes) { const u = new Uint8Array(bytes); crypto.getRandomValues(u); return bufToHex(u.buffer); }

@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **01.96** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **01.97** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,17 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 01.97
+- **Revisión completa de la app (8 auditorías en paralelo) y primera tanda de arreglos.** Se revisaron navegación y permisos, plano, menú y cocina, parte comercial, servidor y seguridad, diseño y móvil, PDF y minutas y portal del cliente. Estos fallos ya están corregidos (el resto de la revisión está en `AUDITORIA.md`, pendiente de tu confirmación):
+  - **Seguridad alimentaria.** Un invitado con alergia o dieta que **solo viene al aperitivo** ya sale en los avisos (Resumen, Escaleta «sin plato sustitutivo decidido», «Para cocina» y los «por decidir» de Alergias): antes el Resumen decía «sin alergias» y la Escaleta no lo listaba. Una alergia escrita como lista con comas (`alergia: marisco, huevo, pescado`) ya no convierte «pescado» en el plato elegido y la alergia sigue en todas las hojas.
+  - **El plano entiende mejor lo que se escribe.** «(cuñado)», «(no bebe alcohol)», «Menéndez» o «(tenen mobilitat reduïda)» ya no son un bebé en trona ni un niño; «(sin alergias)», «(no alérgico)» o «(sense al·lèrgies)» ya no cuentan como alergia; una mesa llamada «Directivos», «Família Rodó», «Els Rectors» o «Invitados de honor» ya no cambia de forma ni pierde su nombre; «Col·legues» ya no se parte.
+  - **PDF.** Los nombres con ł, ğ, ş, ø… y las flechas ya no salen como «?». **Las alergias ya no se recortan nunca con «…»** (pasan a otra línea) y, si el invitado tiene además una dieta (vegano, vegetariano, embarazada), sale junto a su alergia en el listado y en los marcasitios.
+  - **Plano y fechas.** Supr y Ctrl+Z solo actúan en el plano (antes, con el foco en Presupuesto o Menú, borraban una mesa o deshacían el plano sin verlo). «Faltan N días» ya no suma uno con el cambio de hora de octubre y marzo.
+  - **Accesibilidad y diseño.** El modo oscuro del sistema ya no deja ilegibles Coordinación, Estado del sistema ni el diseñador de minutas. El editor del plano ya no recibe el foco del teclado ni lo leen los lectores de pantalla mientras hay otra pantalla encima (antes, 46 paradas de Tab invisibles). Se puede hacer zoom con dos dedos (en la app y en el portal). Los avisos del móvil ya no se aplastan ni tapan la barra de abajo. «Servicio en directo» tiene icono. Los chips de tipo de minuta ya no se anuncian como pestañas.
+  - **Permisos de pantalla.** Cocina, compras, servicio y contabilidad ya no ven en el Resumen el enlace privado del cliente ni los botones de activar, renovar o desactivar el portal; «Borrar evento» solo lo ven administración y eventos; abrir una pantalla vetada avisa («Tu rol no tiene acceso a…») en vez de caer en el Resumen sin decir nada.
+  - **Privacidad.** Al cerrar sesión, si todo está subido al servidor, el documento del negocio (clientes, precios, IBAN) **ya no se queda guardado en el navegador** para quien entre después en el mismo dispositivo.
+  - **Servidor.** Peticiones con datos mal formados dan error 400 (antes 500 y llenaban el registro de errores); una fecha de modificación inventada se recorta; los errores ya no devuelven detalles internos; los archivos estáticos llevan `nosniff`.
 
 ### Novedad de la versión 01.96
 - **La estrella verde se retira de las minutas: solo cambia el Michelin.** Se sustituye el Michelin con la estrella verde por el **Michelin nuevo** (el trébol rojo con el corazón, con transparencia), y **se mantienen el «2 Soles Guía Repsol» y el «Sol Sostenible 2026»**. (La 01.95 los había quitado por error; aquí vuelven.)
@@ -485,9 +496,9 @@ se recupera con el código manual por evento.
 | 4–9 | Modo servicio · turnos y horas · cierre de evento | 01.62–01.63 |
 | 10–14 | Avisos por correo · WhatsApp · portal ampliado | 01.64–01.65 |
 | 15–28 | Contrato y firma · compras por proveedor · consultas | 01.66–01.68 |
-| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.96 |
+| Después | Rol Contabilidad · Previsión por fusión · contrato real, justificantes y documentos de identidad · contrato con el formato de tu Word y editable sobre el papel · «Qué preparar» por plato y en el orden de la escaleta · copiar alergias entre comensales · salón interior en 3 filas · Comunicación con adjuntos, buscador y filtros · escaleta y alergias al día, con «No hace falta» por plato · portal del cliente: lista de invitados compacta en el móvil, «Qué os falta» en Inicio, cierre del portal tras el evento, cabeceras de seguridad, pagos que cuadran, plano del cliente sin solapes y vajilla compartida (jamón) bien contada, portada de Parámetros, buscador global (Ctrl + K) y revisión de los datos de Parámetros · «solo aperitivo» en el plano y cantidades de «Menús» corregidas a mano que se propagan en la escaleta | 01.69–01.97 |
 
-**Estado: todo entregado (01.54 → 01.96).**
+**Estado: todo entregado (01.54 → 01.97).**
 
 La checklist en PDF (`ROADMAP_checklist.pdf`) se genera con `node roadmap/build.mjs` a partir de `roadmap/data.mjs`; la versión que lleva en la cabecera sale de `cloudflare/public/sw.js`, así que basta volver a ejecutarlo en cada entrega (ver `roadmap/README.md`).
 

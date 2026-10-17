@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.96 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 01.97 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.96".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 01.97".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -41,7 +41,7 @@
   window.LM_aviso=aviso;
 })();
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <script>
 /* Sin zoom en el móvil: la app se ve siempre a su tamaño. El meta de arriba lo quita en Android;
@@ -91,6 +91,8 @@
   --bg:var(--p-stone-100); --bg-2:var(--p-stone-150); --panel:var(--p-stone-25); --field:var(--p-stone-0); --raise:var(--p-stone-50);
   --c-ink:var(--p-carbon); --c-mut:var(--p-stone-600); --c-faint:var(--p-stone-500);
   --c-line:var(--p-stone-200); --c-line-2:var(--p-stone-300); --c-hair:color-mix(in srgb,var(--p-stone-200) 70%,transparent);
+  /* nombres antiguos que algunas pantallas aún usan: apuntan a los tokens vivos, así siguen el modo claro y el oscuro */
+  --bg-1:var(--panel); --surface:var(--panel); --line:var(--c-line); --bg2:var(--bg-2); --gold-d:var(--gold); --c-ink-2:var(--c-ink); --ink-3:var(--c-mut);
   --olive:var(--p-olive-500); --olive-2:var(--p-olive-300); --olive-deep:var(--p-olive-700); --olive-ink:var(--p-olive-900);
   --accent:var(--p-olive-500); --accent-tx:var(--p-olive-700); --accent-soft:var(--p-olive-100); --accent-wash:var(--p-olive-50);
   --ink-strong:var(--p-black); --btn-ink:var(--p-carbon); --btn-ink-2:var(--p-black);
@@ -319,6 +321,8 @@ svg#room{display:block; touch-action:none; user-select:none; max-width:100%; hei
 
 .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:120; background:var(--c-ink); color:var(--panel); padding:10px 18px; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.3); font-size:13px; max-width:min(560px,88vw); text-align:center}
 .toast.err{background:var(--ruby); color:#fff}
+.toast{width:max-content; max-width:min(560px,calc(100vw - 32px))}
+@media (max-width:820px){ .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px))} }
 .toast .tbtn{margin-left:12px; background:transparent; border:1px solid rgba(255,255,255,.5); color:inherit; border-radius:4px; padding:2px 9px; font-size:12px; cursor:pointer}
 .toast .tbtn:hover{background:rgba(255,255,255,.15)}
 .ovl{position:fixed; inset:0; z-index:200; background:rgba(20,18,14,.72); display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:24px}
@@ -4357,7 +4361,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.96</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 01.97</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5148,6 +5152,8 @@ function toSVG(list){
 var WH=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
 var WT=[250,333,408,500,500,833,778,180,333,333,500,564,250,333,250,278,500,500,500,500,500,500,500,500,500,500,278,278,564,564,564,444,921,722,667,667,722,611,556,722,722,333,389,722,611,889,722,722,556,722,667,556,611,722,722,944,722,722,611,333,278,333,469,500,333,444,500,444,500,444,333,500,500,278,278,500,278,778,500,500,500,500,333,389,278,500,500,722,500,500,444,480,200,480,541];
 var ACC={"á":"a","à":"a","ä":"a","â":"a","é":"e","è":"e","ë":"e","ê":"e","í":"i","ì":"i","ï":"i","î":"i","ó":"o","ò":"o","ö":"o","ô":"o","ú":"u","ù":"u","ü":"u","û":"u","ñ":"n","ç":"c","·":".","…":"...","’":"'","–":"-","—":"-","★":"*","❦":"","À":"A","Á":"A","È":"E","É":"E","Í":"I","Ó":"O","Ò":"O","Ú":"U","Ü":"U","Ñ":"N","Ç":"C"};
+/* lo que no existe en la tipografía del PDF y NFD no sabe quitar: se escribe con letras parecidas, no «?» */
+var ACC2={"ł":"l","Ł":"L","ø":"o","Ø":"O","đ":"d","Đ":"D","ß":"ss","æ":"ae","Æ":"AE","œ":"oe","Œ":"OE","→":"->","←":"<-","↔":"<->","−":"-","≥":">=","≤":"<=","≈":"~","✓":"v","✔":"v","✗":"x","✘":"x","•":"*"};
 /* tipografía fina que sí existe en WinAnsiEncoding */
 var WIN={};
 [["\u2014",0x97],["\u2013",0x96],["\u2019",0x92],["\u2018",0x91],["\u201C",0x93],["\u201D",0x94],
@@ -5166,7 +5172,9 @@ function pdfStr(s){
   for(i=0;i<s.length;i++){ ch=s[i]; c=ch.charCodeAt(0);
     if(c>255){
       if(WIN.hasOwnProperty(ch)){ out+=WIN[ch]; continue; }
-      var b=ACC[ch]; if(b===undefined) b="?"; out+=pdfStr(b); continue;
+      var b=ACC[ch]; if(b===undefined) b=ACC2[ch];
+      if(b===undefined){ var dn=ch.normalize("NFD").replace(/[\u0300-\u036f]/g,""); b=(dn!==ch&&dn.charCodeAt(0)<256)?dn:"?"; }
+      out+=pdfStr(b); continue;
     }
     if(ch==="("||ch===")"||ch==="\\") out+="\\"+ch; else out+=ch;
   }
@@ -5317,7 +5325,20 @@ var SHAPES=[["presid",["presidencial","presidencia","novios","nuvis","honor"]],
             ["square",["cuadrada","cuadrado","quadrada","quadrat","square"]],
             ["oval",["ovalada","ovalado","oval","eliptica"]],
             ["round",["redonda","redondo","rodona","rodo","round","circular","redona"]]];
-function shapeOf(t){var n=norm(t),i,j;for(i=0;i<SHAPES.length;i++)for(j=0;j<SHAPES[i][1].length;j++)if(n.indexOf(SHAPES[i][1][j])>-1)return SHAPES[i][0];return null;}
+/* las palabras largas («rectangular», «presidencial»…) valen dentro de cualquier texto; las cortas («rect», «rodo», «oval», «honor», «larga»…)
+   solo si son una palabra entera y el trozo no dice nada más que formas, números y relleno («Mesa de honor», «Rodona 10»):
+   así «Directivos», «Família Rodó» o «Els Rectors» no cambian de forma ni pierden su nombre */
+var SHAPE_RELLENO=/^(mesa|taula|table|de|del|la|el|els|les|y|i|amb|con|pax|p|pers\w*|comensal\w*|plaz\w*|plac\w*|seient\w*)$/;
+function shapeOf(t){
+  var n=norm(t), words=n.split(/[^a-z0-9]+/).filter(Boolean), i, j, k;
+  var todas=[]; SHAPES.forEach(function(s){ s[1].forEach(function(x){ todas.push(x); }); });
+  for(i=0;i<SHAPES.length;i++) for(j=0;j<SHAPES[i][1].length;j++){
+    k=SHAPES[i][1][j];
+    if(k.length>=6){ if(n.indexOf(k)>-1) return SHAPES[i][0]; }
+    else if(words.indexOf(k)>-1&&words.every(function(w){ return /^\d+$/.test(w)||SHAPE_RELLENO.test(w)||todas.indexOf(w)>-1; })) return SHAPES[i][0];
+  }
+  return null;
+}
 function parseHeader(line){
   var s=line.trim(),m;
   m=s.match(/^\[(\d+)\]\s*(.*)$/); if(m) return {num:+m[1],rest:m[2]};
@@ -5359,8 +5380,11 @@ function classify(raw){
   if(/^(menu|men|plat|plato)\s*[:=]/.test(n)) return {type:"menu",curso:null,text:t.replace(/^[^:=]*[:=]\s*/,"")};
   /* quien solo viene al aperitivo: cuenta en aperitivos y estaciones, pero ni se sienta ni lleva menú */
   if(/^(solo|nomes|solament|only|just)\s+(el\s+|l\s*['’]?\s*|a\s+l\s*['’]?\s*)?aperi|^aperi\w*\s+(solo|nomes|solament)$|^aperitiv?[ou]?$|^(no|sin|sense)\s+(se\s+queda\s+a\s+|es\s+queda\s+a\s+)?(cena\w*|sopar|banquete|banquet)\b/.test(n)) return {type:"aper",text:"Solo aperitivo"};
-  if(/(nen|nena|nin[oa]|infantil|kid|child)/.test(n)) return {type:"child",text:t};
-  if(/(trona|nado|bebe|baby|lactant|sense menu|sin menu)/.test(n)) return {type:"baby",text:t};
+  /* «sin/no alergias», «no alérgico», «sense al·lèrgies»: no es una alergia, es justo lo contrario */
+  if(/^(sin|sense|no|cap|ninguna?|ningun)\s+(es\s+)?(alerg|allerg|intoler)/.test(n)) return {type:"note",text:t};
+  /* palabras enteras: «cuñado», «Menéndez», «no bebe alcohol» o «tenen mobilitat reduïda» no son un bebé ni un niño */
+  if(/\b(nens?|nenes?|nenas?|nin[oa]s?|infantil|kids?|child)\b/.test(n)) return {type:"child",text:t};
+  if(/\b(trona|nado|baby|lactante?|sense menu|sin menu)\b/.test(n)||(/\bbebe\b/.test(n)&&!/\b(no|nunca|sense|casi)\s+bebe\b/.test(n)&&!/\bbebe\s+(alcohol|vino|cava|cerveza|cervesa|aigua|agua)/.test(n))) return {type:"baby",text:t};
   /* vegetariano y vegano son cosas distintas para quien cocina (el vegano no
      lleva ni huevo ni lácteos): "vegan" nunca aparece dentro de "vegetari",
      así que el orden entre estas dos líneas no importa */
@@ -5394,12 +5418,16 @@ function splitPeople(line){
    no el «/» de «1/2 Cerdo»). Un plato sustitutivo («Segundo: Crema de calabaza,
    sin jamón») llega hasta el siguiente plato: sus comas son del nombre del plato. */
 var MARCA_PLATO=/^\s*(primero?|primer|1r|1er|1o|1º|segundo|segon|2n|2on|2o|2º|tercero?|tercer|3r|3er|3o|3º|postres?|dessert\w*|principal|men[uú]|plato|plat)\s*[:=]/i;
+var CAB_ALERGIA=/^\s*(al[·.\s]*l?[eèé]rgi\w*|allerg\w*|intoler\w*)\s*(?:a\s+(?:l[ao]s?\s+|l['’]\s*)?)?[:\-–]\s*\S/i;
 function partirMarcas(buf){
-  var trozos=buf.split(/[,;]|(?<!\d)\/|\/(?!\d)/), out=[], enPlato=false;
+  var trozos=buf.split(/[,;]|(?<!\d)\/|\/(?!\d)/), out=[], enPlato=false, lista=false;
   trozos.forEach(function(t){
-    if(MARCA_PLATO.test(t)){ out.push(t); enPlato=true; }
+    if(MARCA_PLATO.test(t)){ out.push(t); enPlato=true; lista=false; }
     else if(enPlato&&out.length){ out[out.length-1]+=","+t; }
-    else out.push(t);
+    /* «(alergia: marisco, huevo, pescado)»: lo que va detrás de la cabecera son alérgenos, no platos ni notas
+       («pescado» suelto se leería como el plato elegido y la alergia desaparecería de las hojas) */
+    else if(lista&&t.trim()){ var c0=classify(t); out.push(c0&&/^(aper|child|baby|veg|vegan|preg)$/.test(c0.type)?t:"alergia: "+t.trim()); }
+    else { out.push(t); if(!out.length||out.length===1) lista=CAB_ALERGIA.test(t)&&!/^\s*(sin|sense|no)\b/i.test(t); }
   });
   return out;
 }
@@ -5452,7 +5480,7 @@ function parse(src,legacyNum){
     if(h){
       auto++;
       var rest=(h.rest||"").replace(/^\s*[|·\-:\/]+\s*/,"");
-      var parts=rest.split(/\s*[|·]\s*|\s+[-–\/]\s+/).map(function(x){return x.trim();}).filter(Boolean);
+      var parts=rest.split(/\s*\|\s*|\s*(?:(?<![a-zà-ÿA-ZÀ-Ý])·|·(?![a-zà-ÿA-ZÀ-Ý]))\s*|\s+[-–\/]\s+/).map(function(x){return x.trim();}).filter(Boolean);
       var shape=null,cap=null,name=[],shapeWord=null;
       parts.forEach(function(p){
         var sh=shapeOf(p);
@@ -5561,7 +5589,9 @@ function totals(d){
   d.tables.forEach(function(m){m.guests.forEach(function(g){
     /* quien solo viene al aperitivo no se sienta ni lleva menú: se cuenta aparte (aperitivos y estaciones);
        sus alergias sí se anotan, porque el aperitivo hay que adaptárselo */
-    if(g.soloAper){ t.soloAper++; if(g.aler.length)t.aler++; if(g.kind==="veg")t.veg++; if(g.kind==="vegan")t.vegan++; if(g.preg)t.preg++; return; }
+    if(g.soloAper){ t.soloAper++; if(g.aler.length)t.aler++; if(g.kind==="veg")t.veg++; if(g.kind==="vegan")t.vegan++; if(g.preg)t.preg++;
+      if(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)t.espec++;   /* «Hugo (celíaco) (solo aperitivo)»: el aperitivo hay que adaptárselo y tiene que salir en los avisos */
+      return; }
     t.pax++;
     /* el staff cuenta como adulto para todo lo general (agua, servicio, plano),
        y además se lleva su propio recuento para el presupuesto (precio staff). */
@@ -6323,8 +6353,9 @@ function mergePrevision(mio,otro){
   var an={}; (otro.anios||[]).concat(mio.anios||[]).forEach(function(a){ an[a]=1; });
   return {filas:Object.keys(por).map(function(k){ return por[k]; }), anios:Object.keys(an).map(Number)};
 }
+var saliendo=false;   /* se está cerrando la sesión: no volver a escribir el documento en este navegador */
 function save(){
-  if(loadFailed) return;   /* no pisar unos datos que no hemos sabido leer */
+  if(loadFailed||saliendo) return;   /* no pisar unos datos que no hemos sabido leer */
   try{ portalAlDia(current()); }catch(_){}
   try{ snapAlDia(current()); }catch(_){}
   try{ sellarCambiados(); }catch(_){}
@@ -7396,6 +7427,8 @@ function metaLine(T,L){
   if(T.soloAper)b.push(T.soloAper+" solo aperitivo");
   return esc(b.join("  ·  "));
 }
+/* por qué sale en los avisos: sus alergias Y su dieta (vegano, vegetariano, embarazada); antes, con una alergia, la dieta se perdía («vegano, sin gluten» salía solo «GLUTEN») */
+function motivoAler(g,L){ var m=(g.aler||[]).slice(); if(g.kind==="veg") m.push(L.leg.veg); if(g.kind==="vegan") m.push(L.leg.vegan); if(g.preg) m.push(L.leg.preg); return m.length?m.join(" · "):L.leg.aler; }
 function guestRow(g,L){
   var tags="";
   /* cada alergia con el color de su familia, el mismo que en el plano */
@@ -7464,7 +7497,7 @@ function sheetList(L){
     var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
     if(!esRestriccion) return;
     var tieneMenu=g.menus&&g.menus.length;
-    var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+    var motivo=motivoAler(g,L);
     al.push('<div class="al"><span class="who">'+esc(gNom(g,"list"))+'</span><span class="mesa">'+esc(mesaTxt(t,L))+'</span><span class="what">'+esc(motivo)+
       (tieneMenu?g.menus.map(function(p,pi){ return '<b class="sust" style="color:'+cursoColor((g.menusC||[])[pi])+'">'+esc(p)+'</b>'; }).join(""):"")+'</span></div>');
   });});
@@ -7493,7 +7526,7 @@ function sheetCards(L){
     var tieneMenu=g.menus&&g.menus.length;
     var ca="";
     if(esRestriccion){
-      var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+      var motivo=motivoAler(g,L);
       ca='<div class="ca"><span class="caMot">'+esc(motivo)+'</span>'+
         (tieneMenu?g.menus.map(function(p){ return '<span class="sust">'+esc(p)+'</span>'; }).join(""):"")+'</div>';
     }
@@ -7593,7 +7626,7 @@ function listPages(L,pw,ph){
     var esRestriccion=g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg;
     if(!esRestriccion) return;
     var tieneMenu=g.menus&&g.menus.length;
-    var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
+    var motivo=motivoAler(g,L);
     al.push({n:gNom(g,"list"),t:mesaTxt(t,L),a:motivo,m:tieneMenu?g.menus.join(" + "):null});
   });});
   /* cada aviso va en una columna de ancho fijo: el nombre a la izquierda y, a la
@@ -7604,8 +7637,13 @@ function listPages(L,pw,ph){
   var colTextW=(W-24)/2-8;
   function prepararAlergia(a){
     var nomW=textW({s:a.n,fo:"ser",size:12.5,ls:0});
-    var derFull=(a.t+" · "+a.a).toUpperCase();
-    var der=clipW(derFull,Math.max(34,colTextW-nomW-10),"sansb",8.5,.4);
+    var derFull=(a.t+" · "+a.a).toUpperCase(), cabe=Math.max(34,colTextW-nomW-10), lineasAler=[];
+    var der=derFull;
+    if(textW({s:derFull,fo:"sansb",size:8.5,ls:.4})>cabe){
+      /* no cabe: a la derecha del nombre solo la mesa, y las alergias en sus propias líneas (nunca recortadas) */
+      der=clipW(a.t.toUpperCase(),cabe,"sansb",8.5,.4);
+      lineasAler=partir(a.a.toUpperCase(),colTextW,"sansb",8.5,.4);
+    }
     var lineasPlato=[];
     if(a.m){
       /* si ya se ha decidido qué come, va debajo de la alergia: en el pase lo
@@ -7614,11 +7652,11 @@ function listPages(L,pw,ph){
       lineasPlato=partir(a.m.toUpperCase(),colTextW,"sansb",9,.3);
       if(lineasPlato.length>3) lineasPlato=[lineasPlato[0],lineasPlato[1],clipW(lineasPlato.slice(2).join(" "),colTextW,"sansb",9,.3)];
     }
-    return {n:a.n,der:der,lineasPlato:lineasPlato};
+    return {n:a.n,der:der,lineasAler:lineasAler,lineasPlato:lineasPlato};
   }
   function altoFila(par){
     var maxL=0;
-    par.forEach(function(p){ if(p) maxL=Math.max(maxL,p.lineasPlato.length); });
+    par.forEach(function(p){ if(p) maxL=Math.max(maxL,p.lineasAler.length+p.lineasPlato.length); });
     return 16+maxL*12;
   }
   var prep=al.map(prepararAlergia), filasAl=[];
@@ -7649,8 +7687,11 @@ function listPages(L,pw,ph){
         var cx=M+12+k*(W-24)/2, derX=cx+colTextW;
         cur.push(TX(cx,fy,p.n,{size:12.5,fo:"ser",a:"start",c:INK}));
         cur.push(TX(derX,fy,p.der,{size:8.5,fo:"sansb",a:"end",c:RUBY,ls:.4}));
+        p.lineasAler.forEach(function(linea,li){
+          cur.push(TX(derX,fy+13+li*12,linea,{size:8.5,fo:"sansb",a:"end",c:RUBY,ls:.4}));
+        });
         p.lineasPlato.forEach(function(linea,li){
-          cur.push(TX(derX,fy+13+li*12,linea,{size:9,fo:"sansb",a:"end",c:"#6E7D50",ls:.3}));
+          cur.push(TX(derX,fy+13+(p.lineasAler.length+li)*12,linea,{size:9,fo:"sansb",a:"end",c:"#6E7D50",ls:.3}));
         });
       });
       fy+=altoFila(fila);
@@ -7711,8 +7752,9 @@ function cardPages(L,pw,ph){
          que enlazar también con las sustituciones, no solo el listado). El
          segundo plato normal ("carn"/"peix" sin ninguna restricción) no cuenta
          como motivo: no tiene sentido avisar de una alergia que no existe */
-      var motivo=g.aler.length?g.aler.join(" · "):(g.kind==="veg"?L.leg.veg:g.kind==="vegan"?L.leg.vegan:g.preg?L.leg.preg:L.leg.aler);
-      var motTxt=clipW(motivo.toUpperCase(),cw-30,"sans",6,1.4);
+      var motivo=motivoAler(g,L);
+      var motLineas=partir(motivo.toUpperCase(),cw-30,"sans",6,1.4); if(motLineas.length>3) motLineas=[motLineas[0],motLineas[1],clipW(motLineas.slice(2).join(" "),cw-30,"sans",6,1.4)];
+      var motTxt=motLineas[0]||"";
       var lineasPlato=[];
       if(tieneMenu){
         lineasPlato=partir(g.menus.join(" + ").toUpperCase(),cw-30,"sans",6,1.4);
@@ -7721,11 +7763,14 @@ function cardPages(L,pw,ph){
       /* la última línea del bloque se ancla siempre al mismo punto de antes
          (chh-20) y el resto crece hacia arriba -- así una tarjeta con solo
          alergia (el caso más común) se ve exactamente igual que siempre */
-      var lineH=9, firstY=y+chh-20-lineasPlato.length*lineH;
+      var lineH=9, firstY=y+chh-20-(lineasPlato.length+motLineas.length-1)*lineH;
       cur.push(C(x+cw/2-textW({s:motTxt,fo:"sans",size:6,ls:1.4})/2-6,firstY-2,2.2,RUBY,null,0));
       cur.push(TX(x+cw/2+3,firstY,motTxt,{size:6,fo:"sans",a:"middle",c:RUBY,ls:1.4}));
+      motLineas.slice(1).forEach(function(linea,li){
+        cur.push(TX(x+cw/2,firstY+lineH*(li+1),linea,{size:6,fo:"sans",a:"middle",c:RUBY,ls:1.4}));
+      });
       lineasPlato.forEach(function(linea,li){
-        cur.push(TX(x+cw/2,firstY+lineH*(li+1),linea,{size:6,fo:"sans",a:"middle",c:GOLD,ls:1.4}));
+        cur.push(TX(x+cw/2,firstY+lineH*(motLineas.length+li),linea,{size:6,fo:"sans",a:"middle",c:GOLD,ls:1.4}));
       });
     }
     n++;
@@ -9604,8 +9649,10 @@ $("salon").addEventListener("click",function(){
 });
 document.addEventListener("keydown",function(e){
   if(editing||document.querySelector(".ovl")||/input|textarea|select/i.test((e.target.tagName||""))) return;
-  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){ e.preventDefault(); undo(); return; }
-  if(e.key==="Delete"&&sel!==null&&view==="plan"){ e.preventDefault(); deleteTable(sel); }
+  /* Supr y Ctrl+Z son del plano: solo valen estando en el plano (antes borraban una mesa o deshacían el plano desde Presupuesto o Menú sin verlo) */
+  var aqui=seccionActual();
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){ if(aqui!=="plan"&&aqui!=="list"&&aqui!=="card"&&aqui!=="montaje") return; e.preventDefault(); undo(); return; }
+  if(e.key==="Delete"&&sel!==null&&view==="plan"&&aqui==="plan"){ e.preventDefault(); deleteTable(sel); }
 });
 function setView(v){
   view=v;
@@ -9700,7 +9747,11 @@ function seccionActual(){
 function irASeccion(k){
   /* si el rol del usuario no puede ver esta sección, se le lleva al Resumen
      (que ven todos): así ningún enlace deja entrar donde no corresponde. */
-  if(k&&k!=="resumen"&&!puedeVer(k)) k="resumen";
+  if(k&&k!=="resumen"&&!puedeVer(k)){
+    var _sd=SECCIONES.filter(function(x){ return x.k===k; })[0];
+    try{ toast("Tu rol no tiene acceso a «"+(_sd?_sd.t:k)+"».",true); }catch(_){}
+    k="resumen";
+  }
   document.body.classList.remove("mode-home");
   document.body.classList.remove("mode-resumen");
   document.body.classList.remove("mode-plan");
@@ -9783,6 +9834,7 @@ window.syncAppbar=syncAppbar;
 var lastSec="plan";
 function escH(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];});}
 var ICONS={
+  "Servicio en directo":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.6l5.4 3.4-5.4 3.4z"/></svg>',
   "Previsión":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2"/></svg>',
   "Rentabilidad":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   "Parámetros":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
@@ -9882,7 +9934,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.96</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 01.97</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11126,7 +11178,7 @@ function renderResumen(){
             '<span class="badge '+(estado==="confirmada"||estado==="celebrada"?"done":(estado==="cerrada"?"todo":"prog"))+'">'+escH(estadoT)+'</span>'+
             (dias!=null?'<span class="mi">'+ICONS.cal+'<span>'+escH(capFirst(new Date(e.ficha.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})))+'</span><b>'+(dias>1?("faltan "+dias+" días"):dias===1?"falta 1 día":dias===0?"es hoy":("hace "+(-dias)+" días"))+'</b></span>':'<span class="mi">'+ICONS.cal+'<span>'+sub+'</span></span>')+
             '<span class="mi">'+ICONS.people+'<b>'+pax+'</b><span>invitados</span></span>'+
-            '<span class="mi">'+ICONS.pin+'<b>'+mesasAper+'</b><span>mesas aperitivo ·</span><b>'+mesas+'</b><span>banquete</span></span>'+
+            '<span class="mi">'+ICONS.pin+'<b>'+mesasAper+'</b><span>'+(mesasAper===1?"mesa aperitivo":"mesas aperitivo")+' ·</span><b>'+mesas+'</b><span>banquete</span></span>'+
           '</div>'+
           '<div class="rsm-actions"><button type="button" class="btn sm" id="rsm-print">Imprimir resumen</button> <button type="button" class="btn sm" id="rsm-dup" title="Copia del evento (plano, menú, precios) sin fecha ni pagos">Duplicar evento</button></div>'+
         '</div>'+
@@ -11193,6 +11245,7 @@ function renderResumen(){
         '<label class="fld wide"><span class="lbl">Nota para el cliente (opcional)</span><input id="pt-nota" value="'+escH(ct.nota||"")+'" placeholder="Para cualquier duda, escribidnos o llamadnos de 10 a 18 h."></label>'+
       '</div><button class="btn sm gold" id="pt-save" type="button">Guardar datos</button> <span class="portal-hint">Mientras estén vacíos, el portal no enseña esas líneas.</span></details>':'')+
     '</section></div>';
+  if(!puedeVer("portal")) shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card portal-card"><div class="share-h">Portal del cliente</div><p class="share-p">'+(e.share.on?"El portal del cliente está activo.":"El portal del cliente no está activo.")+' Lo gestiona administración.</p></section></div>';
   host.insertAdjacentHTML("beforeend",shareHTML);
   var _on=$("rsm-share-on"); if(_on) _on.addEventListener("click",function(){
     if(!e.share.id||e.share.id.length<24) e.share.id=tokenNuevo();
@@ -11393,7 +11446,7 @@ function presupTotals(e){
   return {menus:menus,extras:extras,total:total,pagado:pagado,pend:total-pagado};
 }
 function tareasPendientes(e){ var tk=e.tareas; if(!tk) return null; return tk.filter(function(x){return x.estado!=="completada";}).length; }
-function diasRestantes(e){ var f=e.ficha&&e.ficha.fecha; if(!f) return null; var d=new Date(f+"T00:00:00"); if(isNaN(d)) return null; return Math.ceil((d-new Date(new Date().toDateString()))/86400000); }
+function diasRestantes(e){ var f=e.ficha&&e.ficha.fecha; if(!f) return null; var d=new Date(f+"T00:00:00"); if(isNaN(d)) return null; return Math.round((d-new Date(new Date().toDateString()))/86400000); }   /* round: con el cambio de hora de octubre/marzo un día dura 23 o 25 h y ceil sumaba uno */
 /* ══ AGENDA AUTOMÁTICA DEL EVENTO ═════════════════════════════════════
    A partir de la fecha del evento se programan solos los pasos con los
    novios (valores de Les Moles; se cambian en Parámetros → Agenda):
@@ -11466,7 +11519,7 @@ function eventoAlertas(e){
   try{ var pk2=null; try{ pk2=window.SITTING_BRIDGE.conEvento?window.SITTING_BRIDGE.conEvento(e,function(){ return window.SITTING_BRIDGE.alerPendientes?window.SITTING_BRIDGE.alerPendientes():null; }):null; }catch(_){ pk2=null; }
     if(pk2) alerSinPlato=pk2.length;
     else parse(e.text||"").tables.forEach(function(tb){ tb.guests.forEach(function(g){
-      if(!g.soloAper&&(g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)&&!(g.menus&&g.menus.length)&&!(e.menu&&e.menu.alerOk&&e.menu.alerOk[tb.num+"|"+g.name])) alerSinPlato++; }); }); }catch(_){}
+      if((g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)&&!(g.menus&&g.menus.length)&&!(e.menu&&e.menu.alerOk&&e.menu.alerOk[tb.num+"|"+g.name])) alerSinPlato++; }); }); }catch(_){}
   if(!(e.ficha&&e.ficha.fecha)) a.push({t:"Falta la fecha del evento: no aparecerá en el calendario.",k:"crm",sev:"urgent"});
   if(c.pax===0) add("Todavía no hay invitados en el plano de mesas.","plan",true);
   if(dishes===0) add("El menú del banquete está sin definir.","m-sel",true);
@@ -13293,7 +13346,12 @@ window.LM_refreshNav=function(){ try{ renderSidenav(); renderTabbar(); if(docume
   var ci=document.querySelector("#side-ctx .ctx-ic"); if(ci) ci.innerHTML=ICONS.home;
 })();
 $("side-ctx").addEventListener("click",showHome);
-$("side-out").addEventListener("click",function(){ var f=document.querySelector("form.ab-out"); if(f) f.submit(); });
+/* al salir: si todo está en el servidor, el documento (clientes, precios, IBAN…) no se queda guardado en este dispositivo para el siguiente que entre; si hay cambios sin subir se conserva para no perderlos */
+function limpiarLocalAlSalir(){ try{ var el=$("saveind"); if(el&&el.getAttribute("data-st")==="ok"){ saliendo=true; localStorage.removeItem(KEY); } }catch(_){} }
+$("side-out").addEventListener("click",function(){ var f=document.querySelector("form.ab-out"); limpiarLocalAlSalir(); if(f) f.submit(); });
+(function(){ var f=document.querySelector("form.ab-out"); if(f) f.addEventListener("submit",limpiarLocalAlSalir); })();
+window.LM_limpiaLocal=limpiarLocalAlSalir;                    /* lo llama «Cerrar sesión» (SESSION.logout) */
+window.LM_sesionIniciada=function(){ saliendo=false; };        /* y al entrar de nuevo la app vuelve a guardar en este dispositivo */
 $("home-new").addEventListener("click",nuevoDesdeHome);
 $("home-q").addEventListener("input",renderHome);
 (function(){ var seg=$("home-viewseg"); if(!seg) return;
@@ -13678,8 +13736,8 @@ function renderEvStats(){
   var t=evTotals();
   $("mnu-stats").innerHTML=
     '<div class="stat"><b>'+t.total+'</b><span>comensales</span></div>'+
-    '<div class="stat"><b>'+t.mesasBanq+'</b><span>mesas banquete</span></div>'+
-    '<div class="stat"><b>'+t.mesasAper+'</b><span>mesas aperitivo</span></div>'+
+    '<div class="stat"><b>'+t.mesasBanq+'</b><span>'+(t.mesasBanq===1?"mesa banquete":"mesas banquete")+'</span></div>'+
+    '<div class="stat"><b>'+t.mesasAper+'</b><span>'+(t.mesasAper===1?"mesa aperitivo":"mesas aperitivo")+'</span></div>'+
     '<div class="stat"><b>'+selectedDishes().length+'</b><span>'+(selectedDishes().length===1?'plato marcado':'platos marcados')+'</span></div>'+
     '<div class="stat" title="Un camarero cada '+(BR.ratioCamarero?BR.ratioCamarero():11)+' comensales"><b>'+t.camareros+'</b><span>camareros</span></div>';
   var n=$("mnu-origen"); if(!n) return;
@@ -16362,7 +16420,7 @@ function escModelo(){
   }); });
   var okM=(menu()&&menu().alerOk)||{};
   var pendK=null, detK={}; try{ pendK={}; alerPendDetalle().forEach(function(x){ pendK[x.key]=1; detK[x.key]=x; }); }catch(_){ pendK=null; }
-  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&!g.soloAper&&(pendK?pendK[escKey(p)]:(!(g.menus&&g.menus.length)&&!okM[escKey(p)])); });
+  var sinSust=al.filter(function(p){ var g=p.g; return g.kind!=="baby"&&(pendK?pendK[escKey(p)]:(!(g.menus&&g.menus.length)&&!okM[escKey(p)])); });
   if(fb.length&&sinSust.length){
     /* los que no tienen ningún plato decidido van juntos; los que ya tienen alguno pero siguen pendientes se agrupan por lo que les
        falta, para que se vea POR QUÉ salen aquí (y qué hay que decidir para que dejen de salir) */
@@ -17080,7 +17138,7 @@ function alerDecidido(g,fal,okM){ return !!okM[aaKey(g)]||(!fal&&!!((g.sustituto
 /* los que siguen por decidir, con lo que les falta (los tiempos que chocan sin sustituto) y cuántos platos tienen ya */
 function alerPendDetalle(){
   var lista=BR.alergias?BR.alergias():[], sel=selectedDishes(), cur=algCursos(sel), okM=(menu()&&menu().alerOk)||{};
-  return lista.filter(function(g){ return !g.aper; }).map(function(g){ var fl=[]; if(sel.length){ try{ fl=noComeFaltas(g,sel,cur); }catch(_){ fl=[]; } }
+  return lista.map(function(g){ var fl=[], s2=g.aper?sel.filter(function(d){ return d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES"; }):sel; if(s2.length){ try{ fl=noComeFaltas(g,s2,cur); }catch(_){ fl=[]; } }
       return {g:g,key:aaKey(g),falta:fl,subs:(g.sustitutos||[]).filter(Boolean).length+Object.keys(alerSinDe(g)).length}; })
     .filter(function(x){ return !alerDecidido(x.g,x.falta.length,okM); });
 }
@@ -23176,7 +23234,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     role:function(){ return (curUser&&curUser.role)||"admin"; },
     hasBackend:function(){ return backend; },
     can:function(sec){ var u=curUser; if(!u) return false; if(sec==="coh") return true; if(sec==="srv") return u.role!=="compras"&&u.role!=="contabilidad"; var r=ROLES[u.role]; if(!r||r.secciones==="*") return true; return r.secciones.indexOf(sec)>=0; },
-    logout:function(){ try{ fetch("/api/logout",{method:"POST"}).catch(function(){}); }catch(_){ } setUser(null); }
+    logout:function(){ try{ if(window.LM_limpiaLocal) window.LM_limpiaLocal(); }catch(_){ } try{ fetch("/api/logout",{method:"POST"}).catch(function(){}); }catch(_){ } setUser(null); }
   };
   window.LM_SESSION=SESSION;
 
@@ -23247,6 +23305,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function abrirCambio(obligado){ cambioObligado=!!obligado; setMode("change"); clearErr(); if(obligado) showErr("Tu contraseña es temporal: elige la tuya para seguir.",true); openLogin(); setTimeout(function(){ var e=$("login-pass0"); if(e) e.focus(); },90); }
   function enterApp(){
+    try{ if(window.LM_sesionIniciada) window.LM_sesionIniciada(); }catch(_){}
     document.body.classList.add("authed"); closeLogin();
     /* la navegación se reconstruye ahora que ya se sabe el rol (filtra secciones) */
     try{ if(window.LM_refreshNav) window.LM_refreshNav(); }catch(_){}
@@ -26517,6 +26576,29 @@ BR.montaje={hojaEv:mjHojaEv, otrosDia:mjOtrosDia, mesasAper:mjMesasAper, configs
   window.LM_logoPareja=API;
 })();
 </script>
+<script>
+/* v01.97 · accesibilidad y permisos de pantalla:
+   · #appSitting (el editor del plano) queda debajo de Resumen, Planificación, Servicio, Parámetros… y del acceso: con `inert` no entra en el orden
+     del teclado ni lo leen los lectores de pantalla (antes: 46 controles invisibles —Borrar, Compartir…— antes del primero de verdad)
+   · «Borrar» el evento solo lo hacen administración y eventos (el servidor ya lo ignoraba para el resto) */
+(function(){
+  "use strict";
+  function sync(){
+    var b=document.body, sit=document.getElementById("appSitting");
+    if(sit){
+      var visible=b.classList.contains("authed")&&b.classList.contains("mode-sitting")&&!b.classList.contains("mode-home")&&!b.classList.contains("mode-resumen")&&!b.classList.contains("mode-plan");
+      if(visible){ sit.removeAttribute("inert"); sit.removeAttribute("aria-hidden"); } else { sit.setAttribute("inert",""); sit.setAttribute("aria-hidden","true"); }
+    }
+    var S=window.LM_SESSION; if(!S||!S.isAuthed||!S.isAuthed()) return;
+    var rol=S.role(), del=document.getElementById("del");
+    if(del) del.style.display=(rol==="admin"||rol==="eventos")?"":"none";
+  }
+  try{ new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:["class"]}); }catch(_){}
+  document.addEventListener("DOMContentLoaded",sync); sync();
+  /* si el administrador cambia el rol de alguien con la sesión abierta, se entera al volver a la pestaña */
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") sync(); });
+})();
+</script>
 <script>/*LZ-START*/
 /* catálogo de imágenes del diseñador (se cargan de lz/NOMBRE.webp) */
 window.LM_LZ_MAN={
@@ -27968,7 +28050,7 @@ var CATS=[["boda","Boda"],["bautizo","Bautizo"],["comunion","Comunión"],["otros
 var ESTILOS=["Dibujado","Ilustrado","Textura","Elegante","Clásico","Moderno","Infantil","Oscuro","Color vivo","Local"];
 function enCat(t,c){ return c==="todo"||(t.cat||["otros"]).indexOf(c)>=0; }
 function plantillasVisibles(){ var c=ST.cat||"todo", e=ST.est||""; return PLANTILLAS.filter(function(t){ return enCat(t,c)&&(!e||(t.tags||[]).indexOf(e)>=0); }); }
-function galeriaHTML(){ var chips='<div class="lz-chips" role="tablist" aria-label="Tipo de minuta">'+CATS.map(function(c){ var n=PLANTILLAS.filter(function(t){ return enCat(t,c[0]); }).length; return '<button type="button" class="lz-chip'+((ST.cat||"todo")===c[0]?" on":"")+'" data-lz-cat="'+c[0]+'">'+c[1]+' <small>'+n+'</small></button>'; }).join("")+'</div>';
+function galeriaHTML(){ var chips='<div class="lz-chips" role="group" aria-label="Tipo de minuta">'+CATS.map(function(c){ var n=PLANTILLAS.filter(function(t){ return enCat(t,c[0]); }).length; return '<button type="button" class="lz-chip'+((ST.cat||"todo")===c[0]?" on":"")+'" data-lz-cat="'+c[0]+'">'+c[1]+' <small>'+n+'</small></button>'; }).join("")+'</div>';
   var dentro=PLANTILLAS.filter(function(t){ return enCat(t,ST.cat||"todo"); }), est=ESTILOS.filter(function(e){ return dentro.some(function(t){ return (t.tags||[]).indexOf(e)>=0; }); });
   if(est.length) chips+='<div class="lz-chips lz-chips-e" role="group" aria-label="Estilo"><button type="button" class="lz-chip'+(!ST.est?" on":"")+'" data-lz-est="">Todos los estilos</button>'+est.map(function(e){ return '<button type="button" class="lz-chip'+(ST.est===e?" on":"")+'" data-lz-est="'+e+'">'+e+'</button>'; }).join("")+'</div>';
   var vis=plantillasVisibles(); var h=vis.length?'':'<p class="lz-vacio">No hay plantillas con ese estilo en este tipo de evento.</p>'; h+=vis.map(function(t){ return '<button type="button" class="lz-tp'+(ST.sc.tpl===t.id&&!ST.sc.mia?' on':'')+'" data-lz-tpl="'+t.id+'" title="'+esc(t.desc)+'"><canvas width="150" height="424" data-lz-th="'+t.id+'"></canvas><b>'+esc(t.nombre)+'</b></button>'; }).join("");
