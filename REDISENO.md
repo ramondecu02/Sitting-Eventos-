@@ -1,6 +1,6 @@
 # Rediseño visual · Les Moles Events
 
-Estado: **prototipo v3 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
+Estado: **prototipo v4 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
 Código del prototipo (referencia para portar): `rediseno/prototipo.html` (un solo archivo, sin dependencias salvo Google Fonts).
 Prototipo: https://claude.ai/artifact/PxPhJMLGyhNRo5RAejTwt5 (privado; se comparte desde su menú «Compartir»).
 
@@ -42,6 +42,16 @@ Medidas:
 - **Resumen más útil**: «Esta semana» (tareas marcables) y «Cobros» (barra y estado de cada pago). **Previsión** recupera lo que tiene la app: cifras, filtro por estado y las tres vistas (Calendario, Lista en tabla, Por local).
 - **Antes y después**: deslizador con 4 pantallas reales de la app de hoy (v02.02) frente al prototipo.
 - **Guías de interfaz**: etiquetas asociadas a los campos, `autocomplete`, puntos suspensivos en los marcadores, espacios duros en importes y porcentajes, `text-wrap`, color de `<select>`, `theme-color`, aviso de cambio de pantalla para lectores de pantalla, `translate="no"` en la marca.
+
+**v4** («¿cómo quedarían escaleta, plano, seating, minutas… todo lo funcional? ¿y el onboarding inicial?»), mismo enlace, versión 4. Se miró primero cómo son hoy esas pantallas (capturas de la app v02.02) y se rediseñó **su cromo y sus interacciones**; el papel que acaba en PDF (Cormorant, tarjetas, etiquetas de alérgeno) **no cambia de tipografía** ni toca el motor de PDF.
+- **Plano de sala (editor de verdad)**: arrastrar mesas con ajuste a rejilla; arrastrar un comensal sobre otra silla para intercambiarlos (también entre mesas); clic en una mesa → el panel izquierdo pasa a «Mesa N» (nombre, forma, sillas ±, diámetro/largo, cada comensal con su tipo y detalle); + Mesa, Ordenar (con animación), elementos de sala (barra, pista, escenario, buffet, puerta), zoom, «Sillas / Con nombres», Deshacer/Rehacer (Ctrl Z, Ctrl Shift Z), flechas para mover la mesa elegida, Supr para quitarla (con Deshacer). La **lista de invitados en texto** (`M2 | Redonda 10 | Família…`, `Nombre (celíaca)`, `-` silla libre) y el plano **se actualizan el uno al otro** al momento; los contadores (comensales, adultos, niños, tronas, alergias) también. Lo que se toca aquí cambia Alergias, Listado, Marcasitios, Seatings y Montaje.
+- **Listado por mesas y Marcasitios**: misma columna de edición; papel con vista previa en vivo; «Nombre completo / Solo nombre», Català / Castellano.
+- **Seatings y Menú para invitados (minutas)**: un solo diseñador. Papel A5/A6/DL que se escala con la pantalla; tocar un elemento → barra flotante (letra, tamaño, color, alineación); doble toque para escribir; arrastrar con guía de centro; 6 diseños con miniaturas reales del contenido (hojas de acuarela, amapola, clásico, moderno, gastronómico, oscuro); añadir texto / línea / fecha / iconos; logo; tamaño y color del papel; Deshacer. En Seatings se cambia de mesa con ◀ ▶ y los nombres salen del plano; en minutas el menú sale de los platos marcados (secciones y idioma a elegir, aviso de alergias).
+- **Escaleta**: formulario en acordeones (Horario, Paradas, Detalles de servicio) y **hoja en vivo** al lado: las horas del banquete se calculan con los platos marcados y las paradas; añadir/quitar con Deshacer.
+- **Montaje de mesas**: Hoja del evento (aviso de estado, material con barras, una tarjeta por mesa con su dibujo y su estado «a gusto / apretada / no cabe», editor de diámetro/largo/sillas que cambia el plano), Calculadora y Ajustes de existencias.
+- **Primer uso**: invitación → contraseña (medidor, mostrar/ocultar, coincidencia) → puesto (5 roles, «Verás…») → **recorrido guiado** con foco que se desliza entre elementos (5 pasos en escritorio, 4 en móvil; flechas, Esc) → **«Primeros pasos»** en el Resumen (5 tareas con anillo de progreso: restaurante, equipo, platos, primer evento, portal) → **asistente de nuevo evento** de 4 pasos que crea el evento de verdad. Entradas: «Tengo una invitación» en el acceso o «▶ Primer uso» en la barra del prototipo.
+- Antes y después ampliado a 9 pantallas, con las funcionales y el acceso.
+- Pruebas: 53 pantallas × datos normales/extremos/vacíos × escritorio/móvil × claro/oscuro sin errores ni desbordes, y baterías de interacción por área (editor, diseñador, escaleta, montaje, primer uso).
 
 ## Pendiente de Ramon
 1. Elegir letra entre las 10 (o decir qué le gusta de cada una) y qué cambiaría del prototipo.
