@@ -277,7 +277,7 @@ async function loginRoute(request, env) {
       await env.DB.prepare("INSERT INTO login_fallos (ts, email, ip) VALUES (?1, ?2, ?3)").bind(ahora, email, ip).run();
       if (Math.random() < 0.05) await env.DB.prepare("DELETE FROM login_fallos WHERE ts<?1").bind(ahora - 3600e3).run();
     } catch (_) {}
-    await logAct(env, row ? { uid: row.id, name: row.name } : null, "login_fallido", email);
+    await logAct(env, row ? { uid: row.id, name: row.name } : null, "login_fallido", row ? email : "(correo no registrado)");
     return json({ error: "credentials" }, 401);
   }
   if (row.active === 0) { await logAct(env, { uid: row.id, name: row.name }, "login_fallido", email + " (acceso desactivado)"); return json({ error: "inactive", message: "Tu acceso está desactivado. Habla con un administrador." }, 403); }
