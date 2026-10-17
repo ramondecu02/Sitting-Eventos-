@@ -1,7 +1,7 @@
 # Rediseño visual · Les Moles Events
 
-Estado: **prototipo v2 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
-Código del prototipo (referencia para portar): `rediseno/prototipo-v2.html` (un solo archivo, sin dependencias salvo Google Fonts).
+Estado: **prototipo v3 hecho, esperando el OK de Ramon** (paso C). Nada portado a la app todavía.
+Código del prototipo (referencia para portar): `rediseno/prototipo.html` (un solo archivo, sin dependencias salvo Google Fonts).
 Prototipo: https://claude.ai/artifact/PxPhJMLGyhNRo5RAejTwt5 (privado; se comparte desde su menú «Compartir»).
 
 ## A) Skills
@@ -33,6 +33,15 @@ Medidas:
 - Claro / oscuro / auto, escritorio / móvil (el móvil responde al ancho del contenedor), tamaño 100/112/125 %, buscador Ctrl K con sinónimos, tabla antes/después de textos al final.
 - Fotos: recortes de la única foto de Ramon que hay (la del acceso) en los huecos previstos (cabecera del Resumen, tarjetas de evento, secciones del menú, montaje, galería). Las suyas irán en esos mismos huecos.
 - Comprobado con navegador: las 53 pantallas en escritorio y móvil, claro y oscuro, sin errores de JavaScript ni desbordes; recorrido de interacciones (entrar, mesa → panel / hoja, nombres en el plano, estados de alergia con Deshacer, filtros, marcar platos, tareas, calendario, buscador, letras, movimiento, barra lateral).
+
+**v3** («me empieza a gustar, mejóralo aún más»), mismo enlace, versión 3. Revisado con las skills de Emil Kowalski (`emil-design-eng`, `break-ui`) y las guías de interfaz de Vercel:
+- **Movimiento más fino**: las pestañas ya no recargan la página (solo entra el contenido de debajo y el subrayado se desliza de una a otra); escalonado más corto (42 ms, máximo 9 pasos); la cabecera de foto del Resumen se mueve con el scroll (parallax con `animation-timeline`, solo en navegadores que lo admiten); la barra superior gana sombra al bajar; el aviso sale con una salida suave; «Guardando…» → «Guardado» cada vez que se marca, se elige o se cambia algo; indicador de estado con 3 tramos animado en Alergias.
+- **Detalles táctiles**: las hojas de móvil se arrastran hacia abajo con inercia y fricción hacia arriba (un gesto rápido las cierra), también con Escape y tocando fuera; campos a 16 px en móvil para que iOS no haga zoom.
+- **Información flotante** (solo con la barra lateral contraída y en botones de icono): espera la primera vez y sale al instante y sin animación si ya había otra abierta.
+- **Interruptor «Datos: Normales / Extremos / Vacío»** (barra del prototipo): nombres de 70+ caracteres, un invitado «Jo», 1 invitado, 1.250 invitados, alergias largas, un plato con seis alérgenos, camarera con apellido largo… y pantallas vacías con texto y acción. Se pasó un detector automático de desbordes por las 53 pantallas × 3 datos × escritorio/móvil × claro/oscuro: sin hallazgos. Plurales correctos («1 invitado», «1 mesa»).
+- **Resumen más útil**: «Esta semana» (tareas marcables) y «Cobros» (barra y estado de cada pago). **Previsión** recupera lo que tiene la app: cifras, filtro por estado y las tres vistas (Calendario, Lista en tabla, Por local).
+- **Antes y después**: deslizador con 4 pantallas reales de la app de hoy (v02.02) frente al prototipo.
+- **Guías de interfaz**: etiquetas asociadas a los campos, `autocomplete`, puntos suspensivos en los marcadores, espacios duros en importes y porcentajes, `text-wrap`, color de `<select>`, `theme-color`, aviso de cambio de pantalla para lectores de pantalla, `translate="no"` en la marca.
 
 ## Pendiente de Ramon
 1. Elegir letra entre las 10 (o decir qué le gusta de cada una) y qué cambiaría del prototipo.
