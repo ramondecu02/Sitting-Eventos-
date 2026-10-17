@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.00 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.01 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.00".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.01".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3603,6 +3603,8 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .pr-evn{flex:1; min-width:0; overflow-wrap:anywhere; font-weight:600}
 .pr-evf{color:var(--c-mut); font-size:12.5px; white-space:nowrap}
 .pr-ok{background:#EEF3E4; border:1px solid #B7C98F; border-radius:10px; padding:9px 12px; margin:8px 0; color:#3E5B2A; font-weight:600}
+.pr-queda{background:#FBF4E2; border:1px solid #E2CC94; border-radius:10px; padding:9px 12px; margin:8px 0; color:#5C4A1E; font-size:13px; line-height:1.45}
+.pr-queda ul{margin:6px 0 0; padding-left:18px}.pr-queda li{margin:3px 0}
 .pr-busca{display:flex; gap:10px; margin:8px 0; flex-wrap:wrap}
 .pr-busca input{flex:1; min-width:220px}
 .pr-det{margin:8px 0; border-top:1px solid var(--c-line,#E4DCCB); padding-top:8px}
@@ -4375,7 +4377,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.00</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.01</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6190,6 +6192,7 @@ function m3(base, a, b, preferB) {
    Devuelve «p» o «i» tal cual cuando uno de los dos lo trae todo. */
 function mergeEv(p, i, tb) {
   if (!p) return i; if (!i) return p;
+  if (p.anonimizado && !i.anonimizado) return p;   /* un evento ya anonimizado no resucita con una copia vieja */
   var gana = (+p.updated || 0) > (+i.updated || 0) ? p : i;
   if (!p._k && !i._k) return gana;
   /* si uno de los dos ya lo tiene todo, se devuelve ese mismo (a igualdad, el que llega: así no se cambia el objeto que la pantalla tiene en la mano) */
@@ -10002,7 +10005,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.00</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.01</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -19556,7 +19559,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   };
 
   /* ════════ PRIVACIDAD Y DATOS ════════ */
-  var P={d:null,err:"",cargando:false,sel:{},msg:"",q:"",pers:null,buscando:false,ocupado:false}, hostP=null;
+  var P={d:null,err:"",cargando:false,sel:{},msg:"",q:"",pers:null,buscando:false,ocupado:false,queda:null}, hostP=null;
+  /* lo que sigue existiendo después de anonimizar o quitar a alguien (copias de seguridad, papelera…): no se promete más de lo que se ha hecho */
+  function quedaHTML(){ var q=P.queda; if(!q||!q.length) return ""; return '<div class="pr-queda" role="status"><b>Qué queda todavía</b><ul>'+q.map(function(x){ return '<li><b>'+esc(x.donde)+'</b>'+(x.n?' ('+x.n+')':'')+': '+esc(x.nota)+'</li>'; }).join("")+'</ul></div>'; }
   function activoP(){ return hostP&&hostP.querySelector&&hostP.querySelector(".pr-root")&&document.body.classList.contains("mode-plan"); }
   function cargarP(){ if(P.cargando) return; P.cargando=true; api("/api/privacidad").then(function(j){ P.d=j; P.err=""; if(!Object.keys(P.sel).length) j.elegibles.forEach(function(x){ P.sel[x.id]=true; }); }).catch(function(x){ P.err=x.message; }).then(function(){ P.cargando=false; if(activoP()) pintarP(); }); }
   function mailContacto(){ try{ var e=BR.current(); var c=e&&e.share&&e.share.portal&&e.share.portal.contacto; return (c&&c.mail)||""; }catch(_){ return ""; } }
@@ -19567,7 +19572,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       fila("Eventos y clientes","Organizar celebraciones: reserva, presupuesto, pagos, plano de mesas, menús y servicio","Clientes (nombre, contacto, pagos) e invitados (nombre; alergias y dietas = datos de salud)","Contrato del evento (art. 6.1.b) y consentimiento explícito para salud (art. 9.2.a)",meses+" meses tras el evento y después se anonimiza; la facturación se conserva el plazo fiscal","Solo el equipo del restaurante. Encargado: Cloudflare (alojamiento y base de datos). Usuario y contraseña, roles, registro de actividad, copias, cierre por inactividad")+
       fila("Documentos de los clientes","Identificar a quienes firman el contrato y dejar registro de los pagos recibidos","Copia del DNI, NIE o pasaporte de los clientes; justificantes de pago (nombre, importe, a veces datos de la cuenta)","Contrato del evento (art. 6.1.b) y obligaciones fiscales y contables (art. 6.1.c)",(((cfg&&+cfg.dniDias)||0)?((cfg&&+cfg.dniDias)||0)+" días tras el evento (documentos de identidad)":"Hasta anonimizar el evento (documentos de identidad)")+"; los justificantes, hasta anonimizar el evento","Documentos de identidad: solo administración y eventos, y cada apertura queda anotada; justificantes: también contabilidad. Encargado: Cloudflare")+
       fila("Comunicaciones con los clientes","Dejar constancia de lo hablado y acordado con los clientes (notas, chats de WhatsApp y correos)","Notas del equipo y, si se adjuntan, chats de WhatsApp, correos y capturas: nombres, teléfonos y el contenido de los mensajes","Contrato del evento (art. 6.1.b)",meses+" meses tras el evento y después se anonimiza (los adjuntos se borran con el evento)","Administración y eventos")+
-      fila("Correos y avisos","Avisar a clientes, camareros y equipo (recordatorios, turnos, resumen semanal)","Correo del destinatario y el texto del mensaje","Relación contractual o laboral (art. 6.1.b)","180 días (bandeja de salida); se borra al anonimizar el evento","Administración y eventos")+
+      fila("Correos y avisos","Avisar a clientes, camareros y equipo (recordatorios, turnos, resumen semanal)","Correo del destinatario y el texto del mensaje","Relación contractual o laboral (art. 6.1.b)","180 días (bandeja de salida; los avisos de consultas web, 30 días); se borra al anonimizar el evento","Administración y eventos")+
       fila("Consultas web","Contestar a quien pregunta por una celebración desde el formulario público","Nombre, correo o teléfono, fecha, invitados y mensaje de quien consulta","Consentimiento (casilla del formulario)","Administración y eventos","Hasta 36 meses según lo que elija el administrador (12 de fábrica)"),
       fila("Proveedores de compra","Pedir los ingredientes, bebidas y material de cada evento","Nombre, teléfono y correo de contacto de cada proveedor","Relación comercial","Administración y compras","Mientras dure la relación comercial"),
       fila("Personal de sala","Gestionar turnos, disponibilidad, avisos y registro de horas","Camareros (nombre, teléfono, disponibilidad, hora de entrada y de salida)","Relación laboral o de servicio (art. 6.1.b) y obligación legal del registro de jornada (art. 6.1.c)","Mientras dure la relación; el registro de jornada, 4 años","Responsables de sala y administración")+
@@ -19589,19 +19594,20 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         '<label class="fld"><span class="lbl">Conservar los datos de un evento</span><select id="pr-meses">'+[6,12,18,24,36,60].map(function(m){ return '<option value="'+m+'"'+(m===c.meses?" selected":"")+'>'+m+' meses después</option>'; }).join("")+'</select></label>'+
         '<label class="fld"><span class="lbl">Documentos de identidad de los clientes (DNI, NIE, pasaporte)</span><select id="pr-dni">'+[30,60,90,180,0].map(function(m){ return '<option value="'+m+'"'+(m===(+c.dniDias||0)?" selected":"")+'>'+(m?m+" días después del evento":"Solo al anonimizar el evento")+'</option>'; }).join("")+'</select></label>'+
         '<label class="fld"><span class="lbl">Cerrar el portal del cliente (el enlace que se le envía)</span><select id="pr-portal">'+[7,15,30,60,90,180,0].map(function(m){ return '<option value="'+m+'"'+(m===(+c.portalDias||0)?" selected":"")+'>'+(m?m+" días después del evento":"No cerrarlo (hasta anonimizar el evento)")+'</option>'; }).join("")+'</select></label>'+
+        '<label class="fld"><span class="lbl">Copias de seguridad hechas a mano (Parámetros → Copias)</span><select id="pr-copias">'+[90,180,365,0].map(function(m){ return '<option value="'+m+'"'+(m===(+c.copiasDias||0)?" selected":"")+'>'+(m?"Se borran solas a los "+m+" días":"No caducan (las borro yo)")+'</option>'; }).join("")+'</select></label>'+
         '<label class="pr-chk"><input id="pr-auto" type="checkbox"'+(c.auto?" checked":"")+'> Anonimizar sola, una vez al día, los eventos que pasen el plazo</label></div>'+
         '<div class="pr-btns"><button type="button" class="btn gold sm" data-pr="guardar"'+(P.ocupado?" disabled":"")+'>Guardar</button>'+(d.ultima?'<span class="es-peq">Última anonimización: '+esc(fh(d.ultima.ts))+(d.ultima.auto?" (automática)":"")+(d.ultima.n?" · "+d.ultima.n+(d.ultima.n===1?" evento":" eventos"):"")+'</span>':'')+'</div></section>';
       if(d.cortos&&d.cortos.length) h+='<section class="pcard" aria-label="Portales con enlace antiguo"><h2>Portales con enlace antiguo <em>'+d.cortos.length+'</em></h2><p class="es-peq">Estos enlaces son cortos (de las primeras versiones): solo dejan mirar y son más fáciles de adivinar que los nuevos. Entra en el evento → Resumen → «Crear enlace nuevo» y envíaselo al cliente; el antiguo deja de funcionar.</p><div class="pr-lista">'+
         d.cortos.map(function(x){ return '<div class="pr-ev"><span class="pr-evn">'+esc(x.name||"Sin título")+'</span><span class="pr-evf">'+esc(x.fecha?fechaEs(x.fecha):"")+'</span><button type="button" class="btn sm" data-pr="ir-ev" data-id="'+esc(x.id)+'">Ir al evento</button></div>'; }).join("")+'</div></section>';
       var n=d.elegibles.length, nsel=d.elegibles.filter(function(x){ return P.sel[x.id]; }).length;
       h+='<section class="pcard" aria-label="Eventos que han pasado el plazo"><h2>Eventos que ya han pasado el plazo <em>'+n+'</em></h2>'+
-        (P.msg?'<div class="pr-ok" role="status">'+esc(P.msg)+'</div>':'')+
-        (n?'<p class="es-peq">Al anonimizar se quitan los nombres de invitados y del cliente, los contactos, las alergias, las comunicaciones (con sus adjuntos) y el enlace del portal; se conservan las cifras (mesas, personas por tipo, importes). También se borran su historial de cambios, su papelera, la lista que envió el cliente y su plano propio. <b>No se puede deshacer.</b></p>'+
+        (P.msg?'<div class="pr-ok" role="status">'+esc(P.msg)+'</div>':'')+quedaHTML()+
+        (n?'<p class="es-peq">Al anonimizar se quitan los nombres de invitados y del cliente, los contactos, las alergias, las comunicaciones (con sus adjuntos), el contrato, los logos, los diseños de minutas y de seatings, las tareas y el enlace del portal; solo se conservan las cifras (fecha, mesas, personas por tipo, menú elegido, importes y horas). También se borran su historial de cambios, su papelera, los correos de su bandeja, la lista que envió el cliente y su plano propio. <b>No se puede deshacer.</b></p>'+
           '<div class="pr-lista">'+d.elegibles.map(function(x){ return '<label class="pr-ev"><input type="checkbox" data-pr-sel="'+esc(x.id)+'"'+(P.sel[x.id]?" checked":"")+'><span class="pr-evn">'+esc(x.name||"Sin título")+'</span><span class="pr-evf">'+esc(fechaEs(x.fecha))+' · hace '+x.meses+' meses</span></label>'; }).join("")+'</div>'+
           '<div class="pr-btns"><button type="button" class="btn danger sm" data-pr="anon"'+(nsel&&!P.ocupado?"":" disabled")+'>Anonimizar los seleccionados ('+nsel+')</button></div>':
           '<p class="es-peq">Ahora mismo no hay ninguno. ✓ ('+d.anonimizados+' ya anonimizados de '+d.eventos+' eventos.)</p>')+
-        '<p class="es-peq">Las copias de seguridad automáticas se renuevan solas y dejan de contener estos datos en unos 3 meses. Las copias manuales (Parámetros → Copias de seguridad) bórralas tú si guardan eventos antiguos.</p></section>';
-      h+='<section class="pcard" aria-label="Buscar a una persona"><h2>Buscar o quitar a una persona</h2><p class="es-peq">Para atender una petición de acceso o de supresión: busca el nombre (o el teléfono o correo) en todos los eventos. Quitarla sustituye su nombre por «Persona anonimizada» y borra sus contactos y alergias en esos eventos.</p>'+
+        '<p class="es-peq">Las copias de seguridad hechas antes siguen guardando estos datos hasta que caducan: las automáticas se renuevan solas y desaparecen en unos 3 meses; las hechas a mano, '+(+c.copiasDias?"a los "+c.copiasDias+" días":"cuando tú las borres (Parámetros → Copias de seguridad)")+'.</p></section>';
+      h+='<section class="pcard" aria-label="Buscar a una persona"><h2>Buscar o quitar a una persona</h2><p class="es-peq">Para atender una petición de acceso o de supresión: busca el nombre (o el teléfono o correo) en todos los eventos. Quitarla sustituye su nombre por «Persona anonimizada» y borra sus contactos, alergias, el título del evento si la nombra y, si es el cliente, también su teléfono, correo, notas, logo y enlace del portal; además borra sus correos de la bandeja de salida, su consulta web y su rastro en el registro de actividad.</p>'+
         '<div class="pr-busca"><input id="pr-q" type="search" placeholder="Nombre, teléfono o correo (mín. 3 letras)" value="'+esc(P.q)+'" aria-label="Persona a buscar"><button type="button" class="btn sm" data-pr="buscar"'+(P.buscando?" disabled":"")+'>Buscar</button></div>';
       if(P.pers){
         var pe=P.pers;
@@ -19619,7 +19625,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function leerCfg(){
     var g=function(id){ var e=document.getElementById(id); return e?e.value:""; };
-    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),dniDias:+g("pr-dni"),portalDias:+g("pr-portal"),auto:!!(document.getElementById("pr-auto")||{}).checked};
+    return {responsable:g("pr-resp"),nif:g("pr-nif"),direccion:g("pr-dir"),email:g("pr-mail"),meses:+g("pr-meses"),dniDias:+g("pr-dni"),portalDias:+g("pr-portal"),copiasDias:+g("pr-copias"),auto:!!(document.getElementById("pr-auto")||{}).checked};
   }
   function resumenPers(){
     var pe=P.pers; if(!pe) return ""; var t="Resultado de la búsqueda de datos personales ("+fh(Date.now())+"):\n";
@@ -19636,13 +19642,13 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         if(a==="guardar"){ P.ocupado=true; api("/api/privacidad",{method:"PUT",body:leerCfg()}).then(function(j){ P.d.cfg=j.cfg; toast("Guardado."); }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; pintarP(); cargarP(); }); }
         else if(a==="ir-ev"){ try{ window.SITTING_BRIDGE.switchActiveEvent(b.getAttribute("data-id")); window.irASeccion("resumen"); }catch(_){} }
         else if(a==="anon"){ if(!armar(b,"¿Seguro? No se puede deshacer")) return; var ids=P.d.elegibles.filter(function(x){ return P.sel[x.id]; }).map(function(x){ return x.id; });
-          P.ocupado=true; api("/api/privacidad/anonimizar",{body:{ids:ids}}).then(function(j){ P.msg=j.n+(j.n===1?" evento anonimizado.":" eventos anonimizados."); P.sel={}; toast(P.msg); try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; cargarP(); pintarP(); }); }
+          P.ocupado=true; api("/api/privacidad/anonimizar",{body:{ids:ids}}).then(function(j){ P.msg=j.n+(j.n===1?" evento anonimizado.":" eventos anonimizados."); P.queda=j.queda||null; P.sel={}; toast(P.msg); try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} }).catch(function(x){ toast(x.message,true); }).then(function(){ P.ocupado=false; cargarP(); pintarP(); }); }
         else if(a==="buscar"||a==="quitar"){
           var q=(document.getElementById("pr-q")||{}).value||P.q; P.q=q;
           if(a==="quitar"&&!armar(b,"¿Seguro? No se puede deshacer")) return;
-          if(a==="buscar"){ P.buscando=true; P.pers=null; pintarP(); }
+          if(a==="buscar"){ P.buscando=true; P.pers=null; P.queda=null; pintarP(); }
           if(a==="quitar") P.ocupado=true;
-          api("/api/privacidad/persona",{body:{q:q,borrar:a==="quitar"}}).then(function(j){ if(a==="quitar"){ toast("Persona quitada de "+j.eventos.length+(j.eventos.length===1?" evento.":" eventos.")); P.pers=null; try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} } else P.pers=j; })
+          api("/api/privacidad/persona",{body:{q:q,borrar:a==="quitar"}}).then(function(j){ if(a==="quitar"){ toast("Persona quitada de "+j.eventos.length+(j.eventos.length===1?" lugar.":" lugares.")); P.pers=null; P.queda=j.queda||null; try{ if(window.hydrateFromServer) window.hydrateFromServer(); }catch(_){} } else P.pers=j; })
             .catch(function(x){ toast(x.message,true); }).then(function(){ P.buscando=false; P.ocupado=false; pintarP(); }); }
         else if(a==="copiar-res"){ var t=resumenPers(); try{ navigator.clipboard.writeText(t).then(function(){ toast("Resumen copiado."); },function(){ toast("No se ha podido copiar.",true); }); }catch(_){ toast("No se ha podido copiar.",true); } }
         else if(a==="imprimir"){ var w=window.open("","_blank"); if(!w){ toast("El navegador ha bloqueado la ventana: permítela e inténtalo otra vez.",true); return; }

@@ -23,7 +23,7 @@ Revisión de toda la aplicación con **8 agentes de auditoría en paralelo**, ca
 
 Ver «Novedad de la versión 01.97» y «Novedad de la versión 01.98» en `ROADMAP.md`. La 01.99 (**Seatings**, el diseñador de carteles de mesa) es una función nueva pedida aparte y no cambia este plan.
 
-**Fase A en curso:** ✅ puntos 2 y 3 hechos en la **02.00** (sesiones de verdad, bloqueo de entrada por equipo, tope y orden del documento; «archivar eventos antiguos» queda para la 02.01 junto con el RGPD). Quedan el 4 (RGPD) y el 1 (permisos por rol en el servidor). Resumen:
+**Fase A en curso:** ✅ puntos 2 y 3 hechos en la **02.00** (sesiones de verdad, bloqueo de entrada por equipo, tope y orden del documento; «archivar eventos antiguos» queda para la 02.01 junto con el RGPD). ✅ punto 4 (RGPD) hecho en la **02.01** (se descarta «archivar eventos antiguos»: la anonimización con lista blanca ya libera casi todo el espacio). Queda el 1 (permisos por rol en el servidor). Resumen:
 
 **01.97** — alergias de quien solo viene al aperitivo en todos los avisos · lista de alergias con comas · «cuñado», «Menéndez», «sin alergias», mesas «Directivos» / «Família Rodó» · PDF sin «?» y sin alergias recortadas, con la dieta junto a la alergia · Supr y Ctrl+Z solo en el plano · «faltan N días» con el cambio de hora · modo oscuro en Coordinación, Estado y diseñador · teclado (el editor del plano ya no estorba) · zoom permitido · avisos del móvil · icono de Servicio en directo · permisos de pantalla (portal, Borrar, atajos vetados) · cerrar sesión limpia el documento del dispositivo · servidor: 400 en vez de 500, fecha de modificación acotada.
 

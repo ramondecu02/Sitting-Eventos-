@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.00** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.01** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,17 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.01
+- **Fase A del plan de la revisión, segunda parte: RGPD completo** (Parámetros → Privacidad y datos).
+  - **Anonimizar un evento ya no deja nada personal.** Antes se quitaban unos campos conocidos y cualquier dato nuevo (por ejemplo los **seatings**, los diseños de minuta, el logo de la pareja, las tareas) se quedaba con los nombres. Ahora funciona con **lista blanca**: solo se conserva lo que sirve para las cifras (fecha, tipo, mesas y personas por tipo, menú elegido, importes con concepto genérico, horas de servicio, geometría del salón) y todo lo demás se quita, también lo que se añada en el futuro. Después se barre lo que queda: cualquier texto que repita un nombre, teléfono, correo o documento de identidad del evento se sustituye. De paso, un evento anonimizado **ocupa mucho menos** en la base de datos (alivia el límite de 1,9 MB: por eso no hace falta «archivar»).
+  - **Un evento anonimizado no resucita:** si un navegador con una copia vieja (con los nombres) vuelve a subirla, el servidor se queda con la anonimizada, y la app hace lo mismo al leer. Los sellos internos de sincronización tampoco guardan nombres.
+  - **«Quitar a una persona» quita de verdad:** además del nombre en el plano y en la ficha, ahora el **título del evento** y la primera línea del plano si la nombran; si es el **cliente**, también su teléfono, correo, notas, «cómo nos conoció», foto, logo, documentos y el **enlace del portal** (se cierra y se borra lo que veía), y su nombre y apellido sueltos en los textos libres (seatings, minuta, tareas, proveedores…). Sin tocar lo de los demás.
+  - **Bandeja de salida y registro de actividad:** los correos enviados a esa persona o que la nombran y su rastro en el registro de actividad se borran; el **aviso de una consulta web y el acuse** (con nombre, correo, teléfono y mensaje) se borran al quitar la consulta, al caducar y al anonimizar el evento al que se pasó. Antes se quedaban hasta 180 días.
+  - **«Qué queda todavía»:** después de anonimizar o quitar a alguien, el panel dice qué sigue existiendo (copias de seguridad hechas antes, papelera) y **cuándo desaparece solo**, para no prometer más de lo que se ha hecho.
+  - **Las copias de seguridad hechas a mano caducan** (antes no caducaban nunca): 365 días de fábrica; se puede poner 90, 180, 365 o «no caducan» en Privacidad y datos. Las automáticas siguen a lo suyo (unos 3 meses).
+  - **Limpieza diaria automática:** avisos de consultas web a los 30 días, bandeja de salida a los 180, intentos fallidos de entrada a los 30, papelera a los 30, historial a los 180, copias manuales al plazo elegido, listas y sesiones caducadas. Deja una línea en el registro de actividad si ha borrado copias.
+- **Pendiente de la Fase A:** permisos reales por rol en el servidor (v02.02).
 
 ### Novedad de la versión 02.00
 - **Fase A del plan de la revisión (seguridad), primera parte: sesiones de verdad y orden en el documento.** Todo en el servidor; la app se ve igual.

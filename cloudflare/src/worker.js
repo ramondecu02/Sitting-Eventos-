@@ -719,7 +719,8 @@ async function estadoLimpiar(request, env) {
 const PRIV_V = 1;
 /* se exige la casilla de consentimiento para guardar alergias en el portal del cliente (la app del portal ya la trae) */
 const PRIV_EXIGIR = true;
-const PRIV_DEF = { responsable: "", nif: "", direccion: "", email: "", meses: 12, auto: false, dniDias: 90, portalDias: 30 };
+const PRIV_DEF = { responsable: "", nif: "", direccion: "", email: "", meses: 12, auto: false, dniDias: 90, portalDias: 30, copiasDias: 365 };
+const PRIV_COPIAS_DIAS = [0, 90, 180, 365];   /* días que se guardan las copias HECHAS A MANO (las automáticas, 84); 0 = no caducan */
 const PRIV_PORTAL_DIAS = [0, 7, 15, 30, 60, 90, 180];   /* días después del evento en que se cierra el portal; 0 = no se cierra */
 const PRIV_DNI_DIAS = [0, 30, 60, 90, 180];   /* 0 = solo al anonimizar el evento */
 const PRIV_MESES = [6, 12, 18, 24, 36, 60];
@@ -734,6 +735,8 @@ async function privCfg(env) {
   o.dniDias = +o.dniDias;
   if (PRIV_PORTAL_DIAS.indexOf(+o.portalDias) < 0) o.portalDias = PRIV_DEF.portalDias;
   o.portalDias = +o.portalDias;
+  if (PRIV_COPIAS_DIAS.indexOf(+o.copiasDias) < 0) o.copiasDias = PRIV_DEF.copiasDias;
+  o.copiasDias = +o.copiasDias;
   return o;
 }
 function mesesDesde(fechaISO, ahora) {
@@ -768,7 +771,9 @@ async function privPut(request, env) {
   if (PRIV_DNI_DIAS.indexOf(dniDias) < 0) return json({ error: "invalid", message: "Plazo de los documentos de identidad no válido." }, 400);
   const portalDias = b.portalDias === undefined ? PRIV_DEF.portalDias : +b.portalDias;
   if (PRIV_PORTAL_DIAS.indexOf(portalDias) < 0) return json({ error: "invalid", message: "Plazo de cierre del portal no válido." }, 400);
-  const cfg = { responsable: t(b.responsable, 140), nif: t(b.nif, 30), direccion: t(b.direccion, 200), email, meses, auto: !!b.auto, dniDias, portalDias };
+  const copiasDias = b.copiasDias === undefined ? PRIV_DEF.copiasDias : +b.copiasDias;
+  if (PRIV_COPIAS_DIAS.indexOf(copiasDias) < 0) return json({ error: "invalid", message: "Plazo de las copias de seguridad no válido." }, 400);
+  const cfg = { responsable: t(b.responsable, 140), nif: t(b.nif, 30), direccion: t(b.direccion, 200), email, meses, auto: !!b.auto, dniDias, portalDias, copiasDias };
   await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('privacidad', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify(cfg)).run();
   await logAct(env, a.s, "privacidad", "Plazo de conservación: " + meses + " meses" + (cfg.auto ? " · anonimizar sola" : "") + " · documentos de identidad: " + (dniDias ? dniDias + " días tras el evento" : "al anonimizar") + " · portal del cliente: " + (portalDias ? "se cierra a los " + portalDias + " días del evento" : "no se cierra"));
   return json({ ok: true, cfg });
@@ -794,19 +799,41 @@ function anonTexto(text) {
     return pers.join(" + ");
   }).join("\n");
 }
+/* v02.01 · LISTA BLANCA: de un evento anonimizado solo se conserva lo que sirve para las cifras (fecha, tipo, mesas y personas por tipo, menú elegido,
+   importes, horas de servicio, geometría del salón). Todo lo demás (comunicaciones, documentos, contrato, logo, diseños de minuta y de seatings,
+   tareas, notas…) se quita, también lo que se añada en versiones futuras. Después se barre lo que queda: cualquier texto que repita un nombre, un
+   teléfono, un correo o un documento de identidad del evento se sustituye entero. */
+const ANON_EV = ["id", "name", "text", "updated", "_k", "loc", "plans", "mesaGeo", "montaje", "numV2", "fitV1", "tplFixed", "tplFixed2", "userSize", "prevId", "alta", "ficha", "presupuesto", "menu",
+  "camareros", "camarerosAlta", "camarerosAvisar", "camarerosBaja", "camarerosHora", "reparto", "agendaHecho", "pedidos", "recepcion", "cierre", "cierreServicio", "turnos", "aprobaciones", "share", "anonimizado"];
+const ANON_FICHA = ["tipo", "estado", "ubicacion", "fecha", "ceremoniaLugar", "ceremoniaHora", "ceremoniaDur", "llegadaRest", "horaBriefing", "horaAperitivo", "horaBanquete", "horaBarra", "staff", "paxPrev"];
+const ANON_MENU = ["adultos", "ninos", "pMesaAper", "pMesaBanq", "dishes", "bebidas", "propios", "escaleta", "bebidasExtra", "svOv"];
+function necesidadesAnon(e) {
+  const n = new Set(), add = (v) => { const t = normTxt(String(v == null ? "" : v)).replace(/\s+/g, " ").trim(); if (t.length >= 6 || (/\s/.test(t) && t.length >= 5)) n.add(t); };
+  const F = e.ficha || {}; ["parejaA", "parejaB", "contacto", "telefono", "email", "origen", "comoNos"].forEach((k) => add(F[k]));
+  const CO = e.contrato || {}; add(CO.num1); add(CO.num2); (Array.isArray(CO.nombres) ? CO.nombres : []).forEach(add);
+  ["firmado", "firmado2"].forEach((k) => { const f = CO[k]; if (f) { add(f.nombre); add(f.nif); } });
+  Object.keys(e.aprobaciones || {}).forEach((k) => add((e.aprobaciones[k] || {}).nombre));
+  String(e.text || "").split(/\r?\n/).forEach((ln) => { const t = ln.trim(); if (!t || /^[#@]/.test(t) || /^\/\//.test(t) || isHeader(t)) return; lineaPersonas(t.replace(/^\s*[-–•]\s+/, "")).forEach((sg) => add(nombreDe(sg))); });
+  return [...n];
+}
+/* sustituye cada texto que contenga alguno de los datos (sin tildes ni mayúsculas); «cuenta.n» dice cuántos ha cambiado */
+function barreTextos(v, nd, cuenta) {
+  if (typeof v === "string") { const n = normTxt(v); if (nd.some((x) => n.indexOf(x) >= 0)) { cuenta.n++; return "(anonimizado)"; } return v; }
+  if (Array.isArray(v)) return v.map((x) => barreTextos(x, nd, cuenta));
+  if (v && typeof v === "object") { const o = {}; Object.keys(v).forEach((k) => { o[k] = barreTextos(v[k], nd, cuenta); }); return o; }
+  return v;
+}
 function anonEvento(e, ahora) {
-  const c = JSON.parse(JSON.stringify(e)), F = c.ficha = c.ficha || {};
+  const src = JSON.parse(JSON.stringify(e)), nd = necesidadesAnon(src), c = {};
+  ANON_EV.forEach((k) => { if (src[k] !== undefined) c[k] = src[k]; });
+  const F0 = src.ficha || {}, F = c.ficha = {};
+  ANON_FICHA.forEach((k) => { if (F0[k] !== undefined) F[k] = F0[k]; });
   const f = F.fecha ? F.fecha.split("-").reverse().join("/") : "";
   c.name = "Evento anonimizado" + (f ? " · " + f : "");
-  c.text = anonTexto(c.text);
-  ["parejaA", "parejaB", "contacto", "telefono", "email", "origen", "comoNos", "notas", "foto"].forEach((k) => { if (F[k]) F[k] = ""; });
+  c.text = anonTexto(src.text);
   F.estado = "cerrada";
-  c.comunicaciones = []; c.docs = [];
-  if (c.menu) { delete c.menu.minuta; delete c.menu.aperAdapt; delete c.menu.alerOk; delete c.menu.alerSin; delete c.menu.aperitivosPorAlergia; }
+  if (c.menu) { const M0 = c.menu; c.menu = {}; ANON_MENU.forEach((k) => { if (M0[k] !== undefined) c.menu[k] = M0[k]; }); }
   c.share = { on: false, id: "" };
-  delete c.rev; delete c.avisos;
-  /* el contrato (con el nombre y el NIF de quien lo aceptó) y quién aprobó el menú o la minuta */
-  delete c.contrato;
   if (c.aprobaciones) Object.keys(c.aprobaciones).forEach((k) => { if (c.aprobaciones[k]) c.aprobaciones[k].nombre = ""; });
   /* el resumen del servicio conserva las horas, pero no los textos libres de las incidencias ni las notas */
   if (c.cierre) { delete c.cierre.nota; delete c.cierre.material; }
@@ -814,15 +841,18 @@ function anonEvento(e, ahora) {
   if (c.cierreServicio) { const cs = c.cierreServicio; cs.notas = ""; if (Array.isArray(cs.incidencias)) cs.incidencias = cs.incidencias.map((x) => ({ mesa: (x && x.mesa) || "", t: x && x.t, hecha: !!(x && x.hecha) })); }
   /* de cada pago solo queda la palabra genérica (Señal, Resto…): lo demás puede llevar un nombre */
   if (c.presupuesto && Array.isArray(c.presupuesto.pagos)) c.presupuesto.pagos.forEach((x) => { if (!x) return; const m = /^(señal|senal|resto|anticipo|reserva)/i.exec(String(x.concepto || "")); x.concepto = m ? m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase() : "Pago"; if (x.nota) x.nota = ""; });
+  /* barrido final: nada de lo que se conserva puede repetir un nombre, un teléfono, un correo o un documento de identidad */
+  if (nd.length) { const cuenta = { n: 0 }; ["menu", "presupuesto", "reparto", "pedidos", "recepcion", "cierre", "cierreServicio", "turnos", "camareros", "agendaHecho", "plans", "montaje"].forEach((k) => { if (c[k] !== undefined) c[k] = barreTextos(c[k], nd, cuenta); }); }
   c.anonimizado = { ts: ahora };
   c.updated = Math.max(ahora, (+e.updated || 0) + 1);
-  kSellarTodo(c, c.updated, e);
+  kSellarTodo(c, c.updated);   /* sin «antes»: los sellos de lo que se quita llevarían nombres en sus claves; la copia vieja se descarta por «anonimizado» (ver mergeEv) */
   return c;
 }
 async function privLimpiarTablas(env, ids, nombres) {
   await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env); await ensurePortal(env); await ensureConsultas(env); await ensureDocs(env);
   for (const id of ids) {
     await env.DB.prepare("DELETE FROM evento_docs WHERE ev=?1").bind(String(id)).run();
+    { const cs = await env.DB.prepare("SELECT id FROM consultas WHERE ev_id=?1").bind(String(id)).all(); await consBorraRastro(env, (cs.results || []).map((r) => r.id)); }
     await env.DB.prepare("DELETE FROM consultas WHERE ev_id=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM portal_msg WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM portal_arch WHERE ev=?1").bind(String(id)).run();
@@ -835,6 +865,24 @@ async function privLimpiarTablas(env, ids, nombres) {
   }
   await ensureUsers(env);
   for (const nm of nombres) { const n = String(nm || "").trim(); if (n.length >= 4) await env.DB.prepare("UPDATE actividad SET detalle='(evento anonimizado)' WHERE detalle LIKE ?1").bind("%" + n.replace(/[%_]/g, "") + "%").run(); }
+}
+/* el rastro de una consulta web en la bandeja de salida: el aviso al equipo (con su nombre, correo, teléfono y mensaje) y el acuse a quien escribió */
+async function consBorraRastro(env, ids) {
+  if (!ids || !ids.length) return;
+  await ensureCorreo(env);
+  for (const id of ids) await env.DB.prepare("DELETE FROM outbox WHERE ref=?1 OR ref LIKE ?2").bind("cons-resp:" + id, "cons-aviso:" + id + ":%").run();
+}
+/* qué sigue habiendo después de anonimizar o quitar a alguien: así no se promete más de lo que se ha hecho */
+async function privQueda(env, ahora, cfg) {
+  const out = [], dia = (ms) => new Date(ms).toISOString().slice(0, 10);
+  await ensureBackups(env);
+  const b = await env.DB.prepare("SELECT kind, COUNT(*) AS n, MAX(ts) AS rec FROM backups GROUP BY kind").all();
+  let n = 0, hasta = 0, sin = false;
+  (b.results || []).forEach((r) => { n += +r.n; const d = r.kind === "auto" ? 84 : (cfg.copiasDias || 0); if (!d) sin = true; else hasta = Math.max(hasta, +r.rec + d * 864e5); });
+  if (n) out.push({ donde: "Copias de seguridad", n, hasta: sin ? null : dia(hasta), nota: "Las copias hechas antes guardan los datos tal como estaban y no se pueden retocar" + (sin ? ": las manuales no caducan (Parámetros → Privacidad → «Copias hechas a mano»); bórralas desde Copias de seguridad." : ": se borran solas y la última desaparece el " + dia(hasta) + ".") });
+  const pa = await env.DB.prepare("SELECT COUNT(*) AS n, MAX(ts) AS rec FROM papelera").first();
+  if (pa && +pa.n) out.push({ donde: "Papelera de eventos borrados", n: +pa.n, hasta: dia(+pa.rec + 30 * 864e5), nota: "Los eventos borrados a mano se guardan 30 días por si fue un error." });
+  return out;
 }
 async function anonimizarIds(env, ids, ahora, forzar, cfg) {
   const out = { ids: [], nombres: [], prev: [] };
@@ -869,7 +917,7 @@ async function privAnonimizar(request, env) {
     await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('priv_ultima', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify({ ts: ahora, n: r.ids.length, auto: false })).run();
     await logAct(env, a.s, "anonimizacion", r.ids.length + (r.ids.length === 1 ? " evento anonimizado" : " eventos anonimizados"));
   }
-  return json({ ok: true, n: r.ids.length, ids: r.ids });
+  return json({ ok: true, n: r.ids.length, ids: r.ids, queda: r.ids.length ? await privQueda(env, ahora, cfg) : [] });
 }
 /* anonimización automática: como mucho una vez al día, solo si el administrador la ha activado */
 let PRIV_AUTO_T = 0;
@@ -888,6 +936,31 @@ async function privAuto(env) {
     await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('priv_ultima', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(JSON.stringify({ ts: ahora, n: r.ids.length, auto: true })).run();
     await logAct(env, { uid: "", name: "Automático" }, "anonimizacion", r.ids.length + " eventos anonimizados (plazo de " + cfg.meses + " meses)");
   }
+}
+/* v02.01 · limpieza diaria: lo que ya ha cumplido su plazo se borra solo (como mucho una vez al día, al primer latido de la app) */
+let PURGA_T = 0;
+async function privPurgas(env) {
+  const ahora = Date.now();
+  if (ahora - PURGA_T < 3600e3) return; PURGA_T = ahora;
+  const u = await env.DB.prepare("SELECT v FROM meta WHERE k='priv_purga'").first();
+  if (u && ahora - (+u.v || 0) < 864e5) return;
+  await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('priv_purga', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(String(ahora)).run();
+  const cfg = await privCfg(env);
+  await ensureCorreo(env); await ensureBackups(env); await ensureHistorial(env); await ensureUsers(env);
+  const q = async (sql, ...p) => { try { const r = await env.DB.prepare(sql).bind(...p).run(); return (r && r.meta && +r.meta.changes) || 0; } catch (_) { return 0; } };
+  await q("DELETE FROM outbox WHERE ts<?1", ahora - COR_PURGA_DIAS * 864e5);
+  await q("DELETE FROM outbox WHERE ref LIKE 'cons-%' AND ts<?1", ahora - 30 * 864e5);
+  await q("DELETE FROM actividad WHERE tipo='login_fallido' AND ts<?1", ahora - 30 * 864e5);
+  await q("DELETE FROM actividad WHERE ts<?1", ahora - 400 * 864e5);
+  await q("DELETE FROM login_fallos WHERE ts<?1", ahora - 3600e3);
+  await q("DELETE FROM sesiones_cerradas WHERE exp<?1", ahora);
+  await q("DELETE FROM papelera WHERE ts<?1", ahora - 30 * 864e5);
+  await q("DELETE FROM historial WHERE ts_fin<?1", ahora - 180 * 864e5);
+  await q("DELETE FROM presencia WHERE ts<?1", ahora - 3600e3);
+  const bk = cfg.copiasDias ? await q("DELETE FROM backups WHERE kind<>'auto' AND ts<?1", ahora - cfg.copiasDias * 864e5) : 0;
+  try { await consPurga(env); } catch (_) {}
+  try { await docsLimpiar(env); } catch (_) {}
+  if (bk) await logAct(env, { uid: "", name: "Automático" }, "purga", bk + (bk === 1 ? " copia hecha a mano caducada" : " copias hechas a mano caducadas") + " (más de " + cfg.copiasDias + " días)");
 }
 /* editar el documento con control de versión (como storePut, pero para cambios que hace el servidor) */
 async function storeEditar(env, fn) {
@@ -912,17 +985,32 @@ function lineaPersonas(t) {
 }
 function nombreDe(seg) { return seg.replace(/[\(\[][^\)\]]*[\)\]]/g, " ").replace(/^\s*[-–•]\s+/, "").replace(/\s+/g, " ").trim(); }
 const FICHA_PERS = ["parejaA", "parejaB", "contacto", "telefono", "email"];
+const BARRER_EV = ["seating", "tareas", "hitos", "proveedores", "pedidos", "recepcion", "logoPareja", "marcasLM"];
 function buscarEnEvento(e, qn, borrar) {
   const hit = { plano: 0, ficha: 0, otros: 0 };
   const F = e.ficha || {};
+  const fechaTxt = F.fecha ? F.fecha.split("-").reverse().join("/") : "";
   const lines = String(e.text || "").split(/\r?\n/).map((ln) => {
     const t = ln.trim();
+    if (/^#/.test(t) && normTxt(t).indexOf(qn) >= 0) { hit.otros++; return borrar ? "# Evento" + (fechaTxt ? " — " + fechaTxt : "") : ln; }
     if (!t || /^[#@]/.test(t) || /^\/\//.test(t) || isHeader(t)) return ln;
     const segs = lineaPersonas(t); let tocado = false;
     const nuevo = segs.map((sg) => { if (normTxt(nombreDe(sg)).indexOf(qn) >= 0) { hit.plano++; tocado = true; return " Persona anonimizada "; } return sg; });
     return borrar && tocado ? nuevo.join("+").replace(/\s*\+\s*/g, " + ").trim() : ln;
   });
+  const cliente = FICHA_PERS.some((k) => F[k] && normTxt(F[k]).indexOf(qn) >= 0);
+  /* si es el cliente, en los textos libres también se barren su nombre de pila y su apellido sueltos («Boda de Pere y Laia») */
+  const nd = [qn];
+  if (cliente) FICHA_PERS.forEach((k) => { if (F[k] && normTxt(F[k]).indexOf(qn) >= 0) normTxt(F[k]).split(/\s+/).forEach((w) => { if (w.length >= 4 && !/^(del|los|las|para|amb)$/.test(w) && nd.indexOf(w) < 0) nd.push(w); }); });
   FICHA_PERS.forEach((k) => { if (F[k] && normTxt(F[k]).indexOf(qn) >= 0) { hit.ficha++; if (borrar) F[k] = ""; } });
+  /* si es el cliente (o su contacto): el teléfono, el correo, cómo nos conoció, las notas y la foto de la ficha, el logo, el enlace del portal y lo que se vio en él dejan de tener sentido */
+  if (cliente) {
+    ["telefono", "email", "origen", "comoNos", "notas", "foto"].forEach((k) => { if (F[k]) { hit.ficha++; if (borrar) F[k] = ""; } });
+    if (e.logoPareja) { hit.otros++; if (borrar) delete e.logoPareja; }
+    if (e.share && (e.share.on || e.share.portal)) { hit.otros++; if (borrar) e.share = { on: false, id: "" }; }
+    if (Array.isArray(e.docs) && e.docs.length) { hit.otros++; if (borrar) e.docs = []; }
+  }
+  if (e.name && normTxt(e.name).indexOf(qn) >= 0) { hit.otros++; if (borrar) e.name = "Evento (persona suprimida)" + (fechaTxt ? " · " + fechaTxt : ""); }
   (e.comunicaciones || []).forEach((c) => { if (c && normTxt(JSON.stringify(c)).indexOf(qn) >= 0) { hit.otros++; if (borrar) { c.nota = "(borrado)"; c.texto = "(borrado)"; if (c.asunto) c.asunto = "(borrado)"; c.adj = []; } } });
   /* quién aprobó o aceptó algo en el portal, y el contrato aceptado (nombre, NIF y el texto, que lleva el nombre del cliente) */
   Object.keys(e.aprobaciones || {}).forEach((k) => { const a = e.aprobaciones[k]; if (a && a.nombre && normTxt(a.nombre).indexOf(qn) >= 0) { hit.otros++; if (borrar) a.nombre = "(borrado)"; } });
@@ -934,12 +1022,17 @@ function buscarEnEvento(e, qn, borrar) {
     [1, 2].forEach((i) => { if (CO["num" + i] && normTxt(CO["num" + i]).indexOf(qn) >= 0) { hit.otros++; if (borrar) CO["num" + i] = ""; } });
     if (Array.isArray(CO.nombres) && CO.nombres.some((n) => n && normTxt(n).indexOf(qn) >= 0)) { hit.otros++; if (borrar) CO.nombres = []; }
     if ((CO.tpl && normTxt(CO.tpl).indexOf(qn) >= 0) || (Array.isArray(CO.extras) && normTxt(JSON.stringify(CO.extras)).indexOf(qn) >= 0)) { hit.otros++; if (borrar) { CO.tpl = ""; CO.extras = []; } }
-    if (CO.texto && normTxt(CO.texto).indexOf(qn) >= 0) { hit.otros++; if (borrar) { CO.texto = ""; if (e.share && e.share.portal) e.share.portal.contrato = null; } }
+    if (CO.texto && normTxt(CO.texto).indexOf(qn) >= 0) { hit.otros++; if (borrar) { CO.texto = ""; if (e.share && e.share.portal) e.share.portal = null; } }
   }
   /* lo que se escribe a mano después del evento: nota y material del cierre, notas de turnos, avisos y notas del servicio */
   const CS = e.cierre; if (CS) ["nota", "material"].forEach((k) => { if (CS[k] && normTxt(CS[k]).indexOf(qn) >= 0) { hit.otros++; if (borrar) CS[k] = "(borrado)"; } });
   Object.keys(e.turnos || {}).forEach((id) => { const t = e.turnos[id]; if (t && t.nota && normTxt(t.nota).indexOf(qn) >= 0) { hit.otros++; if (borrar) t.nota = "(borrado)"; } });
   const SV = e.cierreServicio; if (SV) { (SV.incidencias || []).forEach((x) => { if (x && x.txt && normTxt(x.txt).indexOf(qn) >= 0) { hit.otros++; if (borrar) x.txt = "(borrado)"; } }); if (SV.notas && normTxt(SV.notas).indexOf(qn) >= 0) { hit.otros++; if (borrar) SV.notas = "(borrado)"; } }
+  /* textos libres de otras partes del evento (diseño de los seatings, tareas, proveedores, escaleta, minuta…) */
+  const cuenta = { n: 0 };
+  BARRER_EV.forEach((k) => { if (e[k] && typeof e[k] === "object") { const nv = barreTextos(e[k], nd, cuenta); if (borrar) e[k] = nv; } });
+  if (e.menu && typeof e.menu === "object") ["minuta", "escaleta", "propios", "svOv"].forEach((k) => { if (e.menu[k] && typeof e.menu[k] === "object") { const nv = barreTextos(e.menu[k], nd, cuenta); if (borrar) e.menu[k] = nv; } });
+  if (cuenta.n) hit.otros += cuenta.n;
   if (borrar && (hit.plano || hit.ficha || hit.otros)) { e.text = lines.join("\n"); if (hit.plano && e.menu) { delete e.menu.aperAdapt; delete e.menu.alerOk; delete e.menu.alerSin; } }
   return hit;
 }
@@ -969,6 +1062,13 @@ async function privPersona(request, env) {
   const coIds = [];
   { const r4 = await env.DB.prepare("SELECT id, nombre, email, tel, mensaje, nota FROM consultas").all();
     (r4.results || []).forEach((r) => { if (normTxt([r.nombre, r.email, r.tel, r.mensaje, r.nota].join(" ")).indexOf(qn) >= 0) coIds.push(r.id); }); }
+  /* la bandeja de salida (correos enviados a esa persona o que la nombran) y el registro de actividad */
+  await ensureCorreo(env); await ensureUsers(env);
+  const obIds = [], acIds = [];
+  { const r5 = await env.DB.prepare("SELECT id, to_addr, subject, body FROM outbox ORDER BY id DESC LIMIT 5000").all();
+    (r5.results || []).forEach((r) => { if (normTxt([r.to_addr, r.subject, r.body].join(" ")).indexOf(qn) >= 0) obIds.push(r.id); }); }
+  { const r6 = await env.DB.prepare("SELECT id, detalle FROM actividad WHERE detalle IS NOT NULL AND detalle<>'' AND tipo NOT IN ('supresion_persona','acceso_persona') ORDER BY id DESC LIMIT 5000").all();
+    (r6.results || []).forEach((r) => { if (normTxt(r.detalle).indexOf(qn) >= 0) acIds.push(r.id); }); }
   let tocados = [], prevHits = 0;
   const res = await storeEditar(env, (doc) => {
     cuentas.length = 0; tocados = []; prevHits = 0;
@@ -982,20 +1082,26 @@ async function privPersona(request, env) {
       if (!total) return e;
       cuentas.push({ id: e.id, name: e.name || "", fecha: (e.ficha && e.ficha.fecha) || "", plano: h.plano, ficha: h.ficha, otros: h.otros, lista: Object.keys(listas).reduce((s2, t) => s2 + (listas[t].ev === e.id ? listas[t].n : 0), 0) });
       if (!borrar) return e;
-      c.updated = Math.max(ahora, (+e.updated || 0) + 1); kSellarTodo(c, c.updated, e); tocados.push(e.id); return c;
+      c.updated = Math.max(ahora, (+e.updated || 0) + 1); kSellarTodo(c, c.updated, e);
+      Object.keys(c._k || {}).forEach((k) => { if (normTxt(k.split(K_SEP).join(" ")).indexOf(qn) >= 0) delete c._k[k]; });   /* los sellos no deben guardar el nombre de quien se quita */
+      tocados.push(e.id); return c;
     });
     return { cambios: borrar && (tocados.length || prevHits) ? 1 : 0 };
   });
   if (!res.ok) return json({ error: res.error || "busy", message: "Había muchos guardados a la vez; vuelve a intentarlo." }, 409);
   if (prevHits) cuentas.push({ id: "__prev", name: "Previsión de banquetes", fecha: "", plano: 0, ficha: 0, otros: prevHits, lista: 0 });
   if (coIds.length) cuentas.push({ id: "__cons", name: "Consultas web", fecha: "", plano: 0, ficha: 0, otros: coIds.length, lista: 0 });
-  if (borrar && coIds.length) for (const cid of coIds) await env.DB.prepare("DELETE FROM consultas WHERE id=?1").bind(cid).run();
+  if (obIds.length) cuentas.push({ id: "__cor", name: "Correos enviados (bandeja de salida)", fecha: "", plano: 0, ficha: 0, otros: obIds.length, lista: 0 });
+  if (acIds.length) cuentas.push({ id: "__act", name: "Registro de actividad", fecha: "", plano: 0, ficha: 0, otros: acIds.length, lista: 0 });
+  if (borrar && coIds.length) { await consBorraRastro(env, coIds); for (const cid of coIds) await env.DB.prepare("DELETE FROM consultas WHERE id=?1").bind(cid).run(); }
+  if (borrar && obIds.length) for (let i = 0; i < obIds.length; i += 40) { const ch = obIds.slice(i, i + 40); await env.DB.prepare("DELETE FROM outbox WHERE id IN (" + ch.map((_, k) => "?" + (k + 1)).join(",") + ")").bind(...ch).run(); }
+  if (borrar && acIds.length) for (let i = 0; i < acIds.length; i += 40) { const ch = acIds.slice(i, i + 40); await env.DB.prepare("UPDATE actividad SET detalle='(persona suprimida)' WHERE id IN (" + ch.map((_, k) => "?" + (k + 1)).join(",") + ")").bind(...ch).run(); }
   if (borrar) {
     for (const t of Object.keys(listas)) await env.DB.prepare("UPDATE novios_listas SET data=?1, base=NULL WHERE token=?2").bind(JSON.stringify(listas[t].data), t).run();
     await privLimpiarTablas(env, tocados, []);
     await logAct(env, a.s, "supresion_persona", cuentas.length + (cuentas.length === 1 ? " evento" : " eventos") + " (" + cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0) + " datos)");
   } else await logAct(env, a.s, "acceso_persona", "Búsqueda de una persona: " + cuentas.length + (cuentas.length === 1 ? " evento" : " eventos"));
-  return json({ ok: true, borrado: borrar, eventos: cuentas, total: cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0) });
+  return json({ ok: true, borrado: borrar, eventos: cuentas, total: cuentas.reduce((s2, c) => s2 + c.plano + c.ficha + c.otros + c.lista, 0), queda: borrar ? await privQueda(env, ahora, await privCfg(env)) : undefined });
 }
 
 
@@ -1102,7 +1208,7 @@ async function consDestinos(env, c) {
 }
 async function consPurga(env) {
   const c = await consCfg(env), ahora = Date.now();
-  await env.DB.prepare("DELETE FROM consultas WHERE ts<?1").bind(ahora - c.meses * 30.44 * 864e5).run();
+  { const lim = ahora - c.meses * 30.44 * 864e5; const v = await env.DB.prepare("SELECT id FROM consultas WHERE ts<?1").bind(lim).all(); await consBorraRastro(env, (v.results || []).map((r) => r.id)); await env.DB.prepare("DELETE FROM consultas WHERE ts<?1").bind(lim).run(); }
   await env.DB.prepare("UPDATE consultas SET ip=NULL WHERE ts<?1 AND ip IS NOT NULL").bind(ahora - 2 * 864e5).run();
   await env.DB.prepare("DELETE FROM consulta_lim WHERE ts<?1").bind(ahora - 2 * 864e5).run();
 }
@@ -1184,7 +1290,7 @@ async function consAccion(request, env) {
   else if (ac === "nota") await env.DB.prepare("UPDATE consultas SET nota=?1 WHERE id=?2").bind(porTexto(b.nota, 800), id).run();
   else if (ac === "prev") await env.DB.prepare("UPDATE consultas SET prev_id=?1, estado=CASE WHEN estado IN ('nueva','contactada','visita') THEN 'prevision' ELSE estado END, leida=1 WHERE id=?2").bind(porTexto(b.prevId, 80), id).run();
   else if (ac === "ev") await env.DB.prepare("UPDATE consultas SET ev_id=?1, prev_id=COALESCE(NULLIF(?2,''),prev_id), estado='prevision', leida=1 WHERE id=?3").bind(porTexto(b.evId, 80), porTexto(b.prevId, 80), id).run();
-  else if (ac === "borrar") { await env.DB.prepare("DELETE FROM consultas WHERE id=?1").bind(id).run(); await logAct(env, a.s, "consulta_borrada", "Consulta de " + String(fila.nombre).slice(0, 60)); return json({ ok: true, borrada: true }); }
+  else if (ac === "borrar") { await consBorraRastro(env, [id]); await env.DB.prepare("DELETE FROM consultas WHERE id=?1").bind(id).run(); await logAct(env, a.s, "consulta_borrada", "Consulta de " + String(fila.nombre).slice(0, 60)); return json({ ok: true, borrada: true }); }
   else return json({ error: "invalid" }, 400);
   const n = await env.DB.prepare("SELECT * FROM consultas WHERE id=?1").bind(id).first();
   const nuevas = await env.DB.prepare("SELECT COUNT(*) AS n FROM consultas WHERE leida=0").first();
@@ -2788,6 +2894,7 @@ function m3(base, a, b, preferB) {
    Devuelve «p» o «i» tal cual cuando uno de los dos lo trae todo. */
 function mergeEv(p, i, tb) {
   if (!p) return i; if (!i) return p;
+  if (p.anonimizado && !i.anonimizado) return p;   /* v02.01: un evento ya anonimizado no resucita con una copia vieja */
   var gana = (+p.updated || 0) > (+i.updated || 0) ? p : i;
   if (!p._k && !i._k) return gana;
   /* si uno de los dos ya lo tiene todo, se devuelve ese mismo (a igualdad, el que llega: así no se cambia el objeto que la pantalla tiene en la mano) */
@@ -2897,6 +3004,7 @@ async function syncRoute(request, env, url) {
   let l = 0;
   try { await ensureNovios(env); const r = await env.DB.prepare("SELECT MAX(updated) AS m FROM novios_listas WHERE estado IN ('borrador','enviada')").first(); l = (r && +r.m) || 0; } catch (_) {}
   try { await privAuto(env); } catch (e0) { await logError(env, "servidor", "anonimización automática", String(e0 && e0.message || e0), null); }
+  try { await privPurgas(env); } catch (e0) { await logError(env, "servidor", "limpieza diaria", String(e0 && e0.message || e0), null); }
   let pv = 0;
   try { await ensurePlanos(env); const r = await env.DB.prepare("SELECT MAX(v) AS m FROM planos").first(); pv = (r && +r.m) || 0; } catch (_) {}
   return json({ v: (row && +row.updated) || 0, l, c: await porUltimo(env), p: pv, otros: (results || []).map((r) => ({ tab: r.tab, name: r.name, ev: r.ev, yo: r.uid === s.uid })) });
