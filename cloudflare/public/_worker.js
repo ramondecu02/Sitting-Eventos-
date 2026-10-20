@@ -876,7 +876,7 @@ function anonTexto(text) {
 const ANON_EV = ["id", "name", "text", "updated", "_k", "loc", "plans", "mesaGeo", "montaje", "numV2", "fitV1", "tplFixed", "tplFixed2", "userSize", "prevId", "alta", "ficha", "presupuesto", "menu",
   "camareros", "camarerosAlta", "camarerosAvisar", "camarerosBaja", "camarerosHora", "reparto", "agendaHecho", "pedidos", "recepcion", "cierre", "cierreServicio", "turnos", "aprobaciones", "share", "anonimizado"];
 const ANON_FICHA = ["tipo", "estado", "ubicacion", "fecha", "ceremoniaLugar", "ceremoniaHora", "ceremoniaDur", "llegadaRest", "horaBriefing", "horaAperitivo", "horaBanquete", "horaBarra", "staff", "paxPrev"];
-const ANON_MENU = ["adultos", "ninos", "pMesaAper", "pMesaBanq", "dishes", "bebidas", "propios", "escaleta", "bebidasExtra", "svOv"];
+const ANON_MENU = ["adultos", "ninos", "pMesaAper", "pMesaBanq", "dishes", "bebidas", "propios", "escaleta", "bebidasExtra", "bebidasReal", "svOv"];
 function necesidadesAnon(e) {
   const n = new Set(), add = (v) => { const t = normTxt(String(v == null ? "" : v)).replace(/\s+/g, " ").trim(); if (t.length >= 6 || (/\s/.test(t) && t.length >= 5)) n.add(t); };
   const F = e.ficha || {}; ["parejaA", "parejaB", "contacto", "telefono", "email", "origen", "comoNos"].forEach((k) => add(F[k]));

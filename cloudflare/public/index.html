@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.02 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.03 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.02".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.03".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2568,6 +2568,70 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .beb-sel .beb-dd{flex:1 1 220px; min-width:0; height:38px}
 .beb-sel .beb-otro{flex:1 1 200px; min-width:0}
 .beb-sel .beb-otro[hidden]{display:none}
+/* bebida: consumo real frente a la previsión (v02.03) */
+.beb-tabs{display:flex; justify-content:center; margin:0 auto 20px}
+.beb-tabs .seg button{padding:7px 20px; display:inline-flex; align-items:center; gap:7px}
+.beb-tabn{font-style:normal; font-size:10.5px; font-weight:700; min-width:18px; text-align:center; padding:1px 6px; border-radius:var(--r-pill); background:color-mix(in srgb,var(--olive) 22%,transparent); color:var(--olive-deep)}
+.beb-aviso{display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin:0 auto 18px; padding:11px 14px; border:1px solid color-mix(in srgb,var(--warning) 45%,var(--c-line)); background:var(--warning-soft); border-radius:var(--r-lg); font-size:13px; line-height:1.45}
+.beb-aviso .btn{margin-left:auto}
+.bz-pers{display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px 20px; margin:0 auto 20px; padding:14px 16px; border:1px solid var(--c-line); border-radius:var(--r-lg); background:var(--panel)}
+.bz-pers label{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:600; color:var(--c-mut)}
+.bz-pers label small{font-weight:400}
+.bz-pers input[type=text]{width:96px; height:40px; text-align:right; font-family:var(--font-text); font-size:20px; font-weight:650; font-variant-numeric:tabular-nums}
+.bz-pers .bz-hint{flex:1 1 260px; font-size:12.5px; color:var(--c-mut); line-height:1.5}
+.bz-pers .bz-hint b{color:var(--c-ink)}
+.bz-av{display:block; margin-top:4px; color:var(--warning,#9A722A); font-weight:600}
+.bz-pers .bz-no{flex:1 1 100%; flex-direction:row; align-items:center; gap:8px; font-weight:500; cursor:pointer; padding-top:10px; border-top:1px dashed var(--c-line)}
+.bz-no input{width:17px; height:17px; accent-color:var(--olive)}
+.bz-row{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.5fr); gap:10px 22px; align-items:start; padding:14px 0; border-bottom:1px solid var(--c-line)}
+.bz-row:last-child{border-bottom:0}
+.bz-nom{display:flex; flex-direction:column; gap:3px; min-width:0}
+.bz-nom b{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:17px; font-weight:500}
+.bz-nom small{font-size:12px; color:var(--c-mut); overflow-wrap:anywhere}
+.bz-prev{font-size:12.5px; color:var(--c-mut)}
+.bz-prev b{color:var(--c-ink); font-variant-numeric:tabular-nums}
+.bz-in{display:flex; flex-direction:column; gap:8px}
+.bz-q{display:inline-flex; align-items:center; gap:8px}
+.bz-q input{width:96px; height:40px; font-family:var(--font-text); font-size:20px; font-weight:650; text-align:right; font-variant-numeric:tabular-nums}
+.bz-q span{font-size:13px; color:var(--c-mut)}
+.bz-ran{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--c-mut); cursor:pointer}
+.bz-ran input{width:16px; height:16px; accent-color:var(--danger)}
+.bz-res{display:flex; flex-direction:column; align-items:flex-start; gap:5px; min-width:0; font-size:12.5px; color:var(--c-mut); line-height:1.5}
+.bz-res .bz-vacio{color:var(--c-faint)}
+.bz-chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.02em; padding:3px 10px; border-radius:var(--r-pill); border:1px solid transparent}
+.bz-chip.k-cerca{background:var(--success-soft,#E9EDDC); color:var(--olive-deep); border-color:color-mix(in srgb,var(--olive) 35%,transparent)}
+.bz-chip.k-mas{background:var(--warning-soft); color:var(--warning,#9A722A); border-color:color-mix(in srgb,var(--warning) 40%,transparent)}
+.bz-chip.k-menos{background:var(--bg-2); color:var(--c-ink); border-color:var(--c-line-2)}
+.bz-chip.k-falto{background:var(--danger-soft); color:var(--danger); border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+.bz-chip.k-sin{background:transparent; color:var(--c-mut); border-color:var(--c-line-2)}
+.bz-dif{font-weight:600; color:var(--c-ink); font-variant-numeric:tabular-nums}
+.bz-pp b{color:var(--c-ink); font-variant-numeric:tabular-nums}
+.bz-sum{display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:4px auto 22px; padding:12px 16px; border-radius:var(--r-lg); background:var(--accent-wash); border:1px solid var(--c-line)}
+.bz-sum > b{font-size:12.5px; margin-right:6px}
+.bj{margin:14px 0; padding:14px 16px; border:1px solid var(--c-line); border-radius:var(--r-lg); background:var(--panel)}
+.bj.bj-ok{background:var(--accent-wash)}
+.bj-vacio{padding:10px 14px; background:transparent; border-style:dashed}
+.bj-h{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.bj-h b{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:17px; font-weight:500}
+.bj-n{font-size:12px; color:var(--c-mut)}
+.bj-tx{margin:6px 0; font-size:13px; line-height:1.5; color:var(--c-ink)}
+.bj-av{margin:6px 0; font-size:12px; line-height:1.5; color:var(--warning,#9A722A)}
+.bj-form{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 16px; margin-top:10px}
+.bj-sub{flex:1 1 100%; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--c-faint)}
+.bj-t{display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:600; color:var(--c-ink)}
+.bj-t small{font-weight:400; color:var(--c-mut)}
+.bj-t em{font-style:normal; font-weight:400; color:var(--c-mut); font-size:11.5px}
+.bj-t input{width:86px; height:36px; text-align:right; font-weight:650; font-variant-numeric:tabular-nums}
+.bj-nota{flex:1 1 100%; font-size:11.5px; color:var(--c-mut)}
+.bj-det{margin-top:10px; font-size:12px; color:var(--c-mut)}
+.bj-det summary{cursor:pointer; font-weight:600}
+.bj-det ul{margin:6px 0 0; padding-left:18px; line-height:1.6}
+@media (max-width:760px){
+  .bz-row{grid-template-columns:minmax(0,1fr); gap:8px; padding:16px 0}
+  .bz-in{flex-direction:row; align-items:center; flex-wrap:wrap; gap:8px 18px}
+  .bz-pers input[type=text]{width:84px}
+  .beb-aviso .btn{margin-left:0}
+}
 /* platos a mano: marca, botón por familia y aviso de alérgenos */
 .mp-badge{display:inline-block; font-style:normal; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--olive-deep,#56613F); background:color-mix(in srgb,var(--olive) 18%,transparent); border-radius:100px; padding:2px 7px; margin-left:6px; vertical-align:2px}
 .mp-aler{font-style:normal; color:var(--warning,#9A722A); font-weight:600}
@@ -4377,7 +4441,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.02</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.03</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10005,7 +10069,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.02</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.03</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10242,6 +10306,7 @@ function duplicarEvento(id,quedarse){
   c.id="e"+Date.now()+Math.floor(Math.random()*999);
   delete c.prevId; delete c.prevNo; delete c.alta;   /* la copia no es la celebración de la Previsión */
   delete c.rev; delete c.avisos; delete c._k;        /* ni hereda las revisiones y avisos entre departamentos, ni los sellos del original */
+  if(c.menu) delete c.menu.bebidasReal;              /* lo que se bebió de verdad es de la boda original */
   /* la fecha también se quita del título y de la línea «@» (si no, volvería sola a la ficha) */
   var titulado=false;
   c.text=String(c.text||"").split("\n").map(function(l){
@@ -15423,7 +15488,9 @@ function setBebidaMarca(catKey,prod){ var b=bebidas(); if(!b) return; if(prod) b
 /* la previsión de una categoría: población (todos o adultos), cada tramo
    (aperitivo/banquete) dividido por su parámetro, la suma sin redondear y el
    total ya redondeado como pida la categoría */
-function calcBebida(cat){
+/* las personas que beben según el plano: adultos y total, con el personal ya
+   sumado (v02.03: sacado de calcBebida para que lo use también el consumo real) */
+function bebPersonas(){
   var t=evTotals();
   /* el personal (menús staff) también bebe: cuenta en el agua (sobre el total)
      y en el vino y el cava (sobre los adultos: el staff cuenta como adulto). */
@@ -15432,7 +15499,11 @@ function calcBebida(cat){
      se suma lo que falte (mismo criterio que el presupuesto: manda el mayor) */
   var fichaStaff=(e&&e.ficha)?(Math.max(0,+e.ficha.staff)||0):0;
   var staff=Math.max(0,fichaStaff-((t.delPlano&&pt&&pt.staff)||0));
-  var base = (cat.poblacion==="total" ? t.total : t.adultos) + staff;
+  return {ad:t.adultos+staff, to:t.total+staff};
+}
+function calcBebida(cat){
+  var P=bebPersonas();
+  var base = cat.poblacion==="total" ? P.to : P.ad;
   var tramos=(cat.tramos||[]).map(function(tr){ return {etq:tr.etq||"", div:tr.div, val:base>0?base/tr.div:0}; });
   var suma=tramos.reduce(function(s,tr){ return s+tr.val; },0);
   if(cat.litros){ var fmt=aguaFormato(bebidaMarca(cat.key));
@@ -15531,7 +15602,8 @@ function prodSelect(cat,val){
     '<input class="beb-prod beb-otro" type="text" data-k="'+esc(cat.key)+'" value="'+esc(otro?val:"")+'" placeholder="Escribe el producto"'+(otro?'':' hidden')+' aria-label="Producto escrito a mano"></span>';
 }
 function renderBebida(){
-  var html='<div class="beb-edit">';
+  if(bebTab==="real"){ renderBebidaReal(); return; }
+  var html='<div class="beb-edit">'+bebTabsHTML()+bebAvisoPasado();
   html+='<p class="mnu-note beb-intro">La <b>previsión de bebidas del evento</b>, para el equipo de sala. '+
     'Las cantidades <b>se calculan solas</b> con los comensales del plano (el agua sobre todos; vino y cava sobre los adultos; el personal también cuenta). '+
     'Cada evento es distinto: <b>quita</b> lo que no se sirva, <b>corrige</b> una cantidad a mano, <b>escribe</b> cualquier producto aunque no esté en la lista '+
@@ -15591,6 +15663,7 @@ function renderBebidaSheet(){
 }
 function wireBebida(){
   var mb=$("mnu-body");
+  wireBebTabs();
   Array.prototype.forEach.call(mb.querySelectorAll("[data-sirve]"),function(ch){ ch.addEventListener("change",function(){
     var k=ch.getAttribute("data-sirve"); bebSet(k,function(r){ if(ch.checked) delete r.off; else r.off=true; }); renderBebida(); }); });
   Array.prototype.forEach.call(mb.querySelectorAll(".beb-prod"),function(i){ i.addEventListener("change",function(){
@@ -15617,6 +15690,265 @@ function wireBebida(){
       var q=L.splice(k,1)[0]; touchSave(); renderBebida();
       if(BR.toast) BR.toast("«"+(q.label||q.prod||"Bebida")+"» quitada.",false,"Deshacer",function(){ var L2=bebExtras(); L2.splice(Math.min(k,L2.length),0,q); touchSave(); if(mnuView==="bebida") renderBebida(); }); });
   });
+}
+
+/* ══ Consumo real de la bebida (v02.03) ═══════════════════════════════
+   Después de la boda se apunta cuánto se bebió DE VERDAD y se compara con la
+   previsión de la pestaña de al lado: si se acerca, se pasa o se queda corta.
+   Con lo que han bebido las bodas apuntadas se propone corregir los parámetros
+   (Parámetros → Bebidas: «una botella cada N personas»).
+   Se guarda dentro del evento, junto a la previsión (cada parte es una «hoja»
+   para la fusión entre personas: menu → bebidasReal → línea):
+     e.menu.bebidasReal = {
+       _p:{ad,ni,m}  comensales de verdad (adultos con el personal, niños). Si nadie
+                     los toca son los del plano en el momento de apuntar (m = tocados a mano)
+       _ev:{no}      «no contar esta boda» al ajustar parámetros (barra libre, un día raro…)
+       «categoría» | «x:id» | «jamon»: {q, ran, pv}
+                     q = botellas (o kg de jamón) que se gastaron · ran = se acabó ·
+                     pv = lo previsto cuando se apuntó (para no cambiar la historia si luego cambia el plano o los parámetros) }
+   Lo que se compara con los parámetros es lo bebido POR PERSONA (con los comensales
+   apuntados), no la cantidad: así un ajuste de parámetros no desajusta las bodas anteriores. */
+var bebTab="prev";
+function bebRealMap(crear){ var m=menu(); if(!m) return null; if(!m.bebidasReal){ if(!crear) return null; m.bebidasReal={}; } return m.bebidasReal; }
+function bebRealGet(k){ var R=bebRealMap(false); return (R&&R[k])||null; }
+function bebRealQ(r){ return (r&&r.q!=null&&r.q!==""&&isFinite(+r.q))?+r.q:null; }
+function bebNum(v){ var s=String(v==null?"":v).trim().replace(",","."); if(s==="") return null; var n=+s; return (isFinite(n)&&n>=0)?Math.round(n*100)/100:NaN; }
+/* los que bebieron de verdad: los apuntados, o si no los del plano */
+function bebRealPersonas(){
+  var R=bebRealMap(false), p=R&&R._p, plano=bebPersonas();
+  if(p&&isFinite(+p.ad)){ var ad=Math.max(0,Math.round(+p.ad)), ni=Math.max(0,Math.round(+p.ni)||0); return {ad:ad,ni:ni,to:ad+ni,guardado:true,manual:!!p.m,plano:plano}; }
+  return {ad:plano.ad,ni:Math.max(0,plano.to-plano.ad),to:plano.to,guardado:false,manual:false,plano:plano};
+}
+function bebRealLimpia(){
+  var m=menu(), R=m&&m.bebidasReal; if(!R) return;
+  var hay=Object.keys(R).some(function(k){ return k.charAt(0)!=="_"; });
+  if(!hay&&R._p&&!R._p.m) delete R._p;
+  if(!hay&&!R._p&&!(R._ev&&R._ev.no)) delete m.bebidasReal;
+}
+function bebRealSet(k,fn){
+  var R=bebRealMap(true);
+  if(!R._p){ var P=bebPersonas(); R._p={ad:P.ad,ni:Math.max(0,P.to-P.ad)}; }   /* foto de los comensales al empezar a apuntar */
+  var r=Object.assign({},R[k]||{}); fn(r);
+  if(r.q==null||r.q==="") delete r.q;
+  if(!r.ran) delete r.ran;
+  if(r.q==null&&!r.ran) delete R[k]; else R[k]=r;
+  bebRealLimpia(); touchSave();
+}
+function bebRealSetPers(ad,ni){ var R=bebRealMap(true); R._p={ad:Math.max(0,Math.round(ad)||0),ni:Math.max(0,Math.round(ni)||0),m:1}; touchSave(); }
+function bebRealSinPers(){ var R=bebRealMap(false); if(!R) return; delete R._p; bebRealLimpia();
+  if(Object.keys(R).some(function(k){ return k.charAt(0)!=="_"; })){ var P=bebPersonas(); R._p={ad:P.ad,ni:Math.max(0,P.to-P.ad)}; }
+  touchSave(); }
+function bebRealNo(on){ var R=bebRealMap(true); if(on) R._ev={no:true}; else delete R._ev; bebRealLimpia(); touchSave(); }
+function bebTasa(cat){ return (cat.tramos||[]).reduce(function(s,t){ return s+(+t.div>0?1/+t.div:0); },0); }
+/* una línea por cada cosa que se sirve: las categorías, las bebidas añadidas y el jamón */
+function bebRealLineas(){
+  var out=[];
+  bebidaLineas().forEach(function(l){
+    out.push({key:l.key,label:l.label,prod:l.prod,ud:l.ud||"botellas",prev:l.q>0?l.q:null,cat:l.cat||null,extra:!!l.extra});
+  });
+  if(!bebOff("jamon")){
+    var jm=jamonDelMenu(), mj=bebidaMarca("jamon");
+    if(jm.marcado||mj||bebRealGet("jamon")) out.push({key:"jamon",label:"Jamón",prod:mj,ud:"kg",prev:jm.gramos>0?Math.floor(jm.gramos/10)/100:null,jamon:true,adultos:jm.adultos});
+  }
+  return out;
+}
+function bebRealCuenta(){ return bebRealLineas().filter(function(l){ return bebRealQ(bebRealGet(l.key))!=null; }).length; }
+var BEB_UD_N={botellas:["botella","botellas"],latas:["lata","latas"],uds:["unidad","unidades"],litros:["litro","litros"],barriles:["barril","barriles"],cajas:["caja","cajas"],kg:["kg","kg"]};
+function udN(ud,n){ var u=BEB_UD_N[ud]||BEB_UD_N.botellas; return Math.abs(n-1)<1e-9?u[0]:u[1]; }
+function bebQTxt(n,ud){ return fmtNum(n,2)+" "+udN(ud,n); }
+/* cómo salió: muy cerca (hasta un 10 %, o una botella), se bebió más, se bebió menos o se acabó.
+   El texto no habla de «cortos» ni de «pasados» a secas: depende de a quién se le pregunte. */
+function bebVeredicto(prev,real,ran,ud){
+  if(real==null) return ran?{k:"falto",t:"Se acabó",dif:null}:null;
+  if(ran) return {k:"falto",t:"Se acabó: faltó bebida",dif:prev!=null?real-prev:null};
+  if(prev==null) return {k:"sin",t:"Sin previsión para comparar",dif:null};
+  var dif=real-prev, tol=Math.max(ud==="kg"?0.5:1,0.1*prev);
+  if(Math.abs(dif)<=tol) return {k:"cerca",t:"Muy cerca de la previsión",dif:dif};
+  return dif>0?{k:"mas",t:"Se bebió más de lo previsto",dif:dif}:{k:"menos",t:"Se bebió menos de lo previsto",dif:dif};
+}
+/* lo bebido por persona, frente a lo que dicen los parámetros */
+function bebPPTexto(cat,q){
+  if(q==null||!(q>0)) return "";
+  var P=bebRealPersonas(), base=cat.poblacion==="total"?P.to:P.ad, tasa=bebTasa(cat); if(!(base>0)) return "";
+  if(cat.litros){ var u=aguaFormato(bebidaMarca(cat.key)).l;
+    return '<b>'+fmtNum(q*u/base,2)+' L</b> por persona'+(tasa>0?' · previsto: '+fmtNum(tasa,2)+' L':''); }
+  return '1 botella cada <b>'+fmtNum(base/q,1)+'</b> personas'+(tasa>0?' · previsto: cada '+fmtNum(1/tasa,1):'');
+}
+/* todas las bodas con esta categoría apuntada: cuánto se bebió frente a lo que dicen hoy los parámetros */
+function bebHist(cat){
+  var h={n:0,base:0,real:0,modelo:0,ran:0,bodas:[]}, tasa=bebTasa(cat);
+  (BR.allEvents?BR.allEvents():[]).forEach(function(e){
+    var R=e&&e.menu&&e.menu.bebidasReal; if(!R||(R._ev&&R._ev.no)||!R._p) return;
+    var r=R[cat.key], q=bebRealQ(r); if(q==null) return;
+    var base=cat.poblacion==="total"?(+R._p.ad||0)+(+R._p.ni||0):(+R._p.ad||0); if(!(base>0)||!(tasa>0)) return;
+    var u=cat.litros?aguaFormato(((e.menu.bebidas||{})[cat.key]||{}).prod).l:1, real=q*u;
+    h.n++; h.base+=base; h.real+=real; h.modelo+=base*tasa; if(r.ran) h.ran++;
+    h.bodas.push({nombre:String(e.name||"Evento").replace(/\s+/g," ").trim(),fecha:(e.ficha&&e.ficha.fecha)||"",base:base,real:real,mod:base*tasa,ran:!!r.ran});
+  });
+  h.f=h.modelo>0?h.real/h.modelo:null;
+  return h;
+}
+/* la propuesta: todos los tramos se escalan igual (lo bebido se compara con el total, no con cada momento) */
+function bebPropuesta(cat,h){
+  if(!h||!h.f||!(h.f>0)) return null;
+  return (cat.tramos||[]).map(function(t){ return {etq:t.etq||"",div:+t.div,nuevo:Math.round(+t.div/h.f*100)/100}; });
+}
+function bebAplicar(catKey,divs){
+  var cats=BR.menuParams.actual().bebidas.cats, c=cats[catKey]; if(!c||!c.tramos||c.tramos.length!==divs.length) return null;
+  for(var i=0;i<divs.length;i++){ if(!(divs[i]>0)||!isFinite(divs[i])) return null; }
+  var antes=c.tramos.map(function(t){ return +t.div; });
+  c.tramos.forEach(function(t,i){ t.div=Math.round(divs[i]*100)/100; });
+  BR.setParam("bebidas",{cats:cats});
+  return antes;
+}
+/* «¿ya pasó?» para avisar en la previsión de que falta apuntar lo bebido */
+function bebPasado(){
+  var e=ev(); if(!e) return false; var F=e.ficha||{}, est=F.estado||"";
+  if(est==="celebrada"||est==="cerrada") return true;
+  var d=new Date(), hoy=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+  return /^\d{4}-\d{2}-\d{2}$/.test(F.fecha||"")&&F.fecha<hoy;
+}
+function bebTabsHTML(){
+  var n=bebRealCuenta();
+  return '<div class="beb-tabs"><div class="seg" role="group" aria-label="Qué ver de la bebida">'+
+    '<button type="button" data-btab="prev" aria-pressed="'+(bebTab!=="real")+'">Previsión</button>'+
+    '<button type="button" data-btab="real" aria-pressed="'+(bebTab==="real")+'">Consumo real'+(n?'<i class="beb-tabn">'+n+'</i>':'')+'</button></div></div>';
+}
+function bebAvisoPasado(){
+  if(!bebPasado()||bebRealCuenta()>0) return "";
+  return '<div class="beb-aviso"><span>Este evento <b>ya ha pasado</b>: apunta cuánto se bebió de verdad y la app te dice si la previsión se acercó.</span>'+
+    '<button type="button" class="btn sm gold" data-btab="real">Apuntar el consumo</button></div>';
+}
+function wireBebTabs(){
+  Array.prototype.forEach.call($("mnu-body").querySelectorAll("[data-btab]"),function(b){ b.addEventListener("click",function(){
+    var t=b.getAttribute("data-btab"); if(t===bebTab) return; bebTab=t; renderBebida(); var s=$("mnu-body"); if(s) s.scrollTop=0; }); });
+}
+function bebRealFilaHTML(l){
+  var r=bebRealGet(l.key)||{}, q=bebRealQ(r), prev=r.pv!=null?+r.pv:l.prev, u=udN(l.ud,2);
+  return '<div class="bz-row" data-bz="'+esc(l.key)+'">'+
+    '<div class="bz-nom"><b>'+esc(l.label)+'</b>'+(l.prod?'<small>'+esc(l.prod)+'</small>':'')+
+      '<span class="bz-prev">'+(prev!=null?'Previsto: <b>'+esc(fmtNum(prev,2))+'</b> '+esc(udN(l.ud,prev)):'Sin previsión')+'</span></div>'+
+    '<div class="bz-in"><label class="bz-q"><input type="text" inputmode="decimal" data-bq="'+esc(l.key)+'" value="'+esc(q==null?"":fmtNum(q,2))+'" placeholder="0" aria-label="'+esc(l.label)+': '+esc(u)+' que se gastaron"><span>'+esc(u)+'</span></label>'+
+      '<label class="bz-ran" title="Marca esto si no llegó para todos: lo apuntado es lo que había, no lo que se habría bebido"><input type="checkbox" data-bran="'+esc(l.key)+'"'+(r.ran?" checked":"")+'> Se acabó</label></div>'+
+    '<div class="bz-res" data-bres="'+esc(l.key)+'" aria-live="polite">'+bebRealResHTML(l)+'</div></div>';
+}
+function bebRealResHTML(l){
+  var r=bebRealGet(l.key)||{}, q=bebRealQ(r), prev=r.pv!=null?+r.pv:l.prev, v=bebVeredicto(prev,q,!!r.ran,l.ud);
+  if(!v) return '<span class="bz-vacio">Escribe cuánto se gastó.</span>';
+  var h='<span class="bz-chip k-'+v.k+'">'+esc(v.t)+'</span>';
+  if(v.k==="falto"){ if(q!=null) h+='<span class="bz-dif">Se bebió al menos '+esc(bebQTxt(q,l.ud))+'</span>'; }
+  else if(v.dif!=null){
+    var pc=prev>0?Math.round(Math.abs(v.dif)/prev*100):null, d=Math.abs(v.dif);
+    h+='<span class="bz-dif">'+(Math.abs(v.dif)<1e-9?'justo lo previsto':v.dif>0?esc(bebQTxt(d,l.ud))+' más':'sobraron '+esc(bebQTxt(d,l.ud)))+(pc!=null&&v.dif!==0?' ('+(v.dif>0?'+':'−')+pc+' %)':'')+'</span>';
+  }
+  var pp=l.cat?bebPPTexto(l.cat,q):"";
+  if(!pp&&l.jamon&&q>0&&l.adultos>0) pp='<b>'+fmtNum(q*1000/l.adultos,0)+' g</b> por adulto'+(l.prev?' · previsto: '+fmtNum(l.prev*1000/l.adultos,0)+' g':'');
+  if(pp) h+='<span class="bz-pp">'+pp+'</span>';
+  if(r.pv!=null&&l.prev!=null&&Math.abs(+r.pv-l.prev)>1e-9) h+='<span class="bz-pp">Al apuntarlo se preveía '+esc(fmtNum(+r.pv,2))+'; ahora la previsión dice '+esc(fmtNum(l.prev,2))+'. <button type="button" class="beb-auto" data-bpv="'+esc(l.key)+'">Usar la actual</button></span>';
+  return h;
+}
+/* el panel de ajuste de una categoría (en el evento y en Parámetros → Bebidas) */
+function bebAjusteHTML(cat,ctx){
+  var h=bebHist(cat), admin=esAdminMn(), tasa=bebTasa(cat);
+  if(!h.n) return '<div class="bj bj-vacio" data-bj="'+esc(cat.key)+'"><p class="bj-tx">Todavía no hay ninguna boda con «'+esc(cat.label)+'» apuntada en «Consumo real».</p></div>';
+  var pc=Math.round(h.f*100), ok=Math.abs(h.f-1)<=0.08, prop=bebPropuesta(cat,h), raro=h.f<0.3||h.f>3;
+  var titulo=cat.litros?'litros':'botellas';
+  var tx;
+  if(ok) tx='Se bebió el <b>'+pc+' %</b> de lo que dicen los parámetros: están bien, no hace falta tocarlos.';
+  else if(h.f>1) tx='Se bebió el <b>'+pc+' %</b> de lo previsto: la previsión se queda <b>corta</b>. Con estos valores saldría más bebida.';
+  else tx='Se bebió el <b>'+pc+' %</b> de lo previsto: la previsión se pasa y <b>sobra</b> bebida. Con estos valores saldría menos.';
+  var cab='<div class="bj-h"><b>'+esc(cat.label)+'</b><span class="bj-n">'+h.n+(h.n===1?' boda':' bodas')+' · '+fmtNum(h.base,0)+(cat.poblacion==="total"?' personas':' adultos')+'</span></div>';
+  var avisos='';
+  if(h.ran) avisos+='<p class="bj-av">En '+h.ran+(h.ran===1?' boda':' bodas')+' se acabó: se bebió más de lo apuntado, así que la propuesta se queda corta.</p>';
+  if(h.n<3) avisos+='<p class="bj-av">Con '+(h.n===1?'una sola boda':h.n+' bodas')+' es una pista, no una regla: mejor ajustar cuando haya tres o más.</p>';
+  if(raro) avisos+='<p class="bj-av">Esta cifra es muy distinta de lo previsto: revisa que lo apuntado esté bien (botellas, no copas) antes de aplicarla.</p>';
+  var lista='<details class="bj-det"><summary>Ver las bodas que cuentan</summary><ul>'+h.bodas.map(function(b){
+    return '<li>'+esc(b.nombre)+(b.fecha?' · '+esc(b.fecha.split("-").reverse().join("/")):'')+' — '+fmtNum(b.base,0)+' pers. · se bebió '+fmtNum(b.real,2)+' '+titulo+' ('+Math.round(b.real/b.mod*100)+' % de lo que dicen los parámetros)'+(b.ran?' · se acabó':'')+'</li>'; }).join("")+'</ul></details>';
+  var form='';
+  if(!ok&&prop){
+    if(admin){
+      form='<div class="bj-form"><span class="bj-sub">Propuesta — '+(cat.litros?'un litro':'una botella')+' cada…</span>'+prop.map(function(p,i){
+        return '<label class="bj-t"><span>'+esc(p.etq||('Tramo '+(i+1)))+' <small>ahora '+esc(fmtNum(p.div,2))+'</small></span><input type="text" inputmode="decimal" class="bj-in" data-i="'+i+'" value="'+esc(fmtNum(p.nuevo,2))+'" aria-label="Personas por '+(cat.litros?'litro':'botella')+' · '+esc(p.etq||('tramo '+(i+1)))+'"><em>personas</em></label>'; }).join("")+
+        '<button type="button" class="btn sm gold" '+(ctx==="par"?'data-pa="bj-apl"':'data-bj-apl="'+esc(cat.key)+'"')+'>Aplicar a los parámetros</button>'+
+        '<span class="bj-nota">Cambia la previsión de todos los eventos que no tengan la cantidad escrita a mano.'+(ctx==="par"?'':' Se puede deshacer.')+'</span></div>';
+    } else form='<p class="bj-av">Los parámetros los cambia administración (Parámetros → Bebidas). Propuesta: '+prop.map(function(p){ return (p.etq?esc(p.etq)+' ':'')+esc(fmtNum(p.div,2))+' → <b>'+esc(fmtNum(p.nuevo,2))+'</b>'; }).join(' · ')+' personas.</p>';
+  }
+  return '<div class="bj'+(ok?' bj-ok':'')+'" data-bj="'+esc(cat.key)+'">'+cab+'<p class="bj-tx">'+tx+'</p>'+avisos+form+lista+'</div>';
+}
+function bebAjusteSeccionHTML(){
+  var cats=BEBIDA_CATS.filter(function(c){ return c.auto; }), partes=cats.filter(function(c){ return bebHist(c).n>0; });
+  var cab='<div class="beb-h"><h2>Ajustar los parámetros</h2><span class="cnt">con todas las bodas apuntadas</span></div>';
+  if(!partes.length) return '<div class="beb-cat bj-sec">'+cab+'<p class="beb-off-tx">Cuando apuntes lo que se bebió, aquí saldrá la propuesta para corregir «una botella cada N personas». Con varias bodas apuntadas el ajuste es más fiable.</p></div>';
+  return '<div class="beb-cat bj-sec">'+cab+'<p class="beb-off-tx">Se compara lo bebido <b>por persona</b> de todas las bodas apuntadas con lo que dicen hoy los parámetros.</p>'+partes.map(function(c){ return bebAjusteHTML(c,"ev"); }).join("")+'</div>';
+}
+function bebRealPersHTML(){
+  var P=bebRealPersonas(), R=bebRealMap(false)||{}, no=!!(R._ev&&R._ev.no);
+  var dif=P.guardado&&(P.plano.ad!==P.ad||P.plano.to-P.plano.ad!==P.ni);
+  return '<label>Adultos <small>(con el personal)</small><input type="text" inputmode="numeric" id="bz-ad" value="'+esc(P.ad)+'" aria-label="Adultos que había, con el personal"></label>'+
+    '<label>Niños<input type="text" inputmode="numeric" id="bz-ni" value="'+esc(P.ni)+'" aria-label="Niños que había"></label>'+
+    '<div class="bz-hint"><b>¿Cuántos fuisteis de verdad?</b> Por defecto, los del plano. Si el día vino más o menos gente, cámbialo: así el ajuste de los parámetros sale justo.'+
+      (dif?' <span class="bz-av">En el plano ahora hay '+esc(P.plano.ad)+' adultos y '+esc(P.plano.to-P.plano.ad)+' niños. <button type="button" class="beb-auto" id="bz-plano">Usar los del plano</button></span>':'')+'</div>'+
+    '<label class="bz-no"><input type="checkbox" id="bz-no"'+(no?" checked":"")+'> No contar esta boda para ajustar los parámetros</label>';
+}
+function bebRealResumen(){
+  var s=$("bz-sum"), a=$("bz-aj"); if(!s||!a) return;
+  var c={cerca:0,mas:0,menos:0,falto:0,sin:0}, hechas=0;
+  bebRealLineas().forEach(function(l){ var r=bebRealGet(l.key)||{}, q=bebRealQ(r); if(q==null&&!r.ran) return; hechas++;
+    var v=bebVeredicto(r.pv!=null?+r.pv:l.prev,q,!!r.ran,l.ud); if(v) c[v.k]++; });
+  var chip=function(k,t,n){ return n?'<span class="bz-chip k-'+k+'">'+n+' · '+t+'</span>':''; };
+  s.innerHTML=hechas?'<div class="bz-sum"><b>Balance de este evento</b>'+chip("cerca","muy cerca",c.cerca)+chip("mas","se bebió más",c.mas)+chip("menos","se bebió menos",c.menos)+chip("falto","se acabó",c.falto)+chip("sin","sin previsión",c.sin)+'</div>':"";
+  a.innerHTML=bebAjusteSeccionHTML();
+  Array.prototype.forEach.call(a.querySelectorAll("[data-bj-apl]"),function(b){ b.addEventListener("click",function(){ bebAplicarClick(b.closest(".bj"),b.getAttribute("data-bj-apl")); }); });
+}
+/* lee lo escrito en el panel y lo aplica; deja «Deshacer» */
+function bebAplicarClick(box,k){
+  var cat=catByKey(k); if(!box||!cat) return;
+  var divs=Array.prototype.map.call(box.querySelectorAll(".bj-in"),function(i){ var n=bebNum(i.value); return (n&&n>0)?n:NaN; });
+  var antes=bebAplicar(k,divs);
+  if(!antes){ if(BR.toast) BR.toast("Pon números mayores que 0.",true); return; }
+  if(BR.toast) BR.toast("Parámetros de «"+cat.label+"» actualizados.",false,"Deshacer",function(){ bebAplicar(k,antes); });
+}
+function renderBebidaReal(){
+  var L=bebRealLineas(), html='<div class="beb-edit">'+bebTabsHTML();
+  html+='<p class="mnu-note beb-intro">Después de la boda, apunta aquí <b>cuántas botellas se gastaron de verdad</b>. La app las compara con la previsión y te dice si «una botella cada N personas» se queda corto o largo. '+
+    'Las botellas que volvieron <b>sin abrir</b> no cuentan. Si se acabó algo antes de tiempo, márcalo: lo apuntado es entonces el <b>mínimo</b> que se habría bebido.</p>';
+  if(!bebPasado()) html+='<p class="beb-off-tx" style="margin:-8px 0 14px">Este evento todavía no ha llegado: puedes dejarlo para cuando se celebre.</p>';
+  html+='<div class="bz-pers" id="bz-pers">'+bebRealPersHTML()+'</div>';
+  html+='<div class="beb-cat bz-lista"><div class="beb-h"><h2>Lo que se bebió</h2><span class="cnt">frente a lo previsto</span></div>'+
+    (L.length?L.map(bebRealFilaHTML).join(""):'<p class="beb-off-tx">No hay bebida prevista en este evento: primero elige lo que se sirve en «Previsión», o añade las bebidas que hubo.</p>')+'</div>';
+  html+='<div id="bz-sum"></div><div id="bz-aj"></div></div>';
+  $("mnu-body").innerHTML=html;
+  bebRealResumen(); wireBebidaReal();
+}
+function wireBebidaReal(){
+  var mb=$("mnu-body");
+  wireBebTabs();
+  function pers(){ var ad=bebNum($("bz-ad").value), ni=bebNum($("bz-ni").value);
+    if(ad==null||isNaN(ad)||ni==null||isNaN(ni)){ if(BR.toast) BR.toast("Pon el número de adultos y de niños (0 si no hubo).",true); $("bz-pers").innerHTML=bebRealPersHTML(); wirePers(); return; }
+    bebRealSetPers(ad,ni); repinta(); }
+  function repinta(){ Array.prototype.forEach.call(mb.querySelectorAll("[data-bz]"),function(row){
+      var l=bebRealLineas().filter(function(x){ return x.key===row.getAttribute("data-bz"); })[0]; if(l) row.querySelector(".bz-res").innerHTML=bebRealResHTML(l); });
+    wireUsarActual(); bebRealResumen(); }
+  function wirePers(){
+    ["bz-ad","bz-ni"].forEach(function(id){ var i=$(id); if(i) i.addEventListener("change",pers); });
+    var pl=$("bz-plano"); if(pl) pl.addEventListener("click",function(){ bebRealSinPers(); $("bz-pers").innerHTML=bebRealPersHTML(); wirePers(); repinta(); });
+    var no=$("bz-no"); if(no) no.addEventListener("change",function(){ bebRealNo(no.checked); bebRealResumen(); });
+  }
+  function wireUsarActual(){ Array.prototype.forEach.call(mb.querySelectorAll("[data-bpv]"),function(b){ b.addEventListener("click",function(){
+    var k=b.getAttribute("data-bpv"), l=bebRealLineas().filter(function(x){ return x.key===k; })[0]; if(!l) return;
+    bebRealSet(k,function(r){ if(l.prev!=null) r.pv=l.prev; else delete r.pv; }); renderBebidaReal(); }); }); }
+  wirePers(); wireUsarActual();
+  Array.prototype.forEach.call(mb.querySelectorAll("[data-bq]"),function(i){ i.addEventListener("change",function(){
+    var k=i.getAttribute("data-bq"), n=bebNum(i.value), l=bebRealLineas().filter(function(x){ return x.key===k; })[0]; if(!l) return;
+    if(n!=null&&isNaN(n)){ if(BR.toast) BR.toast("Pon un número (por ejemplo 12 o 6,5), sin letras.",true); var r0=bebRealGet(k), q0=bebRealQ(r0); i.value=q0==null?"":fmtNum(q0,2); return; }
+    bebRealSet(k,function(r){ if(n==null){ delete r.q; delete r.pv; } else { r.q=n; if(r.pv==null&&l.prev!=null) r.pv=l.prev; } });
+    var row=i.closest(".bz-row"); row.querySelector(".bz-res").innerHTML=bebRealResHTML(l); wireUsarActual(); i.value=n==null?"":fmtNum(n,2);
+    var ch=bebRealCuenta(), tb=mb.querySelector(".beb-tabn"); if(tb) tb.textContent=ch; else if(ch){ var bt=mb.querySelector('[data-btab="real"]'); if(bt) bt.insertAdjacentHTML("beforeend",'<i class="beb-tabn">'+ch+'</i>'); }
+    bebRealResumen(); }); });
+  Array.prototype.forEach.call(mb.querySelectorAll("[data-bran]"),function(c){ c.addEventListener("change",function(){
+    var k=c.getAttribute("data-bran"), l=bebRealLineas().filter(function(x){ return x.key===k; })[0]; if(!l) return;
+    bebRealSet(k,function(r){ if(c.checked){ r.ran=true; if(r.pv==null&&l.prev!=null&&r.q!=null) r.pv=l.prev; } else delete r.ran; });
+    c.closest(".bz-row").querySelector(".bz-res").innerHTML=bebRealResHTML(l); wireUsarActual(); bebRealResumen(); }); });
 }
 
 /* ══ Menú: tarjeta limpia con los platos marcados ═════════════════════ */
@@ -17770,7 +18102,9 @@ BR.menuParams={
   /* v01.82: cómo se sirve un plato (por persona / por mesa) y los números del evento abierto para enseñar un ejemplo */
   servirPor:servirPor,
   ejemplo:function(){ try{ var t=evTotals(), c=escCuentas(), e=ev(); return {nombre:(e&&e.name)||"",hay:!!(e&&(t.total||t.adultos)),adultos:t.adultos,ninos:t.ninos,conCubierto:t.conCubierto,mesasAper:t.mesasAper,mesasNinos:c.mesasNinos}; }catch(_){ return null; } },
-  usoPlato:function(uid){ var n=0; (BR.allEvents?BR.allEvents():[]).forEach(function(e){ if(e.menu&&e.menu.dishes&&e.menu.dishes[uid]) n++; }); return n; }
+  usoPlato:function(uid){ var n=0; (BR.allEvents?BR.allEvents():[]).forEach(function(e){ if(e.menu&&e.menu.dishes&&e.menu.dishes[uid]) n++; }); return n; },
+  /* v02.03: lo que han bebido las bodas apuntadas frente a los parámetros (Parámetros → Bebidas) */
+  bebConsumo:{ html:function(k){ var c=catByKey(k); return c&&c.auto?bebAjusteHTML(c,"par"):""; }, aplicar:function(k,divs){ return bebAplicar(k,divs); }, num:bebNum }
 };
 
 /* Fase 1: cada panel interno lleva sus cifras en la cabecera y las notas
@@ -24162,7 +24496,8 @@ function vBebidas(){
         return '<div class="pp-tramo"><input type="text" data-pp="tramo" data-i="'+ti+'" data-k="etq" value="'+esc(t.etq||"")+'" placeholder="Momento (aperitivo, banquete…)" aria-label="Momento">'+
           '<span>1 botella cada</span><input type="text" inputmode="decimal" data-pp="tramo" data-i="'+ti+'" data-k="div" value="'+esc(String(t.div).replace(".",","))+'" aria-label="Personas por botella" style="width:78px;text-align:right"><span>personas</span>'+
           '<button type="button" class="row-del" data-pa="tramo-del" data-i="'+ti+'" aria-label="Quitar">×</button></div>';
-      }).join("")+'<button type="button" class="btn sm" data-pa="tramo-add">+ Momento</button>')+
+      }).join("")+'<button type="button" class="btn sm" data-pa="tramo-add">+ Momento</button>'+
+      (M.bebConsumo?'<div class="pp-subh">Lo que dicen las bodas <span>— consumo real apuntado</span></div>'+M.bebConsumo.html(k):''))+
       '<label class="fld" style="margin-top:14px"><span class="lbl">Marcas para elegir <small>(una por línea)</small></span><textarea data-pp="beb" data-k="opciones" rows="4">'+esc((c.opciones||[]).join("\n"))+'</textarea></label>'+
       '</div>';
   }).join("")+'</div>';
@@ -24667,6 +25002,12 @@ function onClick(ev){
     c.tramos=c.tramos||[];
     if(a==="tramo-add") c.tramos.push({etq:"",div:10}); else c.tramos.splice(i,1);
     guardar("bebidas",{cats:bd.cats}); render(); return;
+  }
+  if(a==="bj-apl"){
+    var bx=b.closest(".bj"), bk=bx&&bx.getAttribute("data-bj"), bdc=bk&&datos("bebidas").cats[bk]; if(!bdc) return;
+    var dv=Array.prototype.map.call(bx.querySelectorAll(".bj-in"),function(x){ var nn=M.bebConsumo.num(x.value); return (nn&&nn>0)?nn:NaN; });
+    var ant=M.bebConsumo.aplicar(bk,dv); if(!ant){ toastP("Pon números mayores que 0."); return; }
+    toastP("Parámetros de «"+bdc.label+"» actualizados (antes: "+ant.map(function(x){ return String(x).replace(".",","); }).join(" · ")+")."); render(); return;
   }
   if(a==="art-add"){ var cd=datos("catalogo"); var n=1; while(cd.items.some(function(o){ return o.articulo==="ARTÍCULO NUEVO"+(n>1?" "+n:""); })) n++;
     cd.items.push({articulo:"ARTÍCULO NUEVO"+(n>1?" "+n:""),categoria:"PLATO",base:"COMENSAL",unidades:1}); ui.catQ=""; guardar("catalogo",cd); render();

@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.02** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.03** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,15 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.03
+- **Bebida del evento: consumo real frente a la previsión, y ajuste de parámetros.** En «Menú del evento → Bebida del evento» hay ahora dos pestañas: **Previsión** (lo de siempre) y **Consumo real**.
+  - **Apuntar lo que se bebió.** Después de la boda se escribe, por cada bebida que se sirvió (agua, vino blanco, tinto, cava, cava rosado, las bebidas añadidas a mano y el jamón en kg), cuántas botellas se gastaron de verdad. Las que volvieron sin abrir no cuentan. Si algo **se acabó** antes de tiempo se marca, y entonces lo apuntado cuenta como un mínimo.
+  - **Comparación al momento.** Cada línea dice si salió **muy cerca** de la previsión (hasta un 10 %, o una botella), si se **bebió más** o se **bebió menos** de lo previsto (cuántas botellas y qué porcentaje), o si **se acabó**; con «una botella cada N personas» real frente al previsto. Arriba de todo, un balance del evento.
+  - **Cuántos fuisteis de verdad.** Por defecto son los comensales del plano; si el día vino más o menos gente se corrigen (adultos con el personal, y niños) y las cuentas usan esos. Una boda rara (barra libre, un día raro) se puede **excluir** del ajuste.
+  - **Ajustar los parámetros.** Con todas las bodas apuntadas se compara lo bebido **por persona** con lo que dicen hoy los parámetros («una botella cada N personas», por aperitivo y banquete) y se propone un valor nuevo, que se puede retocar antes de **aplicarlo** (solo administración). Avisa de cuántas bodas lo respaldan y de que con menos de tres es solo una pista. El mismo panel está en **Parámetros → Bebidas**. Aplicar cambia la previsión de todos los eventos que no tengan la cantidad escrita a mano; desde el evento se puede **deshacer** al momento.
+  - **Aviso en la Previsión** cuando el evento ya ha pasado y no se ha apuntado nada. Lo apuntado se conserva al anonimizar un evento (son solo cifras) y **no** se copia al duplicar un evento.
+- **Lo que NO hace, a propósito:** no cambia solo ningún parámetro (siempre lo aplica una persona de administración); el jamón se compara pero su ración (95 g por adulto) se corrige a mano en Parámetros → Platos y escandallo; la hoja imprimible de la Previsión no lleva el consumo.
 
 ### Novedad de la versión 02.02
 - **Fase A del plan de la revisión, tercera parte: permisos reales por rol en el servidor.** Hasta ahora el menú ocultaba pantallas, pero cocina, servicio, compras y contabilidad podían leer **todo** el documento (precios, pagos, DNI, enlaces privados de los clientes) y reescribir precios y pagos con una petición a mano. Ahora el servidor aplica la misma matriz que el menú (la de «Equipo y accesos»; si el administrador la cambia, el cambio vale también para el servidor):
