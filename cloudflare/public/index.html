@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.04 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.05 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.04".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.05".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -1982,6 +1982,12 @@ details.help[open] summary::before{content:""; transform:rotate(45deg)}
 .nav-group.open>.nav-gh{color:var(--nav-ink)}
 .nav-group.open>.nav-gh .gh-ic{color:var(--olive)}
 .nav-group.open>.nav-gh .gh-caret{color:var(--nav-mut)}
+/* plegado pero es tu grupo: se nota en cuál estás */
+.nav-group.tiene:not(.open)>.nav-gh{color:var(--nav-ink)}
+.nav-group.tiene:not(.open)>.nav-gh .gh-ic{color:var(--olive)}
+@keyframes navDespliega{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:none}}
+.nav-group.open .nav-subs{animation:navDespliega .16s ease-out}
+@media (prefers-reduced-motion:reduce){ .nav-group.open .nav-subs{animation:none} }
 .nav-flat.active{background:var(--nav-raise); color:var(--nav-ink)}
 .nav-flat.active .gh-ic{color:var(--olive)}
 .nav-flat.active::before{content:""; position:absolute; left:-12px; top:9px; bottom:9px; width:2px; border-radius:2px; background:var(--olive)}
@@ -4443,7 +4449,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.04</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.05</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10004,6 +10010,9 @@ function grupoDeSeccion(k){ for(var i=0;i<SECCIONES.length;i++) if(SECCIONES[i].
 function grupoCorto(g){ return g.split(" ")[0]; }
 
 var GRUPO_NEGOCIO={"Previsión":1,"Inventario":1,"Parámetros":1,"Rentabilidad":1};
+/* v02.05 · el grupo en el que estás se pliega y se despliega con un clic en su título, sin cambiar de pantalla.
+   Al ir a otra pantalla (la que sea) vuelve a salir desplegado el grupo en el que caes. */
+var navPlegado=false, navUltimaSec=null;
 function renderSidenav(){
   var nav=$("side-nav"); if(!nav) return;
   nav.innerHTML="";
@@ -10017,7 +10026,12 @@ function renderSidenav(){
     var grp=document.createElement("div"); grp.className="nav-group"; grp.dataset.g=g;
     var gh=document.createElement("button"); gh.type="button"; gh.className="nav-gh";
     gh.innerHTML='<span class="gh-ic" aria-hidden="true">'+(ICONS[g]||"")+'</span><span class="gh-tx">'+escH(g)+'</span><span class="gh-caret" aria-hidden="true">'+ICONS.caret+'</span>';
-    gh.addEventListener("click",function(){ irASeccion(seccionesDe(g)[0].k); });
+    gh.setAttribute("aria-expanded","false");
+    gh.addEventListener("click",function(){
+      /* en el grupo en el que estás: plegar o desplegar; en otro: te lleva a su primera pantalla (y se despliega solo) */
+      var enHome=document.body.classList.contains("mode-home"), gAct=enHome?null:grupoDeSeccion(seccionActual());
+      if(g===gAct){ navPlegado=!navPlegado; syncSidenav(); return; }
+      irASeccion(seccionesDe(g)[0].k); });
     var subs=document.createElement("div"); subs.className="nav-subs";
     seccionesDe(g).forEach(function(s){
       var b=document.createElement("button"); b.type="button"; b.className="nav-sub"; b.dataset.k=s.k; b.textContent=s.t;
@@ -10071,7 +10085,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.04</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.05</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10106,8 +10120,11 @@ function syncSidenav(){
   Array.prototype.forEach.call(document.querySelectorAll(".nav-flat"),function(b){
     b.classList.toggle("active", !enHome && b.dataset.k===actual);
   });
+  if(actual!==navUltimaSec){ navUltimaSec=actual; navPlegado=false; }
   Array.prototype.forEach.call(document.querySelectorAll(".nav-group"),function(grp){
-    grp.classList.toggle("open",grp.dataset.g===gAct);
+    var esMio=grp.dataset.g===gAct, abierto=esMio&&!navPlegado, gh0=grp.querySelector(".nav-gh");
+    grp.classList.toggle("open",abierto); grp.classList.toggle("tiene",esMio);
+    if(gh0) gh0.setAttribute("aria-expanded",abierto?"true":"false");
     Array.prototype.forEach.call(grp.querySelectorAll(".nav-sub"),function(b){
       b.classList.toggle("active",!enHome&&b.dataset.k===actual);
       if(!enHome&&b.dataset.k===actual) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
@@ -15584,7 +15601,7 @@ function bebidaLineas(){
   var out=[];
   BEBIDA_CATS.forEach(function(cat){ if(cat.delMenu||!cat.auto||bebOff(cat.key)) return;
     var r=bebReg(cat.key), c=calcBebida(cat), man=r.q!=null&&r.q!==""&&isFinite(+r.q);
-    out.push({key:cat.key,cat:cat,label:cat.label,prod:r.prod||"",q:man?+r.q:c.botellas,calc:c.botellas,manual:man,ud:"botellas",base:c.base}); });
+    out.push({key:cat.key,cat:cat,label:cat.label,prod:r.prod||"",q:man?+r.q:c.botellas,calc:c.botellas,manual:man,ud:cat.ud||"botellas",base:c.base}); });
   bebExtras().forEach(function(x){ if(!x||!String(x.label||x.prod||"").trim()) return;
     out.push({key:"x:"+x.id,extra:x,label:String(x.label||"").trim()||"Bebida",prod:String(x.prod||"").trim(),q:+x.q||0,calc:null,manual:true,ud:x.ud||"botellas",base:1}); });
   return out;
@@ -15622,7 +15639,7 @@ function renderBebida(){
       html+='<div class="beb-marca"><span class="beb-marca-lbl">¿Qué jamón se sirve?</span>'+prodSelect(cat,r.prod)+'</div>';
     }else{
       var c=calcBebida(cat), man=r.q!=null&&r.q!=="";
-      html+='<div class="beb-line"><label class="beb-q"><input type="number" min="0" step="1" inputmode="numeric" data-q="'+cat.key+'" value="'+(man?esc(r.q):(c.base?c.botellas:""))+'" placeholder="0" aria-label="Botellas de '+esc(cat.label)+'"><span>botellas</span></label>'+
+      html+='<div class="beb-line"><label class="beb-q"><input type="number" min="0" step="1" inputmode="numeric" data-q="'+cat.key+'" value="'+(man?esc(r.q):(c.base?c.botellas:""))+'" placeholder="0" aria-label="'+esc(udLarga(cat.ud||"botellas"))+' de '+esc(cat.label)+'"><span>'+esc(udLarga(cat.ud||"botellas"))+'</span></label>'+
         (man?'<span class="beb-man">a mano · calculado: '+c.botellas+' <button type="button" class="beb-auto" data-auto="'+cat.key+'">volver al cálculo</button></span>':(c.base?'<span class="beb-desglose">'+(cat.litros?fmtNum(Math.round(c.litros*10)/10,1)+' L → botellas de '+esc(c.fmtTxt)+(c.fmtElegido?'':' (elige el formato abajo)'):'calculado solo')+'</span>':'<span class="beb-desglose">Sale sola en cuanto el plano tenga comensales (o escríbela).</span>'))+'</div>';
       html+='<div class="beb-marca"><span class="beb-marca-lbl">'+esc(cat.litros?"¿Qué agua (formato)?":marcaPregunta(cat))+'</span>'+(cat.opciones?prodSelect(cat,r.prod):prodInput(cat.key,r.prod,[]))+'</div>';
     }
@@ -15774,7 +15791,7 @@ function bebPPTexto(cat,q){
   var P=bebRealPersonas(), base=cat.poblacion==="total"?P.to:P.ad, tasa=bebTasa(cat); if(!(base>0)) return "";
   if(cat.litros){ var u=aguaFormato(bebidaMarca(cat.key)).l;
     return '<b>'+fmtNum(q*u/base,2)+' L</b> por persona'+(tasa>0?' · previsto: '+fmtNum(tasa,2)+' L':''); }
-  return '1 botella cada <b>'+fmtNum(base/q,1)+'</b> personas'+(tasa>0?' · previsto: cada '+fmtNum(1/tasa,1):'');
+  return '1 '+udN(cat.ud||"botellas",1)+' cada <b>'+fmtNum(base/q,1)+'</b> personas'+(tasa>0?' · previsto: cada '+fmtNum(1/tasa,1):'');
 }
 /* todas las bodas con esta categoría apuntada: cuánto se bebió frente a lo que dicen hoy los parámetros */
 function bebHist(cat){
@@ -15855,7 +15872,7 @@ function bebAjusteHTML(cat,ctx){
   var h=bebHist(cat), admin=esAdminMn(), tasa=bebTasa(cat);
   if(!h.n) return '<div class="bj bj-vacio" data-bj="'+esc(cat.key)+'"><p class="bj-tx">Todavía no hay ninguna boda con «'+esc(cat.label)+'» apuntada en «Consumo real».</p></div>';
   var pc=Math.round(h.f*100), ok=Math.abs(h.f-1)<=0.08, prop=bebPropuesta(cat,h), raro=h.f<0.3||h.f>3;
-  var titulo=cat.litros?'litros':'botellas';
+  var titulo=cat.litros?'litros':udLarga(cat.ud||"botellas");
   var tx;
   if(ok) tx='Se bebió el <b>'+pc+' %</b> de lo que dicen los parámetros: están bien, no hace falta tocarlos.';
   else if(h.f>1) tx='Se bebió el <b>'+pc+' %</b> de lo previsto: la previsión se queda <b>corta</b>. Con estos valores saldría más bebida.';
@@ -15870,8 +15887,8 @@ function bebAjusteHTML(cat,ctx){
   var form='';
   if(!ok&&prop){
     if(admin){
-      form='<div class="bj-form"><span class="bj-sub">Propuesta — '+(cat.litros?'un litro':'una botella')+' cada…</span>'+prop.map(function(p,i){
-        return '<label class="bj-t"><span>'+esc(p.etq||('Tramo '+(i+1)))+' <small>ahora '+esc(fmtNum(p.div,2))+'</small></span><input type="text" inputmode="decimal" class="bj-in" data-i="'+i+'" value="'+esc(fmtNum(p.nuevo,2))+'" aria-label="Personas por '+(cat.litros?'litro':'botella')+' · '+esc(p.etq||('tramo '+(i+1)))+'"><em>personas</em></label>'; }).join("")+
+      form='<div class="bj-form"><span class="bj-sub">Propuesta — '+(cat.litros?'un litro':((cat.ud&&cat.ud!=="botellas")?'1 '+udN(cat.ud,1):'una botella'))+' cada…</span>'+prop.map(function(p,i){
+        return '<label class="bj-t"><span>'+esc(p.etq||('Tramo '+(i+1)))+' <small>ahora '+esc(fmtNum(p.div,2))+'</small></span><input type="text" inputmode="decimal" class="bj-in" data-i="'+i+'" value="'+esc(fmtNum(p.nuevo,2))+'" aria-label="Personas por '+(cat.litros?'litro':udN(cat.ud||"botellas",1))+' · '+esc(p.etq||('tramo '+(i+1)))+'"><em>personas</em></label>'; }).join("")+
         '<button type="button" class="btn sm gold" '+(ctx==="par"?'data-pa="bj-apl"':'data-bj-apl="'+esc(cat.key)+'"')+'>Aplicar a los parámetros</button>'+
         '<span class="bj-nota">Cambia la previsión de todos los eventos que no tengan la cantidad escrita a mano.'+(ctx==="par"?'':' Se puede deshacer.')+'</span></div>';
     } else form='<p class="bj-av">Los parámetros los cambia administración (Parámetros → Bebidas). Propuesta: '+prop.map(function(p){ return (p.etq?esc(p.etq)+' ':'')+esc(fmtNum(p.div,2))+' → <b>'+esc(fmtNum(p.nuevo,2))+'</b>'; }).join(' · ')+' personas.</p>';
@@ -17499,6 +17516,14 @@ function aplicarParamsMenu(){
       if(o[k]!=null) cat[k]=clon(o[k]); else if(def[k]!=null) cat[k]=clon(def[k]); else delete cat[k]; });
     if(def.litros&&def.opciones){ cat.opciones=(cat.opciones||[]).slice(); def.opciones.forEach(function(x){ if(cat.opciones.indexOf(x)<0) cat.opciones.unshift(x); }); }
   });
+  /* v02.05 · bebidas propias (Parámetros → Bebidas → «Añadir una bebida»): se crean, se actualizan y se quitan según lo guardado.
+     Van antes del jamón y se calculan solas como el vino o el cava (personas por unidad, por momentos). */
+  var propias=(pb&&pb.cats)?Object.keys(pb.cats).filter(function(k){ return pb.cats[k]&&pb.cats[k].custom&&!DEF_BEBIDAS.some(function(d){ return d.key===k; }); }):[];
+  for(var bi=BEBIDA_CATS.length-1;bi>=0;bi--){ if(BEBIDA_CATS[bi].custom&&propias.indexOf(BEBIDA_CATS[bi].key)<0) BEBIDA_CATS.splice(bi,1); }
+  propias.forEach(function(k){ var o=pb.cats[k], cat=catByKey(k);
+    if(!cat){ cat={key:k}; var ij=-1; BEBIDA_CATS.forEach(function(c,i){ if(c.delMenu&&ij<0) ij=i; }); BEBIDA_CATS.splice(ij<0?BEBIDA_CATS.length:ij,0,cat); }
+    cat.custom=true; cat.auto=true; cat.label=String(o.label||"Bebida"); cat.poblacion=o.poblacion==="total"?"total":"adultos"; cat.redondeo=o.redondeo==="floor"?"floor":"ceil";
+    cat.tramos=(Array.isArray(o.tramos)&&o.tramos.length)?clon(o.tramos):[{etq:"",div:10}]; cat.opciones=Array.isArray(o.opciones)?clon(o.opciones):[]; cat.ud=o.ud||"botellas"; });
   var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
 }
 BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.contains("mode-menu")) refreshAll(); }catch(_){} });
@@ -24270,6 +24295,21 @@ var TIPOS_ART=["PLATO","CUBIERTO","MOBILIARIO","UTENSILIO"];
 var BASES_ART=["COMENSAL","MESA APERITIVO","MESA BANQUETE","PLATO","EVENTO"];
 var BASE_T={"COMENSAL":"por comensal","MESA APERITIVO":"por mesa de aperitivo","MESA BANQUETE":"por mesa de banquete","PLATO":"por plato (fijo)","EVENTO":"una vez por evento"};
 var UNIDADES=["gr","uds","ml"];
+/* v02.05 · bebidas propias: nombre de cada unidad y el formulario «Añadir una bebida» */
+var UD_N={botellas:["botella","botellas"],latas:["lata","latas"],uds:["unidad","unidades"],litros:["litro","litros"],cajas:["caja","cajas"],barriles:["barril","barriles"]};
+function UD_OPS(sel){ return Object.keys(UD_N).map(function(k){ return '<option value="'+k+'"'+((sel||"botellas")===k?" selected":"")+'>'+UD_N[k][1]+'</option>'; }).join(""); }
+var BEB_PROPUESTAS=["Coca-Cola","Coca-Cola Zero","Fanta naranja","Fanta limón","Sprite","Tónica","Agua con gas","Cerveza","Cerveza sin alcohol","Zumos","Vermut","Sangría"];
+function bebAddForm(){
+  return '<div class="pcard pp-card pp-addbeb" style="margin-bottom:18px"><div class="pcard-h"><h3>Añadir una bebida</h3><span class="pp-ej">refrescos, cerveza, zumos… se calcula sola en todos los eventos</span></div>'+
+    '<div class="fldset">'+
+      '<label class="fld"><span class="lbl">Nombre</span><input type="text" list="pp-dl-bebsug" data-bn="label" placeholder="p. ej. Coca-Cola" autocomplete="off"></label>'+
+      '<label class="fld"><span class="lbl">Se cuenta en</span><select data-bn="ud">'+UD_OPS("latas")+'</select></label>'+
+      '<label class="fld"><span class="lbl">Se calcula sobre</span><select data-bn="poblacion"><option value="total">Todos (adultos y niños)</option><option value="adultos">Solo adultos</option></select></label>'+
+      '<label class="fld"><span class="lbl">Una unidad cada <small>(personas)</small></span><input type="text" inputmode="decimal" data-bn="div" placeholder="p. ej. 3"></label>'+
+    '</div><datalist id="pp-dl-bebsug">'+BEB_PROPUESTAS.map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+'</datalist>'+
+    '<p class="pp-note">Escribe cada cuántas personas va una unidad (p. ej. «una lata cada 3 personas»). Después, en su tarjeta, puedes cambiarlo, añadir marcas y poner varios momentos (aperitivo, banquete…). Se guarda para todo el equipo.</p>'+
+    '<button type="button" class="btn gold" data-pa="beb-add">+ Añadir bebida</button></div>';
+}
 var FASES_T={"6m":"6 meses antes","3m":"3 meses antes","1m":"1 mes antes","1s":"1 semana antes","dia":"Día del evento"};
 var FASES_DEF_ITEMS={
   "6m":["Confirmar menú","Confirmar proveedores","Revisar guion de ceremonia"],
@@ -24527,24 +24567,26 @@ function nuevoUid(fk){ return fk+"#n"+Date.now().toString(36)+Math.floor(Math.ra
 /* ══ BEBIDAS ══════════════════════════════════════════════════════════ */
 function vBebidas(){
   var d=datos("bebidas"), cats=d.cats||{};
-  var orden=["agua","blanco","tinto","cava","cavaRosado","jamon"].filter(function(k){ return cats[k]; });
-  Object.keys(cats).forEach(function(k){ if(orden.indexOf(k)<0) orden.push(k); });
-  return '<div class="pp-grid2">'+orden.map(function(k){
-    var c=cats[k];
+  var orden=["agua","blanco","tinto","cava","cavaRosado"].filter(function(k){ return cats[k]; });
+  Object.keys(cats).forEach(function(k){ if(orden.indexOf(k)<0&&k!=="jamon") orden.push(k); });
+  if(cats.jamon) orden.push("jamon");
+  return bebAddForm()+'<div class="pp-grid2">'+orden.map(function(k){
+    var c=cats[k], un=UD_N[c.ud||"botellas"]||UD_N.botellas;
     var ej=null;
     if(!c.delMenu&&c.tramos){ var base=100, suma=0; c.tramos.forEach(function(t){ if(+t.div>0) suma+=base/+t.div; }); ej=c.redondeo==="floor"?Math.floor(suma):Math.ceil(suma); }
-    return '<div class="pcard pp-card" data-cat="'+esc(k)+'"><div class="pcard-h"><h3>'+esc(c.label)+'</h3>'+(ej!=null?'<span class="pp-ej">con 100 '+(c.poblacion==="total"?"personas":"adultos")+' → <b>'+ej+' botellas</b></span>':'<span class="pp-ej">cantidad del escandallo del menú</span>')+'</div>'+
+    return '<div class="pcard pp-card" data-cat="'+esc(k)+'"><div class="pcard-h"><h3>'+esc(c.label)+'</h3>'+(ej!=null?'<span class="pp-ej">con 100 '+(c.poblacion==="total"?"personas":"adultos")+' → <b>'+ej+' '+(ej===1?un[0]:un[1])+'</b></span>':'<span class="pp-ej">cantidad del escandallo del menú</span>')+(c.custom?'<button type="button" class="btn sm danger" data-pa="beb-del">Quitar</button>':'')+'</div>'+
       '<div class="fldset">'+
         '<label class="fld"><span class="lbl">Nombre</span><input type="text" data-pp="beb" data-k="label" value="'+esc(c.label)+'"></label>'+
+        (c.custom?'<label class="fld"><span class="lbl">Se cuenta en</span><select data-pp="beb" data-k="ud">'+UD_OPS(c.ud)+'</select></label>':'')+
         (c.delMenu?'':
         '<label class="fld"><span class="lbl">Se calcula sobre</span><select data-pp="beb" data-k="poblacion"><option value="total"'+(c.poblacion==="total"?" selected":"")+'>Todos (adultos y niños)</option><option value="adultos"'+(c.poblacion!=="total"?" selected":"")+'>Solo adultos</option></select></label>'+
         '<label class="fld"><span class="lbl">Redondeo</span><select data-pp="beb" data-k="redondeo"><option value="ceil"'+(c.redondeo!=="floor"?" selected":"")+'>Al alza</option><option value="floor"'+(c.redondeo==="floor"?" selected":"")+'>A la baja</option></select></label>')+
       '</div>'+
       (c.delMenu?'<p class="pp-note">El jamón no lleva un parámetro por persona: la cantidad sale del escandallo del plato de jamón marcado en el menú (Platos y escandallo).</p>':
-      '<div class="pp-subh">Previsión <span>— una botella cada…</span></div>'+
+      '<div class="pp-subh">Previsión <span>— '+((c.ud&&c.ud!=="botellas")?'1 '+un[0]:'una botella')+' cada…</span></div>'+
       (c.tramos||[]).map(function(t,ti){
         return '<div class="pp-tramo"><input type="text" data-pp="tramo" data-i="'+ti+'" data-k="etq" value="'+esc(t.etq||"")+'" placeholder="Momento (aperitivo, banquete…)" aria-label="Momento">'+
-          '<span>1 botella cada</span><input type="text" inputmode="decimal" data-pp="tramo" data-i="'+ti+'" data-k="div" value="'+esc(String(t.div).replace(".",","))+'" aria-label="Personas por botella" style="width:78px;text-align:right"><span>personas</span>'+
+          '<span>1 '+un[0]+' cada</span><input type="text" inputmode="decimal" data-pp="tramo" data-i="'+ti+'" data-k="div" value="'+esc(String(t.div).replace(".",","))+'" aria-label="Personas por '+un[0]+'" style="width:78px;text-align:right"><span>personas</span>'+
           '<button type="button" class="row-del" data-pa="tramo-del" data-i="'+ti+'" aria-label="Quitar">×</button></div>';
       }).join("")+'<button type="button" class="btn sm" data-pa="tramo-add">+ Momento</button>'+
       (M.bebConsumo?'<div class="pp-subh">Lo que dicen las bodas <span>— consumo real apuntado</span></div>'+M.bebConsumo.html(k):''))+
@@ -25024,7 +25066,7 @@ function onClick(ev){
   if(a==="reset"){
     var secs=(b.getAttribute("data-secs")||"").split(",");
     if(!window.confirm("¿Volver a los valores de fábrica en «"+VISTAS[vistaActual].t+"»? Se perderán los cambios hechos aquí."+
-      (secs.indexOf("catalogo")>-1?"\n\nSi renombraste artículos del catálogo, los platos que los usan quedarán marcados con «!» en Platos y escandallo para revisarlos.":""))) return;
+      (secs.indexOf("catalogo")>-1?"\n\nSi renombraste artículos del catálogo, los platos que los usan quedarán marcados con «!» en Platos y escandallo para revisarlos.":"")+(secs.indexOf("bebidas")>-1?"\n\nTambién se quitarán las bebidas que hayas añadido.":""))) return;
     secs.forEach(function(s){ BR.setParam(s,null); }); ui.open=null; toastP("Valores de fábrica restaurados."); render(); return;
   }
   var d, hit;
@@ -25046,6 +25088,23 @@ function onClick(ev){
       var ins=hostRef.querySelectorAll('.pp-dish.open input[data-pp="ing"][data-k="name"]'); if(ins.length) ins[ins.length-1].focus(); return; }
     else if(a==="ing-del"){ hit.x.ingredients.splice(i,1); guardar("platos",d); }
     render(); return;
+  }
+  if(a==="beb-add"){
+    var gv=function(n){ var x=hostRef.querySelector('[data-bn="'+n+'"]'); return x?x.value:""; };
+    var nm=gv("label").trim(), dv0=parseFloat(String(gv("div")).replace(",","."));
+    if(!nm){ toastP("Escribe el nombre de la bebida (por ejemplo Coca-Cola)."); return; }
+    if(!(dv0>0)){ toastP("Di cada cuántas personas va una unidad (un número mayor que 0, por ejemplo 3)."); return; }
+    var bdA=datos("bebidas"), catsA=bdA.cats, nmN=nm.toLowerCase();
+    if(Object.keys(catsA).some(function(k){ return String(catsA[k].label||"").trim().toLowerCase()===nmN; })){ toastP("Ya hay una bebida que se llama «"+nm+"»."); return; }
+    var slug=nm.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24)||"bebida", clave="b-"+slug, nn=2;
+    while(catsA[clave]){ clave="b-"+slug+"-"+nn; nn++; }
+    catsA[clave]={key:clave,label:nm,auto:true,custom:true,poblacion:gv("poblacion")==="adultos"?"adultos":"total",redondeo:"ceil",tramos:[{etq:"",div:dv0}],opciones:[],ud:gv("ud")||"botellas"};
+    guardar("bebidas",{cats:catsA},"Bebida añadida: «"+nm+"». Ya se calcula sola en todos los eventos."); render(); return;
+  }
+  if(a==="beb-del"){
+    var ck=b.closest(".pp-card").getAttribute("data-cat"), bdD=datos("bebidas"), cD=bdD.cats[ck]; if(!cD||!cD.custom) return;
+    if(!window.confirm("¿Quitar «"+cD.label+"» de las bebidas?\n\nDejará de calcularse en todos los eventos. Lo que ya apuntaste como consumo real en eventos pasados se conserva.")) return;
+    delete bdD.cats[ck]; guardar("bebidas",{cats:bdD.cats},"Bebida quitada."); render(); return;
   }
   if(a==="tramo-add"||a==="tramo-del"){
     var cat=b.closest(".pp-card").getAttribute("data-cat"), bd=datos("bebidas"), c=bd.cats[cat]; if(!c) return;

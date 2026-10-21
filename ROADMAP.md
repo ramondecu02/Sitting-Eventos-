@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.04** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.05** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.05
+- **Menú lateral que se pliega y se despliega con un clic.** Hasta ahora, al abrir un apartado (por ejemplo «Parámetros», con muchas pantallas) se quedaba desplegado y el clic en su título solo te llevaba a su primera pantalla: no había forma de cerrarlo. Ahora **un clic en el título del grupo en el que estás lo pliega y otro lo despliega, sin cambiar de pantalla** (también con Intro o Espacio). Plegado, su título sigue marcado para que se vea en qué grupo estás. Un clic en un grupo en el que no estás te lleva a su primera pantalla, como antes. Al ir a otra pantalla el grupo vuelve a salir desplegado. El despliegue lleva una animación corta, y se respeta «reducir movimiento» del sistema.
+- **Bebidas propias con cálculo automático (cola, fanta, tónica, cerveza…).** En **Parámetros → Bebidas → «Añadir una bebida»** se escribe el nombre, en qué se cuenta (botellas, latas, unidades, litros, cajas o barriles), sobre quién se calcula (todos o solo adultos) y **una unidad cada N personas**. Queda **grabada para todo el equipo** y sale sola, calculada con los comensales de cada evento, en: la **Previsión** de Bebida (con su marca a elegir, quitarla de un evento concreto o corregir la cantidad a mano), la **escaleta**, la **lista de la compra**, **Rentabilidad** (su precio por unidad) y **Consumo real** (con su comparación y su propuesta de ajuste, ahora hablando de latas o de lo que sea). En su tarjeta se puede cambiar todo, poner varios momentos (aperitivo, banquete…), escribir las marcas y **«Quitar»**. «Restaurar valores de fábrica» también quita las añadidas y avisa de ello.
+- **Lo que NO hace, a propósito:** no inventa cifras: cada bebida nueva empieza con la que tú escribes en «una unidad cada N personas». Las bebidas sueltas de cada evento («Otras bebidas del evento») siguen como estaban, a mano.
 
 ### Novedad de la versión 02.04
 - **Escaleta · menú infantil personalizado y niños con su mesa.** Hasta ahora el menú infantil de la escaleta solo sabía de los platos de niños del catálogo (pensados para bodas): en un bautizo, una comunión u otro evento con un solo plato para los niños no encajaba, y la hoja decía «3 niños · 3 mesas» sin decir qué niño estaba en qué mesa.
