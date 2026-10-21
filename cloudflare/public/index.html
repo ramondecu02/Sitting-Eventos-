@@ -2580,7 +2580,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .bz-pers input[type=text]{width:96px; height:40px; text-align:right; font-family:var(--font-text); font-size:20px; font-weight:650; font-variant-numeric:tabular-nums}
 .bz-pers .bz-hint{flex:1 1 260px; font-size:12.5px; color:var(--c-mut); line-height:1.5}
 .bz-pers .bz-hint b{color:var(--c-ink)}
-.bz-av{display:block; margin-top:4px; color:var(--warning,#9A722A); font-weight:600}
+.bz-av{display:block; margin-top:4px; color:color-mix(in srgb,var(--warning) 55%,var(--c-ink)); font-weight:600}
 .bz-pers .bz-no{flex:1 1 100%; flex-direction:row; align-items:center; gap:8px; font-weight:500; cursor:pointer; padding-top:10px; border-top:1px dashed var(--c-line)}
 .bz-no input{width:17px; height:17px; accent-color:var(--olive)}
 .bz-row{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.5fr); gap:10px 22px; align-items:start; padding:14px 0; border-bottom:1px solid var(--c-line)}
@@ -2600,7 +2600,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .bz-res .bz-vacio{color:var(--c-faint)}
 .bz-chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.02em; padding:3px 10px; border-radius:var(--r-pill); border:1px solid transparent}
 .bz-chip.k-cerca{background:var(--success-soft,#E9EDDC); color:var(--olive-deep); border-color:color-mix(in srgb,var(--olive) 35%,transparent)}
-.bz-chip.k-mas{background:var(--warning-soft); color:var(--warning,#9A722A); border-color:color-mix(in srgb,var(--warning) 40%,transparent)}
+.bz-chip.k-mas{background:var(--warning-soft); color:color-mix(in srgb,var(--warning) 55%,var(--c-ink)); border-color:color-mix(in srgb,var(--warning) 40%,transparent)}
 .bz-chip.k-menos{background:var(--bg-2); color:var(--c-ink); border-color:var(--c-line-2)}
 .bz-chip.k-falto{background:var(--danger-soft); color:var(--danger); border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
 .bz-chip.k-sin{background:transparent; color:var(--c-mut); border-color:var(--c-line-2)}
@@ -2615,7 +2615,7 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .bj-h b{font-family:var(--font-display); font-variation-settings:"opsz" 30; font-size:17px; font-weight:500}
 .bj-n{font-size:12px; color:var(--c-mut)}
 .bj-tx{margin:6px 0; font-size:13px; line-height:1.5; color:var(--c-ink)}
-.bj-av{margin:6px 0; font-size:12px; line-height:1.5; color:var(--warning,#9A722A)}
+.bj-av{margin:6px 0; font-size:12px; line-height:1.5; color:color-mix(in srgb,var(--warning) 55%,var(--c-ink))}
 .bj-form{display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 16px; margin-top:10px}
 .bj-sub{flex:1 1 100%; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--c-faint)}
 .bj-t{display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:600; color:var(--c-ink)}
@@ -15793,11 +15793,12 @@ function bebPropuesta(cat,h){
   if(!h||!h.f||!(h.f>0)) return null;
   return (cat.tramos||[]).map(function(t){ return {etq:t.etq||"",div:+t.div,nuevo:Math.round(+t.div/h.f*100)/100}; });
 }
-function bebAplicar(catKey,divs){
+function bebAplicar(catKey,divs,exacto){
   var cats=BR.menuParams.actual().bebidas.cats, c=cats[catKey]; if(!c||!c.tramos||c.tramos.length!==divs.length) return null;
   for(var i=0;i<divs.length;i++){ if(!(divs[i]>0)||!isFinite(divs[i])) return null; }
   var antes=c.tramos.map(function(t){ return +t.div; });
-  c.tramos.forEach(function(t,i){ t.div=Math.round(divs[i]*100)/100; });
+  /* lo que se propone se redondea a dos decimales; al deshacer se devuelven los valores de antes tal cual (6,667 no pasa a 6,67) */
+  c.tramos.forEach(function(t,i){ t.div=exacto?+divs[i]:Math.round(divs[i]*100)/100; });
   BR.setParam("bebidas",{cats:cats});
   return antes;
 }
@@ -15857,13 +15858,13 @@ function bebAjusteHTML(cat,ctx){
   if(ok) tx='Se bebió el <b>'+pc+' %</b> de lo que dicen los parámetros: están bien, no hace falta tocarlos.';
   else if(h.f>1) tx='Se bebió el <b>'+pc+' %</b> de lo previsto: la previsión se queda <b>corta</b>. Con estos valores saldría más bebida.';
   else tx='Se bebió el <b>'+pc+' %</b> de lo previsto: la previsión se pasa y <b>sobra</b> bebida. Con estos valores saldría menos.';
-  var cab='<div class="bj-h"><b>'+esc(cat.label)+'</b><span class="bj-n">'+h.n+(h.n===1?' boda':' bodas')+' · '+fmtNum(h.base,0)+(cat.poblacion==="total"?' personas':' adultos')+'</span></div>';
+  var cab='<div class="bj-h">'+(ctx==="par"?'':'<b>'+esc(cat.label)+'</b>')+'<span class="bj-n">'+h.n+(h.n===1?' boda':' bodas')+' · '+fmtNum(h.base,0)+(cat.poblacion==="total"?' personas':' adultos')+'</span></div>';
   var avisos='';
   if(h.ran) avisos+='<p class="bj-av">En '+h.ran+(h.ran===1?' boda':' bodas')+' se acabó: se bebió más de lo apuntado, así que la propuesta se queda corta.</p>';
-  if(h.n<3) avisos+='<p class="bj-av">Con '+(h.n===1?'una sola boda':h.n+' bodas')+' es una pista, no una regla: mejor ajustar cuando haya tres o más.</p>';
+  if(h.n<3&&!ok) avisos+='<p class="bj-av">Con '+(h.n===1?'una sola boda':h.n+' bodas')+' es una pista, no una regla: mejor ajustar cuando haya tres o más.</p>';
   if(raro) avisos+='<p class="bj-av">Esta cifra es muy distinta de lo previsto: revisa que lo apuntado esté bien (botellas, no copas) antes de aplicarla.</p>';
   var lista='<details class="bj-det"><summary>Ver las bodas que cuentan</summary><ul>'+h.bodas.map(function(b){
-    return '<li>'+esc(b.nombre)+(b.fecha?' · '+esc(b.fecha.split("-").reverse().join("/")):'')+' — '+fmtNum(b.base,0)+' pers. · se bebió '+fmtNum(b.real,2)+' '+titulo+' ('+Math.round(b.real/b.mod*100)+' % de lo que dicen los parámetros)'+(b.ran?' · se acabó':'')+'</li>'; }).join("")+'</ul></details>';
+    return '<li>'+esc(b.nombre)+(b.fecha&&!/\d{1,2}[\/.-]\d{1,2}[\/.-]\d{4}/.test(b.nombre)?' · '+esc(b.fecha.split("-").reverse().join("/")):'')+' — '+fmtNum(b.base,0)+' pers. · se bebió '+fmtNum(b.real,2)+' '+titulo+' ('+Math.round(b.real/b.mod*100)+' % de lo que dicen los parámetros)'+(b.ran?' · se acabó':'')+'</li>'; }).join("")+'</ul></details>';
   var form='';
   if(!ok&&prop){
     if(admin){
@@ -15881,13 +15882,16 @@ function bebAjusteSeccionHTML(){
   if(!partes.length) return '<div class="beb-cat bj-sec">'+cab+'<p class="beb-off-tx">Cuando apuntes lo que se bebió, aquí saldrá la propuesta para corregir «una botella cada N personas». Con varias bodas apuntadas el ajuste es más fiable.</p></div>';
   return '<div class="beb-cat bj-sec">'+cab+'<p class="beb-off-tx">Se compara lo bebido <b>por persona</b> de todas las bodas apuntadas con lo que dicen hoy los parámetros.</p>'+partes.map(function(c){ return bebAjusteHTML(c,"ev"); }).join("")+'</div>';
 }
+function bebRealHintHTML(){
+  var P=bebRealPersonas(), dif=P.guardado&&(P.plano.ad!==P.ad||P.plano.to-P.plano.ad!==P.ni);
+  return '<b>¿Cuántos fuisteis de verdad?</b> Por defecto, los del plano. Si el día vino más o menos gente, cámbialo: así el ajuste de los parámetros sale justo.'+
+    (dif?' <span class="bz-av">En el plano ahora hay '+esc(P.plano.ad)+' adultos y '+esc(P.plano.to-P.plano.ad)+' niños. <button type="button" class="beb-auto" id="bz-plano">Usar los del plano</button></span>':'');
+}
 function bebRealPersHTML(){
   var P=bebRealPersonas(), R=bebRealMap(false)||{}, no=!!(R._ev&&R._ev.no);
-  var dif=P.guardado&&(P.plano.ad!==P.ad||P.plano.to-P.plano.ad!==P.ni);
   return '<label>Adultos <small>(con el personal)</small><input type="text" inputmode="numeric" id="bz-ad" value="'+esc(P.ad)+'" aria-label="Adultos que había, con el personal"></label>'+
     '<label>Niños<input type="text" inputmode="numeric" id="bz-ni" value="'+esc(P.ni)+'" aria-label="Niños que había"></label>'+
-    '<div class="bz-hint"><b>¿Cuántos fuisteis de verdad?</b> Por defecto, los del plano. Si el día vino más o menos gente, cámbialo: así el ajuste de los parámetros sale justo.'+
-      (dif?' <span class="bz-av">En el plano ahora hay '+esc(P.plano.ad)+' adultos y '+esc(P.plano.to-P.plano.ad)+' niños. <button type="button" class="beb-auto" id="bz-plano">Usar los del plano</button></span>':'')+'</div>'+
+    '<div class="bz-hint" id="bz-hint">'+bebRealHintHTML()+'</div>'+
     '<label class="bz-no"><input type="checkbox" id="bz-no"'+(no?" checked":"")+'> No contar esta boda para ajustar los parámetros</label>';
 }
 function bebRealResumen(){
@@ -15906,7 +15910,7 @@ function bebAplicarClick(box,k){
   var divs=Array.prototype.map.call(box.querySelectorAll(".bj-in"),function(i){ var n=bebNum(i.value); return (n&&n>0)?n:NaN; });
   var antes=bebAplicar(k,divs);
   if(!antes){ if(BR.toast) BR.toast("Pon números mayores que 0.",true); return; }
-  if(BR.toast) BR.toast("Parámetros de «"+cat.label+"» actualizados.",false,"Deshacer",function(){ bebAplicar(k,antes); });
+  if(BR.toast) BR.toast("Parámetros de «"+cat.label+"» actualizados.",false,"Deshacer",function(){ bebAplicar(k,antes,true); });
 }
 function renderBebidaReal(){
   var L=bebRealLineas(), html='<div class="beb-edit">'+bebTabsHTML();
@@ -15924,14 +15928,17 @@ function wireBebidaReal(){
   var mb=$("mnu-body");
   wireBebTabs();
   function pers(){ var ad=bebNum($("bz-ad").value), ni=bebNum($("bz-ni").value);
-    if(ad==null||isNaN(ad)||ni==null||isNaN(ni)){ if(BR.toast) BR.toast("Pon el número de adultos y de niños (0 si no hubo).",true); $("bz-pers").innerHTML=bebRealPersHTML(); wirePers(); return; }
-    bebRealSetPers(ad,ni); repinta(); }
+    if(ad==null||isNaN(ad)||ni==null||isNaN(ni)){ if(BR.toast) BR.toast("Pon el número de adultos y de niños (0 si no hubo).",true);
+      /* se devuelven los valores de antes SIN repintar: repintar con el campo aún enfocado dispara otro «change» al quitarlo */
+      var P0=bebRealPersonas(); $("bz-ad").value=P0.ad; $("bz-ni").value=P0.ni; return; }
+    bebRealSetPers(ad,ni); $("bz-hint").innerHTML=bebRealHintHTML(); wirePlano(); repinta(); }
   function repinta(){ Array.prototype.forEach.call(mb.querySelectorAll("[data-bz]"),function(row){
       var l=bebRealLineas().filter(function(x){ return x.key===row.getAttribute("data-bz"); })[0]; if(l) row.querySelector(".bz-res").innerHTML=bebRealResHTML(l); });
     wireUsarActual(); bebRealResumen(); }
+  function wirePlano(){ var pl=$("bz-plano"); if(pl) pl.addEventListener("click",function(){ bebRealSinPers(); $("bz-pers").innerHTML=bebRealPersHTML(); wirePers(); repinta(); }); }
   function wirePers(){
     ["bz-ad","bz-ni"].forEach(function(id){ var i=$(id); if(i) i.addEventListener("change",pers); });
-    var pl=$("bz-plano"); if(pl) pl.addEventListener("click",function(){ bebRealSinPers(); $("bz-pers").innerHTML=bebRealPersHTML(); wirePers(); repinta(); });
+    wirePlano();
     var no=$("bz-no"); if(no) no.addEventListener("change",function(){ bebRealNo(no.checked); bebRealResumen(); });
   }
   function wireUsarActual(){ Array.prototype.forEach.call(mb.querySelectorAll("[data-bpv]"),function(b){ b.addEventListener("click",function(){
@@ -18104,7 +18111,7 @@ BR.menuParams={
   ejemplo:function(){ try{ var t=evTotals(), c=escCuentas(), e=ev(); return {nombre:(e&&e.name)||"",hay:!!(e&&(t.total||t.adultos)),adultos:t.adultos,ninos:t.ninos,conCubierto:t.conCubierto,mesasAper:t.mesasAper,mesasNinos:c.mesasNinos}; }catch(_){ return null; } },
   usoPlato:function(uid){ var n=0; (BR.allEvents?BR.allEvents():[]).forEach(function(e){ if(e.menu&&e.menu.dishes&&e.menu.dishes[uid]) n++; }); return n; },
   /* v02.03: lo que han bebido las bodas apuntadas frente a los parámetros (Parámetros → Bebidas) */
-  bebConsumo:{ html:function(k){ var c=catByKey(k); return c&&c.auto?bebAjusteHTML(c,"par"):""; }, aplicar:function(k,divs){ return bebAplicar(k,divs); }, num:bebNum }
+  bebConsumo:{ html:function(k){ var c=catByKey(k); return c&&c.auto?bebAjusteHTML(c,"par"):""; }, aplicar:function(k,divs,exacto){ return bebAplicar(k,divs,exacto); }, num:bebNum }
 };
 
 /* Fase 1: cada panel interno lleva sus cifras en la cabecera y las notas
