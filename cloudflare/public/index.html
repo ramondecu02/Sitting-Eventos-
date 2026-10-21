@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.10 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.11 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.10".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.11".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2616,6 +2616,9 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .bz-pp b{color:var(--c-ink); font-variant-numeric:tabular-nums}
 .bz-sum{display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:4px auto 22px; padding:12px 16px; border-radius:var(--r-lg); background:var(--accent-wash); border:1px solid var(--c-line)}
 .bz-sum > b{font-size:12.5px; margin-right:6px}
+.beb-gh{margin:26px 0 8px; font:700 12px/1.2 var(--font-text); letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut)}
+.beb-barra{display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; margin:22px 0 4px; padding:12px 14px; border:1px solid var(--c-line-2); border-radius:var(--r-lg); background:var(--panel)}
+.beb-sinbarra{margin:4px 2px 12px}
 .beb-est{margin:4px 0 2px; font-size:12px; color:var(--c-mut); line-height:1.5}
 .beb-est b{color:var(--c-ink); font-variant-numeric:tabular-nums}
 .beb-est small,.bz-ee small,.bz-evl li small{font-size:11.5px}
@@ -4492,7 +4495,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.10</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.11</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10149,7 +10152,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.10</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.11</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -15596,8 +15599,8 @@ function bebPersonas(){
 }
 function calcBebida(cat){
   var P=bebPersonas();
-  var base = cat.poblacion==="total" ? P.to : P.ad;
-  var tramos=(cat.tramos||[]).map(function(tr){ return {etq:tr.etq||"", div:tr.div, val:base>0?base/tr.div:0}; });
+  var base = cat.poblacion==="total" ? P.to : P.ad, barra=barraOn();
+  var tramos=(cat.tramos||[]).filter(function(tr){ return !(tr.barra&&!barra); }).map(function(tr){ var bt=tr.pob?(tr.pob==="total"?P.to:P.ad):base; return {etq:tr.etq||"", div:tr.div, val:bt>0?bt/tr.div:0}; });
   var suma=tramos.reduce(function(s,tr){ return s+tr.val; },0);
   if(cat.litros){ var fmt=aguaFormato(bebidaMarca(cat.key));
     return {base:base, tramos:tramos, suma:suma, litros:suma, fmt:fmt.l, fmtTxt:fmt.t, fmtElegido:fmt.elegido, botellas:base>0?Math.ceil(suma/fmt.l-1e-9):0}; }
@@ -15668,12 +15671,29 @@ function udCorta(u){ var x=BEB_UDS.filter(function(z){ return z.k===u; })[0]; re
 function udLarga(u){ var x=BEB_UDS.filter(function(z){ return z.k===u; })[0]; return x?x.t:"botellas"; }
 function bebReg(k){ var b=bebidas(); return (b&&b[k])||{}; }
 function bebSet(k,fn){ var b=bebidas(); if(!b) return; var r=Object.assign({},b[k]||{}); fn(r); ["prod","q"].forEach(function(p){ if(r[p]===""||r[p]==null) delete r[p]; }); if(!r.off) delete r.off; if(Object.keys(r).length) b[k]=r; else delete b[k]; touchSave(); }
-function bebOff(k){ return !!bebReg(k).off; }
+/* v02.10 · BARRA LIBRE. Los licores (y los momentos «de barra libre» de la cerveza y los refrescos) solo cuentan si el evento tiene barra libre.
+   Por defecto sí cuando la ficha lleva la hora de la barra libre; en la Previsión se puede cambiar a mano para ese evento. */
+function barraAuto(){ var e=ev(); return !!(e&&e.ficha&&String(e.ficha.horaBarra||"").trim()); }
+function barraManual(){ var b=bebidas(), r=b&&b._barra; return (r&&typeof r.on==="boolean")?r.on:null; }
+function barraOn(){ var m=barraManual(); return m==null?barraAuto():m; }
+function barraSet(on){ var b=bebidas(); if(!b) return; if(!!on===barraAuto()) delete b._barra; else b._barra={on:!!on}; touchSave(); }
+/* los grupos nuevos (cerveza, licores, refrescos) no se cuelan en eventos YA celebrados (cambiarían su hoja, su escaleta y su rentabilidad): ahí empiezan
+   sin servir, se marcan a mano («Se sirve en este evento») y en «Consumo real» salen siempre, para poder apuntar lo que se bebió */
+function bebOff(k,real){ var c=catByKey(k); if(c&&c.barra&&!barraOn()) return true; var r=bebReg(k); if(r.off) return true; if(!real&&c&&c.grupo&&!r.on&&bebPasado()) return true; return false; }
+/* los grupos de bebidas propias, en el orden en que salen */
+var BEB_GRUPOS=[{k:"cerveza",t:"Cerveza"},{k:"licores",t:"Barra libre · licores"},{k:"refrescos",t:"Refrescos y tónicas"}];
+function bebGrupoT(k){ var g=BEB_GRUPOS.filter(function(x){ return x.k===k; })[0]; return g?g.t:""; }
+/* el orden de las bebidas: las de siempre, las propias sueltas, el jamón y después cada grupo */
+function bebCatsOrden(){
+  var ini=BEBIDA_CATS.filter(function(c){ return !c.grupo; }), out=ini.slice();
+  BEB_GRUPOS.forEach(function(g){ BEBIDA_CATS.forEach(function(c){ if(c.grupo===g.k) out.push(c); }); });
+  return out;
+}
 function bebExtras(){ var m=menu(); if(!m) return []; m.bebidasExtra=m.bebidasExtra||[]; return m.bebidasExtra; }
 /* lo que se sirve en ESTE evento (sin el jamón, que va aparte) */
-function bebidaLineas(){
+function bebidaLineas(real){
   var out=[];
-  BEBIDA_CATS.forEach(function(cat){ if(cat.delMenu||!cat.auto||bebOff(cat.key)) return;
+  BEBIDA_CATS.forEach(function(cat){ if(cat.delMenu||!cat.auto||bebOff(cat.key,real)) return;
     var r=bebReg(cat.key), c=calcBebida(cat), man=r.q!=null&&r.q!==""&&isFinite(+r.q);
     out.push({key:cat.key,cat:cat,label:cat.label,prod:r.prod||"",q:man?+r.q:c.botellas,calc:c.botellas,manual:man,ud:cat.ud||"botellas",base:c.base}); });
   bebExtras().forEach(function(x){ if(!x||!String(x.label||x.prod||"").trim()) return;
@@ -15702,7 +15722,15 @@ function renderBebida(){
     'Las cantidades <b>se calculan solas</b> con los comensales del plano (el agua sobre todos; vino y cava sobre los adultos; el personal también cuenta). '+
     'Cada evento es distinto: <b>quita</b> lo que no se sirva, <b>corrige</b> una cantidad a mano, <b>escribe</b> cualquier producto aunque no esté en la lista '+
     'y <b>añade</b> otras bebidas abajo. <b>El jamón</b> sale de lo marcado en «Elegir platos».</p>';
-  BEBIDA_CATS.forEach(function(cat){
+  var grupoAnt="", barraMostrada=false, barra=barraOn(), sinBarra=0;
+  bebCatsOrden().forEach(function(cat){
+    if(cat.grupo&&cat.grupo!==grupoAnt){ grupoAnt=cat.grupo;
+      if(!barraMostrada){ barraMostrada=true;
+        var hb=String((ev()&&ev().ficha&&ev().ficha.horaBarra)||"").trim(), man=barraManual();
+        html+='<div class="beb-barra"><label class="beb-sirve"><input type="checkbox" data-barra'+(barra?" checked":"")+'> Barra libre en este evento</label><span class="beb-desglose">'+
+          (man!=null?'elegido a mano para este evento'+(man===barraAuto()?"":(barraAuto()?' (la ficha tiene hora de barra libre'+(hb?': '+esc(hb):"")+')':' (la ficha no tiene hora de barra libre)')):(barraAuto()?'porque la ficha tiene hora de barra libre ('+esc(hb)+')':'la ficha no tiene hora de barra libre: márcala si hay'))+'</span></div>'; }
+      html+='<h3 class="beb-gh">'+esc(bebGrupoT(cat.grupo))+'</h3>'; }
+    if(cat.barra&&!barra){ sinBarra++; var ult=bebCatsOrden().filter(function(c){ return c.barra; }); if(sinBarra===ult.length) html+='<p class="beb-off-tx beb-sinbarra">Sin barra libre en este evento: no se calculan los licores ('+ult.map(function(c){ return esc(c.label); }).join(", ")+').</p>'; return; }
     var off=bebOff(cat.key), r=bebReg(cat.key);
     html+='<div class="beb-cat'+(off?" off":"")+'" data-cat="'+cat.key+'">';
     html+='<div class="beb-h"><h2>'+esc(cat.label)+'</h2>'+
@@ -15764,8 +15792,9 @@ function wireBebida(){
     if(k.indexOf("x:")===0){ var x=bebExtras().filter(function(z){ return z.id===k.slice(2); })[0]; if(x){ x.q=v; touchSave(); } }
     else bebSet(k,function(r){ r.q=v; });
     renderBebida(); }); });
+  Array.prototype.forEach.call(mb.querySelectorAll("[data-barra]"),function(ch){ ch.addEventListener("change",function(){ barraSet(ch.checked); renderBebida(); }); });
   Array.prototype.forEach.call(mb.querySelectorAll("[data-sirve]"),function(ch){ ch.addEventListener("change",function(){
-    var k=ch.getAttribute("data-sirve"); bebSet(k,function(r){ if(ch.checked) delete r.off; else r.off=true; }); renderBebida(); }); });
+    var k=ch.getAttribute("data-sirve"), cg=catByKey(k); bebSet(k,function(r){ if(ch.checked){ delete r.off; if(cg&&cg.grupo) r.on=true; } else { r.off=true; delete r.on; } }); renderBebida(); }); });
   Array.prototype.forEach.call(mb.querySelectorAll(".beb-prod"),function(i){ i.addEventListener("change",function(){
     var k=i.getAttribute("data-k"), v=i.value.trim(); bebSet(k,function(r){ r.prod=v; }); if(k==="agua") renderBebida(); else renderBebidaSheet(); }); });
   Array.prototype.forEach.call(mb.querySelectorAll(".beb-dd"),function(sel){ sel.addEventListener("change",function(){
@@ -15843,7 +15872,7 @@ function bebTasa(cat){ return (cat.tramos||[]).reduce(function(s,t){ return s+(+
 /* una línea por cada cosa que se sirve: las categorías, las bebidas añadidas y el jamón */
 function bebRealLineas(){
   var out=[];
-  bebidaLineas().forEach(function(l){
+  bebidaLineas(true).forEach(function(l){
     out.push({key:l.key,label:l.label,prod:l.prod,ud:l.ud||"botellas",prev:l.q>0?l.q:null,cat:l.cat||null,extra:!!l.extra});
   });
   if(!bebOff("jamon")){
@@ -15875,6 +15904,10 @@ function bebPPTexto(cat,q){
   return '1 '+udN(cat.ud||"botellas",1)+' cada <b>'+fmtNum(base/q,1)+'</b> personas'+(tasa>0?' · previsto: cada '+fmtNum(1/tasa,1):'');
 }
 /* todas las bodas con esta categoría apuntada: cuánto se bebió frente a lo que dicen hoy los parámetros */
+function bebModeloEv(cat,R){
+  var ad=+R._p.ad||0, ni=+R._p.ni||0, on=barraOn();
+  return (cat.tramos||[]).reduce(function(sm,t){ if(t.barra&&!on) return sm; var pob=t.pob||cat.poblacion, b=pob==="total"?ad+ni:ad; return sm+(+t.div>0?b/+t.div:0); },0);
+}
 function bebHist(cat){
   var h={n:0,base:0,real:0,modelo:0,ran:0,bodas:[]}, tasa=bebTasa(cat);
   (BR.allEvents?BR.allEvents():[]).forEach(function(e){
@@ -15882,8 +15915,9 @@ function bebHist(cat){
     var r=R[cat.key], q=bebRealQ(r); if(q==null) return;
     var base=cat.poblacion==="total"?(+R._p.ad||0)+(+R._p.ni||0):(+R._p.ad||0); if(!(base>0)||!(tasa>0)) return;
     var u=cat.litros?aguaFormato(((e.menu.bebidas||{})[cat.key]||{}).prod).l:1, real=q*u;
-    h.n++; h.base+=base; h.real+=real; h.modelo+=base*tasa; if(r.ran) h.ran++;
-    h.bodas.push({nombre:String(e.name||"Evento").replace(/\s+/g," ").trim(),fecha:(e.ficha&&e.ficha.fecha)||"",base:base,real:real,mod:base*tasa,ran:!!r.ran});
+    var mod=BR.conEvento?BR.conEvento(e,function(){ return bebModeloEv(cat,R); }):base*tasa;
+    h.n++; h.base+=base; h.real+=real; h.modelo+=mod; if(r.ran) h.ran++;
+    h.bodas.push({nombre:String(e.name||"Evento").replace(/\s+/g," ").trim(),fecha:(e.ficha&&e.ficha.fecha)||"",base:base,real:real,mod:mod,ran:!!r.ran});
   });
   h.f=h.modelo>0?h.real/h.modelo:null;
   return h;
@@ -16023,10 +16057,11 @@ function bebEstimaSeccionHTML(){
     var ahora=null; if(cat&&bebReg(cat.key)&&!bebOff(cat.key)) ahora=bebQActual(cat); else { var x=exs.filter(function(z){ return escNorm(z.label)===id; })[0]; if(x&&+x.q>0) ahora=+x.q; }
     return '<div class="bz-er"><b>'+esc(h.label)+'</b>'+
       '<span class="bz-et">'+bebTasaTxt(h,est||{tasa:h.real/h.base,litros:!!(h.cat&&h.cat.litros)})+' · '+h.n+(h.n===1?' evento':' eventos')+(h.n<3?' <i>(pocos: es una pista)</i>':'')+(h.ran?' <i>· en '+h.ran+' se acabó: se bebe algo más</i>':'')+'</span>'+
-      '<span class="bz-ee">'+(est&&hayP?'Este evento ('+Pc.to+' pers.): ≈ <b>'+est.x+'</b> '+esc(udN(h.ud,est.x))+(est.min!==est.max?' <small>(entre '+est.min+' y '+est.max+')</small>':'')+(ahora!=null?' · ahora <em>'+ahora+'</em>':''):'<small>sin comensales en este evento</small>')+'</span></div>'; }).join("");
+      '<span class="bz-ee">'+(est&&hayP?'Este evento ('+Pc.to+' pers.): ≈ <b>'+est.x+'</b> '+esc(udN(h.ud,est.x))+(est.min!==est.max?' <small>(entre '+est.min+' y '+est.max+')</small>':'')+(ahora!=null?' · ahora <em>'+ahora+'</em>':''):'<small>sin comensales en este evento</small>')+
+        (!h.cat&&esAdminMn()&&h.real>0&&h.base>0?'<br><button type="button" class="beb-auto" data-bmk="'+esc(id)+'" title="Crea la bebida con su parámetro, para que se calcule sola en todos los eventos">Crear su parámetro: 1 '+esc(udN(h.ud,1))+' cada '+fmtNum(Math.round(h.base/h.real*10)/10,1)+' personas</button>':'')+'</span></div>'; }).join("");
   var prox=bebProximos();
   var pr=prox.length?prox.map(function(p){
-    var lis=orden.map(function(id){ var h=H[id], c=h.cat; if(c){ var rg=(p.e.menu&&p.e.menu.bebidas&&p.e.menu.bebidas[c.key])||{}; if(rg.off) return ""; }
+    var lis=orden.map(function(id){ var h=H[id], c=h.cat; if(c){ var rg=(p.e.menu&&p.e.menu.bebidas&&p.e.menu.bebidas[c.key])||{}; if(rg.off) return ""; if(c.barra&&BR.conEvento&&!BR.conEvento(p.e,barraOn)) return ""; }
       var est=bebEstima(h,p.P,p.fl); if(!est||!(est.x>0)) return "";
       return '<li><span>'+esc(h.label)+'</span> <b>≈ '+est.x+' '+esc(udN(h.ud,est.x))+'</b>'+(est.min!==est.max?' <small>entre '+est.min+' y '+est.max+'</small>':'')+'</li>'; }).join("");
     return '<details class="bz-ev"><summary><b>'+esc(p.nombre)+'</b><span>'+bebFechaEs(p.fecha)+' · '+p.P.to+' personas'+(p.fuente==="previstos"?' previstas':'')+(ev()&&p.e.id===ev().id?' · este evento':'')+'</span></summary><ul class="bz-evl">'+(lis||'<li><span>Sin bebidas con histórico para este evento.</span></li>')+'</ul>'+
@@ -16037,6 +16072,14 @@ function bebEstimaSeccionHTML(){
     'Es una orientación: con pocos eventos es solo una pista. Para cambiar de verdad la previsión, usa «usar» en la Previsión o «Ajustar los parámetros».</p>'+
     '<div class="bz-erl">'+filas+'</div>'+
     '<div class="beb-h bz-estp"><h3>Para los próximos eventos</h3><span class="cnt">'+prox.length+(prox.length===1?' evento':' eventos')+'</span></div>'+pr+'</div>';
+}
+/* v02.10 · una bebida suelta con histórico pasa a tener su parámetro: «1 unidad cada N personas» según lo bebido de verdad (solo administración) */
+function bebCrearDeHistoria(id){
+  var h=bebHistoria()[id]; if(!h||h.cat||!(h.real>0)||!(h.base>0)) return;
+  var div=Math.round(h.base/h.real*10)/10, rs=bebCrearPropia({label:h.label,ud:h.ud,poblacion:"total",div:div});
+  if(rs.error){ if(BR.toast) BR.toast(rs.error,true); return; }
+  if(BR.toast) BR.toast("«"+h.label+"» ya tiene su parámetro: 1 "+udN(h.ud,1)+" cada "+fmtNum(div,1)+" personas (por lo bebido en "+h.n+(h.n===1?" evento":" eventos")+"). Se calcula sola en todos los eventos; si la tenías como «otra bebida» en algún evento, quítala de ahí para no contarla dos veces.",false);
+  bebHCache=null; renderBebidaReal();
 }
 /* la línea de debajo de cada bebida en la Previsión: «por lo bebido en N eventos: ≈ X · usar X» */
 function bebEstHint(cat,x){
@@ -16057,12 +16100,14 @@ function bebNombreOcupado(nom){ var n=escNorm(nom); return BEBIDA_CATS.some(func
 function bebCrearPropia(o){
   var nm=String(o.label||"").trim(), dv=parseFloat(String(o.div==null?"":o.div).replace(",","."));
   if(!nm) return {error:"Escribe el nombre de la bebida (por ejemplo Coca-Cola)."};
-  if(!(dv>0)) return {error:"Di cada cuántas personas va una unidad (un número mayor que 0, por ejemplo 3)."};
+  if(!(Array.isArray(o.tramos)&&o.tramos.length)&&!(dv>0)) return {error:"Di cada cuántas personas va una unidad (un número mayor que 0, por ejemplo 3)."};
   var cats=BR.menuParams.actual().bebidas.cats, n0=escNorm(nm);
   if(Object.keys(cats).some(function(k){ return escNorm(cats[k].label)===n0; })) return {error:"Ya hay una bebida que se llama «"+nm+"»."};
   var slug=n0.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24)||"bebida", clave="b-"+slug, i=2;
   while(cats[clave]){ clave="b-"+slug+"-"+i; i++; }
-  cats[clave]={key:clave,label:nm,auto:true,custom:true,poblacion:o.poblacion==="adultos"?"adultos":"total",redondeo:"ceil",tramos:[{etq:"",div:Math.round(dv*100)/100}],opciones:[],ud:o.ud||"botellas"};
+  cats[clave]={key:clave,label:nm,auto:true,custom:true,poblacion:o.poblacion==="adultos"?"adultos":"total",redondeo:"ceil",
+    tramos:(Array.isArray(o.tramos)&&o.tramos.length)?JSON.parse(JSON.stringify(o.tramos)):[{etq:"",div:Math.round(dv*100)/100}],opciones:Array.isArray(o.opciones)?o.opciones.slice():[],ud:o.ud||"botellas"};
+  if(BEB_GRUPOS.some(function(g){ return g.k===o.grupo; })){ cats[clave].grupo=o.grupo; if(o.grupo==="licores") cats[clave].barra=true; }
   BR.setParam("bebidas",{cats:cats});
   return {clave:clave};
 }
@@ -16170,6 +16215,7 @@ function bebRealResumen(){
   s.innerHTML=hechas?'<div class="bz-sum"><b>Balance de este evento</b>'+chip("cerca","muy cerca",c.cerca)+chip("mas","se bebió más",c.mas)+chip("menos","se bebió menos",c.menos)+chip("falto","se acabó",c.falto)+chip("sin","sin previsión",c.sin)+'</div>':"";
   a.innerHTML=bebAjusteSeccionHTML();
   var w=$("bz-estw"); if(w){ w.innerHTML=bebEstimaSeccionHTML();
+    Array.prototype.forEach.call(w.querySelectorAll("[data-bmk]"),function(b){ b.addEventListener("click",function(){ bebCrearDeHistoria(b.getAttribute("data-bmk")); }); });
     Array.prototype.forEach.call(w.querySelectorAll("[data-bev]"),function(b){ b.addEventListener("click",function(){ var id=b.getAttribute("data-bev"); if(window.LM_abrirEvento) window.LM_abrirEvento(id); else if(BR.switchActiveEvent) BR.switchActiveEvent(id); }); }); }
   Array.prototype.forEach.call(a.querySelectorAll("[data-bj-apl]"),function(b){ b.addEventListener("click",function(){ bebAplicarClick(b.closest(".bj"),b.getAttribute("data-bj-apl")); }); });
 }
@@ -16475,6 +16521,7 @@ function bodegaLineas(L,doTxt){
   function sinColor(n){ return String(n).replace(/^(vino\s+|vi\s+)?(tinto|blanco|negre|blanc|rosado|rosat)\s+/i,"").replace(/\s+(tinto|blanco|negre|blanc|rosado|rosat)$/i,"").trim(); }
   try{ bebidaLineas().forEach(function(l){
     if(!l.q&&!l.prod) return;
+    if(l.cat&&l.cat.grupo) return;                  /* cerveza, licores y refrescos: no salen en la minuta */
     var prod=String(l.prod||"").replace(/\s*\([^)]*\)\s*$/,"").trim(), lab=String(l.label||"").trim(), k=l.key, txt="";
     if(k==="agua") txt=prod?prod.replace(/^agua\b/i,ca?"Aigua":"Agua"):L.agua;
     else if(k==="blanco"||k==="tinto"){ txt=prod?L.vi[k]+" "+sinColor(prod):L.vi[k]; if(doTxt) txt+=" "+doTxt; }
@@ -17783,7 +17830,8 @@ function aplicarParamsMenu(){
   propias.forEach(function(k){ var o=pb.cats[k], cat=catByKey(k);
     if(!cat){ cat={key:k}; var ij=-1; BEBIDA_CATS.forEach(function(c,i){ if(c.delMenu&&ij<0) ij=i; }); BEBIDA_CATS.splice(ij<0?BEBIDA_CATS.length:ij,0,cat); }
     cat.custom=true; cat.auto=true; cat.label=String(o.label||"Bebida"); cat.poblacion=o.poblacion==="total"?"total":"adultos"; cat.redondeo=o.redondeo==="floor"?"floor":"ceil";
-    cat.tramos=(Array.isArray(o.tramos)&&o.tramos.length)?clon(o.tramos):[{etq:"",div:10}]; cat.opciones=Array.isArray(o.opciones)?clon(o.opciones):[]; cat.ud=o.ud||"botellas"; });
+    cat.tramos=(Array.isArray(o.tramos)&&o.tramos.length)?clon(o.tramos):[{etq:"",div:10}]; cat.opciones=Array.isArray(o.opciones)?clon(o.opciones):[]; cat.ud=o.ud||"botellas";
+    cat.grupo=BEB_GRUPOS.some(function(g){ return g.k===o.grupo; })?o.grupo:""; cat.barra=!!o.barra; });
   var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
 }
 BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.contains("mode-menu")) refreshAll(); }catch(_){} });
@@ -24661,6 +24709,42 @@ var UNIDADES=["gr","uds","ml"];
 /* v02.05 · bebidas propias: nombre de cada unidad y el formulario «Añadir una bebida» */
 var UD_N={botellas:["botella","botellas"],latas:["lata","latas"],uds:["unidad","unidades"],litros:["litro","litros"],cajas:["caja","cajas"],barriles:["barril","barriles"]};
 function UD_OPS(sel){ return Object.keys(UD_N).map(function(k){ return '<option value="'+k+'"'+((sel||"botellas")===k?" selected":"")+'>'+UD_N[k][1]+'</option>'; }).join(""); }
+/* v02.10 · la barra libre de partida: cerveza en litros, licores por marca en botellas y refrescos (con las tónicas). Son números de PARTIDA, orientativos:
+   se ajustan en cada tarjeta y, sobre todo, con lo que se apunta de cada boda en «Consumo real» (el programa propone el cambio). */
+var BEB_GRUPO_T={cerveza:"Cerveza",licores:"Barra libre · licores",refrescos:"Refrescos y tónicas"};
+var BEB_PACK=[
+  {label:"Cerveza",grupo:"cerveza",ud:"litros",poblacion:"adultos",tramos:[{etq:"aperitivo y comida",div:2.5},{etq:"barra libre",div:5,barra:true}],opciones:["Estrella Damm","Moritz 7","Moritz Epidor","Estrella Galicia","Heineken","Mahou"]},
+  {label:"Ron Barceló",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:30}]},
+  {label:"Ron Brugal",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:60}]},
+  {label:"Ginebra Puerto de Indias",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:30}]},
+  {label:"Ginebra Seagram's",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:40}]},
+  {label:"Whisky Cutty Sark",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:80}]},
+  {label:"Whisky Ballantine's",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:40}]},
+  {label:"Vodka Absolut",grupo:"licores",barra:true,ud:"botellas",poblacion:"adultos",tramos:[{etq:"barra libre",div:40}]},
+  {label:"Coca-Cola",grupo:"refrescos",ud:"latas",poblacion:"total",tramos:[{etq:"comida y aperitivo",div:5},{etq:"barra libre",div:1,barra:true,pob:"adultos"}]},
+  {label:"Coca-Cola Zero",grupo:"refrescos",ud:"latas",poblacion:"total",tramos:[{etq:"comida y aperitivo",div:12},{etq:"barra libre",div:4,barra:true,pob:"adultos"}]},
+  {label:"Fanta naranja",grupo:"refrescos",ud:"latas",poblacion:"total",tramos:[{etq:"comida y aperitivo",div:8},{etq:"barra libre",div:5,barra:true,pob:"adultos"}]},
+  {label:"Fanta limón",grupo:"refrescos",ud:"latas",poblacion:"total",tramos:[{etq:"comida y aperitivo",div:10},{etq:"barra libre",div:6,barra:true,pob:"adultos"}]},
+  {label:"Tónica",grupo:"refrescos",ud:"latas",poblacion:"total",tramos:[{etq:"comida y aperitivo",div:30},{etq:"barra libre",div:1.5,barra:true,pob:"adultos"}]}
+];
+function fN(n){ return String(n).replace(".",","); }
+function packTxt(it){
+  var un=UD_N[it.ud]||UD_N.botellas, pb=it.poblacion==="total"?"personas":"adultos";
+  return it.tramos.map(function(t){ var pt=t.pob==="adultos"?"adultos":(t.pob==="total"?"personas":pb); return "1 "+un[0]+" cada "+(+t.div===1?(pt==="adultos"?"adulto":"persona"):fN(t.div)+" "+pt)+(t.etq?" ("+t.etq+")":""); }).join(" + ");
+}
+function bebPackCard(cats){
+  var ya={}; Object.keys(cats).forEach(function(k){ ya[norm(cats[k].label)]=1; });
+  var faltan=BEB_PACK.filter(function(it){ return !ya[norm(it.label)]; });
+  var filas=["cerveza","licores","refrescos"].map(function(g){
+    return '<div class="pp-subh">'+BEB_GRUPO_T[g]+'</div>'+BEB_PACK.filter(function(it){ return it.grupo===g; }).map(function(it){
+      return '<div class="pp-pk-r'+(ya[norm(it.label)]?" ya":"")+'"><b>'+esc(it.label)+'</b><span>'+esc(packTxt(it))+'</span><i>'+(ya[norm(it.label)]?'ya está':'falta')+'</i></div>'; }).join(""); }).join("");
+  return '<div class="pcard pp-card pp-pack" style="margin-bottom:18px"><div class="pcard-h"><h3>Barra libre de partida: cerveza, licores y refrescos</h3><span class="pp-ej">'+(faltan.length?faltan.length+' por añadir':'todas añadidas')+'</span></div>'+
+    '<p class="pp-note">Cerveza en <b>litros</b>, <b>botellas de licor por marca</b> (Barceló, Brugal, Puerto de Indias, Seagram\'s, Cutty Sark, Ballantine\'s, Absolut…) y <b>refrescos con las tónicas</b>, con un momento «normal» y otro «de barra libre». '+
+    'Los licores y los momentos de barra libre solo cuentan en los eventos con barra libre (por defecto, los que tienen hora de barra libre en la ficha; se cambia en la Previsión de cada evento). '+
+    '<b>Son números de partida</b>: cámbialos en cada tarjeta o deja que se ajusten solos con lo que apuntes de cada boda en «Consumo real».</p>'+
+    '<div class="pp-pk">'+filas+'</div>'+
+    (faltan.length?'<button type="button" class="btn gold" data-pa="beb-pack">+ Añadir las '+faltan.length+(faltan.length===1?' que falta':' que faltan')+'</button>':'<p class="pp-note"><b>✓ Ya están todas añadidas.</b> Ajusta los números en sus tarjetas, más abajo.</p>')+'</div>';
+}
 var BEB_PROPUESTAS=["Coca-Cola","Coca-Cola Zero","Fanta naranja","Fanta limón","Sprite","Tónica","Agua con gas","Cerveza","Cerveza sin alcohol","Zumos","Vermut","Sangría"];
 function bebAddForm(){
   return '<div class="pcard pp-card pp-addbeb" style="margin-bottom:18px"><div class="pcard-h"><h3>Añadir una bebida</h3><span class="pp-ej">refrescos, cerveza, zumos… se calcula sola en todos los eventos</span></div>'+
@@ -24669,6 +24753,7 @@ function bebAddForm(){
       '<label class="fld"><span class="lbl">Se cuenta en</span><select data-bn="ud">'+UD_OPS("latas")+'</select></label>'+
       '<label class="fld"><span class="lbl">Se calcula sobre</span><select data-bn="poblacion"><option value="total">Todos (adultos y niños)</option><option value="adultos">Solo adultos</option></select></label>'+
       '<label class="fld"><span class="lbl">Una unidad cada <small>(personas)</small></span><input type="text" inputmode="decimal" data-bn="div" placeholder="p. ej. 3"></label>'+
+      '<label class="fld"><span class="lbl">Grupo</span><select data-bn="grupo"><option value="">Sin grupo</option><option value="cerveza">Cerveza</option><option value="licores">Barra libre · licores</option><option value="refrescos">Refrescos y tónicas</option></select></label>'+
     '</div><datalist id="pp-dl-bebsug">'+BEB_PROPUESTAS.map(function(n){ return '<option value="'+esc(n)+'"></option>'; }).join("")+'</datalist>'+
     '<p class="pp-note">Escribe cada cuántas personas va una unidad (p. ej. «una lata cada 3 personas»). Después, en su tarjeta, puedes cambiarlo, añadir marcas y poner varios momentos (aperitivo, banquete…). Se guarda para todo el equipo.</p>'+
     '<button type="button" class="btn gold" data-pa="beb-add">+ Añadir bebida</button></div>';
@@ -24931,16 +25016,20 @@ function nuevoUid(fk){ return fk+"#n"+Date.now().toString(36)+Math.floor(Math.ra
 function vBebidas(){
   var d=datos("bebidas"), cats=d.cats||{};
   var orden=["agua","blanco","tinto","cava","cavaRosado"].filter(function(k){ return cats[k]; });
-  Object.keys(cats).forEach(function(k){ if(orden.indexOf(k)<0&&k!=="jamon") orden.push(k); });
+  Object.keys(cats).forEach(function(k){ if(orden.indexOf(k)<0&&k!=="jamon"&&!cats[k].grupo) orden.push(k); });
   if(cats.jamon) orden.push("jamon");
-  return bebAddForm()+'<div class="pp-grid2">'+orden.map(function(k){
-    var c=cats[k], un=UD_N[c.ud||"botellas"]||UD_N.botellas;
+  ["cerveza","licores","refrescos"].forEach(function(g){ Object.keys(cats).forEach(function(k){ if(cats[k].grupo===g&&orden.indexOf(k)<0) orden.push(k); }); });
+  var gAnt="";
+  return bebPackCard(cats)+bebAddForm()+'<div class="pp-grid2">'+orden.map(function(k){
+    var c=cats[k], un=UD_N[c.ud||"botellas"]||UD_N.botellas, gh="";
+    if(c.grupo&&c.grupo!==gAnt){ gAnt=c.grupo; gh='<h3 class="pp-gh">'+esc(BEB_GRUPO_T[c.grupo]||"")+'</h3>'; }
     var ej=null;
     if(!c.delMenu&&c.tramos){ var base=100, suma=0; c.tramos.forEach(function(t){ if(+t.div>0) suma+=base/+t.div; }); ej=c.redondeo==="floor"?Math.floor(suma):Math.ceil(suma); }
-    return '<div class="pcard pp-card" data-cat="'+esc(k)+'"><div class="pcard-h"><h3>'+esc(c.label)+'</h3>'+(ej!=null?'<span class="pp-ej">con 100 '+(c.poblacion==="total"?"personas":"adultos")+' → <b>'+ej+' '+(ej===1?un[0]:un[1])+'</b></span>':'<span class="pp-ej">cantidad del escandallo del menú</span>')+(c.custom?'<button type="button" class="btn sm danger" data-pa="beb-del">Quitar</button>':'')+'</div>'+
+    return gh+'<div class="pcard pp-card" data-cat="'+esc(k)+'"><div class="pcard-h"><h3>'+esc(c.label)+'</h3>'+(ej!=null?'<span class="pp-ej">con 100 '+(c.poblacion==="total"?"personas":"adultos")+' → <b>'+ej+' '+(ej===1?un[0]:un[1])+'</b></span>':'<span class="pp-ej">cantidad del escandallo del menú</span>')+(c.custom?'<button type="button" class="btn sm danger" data-pa="beb-del">Quitar</button>':'')+'</div>'+
       '<div class="fldset">'+
         '<label class="fld"><span class="lbl">Nombre</span><input type="text" data-pp="beb" data-k="label" value="'+esc(c.label)+'"></label>'+
-        (c.custom?'<label class="fld"><span class="lbl">Se cuenta en</span><select data-pp="beb" data-k="ud">'+UD_OPS(c.ud)+'</select></label>':'')+
+        (c.custom?'<label class="fld"><span class="lbl">Se cuenta en</span><select data-pp="beb" data-k="ud">'+UD_OPS(c.ud)+'</select></label>'+
+          '<label class="fld"><span class="lbl">Grupo</span><select data-pp="beb" data-k="grupo"><option value="">Sin grupo</option>'+["cerveza","licores","refrescos"].map(function(g){ return '<option value="'+g+'"'+(c.grupo===g?" selected":"")+'>'+BEB_GRUPO_T[g]+'</option>'; }).join("")+'</select></label>':'')+
         (c.delMenu?'':
         '<label class="fld"><span class="lbl">Se calcula sobre</span><select data-pp="beb" data-k="poblacion"><option value="total"'+(c.poblacion==="total"?" selected":"")+'>Todos (adultos y niños)</option><option value="adultos"'+(c.poblacion!=="total"?" selected":"")+'>Solo adultos</option></select></label>'+
         '<label class="fld"><span class="lbl">Redondeo</span><select data-pp="beb" data-k="redondeo"><option value="ceil"'+(c.redondeo!=="floor"?" selected":"")+'>Al alza</option><option value="floor"'+(c.redondeo==="floor"?" selected":"")+'>A la baja</option></select></label>')+
@@ -24950,6 +25039,8 @@ function vBebidas(){
       (c.tramos||[]).map(function(t,ti){
         return '<div class="pp-tramo"><input type="text" data-pp="tramo" data-i="'+ti+'" data-k="etq" value="'+esc(t.etq||"")+'" placeholder="Momento (aperitivo, banquete…)" aria-label="Momento">'+
           '<span>1 '+un[0]+' cada</span><input type="text" inputmode="decimal" data-pp="tramo" data-i="'+ti+'" data-k="div" value="'+esc(String(t.div).replace(".",","))+'" aria-label="Personas por '+un[0]+'" style="width:78px;text-align:right"><span>personas</span>'+
+          (c.custom?'<select data-pp="tramo" data-i="'+ti+'" data-k="pob" aria-label="Sobre quién se cuenta este momento"><option value="">como la bebida</option><option value="adultos"'+(t.pob==="adultos"?" selected":"")+'>solo adultos</option><option value="total"'+(t.pob==="total"?" selected":"")+'>todos</option></select>'+
+            '<select data-pp="tramo" data-i="'+ti+'" data-k="barra" aria-label="Cuándo cuenta este momento"><option value="0">siempre</option><option value="1"'+(t.barra?" selected":"")+'>solo con barra libre</option></select>':'')+
           '<button type="button" class="row-del" data-pa="tramo-del" data-i="'+ti+'" aria-label="Quitar">×</button></div>';
       }).join("")+'<button type="button" class="btn sm" data-pa="tramo-add">+ Momento</button>'+
       (M.bebConsumo?'<div class="pp-subh">Lo que dicen las bodas <span>— consumo real apuntado</span></div>'+M.bebConsumo.html(k):''))+
@@ -25351,8 +25442,13 @@ function onChange(ev){
   }
   if(pp==="beb"||pp==="tramo"){
     var cat=el.closest(".pp-card").getAttribute("data-cat"), bd=datos("bebidas"), c=bd.cats[cat]; if(!c) return;
-    if(pp==="beb"){ if(k==="opciones") c.opciones=lineas(v); else if(k==="label"){ if(!v.trim()){ render(); return; } c.label=v.trim(); } else c[k]=v; }
-    else { var t=c.tramos[i]; if(!t) return; if(k==="div"){ var dv=num(v); if(!(dv>0)){ toastP("Tiene que ser un número mayor que 0."); render(); return; } t.div=dv; } else t.etq=v.trim(); }
+    if(pp==="beb"){ if(k==="opciones") c.opciones=lineas(v); else if(k==="label"){ if(!v.trim()){ render(); return; } c.label=v.trim(); }
+      else if(k==="grupo"){ if(v) c.grupo=v; else delete c.grupo; if(v==="licores") c.barra=true; else delete c.barra; }
+      else c[k]=v; }
+    else { var t=c.tramos[i]; if(!t) return; if(k==="div"){ var dv=num(v); if(!(dv>0)){ toastP("Tiene que ser un número mayor que 0."); render(); return; } t.div=dv; }
+      else if(k==="pob"){ if(v) t.pob=v; else delete t.pob; }
+      else if(k==="barra"){ if(v==="1") t.barra=true; else delete t.barra; }
+      else t.etq=v.trim(); }
     guardar("bebidas",{cats:bd.cats}); render(); return;
   }
   if(pp==="sv"){
@@ -25454,9 +25550,18 @@ function onClick(ev){
   }
   if(a==="beb-add"){
     var gv=function(n){ var x=hostRef.querySelector('[data-bn="'+n+'"]'); return x?x.value:""; };
-    var rs=M.bebConsumo.crear({label:gv("label"),ud:gv("ud"),poblacion:gv("poblacion"),div:gv("div")});
+    var rs=M.bebConsumo.crear({label:gv("label"),ud:gv("ud"),poblacion:gv("poblacion"),div:gv("div"),grupo:gv("grupo")});
     if(rs.error){ toastP(rs.error); return; }
     toastP("Bebida añadida: «"+gv("label").trim()+"». Ya se calcula sola en todos los eventos."); render(); return;
+  }
+  if(a==="beb-pack"){
+    var bdP=datos("bebidas"), cP=bdP.cats, yaP={}, nP=0; Object.keys(cP).forEach(function(k){ yaP[norm(cP[k].label)]=1; });
+    BEB_PACK.forEach(function(it){ if(yaP[norm(it.label)]) return;
+      var slug=norm(it.label).replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,24)||"bebida", cl="b-"+slug, q2=2; while(cP[cl]){ cl="b-"+slug+"-"+q2; q2++; }
+      cP[cl]={key:cl,label:it.label,auto:true,custom:true,poblacion:it.poblacion,redondeo:"ceil",tramos:clon(it.tramos),opciones:(it.opciones||[]).slice(),ud:it.ud,grupo:it.grupo};
+      if(it.barra) cP[cl].barra=true; nP++; });
+    if(!nP){ toastP("Ya están todas."); return; }
+    guardar("bebidas",{cats:cP},nP+(nP===1?" bebida añadida":" bebidas añadidas")+" a la barra libre: ajusta los números a tu gusto en cada tarjeta."); render(); return;
   }
   if(a==="beb-del"){
     var ck=b.closest(".pp-card").getAttribute("data-cat"), bdD=datos("bebidas"), cD=bdD.cats[ck]; if(!cD||!cD.custom) return;
@@ -25565,6 +25670,11 @@ st.textContent=
 ".ph-t{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--c-ink)}.ph-d{font-size:13px;line-height:1.45;color:var(--c-mut)}"+
 ".ph-f{margin-top:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--c-mut)}.ph-av{color:var(--warning-tx);font-weight:700}"+
 ".pp-tramo{display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap}"+
+".pp-tramo select{min-height:34px; font-size:12.5px; max-width:170px}"+
+".pp-gh{grid-column:1/-1; margin:18px 0 0; font:700 12px/1.2 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; color:var(--c-mut)}"+
+".pp-pk-r{display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,2.2fr) auto; gap:4px 14px; align-items:baseline; padding:6px 0; border-top:1px solid var(--c-line); font-size:13.5px}"+
+".pp-pk-r span{color:var(--c-mut)} .pp-pk-r i{font-style:normal; font-size:12px; color:var(--c-mut)} .pp-pk-r.ya b{color:var(--c-mut)}"+
+"@media (max-width:760px){.pp-pk-r{grid-template-columns:minmax(0,1fr)}}"+
 ".pp-tramo input{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:7px 9px;color:var(--c-ink);font:inherit;font-size:13px}"+
 ".pp-tramo input:first-child{flex:1;min-width:140px}"+
 ".pp-tramo span{font-size:12px;color:var(--c-mut)}"+

@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.10** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.11** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,14 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.11
+- **Parámetros de la barra libre: cerveza en litros, licores por marca en botellas y refrescos con las tónicas.** En **Parámetros → Bebidas** hay una tarjeta nueva, **«Barra libre de partida»**, con un botón que añade de una vez: **Cerveza** (en litros), **7 licores por marca** (Ron Barceló, Ron Brugal, Ginebra Puerto de Indias, Ginebra Seagram's, Whisky Cutty Sark, Whisky Ballantine's, Vodka Absolut) y **5 refrescos** (Coca-Cola, Coca-Cola Zero, Fanta naranja, Fanta limón y Tónica), cada uno con su «una unidad cada N personas». Las marcas que falten («etc.») se añaden con «Añadir una bebida» eligiendo el grupo «Barra libre · licores».
+  - **Son números de partida, orientativos** (por ejemplo, 1 litro de cerveza cada 2,5 adultos y otro cada 5 en la barra libre; 1 botella de cada licor cada 30–80 adultos según la marca; 1 lata de cola por adulto en barra libre): se cambian en cada tarjeta y se **ajustan solos con lo que se apunta de cada boda** en «Consumo real» (el programa propone el cambio con un clic, también en los momentos de barra libre).
+  - **Refrescos «normales» o de barra libre.** Cada refresco lleva dos momentos: *comida y aperitivo* (sobre todos) y *barra libre* (solo adultos, y solo si el evento tiene barra libre). Cada momento puede ser «solo con barra libre» y «sobre adultos o todos».
+  - **Barra libre por evento.** En la Previsión de cada evento sale «Barra libre en este evento» (marcada si la ficha tiene hora de barra libre; se cambia a mano). Sin barra libre desaparecen los licores y los momentos de barra libre de cerveza y refrescos. Los apartados salen agrupados: Cerveza · Barra libre (licores) · Refrescos y tónicas.
+  - **No toca lo ya celebrado:** en los eventos que ya pasaron, los grupos nuevos empiezan sin servir (para no cambiar su hoja ni su rentabilidad); se marcan a mano, y en «Consumo real» salen siempre para apuntar lo que se bebió. La minuta del cliente no lleva cerveza, licores ni refrescos.
+  - **Definir un parámetro nuevo solo.** En «Previsión aproximada» (Consumo real), las bebidas sueltas con histórico ofrecen **«Crear su parámetro: 1 botella cada N personas»** (administración): se crea con lo que se bebió de verdad y se calcula sola en todos los eventos.
 
 ### Novedad de la versión 02.10
 - **El programa abre al instante y las versiones nuevas ya no lo dejan «pillado».** Antes, cada vez que se abría, el navegador volvía a bajar la página entera (3,4 MB) y, con una conexión lenta, se quedaba hasta 6 segundos en blanco esperando; además, interpretar los planos de todos los eventos al arrancar bloqueaba la pantalla hasta casi 2 segundos en un móvil o tableta normales. Ahora:
