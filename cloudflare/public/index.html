@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.09 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.10 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.09".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.10".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -730,6 +730,8 @@ p.imp-warn{padding-left:12px}
 .saveind i{width:7px; height:7px; border-radius:50%; background:#8A9A6B; flex:none}
 .saveind[data-st="saving"] i{background:#C8A96A; animation:saveP 1s ease-in-out infinite alternate}
 .saveind[data-st="local"] i{background:#9C9384}
+#lm-upd{position:fixed; top:calc(env(safe-area-inset-top,0px) + 10px); left:50%; transform:translateX(-50%); z-index:10060; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px 12px; max-width:calc(100vw - 24px); padding:10px 14px; border:1px solid var(--c-line-2); border-radius:var(--r-lg,12px); background:var(--panel); color:var(--c-ink); box-shadow:0 8px 28px rgba(0,0,0,.22); font-size:14px}
+#lm-upd .btn{min-height:38px}
 .saveind[data-st="off"] i{background:#C8A96A}
 @keyframes saveP{from{opacity:.35}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){ .saveind[data-st="saving"] i{animation:none} }
@@ -4490,7 +4492,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.09</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.10</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5218,7 +5220,14 @@ function applyRealScale(silent){
 }
 
 /* ══ utilidades ═════════════════════════════════════════════════════ */
-function norm(s){return (s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");}
+/* v02.10 · con memoria: los mismos nombres se normalizan una sola vez (al abrir, con muchos eventos, se hacían decenas de miles de veces) */
+var __normC=Object.create(null), __normN=0;
+function norm(s){
+  var k=(s||"").toString(); if(k.length>160) return k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");
+  var h=__normC[k]; if(h!==undefined) return h;
+  h=k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/·/g,"");
+  if(__normN>30000){ __normC=Object.create(null); __normN=0; } __normC[k]=h; __normN++; return h;
+}
 function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function titleHTML(t){return esc(t).replace(/_([^_]+)_/g,"<i>$1</i>");}
 function clip(s,n){s=(s||"").toString();return s.length>n?s.slice(0,n-1).trim()+"…":s;}
@@ -5602,6 +5611,13 @@ function parseGuest(raw){
   g.mark=g.aler.length?"aler":g.kind;
   return g.name?g:null;
 }
+/* v02.10 · para quien solo LEE el plano (cifras del Inicio, tarjetas, avisos, presupuesto…): el mismo texto se interpreta una sola vez.
+   No se usa donde se edita el plano (ahí se modifica el resultado). */
+var __parseC=new Map();
+function parseM(src){
+  var k=src||""; var h=__parseC.get(k); if(h) return h;
+  h=parse(k); if(__parseC.size>400) __parseC.clear(); __parseC.set(k,h); return h;
+}
 function parse(src,legacyNum){
   var doc={title:"",sub:"",tables:[]},cur=null,auto=0;
   (src||"").split(/\r?\n/).forEach(function(line){
@@ -5672,7 +5688,13 @@ function mesaMark(t){ return mesaNumVisible(t)?String(t.num):(norm(t.name||"P").
    «Maria del Carmen López» → «Maria del Carmen»; «García López, Juan» → «Juan» */
 var NP_JUNTOS={maria:1,mari:1,"ma":1,"mª":1,m:1,jose:1,josep:1,joan:1,juan:1,luis:1,ana:1,anna:1,pere:1,miguel:1,miquel:1,carlos:1,carles:1,francisco:1,antonio:1,antoni:1,manuel:1,jesus:1,rosa:1};
 var NP_SEGUNDO={maria:1,jose:1,josep:1,joan:1,juan:1,luis:1,lluis:1,carlos:1,carles:1,carmen:1,carme:1,teresa:1,antonio:1,antoni:1,manuel:1,miguel:1,miquel:1,angel:1,angels:1,pau:1,pilar:1,isabel:1,francisco:1,javier:1,ramon:1,pedro:1,pere:1,jesus:1,rosa:1,dolores:1,lola:1,mercedes:1,cristina:1,victoria:1,concepcion:1,asuncion:1,montserrat:1,mar:1,nuria:1,ines:1,merce:1,lluisa:1,luisa:1,angeles:1,dolors:1,cinta:1,elena:1,rosario:1,assumpta:1,immaculada:1,concepcio:1,roser:1,nati:1,natividad:1,encarnacion:1,soledad:1,fatima:1,amparo:1,remedios:1,consuelo:1,esperanza:1};
+var __npC=Object.create(null), __npN=0;
 function nombrePila(nombre){
+  var k=String(nombre==null?"":nombre); if(k.length>120) return nombrePilaCalc(k);
+  var h=__npC[k]; if(h!==undefined) return h;
+  h=nombrePilaCalc(k); if(__npN>30000){ __npC=Object.create(null); __npN=0; } __npC[k]=h; __npN++; return h;
+}
+function nombrePilaCalc(nombre){
   var t=String(nombre||"").trim(), c=t.indexOf(",");
   if(c>0&&t.slice(c+1).trim()) t=t.slice(c+1).trim();      /* «Apellidos, Nombre» */
   var p=t.split(/\s+/); if(p.length<2) return p[0]||"";
@@ -9427,7 +9449,7 @@ function openShare(){
 function eventLabel(e){
   var n=e.name||"Sin título";
   try{
-    var d=parse(e.text||""), t=totals(d);
+    var d=parseM(e.text||""), t=totals(d);
     if(!d.tables.length) return n+" — sin plano todavía";
     return n+" — "+d.tables.length+" mesa"+(d.tables.length===1?"":"s")+
            (t.pax?" · "+t.pax+" comensales":" · sin comensales");
@@ -10127,7 +10149,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.09</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.10</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10260,7 +10282,7 @@ function renderHomeStats(){
   var prox=0,esteMes=0,inv=0,tareas=0,prep=0,conf=0, previsto=0,cobrado=0,pend=0, next=null, nextDr=null;
   var PREP={contacto:1,propuesta:1,visita:1,reserva:1,planificacion:1};
   store.events.forEach(function(e){
-    try{ inv+=totals(parse(e.text||"")).pax; }catch(_){}
+    try{ inv+=totals(parseM(e.text||"")).pax; }catch(_){}
     var dr=diasRestantes(e); if(dr!=null&&dr>=0){ prox++; if(nextDr==null||dr<nextDr){ nextDr=dr; next=e; } }
     var f=e.ficha&&e.ficha.fecha; if(f){ var dt=new Date(f+"T00:00:00"); if(!isNaN(dt)&&dt.getMonth()===mes&&dt.getFullYear()===anio) esteMes++; }
     var tp=tareasPendientes(e); if(tp) tareas+=tp;
@@ -10279,7 +10301,7 @@ function renderHomeStats(){
   /* el próximo evento, destacado: es lo que se abre casi siempre */
   var nextHTML;
   if(next){
-    var d0=null,t0=null; try{ d0=parse(next.text||""); t0=totals(d0); }catch(_){}
+    var d0=null,t0=null; try{ d0=parseM(next.text||""); t0=totals(d0); }catch(_){}
     var est0=(next.ficha&&next.ficha.estado)||"planificacion", pct0=eventoProgreso(next).pct;
     var fd=new Date(next.ficha.fecha+"T00:00:00");
     var falta=nextDr===0?"Hoy":nextDr===1?"Mañana":"Faltan "+nextDr+" días";
@@ -10328,7 +10350,7 @@ function capFirst(s){ return s?s.charAt(0).toUpperCase()+s.slice(1):s; }
 function mesLargo(y,mo){ try{ return capFirst(new Date(y,mo,1).toLocaleDateString("es-ES",{month:"long",year:"numeric"})); }catch(_){ return (mo+1)+"/"+y; } }
 /* una tarjeta de evento (se reutiliza en la lista por meses) */
 function evCardEl(e){
-  var d=null,t=null; try{ d=parse(e.text||""); t=totals(d); }catch(_){}
+  var d=null,t=null; try{ d=parseM(e.text||""); t=totals(d); }catch(_){}
   var mesas=d?d.tables.length:0, pax=t?t.pax:0, sub=evSubtitulo(e);
   var cat=eventoTipo(e), col=tipoColor(cat);
   var pct=eventoProgreso(e).pct;
@@ -10439,7 +10461,7 @@ function portalGuest(g,t){
 /* el plano de la sala, en esquema, para que el cliente lo vea: dónde está cada mesa (con la posición del plano del equipo) y cuántos se sientan.
    No lleva fondo ni nombres: eso lo ve en su lista. */
 function planoEsquema(e){
-  var d, L=(e.plans&&e.plans[e.loc||"interior"])||null; try{ d=parse(e.text||""); }catch(_){ return null; }
+  var d, L=(e.plans&&e.plans[e.loc||"interior"])||null; try{ d=parseM(e.text||""); }catch(_){ return null; }
   if(!L||!L.pos||!d.tables.length) return null;
   var w=Math.round(L.rw||1400), h=Math.round(L.rh||960), sc=L.scale||1, us=+e.userSize||1, mesas=[];
   d.tables.forEach(function(t){
@@ -10458,7 +10480,7 @@ function planoEsquema(e){
 }
 function portalFoto(e){
   var F=e.ficha||{}, P=e.presupuesto||{}, d=null;
-  try{ d=parse(e.text||""); }catch(_){ d={tables:[]}; }
+  try{ d=parseM(e.text||""); }catch(_){ d={tables:[]}; }
   var c=planCounts(e), staff=staffMenus(e,c), adultos=Math.max(0,c.adultos-(c.staff||0));
   var lineas=[
     {c:"Menú adulto",d:"Aperitivo, banquete, bodega y cafés",q:adultos,p:+P.precioAdulto||0},
@@ -10686,7 +10708,7 @@ var PV_EV_CONF={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
 function pvHoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function pvISO(s){ return /^\d{4}-\d\d-\d\d$/.test(s||""); }
 function pvComensales(f){ var n=parseFloat(String((f.estado==="confirmado"?(f.pax||f.paxPrev):(f.paxPrev||f.pax))||"").replace(",",".")); return isFinite(n)?Math.round(n):0; }
-function pvPaxPlano(e){ try{ return totals(parse(e.text||"")).pax||0; }catch(_){ return 0; } }
+function pvPaxPlano(e){ try{ return totals(parseM(e.text||"")).pax||0; }catch(_){ return 0; } }
 /* pone la fecha a un evento (ficha y título del sitting, que deben coincidir) */
 function pvFechaEvento(e,iso){
   e.ficha=e.ficha||{}; e.ficha.fecha=iso;
@@ -10865,7 +10887,7 @@ function renderHomeList(){
       : (fechadas.filter(function(k){ return k>=hoyK; })[0]||fechadas[fechadas.length-1]||keys[0]);
   }
   var idx=keys.indexOf(homeMonth), lista=porMes[homeMonth].slice().sort(function(a,b){ var ma=evFechaMs(a),mb=evFechaMs(b); return (ma==null?1e15:ma)-(mb==null?1e15:mb); });
-  var pax=0; lista.forEach(function(e){ try{ var t=totals(parse(e.text||"")); pax+=paxVisible(e,t).n; }catch(_){} });
+  var pax=0; lista.forEach(function(e){ try{ var t=totals(parseM(e.text||"")); pax+=paxVisible(e,t).n; }catch(_){} });
   var nav=document.createElement("div"); nav.className="hm-nav";
   nav.innerHTML='<button type="button" class="hm-arrow" data-hm="prev" aria-label="Mes anterior"'+(idx<=0?" disabled":"")+'>'+ICONS.caret+'</button>'+
     '<div class="hm-title" aria-live="polite"><h3>'+escH(homeMonth==="__sin"?"Sin fecha":tituloMes(homeMonth))+'</h3><span>'+lista.length+(lista.length===1?" evento":" eventos")+(pax?" · "+pax+" comensales":"")+'</span></div>'+
@@ -10919,7 +10941,7 @@ function calItemsByDay(y,mo){
     /* confirmado: reserva, planificación, confirmada, celebrada o cerrada (lo
        mismo que en la Previsión); contacto, propuesta y visita = pendiente */
     var conf=!!PV_EV_CONF[(e.ficha&&e.ficha.estado)||"planificacion"];
-    if(m&&+m[1]===y&&(+m[2]-1)===mo){ var t=null; try{ t=totals(parse(e.text||"")); }catch(_){}
+    if(m&&+m[1]===y&&(+m[2]-1)===mo){ var t=null; try{ t=totals(parseM(e.text||"")); }catch(_){}
       push(+m[3],{kind:"event", id:e.id, name:nombreLimpio(e.name)||"Evento", tipo:eventoTipo(e), pax:t?t.pax:0, conf:conf}); }
     hitosAuto(e).forEach(function(h){
       var hm=/^(\d{4})-(\d{2})-(\d{2})$/.exec(h.fecha);
@@ -11139,7 +11161,7 @@ var TIPO_COL={
 function eventoTipo(e){ return (e&&e.ficha&&e.ficha.tipo)||eventoCategoria(((e&&e.name)||"")+" "+((e&&e.text)||"")); }
 function tipoColor(t){ return TIPO_COL[t]||"#86857B"; }
 function eventoProgreso(e){
-  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={tables:[]}; t={pax:0}; }
+  var d,t; try{ d=parseM(e.text||""); t=totals(d); }catch(_){ d={tables:[]}; t={pax:0}; }
   var m=e.menu||{};
   var dishes=nPlatosMenu(e);
   var bebs=m.bebidas||{}; var beb=Object.keys(bebs).some(function(k){ var r=bebs[k]; return r&&(r.prod||r.qty||r.q!=null); })||(m.bebidasExtra||[]).some(function(x){ return x&&(x.label||x.prod); });
@@ -11170,7 +11192,7 @@ function ringSvg(pct){
    presupuesto, precios ni pagos. Todo sale del evento: nada se escribe aparte. */
 function resumenDoc(e){
   var BRG=window.SITTING_BRIDGE||{};
-  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0}; }
+  var d,t; try{ d=parseM(e.text||""); t=totals(d); }catch(_){ d={sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0}; }
   var F=e.ficha||{}, nombre=nombreLimpio(e.name)||"Evento";
   var md=null; try{ md=BRG.escModelo?BRG.escModelo():null; }catch(_){ md=null; }
   var c=(md&&md.cuentas)||null;
@@ -11302,7 +11324,7 @@ function renderResumen(){
   var host=$("rsm-scroll"); if(!host) return;
   var e=current();
   if(!e){ host.innerHTML='<div class="rsm-inner"><p class="empty">Selecciona un evento para ver su resumen.</p></div>'; return; }
-  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ d={title:"",sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0}; }
+  var d,t; try{ d=parseM(e.text||""); t=totals(d); }catch(_){ d={title:"",sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,aler:0,veg:0,vegan:0}; }
   var m=e.menu||{};
   var mesas=d.tables.length, pax=t.pax, mesasAper=mesasAperitivo(e);
   var dishes=nPlatosMenu(e);
@@ -11643,7 +11665,7 @@ function setPath(o,path,v){ var ks=path.split("."); for(var i=0;i<ks.length-1;i+
 function getPath(o,path){ var ks=path.split("."); for(var i=0;i<ks.length;i++){ if(o==null) return undefined; o=o[ks[i]]; } return o; }
 function planSave(){ var e=current(); if(e){ e.updated=Date.now(); if(typeof save==="function") save(); } }
 function planCounts(e){
-  var d,t; try{ d=parse(e.text||""); t=totals(d); }catch(_){ t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0}; d={tables:[]}; }
+  var d,t; try{ d=parseM(e.text||""); t=totals(d); }catch(_){ t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0,veg:0,vegan:0}; d={tables:[]}; }
   return {pax:t.pax,adultos:t.adults,ninos:t.child,bebes:t.baby,staff:(t.staff||0),soloAper:(t.soloAper||0),mesas:d.tables.length,aler:t.aler,veg:t.veg,vegan:t.vegan,adapt:t.espec||0};
 }
 /* menús staff del evento: los de la mesa de staff del plano y «Menús staff» de
@@ -11740,7 +11762,7 @@ function eventoAlertas(e){
      vegetarianos, veganos y embarazadas sin plato sustitutivo apuntado */
   try{ var pk2=null; try{ pk2=window.SITTING_BRIDGE.conEvento?window.SITTING_BRIDGE.conEvento(e,function(){ return window.SITTING_BRIDGE.alerPendientes?window.SITTING_BRIDGE.alerPendientes():null; }):null; }catch(_){ pk2=null; }
     if(pk2) alerSinPlato=pk2.length;
-    else parse(e.text||"").tables.forEach(function(tb){ tb.guests.forEach(function(g){
+    else parseM(e.text||"").tables.forEach(function(tb){ tb.guests.forEach(function(g){
       if((g.aler.length||g.kind==="veg"||g.kind==="vegan"||g.preg)&&!(g.menus&&g.menus.length)&&!(e.menu&&e.menu.alerOk&&e.menu.alerOk[tb.num+"|"+g.name])) alerSinPlato++; }); }); }catch(_){}
   if(!(e.ficha&&e.ficha.fecha)) a.push({t:"Falta la fecha del evento: no aparecerá en el calendario.",k:"crm",sev:"urgent"});
   if(c.pax===0) add("Todavía no hay invitados en el plano de mesas.","plan",true);
@@ -11814,7 +11836,7 @@ function planHeader(e,k){
     fotos:"Biblioteca de fotos del espacio, montajes, gastronomía e inspiración (común a todos los eventos).",
     docs:"Enlaces y documentos del evento: planos, marcasitios, menús y lo que necesite el equipo."
   }[k]||"";
-  var d; try{ d=parse(e.text||""); }catch(_){ d={sub:""}; }
+  var d; try{ d=parseM(e.text||""); }catch(_){ d={sub:""}; }
   var _sb=evSubtitulo(e,true); var sub=(nombreLimpio(e.name)||"Sin título")+(_sb?" · "+_sb:"");
   return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+escH(eb)+'</div>'+
     '<h1 class="pv-title">'+escH(meta)+'</h1><div class="pv-sub">'+escH(sub)+'</div>'+
@@ -13799,13 +13821,13 @@ window.SITTING_BRIDGE={
   /* conteo de invitados/mesas de un texto de plano cualquiera (no del activo);
      lo usa la página de los novios en modo demostración (sin backend). */
   totalsForText:function(txt){
-    var d=parse(txt||""), t=totals(d);
+    var d=parseM(txt||""), t=totals(d);
     /* para los novios: invitados sin el personal (igual que la página del servidor) */
     return {invitados:t.pax-(t.staff||0), mesas:d.tables.length};
   },
   planTotals:function(){
     var e=current(); if(!e) return null;
-    var d=parse(e.text||""), t=totals(d);
+    var d=parseM(e.text||""), t=totals(d);
     return {
       pax:t.pax, adults:t.adults, child:t.child, baby:t.baby, staff:t.staff, soloAper:t.soloAper||0,
       aler:t.aler, veg:t.veg, vegan:t.vegan, tables:d.tables.length,
@@ -24528,9 +24550,26 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   try{ if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")&&!window.claude){
     var teniaSW=!!navigator.serviceWorker.controller;
     /* una versión nueva de la app se ha guardado en el dispositivo: se avisa para recargar cuando convenga (no se recarga sola: podría haber algo a medias) */
-    navigator.serviceWorker.addEventListener("controllerchange",function(){ if(!teniaSW){ teniaSW=true; return; }
-      try{ window.SITTING_BRIDGE.toast("Hay una versión nueva de la app.",false,"Recargar",function(){ location.reload(); }); }catch(_){} });
-    window.addEventListener("load",function(){ navigator.serviceWorker.register("/sw.js").catch(function(){}); }); } }catch(_){}
+    /* v02.10 · la app abre al instante con la copia guardada y la versión nueva se baja por detrás. Cuando está lista: si la acabas de abrir (o la pestaña
+       está en segundo plano) y no hay nada por guardar, se cambia sola; si no, sale un aviso fijo para actualizar cuando convenga. */
+    var avisada=false;
+    function seguroRecargar(){ var si=document.getElementById("saveind"), st=si&&si.getAttribute("data-st"), ult=0; try{ ult=+sessionStorage.getItem("lm_upd_auto")||0; }catch(_){}
+      return st!=="saving"&&(Date.now()-ult>60000)&&(performance.now()<20000||document.visibilityState==="hidden"); }
+    function avisoNueva(){
+      if(avisada) return; avisada=true;
+      if(seguroRecargar()){ try{ sessionStorage.setItem("lm_upd_auto",String(Date.now())); }catch(_){} location.reload(); return; }
+      var b=document.createElement("div"); b.id="lm-upd"; b.setAttribute("role","status");
+      b.innerHTML='<span>Hay una versión nueva del programa.</span><button type="button" class="btn sm gold" data-u="ya">Actualizar ahora</button><button type="button" class="btn sm ghost" data-u="luego">Más tarde</button>';
+      b.addEventListener("click",function(ev){ var x=ev.target.closest("[data-u]"); if(!x) return; if(x.getAttribute("data-u")==="ya") location.reload(); else { b.remove(); avisada=false; } });
+      document.body.appendChild(b);
+    }
+    navigator.serviceWorker.addEventListener("controllerchange",function(){ if(!teniaSW){ teniaSW=true; return; } avisoNueva(); });
+    navigator.serviceWorker.addEventListener("message",function(ev){ if(ev.data&&ev.data.t==="nueva"&&!(ev.data.ts&&ev.data.ts<performance.timeOrigin)) avisoNueva(); });
+    window.addEventListener("load",function(){ navigator.serviceWorker.register("/sw.js").then(function(reg){
+      var mira=function(){ try{ reg.update(); }catch(_){} };
+      document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") mira(); });
+      setInterval(mira,20*60*1000);
+    }).catch(function(){}); }); } }catch(_){}
   (async function boot(){
     /* enlace de los novios: página pública, sin login. Si la URL trae el token
        lo mostramos y no seguimos con la sesión. */
@@ -24540,7 +24579,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }catch(_){}
     try{ if(window.consultaPublica&&window.consultaPublica()){ document.body.classList.remove("authed"); window.showConsulta&&window.showConsulta(); return; } }catch(_){}
     try{
-      var r=await fetch("/api/me",{headers:{"Accept":"application/json"}});
+      /* v02.10 · si este dispositivo ya había entrado y guarda los datos, no se espera más de 5 s al servidor: se abre con lo guardado y se sincroniza al llegar */
+      var hayLocal=false; try{ hayLocal=!!localStorage.getItem("cv_sitting_v3")&&SESSION.isAuthed(); }catch(_){}
+      var ctl=(hayLocal&&"AbortController" in window)?new AbortController():null, tmo=ctl?setTimeout(function(){ try{ ctl.abort(); }catch(_){} },5000):null;
+      var r; try{ r=await fetch("/api/me",{headers:{"Accept":"application/json"},signal:ctl?ctl.signal:undefined}); } finally{ if(tmo) clearTimeout(tmo); }
       if(r.ok){
         backend=true;
         var d=await r.json();
@@ -24567,7 +24609,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       throw new Error("error "+r.status);
     }catch(err){
       /* sin red (no un error del servidor): si este dispositivo ya había entrado y guarda los datos, se abre igual y se sube todo al volver */
-      var sinRedAhora=err&&(err.name==="TypeError"||/failed to fetch|network|load failed|fetch/i.test(String(err.message||"")));
+      var sinRedAhora=err&&(err.name==="TypeError"||err.name==="AbortError"||/failed to fetch|network|load failed|fetch|abort/i.test(String(err.message||"")));
       var hayDatos=false; try{ hayDatos=!!localStorage.getItem("cv_sitting_v3"); }catch(_){}
       if((WEB_REAL||location.hostname==="localhost")&&sinRedAhora&&SESSION.isAuthed()&&hayDatos){
         backend=true; sinRed=true;

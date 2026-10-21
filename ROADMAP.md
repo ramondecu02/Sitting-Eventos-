@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.09** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.10** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,13 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.10
+- **El programa abre al instante y las versiones nuevas ya no lo dejan «pillado».** Antes, cada vez que se abría, el navegador volvía a bajar la página entera (3,4 MB) y, con una conexión lenta, se quedaba hasta 6 segundos en blanco esperando; además, interpretar los planos de todos los eventos al arrancar bloqueaba la pantalla hasta casi 2 segundos en un móvil o tableta normales. Ahora:
+  - **Abre siempre con la copia guardada en el dispositivo** (al momento, aunque la red vaya lenta o no haya), y por detrás pregunta al servidor si hay versión nueva: si no ha cambiado, no baja nada.
+  - **Versión nueva:** se baja por detrás y avisa con una barra fija «Hay una versión nueva del programa · Actualizar ahora / Más tarde». Si acabas de abrir la pestaña (o está en segundo plano) y no hay nada por guardar, se cambia sola, una vez, sin bucles.
+  - **Entrar con el servidor lento:** si este dispositivo ya había entrado y guarda los datos, no espera más de 5 segundos al servidor: abre con lo guardado y se sincroniza al llegar.
+  - **Arranque más ligero:** los nombres y los planos de los eventos que solo se leen (Inicio, tarjetas, avisos, presupuesto) se interpretan una sola vez en vez de una vez por pantalla: en la prueba con 120 eventos y un equipo lento, el bloqueo más largo pasó de 2,2 s a 0,8 s y el cálculo de planos de 2,6 s a 0,16 s.
 
 ### Novedad de la versión 02.09
 - **Subir el contrato firmado a mano (el de antes del programa o en papel).** En **Recursos → Documentos** de cada evento hay un bloque nuevo, **«Contrato firmado a mano»**: se sube el contrato escaneado o en foto (**PDF o fotos JPG, PNG o WebP, hasta 5 MB cada una**, y se pueden elegir **varios archivos a la vez**, por ejemplo una foto por hoja; las fotos se reducen solas para que quepan), con la **fecha en que se firmó**, la **referencia o nº del contrato** y una **nota**. Se pueden abrir, añadir más hojas, cambiar los datos y quitar. Los archivos se guardan en el servidor, por trozos (un escaneo no cabe en una fila de la base de datos), y se comprueba que son PDF o fotos de verdad y que han llegado enteros; lo que se queda a medias se borra solo pasada una hora.

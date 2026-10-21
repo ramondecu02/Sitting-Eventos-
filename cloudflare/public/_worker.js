@@ -112,8 +112,8 @@ export default {
       }
     }
     // Resto: la aplicación (assets estáticos). SPA de un solo HTML.
-    // El HTML no se guarda en caché: así ningún navegador (Firefox tiende a
-    // quedarse con copias) sigue usando una versión vieja tras publicar.
+    // El HTML se revalida siempre (no-cache + ETag): así ningún navegador sigue usando una versión vieja tras publicar,
+    // pero tampoco lo vuelve a bajar entero si no ha cambiado.
     const res = await env.ASSETS.fetch(request);
     const ct = res.headers.get("Content-Type") || "";
     /* la app instalable: el service worker y el manifiesto se revisan siempre (si no, una versión vieja se queda pegada) */
@@ -126,7 +126,9 @@ export default {
     }
     if (ct.indexOf("text/html") === -1) return conSeguridad(res, false);
     const out = conSeguridad(res, true);
-    out.headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    /* v02.10 · «no-cache» (se guarda pero se pregunta siempre al servidor con su ETag): si no ha cambiado, no se vuelve a bajar el HTML de 3 MB;
+       si ha cambiado, llega entero. Antes era «no-store»: cada apertura lo bajaba otra vez. */
+    out.headers.set("Cache-Control", "no-cache, must-revalidate");
     return out;
   },
 };
