@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.06** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.07** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.07
+- **Consumo real: añadir una bebida desde la propia pestaña.** Debajo de la lista de «Consumo real» hay ahora una tarjeta **«Añadir una bebida»** (cola, fanta, tónica, cerveza…): nombre, en qué se cuenta (latas, botellas…), **cuánto se bebió** (opcional) y, para administración, **«una unidad cada N personas»** y sobre quién se calcula.
+  - **Con «una unidad cada N personas»** (administración): la bebida se crea **para todos los eventos**, se calcula sola con los comensales de cada uno y queda **grabada** (es la misma que se gestiona en Parámetros → Bebidas, que ahora comparte con esta pantalla la forma de crearla). Sale en la Previsión, la escaleta, las compras y Rentabilidad.
+  - **Sin ese dato** (o si quien la añade no es administración): se añade **solo a este evento**, sin cálculo automático ni previsión, y se apunta lo que se bebió. Se puede **«Quitar»** de este evento desde su fila, con «Deshacer» (también recupera lo apuntado).
+  - Avisa si el nombre ya está en la lista o si un número no es válido, y con Intro se añade. Si no se apunta cuánto se bebió, el cursor se queda en la casilla de la fila nueva.
 
 ### Novedad de la versión 02.06
 - **Escaleta: las tronas no salen en el menú infantil.** Los bebés en trona no comen: ya no aparecen en el bloque «Dónde se sientan» del menú infantil, y una mesa donde solo hay una trona deja de contar como «mesa de niños» (ni en «N niños · M mesas» ni en los platos compartidos «por mesa de niños» del menú infantil y del check list). Siguen contándose aparte en «Menús» como «Bebés en trona (sin menú)», y en el servicio y el material (tronas).
