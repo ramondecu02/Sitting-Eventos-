@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.03 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.04 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.03".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.04".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2626,6 +2626,8 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .bj-det{margin-top:10px; font-size:12px; color:var(--c-mut)}
 .bj-det summary{cursor:pointer; font-weight:600}
 .bj-det ul{margin:6px 0 0; padding-left:18px; line-height:1.6}
+.esc-inf-pers{display:flex; align-items:flex-start; gap:8px; margin:2px 0 12px; padding:10px 12px; border:1px solid var(--c-line); border-radius:var(--r); background:var(--accent-wash); line-height:1.45}
+.esc-inf-pers small{color:var(--c-mut)}
 @media (max-width:760px){
   .bz-row{grid-template-columns:minmax(0,1fr); gap:8px; padding:16px 0}
   .bz-in{flex-direction:row; align-items:center; flex-wrap:wrap; gap:8px 18px}
@@ -4441,7 +4443,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.03</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.04</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10069,7 +10071,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.03</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.04</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -16778,8 +16780,32 @@ function escStaffMenu(cfg,ban){
 }
 /* el menú infantil: los platos de «Niños» elegidos para ESTE evento (por
    defecto, los marcados en «Elegir platos») y los que se escriban a mano */
+/* v02.04 · MENÚ INFANTIL PERSONALIZADO. En un bautizo o una comunión los niños pueden comer un solo plato que no está en el
+   catálogo de niños de las bodas. Con «Menú personalizado» marcado, el menú infantil son SOLO las líneas que se escriben
+   (cfg.infPersTxt): una por plato, y si empiezan por «Aperitivo:», «Primero:», «Segundo:» o «Postre:» salen en su tiempo.
+   Cada línea se convierte en un plato «de mentira» con la misma forma que uno del catálogo, así valen sin tocar nada más
+   la cantidad corregida a mano, los sustitutos de alergias (restan del plato de su tiempo) y el PDF. */
+var ESC_INF_T=[[/^(aperitivo|aperitivos|entrante|entrantes)$/,"aperitivo"],[/^(primero|primeros|primer plato|1er plato|1[ºo°] plato|1[ºo°])$/,"primeros"],
+  [/^(segundo|segundos|segundo plato|2[ºo°] plato|2[ºo°]|plato principal|principal)$/,"segundos"],[/^(postre|postres|dulce)$/,"postres"]];
+function escInfPers(txt){
+  var out=[], vistos={};
+  String(txt||"").split("\n").forEach(function(l){
+    l=l.trim(); if(!l) return;
+    var st="", m=/^([^:\-–]{2,22})\s*[:\-–]\s*(.+)$/.exec(l);
+    if(m){ var k=escNorm(m[1]); ESC_INF_T.forEach(function(r){ if(!st&&r[0].test(k)) st=r[1]; }); if(st) l=m[2].trim(); }
+    if(!l) return;
+    var RX=/\s*[,·(\-–]?\s*\b(por mesa|para compartir|compartid[oa]s?)\b\s*\)?\s*$/i, mesa=RX.test(l);
+    if(mesa){ var l2=l.replace(RX,"").trim(); if(l2) l=l2; }   /* «Helado por mesa» → «Helado» (la hoja ya pone «por mesa» debajo) */
+    var base="pers:"+escNorm(l).slice(0,40), id=base, n=2;
+    while(vistos[id]){ id=base+"#"+n; n++; }
+    vistos[id]=1;
+    var d={_uid:id,name:l,station:st||null,_famKey:"NIÑOS",_pers:true,ingredients:[],steps:[]}; if(mesa) d.escUd="mesa";
+    out.push(d); });
+  return out;
+}
 function escInfantil(cfg){
   var fam=MENU_DATA.filter(function(f){ return f.key==="NIÑOS"; })[0], todos=fam?fam.dishes:[];
+  if(cfg.infPers) return {todos:todos,elegidos:escInfPers(cfg.infPersTxt),extra:[],pers:true};
   var elegidos=Array.isArray(cfg.infantil)?todos.filter(function(d){ return cfg.infantil.indexOf(d._uid)>-1; }):todos.filter(isSelected);
   elegidos=elegidos.concat(platosPropios(ev()).filter(function(d){ return d._famKey==="NIÑOS"; }));
   return {todos:todos,elegidos:elegidos,extra:String(cfg.infantilExtra||"").split("\n").map(function(s){ return s.trim(); }).filter(Boolean)};
@@ -16907,11 +16933,20 @@ function escModelo(){
     NS.orden.forEach(function(k){ if(k!=="Otros"&&!porSt[k]){ porSt[k]=[]; stO.push(k); } });
     var ORD=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORD.indexOf(a), ib=ORD.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
     function subsDe(k){ var o=NS.bandas[k]||{}; Object.keys(o).forEach(function(kk){ var f=fila(o[kk].txt,escNombres(o[kk].gente),Q("isb:"+kk.slice(0,40),o[kk].gente.length)); f.sust=true; f.gente=o[kk].gente; fi.push(f); }); }
-    stO.forEach(function(k){ fi.push({head:k, plato:true});
+    /* menú personalizado de un solo bloque sin tiempos (un bautizo con un plato): sin el encabezado «Otros» */
+    var sinTiempos=!!(INF.pers&&stO.length===1&&stO[0]==="Otros");
+    stO.forEach(function(k){ if(!sinTiempos) fi.push({head:k, plato:true});
       (porSt[k]||[]).forEach(function(d){ var m=escUnidad(d)==="mesa"; fi.push(fila(d.name,m?"por mesa":null,Q("in:"+d._uid,m?c.mesasNinos*escPor(d):Math.max(0,kidsB-(NS.fuera[d._uid]||0))*escPor(d)))); });
       subsDe(k); });
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),kidsB))); }); }
     if(NS.bandas.Otros&&!porSt.Otros){ fi.push({head:"Sustitutos sin tiempo"}); subsDe("Otros"); }
+    /* v02.04 · dónde se sientan: cada mesa con sus niños (y las tronas), para llevar el plato a la mesa correcta */
+    var kmesas=[], kmap={};
+    c.gente.forEach(function(p){ if(p.g.kind!=="child"&&p.g.kind!=="baby") return;
+      if(!kmap[p.mesaNum]){ kmap[p.mesaNum]={mesa:p.mesa,ninos:[],bebes:[]}; kmesas.push(kmap[p.mesaNum]); }
+      kmap[p.mesaNum][p.g.kind==="baby"?"bebes":"ninos"].push(primerNombre(p.g.name)); });
+    if(kmesas.length){ fi.push({head:"Dónde se sientan"});
+      kmesas.forEach(function(m){ fi.push({txt:m.mesa,sub:m.ninos.concat(m.bebes.map(function(n){ return n+" (trona)"; })).join(" · "),q:m.ninos.length?String(m.ninos.length):""}); }); }
     if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(kidsB); fx.sust=true; fx.pend=true; fi.unshift(fx); }
     md.secs.push({t:"Menú infantil",sub:kidsB+(kidsB===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
@@ -17141,9 +17176,17 @@ function renderEscaleta(){
   var INF=md.inf, porSt={}, stO=[];
   INF.todos.forEach(function(d){ var k=d.station?escEtqStation(d.station):"Otros"; if(!porSt[k]){ porSt[k]=[]; stO.push(k); } porSt[k].push(d); });
   var ORDI=["Aperitivo","Primeros","Segundos","Postres","Otros"]; stO.sort(function(a,b){ var ia=ORDI.indexOf(a), ib=ORDI.indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
-  var dInf=(INF.todos.length?'<div class="esc-inf">'+stO.map(function(k){ return '<div><div class="esc-ord-h">'+esc(k)+'</div>'+porSt[k].map(function(d){
-      return '<label class="ag-chk"><input type="checkbox" data-esc-inf="'+esc(d._uid)+'"'+(INF.elegidos.indexOf(d)>-1?" checked":"")+'> '+esc(d.name)+'</label>'; }).join("")+'</div>'; }).join("")+'</div>':'')+
-    '<label class="fld"><span class="lbl">Otros platos para los niños <small>(uno por línea)</small></span><textarea data-esc="infantilExtra" rows="2">'+esc(cfg.infantilExtra||"")+'</textarea></label>';
+  var dInf='<label class="ag-chk esc-inf-pers"><input type="checkbox" data-esc="infPers"'+(INF.pers?" checked":"")+'> <span><b>Menú personalizado</b> · lo escribo yo, sin usar los platos de niños del catálogo '+
+      '<small>(bautizos, comuniones y otros eventos con un solo plato para los niños)</small></span></label>'+
+    (INF.pers
+      ? '<label class="fld"><span class="lbl">Platos del menú infantil <small>(uno por línea; si solo hay uno, escribe solo ese)</small></span>'+
+        '<textarea data-esc="infPersTxt" rows="4" placeholder="p. ej. Macarrones con tomate&#10;o por tiempos:&#10;Primero: Macarrones&#10;Segundo: Croquetas con patatas&#10;Postre: Helado">'+esc(cfg.infPersTxt||"")+'</textarea></label>'+
+        '<p class="esc-hint">Para ponerlos por tiempos empieza la línea por «Aperitivo:», «Primero:», «Segundo:» o «Postre:». Si un plato es para compartir, termina la línea con «por mesa». '+
+        'Sale en la escaleta y en su PDF; si quieres que cuente también en Producción y Compra, añádelo como plato a mano en «Elegir platos».</p>'
+      : (INF.todos.length?'<div class="esc-inf">'+stO.map(function(k){ return '<div><div class="esc-ord-h">'+esc(k)+'</div>'+porSt[k].map(function(d){
+          return '<label class="ag-chk"><input type="checkbox" data-esc-inf="'+esc(d._uid)+'"'+(INF.elegidos.indexOf(d)>-1?" checked":"")+'> '+esc(d.name)+'</label>'; }).join("")+'</div>'; }).join("")+'</div>':'')+
+        '<label class="fld"><span class="lbl">Otros platos para los niños <small>(uno por línea)</small></span><textarea data-esc="infantilExtra" rows="2">'+esc(cfg.infantilExtra||"")+'</textarea></label>'+
+        ((F.tipo&&F.tipo!=="Boda"&&!(INF.elegidos.length+INF.extra.length))?'<p class="esc-hint">Este evento es un «'+esc(F.tipo)+'»: si los niños comen un plato propio, marca «Menú personalizado» y escríbelo.</p>':''));
   /* 6 · menú staff */
   var dSt='<label class="fld"><span class="lbl">Menú staff de este evento <small>(uno por línea · '+c.staff+(c.staff===1?" persona":" personas")+')</small></span><textarea data-esc="staffMenu" rows="3" placeholder="p. ej. Fideuá&#10;Pollo al horno con patatas&#10;Fruta">'+esc(md.staffMenu.join("\n"))+'</textarea></label>';
   /* 7 · resto */
@@ -17248,7 +17291,7 @@ function wireEscaleta(){
     if(t.hasAttribute("data-esc-par")){ var pid=t.getAttribute("data-id"), pk=t.getAttribute("data-esc-par"), pl=(cfg.paradas||[]).filter(function(x){ return x.id===pid; })[0]; if(!pl) return;
       pl[pk]=t.value.trim(); touchSave(); setTimeout(function(){ renderEscaleta(); escParFoco(); },0); return; }
     if(t.hasAttribute("data-esc-f")){ e.ficha=e.ficha||{}; e.ficha[t.getAttribute("data-esc-f")]=t.value.trim(); }
-    else if(t.hasAttribute("data-esc")){ var k=t.getAttribute("data-esc"); if(t.type==="checkbox") cfg[k]=t.checked; else cfg[k]=k==="staffMenu"||k==="infantilExtra"||k==="ressopo"||k==="notas"?t.value:t.value.trim(); if(k==="staffMenu") delete cfg.staff; }
+    else if(t.hasAttribute("data-esc")){ var k=t.getAttribute("data-esc"); if(t.type==="checkbox") cfg[k]=t.checked; else cfg[k]=k==="staffMenu"||k==="infantilExtra"||k==="infPersTxt"||k==="ressopo"||k==="notas"?t.value:t.value.trim(); if(k==="staffMenu") delete cfg.staff; }
     else if(t.hasAttribute("data-esc-pos")){ var pu=t.getAttribute("data-esc-pos"), pn=parseInt(t.value,10);
       if(!(pn>=1)){ renderEscaleta(); return; } if(!escMoverA(pu,pn-1)) renderEscaleta();
       var ni=$("mnu-body").querySelector('[data-esc-pos="'+pu+'"]'); if(ni) ni.focus(); return; }
