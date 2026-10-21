@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.13 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.14 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.13".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.14".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -3651,6 +3651,9 @@ html{-webkit-text-size-adjust:100%; text-size-adjust:100%; touch-action:manipula
 .co-root .pcard h2{margin:0 0 6px; font:600 18px/1.2 var(--font-display,Georgia,serif)}
 .co-nuevo{display:grid; grid-template-columns:150px minmax(0,1fr) auto; gap:10px; align-items:end; margin:6px 0 12px}
 .co-nuevo .fld{margin:0}
+.av-dep .av-quien{margin:2px 0 10px; font-size:13px; line-height:1.6} .av-dep .av-quien small{color:var(--c-mut)} .av-dep .av-sin{color:var(--c-mut)}
+.co-mail{display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; margin:-2px 0 12px; font-size:12.5px; color:var(--c-ink); cursor:pointer}
+.co-mail input{width:17px; height:17px; accent-color:var(--olive)} .co-mail small{color:var(--c-mut); font-size:12px}
 @media (max-width:700px){ .co-nuevo{grid-template-columns:1fr} }
 .co-avlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px}
 .co-av{border:1px solid var(--c-line,#E4DCCB); border-left:4px solid #9A722A; border-radius:10px; padding:9px 12px; background:var(--bg-1,#fff)}
@@ -4515,7 +4518,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.13</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.14</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6399,8 +6402,8 @@ function sellarEv(e,ahora){
     /* una parte que aparece vacía (un valor por defecto que añade la app a un evento antiguo) no es un cambio de nadie: no se sella,
        así nunca puede ganar a lo que otra persona haya escrito en ese mismo sitio */
     /* los datos derivados («_snap», lo que la app calcula sola para los avisos del servidor) se sellan como todo, pero no cuentan como «cambios sin subir» de nadie */
-    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; if(p.indexOf("_snap")!==0) tocado=true; } });
-    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)){ e._k[p]=ahora; if(p.indexOf("_snap")!==0) tocado=true; } });
+    Object.keys(nuevo).forEach(function(p){ if(antes[p]!==nuevo[p]){ if(antes[p]===undefined&&kVacio(kGet(e,p))) return; e._k[p]=ahora; if(p.indexOf("_snap")!==0&&p.indexOf("_hechos")!==0) tocado=true; } });
+    Object.keys(antes).forEach(function(p){ if(!(p in nuevo)){ e._k[p]=ahora; if(p.indexOf("_snap")!==0&&p.indexOf("_hechos")!==0) tocado=true; } });
   }
   if(tocado){ DIRTY[e.id]=ahora; guardarDirty(); }
   KB[e.id]=nuevo; KU[e.id]=e.updated||0;
@@ -6544,6 +6547,7 @@ function save(){
   if(loadFailed||saliendo) return;   /* no pisar unos datos que no hemos sabido leer */
   try{ portalAlDia(current()); }catch(_){}
   try{ snapAlDia(current()); }catch(_){}
+  try{ hechosAlDia(current()); }catch(_){}
   try{ sellarCambiados(); }catch(_){}
   try{ localStorage.setItem(KEY,JSON.stringify(mergeStore())); if(saveFail){saveFail=false;flagSave();} guardarTXB(); }
   catch(e){
@@ -10173,7 +10177,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.13</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.14</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10558,7 +10562,7 @@ var PORTAL_J={};
    matemática que el resto de la app (comensales, presupuesto, agenda, camareros, alergias sin plato) y viajan dentro del
    evento en «_snap». No tocan e.updated ni salen en el historial (las claves con «_» no cuentan). Se recalculan solo cuando el
    evento o la agenda cambian. */
-var SNAP_J={};
+var SNAP_J={}, HECH_J={}, PARAM_REV=0;
 /* camareros de un evento que siguen en la agenda: uno quitado de la agenda ya no cuenta como asignado ni como «por avisar» */
 function camVivo(id){ var per=store.camareros&&store.camareros.personas; if(!per||!per.length) return true; for(var i=0;i<per.length;i++){ if(per[i].id===id) return !per[i].borrado; } return false; }
 function camSiN(e){ var cam=(e&&e.camareros)||{}; return Object.keys(cam).filter(function(k){ return cam[k]==="si"&&camVivo(k); }).length; }
@@ -10582,7 +10586,21 @@ function snapAlDia(e){
   if(e._snap&&JSON.stringify(e._snap)===JSON.stringify(s)) return false;
   e._snap=s; return true;
 }
-function snapTodos(){ var n=0; (store.events||[]).forEach(function(e){ try{ if(snapAlDia(e)) n++; }catch(_){ } }); return n; }
+/* v02.14 · las cifras compartidas de cada evento (las de «Coordinación»: comensales, alergias, platos…) viajan en «_hechos» para que el servidor pueda
+   decirle por correo a cada departamento qué ha cambiado desde que lo revisó. No llevan importes, así que las calcula cualquier rol; solo se
+   recalculan cuando cambia el evento o los parámetros. */
+function hechosAlDia(e){
+  if(!e||!e.id||e.anonimizado) return false;
+  var B=window.SITTING_BRIDGE; if(!B||!B.conEvento||!B.hechos) return false;
+  var key=(e.updated||0)+"|"+PARAM_REV;
+  if(HECH_J[e.id]===key&&e._hechos) return false;
+  var f=null; try{ f=B.conEvento(e,B.hechos); }catch(_){ f=null; }
+  if(!f) return false;
+  HECH_J[e.id]=key; f=JSON.parse(JSON.stringify(f));
+  if(e._hechos&&JSON.stringify(e._hechos)===JSON.stringify(f)) return false;
+  e._hechos=f; return true;
+}
+function snapTodos(){ var n=0; (store.events||[]).forEach(function(e){ try{ if(snapAlDia(e)) n++; }catch(_){ } try{ if(hechosAlDia(e)) n++; }catch(_){ } }); return n; }
 window.LM_snapDe=snapDe;
 function portalTodos(){ var n=0; (store.events||[]).forEach(function(e){ try{ if(portalAlDia(e)) n++; }catch(_){ } }); return n; }
 function tokenNuevo(){ try{ var u=new Uint8Array(18); crypto.getRandomValues(u); return "p"+Array.prototype.map.call(u,function(x){ return ("0"+x.toString(16)).slice(-2); }).join(""); }catch(_){ return "p"+Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2); } }
@@ -13677,7 +13695,7 @@ function mergeParams(mio,otro){
 function paramMeta(sec){ return (store.params&&store.params.sec&&store.params.sec[sec])||null; }
 function paramData(sec){ var m=paramMeta(sec); return (m&&m.data!=null)?m.data:null; }
 var PARAM_HOOKS=[function(){ try{ if(typeof portalTodos==="function") portalTodos(); }catch(_){} }];
-function aplicarParams(){ PARAM_HOOKS.forEach(function(fn){ try{ fn(); }catch(err){ try{ console.warn("parámetros:",err); }catch(_){} } }); }
+function aplicarParams(){ PARAM_REV++; PARAM_HOOKS.forEach(function(fn){ try{ fn(); }catch(err){ try{ console.warn("parámetros:",err); }catch(_){} } }); }
 function setParam(sec,data){
   store.params=store.params&&store.params.sec?store.params:{v:1,sec:{}};
   var u=null; try{ u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){}
@@ -20939,7 +20957,40 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var e=evActual(); txt=String(txt||"").replace(/\s+/g," ").trim(); if(!e||!txt) return false;
     var id="a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
     e.avisos=e.avisos||{}; e.avisos[id]={id:id,de:rol()||"admin",para:para,txt:txt.slice(0,400),ts:Date.now(),por:nombre()};
-    guardar(e); return true;
+    guardar(e); return id;
+  }
+  /* v02.14 · el aviso también por correo a las personas de ese departamento (o a todo el equipo) */
+  var DEST=null, DESTts=0;
+  function cargaDest(cb){
+    if(DEST&&Date.now()-DESTts<60000){ if(cb) cb(); return; }
+    fetch("/api/correo/destinos",{credentials:"same-origin",headers:{"Accept":"application/json"}}).then(function(r){ return r.ok?r.json():null; })
+      .then(function(j){ if(j&&j.deps){ DEST=j.deps; DESTts=Date.now(); } }).catch(function(){}).then(function(){ if(cb) cb(); });
+  }
+  function textoDest(para){
+    if(!DEST) return {t:"",ok:false};
+    var d=DEST[para]; if(!d) return {t:"",ok:false};
+    var nom=para==="todos"?"todo el equipo":DEP_T[para];
+    if(d.aviso===false) return {t:nom+" tiene los avisos por correo apagados (Parámetros → Correo y avisos).",ok:false};
+    if(!d.n) return {t:"Nadie de "+nom+" tiene correo: añade un usuario con ese rol en «Equipo y accesos» o un correo extra en Parámetros → Correo y avisos.",ok:false};
+    return {t:"Se enviará a "+d.n+(d.n===1?" persona":" personas")+" de "+nom+".",ok:true};
+  }
+  function actualizaMail(){
+    if(!host) return; var par=host.querySelector("#co-para"), ck=host.querySelector("#co-mail"), tx=host.querySelector("#co-mailtx"); if(!par||!ck||!tx) return;
+    var d=textoDest(par.value); tx.textContent=d.t; ck.disabled=!d.ok; if(!d.ok) ck.checked=false; else if(!ck.__tocado) ck.checked=true;
+  }
+  function apiAviso(body){
+    return fetch("/api/correo/aviso",{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify(body)}).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(j){ if(!r.ok) throw new Error(j&&j.message?j.message:(r.status===401?"La sesión ha caducado: recarga la página.":"No se ha podido (error "+r.status+").")); return j; }); });
+  }
+  function mandaCorreoAviso(e,para,txt,id){
+    return apiAviso({ev:e.id,para:para,txt:txt,id:id}).then(function(j){
+      if(e.avisos&&e.avisos[id]){ e.avisos[id].correo={n:j.destinatarios||0,ts:Date.now(),sim:!!j.simulados}; guardar(e); }
+      var nom=para==="todos"?"todo el equipo":DEP_T[para];
+      if(!j.destinatarios) toast("Aviso guardado. No ha salido ningún correo: "+(j.desactivado?nom+" los tiene apagados.":"nadie de "+nom+" tiene correo."),true);
+      else if(j.errores) toast("Aviso guardado, pero "+j.errores+(j.errores===1?" correo ha fallado":" correos han fallado")+": mira la bandeja en «Avisos y correo».",true);
+      else toast("Aviso enviado a "+nom+(j.simulados?" y guardado como SIMULADO por correo (el correo no está activado).":" y por correo a "+j.destinatarios+(j.destinatarios===1?" persona.":" personas.")));
+      if(host&&activo()) pintar();
+    }).catch(function(err){ toast("El aviso se ha guardado, pero el correo no ha salido: "+(err&&err.message||"error"),true); });
   }
   function avisoHecho(id,v){
     var e=evActual(); if(!e||!e.avisos||!e.avisos[id]) return;
@@ -21003,7 +21054,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function avisoHTML(a,e){
     var yo=rol(), puede=yo==="admin"||a.para==="todos"||a.para===yo||a.de===yo;
     return '<li class="co-av'+(a.hecho?' hecho':'')+'"><div class="co-av-t"><span class="co-dp '+esc(a.de)+'">'+esc(DEP_T[a.de]||a.de)+'</span><span class="co-fl" aria-hidden="true">→</span><span class="co-dp '+esc(a.para)+'">'+esc(DEP_T[a.para]||a.para)+'</span></div>'+
-      '<p>'+esc(a.txt)+'</p><small>'+esc(a.por||"")+' · '+esc(hace(a.ts||0))+(a.hecho?' · hecho por '+esc(a.hecho.por||"")+' '+esc(hace(a.hecho.ts||0)):'')+'</small>'+
+      '<p>'+esc(a.txt)+'</p><small>'+esc(a.por||"")+' · '+esc(hace(a.ts||0))+(a.hecho?' · hecho por '+esc(a.hecho.por||"")+' '+esc(hace(a.hecho.ts||0)):'')+(a.correo&&a.correo.n?' · ✉ por correo a '+a.correo.n+(a.correo.n===1?' persona':' personas')+(a.correo.sim?' (simulado)':''):'')+'</small>'+
       (puede?'<div class="co-btns">'+(a.hecho?'<button type="button" class="btn sm" data-co="av-reabrir" data-id="'+esc(a.id)+'">Reabrir</button>':
         '<button type="button" class="btn sm gold" data-co="av-hecho" data-id="'+esc(a.id)+'">Hecho ✓</button>')+
         (!a.hecho&&(a.de===yo||yo==="admin")?'<button type="button" class="btn sm" data-co="av-anular" data-id="'+esc(a.id)+'">Quitar</button>':'')+'</div>':'')+'</li>';
@@ -21016,6 +21067,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<div class="co-nuevo"><label class="fld"><span class="lbl">Para</span><select id="co-para" aria-label="Para quién">'+opts.map(function(k){ return '<option value="'+k+'">'+esc(DEP_T[k])+'</option>'; }).join("")+'</select></label>'+
       '<label class="fld"><span class="lbl">Aviso</span><input type="text" id="co-txt" maxlength="400" placeholder="Qué tiene que saber o hacer" autocomplete="off"></label>'+
       '<button type="button" class="btn gold sm" data-co="aviso">Enviar aviso</button></div>'+
+      '<label class="co-mail"><input type="checkbox" id="co-mail" checked> <span>Avisar también por correo</span> <small id="co-mailtx"></small></label>'+
       (pend.length?'<ul class="co-avlist">'+pend.map(function(a){ return avisoHTML(a,e); }).join("")+'</ul>':'<p class="co-vacio">No hay avisos pendientes.</p>')+
       (hechos2.length?'<details class="co-det" data-det="avh"'+(abiertos.avh?' open':'')+'><summary>Resueltos <b>'+hechos2.length+'</b></summary><ul class="co-avlist">'+hechos2.map(function(a){ return avisoHTML(a,e); }).join("")+'</ul></details>':'')+'</section>';
   }
@@ -21047,6 +21099,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         '<p class="co-ayuda">Son los mismos para todos: se calculan del plano, del menú y de las bebidas. Si alguien los cambia, cambian para todo el equipo.</p>'+tablaHechos(f)+'</section>'+
       comprobaciones(e)+'</div>';
     host.scrollTop=top;
+    cargaDest(function(){ actualizaMail(); }); actualizaMail();
     if(window.etiquetarCampos) try{ window.etiquetarCampos(host); }catch(_){}
   }
   function firma(e){ return (e?e.id+"|"+sig(e):"")+"|"+rol()+"|"+Object.keys(abiertos).join(","); }
@@ -21059,7 +21112,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(a==="aviso"){
       var t=host.querySelector("#co-txt"), p=host.querySelector("#co-para");
       if(!t||!t.value.trim()){ toast("Escribe el aviso.",true); if(t) t.focus(); return; }
-      if(nuevoAviso(p.value,t.value)){ toast("Aviso enviado a "+DEP_T[p.value]+"."); pintar(); barra(); } return; }
+      var mc=host.querySelector("#co-mail"), mandar=!!(mc&&mc.checked&&!mc.disabled), txtA=t.value, paraA=p.value, eA=evActual(), idA=nuevoAviso(paraA,txtA);
+      if(idA){ if(mandar){ toast("Aviso enviado a "+DEP_T[paraA]+". Enviando el correo…"); mandaCorreoAviso(eA,paraA,String(txtA).replace(/\s+/g," ").trim().slice(0,400),idA); } else toast("Aviso enviado a "+DEP_T[paraA]+"."); pintar(); barra(); } return; }
     if(a==="av-hecho"){ avisoHecho(b.getAttribute("data-id"),true); pintar(); barra(); return; }
     if(a==="av-reabrir"){ avisoHecho(b.getAttribute("data-id"),false); pintar(); barra(); return; }
     if(a==="av-anular"){ avisoAnular(b.getAttribute("data-id")); pintar(); barra(); return; }
@@ -21069,6 +21123,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     host=h;
     if(!host.__coBound){
       host.__coBound=true; host.addEventListener("click",onClick);
+      host.addEventListener("change",function(ev){ var t=ev.target; if(t&&t.id==="co-para") actualizaMail(); else if(t&&t.id==="co-mail") t.__tocado=true; });
       host.addEventListener("toggle",function(ev){ var d=ev.target; if(d&&d.getAttribute){ var k=d.getAttribute("data-det"); if(k){ if(d.open) abiertos[k]=1; else delete abiertos[k]; } } },true);
     }
     pintar();
@@ -24090,7 +24145,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 
   /* ═══ Parámetros → Correo y avisos (solo administración) ═══ */
   var C={host:null,estado:null,cfg:null,plant:null,msg:null,sim:null,cargando:false,guardando:false};
+  var DEPS_C=[["eventos","Eventos"],["cocina","Cocina"],["compras","Compras"],["servicio","Servicio"],["contabilidad","Contabilidad"]];
   var PL_TXT=[["resumen_asunto","Resumen del equipo · asunto","{periodo}"],["resumen_intro","Resumen del equipo · primera línea",""],
+    ["dep_asunto","Resumen de un departamento · asunto","{departamento}"],["dep_intro","Resumen de un departamento · primera línea","{departamento}"],
+    ["aviso_asunto","Aviso entre departamentos · asunto","{departamento} {evento}"],["aviso","Aviso entre departamentos · texto","{de} {departamento} {evento} {fecha} {texto} {enlace} {firma}"],
     ["cliente_lista_asunto","Cliente: la lista · asunto","{evento}"],["cliente_lista","Cliente: la lista · texto","{nombre} {evento} {fecha} {enlace} {firma}"],
     ["cliente_pago_asunto","Cliente: un pago · asunto","{evento}"],["cliente_pago","Cliente: un pago · texto","{nombre} {evento} {fecha} {vence} {importe} {concepto} {datos_pago} {firma}"],
     ["cliente_reunion_asunto","Cliente: una reunión · asunto","{evento}"],["cliente_reunion","Cliente: una reunión · texto","{nombre} {evento} {fecha} {concepto} {firma}"],
@@ -24111,6 +24169,31 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<li>Para que el resumen y los recordatorios <b>salgan solos</b>: en GitHub, repositorio → <i>Settings → Secrets and variables → Actions</i>: crea el <u>secreto</u> <code>CRON_TOKEN</code> (el mismo) y la <u>variable</u> <code>SITE_URL</code> con <code>'+esc(origen)+'</code>. El archivo <code>.github/workflows/avisos.yml</code> ya está en el proyecto: llama al servidor cada hora y el servidor decide si toca enviar algo (tiene que estar en la rama principal del repositorio).</li>'+
       '<li>Pulsa «Enviar un correo de prueba» aquí abajo: te debe llegar. Mientras no esté todo, nada se envía de verdad: queda «simulado» en la bandeja.</li></ol></details>';
   }
+  /* v02.14 · lo que recibe cada departamento */
+  function depsHTML(cfg,s){
+    var D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"], dp=cfg.deps||{}, info=(s&&s.departamentos)||{};
+    function chk(id,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+id+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
+    var h='<h2 class="av-h2">Avisos a cada departamento</h2><div class="pcard"><p class="av-peq">Cada departamento recibe por correo <b>su resumen</b> (los eventos de los próximos días con lo que le toca, los avisos que le han dejado y lo que ha cambiado desde que lo revisó en «Coordinación») <b>solo si hay algo que contar</b>, y <b>los avisos que le dejan los demás, al momento</b>. '+
+      'Lo reciben las personas de «Equipo y accesos» con ese rol y los correos extra que añadas aquí. Cocina, Compras y Servicio no reciben importes. Lo que ha cambiado en un evento se ve en el resumen cuando alguien con acceso a Presupuesto (administración, eventos o contabilidad) ha abierto el programa después del cambio.</p></div>';
+    DEPS_C.forEach(function(x){
+      var k=x[0], c=dp[k]||{}, us=((info[k]||{}).usuarios)||[], r=C.depRes&&C.depRes.d===k?C.depRes:null;
+      var quien=us.length?us.map(function(u){ return esc(u.name||u.email)+' <small>('+esc(u.email)+')</small>'; }).join(" · "):'<span class="av-sin">Nadie tiene este rol con correo todavía.</span>';
+      var nExtra=String(c.extra||"").split(/[\s,;]+/).filter(Boolean).length, nPers=us.length+nExtra;
+      var cuando=(c.on&&c.freq!=="off")?("resumen "+(c.freq==="diario"?"cada día":"cada "+D[+c.dia])+" desde las "+c.hora+":00"):"resumen apagado";
+      var linea=(us.length?us.map(function(u){ return esc(u.name||u.email); }).join(", "):"nadie con correo")+(nExtra?" + "+nExtra+(nExtra===1?" correo extra":" correos extra"):"")+" · "+cuando+" · "+(c.aviso!==false?"avisos al momento":"sin avisos al momento");
+      h+='<details class="beb-sec av-dep" data-dep="'+k+'"'+(C.ab&&C.ab[k]?" open":"")+'><summary><span class="bs-t">'+esc(x[1])+'</span><span class="bs-n" title="Personas que lo reciben">'+nPers+'</span><span class="bs-s">'+linea+'</span></summary><div class="bs-body">'+
+        '<p class="av-quien"><b>Lo reciben:</b> '+quien+(c.extra?' · extra: '+esc(c.extra):'')+'</p>'+
+        '<div class="fldset">'+chk("deps."+k+".on",c.on,"Enviar su resumen")+
+        '<label class="fld"><span class="lbl">Cada</span><select data-cf="deps.'+k+'.freq"><option value="semanal"'+(c.freq==="semanal"?" selected":"")+'>Semana</option><option value="diario"'+(c.freq==="diario"?" selected":"")+'>Día</option><option value="off"'+(c.freq==="off"?" selected":"")+'>(apagado)</option></select></label>'+
+        '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="deps.'+k+'.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+c.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
+        '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span><input type="number" min="0" max="23" data-cf="deps.'+k+'.hora" value="'+esc(c.hora)+'" aria-label="Hora del resumen de '+esc(x[1])+'"></label>'+
+        chk("deps."+k+".aviso",c.aviso!==false,"Avisarle por correo cuando otro departamento le deja un aviso")+
+        '<label class="fld wide"><span class="lbl">Otros correos <small>(opcional, hasta 4, separados por comas: p. ej. un buzón de la cocina)</small></span><input type="text" data-cf="deps.'+k+'.extra" value="'+esc(c.extra||"")+'" placeholder="cocina@lesmoles.com"></label></div>'+
+        '<div class="av-acciones"><button type="button" class="btn sm" data-cfa="dep-vista" data-d="'+k+'">Ver su resumen de hoy</button><button type="button" class="btn sm" data-cfa="dep-yo" data-d="'+k+'">Enviarme ese resumen de prueba</button><button type="button" class="btn sm" data-cfa="dep-equipo" data-d="'+k+'">Enviarlo ahora a '+esc(x[1])+'</button></div>'+
+        (r?'<p class="av-res '+(r.ok?(r.sim?"sim":"ok"):"mal")+'" role="status">'+esc(r.txt)+'</p>'+(r.texto?'<pre class="av-vista" tabindex="0" aria-label="Resumen de '+esc(x[1])+'">'+esc(r.texto)+'</pre>':''):'')+'</div></details>';
+    });
+    return h;
+  }
   function pintarCfg(){
     var host=C.host; if(!host) return;
     if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
@@ -24128,6 +24211,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("resumen.hora",rs.hora,0,23)+'</label>'+
       '<label class="fld"><span class="lbl">Para</span><select data-cf="resumen.para"><option value="equipo"'+(rs.para==="equipo"?" selected":"")+'>Administración y eventos (por su correo de acceso)</option><option value="lista"'+(rs.para==="lista"?" selected":"")+'>Una lista de correos</option></select></label>'+
       '<label class="fld wide"><span class="lbl">Lista de correos <small>(separados por comas; solo si has elegido «una lista»)</small></span><input type="text" data-cf="resumen.lista" value="'+esc(rs.lista)+'" placeholder="jefe@lesmoles.com, sala@lesmoles.com"></label></div></div>';
+    h+=depsHTML(cfg,s);
     h+='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
       chk("cliente.on",cl.on,"Enviar recordatorios automáticos a los clientes")+chk("cliente.lista",cl.lista,"La lista de invitados")+chk("cliente.pago",cl.pago,"Los pagos")+chk("cliente.reunion",cl.reunion,"Las reuniones")+
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("cliente.hora",cl.hora,0,23)+'</label></div></div>';
@@ -24149,6 +24233,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       (C.sim?'<pre class="av-vista" tabindex="0" aria-label="Qué se enviaría ahora">'+esc(C.sim)+'</pre>':'')+'</div>';
     var y=host.scrollTop; host.innerHTML=h; host.scrollTop=y;
     var root=host.querySelector(".av-wrap"); root.addEventListener("change",manejarCfg); root.addEventListener("input",manejarCfg); root.addEventListener("click",manejarCfg);
+    root.addEventListener("toggle",function(ev){ var d=ev.target, k=d&&d.getAttribute&&d.getAttribute("data-dep"); if(!k||!d.classList.contains("av-dep")) return; C.ab=C.ab||{}; if(d.open) C.ab[k]=true; else delete C.ab[k]; },true);
   }
   function setPath(o,p,v){ var s=p.split("."); for(var i=0;i<s.length-1;i++) o=o[s[i]]; o[s[s.length-1]]=v; }
   function manejarCfg(ev){
@@ -24173,8 +24258,17 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     else if(a==="prueba"){ b.disabled=true; C.msg=null;
       api("/api/correo/enviar","POST",{kind:"prueba",to:(yo().email||""),subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona. Así se ve un botón a un enlace:\n"+location.origin+"/\n\n"+(C.cfg.firma||"")}).then(function(j){
         C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(yo().email||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:j.message||"No se ha podido enviar."}; cargarCfg(); }); }
+    else if(a==="dep-vista"||a==="dep-yo"||a==="dep-equipo"){
+      var dk=b.getAttribute("data-d"), modo=a==="dep-vista"?"vista":a==="dep-yo"?"yo":"equipo"; b.disabled=true;
+      api("/api/correo/resumen","POST",{modo:modo,dep:dk}).then(function(j){
+        if(j._status!==200) C.depRes={d:dk,ok:false,txt:j.message||"No se ha podido."};
+        else if(modo==="vista") C.depRes={d:dk,ok:true,txt:j.vacio?"Hoy no hay nada que contar a este departamento (no se mandaría nada).":"Así quedaría hoy ("+j.eventos+(j.eventos===1?" evento":" eventos")+"):",texto:j.texto};
+        else if(modo==="yo") C.depRes={d:dk,ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido.":"Enviado a tu correo."};
+        else C.depRes={d:dk,ok:j.ok,sim:!!j.simulados,txt:(j.enviados?j.enviados+" enviados":"")+(j.simulados?(j.enviados?" · ":"")+j.simulados+" simulados (el correo no está activado)":"")+(j.errores?" · "+j.errores+" con error":"")+(!j.destinatarios?"Nadie de este departamento tiene correo.":".")};
+        pintarCfg(); }); }
     else if(a==="simular"){ b.disabled=true; api("/api/correo/cron","POST",{simular:true}).then(function(j){
       var l=["Hoy es "+dmy(j.hoy)+"."]; l.push(j.resumen?"Resumen del equipo: se mandaría a "+j.resumen.destinatarios+(j.resumen.destinatarios===1?" persona":" personas")+" («"+j.resumen.asunto+"»)."+(j.resumen.texto?"\n\n"+j.resumen.texto:""):"Resumen del equipo: hoy no toca (o ya se envió).");
+      (j.deps||[]).forEach(function(d){ l.push("","Resumen de "+d.dep+": "+(d.vacio?"no hay nada que contar hoy.":d.destinatarios?"se mandaría a "+d.destinatarios+(d.destinatarios===1?" persona":" personas")+" («"+d.asunto+"»)."+(d.texto?"\n\n"+d.texto:""):"nadie tiene correo en este departamento.")); });
       l.push("","Recordatorios a clientes de hoy: "+(j.clientes&&j.clientes.length?j.clientes.map(function(c){ return "\n· "+c.evento+" ("+c.tipo+") → "+c.a; }).join(""):"ninguno."));
       C.sim=l.join("\n"); C.msg=null; pintarCfg(); }); }
   }

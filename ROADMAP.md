@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.13** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.14** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,16 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.14
+- **Avisos por correo a cada departamento.** Eventos, Cocina, Compras, Servicio y Contabilidad reciben por correo lo que les toca, sin tener que entrar al programa:
+  - **Su resumen** (semanal o diario, a la hora que se elija): los eventos de los próximos días con **lo que le importa a cada uno** (Cocina: adultos y niños, alergias sin plato sustituto y menús sin platos; Compras: comensales y pedidos por enviar; Servicio: camareros que faltan y por avisar; Contabilidad: cobros, pagos vencidos y eventos celebrados sin cerrar; Eventos: lo sin confirmar y lo por cobrar), **los avisos que le han dejado los demás** y **lo que ha cambiado en lo que necesita desde que revisó** el evento en «Coordinación» («Adultos 55 → 57 · + Luis (Mesa 2) · marisco»). **Si no hay nada que contar, no se manda** el correo. Cocina, Compras y Servicio **no reciben importes**.
+  - **Los avisos entre departamentos, al momento.** Al dejar un aviso en «Coordinación» hay una casilla **«Avisar también por correo»** (marcada si alguien lo va a recibir) que dice a cuántas personas va («Se enviará a 2 personas de Cocina»), o que **nadie tiene correo** en ese departamento, o que ese departamento tiene los avisos apagados. El aviso en la lista queda con «✉ por correo a 2 personas». También se puede avisar a **todo el equipo**.
+  - **Quién lo recibe:** las personas de «Equipo y accesos» con ese rol (activas) y, si se quiere, **hasta 4 correos extra** por departamento (un buzón de la cocina, por ejemplo). Quien deja el aviso no se lo manda a sí mismo y, si contestan al correo, la respuesta le llega a quien lo dejó.
+  - **Parámetros → Correo y avisos → «Avisos a cada departamento»:** por departamento, encender o apagar su resumen, cada cuánto, qué día y a qué hora, si se le avisa al momento, los correos extra, y botones **«Ver su resumen de hoy»**, **«Enviarme ese resumen de prueba»** y **«Enviarlo ahora a Cocina»**. «Ver qué saldría hoy» también enseña los resúmenes por departamento. Los textos (asunto y primera línea del resumen, y el aviso) se pueden cambiar en «Plantillas».
+  - **De fábrica:** Cocina, Compras, Servicio y Contabilidad con resumen **semanal (lunes a las 8:00)** y avisos al momento; Eventos con el resumen apagado (ya recibe el resumen del equipo). **Mientras no esté activado el servicio de correo (sección 8), todo queda «simulado» en la bandeja** y no sale nada.
+  - **Para que el resumen diga qué ha cambiado,** cada evento guarda ahora sus cifras compartidas (las de «Coordinación», sin importes) que calcula cualquier rol; el servidor las compara con la foto de la última revisión de cada departamento. Se borran al anonimizar un evento y al quitar a una persona (también se barren las revisiones y los avisos, que antes no se revisaban).
+  - **Lo que no ven los de otro departamento:** los resúmenes de Cocina, Compras y Servicio nunca llevan importes; las cifras de dinero solo en Eventos y Contabilidad.
 
 ### Novedad de la versión 02.13
 - **Bebida mucho más corta: un desplegable por sección.** Con la barra libre (cerveza, 7 licores, refrescos…) la pantalla de bebida se había hecho larguísima. Ahora cada grupo es un desplegable **cerrado** con una línea que ya dice lo importante («Agua **45** · Vino blanco **22** · Cava **14**…»), así se ve todo de un vistazo y se abre solo lo que se quiere tocar. Está en las tres pantallas:

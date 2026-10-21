@@ -56,7 +56,9 @@
  *   POST /api/correo/estado     comprueba en el servicio de correo si lo enviado ha llegado (entregado, rebotado…)
  *   POST /api/correo/cancelar   {id}      cancela un envío programado que aún no ha salido
  *   POST /api/correo/resumen    {modo: vista|yo|equipo}  el resumen del equipo a mano
- *   POST /api/correo/cron       lo que se manda solo (resumen y recordatorios); con «Authorization: Bearer CRON_TOKEN» o el administrador
+ *   POST /api/correo/cron       lo que se manda solo (resumen, resúmenes por departamento y recordatorios); con «Authorization: Bearer CRON_TOKEN» o el administrador
+ *   POST /api/correo/aviso      {ev, para, txt, id?} avisa por correo a las personas de un departamento (o a todos) de un aviso entre departamentos (cualquier rol)
+ *   GET  /api/correo/destinos   cuántas personas recibirían un aviso en cada departamento (cualquier rol; sin correos)
  *   GET  /api/health            ¿vivo? (público, sin datos; para un vigilante externo tipo UptimeRobot)
  *   POST /api/error             {msg,src?,v?} la app avisa de un error que le ha saltado (con sesión)
  *   GET  /api/estado            estado del sistema: último guardado, copias, tamaño del documento, errores (solo admin)
@@ -209,6 +211,8 @@ async function api(request, env, url) {
   if (p === "/api/correo/vista" && m === "POST") return correoVista(request, env);
   if (p === "/api/correo/estado" && m === "POST") return correoEstadoRoute(request, env);
   if (p === "/api/correo/cancelar" && m === "POST") return correoCancelar(request, env);
+  if (p === "/api/correo/aviso" && m === "POST") return correoAviso(request, env);
+  if (p === "/api/correo/destinos" && m === "GET") return correoDestinos(request, env);
   if (p === "/api/consulta/form" && m === "GET") return consForm(request, env);
   if (p === "/api/consulta/disp" && m === "GET") return consDispRoute(request, env, url);
   if (p === "/api/consulta" && m === "POST") return consNueva(request, env);
@@ -1063,7 +1067,7 @@ function lineaPersonas(t) {
 }
 function nombreDe(seg) { return seg.replace(/[\(\[][^\)\]]*[\)\]]/g, " ").replace(/^\s*[-–•]\s+/, "").replace(/\s+/g, " ").trim(); }
 const FICHA_PERS = ["parejaA", "parejaB", "contacto", "telefono", "email"];
-const BARRER_EV = ["seating", "tareas", "hitos", "proveedores", "pedidos", "recepcion", "logoPareja", "marcasLM"];
+const BARRER_EV = ["seating", "tareas", "hitos", "proveedores", "pedidos", "recepcion", "logoPareja", "marcasLM", "rev", "avisos", "_hechos"];
 function buscarEnEvento(e, qn, borrar) {
   const hit = { plano: 0, ficha: 0, otros: 0 };
   const F = e.ficha || {};
@@ -2089,6 +2093,13 @@ const COR_PURGA_DIAS = 180;
 const COR_CFG_DEF = {
   resumen: { on: true, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
   cliente: { on: false, hora: 9, lista: true, pago: true, reunion: true },
+  deps: {   /* v02.14 · lo que recibe cada departamento: su resumen (solo si hay algo) y los avisos que le dejan los demás */
+    eventos: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },   /* eventos ya recibe el resumen del equipo */
+    cocina: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },
+    compras: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },
+    servicio: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },
+    contabilidad: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true }
+  },
   firma: "Les Moles Events", responder: "",
   respuesta: "quien",                       /* quien = si contestan, le llega a quien lo ha enviado · general = al correo de «responder» */
   copia: { yo: false, lista: "" },          /* copia oculta: a quien lo envía y/o a una lista (esta, solo en lo que sale a clientes) */
@@ -2097,6 +2108,10 @@ const COR_CFG_DEF = {
 const COR_PLANT = {
   resumen_asunto: "Resumen de {periodo} · Les Moles Events",
   resumen_intro: "Buenos días. Esto es lo que hay en Les Moles Events:",
+  dep_asunto: "Resumen de {departamento} · Les Moles Events",
+  dep_intro: "Buenos días. Esto es lo que le toca a {departamento} en Les Moles Events:",
+  aviso_asunto: "Aviso para {departamento} · {evento}",
+  aviso: "Hola,\n\n{de} ha dejado un aviso para {departamento} sobre {evento} ({fecha}):\n\n«{texto}»\n\nCuando esté hecho, márcalo en el programa (Planificación → Coordinación):\n{enlace}\n\n{firma}",
   cliente_lista_asunto: "La lista de invitados de {evento}",
   cliente_lista: "Hola {nombre},\n\nPara preparar {evento} ({fecha}) necesitamos la lista definitiva de invitados, con sus alergias o dietas.\nPodéis rellenarla en vuestro enlace privado:\n{enlace}\n\nGracias,\n{firma}",
   cliente_pago_asunto: "Recordatorio de pago · {evento}",
@@ -2141,6 +2156,7 @@ async function correoCfg(env) {
     (results || []).forEach((r) => { try { if (r.k === "correo") c = JSON.parse(r.v) || {}; else pl = JSON.parse(r.v) || {}; } catch (_) {} });
   } catch (_) {}
   const cfg = corMezcla(COR_CFG_DEF, c), plant = Object.assign({}, COR_PLANT);
+  COR_DEPS.forEach((d) => { cfg.deps[d] = Object.assign({}, COR_CFG_DEF.deps[d], (c.deps && c.deps[d]) || {}); });
   Object.keys(pl).forEach((k) => { if (COR_PLANT[k] != null && typeof pl[k] === "string" && pl[k].trim()) plant[k] = pl[k]; });
   return { cfg, plant, custom: pl };
 }
@@ -2372,12 +2388,147 @@ async function corDestinatarios(env, cfg) {
   else { await ensureUsers(env); const { results } = await env.DB.prepare("SELECT email FROM users WHERE role IN ('admin','eventos') AND COALESCE(active,1)=1").all(); (results || []).forEach((r) => { if (corEmailOk(r.email)) out.push(String(r.email).toLowerCase()); }); }
   return out.filter((v, i, a) => a.indexOf(v) === i);
 }
+
+/* ══ v02.14 · AVISOS POR CORREO A CADA DEPARTAMENTO ═══════════════════════════
+   Los departamentos son los roles de la casa (Eventos, Cocina, Compras, Servicio, Contabilidad). Cada uno recibe:
+   · SU RESUMEN (diario o semanal): los eventos de los próximos días con lo que le toca a él, los avisos que le han dejado los demás y lo que
+     ha cambiado en lo que necesita desde que lo revisó (las mismas cifras de «Coordinación»). Si no hay nada, no se manda.
+   · LOS AVISOS entre departamentos, al momento, cuando alguien deja uno en un evento.
+   Reciben el correo las personas con ese rol (activas, por su correo de acceso) y los correos extra que se añadan (p. ej. cocina@…).
+   Cocina, Compras y Servicio no reciben importes: solo Eventos y Contabilidad. */
+const COR_DEPS = ["eventos", "cocina", "compras", "servicio", "contabilidad"];
+const COR_DEP_T = { eventos: "Eventos", cocina: "Cocina", compras: "Compras", servicio: "Servicio", contabilidad: "Contabilidad" };
+const COR_DEP_VENT = { eventos: 14, cocina: 14, compras: 10, servicio: 14, contabilidad: 30 };   /* días vista de cada resumen */
+/* las cifras compartidas y quién las necesita (las mismas que «Coordinación» en la app) */
+const COR_HECHOS = [
+  { k: "fecha", t: "Fecha del evento", para: ["cocina", "compras", "servicio", "contabilidad"] },
+  { k: "adultos", t: "Adultos", para: ["cocina", "compras", "servicio", "contabilidad"] },
+  { k: "ninos", t: "Niños", para: ["cocina", "compras", "servicio", "contabilidad"] },
+  { k: "bebes", t: "Bebés (trona)", para: ["cocina", "compras", "servicio", "contabilidad"] },
+  { k: "staff", t: "Staff", para: ["cocina", "compras", "servicio"] },
+  { k: "mesas", t: "Mesas de banquete", para: ["compras", "servicio"] },
+  { k: "alergias", t: "Alergias y dietas", para: ["cocina", "compras", "servicio"], lista: true },
+  { k: "sustitutos", t: "Platos sustitutivos", para: ["eventos", "compras", "servicio"], lista: true },
+  { k: "platos", t: "Platos del menú", para: ["eventos", "compras", "servicio"], lista: true },
+  { k: "bebidas", t: "Bebidas", para: ["compras", "servicio"], lista: true },
+  { k: "camareros", t: "Camareros asignados", para: ["eventos"] }
+];
+function corFechaTxt(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); return m ? m[3] + "/" + m[2] + "/" + m[1] : (iso || "sin fecha"); }
+/* lo que ha cambiado en las cifras que necesita un departamento desde su última revisión (null si nunca revisó) */
+function corDifHechos(antes, ahora, dep) {
+  const out = [];
+  COR_HECHOS.forEach((h) => {
+    if (h.para.indexOf(dep) < 0) return;
+    const a = antes ? antes[h.k] : undefined, b = ahora[h.k];
+    if (h.lista) {
+      const A = Array.isArray(a) ? a : [], B = Array.isArray(b) ? b : [], add = B.filter((x) => A.indexOf(x) < 0), del = A.filter((x) => B.indexOf(x) < 0);
+      if (add.length || del.length) out.push(h.t + ": " + add.slice(0, 3).map((x) => "+ " + x).concat(del.slice(0, 3).map((x) => "− " + x)).join(", ") + (add.length + del.length > 6 ? " … y " + (add.length + del.length - 6) + " más" : ""));
+    } else {
+      const va = a == null ? "" : String(a), vb = b == null ? "" : String(b);
+      if (va !== vb) out.push(h.t + " " + (h.k === "fecha" ? corFechaTxt(va) : (va || "0")) + " → " + (h.k === "fecha" ? corFechaTxt(vb) : (vb || "0")));
+    }
+  });
+  return out;
+}
+/* los avisos entre departamentos que siguen pendientes para un departamento */
+function corAvisosPara(e, dep) {
+  const a = (e && e.avisos) || {};
+  return Object.keys(a).map((k) => a[k]).filter((x) => x && x.txt && !x.anulado && !x.hecho && (x.para === dep || x.para === "todos")).sort((p, q) => (p.ts || 0) - (q.ts || 0));
+}
+function corNPlatos(e) { const m = (e && e.menu) || {}; return Object.keys(m.dishes || {}).filter((k) => m.dishes[k]).length + ((m.propios || []).filter((x) => x && String(x.name || "").trim()).length); }
+/* el resumen de un departamento: solo lee. Devuelve {asunto, texto, vacio, ...} */
+function corResumenDep(doc, hoy, dep, cfg, plant, origen) {
+  const T = COR_DEP_T[dep], vent = COR_DEP_VENT[dep], diario = (cfg.deps[dep] || {}).freq === "diario";
+  const evs = (doc.events || []).filter((e) => e && e.id && !e.anonimizado && e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || ""));
+  const dias = (e) => corDias(hoy, e.ficha.fecha), sn = (e) => e._snap || {};
+  const vivos = evs.filter((e) => dias(e) >= 0 && !/^(celebrada|cerrada)$/.test(e.ficha.estado || "")).sort((a, b) => (a.ficha.fecha < b.ficha.fecha ? -1 : 1));
+  const prox = vivos.filter((e) => dias(e) <= vent);
+  const nom = (e) => corFechaCorta(e.ficha.fecha) + " · " + corNombreEv(e);
+  const bloques = [];
+  /* 1 · los eventos de los próximos días, con lo que le toca a cada departamento */
+  const lineas = [];
+  prox.forEach((e) => {
+    const s = sn(e), tot = s.tot || ((s.adultos || 0) + (s.ninos || 0) + (s.staff || 0)), p = [];
+    if (dep === "cocina") {
+      if (s.adultos || s.ninos) p.push((s.adultos || 0) + " adultos + " + (s.ninos || 0) + " niños");
+      if (!corNPlatos(e) && dias(e) <= 21) p.push("MENÚ SIN PLATOS MARCADOS");
+      if (s.sinSust > 0) p.push(s.sinSust + (s.sinSust === 1 ? " alergia o dieta sin plato sustituto" : " alergias o dietas sin plato sustituto"));
+    } else if (dep === "compras") {
+      if (tot) p.push(tot + " comensales");
+      const ps = Object.keys(e.pedidos || {}).map((k) => e.pedidos[k]).filter((x) => x && Array.isArray(x.lineas)), env = ps.filter((x) => x.env).length;
+      if (!corNPlatos(e)) p.push("sin menú todavía"); else if (!ps.length) p.push("ningún pedido hecho"); else if (env < ps.length) p.push((ps.length - env) + (ps.length - env === 1 ? " pedido por enviar" : " pedidos por enviar")); else p.push("pedidos enviados (" + env + ")");
+    } else if (dep === "servicio") {
+      if (tot) p.push(tot + " comensales");
+      if (s.camNec) p.push("camareros " + (s.camSi || 0) + " de " + s.camNec + ((s.camNec > (s.camSi || 0)) ? " · FALTAN " + (s.camNec - (s.camSi || 0)) : ""));
+      if (s.camAvisar > 0) p.push(s.camAvisar + " por avisar");
+      if (s.sinSust > 0) p.push(s.sinSust + " alergias sin plato");
+    } else if (dep === "contabilidad") {
+      if (!(s.pend > 0.5) && !(s.hitos || []).some((h) => h.tipo === "pago" && !h.done && h.fecha && corDias(hoy, h.fecha) <= 7)) return;
+      p.push("total " + corEur(s.total || 0) + " · pagado " + corEur(s.pagado || 0) + " · por cobrar " + corEur(s.pend || 0));
+      if (COR_SIN_CONFIRMAR[e.ficha.estado || ""]) p.push("SIN CONFIRMAR");
+    } else {   /* eventos */
+      if (tot) p.push(tot + " comensales");
+      if (COR_SIN_CONFIRMAR[e.ficha.estado || ""]) p.push("SIN CONFIRMAR (" + COR_ESTADO_TX[e.ficha.estado] + ")");
+      if (s.pend > 0.5) p.push("por cobrar " + corEur(s.pend));
+    }
+    lineas.push("· " + nom(e) + (p.length ? " · " + p.join(" · ") : ""));
+  });
+  if (lineas.length) bloques.push({ t: (dep === "contabilidad" ? "COBROS DE LOS PRÓXIMOS EVENTOS" : "PRÓXIMOS EVENTOS") + " (" + lineas.length + ")", l: lineas });
+  /* 2 · lo que queda por hacer, propio de cada departamento */
+  const pend = [];
+  if (dep === "servicio") {
+    const av = prox.reduce((a, e) => a + (sn(e).camAvisar || 0), 0);
+    if (av) pend.push("· Camareros por avisar: " + av);
+  }
+  if (dep === "contabilidad") {
+    evs.forEach((e) => (sn(e).hitos || []).forEach((h) => { if (h.tipo === "pago" && !h.done && h.fecha && corDias(hoy, h.fecha) < 0 && /^(reserva|planificacion|confirmada|celebrada)$/.test(e.ficha.estado || "")) pend.push("· Pago vencido hace " + (-corDias(hoy, h.fecha)) + (corDias(hoy, h.fecha) === -1 ? " día" : " días") + ": " + h.t + (h.importe != null ? " · " + corEur(h.importe) : "") + " — " + corNombreEv(e)); }));
+    evs.filter((e) => (e.ficha.estado || "") === "celebrada").slice(0, 6).forEach((e) => pend.push("· Celebrado y sin cerrar: " + corNombreEv(e) + " (" + corFechaCorta(e.ficha.fecha) + ")"));
+  }
+  if (dep === "eventos") {
+    vivos.filter((e) => dias(e) <= 30 && COR_SIN_CONFIRMAR[e.ficha.estado || ""]).slice(0, 6).forEach((e) => pend.push("· Sin confirmar a " + dias(e) + (dias(e) === 1 ? " día" : " días") + ": " + corNombreEv(e)));
+    vivos.filter((e) => dias(e) <= 30).forEach((e) => (sn(e).hitos || []).forEach((h) => { if (!h.done && h.fecha && corDias(hoy, h.fecha) <= 3 && h.tipo !== "pago") pend.push("· " + h.t + " — " + corNombreEv(e) + (corDias(hoy, h.fecha) < 0 ? " (vencido)" : corDias(hoy, h.fecha) === 0 ? " (hoy)" : " (" + corFechaCorta(h.fecha) + ")")); }));
+  }
+  if (pend.length) bloques.push({ t: "QUEDA POR HACER (" + pend.length + ")", l: pend.slice(0, 10) });
+  /* 3 · los avisos que le han dejado los demás departamentos */
+  const av = [];
+  evs.concat((doc.events || []).filter((e) => e && e.id && !e.anonimizado && !(e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || "")))).forEach((e) => { corAvisosPara(e, dep).forEach((a) => av.push("· " + corNombreEv(e) + (e.ficha && e.ficha.fecha ? " (" + corFechaCorta(e.ficha.fecha) + ")" : "") + ": " + String(a.txt).slice(0, 300) + " — " + (COR_DEP_T[a.de] || a.de) + (a.por ? ", " + a.por : ""))); });
+  if (av.length) bloques.push({ t: "AVISOS PARA " + T.toUpperCase() + " (" + av.length + ")", l: av.slice(0, 12) });
+  /* 4 · lo que ha cambiado en lo que necesita desde que el departamento revisó cada evento */
+  const cam = [];
+  vivos.forEach((e) => {
+    const r = e.rev && e.rev[dep], ah = e._hechos; if (!r || !r.f || !ah) return;
+    const d = corDifHechos(r.f, ah, dep); if (d.length) cam.push("· " + nom(e) + ": " + d.slice(0, 5).join("; ") + (d.length > 5 ? "; … y " + (d.length - 5) + " más" : ""));
+  });
+  if (cam.length) bloques.push({ t: "CAMBIOS DESDE VUESTRA ÚLTIMA REVISIÓN (" + cam.length + (cam.length === 1 ? " evento" : " eventos") + ")", l: cam.slice(0, 10) });
+  const v = { departamento: T, firma: cfg.firma || "" };
+  const L = [corRellenar(plant.dep_intro, v), ""];
+  if (!bloques.length) L.push("· Nada pendiente a la vista para " + T + ".");
+  bloques.forEach((b, i) => { if (i) L.push(""); L.push(b.t); b.l.forEach((x) => L.push(x)); });
+  /* un empujón: los eventos que este departamento aún no ha empezado a seguir (solo si ya hay algo que contar) */
+  const sinRev = prox.filter((e) => !(e.rev && e.rev[dep] && e.rev[dep].f));
+  if (bloques.length && sinRev.length) L.push("", "Todavía no seguís los cambios de: " + sinRev.slice(0, 4).map(corNombreEv).join(", ") + (sinRev.length > 4 ? " y " + (sinRev.length - 4) + " más" : "") + ". En «Coordinación», «Empezar a seguir los cambios», y os avisaremos de lo que cambie en cada uno.");
+  const link = String(origen || "");
+  if (link && /^https?:\/\//.test(link)) L.push("", "Para revisarlo y marcarlo como hecho, entra en el programa (Planificación → Coordinación):", link + "/");
+  L.push("", String(cfg.firma || ""));
+  return { asunto: corRellenar(plant.dep_asunto, v) + " · " + corFechaCorta(hoy), texto: L.join("\n").trim(), vacio: !bloques.length, eventos: prox.length, bloques: bloques.length };
+}
+/* quién recibe lo de un departamento: las personas con ese rol (activas, con correo) + los correos extra. «todos» = todo el equipo activo */
+async function corDestDep(env, dep, cfg, excepto) {
+  await ensureUsers(env);
+  const out = [], ex = String(excepto || "").trim().toLowerCase();
+  const add = (e, n) => { const x = String(e || "").trim().toLowerCase(); if (corEmailOk(x) && x !== ex && !out.some((o) => o.email === x)) out.push({ email: x, name: n || "" }); };
+  const q = dep === "todos" ? "SELECT email, name FROM users WHERE COALESCE(active,1)=1" : "SELECT email, name FROM users WHERE role=?1 AND COALESCE(active,1)=1";
+  const { results } = dep === "todos" ? await env.DB.prepare(q).all() : await env.DB.prepare(q).bind(dep).all();
+  (results || []).forEach((r) => add(r.email, r.name));
+  if (dep !== "todos") String(((cfg.deps || {})[dep] || {}).extra || "").split(/[\s,;]+/).forEach((x) => add(x, ""));
+  return out;
+}
 async function corDoc(env) { const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); try { return JSON.parse((row && row.data) || "{}") || {}; } catch (_) { return {}; } }
 /* lo que se manda solo: el resumen a su hora y los recordatorios del día a los clientes. «simular» = decir qué saldría sin enviar nada. */
 async function correoAutomatico(env, ahora, origen, opt) {
   opt = opt || {};
   await ensureCorreo(env);
-  const { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(ahora), out = { ahora: ahora.getTime(), hoy: M.iso, resumen: null, clientes: [], errores: 0, enviados: 0, simulados: 0 };
+  const { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(ahora), out = { ahora: ahora.getTime(), hoy: M.iso, resumen: null, deps: [], clientes: [], errores: 0, enviados: 0, simulados: 0 };
   const cuenta = (r) => { if (r.repetido) return; if (r.estado === "enviado") out.enviados++; else if (r.estado === "simulado") out.simulados++; else if (!r.ok) out.errores++; };
   /* 1 · el resumen del equipo */
   const rs = cfg.resumen;
@@ -2386,6 +2537,17 @@ async function correoAutomatico(env, ahora, origen, opt) {
     out.resumen = { periodo, destinatarios: dest.length, asunto: R.asunto, eventos: R.eventos, enviados: 0 };
     if (opt.simular) out.resumen.texto = R.texto;
     else for (const to of dest) { const r = await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen:" + periodo + ":" + to, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) out.resumen.enviados++; }
+  }
+  /* 1b · el resumen de cada departamento (solo si tiene algo y hay a quién mandárselo) */
+  for (const dep of COR_DEPS) {
+    const c = (cfg.deps || {})[dep];
+    if (!c || !c.on || c.freq === "off" || M.h < (+c.hora || 0) || !(c.freq === "diario" || M.wd === (+c.dia || 0))) continue;
+    const periodo = c.freq === "diario" ? M.iso : corSemana(M.iso), R = corResumenDep(doc, M.iso, dep, cfg, plant, origen), dest = await corDestDep(env, dep, cfg);
+    const item = { dep, periodo, destinatarios: dest.length, asunto: R.asunto, vacio: R.vacio, enviados: 0 };
+    out.deps.push(item);
+    if (R.vacio || !dest.length) continue;
+    if (opt.simular) item.texto = R.texto;
+    else for (const d of dest) { const r = await correoEnviar(env, { kind: "resumen", to: d.email, subject: R.asunto, text: R.texto, ref: "resdep:" + dep + ":" + periodo + ":" + d.email, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) item.enviados++; }
   }
   /* 2 · recordatorios a los clientes (apagados de fábrica) */
   if (cfg.cliente.on && M.h >= (+cfg.cliente.hora || 0)) {
@@ -2432,7 +2594,9 @@ async function correoGet(request, env, url) {
     ? await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name, bcc, reply_to, entrega, entrega_ts, adj, prog_ts FROM outbox WHERE ev=?1 ORDER BY id DESC LIMIT ?2").bind(ev.slice(0, 80), lim).all()
     : await env.DB.prepare("SELECT id, ts, kind, ev, to_addr, subject, estado, intentos, error, sent_ts, by_name, bcc, reply_to, entrega, entrega_ts, adj, prog_ts FROM outbox ORDER BY id DESC LIMIT ?1").bind(lim).all();
   const c24 = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE (estado='error' AND ts>?1) OR (entrega IN ('bounced','complained','failed','suppressed') AND ts>?2)").bind(Date.now() - 864e5, Date.now() - 7 * 864e5).first();
-  return json({ cfg, plantillas: plant, plantillasPorDefecto: COR_PLANT, personalizadas: Object.keys(custom || {}), proveedor: { listo: prov.listo, from: prov.from, motivo: prov.motivo }, cron: { token: !!String(env.CRON_TOKEN || "").trim() },
+  let departamentos = null;
+  if (a.s.role === "admin") { departamentos = {}; for (const d of COR_DEPS) departamentos[d] = { usuarios: (await corDestDep(env, d, { deps: {} })).map((u) => ({ email: u.email, name: u.name })) }; }
+  return json({ cfg, departamentos, plantillas: plant, plantillasPorDefecto: COR_PLANT, personalizadas: Object.keys(custom || {}), proveedor: { listo: prov.listo, from: prov.from, motivo: prov.motivo }, cron: { token: !!String(env.CRON_TOKEN || "").trim() },
     errores24h: (c24 && c24.n) || 0, bandeja: (results || []).map((r) => ({ id: r.id, ts: +r.ts, kind: r.kind, ev: r.ev || "", to: r.to_addr, subject: r.subject, estado: r.estado, intentos: r.intentos, error: r.error || "", sentTs: r.sent_ts ? +r.sent_ts : null, by: r.by_name || "", bcc: r.bcc || "", replyTo: r.reply_to || "", entrega: r.entrega || "", entregaTs: r.entrega_ts ? +r.entrega_ts : null, adj: (() => { try { return r.adj ? JSON.parse(r.adj) : []; } catch (_) { return []; } })(), progTs: r.prog_ts ? +r.prog_ts : null })) });
 }
 /* las plantillas y la firma las puede leer cualquier rol (para los botones de WhatsApp); no llevan nada privado */
@@ -2460,6 +2624,23 @@ async function correoPut(request, env) {
     const k = c.cliente;
     ["on", "lista", "pago", "reunion"].forEach((x) => { if (k[x] != null) out.cliente[x] = !!k[x]; });
     if (k.hora != null) out.cliente.hora = num(k.hora, 0, 23, out.cliente.hora);
+  }
+  if (c.deps && typeof c.deps === "object") {
+    for (const d of COR_DEPS) {
+      const k = c.deps[d]; if (!k || typeof k !== "object") continue;
+      const o = out.deps[d];
+      if (k.on != null) o.on = !!k.on;
+      if (k.aviso != null) o.aviso = !!k.aviso;
+      if (["semanal", "diario", "off"].indexOf(k.freq) >= 0) o.freq = k.freq;
+      if (k.dia != null) o.dia = num(k.dia, 0, 6, o.dia);
+      if (k.hora != null) o.hora = num(k.hora, 0, 23, o.hora);
+      if (k.extra != null) {
+        const l = String(k.extra).split(/[\s,;]+/).filter(Boolean);
+        if (l.some((x) => !corEmailOk(x))) return json({ error: "invalid", message: "Algún correo extra de " + COR_DEP_T[d] + " no es válido." }, 400);
+        if (l.length > 4) return json({ error: "invalid", message: COR_DEP_T[d] + ": hasta 4 correos extra." }, 400);
+        o.extra = l.join(", ");
+      }
+    }
   }
   if (c.firma != null) out.firma = String(c.firma).slice(0, 200);
   if (c.responder != null) { const r = String(c.responder).trim(); if (r && !corEmailOk(r)) return json({ error: "invalid", message: "El correo para las respuestas no es válido." }, 400); out.responder = r; }
@@ -2522,7 +2703,21 @@ async function correoReintentar(request, env) {
 async function correoResumenRoute(request, env) {
   const a = await correoSesion(request, env, false); if (a.err) return a.err;
   await ensureCorreo(env);
-  const b = await body(request), { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(new Date()), R = corResumen(doc, M.iso, cfg, plant);
+  const b = await body(request), { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(new Date());
+  if (COR_DEPS.indexOf(b.dep) >= 0) {
+    const origen = new URL(request.url).origin, RD = corResumenDep(doc, M.iso, b.dep, cfg, plant, origen);
+    if (b.modo === "vista") return json({ ok: true, asunto: RD.asunto, texto: RD.texto, vacio: RD.vacio, eventos: RD.eventos });
+    if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: RD.asunto, text: RD.texto, ref: "resdep-prueba:" + b.dep + ":" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email, origen }); return json(r, r.ok ? 200 : 502); }
+    if (b.modo === "equipo") {
+      if (a.s.role !== "admin") return json({ error: "forbidden", message: "Solo el administrador puede enviarlo." }, 403);
+      const dest = await corDestDep(env, b.dep, cfg), res = [];
+      for (const d of dest) res.push(await correoEnviar(env, { kind: "resumen", to: d.email, subject: RD.asunto, text: RD.texto, ref: "resdep-manual:" + b.dep + ":" + Date.now() + ":" + d.email, by: a.s.name || a.s.email, origen }));
+      await logAct(env, a.s, "correo_enviado", "Resumen de " + COR_DEP_T[b.dep] + " (" + dest.length + (dest.length === 1 ? " persona)" : " personas)"));
+      return json({ ok: res.every((r) => r.ok), enviados: res.filter((r) => r.estado === "enviado").length, simulados: res.filter((r) => r.estado === "simulado").length, errores: res.filter((r) => !r.ok).length, destinatarios: dest.length });
+    }
+    return json({ error: "invalid" }, 400);
+  }
+  const R = corResumen(doc, M.iso, cfg, plant);
   if (b.modo === "vista") return json({ ok: true, asunto: R.asunto, texto: R.texto, eventos: R.eventos });
   if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: R.asunto, text: R.texto, ref: "resumen-prueba:" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email }); return json(r, r.ok ? 200 : 502); }
   if (b.modo === "equipo") {
@@ -2570,6 +2765,36 @@ async function correoCancelar(request, env) {
   await env.DB.prepare("UPDATE outbox SET estado='cancelado', entrega='canceled', entrega_ts=?1 WHERE id=?2").bind(Date.now(), row.id).run();
   await logAct(env, a.s, "correo_cancelado", "Canceló un correo programado → " + String(row.to_addr).slice(0, 80));
   return json({ ok: true, id: row.id, estado: "cancelado" });
+}
+/* v02.14 · un aviso entre departamentos, por correo y al momento. Lo puede pedir cualquier rol (es lo que hace al dejar un aviso en un evento). */
+async function correoAviso(request, env) {
+  const s = await session(request, env); if (!s) return json({ error: "unauth" }, 401);
+  await ensureCorreo(env);
+  const b = await body(request), para = String(b.para || ""), txt = String(b.txt || "").replace(/\s+/g, " ").trim().slice(0, 400);
+  if (COR_DEPS.indexOf(para) < 0 && para !== "todos") return json({ error: "invalid", message: "No se sabe a qué departamento va el aviso." }, 400);
+  if (!txt) return json({ error: "invalid", message: "Falta el texto del aviso." }, 400);
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM outbox WHERE kind='aviso' AND by_name=?1 AND ts>?2").bind(String(s.name || s.email || "").slice(0, 80), Date.now() - 3600e3).first();
+  if (n && n.n >= 120) return json({ error: "limit", message: "Demasiados avisos por correo en la última hora. Espera un poco." }, 429);
+  const { cfg, plant } = await correoCfg(env), doc = await corDoc(env), e = (doc.events || []).filter((x) => x && String(x.id) === String(b.ev))[0];
+  if (!e || e.anonimizado) return json({ error: "not-found", message: "No se encuentra ese evento." }, 404);
+  const deps = para === "todos" ? COR_DEPS : [para];
+  if (para !== "todos" && (cfg.deps[para] || {}).aviso === false) return json({ ok: true, desactivado: true, destinatarios: 0, enviados: 0, simulados: 0, errores: 0 });
+  const dest = await corDestDep(env, para, cfg, s.email), origen = new URL(request.url).origin;
+  const v = { departamento: para === "todos" ? "todo el equipo" : COR_DEP_T[para], de: (COR_DEP_T[s.role] ? COR_DEP_T[s.role] + " (" + (s.name || s.email) + ")" : (s.name || s.email || "Alguien")), evento: corNombreEv(e), fecha: e.ficha && e.ficha.fecha ? corFechaLarga(e.ficha.fecha) : "sin fecha", texto: txt, enlace: origen + "/", firma: cfg.firma || "" };
+  const asunto = corRellenar(plant.aviso_asunto, v), texto = corRellenar(plant.aviso, v).replace(/\n{3,}/g, "\n\n").trim();
+  const idA = String(b.id || ("a" + Date.now().toString(36))).replace(/[^\w-]/g, "").slice(0, 40) || ("a" + Date.now().toString(36));
+  const res = [];
+  for (const d of dest) res.push(await correoEnviar(env, { kind: "aviso", ev: String(e.id), to: d.email, subject: asunto, text: texto, ref: "aviso:" + String(e.id).slice(0, 60) + ":" + idA + ":" + d.email, by: s.name || s.email, origen, replyTo: corEmailOk(s.email) ? String(s.email).trim() : "" }));
+  if (dest.length) await logAct(env, s, "correo_enviado", "Aviso a " + v.departamento + " (" + dest.length + (dest.length === 1 ? " persona" : " personas") + ") · " + corNombreEv(e).slice(0, 60));
+  return json({ ok: res.every((r) => r.ok), destinatarios: dest.length, enviados: res.filter((r) => r.estado === "enviado" && !r.repetido).length, simulados: res.filter((r) => r.estado === "simulado" && !r.repetido).length, repetidos: res.filter((r) => r.repetido).length, errores: res.filter((r) => !r.ok).length, para });
+}
+/* cuántas personas recibirían un aviso en cada departamento (sin dar ningún correo): para decirlo antes de enviar */
+async function correoDestinos(request, env) {
+  const s = await session(request, env); if (!s) return json({ error: "unauth" }, 401);
+  const { cfg } = await correoCfg(env), out = {};
+  for (const d of COR_DEPS) { const l = await corDestDep(env, d, cfg, s.email); out[d] = { n: l.length, aviso: (cfg.deps[d] || {}).aviso !== false }; }
+  const t = await corDestDep(env, "todos", cfg, s.email); out.todos = { n: t.length, aviso: true };
+  return json({ ok: true, deps: out });
 }
 /* lo llama una tarea programada (con el token) o el administrador desde la pantalla */
 async function correoCron(request, env) {
