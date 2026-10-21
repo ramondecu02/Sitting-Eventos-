@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.05** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.06** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -38,6 +38,10 @@ WhatsApp suelto ni Excel.
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
 
+### Novedad de la versión 02.06
+- **Escaleta: las tronas no salen en el menú infantil.** Los bebés en trona no comen: ya no aparecen en el bloque «Dónde se sientan» del menú infantil, y una mesa donde solo hay una trona deja de contar como «mesa de niños» (ni en «N niños · M mesas» ni en los platos compartidos «por mesa de niños» del menú infantil y del check list). Siguen contándose aparte en «Menús» como «Bebés en trona (sin menú)», y en el servicio y el material (tronas).
+- **Menú infantil personalizado, a la vista.** Bajo el título «Menú infantil» de la hoja hay ahora un botón **«✎ Menú personalizado»** (no sale en el PDF ni al imprimir) que abre y resalta el apartado de edición y deja el cursor en la casilla. En un evento que no es boda (bautizo, comunión…) con niños, ese apartado sale ya desplegado.
+
 ### Novedad de la versión 02.05
 - **Menú lateral que se pliega y se despliega con un clic.** Hasta ahora, al abrir un apartado (por ejemplo «Parámetros», con muchas pantallas) se quedaba desplegado y el clic en su título solo te llevaba a su primera pantalla: no había forma de cerrarlo. Ahora **un clic en el título del grupo en el que estás lo pliega y otro lo despliega, sin cambiar de pantalla** (también con Intro o Espacio). Plegado, su título sigue marcado para que se vea en qué grupo estás. Un clic en un grupo en el que no estás te lleva a su primera pantalla, como antes. Al ir a otra pantalla el grupo vuelve a salir desplegado. El despliegue lleva una animación corta, y se respeta «reducir movimiento» del sistema.
 - **Bebidas propias con cálculo automático (cola, fanta, tónica, cerveza…).** En **Parámetros → Bebidas → «Añadir una bebida»** se escribe el nombre, en qué se cuenta (botellas, latas, unidades, litros, cajas o barriles), sobre quién se calcula (todos o solo adultos) y **una unidad cada N personas**. Queda **grabada para todo el equipo** y sale sola, calculada con los comensales de cada evento, en: la **Previsión** de Bebida (con su marca a elegir, quitarla de un evento concreto o corregir la cantidad a mano), la **escaleta**, la **lista de la compra**, **Rentabilidad** (su precio por unidad) y **Consumo real** (con su comparación y su propuesta de ajuste, ahora hablando de latas o de lo que sea). En su tarjeta se puede cambiar todo, poner varios momentos (aperitivo, banquete…), escribir las marcas y **«Quitar»**. «Restaurar valores de fábrica» también quita las añadidas y avisa de ello.
@@ -46,7 +50,7 @@ WhatsApp suelto ni Excel.
 ### Novedad de la versión 02.04
 - **Escaleta · menú infantil personalizado y niños con su mesa.** Hasta ahora el menú infantil de la escaleta solo sabía de los platos de niños del catálogo (pensados para bodas): en un bautizo, una comunión u otro evento con un solo plato para los niños no encajaba, y la hoja decía «3 niños · 3 mesas» sin decir qué niño estaba en qué mesa.
   - **Menú personalizado.** En «Datos de la escaleta → Menú infantil» hay una casilla nueva, **«Menú personalizado»**: lo escribes tú (un plato por línea; si solo hay uno, escribes solo ese) y el menú infantil de la hoja pasa a ser solo eso, sin los platos del catálogo. Si empiezas la línea por «Aperitivo:», «Primero:», «Segundo:» o «Postre:», sale en su tiempo; si terminas con «por mesa», es un plato compartido (uno por mesa de niños). La cantidad se puede corregir a mano (✎) como el resto de la escaleta, y los sustitutos de alergias de los niños siguen restando del plato de su tiempo. Al desmarcarla vuelve el catálogo y lo escrito se conserva.
-  - **Dónde se sientan.** Al final del menú infantil sale un bloque nuevo con **cada mesa y sus niños** (y los bebés en trona), por ejemplo «Mesa 3 — Judit». Sale también en el PDF y en cualquier menú infantil, personalizado o del catálogo.
+  - **Dónde se sientan.** Al final del menú infantil sale un bloque nuevo con **cada mesa y sus niños**, por ejemplo «Mesa 3 — Judit». Los bebés en trona **no salen**: no comen, no llevan menú y una mesa donde solo hay una trona no cuenta como mesa de niños. Sale también en el PDF y en cualquier menú infantil, personalizado o del catálogo.
   - En eventos que no son bodas (bautizo, comunión…) y con el menú infantil sin elegir, la pantalla avisa de que existe el menú personalizado.
 - **Lo que NO hace:** el menú personalizado vive en la escaleta; para que además cuente en Producción y Compra hay que añadirlo como plato a mano en «Elegir platos».
 

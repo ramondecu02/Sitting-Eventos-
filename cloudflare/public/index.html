@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.05 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.06 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.05".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.06".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2634,6 +2634,13 @@ body .pvb-d.pend{color:var(--warning)!important; box-shadow:inset 0 0 0 1.5px va
 .bj-det ul{margin:6px 0 0; padding-left:18px; line-height:1.6}
 .esc-inf-pers{display:flex; align-items:flex-start; gap:8px; margin:2px 0 12px; padding:10px 12px; border:1px solid var(--c-line); border-radius:var(--r); background:var(--accent-wash); line-height:1.45}
 .esc-inf-pers small{color:var(--c-mut)}
+.esc-inf-row{display:flex; justify-content:center; margin:4px 0 8px}
+.esc-inf-edit{border:1px solid var(--c-line-2); background:var(--panel); color:var(--olive-deep); border-radius:var(--r-pill); padding:4px 14px; font:600 11.5px var(--font-text); letter-spacing:.02em; cursor:pointer; transition:background .12s,border-color .12s}
+.esc-inf-edit:hover{border-color:var(--olive); background:var(--accent-wash)}
+@keyframes escFlash{0%{box-shadow:0 0 0 4px color-mix(in srgb,var(--olive) 55%,transparent)} 100%{box-shadow:0 0 0 4px transparent}}
+.esc-det-flash{animation:escFlash 1.4s ease-out}
+@media print{ .esc-inf-row{display:none!important} }
+@media (prefers-reduced-motion:reduce){ .esc-det-flash{animation:none; outline:2px solid var(--olive)} }
 @media (max-width:760px){
   .bz-row{grid-template-columns:minmax(0,1fr); gap:8px; padding:16px 0}
   .bz-in{flex-direction:row; align-items:center; flex-wrap:wrap; gap:8px 18px}
@@ -4449,7 +4456,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.05</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.06</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10085,7 +10092,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.05</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.06</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -16529,7 +16536,7 @@ function escCuentas(){
       /* solo aperitivo: ni silla ni menú ni plato del banquete; sí aperitivos, estaciones y su adaptación si tiene alergia */
       if(g.soloAper){ c.soloAper++; c.soloGente.push({g:g,mesa:lbl,mesaNum:tb.num}); return; }
       if(g.kind==="child"){ c.ninos++; if(ad) c.ninosAdapt++; kids++; }
-      else if(g.kind==="baby"){ c.tronas++; kids++; }
+      else if(g.kind==="baby"){ c.tronas++; }   /* v02.05 · la trona no come: no hace «mesa de niños» ni lleva menú */
       else if(g.kind==="staff"){ c.staff++; if(ad) c.staffAdapt++; }
       else { c.adultos++; if(ad) c.adapt++; }
       c.gente.push({g:g,mesa:lbl,mesaNum:tb.num});
@@ -16957,13 +16964,13 @@ function escModelo(){
       subsDe(k); });
     if(INF.extra.length){ fi.push({head:"Además"}); INF.extra.forEach(function(t,i){ fi.push(fila(t,null,Q("inx:"+escNorm(t).slice(0,30),kidsB))); }); }
     if(NS.bandas.Otros&&!porSt.Otros){ fi.push({head:"Sustitutos sin tiempo"}); subsDe("Otros"); }
-    /* v02.04 · dónde se sientan: cada mesa con sus niños (y las tronas), para llevar el plato a la mesa correcta */
+    /* v02.04 · dónde se sientan: cada mesa con sus niños, para llevar el plato a la mesa correcta */
     var kmesas=[], kmap={};
-    c.gente.forEach(function(p){ if(p.g.kind!=="child"&&p.g.kind!=="baby") return;
-      if(!kmap[p.mesaNum]){ kmap[p.mesaNum]={mesa:p.mesa,ninos:[],bebes:[]}; kmesas.push(kmap[p.mesaNum]); }
-      kmap[p.mesaNum][p.g.kind==="baby"?"bebes":"ninos"].push(primerNombre(p.g.name)); });
+    c.gente.forEach(function(p){ if(p.g.kind!=="child") return;   /* las tronas no comen: no salen aquí */
+      if(!kmap[p.mesaNum]){ kmap[p.mesaNum]={mesa:p.mesa,ninos:[]}; kmesas.push(kmap[p.mesaNum]); }
+      kmap[p.mesaNum].ninos.push(primerNombre(p.g.name)); });
     if(kmesas.length){ fi.push({head:"Dónde se sientan"});
-      kmesas.forEach(function(m){ fi.push({txt:m.mesa,sub:m.ninos.concat(m.bebes.map(function(n){ return n+" (trona)"; })).join(" · "),q:m.ninos.length?String(m.ninos.length):""}); }); }
+      kmesas.forEach(function(m){ fi.push({txt:m.mesa,sub:m.ninos.join(" · "),q:String(m.ninos.length)}); }); }
     if(!INF.elegidos.length&&!INF.extra.length){ var fx=fila("Menú infantil sin elegir","márcalo en «Datos de la escaleta», apartado Menú infantil",null); fx.q=String(kidsB); fx.sust=true; fx.pend=true; fi.unshift(fx); }
     md.secs.push({t:"Menú infantil",sub:kidsB+(kidsB===1?" niño":" niños")+(c.mesasNinos?" · "+c.mesasNinos+(c.mesasNinos===1?" mesa":" mesas"):""),filas:fi});
   }
@@ -17222,7 +17229,7 @@ function renderEscaleta(){
     escDet("par","Paradas · regalos y pausas",(Array.isArray(cfg.paradas)&&cfg.paradas.length)?cfg.paradas.length+(cfg.paradas.length===1?" parada":" paradas"):"entre qué platos y cuánto dura",escParadasHTML(md),!!(Array.isArray(cfg.paradas)&&cfg.paradas.length&&md.paradas.some(function(p){ return p.huerfana||!p.dur; })))+
     escDet("det","Detalles de servicio · velas, cumpleaños, dedicatorias",(Array.isArray(cfg.detalles)&&cfg.detalles.length)?cfg.detalles.length+(cfg.detalles.length===1?" detalle":" detalles"):"no son alergias: no restan platos",escDetallesHTML(md),!!(Array.isArray(cfg.detalles)&&cfg.detalles.some(function(d){ return md.detalles.some(function(x){ return x.id===d.id&&x.huerfano; }); })))+
     escDet("ord","Orden de salida · aperitivos y estaciones",AP.std.length+" aperitivos · "+AP.est.length+" estaciones",dOrd,true)+
-    escDet("inf","Menú infantil",c.ninos+(c.ninos===1?" niño":" niños")+" · "+(INF.elegidos.length+INF.extra.length)+" platos",dInf,c.ninos>0&&!(INF.elegidos.length+INF.extra.length))+
+    escDet("inf","Menú infantil",c.ninos+(c.ninos===1?" niño":" niños")+" · "+(INF.elegidos.length+INF.extra.length)+" platos",dInf,c.ninos>0&&(!(INF.elegidos.length+INF.extra.length)||(!INF.pers&&F.tipo&&F.tipo!=="Boda")))+
     escDet("stf","Menú staff",c.staff+(c.staff===1?" persona":" personas")+" · "+(md.staffMenu.length?md.staffMenu.length+" platos":"sin configurar"),dSt,c.staff>0&&!md.staffMenu.length)+
     escDet("mas","Alergias, tarta, cafés, ressopó y notas","",dMas,false)+
     (md.sustTotal?'<div class="esc-check'+(md.sustColocados<md.sustTotal?" mal":"")+'">'+(md.sustColocados<md.sustTotal?"⚠ ":"✓ ")+'Platos sustitutivos en la escaleta: <b>'+md.sustColocados+' de '+md.sustTotal+'</b> de los apuntados en «Alergias y sustituciones»'+(md.sustColocados<md.sustTotal?" — mira el aviso al final de la hoja":"")+'</div>':'')+
@@ -17236,6 +17243,7 @@ function renderEscaleta(){
   md.secs.forEach(function(sc){
     var conQ=sc.filas.some(function(f){ return (f.q||f.hq)&&!f.alerg; });
     h+='<section class="esc-sec"><h3><span class="esc-h3t">'+esc(sc.t)+'</span>'+(sc.sub?' <span class="esc-h3sub">'+esc(sc.sub)+'</span>':'')+'</h3>'+
+      (sc.t==="Menú infantil"?'<div class="esc-inf-row"><button type="button" class="esc-inf-edit" data-esc-act="inf-pers" title="Escribe tú el menú de los niños (bautizos, comuniones y otros eventos)">✎ '+(md.inf&&md.inf.pers?'Cambiar el menú personalizado':'Menú personalizado')+'</button></div>':'')+
       (sc.leyenda?'<div class="esc-ley"><i></i>'+esc(sc.leyenda)+'</div>':'')+(sc.leyDet?'<div class="esc-ley det"><i></i>'+esc(sc.leyDet)+'</div>':'')+
       '<table class="mnu-table esc-t'+(conQ?"":" sinq")+'"><colgroup>'+(conQ?'<col class="esc-qcol">':'')+'<col></colgroup>';
     sc.filas.forEach(function(f){
@@ -17351,6 +17359,11 @@ function wireEscaleta(){
     if((b=ev2.target.closest("[data-esc-par-del]"))){ var qid=b.getAttribute("data-esc-par-del"); cfg.paradas=(cfg.paradas||[]).filter(function(x){ return x.id!==qid; }); escUI.foco=null; touchSave(); renderEscaleta(); return; }
     if((b=ev2.target.closest("[data-esc-pdel]"))){ var dk=b.getAttribute("data-esc-pdel"); if(cfg.aperPers) delete cfg.aperPers[dk]; cfg.aperNo=cfg.aperNo||{}; cfg.aperNo[dk]=true; touchSave(); escRefrescar(); return; }
     var a=ev2.target.closest("[data-esc-act]");
+    if(a&&a.getAttribute("data-esc-act")==="inf-pers"){
+      escUI.abiertos.inf=true; var dd=$("mnu-body").querySelector('details[data-det="inf"]');
+      if(dd){ dd.open=true; dd.scrollIntoView({block:"center",behavior:"smooth"}); dd.classList.add("esc-det-flash"); setTimeout(function(){ dd.classList.remove("esc-det-flash"); },1600);
+        var fc=dd.querySelector('[data-esc=infPers]'); if(fc) setTimeout(function(){ try{ fc.focus({preventScroll:true}); }catch(_){ fc.focus(); } },250); }
+      return; }
     if(a&&a.getAttribute("data-esc-act")==="ov-reset"){ if(!window.confirm("¿Volver todas las cantidades corregidas a mano al cálculo automático?")) return; cfg.ov={}; touchSave(); renderEscaleta(); return; }
     if((b=ev2.target.closest("[data-esc-mv]"))){
       var u=b.getAttribute("data-esc-mv"), dir=+b.getAttribute("data-dir");
