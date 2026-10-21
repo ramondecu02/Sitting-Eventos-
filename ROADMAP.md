@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.12** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.13** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,13 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.13
+- **Bebida mucho más corta: un desplegable por sección.** Con la barra libre (cerveza, 7 licores, refrescos…) la pantalla de bebida se había hecho larguísima. Ahora cada grupo es un desplegable **cerrado** con una línea que ya dice lo importante («Agua **45** · Vino blanco **22** · Cava **14**…»), así se ve todo de un vistazo y se abre solo lo que se quiere tocar. Está en las tres pantallas:
+  - **Previsión del evento:** *Agua, vinos, cava y jamón · Cerveza · Barra libre · licores · Refrescos y tónicas · Otras bebidas del evento · Hoja de bebida*. «Barra libre en este evento» se queda siempre a la vista; si se quita, la línea de licores dice «Sin barra libre».
+  - **Consumo real:** las mismas secciones con «3 de 5 apuntadas» (se pone al día al apuntar) y, aparte, desplegables para *Añadir una bebida*, *Ajustar los parámetros* y *Previsión aproximada*.
+  - **Parámetros → Bebidas:** *Barra libre de partida* y *Añadir una bebida* plegados, y cada grupo con sus bebidas plegadas una a una (la línea de cada una dice «con 100 adultos → 4 botellas»); al añadir una bebida nueva se abre sola en su sitio.
+  - Botones **«Abrir todo» / «Cerrar todo»**, se manejan con el teclado y **se recuerda en cada navegador qué estaba abierto** (también al cambiar de pestaña o de pantalla). En el móvil la línea de resumen pasa debajo del título.
 
 ### Novedad de la versión 02.12
 - **Los menús que ven los clientes, en castellano, català y English.** La **minuta** (la automática de dos por hoja, el diseñador y el PDF) y el **portal del cliente** (pestañas «El día» y «Aprobar») se pueden ver en los tres idiomas. En la minuta, el desplegable **«Idioma de la minuta»** cambia al momento la vista previa, los títulos de cada tiempo (Aperitius, Entrants, Peixos…), la bodega («el celler», «Vi blanc D.O. Terra Alta», «Cava rosat»), la pista de baile, la fecha y el «y / i / &» del nombre de la pareja. En el portal, el cliente elige **ES · CA · EN** y se acuerda de lo que eligió.
