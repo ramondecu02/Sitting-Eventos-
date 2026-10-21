@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.07** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.08** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.08
+- **Previsión aproximada de bebida, según lo que se bebió de verdad.** En **Consumo real** hay una sección nueva, **«Previsión aproximada»**: con lo apuntado en todos los eventos calcula, de cada bebida, **cuánto se bebe por persona** (por ejemplo «1 botella cada 2,1 personas», o «0,55 L de agua por persona») y, con los comensales de este evento, una **previsión aproximada con su horquilla** («≈ 26 botellas, entre 23 y 30») junto a lo que sale ahora. Funciona también con **las bebidas sueltas que se añaden a mano** (cola, fanta, tónica…): se reconocen por su nombre, aunque cambien mayúsculas, tildes o espacios, y no se mezclan apuntes en unidades distintas.
+  - **Para los próximos eventos.** Debajo, una lista plegable de los eventos que vienen (con fecha, sin celebrar ni cerrar), cada uno con su previsión de cada bebida según sus comensales (o los comensales previstos de la ficha, si aún no hay lista), respetando el formato de agua de cada evento y sin las bebidas que ahí no se sirven. Un botón **«Abrir este evento»** lleva a él.
+  - **En la Previsión de cada evento**, bajo cada bebida: «Por lo bebido en N eventos: ≈ X · **usar X**», que pone esa cantidad con un clic (solo en ese evento; para cambiar la previsión de todos los eventos se sigue usando «Ajustar los parámetros»).
+  - Es una **aproximación honesta**: con menos de tres eventos avisa de que es solo una pista, y si en alguno «se acabó» avisa de que se bebe algo más de lo apuntado. No cuentan los eventos marcados «no hubo consumo», sin comensales apuntados ni las bebidas sin cantidad.
 
 ### Novedad de la versión 02.07
 - **Consumo real: añadir una bebida desde la propia pestaña.** Debajo de la lista de «Consumo real» hay ahora una tarjeta **«Añadir una bebida»** (cola, fanta, tónica, cerveza…): nombre, en qué se cuenta (latas, botellas…), **cuánto se bebió** (opcional) y, para administración, **«una unidad cada N personas»** y sobre quién se calcula.
