@@ -67,6 +67,8 @@
  *   GET  /api/docs/ver?id=      el archivo (los de identidad: cada apertura queda en el registro de actividad)
  *   POST /api/docs/editar       {id,ref?,concepto?,importe?,fecha?,estado?,nota?,persona?}
  *   POST /api/docs/borrar       {id}
+ *   POST /api/docs/con/ini      {ev,nombre,mime,bytes} empieza a subir un contrato firmado a mano (PDF o foto, hasta 5 MB; admin y eventos) → {id,partes}
+ *   POST /api/docs/con/parte    {id,n,data} un trozo (~1 MB de base64) · POST /api/docs/con/fin {id} lo junta, lo comprueba y lo deja listo
  *   POST /api/docs/leido        {ev} lo que mandaron los clientes ya está visto
  *   GET  /api/privacidad        responsable, plazo de conservación y eventos que ya lo han pasado (solo admin)
  *   PUT  /api/privacidad        {responsable,nif,direccion,email,meses,auto} (solo admin)
@@ -164,6 +166,9 @@ async function api(request, env, url) {
   if (p === "/api/docs/ver" && m === "GET") return docsVer(request, env, url);
   if (p === "/api/docs/editar" && m === "POST") return docsEditar(request, env);
   if (p === "/api/docs/borrar" && m === "POST") return docsBorrar(request, env);
+  if (p === "/api/docs/con/ini" && m === "POST") return docsConIni(request, env);
+  if (p === "/api/docs/con/parte" && m === "POST") return docsConParte(request, env);
+  if (p === "/api/docs/con/fin" && m === "POST") return docsConFin(request, env);
   if (p === "/api/docs/leido" && m === "POST") return docsLeido(request, env);
   if (p === "/api/propuestas" && m === "GET") return propuestasList(request, env);
   if (p === "/api/propuestas" && m === "PATCH") return propuestasPatch(request, env);
@@ -753,7 +758,7 @@ async function estadoRoute(request, env) {
   else if (ult && ult - bkAuto.ult > 36 * 3600e3 && ahora - ult < 36 * 3600e3) add("aviso", "La última copia automática tiene más de un día y se ha trabajado desde entonces.", "Haz una copia ahora en Parámetros → Copias de seguridad.");
   if (eh && eh.n > 0) add("mal", eh.n + (eh.n === 1 ? " error en la última hora." : " errores en la última hora."), "Mira el detalle más abajo; si se repite, envíalo a quien lleva la herramienta.");
   else if (ed && ed.n > 0) add("aviso", ed.n + (ed.n === 1 ? " error en las últimas 24 horas." : " errores en las últimas 24 horas."), "");
-  if (po && po.b > 250e6) add("aviso", "Las fotos y logos que mandan los clientes ocupan " + Math.round(po.b / 1e6) + " MB.", "La base de datos gratuita admite 500 MB en total. Anonimiza eventos antiguos (Parámetros → Privacidad) para liberar espacio.");
+  if (po && po.b > 250e6) add("aviso", "Las fotos, logos, justificantes y contratos subidos ocupan " + Math.round(po.b / 1e6) + " MB.", "La base de datos gratuita admite 500 MB en total. Anonimiza eventos antiguos (Parámetros → Privacidad) para liberar espacio.");
   if (co && co.err > 0) add("aviso", co.err + (co.err === 1 ? " correo no ha salido o no ha llegado" : " correos no han salido o no han llegado") + " (últimas 24 horas; rebotes, de la última semana).", "Míralo en la bandeja de «Avisos y correo»; se puede reintentar desde ahí.");
   if (!avisos.length) add("ok", "Todo en orden: sin errores recientes, con copias al día y espacio de sobra.", "");
   return json({
@@ -921,6 +926,7 @@ function anonEvento(e, ahora) {
 async function privLimpiarTablas(env, ids, nombres) {
   await ensureHistorial(env); await ensureBackups(env); await ensureNovios(env); await ensurePlanos(env); await ensureServicio(env); await ensureCorreo(env); await ensurePortal(env); await ensureConsultas(env); await ensureDocs(env);
   for (const id of ids) {
+    await env.DB.prepare("DELETE FROM evento_docs_parte WHERE doc IN (SELECT id FROM evento_docs WHERE ev=?1)").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM evento_docs WHERE ev=?1").bind(String(id)).run();
     { const cs = await env.DB.prepare("SELECT id FROM consultas WHERE ev_id=?1").bind(String(id)).all(); await consBorraRastro(env, (cs.results || []).map((r) => r.id)); }
     await env.DB.prepare("DELETE FROM consultas WHERE ev_id=?1").bind(String(id)).run();
@@ -1395,13 +1401,19 @@ async function consCfgPut(request, env) {
      así que: solo administración y eventos los ven; el cliente puede SUBIRLOS pero no volver a verlos (el enlace del portal no
      sirve para bajarlos); cada vez que alguien del equipo abre uno queda anotado en el registro de actividad; se borran solos
      pasado un plazo tras el evento (Parámetros → Privacidad y datos, por defecto 90 días) y siempre al anonimizar el evento.
-   Se guardan aparte, en evento_docs (no caben en el documento de eventos): JPG, PNG, WebP o PDF de hasta 600 KB. */
+   · CONTRATOS FIRMADOS A MANO (v02.09): el contrato que se hizo antes del programa o en papel, escaneado o en foto (PDF, JPG, PNG o WebP).
+     Los ven administración, eventos y contabilidad; solo administración y eventos los suben o quitan. Pueden pesar hasta 5 MB, así que no
+     caben en una fila (D1 admite 2 MB): se suben en trozos (evento_docs_parte) y se juntan al abrirlos; los que se quedan a medias se limpian
+     solos. Nunca salen en el portal del cliente y se borran al anonimizar el evento.
+   Se guardan aparte, en evento_docs (no caben en el documento de eventos): JPG, PNG, WebP o PDF de hasta 600 KB (los contratos, 5 MB). */
 const DOC_MAX = 600000, DOC_DIA = 20, DOC_NI_PERSONA = 4, DOC_JUS_MAX = 40, DOC_COM_MAX = 80, DOC_BODY_MAX = 1100000;
+const DOC_CON_MAX = 5000000, DOC_CON_PARTE = 1000000, DOC_CON_N = 12, DOC_CON_MIME = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 let DOCS_OK = false;
 async function ensureDocs(env) {
   if (DOCS_OK) return;
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS evento_docs (id INTEGER PRIMARY KEY AUTOINCREMENT, ev TEXT NOT NULL, kind TEXT NOT NULL, persona TEXT, de TEXT NOT NULL, por TEXT, nombre TEXT, mime TEXT NOT NULL, bytes INTEGER NOT NULL, hash TEXT, src TEXT NOT NULL, ts INTEGER NOT NULL, ref TEXT, concepto TEXT, importe REAL, fecha TEXT, estado TEXT, nota TEXT, leido INTEGER NOT NULL DEFAULT 0)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS evento_docs_ev ON evento_docs (ev, kind)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS evento_docs_parte (doc INTEGER NOT NULL, n INTEGER NOT NULL, data TEXT NOT NULL, PRIMARY KEY (doc, n))").run();
   DOCS_OK = true;
 }
 const DOC_COLS = "id, ev, kind, persona, de, por, nombre, mime, bytes, ts, ref, concepto, importe, fecha, estado, nota, leido";
@@ -1445,8 +1457,11 @@ function docPermiso(s, kind) {
   if (kind === "dni") return s.role === "admin" || s.role === "eventos";
   if (kind === "justificante") return s.role === "admin" || s.role === "eventos" || s.role === "contabilidad";
   if (kind === "comunicacion") return s.role === "admin" || s.role === "eventos";
+  if (kind === "contrato") return s.role === "admin" || s.role === "eventos" || s.role === "contabilidad";   /* los ven; subir y quitar, abajo */
   return false;
 }
+/* quién puede subir, cambiar o quitar: igual que ver, salvo el contrato (contabilidad solo lo mira) */
+function docEscribe(s, kind) { return kind === "contrato" ? !!s && (s.role === "admin" || s.role === "eventos") : docPermiso(s, kind); }
 function docNum(v) { const n = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(n) && n >= 0 && n < 1e8 ? Math.round(n * 100) / 100 : null; }
 function docFecha(v) { const s = String(v || "").slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ""; }
 async function docsEquipo(request, env) {
@@ -1464,7 +1479,7 @@ async function docsGet(request, env, url) {
   if (Math.random() < 0.03) { try { await docsLimpiar(env); } catch (_) {} }
   /* los adjuntos de Comunicación se piden aparte (&kind=comunicacion) y no salen en Documentos del evento */
   const soloCom = String(url.searchParams.get("kind") || "") === "comunicacion";
-  return json({ ev: evId, docs: (results || []).filter((r) => docPermiso(a.s, r.kind) && (soloCom ? r.kind === "comunicacion" : r.kind !== "comunicacion")).map(docMeta), puede: { dni: docPermiso(a.s, "dni"), justificante: docPermiso(a.s, "justificante"), comunicacion: docPermiso(a.s, "comunicacion") } });
+  return json({ ev: evId, docs: (results || []).filter((r) => r.estado !== "subiendo" && docPermiso(a.s, r.kind) && (soloCom ? r.kind === "comunicacion" : r.kind !== "comunicacion")).map(docMeta), puede: { dni: docPermiso(a.s, "dni"), justificante: docPermiso(a.s, "justificante"), comunicacion: docPermiso(a.s, "comunicacion"), contrato: docPermiso(a.s, "contrato"), contratoEscribe: docEscribe(a.s, "contrato") } });
 }
 /* GET /api/docs/ver?id=  el archivo (los de identidad: cada apertura queda en el registro de actividad) */
 async function docsVer(request, env, url) {
@@ -1472,6 +1487,11 @@ async function docsVer(request, env, url) {
   const r = await env.DB.prepare("SELECT " + DOC_COLS + ", src FROM evento_docs WHERE id=?1").bind(Math.floor(+url.searchParams.get("id") || 0)).first();
   if (!r) return json({ error: "not-found" }, 404);
   if (!docPermiso(a.s, r.kind)) return json({ error: "forbidden", message: "Tu rol no puede ver este documento." }, 403);
+  if (r.kind === "contrato") {
+    if (r.estado === "subiendo") return json({ error: "not-found" }, 404);
+    const ps = await env.DB.prepare("SELECT data FROM evento_docs_parte WHERE doc=?1 ORDER BY n").bind(r.id).all();
+    r.src = "data:" + r.mime + ";base64," + (ps.results || []).map((x) => x.data).join("");
+  }
   const m = /^data:([^;]+);base64,(.*)$/.exec(r.src || ""); if (!m) return json({ error: "not-found" }, 404);
   if (r.kind === "dni") { const ev = await porEventoPorId(env, r.ev); await logAct(env, a.s, "dni_visto", "Abrió un documento de identidad · " + String((ev && ev.name) || r.ev).slice(0, 80)); }
   const bin = atob(m[2]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
@@ -1502,7 +1522,7 @@ async function docsEditar(request, env) {
   const a = await docsEquipo(request, env); if (a.err) return a.err;
   const b = await body(request), r = await env.DB.prepare("SELECT " + DOC_COLS + " FROM evento_docs WHERE id=?1").bind(Math.floor(+b.id || 0)).first();
   if (!r) return json({ error: "not-found" }, 404);
-  if (!docPermiso(a.s, r.kind)) return json({ error: "forbidden" }, 403);
+  if (!docEscribe(a.s, r.kind) || r.kind === "contrato") return json({ error: "forbidden" }, 403);
   const sets = [], vals = []; let i = 1;
   const poner = (col, v) => { sets.push(col + "=?" + (i++)); vals.push(v); };
   if (b.ref !== undefined) poner("ref", porTexto(b.ref, 60));
@@ -1524,11 +1544,77 @@ async function docsBorrar(request, env) {
   const a = await docsEquipo(request, env); if (a.err) return a.err;
   const b = await body(request), r = await env.DB.prepare("SELECT id, ev, kind FROM evento_docs WHERE id=?1").bind(Math.floor(+b.id || 0)).first();
   if (!r) return json({ error: "not-found" }, 404);
-  if (!docPermiso(a.s, r.kind)) return json({ error: "forbidden" }, 403);
+  if (!docEscribe(a.s, r.kind)) return json({ error: "forbidden", message: r.kind === "contrato" ? "Tu rol no puede quitar contratos." : undefined }, 403);
+  if (r.kind === "contrato") await env.DB.prepare("DELETE FROM evento_docs_parte WHERE doc=?1").bind(r.id).run();
   await env.DB.prepare("DELETE FROM evento_docs WHERE id=?1").bind(r.id).run();
   const ev = await porEventoPorId(env, r.ev);
-  await logAct(env, a.s, r.kind === "dni" ? "dni_borrado" : r.kind === "comunicacion" ? "adjunto_borrado" : "justificante_borrado", (r.kind === "dni" ? "Documento de identidad" : r.kind === "comunicacion" ? "Adjunto de Comunicación" : "Justificante") + " · " + String((ev && ev.name) || "").slice(0, 80));
+  await logAct(env, a.s, r.kind === "dni" ? "dni_borrado" : r.kind === "comunicacion" ? "adjunto_borrado" : r.kind === "contrato" ? "contrato_borrado" : "justificante_borrado", (r.kind === "dni" ? "Documento de identidad" : r.kind === "comunicacion" ? "Adjunto de Comunicación" : r.kind === "contrato" ? "Contrato firmado a mano" : "Justificante") + " · " + String((ev && ev.name) || "").slice(0, 80));
   return json({ ok: true });
+}
+/* ── contrato firmado a mano: subida por trozos (ini → parte × N → fin) ──
+   Un contrato escaneado pesa más de lo que cabe en una fila, así que el navegador lo parte en trozos de ~1 MB de base64 y el servidor los guarda
+   aparte; al terminar los junta para comprobar que es de verdad un PDF o una imagen y que pesa lo que dijo. Si algo falla se borra todo. */
+const DOC_CON_PARTES = (bytes) => Math.max(1, Math.ceil(Math.ceil(bytes / 3) * 4 / DOC_CON_PARTE));
+async function docsConFila(env, a, b) {
+  const r = await env.DB.prepare("SELECT id, ev, kind, por, mime, bytes, estado FROM evento_docs WHERE id=?1").bind(Math.floor(+b.id || 0)).first();
+  return r && r.kind === "contrato" && r.estado === "subiendo" && r.por === porTexto(a.s.name || a.s.email, 60) ? r : null;
+}
+async function docsConEquipo(request, env) {
+  const a = await docsEquipo(request, env); if (a.err) return a;
+  if (!docEscribe(a.s, "contrato")) return { err: json({ error: "forbidden", message: "Tu rol no puede subir contratos." }, 403) };
+  if ((+request.headers.get("content-length") || 0) > DOC_BODY_MAX) return { err: json({ error: "too-big", message: "El trozo es demasiado grande." }, 413) };
+  return a;
+}
+/* POST /api/docs/con/ini  {ev, nombre, mime, bytes}  → {id, partes} */
+async function docsConIni(request, env) {
+  const a = await docsConEquipo(request, env); if (a.err) return a.err;
+  const b = await body(request), ev = await porEventoPorId(env, b.ev); if (!ev) return json({ error: "not-found" }, 404);
+  const mime = String(b.mime || ""), bytes = Math.floor(+b.bytes || 0);
+  if (DOC_CON_MIME.indexOf(mime) < 0) return json({ error: "invalid", message: "Solo se pueden subir PDF o fotos (JPG, PNG, WebP)." }, 400);
+  if (bytes < 40) return json({ error: "invalid", message: "El archivo está vacío o no es válido." }, 400);
+  if (bytes > DOC_CON_MAX) return json({ error: "too-big", message: "El archivo pesa más de 5 MB. Súbelo como fotos de cada hoja o reduce el PDF." }, 413);
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM evento_docs WHERE ev=?1 AND kind='contrato' AND estado<>'subiendo'").bind(ev.id).first();
+  if (n && n.n >= DOC_CON_N) return json({ error: "limit", message: "Ya hay " + DOC_CON_N + " archivos de contrato en este evento. Quita alguno para subir otro." }, 429);
+  const ahora = Date.now();
+  const r = await env.DB.prepare("INSERT INTO evento_docs (ev, kind, persona, de, por, nombre, mime, bytes, hash, src, ts, ref, concepto, importe, fecha, estado, nota, leido) VALUES (?1,'contrato','','equipo',?2,?3,?4,?5,'','',?6,'','',NULL,'','subiendo','',1)")
+    .bind(ev.id, porTexto(a.s.name || a.s.email, 60), porTexto(b.nombre, 80), mime, bytes, ahora).run();
+  const id = (r.meta && r.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM evento_docs").first()).id;
+  return json({ ok: true, id, partes: DOC_CON_PARTES(bytes), parte: DOC_CON_PARTE });
+}
+/* POST /api/docs/con/parte  {id, n, data}  un trozo del archivo en base64 */
+async function docsConParte(request, env) {
+  const a = await docsConEquipo(request, env); if (a.err) return a.err;
+  const b = await body(request), r = await docsConFila(env, a, b); if (!r) return json({ error: "not-found", message: "Esa subida ya no existe: vuelve a empezar." }, 404);
+  const n = Math.floor(+b.n), total = DOC_CON_PARTES(+r.bytes), data = String(b.data || "");
+  if (!(n >= 0 && n < total)) return json({ error: "invalid" }, 400);
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(data) || data.length > DOC_CON_PARTE || (n < total - 1 && data.length !== DOC_CON_PARTE) || (n < total - 1 && data.indexOf("=") >= 0)) return json({ error: "invalid", message: "El trozo no es válido." }, 400);
+  await env.DB.prepare("INSERT OR REPLACE INTO evento_docs_parte (doc, n, data) VALUES (?1,?2,?3)").bind(r.id, n, data).run();
+  return json({ ok: true });
+}
+/* POST /api/docs/con/fin  {id}  lo junta, lo comprueba y lo deja listo */
+async function docsConFin(request, env) {
+  const a = await docsConEquipo(request, env); if (a.err) return a.err;
+  const b = await body(request), r = await docsConFila(env, a, b); if (!r) return json({ error: "not-found", message: "Esa subida ya no existe: vuelve a empezar." }, 404);
+  const tira = async () => { await env.DB.prepare("DELETE FROM evento_docs_parte WHERE doc=?1").bind(r.id).run(); await env.DB.prepare("DELETE FROM evento_docs WHERE id=?1").bind(r.id).run(); };
+  const ps = (await env.DB.prepare("SELECT n, data FROM evento_docs_parte WHERE doc=?1 ORDER BY n").bind(r.id).all()).results || [], total = DOC_CON_PARTES(+r.bytes);
+  const falla = async (m) => { await tira(); return json({ error: "invalid", message: m }, 400); };
+  if (ps.length !== total || ps.some((x, i) => x.n !== i)) return falla("Faltan trozos del archivo: vuelve a subirlo.");
+  const b64 = ps.map((x) => x.data).join(""), pad = b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0, real = Math.floor(b64.length * 3 / 4) - pad;
+  if (b64.length % 4 !== 0 || real !== +r.bytes) return falla("El archivo no ha llegado entero: vuelve a subirlo.");
+  let cab = ""; try { cab = atob(b64.slice(0, 24)); } catch (_) { return falla("El archivo no es válido."); }
+  const ok = (r.mime === "image/jpeg" && cab.charCodeAt(0) === 0xFF && cab.charCodeAt(1) === 0xD8) || (r.mime === "image/png" && cab.slice(1, 4) === "PNG") || (r.mime === "image/webp" && cab.slice(0, 4) === "RIFF" && cab.slice(8, 12) === "WEBP") || (r.mime === "application/pdf" && cab.slice(0, 5) === "%PDF-");
+  if (!ok) return falla("Solo se pueden subir PDF o fotos (JPG, PNG, WebP) de verdad.");
+  await env.DB.prepare("UPDATE evento_docs SET estado='', hash=?2, ts=?3 WHERE id=?1").bind(r.id, porHash(b64.slice(0, 4000) + ":" + b64.slice(-4000)) + "-" + b64.length, Date.now()).run();   /* huella barata (no recorre los 5 MB) */
+  const ev = await porEventoPorId(env, r.ev);
+  await logAct(env, a.s, "contrato_subido", "Contrato firmado a mano · " + String((ev && ev.name) || "").slice(0, 80));
+  const fila = await env.DB.prepare("SELECT " + DOC_COLS + " FROM evento_docs WHERE id=?1").bind(r.id).first();
+  return json({ ok: true, doc: fila ? docMeta(fila) : null });
+}
+/* los contratos que se quedaron a medias (se cerró la página, se cortó la conexión) se borran pasada una hora */
+async function docsConHuerfanos(env) {
+  const corte = Date.now() - 3600e3;
+  await env.DB.prepare("DELETE FROM evento_docs_parte WHERE doc IN (SELECT id FROM evento_docs WHERE estado='subiendo' AND ts<?1)").bind(corte).run();
+  await env.DB.prepare("DELETE FROM evento_docs WHERE estado='subiendo' AND ts<?1").bind(corte).run();
 }
 /* POST /api/docs/leido  {ev}  lo que subieron los clientes ya está visto */
 async function docsLeido(request, env) {
@@ -1541,6 +1627,7 @@ async function docsLeido(request, env) {
 /* los documentos de identidad se borran solos pasados N días del evento (Parámetros → Privacidad) */
 async function docsLimpiar(env) {
   await ensureDocs(env);
+  await docsConHuerfanos(env);
   const cfg = await privCfg(env), dias = +cfg.dniDias || 0; if (dias <= 0) return 0;
   const row = await env.DB.prepare("SELECT data FROM store WHERE id=1").first(); let doc = {}; try { doc = JSON.parse((row && row.data) || "{}") || {}; } catch (_) {}
   const evs = {}; (doc.events || []).forEach((e) => { if (e && e.id) evs[e.id] = e; });
@@ -1782,7 +1869,7 @@ async function porDatos(env, ev, limiteMsgs) {
   const minuta = A.filter((x) => x.kind === "minuta").pop() || null;
   await ensureDocs(env);
   const dr = await env.DB.prepare("SELECT " + DOC_COLS + " FROM evento_docs WHERE ev=?1 ORDER BY id").bind(ev.id).all();
-  const docs = (dr.results || []).map(docMetaCliente);
+  const docs = (dr.results || []).filter((r) => r.kind === "dni" || r.kind === "justificante").map(docMetaCliente);   /* ni los adjuntos de Comunicación ni los contratos firmados a mano */
   return { docs, msgs: (msgs.results || []).reverse().map((r) => ({ id: r.id, ts: +r.ts, de: r.de, nombre: r.nombre || "", texto: r.texto, leido: !!r.leido })), arch: A, minuta, estado: porEstado(ev, minuta) };
 }
 /* escribe una aprobación en el evento sin pisar nada más: solo se sellan las rutas de «aprobaciones» */
