@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.11 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.12 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.11".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.12".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4495,7 +4495,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.11</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.12</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -6183,7 +6183,7 @@ function migrate(e){
   if(F.tipo==null) F.tipo="Boda";
   if(F.estado==null) F.estado="planificacion"; /* contacto·propuesta·visita·reserva·planificacion·confirmada·celebrada·cerrada */
   if(F.ubicacion==null) F.ubicacion="Les Moles · Ulldecona";
-  ["fecha","parejaA","parejaB","contacto","telefono","email","origen","comoNos","ceremoniaLugar","ceremoniaHora","ceremoniaDur","llegadaRest","horaBriefing","horaAperitivo","horaBanquete","horaBarra","minutas","notas","foto"].forEach(function(k){ if(F[k]==null) F[k]=""; });
+  ["fecha","parejaA","parejaB","contacto","telefono","email","origen","comoNos","idioma","ceremoniaLugar","ceremoniaHora","ceremoniaDur","llegadaRest","horaBriefing","horaAperitivo","horaBanquete","horaBarra","minutas","notas","foto"].forEach(function(k){ if(F[k]==null) F[k]=""; });
   if(F.staff==null) F.staff=0;
   /* evento con la fecha escrita solo en el sitting (título «#» o línea «@») y la
      ficha vacía: salía «Sin fecha» en el inicio y no aparecía en el calendario */
@@ -9928,6 +9928,7 @@ var SECCIONES=[
   {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
   {k:"p-pvp",      g:"Parámetros", t:"Precios de venta"},
   {k:"p-alg",      g:"Parámetros", t:"Alérgenos"},
+  {k:"p-trad",     g:"Parámetros", t:"Traducciones del menú"},
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
   {k:"p-agenda",   g:"Parámetros", t:"Agenda con el cliente"},
   {k:"p-copias",   g:"Parámetros", t:"Copias de seguridad"},
@@ -10152,7 +10153,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.11</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.12</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10504,7 +10505,8 @@ function portalFoto(e){
     if(h.cierre) cierre=h.fecha;
   });
   if(F.fecha) pasos.push({id:"boda",tipo:"boda",t:palabrasEvento(F.tipo).hito,d:[F.ubicacion||"Les Moles"].join(""),fecha:F.fecha,done:false});
-  var menu=[]; try{ menu=menuPorFamilias(e).map(function(f){ return {fam:f.fam,platos:f.platos}; }); }catch(_){}
+  var menu=[], menuTr=null; try{ var mf=menuPorFamilias(e); menu=mf.map(function(f){ return {fam:f.fam,platos:f.platos}; });
+    if(menu.length&&window.LM_TRAD) menuTr={ca:window.LM_TRAD.menu(mf,"ca").map(function(f){ return {fam:f.fam,platos:f.platos}; }),en:window.LM_TRAD.menu(mf,"en").map(function(f){ return {fam:f.fam,platos:f.platos}; })}; }catch(_){}
   var horas=[];
   if(F.llegadaRest) horas.push({l:"Llegada de invitados",v:F.llegadaRest});
   if(F.ceremoniaHora) horas.push({l:"Ceremonia"+(F.ceremoniaLugar?" · "+F.ceremoniaLugar:""),v:F.ceremoniaHora});
@@ -10514,7 +10516,7 @@ function portalFoto(e){
   var mesas=d.tables.map(function(t){ return {k:t.num, nombre:t.name||(mesaNumVisible(t)?"Mesa "+t.num:"Presidencial"), staff:!!t.staff, g:t.guests.map(function(g){ return portalGuest(g,t); })}; });
   var ct=paramData("portal")||{};
   return {v:1, titulo:nombreLimpio(e.name)||"", tipo:F.tipo||eventoTipo(e), fecha:F.fecha||"", ubicacion:F.ubicacion||"",
-    nombres:{a:F.parejaA||"",b:F.parejaB||""}, horas:horas, menu:menu,
+    nombres:{a:F.parejaA||"",b:F.parejaB||""}, horas:horas, menu:menu, menuTr:menuTr, idioma:/^(ca|en)$/.test(F.idioma||"")?F.idioma:"",
     presupuesto:{lineas:lineas, extras:extras, total:Math.round(pt.total*100)/100, pagado:Math.round(pt.pagado*100)/100, pend:Math.round(Math.max(0,pt.pend)*100)/100, pct:pct, senal:senal},
     pagos:pagos, pasos:pasos, cierre:cierre, plano:(function(){ try{ return planoEsquema(e); }catch(_){ return null; } })(), lista:{mesas:mesas}, auto:(e.share&&e.share.auto===false)?false:true,
     contacto:{iban:ct.iban||"",tel:ct.tel||"",mail:ct.mail||"",nota:ct.nota||""},
@@ -11606,7 +11608,7 @@ function renderHomeNovios(){
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
 var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,pedidos:1,consultas:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
-  "p-inicio":1,"p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,"p-consultas":1,
+  "p-inicio":1,"p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-trad":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,"p-consultas":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1,"seat":1};
 var CICLO=[
   {k:"contacto",t:"Contacto"},{k:"propuesta",t:"Propuesta"},{k:"visita",t:"Visita"},
@@ -12044,6 +12046,7 @@ function viewFicha(e){
     fld("Email","ficha.email",F.email,"email")+
     fld("Procedencia","ficha.origen",F.origen)+
     fld("Cómo nos conocieron","ficha.comoNos",F.comoNos)+
+    '<label class="fld"><span class="lbl">Idioma del cliente <small>(menú, minuta y portal)</small></span><select data-f="ficha.idioma"><option value=""'+(!F.idioma?" selected":"")+'>Castellano</option><option value="ca"'+(F.idioma==="ca"?" selected":"")+'>Català</option><option value="en"'+(F.idioma==="en"?" selected":"")+'>English</option></select></label>'+
     (window.LM_waFicha?window.LM_waFicha(e):"")+
   '</div></div>'+
   '<div class="pv-sec">Ceremonia</div>'+
@@ -13849,6 +13852,1065 @@ var MENU_DATA = [{"key":"APERITIVOS","label":"Aperitivos","dishes":[{"name":"Ajo
 
 <script>
 var CATALOGO_DATA = [{"articulo":"BARQUETAS CARTÓN","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"BROCHETERO INOX","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CAJA CARTÓN","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CAJA CARTÓN BURGUER","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CAJA MC MOLES","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CARTÓN CREPS","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CENICERO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CONO PAPEL","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"COPA WHISKY","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CUCHARA PORCELANA","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CUCURUCHERO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CUENCO BLANCO MACARRONES","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CUENCO CHIPS","categoria":"PLATO","base":"MESA APERITIVO","unidades":2},{"articulo":"CUENCO NEGRO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CUENCO PULPO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"FREIDORA PEQUEÑA","categoria":"PLATO","base":"PLATO","unidades":1},{"articulo":"HONDO AZUL","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"HUEVO PORCELANA","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"LATA OVALADA","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"LATA RECTANGULAR","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"LATA REDONDA","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PAPEL DIARIO","categoria":"PLATO","base":"PLATO","unidades":1},{"articulo":"PIZARRA NEGRA MOLLETE","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO ARROZ","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO BLANCO ACEITUNAS","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO BOTELLA","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO CAFÉ","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO CUADRADO JAMÓN","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO LARGO BLANCO CROQUETAS","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO PAN","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO RECTANGULAR ONDULADO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO REDONDO CRISTAL","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"PLATO REDONDO PEQUEÑO PAN","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"REDONDO BLANCO IRREGULAR","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"REDONDO BLANCO LISO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"REDONDO LÍNEA AZUL","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"TAPA","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"TAZA CAFÉ","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"TERRINA CRISTAL MINI","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"VASITO PETIT SUISSE","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"VASO CHUPITO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"VASO CHUPITO PLÁSTICO","categoria":"PLATO","base":"COMENSAL","unidades":1},{"articulo":"CUCHARA","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"CUCHARA PEQUEÑA","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"CUCHILLO CARNE","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"CUCHILLO REDONDO","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"PALA","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"PALILLO MADERA","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"TENEDOR","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"TENEDOR MADERA","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"TENEDOR PEQUEÑO","categoria":"CUBIERTO","base":"COMENSAL","unidades":1},{"articulo":"PINZA","categoria":"UTENSILIO","base":"PLATO","unidades":1},{"articulo":"TOALLITA HÚMEDA","categoria":"UTENSILIO","base":"COMENSAL","unidades":1},{"articulo":"BARRA FEVER TREE","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"BOTELLERO","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"BRASA","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"CARRO HELADOS","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"MANTEL","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"MESA CUADRADA","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"MESA INOX","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"MESA LARGA","categoria":"MOBILIARIO","base":"EVENTO","unidades":1},{"articulo":"MESA MADERA QUESO","categoria":"MOBILIARIO","base":"EVENTO","unidades":1}];
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   v02.12 · LOS MENÚS EN CASTELLANO, CATALÀ Y ENGLISH
+   Todo lo que ven los clientes del menú (la minuta, el portal) sale de aquí:
+   · Los 150 platos del catálogo llevan su traducción revisada a mano al catalán y al inglés (tabla PLATOS).
+   · Un plato escrito a mano se traduce con un glosario de cocina (palabras y frases), con el orden propio de cada idioma
+     (en inglés «croquetas de jamón ibérico» → «Iberian ham croquettes»). Lo que no está en el glosario se deja como está y se avisa.
+   · Todo se puede corregir en Parámetros → «Traducciones del menú»: lo que se escribe allí manda sobre la tabla y el glosario
+     (param «traducciones»: {ca:{plato:texto}, en:{…}}, la clave es el nombre en castellano sin tildes ni mayúsculas).
+   Expone window.LM_TRAD.
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+var LANGS=[{k:"es",t:"Castellano",c:"ES"},{k:"ca",t:"Català",c:"CA"},{k:"en",t:"English",c:"EN"}];
+function nz(s){ return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[“”"«»'’`´]/g,"").replace(/\s+/g," ").trim(); }
+var PLATOS=[
+["Ajoblanco con salazones y ahumados","Ajoblanc amb salaons i fumats","Ajoblanco with cured and smoked fish"],
+["Arroz de galeras y alcachofas","Arròs de galeres i carxofes","Mantis shrimp rice with artichokes"],
+["Arroz de pato del Delta del Ebro y alcachofas","Arròs d'ànec del Delta de l'Ebre i carxofes","Ebro Delta duck rice with artichokes"],
+["Bombón de anguila ahumada, foie y manzana","Bombó d'anguila fumada, foie i poma","Smoked eel, foie gras and apple bonbon"],
+["Brocheta de langostino y beicon","Broqueta de llagostí i cansalada viada","Prawn and bacon skewer"],
+["Brocheta de langostino y calamar","Broqueta de llagostí i calamar","Prawn and squid skewer"],
+["Capuchino de alcachofas de Benicarló y avellanas","Capuccino de carxofes de Benicarló i avellanes","Benicarló artichoke cappuccino with hazelnuts"],
+["Copa de verduras con olor a whisky","Copa de verdures amb olor de whisky","Vegetable cup with a hint of whisky"],
+["Puro de pimiento","Puro de pebrot","Pepper cigar"],
+["Calamares con mayonesa de su tinta","Calamars amb maionesa de la seva tinta","Squid with squid-ink mayonnaise"],
+["Chips de patata con anís estrellado","Xips de patata amb anís estrellat","Potato crisps with star anise"],
+["Coca de sardinas con vinagreta de albahaca","Coca de sardines amb vinagreta d'alfàbrega","Sardine coca flatbread with basil vinaigrette"],
+["Buñuelos de bacalao","Bunyols de bacallà","Salt cod fritters"],
+["Croquetas de angulas","Croquetes d'angules","Baby eel croquettes"],
+["Croquetas de jamón","Croquetes de pernil","Ham croquettes"],
+["Croquetas de langostinos","Croquetes de llagostins","Prawn croquettes"],
+["Croquetas de setas","Croquetes de bolets","Mushroom croquettes"],
+["Croquetas de sobrasada","Croquetes de sobrassada","Sobrasada croquettes"],
+["Croquetas de trufa","Croquetes de tòfona","Truffle croquettes"],
+["Croquetas pollo","Croquetes de pollastre","Chicken croquettes"],
+["Crujiente de langostinos","Cruixent de llagostins","Crispy prawns"],
+["Cuchara de foie-gras con cebolla caramelizada","Cullera de foie-gras amb ceba caramel·litzada","Foie gras spoon with caramelised onion"],
+["Cucurucho de pim. rojo con mousse de calabacin","Cucurutxo de pimentó roig amb mousse de carabassó","Red pepper cone with courgette mousse"],
+["Cucurucho de piña con mousse de foie-gras","Cucurutxo de pinya amb mousse de foie-gras","Pineapple cone with foie gras mousse"],
+["Esfera XXL de parmesano con sopa de cebolla","Esfera XXL de parmesà amb sopa de ceba","XXL Parmesan sphere with onion soup"],
+["Falso sushi de verduras","Fals sushi de verdures","Vegetable mock sushi"],
+["Foie - gras con higos","Foie-gras amb figues","Foie gras with figs"],
+["Galleta Oreo de aceitunas negras y sobrasada","Galeta Oreo d'olives negres i sobrassada","Black olive and sobrasada Oreo cookie"],
+["Gazpacho de frutas y verduras","Gaspatxo de fruites i verdures","Fruit and vegetable gazpacho"],
+["Gilda de color rojo","Gilda de color roig","Red gilda skewer"],
+["Huevo con patatas","Ou amb patates","Egg with potatoes"],
+["Jamón Ibérico de Cebo de Campo Blázquez","Pernil ibèric de Cebo de Campo Blázquez","Blázquez Cebo de Campo Iberian ham"],
+["La deconstrucción de escalivada","La deconstrucció d'escalivada","Deconstructed escalivada (roasted vegetables)"],
+["Lata de atún Balfegó en escabeche","Llauna de tonyina Balfegó en escabetx","Tin of Balfegó tuna in escabeche"],
+["Lata de coquinas con ajo, guindilla y romero","Llauna de tellerines amb all, bitxo i romaní","Tin of coquina clams with garlic, chilli and rosemary"],
+["Lata de falsas anchoas","Llauna de falses anxoves","Tin of mock anchovies"],
+["Mc Moles","Mc Moles","Mc Moles"],
+["Mollete de butifarra","Mollet de botifarra","Mollete with butifarra sausage"],
+["Mollete de costilla","Mollet de costella de porc","Mollete with pork rib"],
+["Mollete de pato a la naranja","Mollet d'ànec a la taronja","Mollete with duck in orange sauce"],
+["Mollete de setas","Mollet de bolets","Mollete with mushrooms"],
+["Mollete de sobrasada","Mollet de sobrassada","Mollete with sobrasada"],
+["Nuestra versión de la ensaladilla rusa","La nostra versió de l'amanida russa","Our version of Russian salad"],
+["“Pa amb tomaca” con pan de cristal y AOVE","«Pa amb tomaca» amb pa de vidre i OOVE","“Pa amb tomaca” (tomato bread) on glass bread with extra virgin olive oil"],
+["“Pizza” de tomate, parmesano y albahaca","«Pizza» de tomàquet, parmesà i alfàbrega","“Pizza” of tomato, Parmesan and basil"],
+["Pulpo con espuma de allipebre","Pop amb escuma d'allipebre","Octopus with allipebre (garlic and pepper) foam"],
+["Royal de foie con geleé de vermut y lima","Royal de foie amb gelea de vermut i llima","Foie gras royale with vermouth and lime jelly"],
+["Snack de Pollo ast","Snack de pollastre a l'ast","Rotisserie chicken snack"],
+["Tartar de atún rojo y remolacha","Tàrtar de tonyina vermella i remolatxa","Bluefin tuna and beetroot tartare"],
+["Unas aceitunas de OOVE","Unes olives d'OOVE","Olives of extra virgin olive oil"],
+["Buffet de gamba roja al vapor (75 gr)","Bufet de gamba vermella al vapor (75 gr)","Steamed red prawn buffet (75 g)"],
+["Buffet de langostino al vapor (75 gr)","Bufet de llagostí al vapor (75 gr)","Steamed prawn buffet (75 g)"],
+["Buffet de ostras del Delta del Ebro","Bufet d'ostres del Delta de l'Ebre","Ebro Delta oyster buffet"],
+["Cucurucho de aceitunas con tomate","Cucurutxo d'olives amb tomàquet","Olive and tomato cone"],
+["Cucurucho neutro","Cucurutxo neutre","Plain cone"],
+["Helado de colmenillas","Gelat de múrgoles","Morel ice cream"],
+["Helado de mejillones en escabeche","Gelat de musclos en escabetx","Pickled mussel ice cream"],
+["Helado de sobrasada","Gelat de sobrassada","Sobrasada ice cream"],
+["Polo crocante de foie gras","Gelat de pal cruixent de foie gras","Crunchy foie gras ice lolly"],
+["ENCURTIDOS","ENCURTITS","PICKLES"],
+["Brasa de gambas (65gr)","Brasa de gambes (65 gr)","Grilled prawns (65 g)"],
+["Brasa de langostinos (65gr.)","Brasa de llagostins (65 gr)","Grilled king prawns (65 g)"],
+["Chuletón","Xuletó","Bone-in ribeye steak"],
+["Mini burguer de vaca vieja","Mini hamburguesa de vaca vella","Mini mature beef burger"],
+["Papada con chutney","Papada amb chutney","Pork jowl with chutney"],
+["Pulpo","Pop","Octopus"],
+["Ventresca atún Balfegó","Ventresca de tonyina Balfegó","Balfegó tuna belly"],
+["Piruletas de aceite de olivos Milenarios","Piruletes d'oli d'oliveres mil·lenàries","Lollipops of oil from millennial olive trees"],
+["Foie con chutney de boniato","Foie amb chutney de moniato","Foie gras with sweet potato chutney"],
+["Huevos de codorniz con sobrasada","Ous de guatlla amb sobrassada","Quail eggs with sobrasada"],
+["Navajas (4u)","Navalles (4 u)","Razor clams (4 pcs)"],
+["TABLA DE QUESOS","TAULA DE FORMATGES","CHEESE BOARD"],
+["Bogavante en milhojas de verduras y azafrán","Llamàntol en milfulls de verdures i safrà","Lobster millefeuille with vegetables and saffron"],
+["Ensalada de color rojo","Amanida de color roig","Red salad"],
+["Ensalada de gamba roja de Tarragona","Amanida de gamba vermella de Tarragona","Tarragona red prawn salad"],
+["Ensalada de texturas de tomate y de anguila","Amanida de textures de tomàquet i d'anguila","Salad of tomato and eel textures"],
+["Ensalada de ventresca de atún de Balfegó","Amanida de ventresca de tonyina de Balfegó","Balfegó tuna belly salad"],
+["Gazpacho de frutas con gamba de Tarragona","Gaspatxo de fruites amb gamba de Tarragona","Fruit gazpacho with Tarragona prawn"],
+["Sopa fría de tomate con langostinos","Sopa freda de tomàquet amb llagostins","Chilled tomato soup with prawns"],
+["Gambas rojas a la sal 2 - 3 (120gr)","Gambes vermelles a la sal 2 - 3 (120 gr)","Salt-cooked red prawns 2 - 3 (120 g)"],
+["Gambas rojas a la sal 3 - 4 (170gr)","Gambes vermelles a la sal 3 - 4 (170 gr)","Salt-cooked red prawns 3 - 4 (170 g)"],
+["Langostinos a la sal 5 - 6 (140gr)","Llagostins a la sal 5 - 6 (140 gr)","Salt-cooked king prawns 5 - 6 (140 g)"],
+["Langostinos a la sal 8 - 10 (170gr)","Llagostins a la sal 8 - 10 (170 gr)","Salt-cooked king prawns 8 - 10 (170 g)"],
+["Langostinos a la sal 10 - 12 (200gr)","Llagostins a la sal 10 - 12 (200 gr)","Salt-cooked king prawns 10 - 12 (200 g)"],
+["Langostinos al vapor 5 - 6 (140gr)","Llagostins al vapor 5 - 6 (140 gr)","Steamed king prawns 5 - 6 (140 g)"],
+["Langostinos al vapor 8 - 10 (170gr)","Llagostins al vapor 8 - 10 (170 gr)","Steamed king prawns 8 - 10 (170 g)"],
+["Langostinos al vapor 10 - 12 (200gr)","Llagostins al vapor 10 - 12 (200 gr)","Steamed king prawns 10 - 12 (200 g)"],
+["Crema de gambas y mejillones","Crema de gambes i musclos","Cream of prawn and mussel soup"],
+["Sopa de calabaza, huevo pochado y langostino","Sopa de carabassa, ou escalfat i llagostí","Pumpkin soup with poached egg and prawn"],
+["Armónica de atún de Balfegó, puré de patata y huevo","Harmònica de tonyina de Balfegó, puré de patata i ou","Balfegó tuna harmonica cut with potato purée and egg"],
+["Bacalao con crema de allioli y crujiente de su piel","Bacallà amb crema d'allioli i cruixent de la seva pell","Cod with allioli cream and crispy skin"],
+["Bacalao con pil pil de plancton y crujiente de su piel","Bacallà amb pil-pil de plàncton i cruixent de la seva pell","Cod with plankton pil-pil and crispy skin"],
+["Bogavante a la brasa con salsa de sus cabezas","Llamàntol a la brasa amb salsa dels seus caps","Chargrilled lobster with sauce made from its heads"],
+["Carrillera de atún Balfegó, coliflor y mantequilla","Galta de tonyina Balfegó, coliflor i mantega","Balfegó tuna cheek with cauliflower and butter"],
+["Langostinos con pil - pil de sus cabezas, aceite de cebollino y ñoquis","Llagostins amb pil-pil dels seus caps, oli de cibulet i nyoquis","Prawns with pil-pil of their heads, chive oil and gnocchi"],
+["Lubina a la brasa con holandesa de piparras","Llobarro a la brasa amb holandesa de piparres","Chargrilled sea bass with piparra pepper hollandaise"],
+["Lubina con coliflor, angulas de calamar y caviar","Llobarro amb coliflor, angules de calamar i caviar","Sea bass with cauliflower, squid “baby eels” and caviar"],
+["Merluza con pil pil de plancton","Lluç amb pil-pil de plàncton","Hake with plankton pil-pil"],
+["Merluza con suquet marinero y puré de patata","Lluç amb suquet mariner i puré de patata","Hake with seafood suquet and mashed potato"],
+["Rape a la brasa con pilpil de azafrán del Perelló","Rap a la brasa amb pil-pil de safrà del Perelló","Chargrilled monkfish with Perelló saffron pil-pil"],
+["Rodaballo con puré de 'allipebre'","Rèmol amb puré d'«allipebre»","Turbot with “allipebre” purée"],
+["Suquet de raya","Suquet de rajada","Skate suquet (Catalan fish stew)"],
+["De fresa y vinagre","De maduixa i vinagre","Strawberry and vinegar sorbet"],
+["De fruta de la pasión","De fruita de la passió","Passion fruit sorbet"],
+["De limón y menta","De llimona i menta","Lemon and mint sorbet"],
+["De limón y piña","De llimona i pinya","Lemon and pineapple sorbet"],
+["De limón y tomillo","De llimona i farigola","Lemon and thyme sorbet"],
+["De manzana verde","De poma verda","Green apple sorbet"],
+["Cabrito con setas","Cabrit amb bolets","Kid goat with mushrooms"],
+["1/2 Cabrito con setas","1/2 Cabrit amb bolets","1/2 Kid goat with mushrooms"],
+["Canelón crujiente de cola de buey","Canelò cruixent de cua de bou","Crispy oxtail cannelloni"],
+["1/2 Canelón crujiente de cola de buey","1/2 Canelò cruixent de cua de bou","1/2 Crispy oxtail cannelloni"],
+["Cerdo Ral de Aviñón con manzana de feria","Porc Ral d'Avinyó amb poma de fira","Ral d'Avinyó pork with candy apple"],
+["1/2 Cerdo Ral de Aviñón con manzana de feria","1/2 Porc Ral d'Avinyó amb poma de fira","1/2 Ral d'Avinyó pork with candy apple"],
+["Cochinillo confitado con texturas de col","Garrí confitat amb textures de col","Confit suckling pig with cabbage textures"],
+["1/2 Cochinillo confitado con texturas de col","1/2 Garrí confitat amb textures de col","1/2 Confit suckling pig with cabbage textures"],
+["Confit de pato con puré de manzana y canela","Confit d'ànec amb puré de poma i canyella","Duck confit with apple and cinnamon purée"],
+["Jarrete de cordero con bearnesa y puré de patata y romero","Jarret de corder amb bearnesa i puré de patata i romaní","Lamb shank with béarnaise, mashed potato and rosemary"],
+["Meloso de ternera con frutos secos y puré de orejones","Melós de vedella amb fruits secs i puré d'orellanes d'albercoc","Melt-in-the-mouth veal with nuts and dried apricot purée"],
+["1/2 Meloso de ternera con frutos secos y puré de orejones","1/2 Melós de vedella amb fruits secs i puré d'orellanes d'albercoc","1/2 Melt-in-the-mouth veal with nuts and dried apricot purée"],
+["Paletilla de cabrito al horno","Espatlla de cabrit al forn","Roast shoulder of kid goat"],
+["Algarroba parece.. plátano es!","Garrofa sembla.. plàtan és!","Carob it seems.. banana it is!"],
+["Almendra","Ametlla","Almond"],
+["Almendrado de chocolate CREO","Ametllat de xocolata CREO","CREO chocolate almond praline"],
+["El jardín","El jardí","The garden"],
+["Huevo de maracuyá, menta y coco","Ou de maracuià, menta i coco","Passion fruit, mint and coconut egg"],
+["Huevo Kinder","Ou Kinder","Kinder egg"],
+["Los aromas del vino de Les Moles","Els aromes del vi de Les Moles","The aromas of Les Moles wine"],
+["Macarrones a la boloñesa","Macarrons a la bolonyesa","Macaroni bolognese"],
+["Nuestra versión del tarta tatin con helado de vainilla","La nostra versió del pastís tatin amb gelat de vainilla","Our version of tarte tatin with vanilla ice cream"],
+["Texturas de chocolate CREO","Textures de xocolata CREO","CREO chocolate textures"],
+["Jamón ibérico","Pernil ibèric","Iberian ham"],
+["Pan con tomate","Pa amb tomàquet","Bread with tomato"],
+["Surtido de croquetas","Assortit de croquetes","Assorted croquettes"],
+["Helado de chocolate y vainilla","Gelat de xocolata i vainilla","Chocolate and vanilla ice cream"],
+["Canelones de pollo con bechamel","Canelons de pollastre amb beixamel","Chicken cannelloni with béchamel"],
+["Fideuá","Fideuà","Fideuà (noodle paella)"],
+["Macarrones en la boloñesa","Macarrons a la bolonyesa","Macaroni bolognese"],
+["Costillas de cordero a la brasa","Costelles de corder a la brasa","Chargrilled lamb ribs"],
+["Lomo rebozado","Llom arrebossat","Breaded pork loin"],
+["Pechuga de pollo rebozado","Pit de pollastre arrebossat","Breaded chicken breast"],
+["Focaccia de Les Moles","Focaccia de Les Moles","Les Moles focaccia"],
+["Surtido de donuts de casa","Assortit de donuts de casa","Assorted homemade doughnuts"],
+["Sandwiches","Sandvitxos","Sandwiches"],
+["Hamburguesa de vaca vieja","Hamburguesa de vaca vella","Mature beef burger"],
+["Patatas bravas","Patates braves","Patatas bravas"],
+["Creps","Creps","Crêpes"],
+["El clásico","El clàssic","The classic"],
+["Cafés y licores","Cafès i licors","Coffees and liqueurs"],
+["Almendrado de chocolate CREO personalizado","Ametllat de xocolata CREO personalitzat","Personalised CREO chocolate almond praline"],
+["PAN CHAPATA BODA MUCHO APERITIVO","Pa de xapata","Chapata bread"],
+["PAN CHAPATA CELEBRACIÓN POCO APERITIVO","Pa de xapata","Chapata bread"]
+];
+var FAMS={"APERITIVOS":["Aperitivos","Aperitius","Appetisers"],"ESTACIONES":["Estaciones","Estacions","Food stations"],"ENTRANTES":["Entrantes","Entrants","Starters"],"MARISCO":["Marisco","Marisc","Seafood"],"CREMAS":["Cremas","Cremes","Creamy soups"],"PESCADOS":["Pescados","Peixos","Fish"],"ARROCES":["Arroces","Arrossos","Rice dishes"],"SORBETES":["Sorbetes","Sorbets","Sorbets"],"CARNES":["Carnes","Carns","Meat"],"POSTRES":["Postres","Postres","Desserts"],"TARTA":["Tarta","Pastís","Cake"],"NIÑOS":["Niños","Nens","Children's menu"],"RECENA":["Recena","Ressopó","Late-night snack"],"PAN":["Pan","Pa","Bread"]};
+var G={
+"con":["amb","with","p"],
+"y":["i","and","p"],
+"e":["i","and","p"],
+"o":["o","or","p"],
+"u":["o","or","p"],
+"sin":["sense","without","p"],
+"para":["per a","for","p"],
+"en":["en","in","p"],
+"al":["al","","x"],
+"a":["a","","x"],
+"de":["de","of","p"],
+"del":["del","of the","p"],
+"la":["la","the","x"],
+"el":["el","the","x"],
+"los":["els","the","x"],
+"las":["les","the","x"],
+"lo":["el","the","x"],
+"un":["un","a","x"],
+"una":["una","a","x"],
+"unos":["uns","some","x"],
+"unas":["unes","some","x"],
+"su":["el seu","its","x"],
+"sus":["els seus","their","x"],
+"nuestra":["nostra","our","x"],
+"nuestro":["nostre","our","x"],
+"nuestros":["nostres","our","x"],
+"nuestras":["nostres","our","x"],
+"por":["per","by","p"],
+"según":["segons","according to","p"],
+"sobre":["sobre","on","p"],
+"entre":["entre","between","p"],
+"tipo":["tipus","style","x"],
+"aperitivo":["aperitiu","appetiser","n"],
+"aperitivos":["aperitius","appetisers","n"],
+"entrante":["entrant","starter","n"],
+"entrantes":["entrants","starters","n"],
+"postre":["postres","dessert","n"],
+"postres":["postres","desserts","n"],
+"plato":["plat","dish","n"],
+"platos":["plats","dishes","n"],
+"ensalada":["amanida","salad","c"],
+"ensaladilla":["amanida","salad","c"],
+"sopa":["sopa","soup","c"],
+"crema":["crema","cream","c"],
+"caldo":["brou","broth","c"],
+"gazpacho":["gaspatxo","gazpacho","c"],
+"salmorejo":["salmorejo","salmorejo","c"],
+"ajoblanco":["ajoblanc","ajoblanco","c"],
+"consomé":["consomé","consommé","c"],
+"croqueta":["croqueta","croquette","c"],
+"croquetas":["croquetes","croquettes","c"],
+"buñuelo":["bunyol","fritter","c"],
+"buñuelos":["bunyols","fritters","c"],
+"bunuelos":["bunyols","fritters","c"],
+"empanadilla":["panadó","turnover","c"],
+"empanadillas":["panadons","turnovers","c"],
+"empanada":["empanada","pie","c"],
+"tortilla":["truita","omelette","c"],
+"tortillas":["truites","omelettes","c"],
+"revuelto":["remenat","scramble","c"],
+"huevos":["ous","eggs","n"],
+"huevo":["ou","egg","n"],
+"pizza":["pizza","pizza","c"],
+"focaccia":["focaccia","focaccia","c"],
+"coca":["coca","coca flatbread","c"],
+"tosta":["torrada","toast","c"],
+"tostada":["torrada","toasted","a"],
+"canapé":["canapè","canapé","c"],
+"canapés":["canapès","canapés","c"],
+"pincho":["pinxo","pintxo","c"],
+"pinchos":["pinxos","pintxos","c"],
+"tapa":["tapa","tapa","c"],
+"brocheta":["broqueta","skewer","c"],
+"brochetas":["broquetes","skewers","c"],
+"bocadillo":["entrepà","sandwich","c"],
+"bocadillos":["entrepans","sandwiches","c"],
+"sándwich":["sandvitx","sandwich","c"],
+"sandwich":["sandvitx","sandwich","c"],
+"sandwiches":["sandvitxos","sandwiches","c"],
+"hamburguesa":["hamburguesa","burger","c"],
+"mini":["mini","mini","x"],
+"burguer":["hamburguesa","burger","c"],
+"mollete":["mollet","mollete","c"],
+"pan":["pa","bread","n"],
+"pasta":["pasta","pasta","n"],
+"macarrones":["macarrons","macaroni","n"],
+"espaguetis":["espaguetis","spaghetti","n"],
+"tallarines":["tallarines","tagliatelle","n"],
+"canelones":["canelons","cannelloni","c"],
+"canelón":["canelò","cannelloni","c"],
+"ravioli":["raviolis","ravioli","c"],
+"raviolis":["raviolis","ravioli","n"],
+"lasaña":["lasanya","lasagne","c"],
+"ñoquis":["nyoquis","gnocchi","c"],
+"arroz":["arròs","rice","c"],
+"paella":["paella","paella","c"],
+"fideuá":["fideuà","fideuà","n"],
+"fideos":["fideus","noodles","n"],
+"risotto":["risotto","risotto","c"],
+"cuscús":["cuscús","couscous","n"],
+"tarta":["pastís","cake","c"],
+"pastel":["pastís","cake","c"],
+"bizcocho":["pastís","sponge cake","c"],
+"brownie":["brownie","brownie","c"],
+"flan":["flam","flan","c"],
+"natillas":["natilles","custard","c"],
+"crema catalana":["crema catalana","crème catalane","n"],
+"mousse":["mousse","mousse","c"],
+"espuma":["escuma","foam","c"],
+"helado":["gelat","ice cream","c"],
+"helados":["gelats","ice creams","c"],
+"sorbete":["sorbet","sorbet","c"],
+"sorbetes":["sorbets","sorbets","c"],
+"granizado":["granissat","granita","c"],
+"coulant":["coulant","fondant","c"],
+"fondant":["fondant","fondant","c"],
+"milhojas":["milfulls","millefeuille","c"],
+"profiteroles":["profiteroles","profiteroles","n"],
+"trufas":["tòfones","truffles","n"],
+"turrón":["torró","nougat","n"],
+"galleta":["galeta","biscuit","c"],
+"galletas":["galetes","biscuits","c"],
+"bombón":["bombó","bonbon","c"],
+"bombones":["bombons","chocolates","n"],
+"piruleta":["piruleta","lollipop","c"],
+"piruletas":["piruletes","lollipops","c"],
+"cucurucho":["cucurutxo","cone","c"],
+"cuchara":["cullera","spoon","c"],
+"cucharita":["cullereta","teaspoon","c"],
+"copa":["copa","cup","c"],
+"vasito":["gotet","small glass","c"],
+"lata":["llauna","tin","c"],
+"tabla":["taula","board","c"],
+"surtido":["assortit","assortment","c"],
+"selección":["selecció","selection","c"],
+"trilogía":["trilogia","trilogy","c"],
+"dúo":["duo","duo","c"],
+"texturas":["textures","textures","n"],
+"textura":["textura","texture","n"],
+"versión":["versió","version","n"],
+"deconstrucción":["deconstrucció","deconstruction","n"],
+"esfera":["esfera","sphere","c"],
+"snack":["snack","snack","c"],
+"chips":["xips","crisps","c"],
+"royal":["royal","royale","c"],
+"tartar":["tàrtar","tartare","c"],
+"carpaccio":["carpaccio","carpaccio","c"],
+"ceviche":["ceviche","ceviche","c"],
+"escabeche":["escabetx","escabeche","n"],
+"escalivada":["escalivada","escalivada","n"],
+"suquet":["suquet","suquet","n"],
+"pilpil":["pil-pil","pil-pil","n"],
+"holandesa":["holandesa","hollandaise","n"],
+"bearnesa":["bearnesa","béarnaise","n"],
+"vinagreta":["vinagreta","vinaigrette","n"],
+"allioli":["allioli","allioli","n"],
+"salsa":["salsa","sauce","c"],
+"chutney":["chutney","chutney","n"],
+"puré":["puré","purée","c"],
+"confit":["confit","confit","n"],
+"reducción":["reducció","reduction","c"],
+"jugo":["suc","jus","c"],
+"fondo":["fons","stock","c"],
+"aceite":["oli","oil","c"],
+"aove":["OOVE","extra virgin olive oil","n"],
+"oove":["OOVE","extra virgin olive oil","n"],
+"carne":["carn","meat","n"],
+"carnes":["carns","meats","n"],
+"ternera":["vedella","veal","n"],
+"vaca":["vaca","beef","n"],
+"buey":["bou","ox","n"],
+"cerdo":["porc","pork","n"],
+"cochinillo":["garrí","suckling pig","n"],
+"cordero":["corder","lamb","n"],
+"cabrito":["cabrit","kid goat","n"],
+"conejo":["conill","rabbit","n"],
+"pollo":["pollastre","chicken","n"],
+"pavo":["gall dindi","turkey","n"],
+"pato":["ànec","duck","n"],
+"magret":["magret","magret","c"],
+"codorniz":["guatlla","quail","n"],
+"perdiz":["perdiu","partridge","n"],
+"faisán":["faisà","pheasant","n"],
+"jabalí":["senglar","wild boar","n"],
+"ciervo":["cérvol","venison","n"],
+"solomillo":["filet","sirloin","c"],
+"entrecot":["entrecot","entrecôte","c"],
+"chuletón":["xuletó","ribeye steak","c"],
+"chuleta":["xulla","chop","c"],
+"chuletas":["xulles","chops","c"],
+"costilla":["costella","rib","c"],
+"costillas":["costelles","ribs","c"],
+"costillar":["costellam","rack of ribs","c"],
+"carrillera":["galta","cheek","c"],
+"carrilleras":["galtes","cheeks","c"],
+"paletilla":["espatlla","shoulder","c"],
+"pierna":["cuixa","leg","c"],
+"jarrete":["jarret","shank","c"],
+"cola":["cua","tail","c"],
+"lomo":["llom","loin","c"],
+"presa":["presa","presa","c"],
+"secreto":["secret","secreto","c"],
+"papada":["papada","jowl","c"],
+"pechuga":["pit","breast","c"],
+"muslo":["cuixa","thigh","c"],
+"muslitos":["cuixetes","drumsticks","n"],
+"alitas":["ales","wings","n"],
+"hígado":["fetge","liver","c"],
+"foie":["foie","foie gras","n"],
+"jamón":["pernil","ham","c"],
+"jamon":["pernil","ham","c"],
+"paleta":["paleta","shoulder ham","n"],
+"lacón":["lacón","lacón","n"],
+"bacon":["cansalada viada","bacon","n"],
+"beicon":["cansalada viada","bacon","n"],
+"panceta":["botifarra de ventre","pork belly","n"],
+"tocino":["cansalada","pork fat","n"],
+"chorizo":["xoriço","chorizo","n"],
+"morcilla":["botifarra negra","black pudding","n"],
+"butifarra":["botifarra","butifarra sausage","n"],
+"sobrasada":["sobrassada","sobrasada","n"],
+"salchicha":["salsitxa","sausage","n"],
+"salchichas":["salsitxes","sausages","n"],
+"fuet":["fuet","fuet","n"],
+"longaniza":["llonganissa","longaniza","n"],
+"embutidos":["embotits","cured meats","n"],
+"ibérico":["ibèric","Iberian","a"],
+"ibérica":["ibèrica","Iberian","a"],
+"ibéricos":["ibèrics","Iberian","a"],
+"serrano":["serrà","serrano","a"],
+"melosa":["melosa","melt-in-the-mouth","a"],
+"meloso":["melós","melt-in-the-mouth","a"],
+"tierno":["tendre","tender","a"],
+"tierna":["tendra","tender","a"],
+"pescado":["peix","fish","n"],
+"pescados":["peixos","fish","n"],
+"marisco":["marisc","seafood","n"],
+"mariscos":["mariscos","seafood","n"],
+"atún":["tonyina","tuna","n"],
+"atun":["tonyina","tuna","n"],
+"ventresca":["ventresca","belly","c"],
+"bonito":["bonítol","bonito","n"],
+"salmón":["salmó","salmon","n"],
+"bacalao":["bacallà","cod","n"],
+"merluza":["lluç","hake","n"],
+"lubina":["llobarro","sea bass","n"],
+"dorada":["orada","sea bream","n"],
+"rape":["rap","monkfish","n"],
+"rodaballo":["rèmol","turbot","n"],
+"lenguado":["llenguado","sole","n"],
+"besugo":["besuc","sea bream","n"],
+"rey":["rei","king","x"],
+"sardina":["sardina","sardine","n"],
+"sardinas":["sardines","sardines","n"],
+"anchoa":["anxova","anchovy","n"],
+"anchoas":["anxoves","anchovies","n"],
+"boquerones":["seitons","white anchovies","n"],
+"caballa":["verat","mackerel","n"],
+"trucha":["truita","trout","n"],
+"anguila":["anguila","eel","n"],
+"angulas":["angules","baby eels","n"],
+"raya":["rajada","skate","n"],
+"pez":["peix","fish","n"],
+"espada":["peix espasa","swordfish","n"],
+"gamba":["gamba","prawn","n"],
+"gambas":["gambes","prawns","n"],
+"langostino":["llagostí","prawn","n"],
+"langostinos":["llagostins","prawns","n"],
+"cigala":["escamarlà","langoustine","n"],
+"cigalas":["escamarlans","langoustines","n"],
+"bogavante":["llamàntol","lobster","n"],
+"langosta":["llagosta","spiny lobster","n"],
+"cangrejo":["cranc","crab","n"],
+"centollo":["cranc de mar","spider crab","n"],
+"almejas":["cloïsses","clams","n"],
+"coquinas":["tellerines","coquina clams","n"],
+"navajas":["navalles","razor clams","n"],
+"mejillones":["musclos","mussels","n"],
+"ostras":["ostres","oysters","n"],
+"vieiras":["vieires","scallops","n"],
+"berberechos":["escopinyes","cockles","n"],
+"calamar":["calamar","squid","n"],
+"calamares":["calamars","squid","n"],
+"sepia":["sípia","cuttlefish","n"],
+"chipirones":["calamarsons","baby squid","n"],
+"pulpo":["pop","octopus","n"],
+"caviar":["caviar","caviar","n"],
+"huevas":["ous de peix","roe","n"],
+"galeras":["galeres","mantis shrimp","n"],
+"plancton":["plàncton","plankton","n"],
+"surimi":["surimi","surimi","n"],
+"verdura":["verdura","vegetable","n"],
+"verduras":["verdures","vegetables","n"],
+"hortalizas":["hortalisses","vegetables","n"],
+"tomate":["tomàquet","tomato","n"],
+"tomates":["tomàquets","tomatoes","n"],
+"cherry":["cherry","cherry tomato","n"],
+"patata":["patata","potato","n"],
+"patatas":["patates","potatoes","n"],
+"boniato":["moniato","sweet potato","n"],
+"cebolla":["ceba","onion","n"],
+"cebolleta":["cebeta","spring onion","n"],
+"cebollino":["cibulet","chives","n"],
+"ajo":["all","garlic","n"],
+"puerro":["porro","leek","n"],
+"pimiento":["pebrot","pepper","n"],
+"pimientos":["pebrots","peppers","n"],
+"piparras":["piparres","piparra peppers","n"],
+"guindilla":["bitxo","chilli","n"],
+"calabacín":["carabassó","courgette","n"],
+"calabacin":["carabassó","courgette","n"],
+"calabaza":["carabassa","pumpkin","n"],
+"berenjena":["albergínia","aubergine","n"],
+"berenjenas":["alberginies","aubergines","n"],
+"zanahoria":["pastanaga","carrot","n"],
+"remolacha":["remolatxa","beetroot","n"],
+"alcachofa":["carxofa","artichoke","n"],
+"alcachofas":["carxofes","artichokes","n"],
+"espárrago":["espàrrec","asparagus","n"],
+"espárragos":["espàrrecs","asparagus","n"],
+"champiñones":["xampinyons","mushrooms","n"],
+"champiñón":["xampinyó","mushroom","n"],
+"setas":["bolets","mushrooms","n"],
+"seta":["bolet","mushroom","n"],
+"boletus":["ceps","porcini","n"],
+"colmenillas":["múrgoles","morels","n"],
+"trufa":["tòfona","truffle","n"],
+"coliflor":["coliflor","cauliflower","n"],
+"brócoli":["bròquil","broccoli","n"],
+"col":["col","cabbage","n"],
+"repollo":["col","cabbage","n"],
+"lechuga":["enciam","lettuce","n"],
+"rúcula":["rúcula","rocket","n"],
+"espinacas":["espinacs","spinach","n"],
+"acelgas":["bledes","chard","n"],
+"pepino":["cogombre","cucumber","n"],
+"rábano":["rave","radish","n"],
+"apio":["api","celery","n"],
+"maíz":["blat de moro","sweetcorn","n"],
+"guisantes":["pèsols","peas","n"],
+"habas":["faves","broad beans","n"],
+"judías":["mongetes","green beans","n"],
+"lentejas":["llenties","lentils","n"],
+"garbanzos":["cigrons","chickpeas","n"],
+"verde":["verd","green","a"],
+"verdes":["verds","green","a"],
+"aceitunas":["olives","olives","n"],
+"aceituna":["oliva","olive","n"],
+"encurtidos":["encurtits","pickles","n"],
+"pepinillos":["cogombrets","gherkins","n"],
+"alcaparras":["tàperes","capers","n"],
+"fruta":["fruita","fruit","n"],
+"frutas":["fruites","fruit","n"],
+"fresa":["maduixa","strawberry","n"],
+"fresas":["maduixes","strawberries","n"],
+"frambuesa":["gerd","raspberry","n"],
+"frambuesas":["gerds","raspberries","n"],
+"arándanos":["nabius","blueberries","n"],
+"mora":["móra","blackberry","n"],
+"cereza":["cirera","cherry","n"],
+"cerezas":["cireres","cherries","n"],
+"limón":["llimona","lemon","n"],
+"lima":["llima","lime","n"],
+"naranja":["taronja","orange","n"],
+"mandarina":["mandarina","mandarin","n"],
+"pomelo":["aranja","grapefruit","n"],
+"manzana":["poma","apple","n"],
+"pera":["pera","pear","n"],
+"melocotón":["préssec","peach","n"],
+"albaricoque":["albercoc","apricot","n"],
+"orejones":["orellanes d'albercoc","dried apricots","n"],
+"ciruela":["pruna","plum","n"],
+"higo":["figa","fig","n"],
+"higos":["figues","figs","n"],
+"uva":["raïm","grape","n"],
+"uvas":["raïms","grapes","n"],
+"melón":["meló","melon","n"],
+"sandía":["síndria","watermelon","n"],
+"piña":["pinya","pineapple","n"],
+"plátano":["plàtan","banana","n"],
+"mango":["mango","mango","n"],
+"maracuyá":["maracuià","passion fruit","n"],
+"coco":["coco","coconut","n"],
+"kiwi":["kiwi","kiwi","n"],
+"granada":["magrana","pomegranate","n"],
+"dátiles":["dàtils","dates","n"],
+"pasas":["panses","raisins","n"],
+"almendra":["ametlla","almond","n"],
+"almendras":["ametlles","almonds","n"],
+"almendrado":["ametllat","almond praline","n"],
+"avellana":["avellana","hazelnut","n"],
+"avellanas":["avellanes","hazelnuts","n"],
+"nueces":["nous","walnuts","n"],
+"pistacho":["festuc","pistachio","n"],
+"pistachos":["festucs","pistachios","n"],
+"piñones":["pinyons","pine nuts","n"],
+"cacahuetes":["cacauets","peanuts","n"],
+"frutos":["fruits","nuts","n"],
+"secos":["secs","","a"],
+"algarroba":["garrofa","carob","n"],
+"queso":["formatge","cheese","n"],
+"quesos":["formatges","cheeses","n"],
+"parmesano":["parmesà","Parmesan","n"],
+"mozzarella":["mozzarella","mozzarella","n"],
+"burrata":["burrata","burrata","n"],
+"feta":["feta","feta","n"],
+"manchego":["manxec","Manchego","n"],
+"cabra":["cabra","goat's","x"],
+"azul":["blau","blue","a"],
+"mantequilla":["mantega","butter","n"],
+"mantega":["mantega","butter","n"],
+"nata":["nata","cream","n"],
+"leche":["llet","milk","n"],
+"yogur":["iogurt","yoghurt","n"],
+"mascarpone":["mascarpone","mascarpone","n"],
+"bechamel":["beixamel","béchamel","n"],
+"miel":["mel","honey","n"],
+"azúcar":["sucre","sugar","n"],
+"sal":["sal","salt","n"],
+"pimienta":["pebre","pepper","n"],
+"vinagre":["vinagre","vinegar","n"],
+"mostaza":["mostassa","mustard","n"],
+"mayonesa":["maionesa","mayonnaise","n"],
+"tinta":["tinta","ink","n"],
+"canela":["canyella","cinnamon","n"],
+"vainilla":["vainilla","vanilla","n"],
+"chocolate":["xocolata","chocolate","n"],
+"cacao":["cacau","cocoa","n"],
+"café":["cafè","coffee","n"],
+"cafés":["cafès","coffees","n"],
+"té":["te","tea","n"],
+"infusiones":["infusions","herbal teas","n"],
+"licor":["licor","liqueur","n"],
+"licores":["licors","liqueurs","n"],
+"vino":["vi","wine","n"],
+"vinos":["vins","wines","n"],
+"cava":["cava","cava","n"],
+"champán":["xampany","champagne","n"],
+"cerveza":["cervesa","beer","n"],
+"vermut":["vermut","vermouth","n"],
+"whisky":["whisky","whisky","n"],
+"agua":["aigua","water","n"],
+"zumo":["suc","juice","n"],
+"refrescos":["refrescos","soft drinks","n"],
+"anís":["anís","aniseed","n"],
+"estrellado":["estrellat","star","a"],
+"albahaca":["alfàbrega","basil","n"],
+"romero":["romaní","rosemary","n"],
+"tomillo":["farigola","thyme","n"],
+"perejil":["julivert","parsley","n"],
+"cilantro":["coriandre","coriander","n"],
+"menta":["menta","mint","n"],
+"orégano":["orenga","oregano","n"],
+"laurel":["llorer","bay leaf","n"],
+"azafrán":["safrà","saffron","n"],
+"curry":["curri","curry","n"],
+"jengibre":["gingebre","ginger","n"],
+"pimentón":["pebre vermell","paprika","n"],
+"wasabi":["wasabi","wasabi","n"],
+"soja":["soja","soy","n"],
+"sésamo":["sèsam","sesame","n"],
+"semillas":["llavors","seeds","n"],
+"hierbas":["herbes","herbs","n"],
+"flores":["flors","flowers","n"],
+"pétalos":["pètals","petals","n"],
+"ahumado":["fumat","smoked","a"],
+"ahumada":["fumada","smoked","a"],
+"ahumados":["fumats","smoked","a"],
+"ahumadas":["fumades","smoked","a"],
+"asado":["rostit","roast","a"],
+"asada":["rostida","roast","a"],
+"asados":["rostits","roast","a"],
+"asadas":["rostides","roast","a"],
+"frito":["fregit","fried","a"],
+"frita":["fregida","fried","a"],
+"fritos":["fregits","fried","a"],
+"fritas":["fregides","fried","a"],
+"rebozado":["arrebossat","breaded","a"],
+"rebozada":["arrebossada","breaded","a"],
+"rebozados":["arrebossats","breaded","a"],
+"empanado":["arrebossat","breaded","a"],
+"crujiente":["cruixent","crispy","a"],
+"crujientes":["cruixents","crispy","a"],
+"crocante":["cruixent","crunchy","a"],
+"cocido":["bullit","boiled","a"],
+"cocida":["bullida","boiled","a"],
+"hervido":["bullit","boiled","a"],
+"gratinado":["gratinat","gratinated","a"],
+"gratinada":["gratinada","gratinated","a"],
+"confitado":["confitat","confit","a"],
+"confitada":["confitada","confit","a"],
+"guisado":["guisat","stewed","a"],
+"estofado":["estofat","braised","a"],
+"braseado":["bresat","braised","a"],
+"relleno":["farcit","stuffed","a"],
+"rellena":["farcida","stuffed","a"],
+"rellenos":["farcits","stuffed","a"],
+"rellenas":["farcides","stuffed","a"],
+"marinado":["marinat","marinated","a"],
+"marinada":["marinada","marinated","a"],
+"curado":["curat","cured","a"],
+"curada":["curada","cured","a"],
+"salado":["salat","salted","a"],
+"salada":["salada","salted","a"],
+"salados":["salats","salted","a"],
+"caramelizado":["caramel·litzat","caramelised","a"],
+"caramelizada":["caramel·litzada","caramelised","a"],
+"caramelizados":["caramel·litzats","caramelised","a"],
+"glaseado":["glaçat","glazed","a"],
+"glaseada":["glaçada","glazed","a"],
+"pochado":["escalfat","poached","a"],
+"endivia":["endívia","endive","n"],"endivias":["endívies","endives","n"],"roquefort":["roquefort","Roquefort","n"],"puerros":["porros","leeks","n"],
+"hamburguesas":["hamburgueses","burgers","c"],"gratinados":["gratinats","gratinated","a"],"gratinadas":["gratinades","gratinated","a"],
+"salteado":["saltat","sautéed","a"],"salteada":["saltada","sautéed","a"],"salteados":["saltats","sautéed","a"],"salteadas":["saltades","sautéed","a"],
+"rustido":["rostit","roast meat","n"],"escalopa":["escalopa","escalope","c"],"escalopes":["escalopes","escalopes","c"],"cheddar":["cheddar","cheddar","n"],
+"tataki":["tataki","tataki","c"],"césar":["Cèsar","Caesar","a"],"romesco":["romesco","romesco","n"],"alioli":["allioli","allioli","n"],"basmati":["basmati","basmati","a"],"membrillo":["codony","quince paste","n"],"piquillo":["piquillo","piquillo","a"],
+"pochada":["pochada","poached","a"],
+"escalfado":["escalfat","poached","a"],
+"trinchado":["trinxat","chopped","a"],
+"picado":["picat","minced","a"],
+"picada":["picada","minced","a"],
+"triturado":["triturat","crushed","a"],
+"laminado":["laminat","sliced","a"],
+"cortado":["tallat","cut","a"],
+"fresco":["fresc","fresh","a"],
+"fresca":["fresca","fresh","a"],
+"frescos":["frescos","fresh","a"],
+"frescas":["fresques","fresh","a"],
+"frío":["fred","cold","a"],
+"fría":["freda","cold","a"],
+"fríos":["freds","cold","a"],
+"caliente":["calent","hot","a"],
+"calientes":["calents","hot","a"],
+"templado":["tebi","warm","a"],
+"templada":["tèbia","warm","a"],
+"tibio":["tebi","warm","a"],
+"natural":["natural","natural","a"],
+"casero":["casolà","homemade","a"],
+"casera":["casolana","homemade","a"],
+"caseros":["casolans","homemade","a"],
+"caseras":["casolanes","homemade","a"],
+"artesano":["artesà","artisan","a"],
+"artesana":["artesana","artisan","a"],
+"rojo":["vermell","red","a"],
+"roja":["vermella","red","a"],
+"rojos":["vermells","red","a"],
+"rojas":["vermelles","red","a"],
+"negro":["negre","black","a"],
+"negra":["negra","black","a"],
+"negros":["negres","black","a"],
+"negras":["negres","black","a"],
+"blanco":["blanc","white","a"],
+"blanca":["blanca","white","a"],
+"blancos":["blancs","white","a"],
+"blancas":["blanques","white","a"],
+"amarillo":["groc","yellow","a"],
+"amarilla":["groga","yellow","a"],
+"dulce":["dolç","sweet","a"],
+"dulces":["dolços","sweet","a"],
+"picante":["picant","spicy","a"],
+"suave":["suau","mild","a"],
+"intenso":["intens","intense","a"],
+"tostado":["torrat","toasted","a"],
+"tostados":["torrats","toasted","a"],
+"mixto":["mixt","mixed","a"],
+"mixta":["mixta","mixed","a"],
+"variado":["variat","assorted","a"],
+"variada":["variada","assorted","a"],
+"variados":["variats","assorted","a"],
+"variadas":["variades","assorted","a"],
+"pequeño":["petit","small","a"],
+"pequeña":["petita","small","a"],
+"grande":["gran","large","a"],
+"gigante":["gegant","giant","a"],
+"viejo":["vell","mature","a"],
+"vieja":["vella","mature","a"],
+"nuevo":["nou","new","a"],
+"nueva":["nova","new","a"],
+"tradicional":["tradicional","traditional","a"],
+"especial":["especial","special","a"],
+"personalizado":["personalitzat","personalised","a"],
+"personalizada":["personalitzada","personalised","a"],
+"doble":["doble","double","a"],
+"triple":["triple","triple","a"],
+"rosado":["rosat","rosé","a"],
+"rosada":["rosada","pink","a"],
+"tinto":["negre","red","a"],
+"espumoso":["escumós","sparkling","a"],
+"seco":["sec","dry","a"],
+"reserva":["reserva","reserve","a"],
+"brut":["brut","brut","a"],
+"nature":["nature","nature","a"],
+"fino":["fi","fine","a"],
+"fina":["fina","fine","a"],
+"finas":["fines","fine","a"],
+"cremoso":["cremós","creamy","a"],
+"cremosa":["cremosa","creamy","a"],
+"líquido":["líquid","liquid","a"],
+"líquida":["líquida","liquid","a"],
+"vegetal":["vegetal","vegetable","a"],
+"vegetales":["vegetals","vegetable","a"],
+"vegano":["vegà","vegan","a"],
+"vegana":["vegana","vegan","a"],
+"vegetariano":["vegetarià","vegetarian","a"],
+"vegetariana":["vegetariana","vegetarian","a"],
+"integral":["integral","wholemeal","a"],
+"sin gluten":["sense gluten","gluten-free","a"],
+"gr":["gr","g","x"],
+"grs":["gr","g","x"],
+"kg":["kg","kg","x"],
+"ml":["ml","ml","x"],
+"cl":["cl","cl","x"],
+"uds":["uds","pcs","x"],
+"ud":["ud","pc","x"],
+"aguacate":["alvocat","avocado","n"],
+"pisto":["pisto","pisto (Spanish ratatouille)","n"],
+"ratatouille":["ratatouille","ratatouille","n"],
+"hummus":["hummus","hummus","n"],
+"guacamole":["guacamole","guacamole","n"],
+"tzatziki":["tzatziki","tzatziki","n"],
+"nachos":["nachos","nachos","n"],
+"tacos":["tacos","tacos","n"],
+"wrap":["wrap","wrap","c"],
+"tiramisú":["tiramisú","tiramisu","n"],
+"cheesecake":["cheesecake","cheesecake","c"],
+"gofre":["gofra","waffle","c"],
+"crepe":["crep","crêpe","c"],
+"crepes":["creps","crêpes","c"],
+"creps":["creps","crêpes","c"],
+"abuela":["àvia","grandmother's","x"],
+"huerta":["hort","orchard","n"],
+"temporada":["temporada","season","n"],
+"casa":["casa","house","n"],
+"mar":["mar","sea","n"],
+"montaña":["muntanya","mountain","n"],
+"bosque":["bosc","forest","n"],
+"campo":["camp","country","n"],
+"aguja":["agulla","needle","n"],
+"aguacates":["alvocats","avocados","n"],
+"canónigos":["canonges","lamb's lettuce","n"],
+"escarola":["escarola","endive","n"],
+"endibias":["endívies","chicory","n"],
+"peras":["peres","pears","n"],
+"manzanas":["pomes","apples","n"],
+"naranjas":["taronges","oranges","n"],
+"limones":["llimones","lemons","n"],
+"piñas":["pinyes","pineapples","n"],
+"trufada":["trufada","truffled","a"],
+"trufado":["trufat","truffled","a"],
+"gratén":["gratinat","gratin","c"],
+"pescadilla":["pescadilla","whiting","n"],
+"gallo":["gall","John Dory","n"],
+"cazón":["cassó","dogfish","n"],
+"pargo":["pagre","red snapper","n"],
+"mero":["mero","grouper","n"],
+"corvina":["corball","meagre","n"],
+"abadejo":["abadejo","pollock","n"],
+"sepionet":["sípia","cuttlefish","n"],
+"zamburiñas":["vieires","small scallops","n"],
+"percebes":["peülls","goose barnacles","n"],
+"cañaillas":["cañaillas","sea snails","n"],
+"buey de mar":["cranc de mar","brown crab","n"],
+"txangurro":["txangurro","spider crab","n"],
+"rabo":["cua","tail","c"],
+"morro":["morro","snout","c"],
+"oreja":["orella","ear","c"],
+"manitas":["peücs","trotters","n"],
+"callos":["tripa","tripe","n"],
+"mollejas":["molleja","sweetbreads","n"],
+"cecina":["cecina","cured beef","n"],
+"lomito":["llonganissa","loin","n"],
+"bresaola":["bresaola","bresaola","n"],
+"mortadela":["mortadel·la","mortadella","n"],
+"jamón serrano":["pernil serrà","serrano ham","n"]
+};
+var FR=[
+["salsa romesco","salsa romesco","romesco sauce"],["salsa holandesa","salsa holandesa","hollandaise sauce"],["salsa bearnesa","salsa bearnesa","béarnaise sauce"],["salsa tártara","salsa tàrtara","tartare sauce"],
+["salsa verde","salsa verda","green sauce"],["salsa brava","salsa brava","bravas sauce"],["salsa barbacoa","salsa barbacoa","barbecue sauce"],["salsa césar","salsa cèsar","Caesar sauce"],
+["pulpo a feira","pop a la gallega","Galician-style octopus"],["pulpo a la gallega","pop a la gallega","Galician-style octopus"],["patata cachelo","patata cachelo","cachelo potato"],["patatas cachelo","patates cachelo","cachelo potatoes"],
+["a baja temperatura","a baixa temperatura","at low temperature"],["a la llauna","a la llauna","a la llauna"],["crema de queso","crema de formatge","cream cheese"],
+["crujiente de","cruixent de","crispy"],["crujientes de","cruixents de","crispy"],
+["tortilla de patatas","truita de patates","Spanish potato omelette"],["tortilla de patata","truita de patates","Spanish potato omelette"],["tortilla española","truita espanyola","Spanish omelette"],
+["frutos rojos","fruits vermells","red berries"],["frutos del bosque","fruits del bosc","wild berries"],["pico de gallo","pico de gallo","pico de gallo"],["petit fours","petits fours","petits fours"],
+["pimientos del padrón","pebrots del Padrón","Padrón peppers"],["pimientos de padrón","pebrots del Padrón","Padrón peppers"],["pimientos del piquillo","pebrots del piquillo","piquillo peppers"],
+["patatas panadera","patates a la panadera","baker-style potatoes"],
+["queso roquefort","formatge roquefort","Roquefort cheese"],["queso manchego","formatge manxec","Manchego cheese"],["queso fresco","formatge fresc","fresh cheese"],["queso curado","formatge curat","mature cheese"],
+["queso crema","formatge crema","cream cheese"],["queso parmesano","formatge parmesà","Parmesan cheese"],["queso cheddar","formatge cheddar","cheddar cheese"],["queso brie","formatge brie","brie cheese"],
+["queso mozzarella","formatge mozzarella","mozzarella cheese"],["queso de oveja","formatge d'ovella","sheep's cheese"],
+["a la brasa","a la brasa","chargrilled"],
+["a la parrilla","a la graella","grilled"],
+["a la plancha","a la planxa","griddled"],
+["al horno","al forn","roast"],
+["al vapor","al vapor","steamed"],
+["a la sal","a la sal","salt-cooked"],
+["al ajillo","a l'all","with garlic"],
+["tarta de queso","pastís de formatge","cheesecake"],["pastel de queso","pastís de formatge","cheesecake"],
+["a la naranja","a la taronja","in orange sauce"],
+["a la romana","a l'andalusa","fried in batter"],
+["a la bolonyesa","a la bolonyesa","bolognese"],
+["a la boloñesa","a la bolonyesa","bolognese"],
+["a la carbonara","a la carbonara","carbonara"],
+["a la marinera","a la marinera","marinara style"],
+["a la gallega","a la gallega","Galician style"],
+["a la catalana","a la catalana","Catalan style"],
+["a la vinagreta","a la vinagreta","in vinaigrette"],
+["de su tinta","de la seva tinta","in its ink"],
+["de la pasión","de la passió","passion"],
+["en escabeche","en escabetx","in escabeche"],
+
+["en tempura","en tempura","in tempura"],
+["en croqueta","en croqueta","as a croquette"],
+["en texturas","en textures","in textures"],
+["con olor a","amb olor de","with a hint of"],
+["foie gras","foie gras","foie gras"],
+["foie-gras","foie-gras","foie gras"],
+["pil pil","pil-pil","pil-pil"],
+["pil - pil","pil-pil","pil-pil"],
+["pan de cristal","pa de vidre","glass bread"],
+["pan con tomate","pa amb tomàquet","bread with tomato"],
+["pa amb tomaca","pa amb tomaca","pa amb tomaca"],
+["frutos secos","fruits secs","nuts"],
+["fruta de la pasión","fruita de la passió","passion fruit"],
+["vaca vieja","vaca vella","mature beef"],
+["cola de buey","cua de bou","oxtail"],
+["delta del ebro","Delta de l'Ebre","Ebro Delta"],
+["del delta del ebro","del Delta de l'Ebre","from the Ebro Delta"],
+["de la casa","de la casa","homemade"],
+["para compartir","per compartir","to share"],
+["queso de cabra","formatge de cabra","goat's cheese"],
+["queso azul","formatge blau","blue cheese"],
+["aceite de oliva","oli d'oliva","olive oil"],
+["aceite de oliva virgen extra","oli d'oliva verge extra","extra virgin olive oil"],
+["huevo frito","ou fregit","fried egg"],
+["huevos rotos","ous estrellats","broken eggs"],
+["pan tostado","pa torrat","toasted bread"],
+["agua mineral","aigua mineral","mineral water"],
+["al gusto","al gust","to taste"],
+["a elegir","a escollir","your choice of"],
+["de temporada","de temporada","seasonal"],
+["de proximidad","de proximitat","local"],
+["km 0","km 0","km 0"],
+["sopa de la casa","sopa de la casa","house soup"],
+["ensalada de la casa","amanida de la casa","house salad"],
+["de la casa","de la casa","homemade"]
+];
+var TAB={ca:{},en:{}};
+PLATOS.forEach(function(r){ var k=nz(r[0]); TAB.ca[k]=r[1]; TAB.en[k]=r[2]; });
+var GK={}; Object.keys(G).forEach(function(k){ GK[nz(k)]=G[k]; });
+function tiene(o,k){ return Object.prototype.hasOwnProperty.call(o,k); }
+function ovr(lang){ try{ var B=window.SITTING_BRIDGE, d=B&&B.param&&B.param("traducciones"); return (d&&d[lang])||{}; }catch(_){ return {}; } }
+function casar(orig,rep){
+  if(!orig||!rep) return rep;
+  if(orig===orig.toUpperCase()&&orig.length>1&&/[A-ZÁÉÍÓÚÜÑ]/.test(orig)) return rep.toUpperCase();
+  if(orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase()) return rep.charAt(0).toUpperCase()+rep.slice(1);
+  return rep;
+}
+var VOC="aeiouàèéíòóúïüAEIOUÀÈÉÍÒÓÚÏÜ";
+/* las frases hechas primero (se sustituyen por una marca y se devuelven al final) */
+function frases(txt,idx){
+  var marcas=[], s=String(txt);
+  FR.forEach(function(p){
+    var re=new RegExp("(^|[^\\p{L}])("+p[0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")(?![\\p{L}])","giu");
+    s=s.replace(re,function(m,pre,hit){ marcas.push({t:p[idx],orig:hit}); return pre+"⦃"+(marcas.length-1)+"⦄"; });
+  });
+  return {s:s,marcas:marcas};
+}
+function devuelve(s,marcas){ return s.replace(/⦃(\d+)⦄/g,function(m,i){ return casar(marcas[+i].orig,marcas[+i].t); }); }
+/* ── castellano → català: palabra a palabra (el orden es el mismo) y luego los apóstrofos ── */
+function aCa(txt){
+  var f=frases(txt,1), sin=[], out=f.s.replace(/[\p{L}]+/gu,function(w,off){
+    var k=nz(w); if(tiene(GK,k)) return casar(w,GK[k][0]);
+    if(/^[A-ZÁÉÍÓÚÑ]/.test(w)&&off>0) return w;             /* nombres propios, marcas, lugares */
+    if(w.length>2&&!/^[A-ZÁÉÍÓÚÑ]+$/.test(w)) sin.push(w);
+    return w; });
+  out=devuelve(out,f.marcas);
+  out=out.replace(/(^|[^\p{L}'])(d)e\s+(?=[aeiouàèéíòóúhAEIOUÀÈÉÍÒÓÚH])/giu,function(m,pre,d){ return pre+(d==="D"?"D'":"d'"); })
+         .replace(/(^|[^\p{L}'])del\s+(?=[aeiouàèéíòóúhAEIOUÀÈÉÍÒÓÚH])/giu,function(m,pre){ return pre+"de l'"; })
+         .replace(/(^|[^\p{L}'])([lL])a\s+(?=[aeoàèéòóAEOÀÈÉÒÓ]|h?[aeoàèéòó])/gu,function(m,pre,l){ return pre+l+"'"; })
+         .replace(/(^|[^\p{L}'])([eE])l\s+(?=[aeiouàèéíòóúAEIOUÀÈÉÍÒÓÚ]|h[aeiouàèéíòóú])/gu,function(m,pre,e){ return pre+(e==="E"?"L'":"l'"); });
+  var letras=String(txt).replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g,""); if(letras.length>3&&String(txt)===String(txt).toUpperCase()) out=out.toUpperCase();
+  return {t:out,sin:sin};
+}
+/* el orden del inglés dentro de un tramo: adjetivo delante del nombre y «X de Y» → «Y X» cuando X es de los platos que llevan el modificador delante */
+/* el modificador inglés va en singular («lasaña de verduras» → «vegetable lasagne», «de almendras» → «almond») */
+function sing(t){
+  return String(t).replace(/([A-Za-z]+)$/,function(w){
+    if(w.length<4||/(ss|us|is)$/i.test(w)) return w;
+    if(/(ookies|ownies|oothies)$/i.test(w)) return w.slice(0,-1);
+    if(/[^aeiou]ies$/i.test(w)) return w.slice(0,-3)+"y";
+    if(/(ches|shes|xes|sses|zes|oes)$/i.test(w)) return w.slice(0,-2);
+    if(/s$/i.test(w)) return w.slice(0,-1);
+    return w; });
+}
+function ordena(pal){
+  pal=pal.slice();
+  for(var e=0;e<pal.length;e++){ if(pal[e].t===""&&pal[e].pos==="x"){
+    var h=ordena(pal.slice(0,e)), tl=ordena(pal.slice(e+1));
+    return h.concat(h.length&&tl.length?[{t:"in",pos:"p"}]:[]).concat(tl); } }
+  for(var i=1;i<pal.length;i++){
+    if(pal[i].pos==="a"&&(pal[i-1].pos==="n"||pal[i-1].pos==="c"||pal[i-1].pos==="u")){ var a=pal.splice(i,1)[0]; pal.splice(i-1,0,a); }
+  }
+  var di=-1; for(var d=0;d<pal.length;d++){ if(pal[d].pos==="p"&&(pal[d].t==="of"||pal[d].t==="of the")){ di=d; break; } }
+  if(di>0){
+    var cab=pal.slice(0,di), mod=ordena(pal.slice(di+1));
+    /* la cabeza es lo que va tras la última preposición o conjunción de la cabecera («foie gras and | sauce of Port») */
+    var ip=-1; for(var j=cab.length-1;j>=0;j--){ if(cab[j].pos==="p"){ ip=j; break; } }
+    var pre=cab.slice(0,ip+1), cabeza=cab.slice(ip+1), ult=cabeza[cabeza.length-1];
+    if(ult&&ult.pos==="c"&&mod.length){
+      var m2=mod.map(function(x){ return (x.pos==="n"||x.pos==="x"||x.pos==="c")?{t:sing(x.t),pos:x.pos}:x; });
+      return pre.concat(m2).concat(cabeza);
+    }
+    return cab.concat([pal[di]]).concat(mod);
+  }
+  return pal;
+}
+/* ── castellano → English: palabras, frases y el orden del inglés ── */
+function aEn(txt){
+  var f=frases(txt,2), sin=[];
+  var toks=f.s.match(/⦃\d+⦄|[\p{L}]+|\d+(?:[.,]\d+)?|[^\p{L}\d⦃⦄]+/gu)||[];
+  var res=[], run=[];
+  function cierra(){
+    if(!run.length) return;
+    var pal=run.slice();
+    /* 0 · «al horno», «a la plancha»…: delante del plato entero («merluza al horno» → «roast hake») */
+    var q=pal.filter(function(x){ return x.pos==="q"; }); pal=pal.filter(function(x){ return x.pos!=="q"; });
+    pal=ordena(pal);
+    pal=q.concat(pal);
+    res.push(pal.map(function(x){ return x.t; }).filter(function(x){ return x!==""; }).join(" "));
+    run=[];
+  }
+  toks.forEach(function(p){
+    if(/^⦃\d+⦄$/.test(p)){ var mk=f.marcas[+p.slice(1,-1)], adj=/^(chargrilled|grilled|griddled|roast|steamed|salt-cooked|fried in batter|breaded|homemade|house|seasonal|local)/.test(mk.t); run.push({t:mk.t,pos:adj?"q":"x"}); return; }
+    if(/^[\p{L}]+$/u.test(p)){
+      var k=nz(p), g=tiene(GK,k)?GK[k]:null;
+      if(g){
+        if(g[2]==="p"&&g[1]==="with"){ cierra(); res.push("\u0002with"); return; }
+        run.push({t:g[1],pos:g[2]}); }
+      else { run.push({t:p,pos:"u"}); if(p.length>2&&!/^[A-ZÁÉÍÓÚÑ]/.test(p)) sin.push(p); }
+      return; }
+    if(/^\d/.test(p)){ run.push({t:p,pos:"x"}); return; }
+    if(/[,;()]/.test(p)){ cierra(); res.push("\u0001"+p.replace(/\s+/g,"")); return; }
+    var sp=p.replace(/\s+/g,"");
+    if(/^[-–\/]+$/.test(sp)) run.push({t:sp,pos:"x"});
+  });
+  cierra();
+  var sal=""; res.forEach(function(r){
+    if(r.charAt(0)==="\u0001"){ var c=r.slice(1); sal+=(c==="("?" (":c); }
+    else { var w=r.charAt(0)==="\u0002"?r.slice(1):r; if(w) sal+=(sal&&!/[ (]$/.test(sal)?" ":"")+w; }
+  });
+  sal=sal.replace(/\s+/g," ").replace(/\s+([,;)])/g,"$1").replace(/\(\s+/g,"(").replace(/\s+-\s+/g," - ").trim();
+  sal=devuelve(sal,f.marcas);
+  var orig=String(txt), letras=orig.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g,"");
+  if(letras.length>3&&orig===orig.toUpperCase()) sal=sal.toUpperCase(); else sal=sal.charAt(0).toUpperCase()+sal.slice(1);
+  return {t:sal,sin:sin};
+}
+/* ── lo que se usa desde fuera ── */
+function limpia(s){ return String(s==null?"":s); }
+function mitad(n){ var m=/^(1\/2\s+)(.*)$/.exec(n); return m?{pre:m[1],resto:m[2]}:null; }
+/* origen: «ajustada» (escrita en Parámetros), «revisada» (la tabla del catálogo) o «automática» (glosario) */
+function info(nombre,lang,sinAjuste){
+  var n=limpia(nombre);
+  if(lang==="es"||!n) return {t:n,origen:"revisada",sin:[]};
+  var k=nz(n), o=sinAjuste?{}:ovr(lang);
+  if(tiene(o,k)&&String(o[k]).trim()) return {t:String(o[k]).trim(),origen:"ajustada",sin:[]};
+  if(tiene(TAB[lang],k)) return {t:TAB[lang][k],origen:"revisada",sin:[]};
+  var m=mitad(n); if(m){ var r=info(m.resto,lang,sinAjuste); return {t:m.pre+r.t,origen:r.origen,sin:r.sin}; }
+  var a=lang==="ca"?aCa(n):aEn(n);
+  return {t:a.t,origen:"automática",sin:a.sin};
+}
+function plato(nombre,lang){ return info(nombre,lang).t; }
+/* las familias del menú: por clave (APERITIVOS) o por su nombre en castellano */
+function fam(clave,lang){
+  var k=String(clave||"").toUpperCase(), x=FAMS[k];
+  if(!x){ Object.keys(FAMS).forEach(function(c){ if(nz(FAMS[c][0])===nz(clave)) x=FAMS[c]; }); }
+  if(!x) return String(clave||"");
+  return lang==="ca"?x[1]:lang==="en"?x[2]:x[0];
+}
+window.LM_TRAD={
+  idiomas:LANGS, nz:nz, plato:plato, info:info, fam:fam,
+  platos:function(){ return PLATOS.map(function(r){ return r[0]; }); },
+  base:function(nombre,lang){ var k=nz(nombre); return tiene(TAB[lang]||{},k)?TAB[lang][k]:null; },
+  /* el menú de un evento (lista de {fam,key,platos}) en otro idioma, con la misma forma */
+  menu:function(fams,lang){ return (fams||[]).map(function(f){ return {fam:fam(f.key||f.fam,lang),key:f.key,platos:(f.platos||[]).map(function(p){ return plato(p,lang); })}; }); }
+};
+})();
+
 </script>
 
 <script>
@@ -16317,197 +17379,25 @@ function imagenAJpeg(file,maxW){
 }
 var MN_FUERA_DEF={"NIÑOS":true,"PAN":true,"RECENA":true};
 function minutaFuera(){ var mn=(menu()&&menu().minuta)||{}; return mn.fuera||MN_FUERA_DEF; }
-/* ══ La minuta en castellano o en catalán ═══════════════════════════════
-   Los platos del catálogo tienen su traducción al catalán (revisable: es el
-   texto que sale en la minuta y se puede retocar sobre el papel). Los platos
-   escritos a mano se traducen palabra por palabra con un glosario de cocina;
-   si no basta, se corrige a mano. */
-function mnNorm(s){ return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[“”"«»'’`´]/g,"").replace(/\s+/g," ").trim(); }
-var MN_CA_RAW={
-  /* aperitivos */
-  "Ajoblanco con salazones y ahumados":"Ajoblanc amb salaons i fumats",
-  "Arroz de galeras y alcachofas":"Arròs de galeres i carxofes",
-  "Arroz de pato del Delta del Ebro y alcachofas":"Arròs d'ànec del Delta de l'Ebre i carxofes",
-  "Bombón de anguila ahumada, foie y manzana":"Bombó d'anguila fumada, foie i poma",
-  "Brocheta de langostino y beicon":"Broqueta de llagostí i cansalada",
-  "Brocheta de langostino y calamar":"Broqueta de llagostí i calamar",
-  "Capuchino de alcachofas de Benicarló y avellanas":"Capuccino de carxofes de Benicarló i avellanes",
-  "Copa de verduras con olor a whisky":"Copa de verdures amb olor de whisky",
-  "Puro de pimiento":"Puro de pebrot",
-  "Calamares con mayonesa de su tinta":"Calamars amb maionesa de la seva tinta",
-  "Chips de patata con anís estrellado":"Xips de patata amb anís estrellat",
-  "Coca de sardinas con vinagreta de albahaca":"Coca de sardines amb vinagreta d'alfàbrega",
-  "Buñuelos de bacalao":"Bunyols de bacallà",
-  "Croquetas de angulas":"Croquetes d'angules",
-  "Croquetas de jamón":"Croquetes de pernil",
-  "Croquetas de langostinos":"Croquetes de llagostins",
-  "Croquetas de setas":"Croquetes de bolets",
-  "Croquetas de sobrasada":"Croquetes de sobrassada",
-  "Croquetas de trufa":"Croquetes de tòfona",
-  "Croquetas pollo":"Croquetes de pollastre",
-  "Crujiente de langostinos":"Cruixent de llagostins",
-  "Cuchara de foie-gras con cebolla caramelizada":"Cullera de foie-gras amb ceba caramel·litzada",
-  "Cucurucho de pim. rojo con mousse de calabacin":"Cucurutxo de pimentó roig amb mousse de carabassó",
-  "Cucurucho de piña con mousse de foie-gras":"Cucurutxo de pinya amb mousse de foie-gras",
-  "Esfera XXL de parmesano con sopa de cebolla":"Esfera XXL de parmesà amb sopa de ceba",
-  "Falso sushi de verduras":"Fals sushi de verdures",
-  "Foie - gras con higos":"Foie-gras amb figues",
-  "Galleta Oreo de aceitunas negras y sobrasada":"Galeta Oreo d'olives negres i sobrassada",
-  "Gazpacho de frutas y verduras":"Gaspatxo de fruites i verdures",
-  "Gilda de color rojo":"Gilda de color roig",
-  "Huevo con patatas":"Ou amb patates",
-  "Jamón Ibérico de Cebo de Campo Blázquez":"Pernil Ibèric de Cebo de Campo Blázquez",
-  "La deconstrucción de escalivada":"La deconstrucció d'escalivada",
-  "Lata de atún Balfegó en escabeche":"Llauna de tonyina Balfegó en escabetx",
-  "Lata de coquinas con ajo, guindilla y romero":"Llauna de tellerines amb all, bitxo i romaní",
-  "Lata de falsas anchoas":"Llauna de falses anxoves",
-  "Mc Moles":"McMoles",
-  "Mollete de butifarra":"Mollete de botifarra",
-  "Mollete de costilla":"Mollete de costella de porc",
-  "Mollete de pato a la naranja":"Mollete d'ànec a la taronja",
-  "Mollete de setas":"Mollete de bolets",
-  "Mollete de sobrasada":"Mollete de sobrassada",
-  "Nuestra versión de la ensaladilla rusa":"La nostra versió de l'ensaladilla russa",
-  "“Pa amb tomaca” con pan de cristal y AOVE":"«Pa amb tomàquet» amb pa de vidre i OOVE",
-  "“Pizza” de tomate, parmesano y albahaca":"«Pizza» de tomàquet, parmesà i alfàbrega",
-  "Pulpo con espuma de allipebre":"Pop amb escuma d'all i pebre",
-  "Royal de foie con geleé de vermut y lima":"Royal de foie amb gelée de vermut i llima",
-  "Snack de Pollo ast":"Snack de pollastre a l'ast",
-  "Tartar de atún rojo y remolacha":"Tàrtar de tonyina vermella i remolatxa",
-  "Unas aceitunas de OOVE":"Unes olives d'OOVE",
-  /* estaciones */
-  "Buffet de gamba roja al vapor (75 gr)":"Bufet de gamba vermella al vapor (75 gr)",
-  "Buffet de langostino al vapor (75 gr)":"Bufet de llagostí al vapor (75 gr)",
-  "Buffet de ostras del Delta del Ebro":"Bufet d'ostres del Delta de l'Ebre",
-  "Cucurucho de aceitunas con tomate":"Cucurutxo d'olives amb tomàquet",
-  "Cucurucho neutro":"Cucurutxo neutre",
-  "Helado de colmenillas":"Gelat de múrgoles",
-  "Helado de mejillones en escabeche":"Gelat de musclos en escabetx",
-  "Helado de sobrasada":"Gelat de sobrassada",
-  "Polo crocante de foie gras":"Gelat de pal cruixent de foie gras",
-  "ENCURTIDOS":"ENCURTITS",
-  "Brasa de gambas (65gr)":"Brasa de gambes (65gr)",
-  "Brasa de langostinos (65gr.)":"Brasa de llagostins (65gr.)",
-  "Chuletón":"Xuletó",
-  "Mini burguer de vaca vieja":"Mini hamburguesa de vaca vella",
-  "Papada con chutney":"Papada amb chutney",
-  "Pulpo":"Pop",
-  "Ventresca atún Balfegó":"Ventresca de tonyina Balfegó",
-  "Piruletas de aceite de olivos Milenarios":"Piruletes d'oli d'oliveres mil·lenàries",
-  "Foie con chutney de boniato":"Foie amb chutney de moniato",
-  "Huevos de codorniz con sobrasada":"Ous de guatlla amb sobrassada",
-  "Navajas (4u)":"Navalles (4u)",
-  "TABLA DE QUESOS":"TAULA DE FORMATGES",
-  /* entrantes, marisco y cremas */
-  "Bogavante en milhojas de verduras y azafrán":"Llamàntol en milfulls de verdures i safrà",
-  "Ensalada de color rojo":"Amanida de color roig",
-  "Ensalada de gamba roja de Tarragona":"Amanida de gamba vermella de Tarragona",
-  "Ensalada de texturas de tomate y de anguila":"Amanida de textures de tomàquet i d'anguila",
-  "Ensalada de ventresca de atún de Balfegó":"Amanida de ventresca de tonyina de Balfegó",
-  "Gazpacho de frutas con gamba de Tarragona":"Gaspatxo de fruites amb gamba de Tarragona",
-  "Sopa fría de tomate con langostinos":"Sopa freda de tomàquet amb llagostins",
-  "Gambas rojas a la sal 2 - 3 (120gr)":"Gambes vermelles a la sal 2 - 3 (120gr)",
-  "Gambas rojas a la sal 3 - 4 (170gr)":"Gambes vermelles a la sal 3 - 4 (170gr)",
-  "Langostinos a la sal 5 - 6 (140gr)":"Llagostins a la sal 5 - 6 (140gr)",
-  "Langostinos a la sal 8 - 10 (170gr)":"Llagostins a la sal 8 - 10 (170gr)",
-  "Langostinos a la sal 10 - 12 (200gr)":"Llagostins a la sal 10 - 12 (200gr)",
-  "Langostinos al vapor 5 - 6 (140gr)":"Llagostins al vapor 5 - 6 (140gr)",
-  "Langostinos al vapor 8 - 10 (170gr)":"Llagostins al vapor 8 - 10 (170gr)",
-  "Langostinos al vapor 10 - 12 (200gr)":"Llagostins al vapor 10 - 12 (200gr)",
-  "Crema de gambas y mejillones":"Crema de gambes i musclos",
-  "Sopa de calabaza, huevo pochado y langostino":"Sopa de carabassa, ou poché i llagostí",
-  /* pescados */
-  "Armónica de atún de Balfegó, puré de patata y huevo":"Harmònica de tonyina de Balfegó, puré de patata i ou",
-  "Bacalao con crema de allioli y crujiente de su piel":"Bacallà amb crema d'allioli i cruixent de la seva pell",
-  "Bacalao con pil pil de plancton y crujiente de su piel":"Bacallà amb pil-pil de plàncton i cruixent de la seva pell",
-  "Bogavante a la brasa con salsa de sus cabezas":"Llamàntol a la brasa amb salsa dels seus caps",
-  "Carrillera de atún Balfegó, coliflor y mantequilla":"Galta de tonyina Balfegó, coliflor i mantega",
-  "Langostinos con pil - pil de sus cabezas, aceite de cebollino y ñoquis":"Llagostins amb pil-pil dels seus caps, oli de cebollí i nyoquis",
-  "Lubina a la brasa con holandesa de piparras":"Llobarro a la brasa amb holandesa de piparres",
-  "Lubina con coliflor, angulas de calamar y caviar":"Llobarro amb coliflor, angules de calamar i caviar",
-  "Merluza con pil pil de plancton":"Lluç amb pil-pil de plàncton",
-  "Merluza con suquet marinero y puré de patata":"Lluç amb suquet mariner i puré de patata",
-  "Rape a la brasa con pilpil de azafrán del Perelló":"Rap a la brasa amb pil-pil de safrà del Perelló",
-  "Rodaballo con puré de 'allipebre'":"Rèmol amb puré d'«allipebre»",
-  "Suquet de raya":"Suquet de rajada",
-  /* sorbetes */
-  "De fresa y vinagre":"De maduixa i vinagre",
-  "De fruta de la pasión":"De fruita de la passió",
-  "De limón y menta":"De llimona i menta",
-  "De limón y piña":"De llimona i pinya",
-  "De limón y tomillo":"De llimona i farigola",
-  "De manzana verde":"De poma verda",
-  /* carnes */
-  "Cabrito con setas":"Cabrit amb bolets",
-  "1/2 Cabrito con setas":"1/2 Cabrit amb bolets",
-  "Canelón crujiente de cola de buey":"Canelò cruixent de cua de bou",
-  "1/2 Canelón crujiente de cola de buey":"1/2 Canelò cruixent de cua de bou",
-  "Cerdo Ral de Aviñón con manzana de feria":"Porc Ral d'Avinyó amb poma de fira",
-  "1/2 Cerdo Ral de Aviñón con manzana de feria":"1/2 Porc Ral d'Avinyó amb poma de fira",
-  "Cochinillo confitado con texturas de col":"Garrí confitat amb textures de col",
-  "1/2 Cochinillo confitado con texturas de col":"1/2 Garrí confitat amb textures de col",
-  "Confit de pato con puré de manzana y canela":"Confit d'ànec amb puré de poma i canyella",
-  "Jarrete de cordero con bearnesa y puré de patata y romero":"Jarret de corder amb bearnesa i puré de patata i romaní",
-  "Meloso de ternera con frutos secos y puré de orejones":"Melós de vedella amb fruits secs i puré d'orellanes d'albercoc",
-  "1/2 Meloso de ternera con frutos secos y puré de orejones":"1/2 Melós de vedella amb fruits secs i puré d'orellanes d'albercoc",
-  "Paletilla de cabrito al horno":"Espatlla de cabrit al forn",
-  /* postres */
-  "Algarroba parece.. plátano es!":"Garrofa sembla.. plàtan és!",
-  "Almendra":"Ametlla",
-  "Almendrado de chocolate CREO":"Ametllat de xocolata CREO",
-  "Almendrado de chocolate CREO personalizado":"Ametllat de xocolata CREO personalitzat",
-  "El jardín":"El jardí",
-  "Huevo de maracuyá, menta y coco":"Ou de maracuià, menta i coco",
-  "Huevo Kinder":"Ou Kinder",
-  "Los aromas del vino de Les Moles":"Els aromes del vi de Les Moles",
-  "Macarrones a la boloñesa":"Macarrons a la bolonyesa",
-  "Nuestra versión del tarta tatin con helado de vainilla":"La nostra versió de la tarta tatin amb gelat de vainilla",
-  "Texturas de chocolate CREO":"Textures de xocolata CREO",
-  /* niños y recena */
-  "Jamón ibérico":"Pernil ibèric",
-  "Pan con tomate":"Pa amb tomàquet",
-  "Surtido de croquetas":"Assortit de croquetes",
-  "Helado de chocolate y vainilla":"Gelat de xocolata i vainilla",
-  "Canelones de pollo con bechamel":"Canelons de pollastre amb beixamel",
-  "Fideuá":"Fideuà",
-  "Macarrones en la boloñesa":"Macarrons a la bolonyesa",
-  "Costillas de cordero a la brasa":"Costelles de corder a la brasa",
-  "Lomo rebozado":"Llom arrebossat",
-  "Pechuga de pollo rebozado":"Pit de pollastre arrebossat",
-  "Focaccia de Les Moles":"Focaccia de Les Moles",
-  "Surtido de donuts de casa":"Assortit de donuts de casa",
-  "Sandwiches":"Sandvitxos",
-  "Hamburguesa de vaca vieja":"Hamburguesa de vaca vella",
-  "Patatas bravas":"Patates braves",
-  "Creps":"Creps",
-  /* lo que sale siempre */
-  "El clásico":"El clàssic",
-  "Cafés y licores":"Cafès i licors"
-};
-var MN_CA={}; Object.keys(MN_CA_RAW).forEach(function(k){ MN_CA[mnNorm(k)]=MN_CA_RAW[k]; });
-/* glosario para los platos que no están en el catálogo (escritos a mano) */
-var MN_GLOS_FRASES=[["a la brasa","a la brasa"],["al horno","al forn"],["a la plancha","a la planxa"],["al vapor","al vapor"],["a la sal","a la sal"],["de la casa","de la casa"],["de su tinta","de la seva tinta"],["de la pasión","de la passió"],["en escabeche","en escabetx"],["foie gras","foie gras"],["a la naranja","a la taronja"],["con olor a","amb olor de"]];
-var MN_GLOS={"con":"amb","y":"i","e":"i","de":"de","del":"del","la":"la","el":"el","los":"els","las":"les","al":"al","un":"un","una":"una","unos":"uns","unas":"unes","sin":"sense","para":"per a","o":"o","en":"en",
-  "tomate":"tomàquet","tomates":"tomàquets","patata":"patata","patatas":"patates","pollo":"pollastre","cerdo":"porc","ternera":"vedella","cordero":"corder","cabrito":"cabrit","pato":"ànec","atún":"tonyina","bacalao":"bacallà","merluza":"lluç","lubina":"llobarro","rape":"rap","gamba":"gamba","gambas":"gambes","langostino":"llagostí","langostinos":"llagostins","calamar":"calamar","calamares":"calamars","pulpo":"pop","arroz":"arròs","setas":"bolets","seta":"bolet","trufa":"tòfona","queso":"formatge","quesos":"formatges","jamón":"pernil","huevo":"ou","huevos":"ous","mantequilla":"mantega","salsa":"salsa","crema":"crema","helado":"gelat","chocolate":"xocolata","limón":"llimona","fresa":"maduixa","manzana":"poma","naranja":"taronja","piña":"pinya","almendra":"ametlla","almendras":"ametlles","coco":"coco","ensalada":"amanida","sopa":"sopa","croquetas":"croquetes","croqueta":"croqueta","tarta":"pastís","café":"cafè","cafés":"cafès","licores":"licors","vino":"vi","blanco":"blanc","tinto":"negre","agua":"aigua","verduras":"verdures","verdura":"verdura","ajo":"all","cebolla":"ceba","pimiento":"pebrot","calabacín":"carabassó","calabaza":"carabassa","alcachofas":"carxofes","alcachofa":"carxofa","espárragos":"espàrrecs","champiñones":"xampinyons","foie":"foie","higos":"figues","higo":"figa","miel":"mel","nata":"nata","leche":"llet","azúcar":"sucre","sal":"sal","pimienta":"pebre","aceite":"oli","aceitunas":"olives","oliva":"oliva","vinagre":"vinagre","pan":"pa","pasta":"pasta","macarrones":"macarrons","fideuá":"fideuà","costillas":"costelles","costilla":"costella","carrillera":"galta","lomo":"llom","pechuga":"pit","cochinillo":"garrí","buey":"bou","vaca":"vaca","vieja":"vella","caviar":"caviar","ostras":"ostres","mejillones":"musclos","almejas":"cloïsses","sardinas":"sardines","anchoas":"anxoves","boquerones":"seitons","salmón":"salmó","dorada":"orada","rodaballo":"rèmol","bogavante":"llamàntol","cangrejo":"cranc","navajas":"navalles","anguila":"anguila","angulas":"angules","ahumado":"fumat","ahumada":"fumada","ahumados":"fumats","crujiente":"cruixent","frito":"fregit","frita":"fregida","rebozado":"arrebossat","caramelizada":"caramel·litzada","caramelizado":"caramel·litzat","rojo":"roig","roja":"vermella","verde":"verd","negro":"negre","negras":"negres","blanca":"blanca","dulce":"dolç","frío":"fred","fría":"freda","caliente":"calent","versión":"versió","nuestra":"nostra","nuestro":"nostre","surtido":"assortit","mini":"mini","hamburguesa":"hamburguesa","bocadillo":"entrepà","bunuelos":"bunyols","buñuelos":"bunyols","gazpacho":"gaspatxo","tarta":"pastís","bizcocho":"pastís","fruta":"fruita","frutas":"fruites","frutos":"fruits","secos":"secs","vainilla":"vainilla","canela":"canyella","menta":"menta","albahaca":"alfàbrega","romero":"romaní","tomillo":"farigola","perejil":"julivert","azafrán":"safrà","mostaza":"mostassa","mayonesa":"maionesa","boniato":"moniato","remolacha":"remolatxa","zanahoria":"pastanaga","coliflor":"coliflor","puré":"puré","bechamel":"beixamel","salchicha":"salsitxa","butifarra":"botifarra","sobrasada":"sobrassada","chorizo":"xoriço","lentejas":"llenties","garbanzos":"cigrons","judías":"mongetes","mousse":"mousse","espuma":"escuma","textura":"textura","texturas":"textures","trozos":"trossos","copa":"copa","cucharita":"cullereta","cuchara":"cullera","cucurucho":"cucurutxo","brocheta":"broqueta","bombón":"bombó","coca":"coca","esfera":"esfera","tartar":"tàrtar","pizza":"pizza","aperitivo":"aperitiu","aperitivos":"aperitius","postre":"postres","postres":"postres"};
-function mnCasar(orig,rep){ if(!orig||!rep) return rep; if(orig===orig.toUpperCase()&&orig.length>1) return rep.toUpperCase(); if(orig.charAt(0)===orig.charAt(0).toUpperCase()&&orig.charAt(0)!==orig.charAt(0).toLowerCase()) return rep.charAt(0).toUpperCase()+rep.slice(1); return rep; }
-function mnGlosario(txt){
-  var s=String(txt||"");
-  MN_GLOS_FRASES.forEach(function(p){ s=s.replace(new RegExp("(^|[^\\p{L}])"+p[0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![\\p{L}])","giu"),function(m,pre){ return pre+p[1]; }); });
-  return s.replace(/[\p{L}]+/gu,function(w){ var k=w.toLowerCase(); return Object.prototype.hasOwnProperty.call(MN_GLOS,k)?mnCasar(w,MN_GLOS[k]):w; });
-}
-function mnPlatoCA(nombre){
-  var n=String(nombre==null?"":nombre), k=mnNorm(n), r=MN_CA[k];
-  if(r==null){ var m=/^(1\/2\s+)(.*)$/.exec(n); if(m&&MN_CA[mnNorm(m[2])]) r=m[1]+MN_CA[mnNorm(m[2])]; }
-  if(r==null) r=mnGlosario(n);
-  var letras=n.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g,""); if(letras.length>3&&n===n.toUpperCase()) r=r.toUpperCase();
-  return r;
-}
+/* ══ La minuta en castellano, en catalán o en inglés ═══════════════════════════════
+   Las traducciones de los platos (revisadas a mano) y el glosario para los platos escritos a mano viven en LM_TRAD (arriba);
+   lo que se corrige en Parámetros → «Traducciones del menú» manda sobre ellas. Aquí quedan los textos fijos de cada idioma. */
+function mnNorm(s){ return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[“”"«»'’`´]/g,"").replace(/\s+/g," ").trim(); }
+function mnIdioma(v){ return v==="ca"||v==="en"?v:"es"; }
+function mnL3(id,es,ca,en){ return id==="ca"?ca:id==="en"?en:es; }
+function mnPlatoCA(nombre){ return window.LM_TRAD?window.LM_TRAD.plato(nombre,"ca"):nombre; }
+/* el idioma de la minuta si no se ha elegido: el del cliente (ficha), o castellano */
+function mnIdiomaDefecto(e){ var F=(e&&e.ficha)||{}; return /^(ca|en)$/.test(F.idioma||"")?F.idioma:"es"; }
 /* los textos fijos de la minuta en cada idioma */
 function mnLang(id){
+  id=mnIdioma(id);
+  var P=function(n){ return window.LM_TRAD?window.LM_TRAD.plato(n,id):n; };
   if(id==="ca") return {id:"ca",loc:"ca-ES",cab1:"als nostres jardins...",bodega:"el celler...",pista:"a la pista de ball...",clasico:"El clàssic",barra:"Barra lliure",recena:"Ressopó",cafes:"Cafès i licors",y:" i ",agua:"Aigua mineral",
-    vi:{blanco:"Vi blanc",tinto:"Vi negre",rosado:"Vi rosat"},cava:"Cava",plato:mnPlatoCA,rotulo:"menú",comedor:"al nostre menjador..."};
+    vi:{blanco:"Vi blanc",tinto:"Vi negre",rosado:"Vi rosat"},cava:"Cava",plato:P,rotulo:"menú",comedor:"al nostre menjador..."};
+  if(id==="en") return {id:"en",loc:"en-GB",cab1:"in the gardens...",bodega:"the wine cellar...",pista:"on the dance floor...",clasico:"The classic",barra:"Open bar",recena:"Late-night snack",cafes:"Coffees and liqueurs",y:" & ",agua:"Mineral water",
+    vi:{blanco:"White wine",tinto:"Red wine",rosado:"Rosé wine"},cava:"Cava",plato:P,rotulo:"menu",comedor:"in our dining room..."};
   return {id:"es",loc:"es-ES",cab1:"en los jardines...",bodega:"la bodega...",pista:"en la pista de baile...",clasico:"El clásico",barra:"Barra libre",recena:"Recena",cafes:"Cafés y licores",y:" y ",agua:"Agua mineral",
-    vi:{blanco:"Vino blanco",tinto:"Vino tinto",rosado:"Vino rosado"},cava:"Cava",plato:function(n){ return n; },rotulo:"menú",comedor:"en nuestro comedor..."};
+    vi:{blanco:"Vino blanco",tinto:"Vino tinto",rosado:"Vino rosado"},cava:"Cava",plato:P,rotulo:"menú",comedor:"en nuestro comedor..."};
 }
 
 /* «BODA TERESA Y JUANLU» → «Teresa y Juanlu» */
@@ -16518,15 +17408,15 @@ function parejaBonita(txt){
 /* las bebidas tal como se escribirían en una minuta: «Vino blanco Les Moles D.O. Terra Alta», «Cava Oriol Rossell Brut Reserva», sin los centilitros */
 function bodegaLineas(L,doTxt){
   L=L||mnLang("es"); var out=[], ca=L.id==="ca";
-  function sinColor(n){ return String(n).replace(/^(vino\s+|vi\s+)?(tinto|blanco|negre|blanc|rosado|rosat)\s+/i,"").replace(/\s+(tinto|blanco|negre|blanc|rosado|rosat)$/i,"").trim(); }
+  function sinColor(n){ return String(n).replace(/^(vino\s+|vi\s+|wine\s+)?(tinto|blanco|negre|blanc|rosado|rosat|red|white|rosé)\s+/i,"").replace(/\s+(tinto|blanco|negre|blanc|rosado|rosat)$/i,"").trim(); }
   try{ bebidaLineas().forEach(function(l){
     if(!l.q&&!l.prod) return;
     if(l.cat&&l.cat.grupo) return;                  /* cerveza, licores y refrescos: no salen en la minuta */
     var prod=String(l.prod||"").replace(/\s*\([^)]*\)\s*$/,"").trim(), lab=String(l.label||"").trim(), k=l.key, txt="";
-    if(k==="agua") txt=prod?prod.replace(/^agua\b/i,ca?"Aigua":"Agua"):L.agua;
+    if(k==="agua") txt=prod?prod.replace(/^agua\b/i,mnL3(L.id,"Agua","Aigua","Water")):L.agua;
     else if(k==="blanco"||k==="tinto"){ txt=prod?L.vi[k]+" "+sinColor(prod):L.vi[k]; if(doTxt) txt+=" "+doTxt; }
     else if(k==="cava") txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+" "+prod):L.cava;
-    else if(k==="cavaRosado") txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+(ca?" rosat ":" rosado ")+prod):L.cava+(ca?" rosat":" rosado");
+    else if(k==="cavaRosado"){ var ros=mnL3(L.id," rosado"," rosat"," rosé"); txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+ros+" "+prod):L.cava+ros; }
     else txt=prod||lab;
     if(txt&&out.indexOf(txt)<0) out.push(txt); }); }catch(_){}
   return out;
@@ -16584,7 +17474,7 @@ function textoAItems(txt){
   return it;
 }
 function datosMinuta(){
-  var sel=selectedDishes(), e=ev(), fecha="", fechaTxt="", fechaCorta="", mn0=(menu()&&menu().minuta)||{}, idioma=mn0.idioma==="ca"?"ca":"es", L=mnLang(idioma);
+  var sel=selectedDishes(), e=ev(), fecha="", fechaTxt="", fechaCorta="", mn0=(menu()&&menu().minuta)||{}, idioma=mnIdioma(mn0.idioma||mnIdiomaDefecto(e)), L=mnLang(idioma), TF=function(k){ return window.LM_TRAD?window.LM_TRAD.fam(k,idioma):""; };
   try{ var f=e&&e.ficha&&e.ficha.fecha; if(f){ var d0=new Date(f+"T00:00:00"); var s=d0.toLocaleDateString(L.loc,{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1);
     fechaTxt=d0.toLocaleDateString(L.loc,{day:"numeric",month:"long",year:"numeric"}); fechaCorta=String(f).slice(8,10)+"."+String(f).slice(5,7)+"."+String(f).slice(0,4); } }catch(_){}
   var titulo0=(e&&e.name?String(e.name):"Menú").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim()||"Menú";
@@ -16596,12 +17486,12 @@ function datosMinuta(){
   var secciones=[], ae=escAperYEst(escCfg()), lab={};
   MENU_DATA.forEach(function(f){ lab[f.key]=f.label; });
   var ap=ae.aper.filter(function(d){ return d._famKey!=="RECENA"&&d._famKey!=="PAN"; }), es=ae.est.filter(function(d){ return d._famKey!=="RECENA"; });
-  if(ap.length) secciones.push({k:"APERITIVOS",t:lab.APERITIVOS||"Aperitivos",platos:ap.map(function(d){ return L.plato(d.name); })});
-  if(es.length) secciones.push({k:"ESTACIONES",t:lab.ESTACIONES||"Estaciones",platos:es.map(function(d){ return L.plato(d.name); })});
+  if(ap.length) secciones.push({k:"APERITIVOS",t:lab.APERITIVOS||"Aperitivos",tt:TF("APERITIVOS"),platos:ap.map(function(d){ return L.plato(d.name); })});
+  if(es.length) secciones.push({k:"ESTACIONES",t:lab.ESTACIONES||"Estaciones",tt:TF("ESTACIONES"),platos:es.map(function(d){ return L.plato(d.name); })});
   MENU_DATA.forEach(function(f){
     if(f.key==="APERITIVOS"||f.key==="ESTACIONES") return;
     var ds=sel.filter(function(d){ return d._famKey===f.key; });
-    if(ds.length) secciones.push({k:f.key,t:f.label,platos:ds.map(function(d){ return L.plato(d.name); })});
+    if(ds.length) secciones.push({k:f.key,t:f.label,tt:TF(f.key),platos:ds.map(function(d){ return L.plato(d.name); })});
   });
   var todas=secciones.map(function(x){ return {k:x.k,t:x.t,n:x.platos.length,fuera:!!fuera[x.k]}; });
   secciones=secciones.filter(function(x){ return !fuera[x.k]; });
@@ -16642,7 +17532,7 @@ function datosMinuta(){
     rotulo:rot?rot.s:"", items:items.filter(function(x){ return x.t!=="nom"&&x.t!=="rot"; }), editado:editado, textoAuto:itemsATexto(auto), textoActual:editado?String(mn.texto):itemsATexto(auto),
     cab1:cab1, pistaDef:pistaDefecto(sel,e,L), tpl:plantillaDe(mn.plantilla||"olivo"),
     idioma:idioma, cat:cat, doTxt:doTxt, fechaTxt:(mn.sub!=null&&String(mn.sub).trim()!==""?String(mn.sub).trim():fechaTxt), fechaCorta:fechaCorta,
-    parejaA:parejaA, parejaB:parejaB, nombreCorto:(cat==="boda"?(parejaA&&parejaB?parejaA+" & "+parejaB:pareja):pareja), tipoTxt:(cat==="bautizo"?(idioma==="ca"?"Bateig":"Bautizo"):cat==="comunion"?(idioma==="ca"?"Primera comunió":"Primera comunión"):cat==="boda"?(idioma==="ca"?"Data de boda":"Fecha de boda"):"")};
+    parejaA:parejaA, parejaB:parejaB, nombreCorto:(cat==="boda"?(parejaA&&parejaB?parejaA+" & "+parejaB:pareja):pareja), tipoTxt:(cat==="bautizo"?mnL3(idioma,"Bautizo","Bateig","Christening"):cat==="comunion"?mnL3(idioma,"Primera comunión","Primera comunió","First Communion"):cat==="boda"?mnL3(idioma,"Fecha de boda","Data de boda","Wedding date"):"")};
 }
 function previaMinuta(dm){
   var T=dm.tpl, sans=T.titulos==="sans", prevT="";
@@ -16710,7 +17600,7 @@ function renderTarjeta(){
       (doble||lienzo)?'<label class="fld"><span class="lbl">Nombre de la pareja <small>(sale abajo, en grande)</small></span><input type="text" data-mc="titulo" value="'+esc(mn.titulo||"")+'" placeholder="'+esc(dm.pareja)+'"></label>'+
         '<label class="fld"><span class="lbl">Encabezado <small>(bajo «menú»)</small></span><input type="text" data-mc="cab1" value="'+esc(mn.cab1!=null?mn.cab1:"en los jardines...")+'" placeholder="en los jardines..."></label>'+
         '<label class="fld"><span class="lbl">En la pista de baile <small>(una línea por cada cosa)</small></span><textarea rows="2" data-mc="pista" placeholder="'+esc(dm.pistaDef.join(" · "))+'">'+esc(mn.pista!=null?mn.pista:dm.pistaDef.join("\n"))+'</textarea></label>'+
-        '<label class="fld"><span class="lbl">Idioma de la minuta</span><select data-mc="idioma"><option value="es"'+(dm.idioma==="es"?" selected":"")+'>Castellano</option><option value="ca"'+(dm.idioma==="ca"?" selected":"")+'>Català</option></select></label>'+
+        '<label class="fld"><span class="lbl">Idioma de la minuta</span><select data-mc="idioma"><option value="es"'+(dm.idioma==="es"?" selected":"")+'>Castellano</option><option value="ca"'+(dm.idioma==="ca"?" selected":"")+'>Català</option><option value="en"'+(dm.idioma==="en"?" selected":"")+'>English</option></select></label>'+
         '<label class="fld"><span class="lbl">Tipo de minuta <small>(los diseños se ordenan por tipo)</small></span><select data-mc="cat">'+[["","Según el evento ("+({boda:"Boda",bautizo:"Bautizo",comunion:"Comunión",otros:"Otros eventos"}[minutaCat(ev(),{})])+")"],["boda","Boda"],["bautizo","Bautizo"],["comunion","Comunión"],["otros","Otros eventos"]].map(function(o){ return '<option value="'+o[0]+'"'+((mn.cat||"")===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></label>'+
         '<label class="fld"><span class="lbl">Denominación de los vinos <small>(sale tras el nombre de cada vino; «-» para no poner ninguna)</small></span><input type="text" data-mc="do" value="'+esc(mn.do||"")+'" placeholder="D.O. Terra Alta"></label>'
       :'<label class="fld"><span class="lbl">Título</span><input type="text" data-mc="titulo" value="'+esc(mn.titulo||"")+'" placeholder="'+esc(dm.titulo0)+'"></label>'+
@@ -16736,7 +17626,7 @@ function renderTarjeta(){
     '<header class="doc-head"><div class="eyebrow">Les Moles</div><h2>'+esc(dm.titulo)+'</h2>'+
     (dm.fecha?'<div class="mnu-minuta-fecha">'+esc(dm.fecha)+'</div>':'')+'<div class="orn"></div></header>';
     dm.secciones.forEach(function(sc){
-      html+='<h3 class="mnu-card-fam"><span>'+esc(sc.t)+'</span></h3><ul class="mnu-card-list">'+
+      html+='<h3 class="mnu-card-fam"><span>'+esc(sc.tt||sc.t)+'</span></h3><ul class="mnu-card-list">'+
         sc.platos.map(function(n){ return '<li>'+esc(n)+'</li>'; }).join("")+'</ul>';
     });
     if(!dm.secciones.length) html+='<p class="mnu-note">Has quitado todos los apartados: marca alguno para que salga en el menú.</p>';
@@ -17046,13 +17936,13 @@ BR.minutaDatos=function(){ return datosMinuta(); };
 BR.seatingDatos=function(cfgIn){
   var e=ev(); if(!e) return null; var F=e.ficha||{}, mn=(menu()&&menu().minuta)||{};
   var cfg=Object.assign({nombres:"completo",orden:"plano",cols:0,titulo:"auto",pref:"",idioma:"",ninos:true,bebes:true,staff:false,tam:"a5",calidad:"normal"},cfgIn||(e.seating&&e.seating.cfg)||{}), ovs=cfg.mesas||{};
-  var langEl=document.getElementById("lang"), idiomaPlano=(langEl&&langEl.value==="es")?"es":"ca", idioma=cfg.idioma==="es"||cfg.idioma==="ca"?cfg.idioma:idiomaPlano, L=mnLang(idioma);
+  var langEl=document.getElementById("lang"), idiomaPlano=(langEl&&langEl.value==="es")?"es":"ca", idioma=cfg.idioma==="es"||cfg.idioma==="ca"||cfg.idioma==="en"?cfg.idioma:idiomaPlano, L=mnLang(idioma);
   var fecha="", fechaTxt="", fechaCorta="", fechaBarra="";
   try{ var f=F.fecha; if(f){ var d0=new Date(f+"T00:00:00"); fechaTxt=d0.toLocaleDateString(L.loc,{day:"numeric",month:"long",year:"numeric"}); fechaCorta=String(f).slice(8,10)+"."+String(f).slice(5,7)+"."+String(f).slice(0,4); fechaBarra=String(f).slice(8,10)+"/"+String(f).slice(5,7)+"/"+String(f).slice(0,4); } }catch(_){}
   var titulo0=(e.name?String(e.name):"Evento").replace(/\s*[—\-–]\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{1,2}-\d{1,2})\s*$/,"").trim()||"Evento";
   var cat=minutaCat(e,mn), parejaA=String(F.parejaA||"").trim(), parejaB=String(F.parejaB||"").trim();
   var pareja=cat==="boda"?((parejaA&&parejaB)?(parejaA+L.y+parejaB):parejaBonita(titulo0)):nombreHomenajeado(titulo0);
-  var pref=String(cfg.pref||"").trim()||(idioma==="es"?"Mesa":"Taula"), doc=BR.planDoc?BR.planDoc():{tables:[]}, mesas=[];
+  var pref=String(cfg.pref||"").trim()||mnL3(idioma,"Mesa","Taula","Table"), doc=BR.planDoc?BR.planDoc():{tables:[]}, mesas=[];
   doc.tables.forEach(function(t){
     var nombre=String(t.name||"").trim(), num=pref+" "+t.num, titAuto=cfg.titulo==="num"?num:cfg.titulo==="numnombre"?(nombre?num+" · "+nombre:num):(nombre||num);
     var gs=t.guests.filter(function(g){ return !g.soloAper&&!(g.kind==="staff"&&!cfg.staff)&&!(g.kind==="baby"&&!cfg.bebes)&&!(g.kind==="child"&&!cfg.ninos); });
@@ -23453,6 +24343,13 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   var MOLA='<svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="74"/><circle cx="100" cy="100" r="40"/><rect x="88" y="88" width="24" height="24"/><path d="M100 4v36M100 160v36M4 100h36M160 100h36M32 32l26 26M142 142l26 26M168 32l-26 26M58 142l-26 26"/></svg>';
 
   function P(){ return (D&&D.portal)||{}; }
+  /* v02.12 · el menú en castellano, català o English: el que elige el cliente (se acuerda), o el que pone la ficha */
+  var PLANG=null;
+  function plangDe(){ if(PLANG) return PLANG; var l=""; try{ l=localStorage.getItem("lm_portal_lang")||""; }catch(_){} if(!/^(es|ca|en)$/.test(l)) l=P().idioma||"es"; PLANG=/^(es|ca|en)$/.test(l)?l:"es"; return PLANG; }
+  function menuL(){ var l=plangDe(), p=P(); return (l!=="es"&&p.menuTr&&p.menuTr[l]&&p.menuTr[l].length)?p.menuTr[l]:(p.menu||[]); }
+  function selIdioma(){
+    if(!P().menuTr) return ""; var l=plangDe();
+    return '<div class="pn-lang" role="group" aria-label="Idioma del menú">'+[["es","Castellano","ES"],["ca","Català","CA"],["en","English","EN"]].map(function(x){ return '<button type="button" class="pn-lg'+(l===x[0]?" on":"")+'" data-pn-act="idioma" data-l="'+x[0]+'" lang="'+x[0]+'" aria-pressed="'+(l===x[0])+'" title="'+x[1]+'">'+x[2]+'</button>'; }).join("")+'</div>'; }
   function cerrado(){ var c=P().cierre; return !!(c&&(D.hoy||hoyISO())>=c); }
   function puedeEditar(){ return !!(D&&D.editable)&&!cerrado(); }
   function PAL(){ var f=window.LM_palabras; try{ if(f) return f((P().tipo)||(D&&D.event&&D.event.tipo)); }catch(_){} return {k:"otro",nom:"vuestro evento",dia:"El día del evento",hito:"¡Vuestro evento!",con:"EVENTO",org:"Quién organiza",marca:"Vuestro evento"}; }
@@ -23576,7 +24473,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .mesa-h{flex-wrap:wrap;row-gap:0;padding:8px 12px}#novios .mesa-h .cnt{order:5;flex:1 0 100%;padding:0 0 4px 52px;white-space:normal}#novios .mesa-h .pn-x{order:3}#novios .pn-tl{flex:1 1 100%}#novios .pn-tl .pn-chip{flex:1 1 100%;justify-content:center}#novios .pn-tl .pn-btn{flex:1 1 40%}",
   "#novios .pn-doc{padding:22px 18px 20px}#novios .pn-next{flex-wrap:wrap}#novios .pn-next .go{margin-left:0;width:100%}#novios .pn-fi{grid-template-columns:40px minmax(0,1fr)}#novios .pn-fi .go{grid-column:1/-1;width:100%}#novios .pn-step{grid-template-columns:26px 1fr}#novios .st-w{grid-column:2;text-align:left}}",
   "#novios .pn-peq{font-size:10px;letter-spacing:.1em;font-weight:600;color:var(--pfa);margin-left:8px;text-transform:none}",
-  "#novios .pn-ap{display:flex;flex-direction:column;gap:14px}#novios .pn-menu-ap{padding:6px 4px;text-align:center}",
+  "#novios .pn-lang{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--pl);border-radius:100px;margin:0 0 14px}#novios .pn-lg{border:0;background:none;font:650 11px/1 var(--bdy,inherit);letter-spacing:.1em;padding:7px 12px;border-radius:100px;color:var(--pm);cursor:pointer;min-height:32px}#novios .pn-lg.on{background:var(--pa,#6E7D50);color:#fff}#novios .pn-lg:focus-visible{outline:2px solid var(--pa,#6E7D50);outline-offset:1px}"+
+"#novios .pn-ap{display:flex;flex-direction:column;gap:14px}#novios .pn-menu-ap{padding:6px 4px;text-align:center}",
   "#novios .pn-min-a{display:block}#novios .pn-min-t{text-align:center;margin:8px 0 0;font-size:13px;color:var(--pm)}#novios .pn-min-t a{color:inherit;text-decoration:underline}",
   "#novios .pn-min{display:block;max-width:100%;max-height:640px;margin:0 auto;border:1px solid var(--pl);border-radius:6px;box-shadow:0 14px 34px -20px rgba(0,0,0,.35);background:#fff}",
   "#novios .pn-aprob{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--ols);color:var(--olt)}#novios .pn-aprob svg{flex:none;width:20px;height:20px;margin-top:2px}#novios .pn-aprob b{display:block;color:var(--pi)}#novios .pn-aprob span{font-size:12.5px;color:var(--pm)}",
@@ -23823,9 +24721,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<button type="button" class="pn-btn pri" data-pn-act="aprobar" data-item="'+item+'">Aprobar '+(item==="menu"?"el menú":"la minuta")+'</button></div>';
   }
   function vAprob(){
-    var act=puedeActuar(), st=AP||{menu:{},minuta:{}}, mn=P().menu||[];
+    var act=puedeActuar(), st=AP||{menu:{},minuta:{}}, mn=menuL();
     var h='<div class="pn-head"><div><h2 class="pn-h2">Revisad y aprobad</h2><p class="pn-lead">Cuando el menú o la minuta estén como queréis, aprobadlos con vuestro nombre: queda apuntado con la fecha. Si después cambiamos algo, os lo volveremos a pedir.</p></div></div>';
-    h+='<div class="pn-card pn-ap"><div class="pn-eb">El menú</div>'+(mn.length?'<div class="pn-menu pn-menu-ap">'+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>':'<p class="pn-lead">Todavía estamos preparando el menú.</p>')+aprobBloque("menu",st.menu,mn.length>0,act)+'</div>';
+    h+='<div class="pn-card pn-ap"><div class="pn-eb">El menú</div>'+selIdioma()+(mn.length?'<div class="pn-menu pn-menu-ap">'+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>':'<p class="pn-lead">Todavía estamos preparando el menú.</p>')+aprobBloque("menu",st.menu,mn.length>0,act)+'</div>';
     h+='<div class="pn-card pn-ap"><div class="pn-eb">La minuta <span class="pn-peq">la carta que irá en las mesas</span></div>'+(MIN?'<a class="pn-min-a" href="'+imgUrl(MIN.id)+'" target="_blank" rel="noopener" aria-label="Abrir la minuta a tamaño completo (se abre en otra pestaña)"><img class="pn-min" src="'+imgUrl(MIN.id)+'" alt="La minuta que os proponemos"></a><p class="pn-min-t"><a href="'+imgUrl(MIN.id)+'" target="_blank" rel="noopener">Ver la minuta a tamaño completo</a> para leer bien los nombres y los platos.</p>':'<p class="pn-lead">Todavía no hay una minuta preparada. Os avisaremos cuando esté.</p>')+aprobBloque("minuta",st.minuta,!!MIN,act)+'</div>';
     return h;
   }
@@ -23883,6 +24781,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function onExtra(ev){
     var b=ev.target.closest&&ev.target.closest("[data-pn-act]"), a=b&&b.getAttribute("data-pn-act");
     if(!a){ var m=ev.target.closest&&ev.target.closest("[data-pn-mesa]"); if(m){ var k=+m.getAttribute("data-pn-mesa"); PLSEL=(PLSEL===k?null:k); pintar(); return true; } return false; }
+    if(a==="idioma"){ PLANG=b.getAttribute("data-l"); try{ localStorage.setItem("lm_portal_lang",PLANG); }catch(_){} pintar(); return true; }
     if(a==="aprobar"){
       var item=b.getAttribute("data-item"), inp=document.getElementById("pn-apn-"+item), nom=(inp&&inp.value||"").trim();
       if(nom.length<2){ aviso("Escribid vuestro nombre para aprobar."); if(inp) inp.focus(); return true; }
@@ -23967,8 +24866,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var h='<div class="pn-head"><div><h2 class="pn-h2">'+esc(PAL().dia)+'</h2><p class="pn-lead">Horarios y menú tal como los tenemos preparados. Si queréis cambiar algo, habladlo con nosotros en la reunión.</p></div><span class="pn-perm lock">'+IC.lock+'Solo lectura</span></div>';
     var hs=P().horas||[];
     if(hs.length) h+='<div class="pn-horas">'+hs.map(function(x){ return '<div><b class="pn-n">'+esc(x.v)+'</b><span>'+esc(x.l)+'</span></div>'; }).join("")+'</div>';
-    var mn=P().menu||[];
-    if(mn.length) h+='<div class="pn-card pn-menu">'+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>';
+    var mn=menuL();
+    if(mn.length) h+='<div class="pn-card pn-menu">'+selIdioma()+mn.map(function(f){ return '<h4>'+esc(f.fam)+'</h4>'+f.platos.map(function(p){ return '<p>'+esc(p)+'</p>'; }).join(""); }).join("")+'</div>';
     if(!hs.length&&!mn.length) h+='<div class="pn-aviso">'+IC.info+'<span>Todavía estamos preparando los horarios y el menú. Los veréis aquí en cuanto estén.</span></div>';
     var ct=P().contacto||{};
     if(ct.mail||ct.tel||ct.nota) h+='<div class="pn-card" style="display:grid;gap:10px"><div class="pn-eb">Vuestro contacto en Les Moles</div>'+(ct.nota?'<p style="margin:0;color:var(--pm)">'+esc(ct.nota)+'</p>':'')+
@@ -24777,6 +25676,7 @@ var VISTAS={
   "p-comercial":{t:"Presupuesto y pagos", secs:["comercial"], guia:"Porcentaje del primer pago (sobre el total), precios de partida de los eventos nuevos, tipos de evento y servicios de proveedores."},
   "p-alg":     {t:"Alérgenos de los ingredientes", secs:["alergenos"], guia:"Qué alérgenos (de los 14 de la UE) lleva cada ingrediente de los escandallos. La app propone por el nombre; cocina lo revisa y lo confirma. Con esto, en «Alergias y sustituciones» de cada evento se ve qué platos no puede comer cada invitado y se proponen alternativas."},
   "p-pvp":     {t:"Precios de venta", secs:["pvp"], guia:"Lo que se cobra por comensal (sin IVA) por cada plato, los packs, los suplementos de vino, cava y jamón, la barra libre y los menús infantil y staff. Con esto cada evento calcula solo el precio de su menú en «Presupuesto». Lo que esté vacío sale como «pendiente», nunca como 0 €."},
+  "p-trad":    {t:"Traducciones del menú", secs:["traducciones"], guia:"Los menús que ven los clientes (la minuta y el portal) salen en castellano, catalán e inglés. Los 150 platos del catálogo llevan una traducción revisada; los platos escritos a mano en un evento se traducen con un glosario de cocina, y esos son los que conviene repasar. Lo que escribas aquí manda sobre todo lo demás, en todos los eventos."},
   "p-tareas":  {t:"Tareas por fase", secs:["tareas"], guia:"El checklist que se crea en cada evento nuevo, fase a fase. Los eventos que ya existen conservan el suyo."},
   "p-copias":  {t:"Copias de seguridad", secs:[], guia:"Todo el negocio queda copiado solo, varias veces al día. Aquí se ven las copias, se recuperan los eventos borrados y se restaura un evento (o todo) a como estaba. Antes de restaurar, siempre se guarda lo que hay."},
   "p-agenda":  {t:"Agenda con el cliente", secs:["agenda"], guia:"La señal que se cobra al reservar y los pasos que se programan solos a partir de la fecha de cada evento (documento, pagos, reuniones y cierre de cambios). Salen en el calendario, en los avisos y en la cronología de TODOS los eventos, también los que ya existen."}
@@ -24826,7 +25726,8 @@ var GRUPOS_P=[
     ["p-platos","Platos y escandallo","Qué lleva cada plato, su vajilla y cómo se sirve: por persona o compartido en cada mesa.",["platos"]],
     ["p-bebidas","Bebidas","Botellas por persona en cada momento y marcas que se pueden elegir.",["bebidas"]],
     ["p-alg","Alérgenos","Qué alérgenos lleva cada ingrediente (lo revisa cocina).",["alergenos"]],
-    ["p-pvp","Precios de venta","Lo que se cobra por plato, packs, suplementos y barra libre.",["pvp"]]]},
+    ["p-pvp","Precios de venta","Lo que se cobra por plato, packs, suplementos y barra libre.",["pvp"]],
+    ["p-trad","Traducciones del menú","Los platos en catalán e inglés para la minuta y el portal del cliente.",["traducciones"]]]},
   {t:"Servicio en sala", it:[
     ["p-servicio","Servicio y camareros","Comensales por camarero, catálogo de vajilla y cubiertos y material de montaje.",["servicio","catalogo","montaje"]],
     ["p-tareas","Tareas por fase","El checklist que se crea en cada evento nuevo.",["tareas"]]]},
@@ -25147,6 +26048,70 @@ function vAlg(){
     '<div class="pcard alg-lista">'+(filas||'<p class="pp-empty">Nada en esta lista.</p>')+(vis.length>150?'<p class="pp-note">Se ven los 150 primeros: usa el buscador para el resto.</p>':'')+'</div>';
 }
 
+/* ══ TRADUCCIONES DEL MENÚ (v02.12) ═══════════════════════════════════
+   Los platos del catálogo y los escritos a mano en los eventos, en catalán o en inglés, con lo que sale hoy en la minuta y en el portal.
+   Lo que se escribe aquí se guarda en el parámetro «traducciones» ({ca:{plato:texto}, en:{…}}, la clave es el nombre sin tildes ni mayúsculas)
+   y manda sobre la tabla revisada y sobre el glosario. Dejar el campo vacío (o igual que la propuesta) lo devuelve a como estaba. */
+var trUi={lang:"ca", f:"rev", q:""};
+function trPlatos(){
+  var T=window.LM_TRAD, vistos={}, out=[];
+  function add(nombre,ev){ var n=String(nombre||"").trim(); if(!n) return; var k=T.nz(n);
+    if(vistos[k]){ if(ev) vistos[k].ev++; return; }
+    vistos[k]={n:n,k:k,ev:ev?1:0}; out.push(vistos[k]); }
+  ((datos("platos").fams)||[]).forEach(function(f){ (f.dishes||[]).forEach(function(x){ add(x.name,false); }); });
+  try{ (BR.store.events||[]).forEach(function(e){ ((e&&e.menu&&e.menu.propios)||[]).forEach(function(p){ if(p&&p.name) add(p.name,true); }); }); }catch(_){}
+  return out;
+}
+function trEstado(i,aj){
+  var h;
+  if(i.origen==="ajustada") h='<span class="pp-state mod">Ajustada</span>';
+  else if(i.origen==="automática") h='<span class="pp-state tr-auto">Automática · a revisar</span>';
+  else h='<span class="pp-state">Revisada</span>';
+  if(i.sin&&i.sin.length) h+='<span class="tr-sin">Sin traducir: '+esc(i.sin.join(", "))+'</span>';
+  return h;
+}
+function vTrad(){
+  var T=window.LM_TRAD; if(!T) return '<div class="pcard"><p>No se ha podido cargar el traductor.</p></div>';
+  var lang=trUi.lang==="en"?"en":"ca", nombreL=lang==="ca"?"catalán":"inglés", L=trPlatos();
+  var filas=L.map(function(p){ return {p:p,i:T.info(p.n,lang)}; });
+  var n={rev:0,aj:0,cat:0,todos:filas.length};
+  filas.forEach(function(r){ if(r.i.origen==="ajustada") n.aj++; else if(r.i.origen==="automática") n.rev++; else n.cat++; });
+  var q=norm(trUi.q);
+  var vis=filas.filter(function(r){ var f=trUi.f;
+    return (f==="todos"||(f==="rev"&&r.i.origen==="automática")||(f==="aj"&&r.i.origen==="ajustada")||(f==="cat"&&r.i.origen==="revisada"))&&(!q||norm(r.p.n+" "+r.i.t).indexOf(q)>-1); });
+  if(trUi.f==="rev") vis.sort(function(a,b){ return b.i.sin.length-a.i.sin.length; });
+  var langs=[["ca","Català"],["en","English"]].map(function(t){ return '<button type="button" class="'+(lang===t[0]?"on":"")+'" aria-pressed="'+(lang===t[0])+'" data-pa="tr-lang" data-k="'+t[0]+'">'+t[1]+'</button>'; }).join("");
+  var tabs=[["rev","A revisar",n.rev],["aj","Ajustadas",n.aj],["cat","Del catálogo",n.cat],["todos","Todas",n.todos]].map(function(t){
+    return '<button type="button" class="'+(trUi.f===t[0]?"on":"")+'" aria-pressed="'+(trUi.f===t[0])+'" data-pa="tr-f" data-k="'+t[0]+'">'+t[1]+' <span data-trn="'+t[0]+'">'+t[2]+'</span></button>'; }).join("");
+  var filasH=vis.slice(0,120).map(function(r){
+    return '<div class="tr-row'+(r.i.origen==="ajustada"?" aj":r.i.origen==="automática"?" auto":"")+'" data-trk="'+esc(r.p.k)+'">'+
+      '<div class="tr-es"><b>'+esc(r.p.n)+'</b><span>'+(r.p.ev?'en '+r.p.ev+(r.p.ev===1?' evento':' eventos')+' (escrito a mano)':'del catálogo')+'</span></div>'+
+      '<input type="text" class="tr-in" lang="'+lang+'" data-pp="tr" data-k="'+esc(r.p.k)+'" data-n="'+esc(r.p.n)+'" value="'+esc(r.i.t)+'" autocomplete="off" aria-label="'+esc(r.p.n)+' en '+nombreL+'">'+
+      '<div class="tr-st">'+trEstado(r.i)+(r.i.origen==="ajustada"?'<button type="button" class="rt-link" data-pa="tr-quitar" data-k="'+esc(r.p.k)+'">Volver a la propuesta</button>':'')+'</div></div>'; }).join("");
+  var vacio=trUi.f==="rev"&&!n.rev?'<p class="pp-empty">✓ No hay platos pendientes de revisar en '+nombreL+'.</p>':'<p class="pp-empty">Nada en esta lista.</p>';
+  return '<div class="pcard tr-intro"><p><b>Cómo funciona:</b> el menú del cliente (la minuta y su portal) se puede ver en castellano, catalán o inglés. Los platos del catálogo ya llevan una traducción revisada; '+
+      'los platos <b>escritos a mano</b> en un evento los traduce la app con un glosario de cocina, así que conviene repasarlos (salen en «A revisar»). '+
+      'Escribe la versión correcta en el recuadro y se guarda sola para todos los eventos; la minuta y el portal ya la usan. Si lo dejas vacío vuelve a la propuesta.</p></div>'+
+    '<div class="pp-bar"><div class="seg" role="group" aria-label="Idioma">'+langs+'</div><div class="seg" role="group" aria-label="Filtro">'+tabs+'</div>'+
+      '<input type="search" class="pp-search" data-pp="trq" value="'+esc(trUi.q)+'" placeholder="Buscar un plato…" aria-label="Buscar un plato"></div>'+
+    '<div class="pcard tr-lista">'+(filasH||vacio)+(vis.length>120?'<p class="pp-note">Se ven los 120 primeros: usa el buscador para el resto.</p>':'')+'</div>';
+}
+/* guarda lo escrito en un recuadro sin repintar la lista (así no se pierde el foco al pasar con el tabulador) */
+function trGuarda(el){
+  var T=window.LM_TRAD; if(!T) return;
+  var lang=trUi.lang==="en"?"en":"ca", key=el.getAttribute("data-k"), nombre=el.getAttribute("data-n"), v=String(el.value||"").replace(/\s+/g," ").trim();
+  var d=datos("traducciones"); d.ca=d.ca||{}; d.en=d.en||{};
+  var base=T.info(nombre,lang,true).t, tenia=Object.prototype.hasOwnProperty.call(d[lang],key);
+  if(!v||v===base){ if(!tenia){ el.value=base; return; } delete d[lang][key]; guardar("traducciones",d,"Traducción restablecida."); el.value=base; }
+  else { if(d[lang][key]===v) return; d[lang][key]=v; guardar("traducciones",d,"Traducción guardada."); el.value=v; }
+  var row=el.closest(".tr-row"); if(!row) return;
+  var i=T.info(nombre,lang);
+  row.className="tr-row"+(i.origen==="ajustada"?" aj":i.origen==="automática"?" auto":"");
+  var st=row.querySelector(".tr-st"); if(st) st.innerHTML=trEstado(i)+(i.origen==="ajustada"?'<button type="button" class="rt-link" data-pa="tr-quitar" data-k="'+esc(key)+'">Volver a la propuesta</button>':'');
+  var c={rev:0,aj:0,cat:0,todos:0}; trPlatos().forEach(function(p){ var o=T.info(p.n,lang).origen; c.todos++; if(o==="ajustada") c.aj++; else if(o==="automática") c.rev++; else c.cat++; });
+  Object.keys(c).forEach(function(k2){ var sp=hostRef.querySelector('[data-trn="'+k2+'"]'); if(sp) sp.textContent=c[k2]; });
+}
+
 /* ══ PRECIOS DE VENTA (para calcular el precio del menú de cada evento) ══
    Se rellena una vez: lo que se cobra por comensal (sin IVA) por cada plato,
    los packs, los suplementos de vino/cava/jamón y los extras. Lo que esté
@@ -25379,6 +26344,7 @@ function render(k,host){
   else if(vistaActual==="p-agenda") body=vAgenda();
   else if(vistaActual==="p-pvp") body=vPvp();
   else if(vistaActual==="p-alg") body=vAlg();
+  else if(vistaActual==="p-trad") body=vTrad();
   else body=vTareas();
   hostRef.innerHTML='<div class="pv-inner pp-root" data-vista="'+esc(vistaActual)+'">'+cabecera(vistaActual)+body+'</div>';
   if(vistaActual==="p-copias"&&esAdmin()&&!BK.cargando&&!BK.err&&(!BK.datos||Date.now()-BK.t>20000)) bkCargar();
@@ -25394,9 +26360,9 @@ function enParam(){ return hostRef&&hostRef.querySelector(".pp-root"); }
 var qTm=null;
 function onInput(ev){
   if(!enParam()) return;
-  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(pp!=="q"&&pp!=="catq"&&pp!=="pvpq"&&pp!=="algq") return;
+  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(pp!=="q"&&pp!=="catq"&&pp!=="pvpq"&&pp!=="algq"&&pp!=="trq") return;
   clearTimeout(qTm); qTm=setTimeout(function(){
-    if(pp==="q") ui.q=el.value; else if(pp==="pvpq") pvpQ=el.value; else if(pp==="algq") algUi.q=el.value; else ui.catQ=el.value;
+    if(pp==="q") ui.q=el.value; else if(pp==="pvpq") pvpQ=el.value; else if(pp==="algq") algUi.q=el.value; else if(pp==="trq") trUi.q=el.value; else ui.catQ=el.value;
     var pos=el.selectionStart; render();
     var n=hostRef.querySelector('[data-pp="'+pp+'"]'); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(_){} }
   },220);
@@ -25404,8 +26370,9 @@ function onInput(ev){
 
 function onChange(ev){
   if(!enParam()) return;
-  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(!pp||pp==="q"||pp==="catq"||pp==="pvpq"||pp==="algq") return;
+  var el=ev.target, pp=el.getAttribute&&el.getAttribute("data-pp"); if(!pp||pp==="q"||pp==="catq"||pp==="pvpq"||pp==="algq"||pp==="trq") return;
   if(pp==="bk-file"){ bkArchivo(el); return; }
+  if(pp==="tr"){ trGuarda(el); return; }
   var k=el.getAttribute("data-k"), i=+el.getAttribute("data-i"), v=el.value;
   if(pp==="pvp"){
     var T=BR.pvp(), x=el.getAttribute("data-x"), vt=String(v).trim().replace(",","."), nv=vt===""?null:+vt;
@@ -25518,6 +26485,9 @@ function onClick(ev){
   var a=b.getAttribute("data-pa"), i=+b.getAttribute("data-i");
   if(a.indexOf("bk-")===0){ bkClick(a,b); return; }
   if(a==="ir"){ var dk=b.getAttribute("data-k"); if(dk==="p-platos"){ ui.q=""; ui.open=null; ui.filtro=b.getAttribute("data-f")||"todos"; ui.vista=b.getAttribute("data-v")||"fichas"; } if(window.irASeccion) window.irASeccion(dk); return; }
+  if(a==="tr-lang"){ trUi.lang=b.getAttribute("data-k")==="en"?"en":"ca"; trUi.f="rev"; trUi.q=""; render(); return; }
+  if(a==="tr-f"){ trUi.f=b.getAttribute("data-k"); render(); return; }
+  if(a==="tr-quitar"){ var dq=datos("traducciones"), lq=trUi.lang==="en"?"en":"ca"; if(dq[lq]) delete dq[lq][b.getAttribute("data-k")]; guardar("traducciones",dq,"Traducción restablecida."); render(); return; }
   if(a==="fam"){ ui.fam=b.getAttribute("data-k"); ui.q=""; ui.open=null; ui.filtro="todos"; render(); return; }
   if(a==="vista"){ ui.vista=b.getAttribute("data-k")==="sirve"?"sirve":"fichas"; render(); return; }
   if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); ui.q=""; ui.open=null; render(); return; }
@@ -25679,6 +26649,16 @@ st.textContent=
 ".pp-tramo input:first-child{flex:1;min-width:140px}"+
 ".pp-tramo span{font-size:12px;color:var(--c-mut)}"+
 ".pp-note{font-size:12.5px;color:var(--c-mut);margin:12px 0 0;line-height:1.5}"+
+".tr-intro p{margin:0;font-size:13.5px;line-height:1.55}"+
+".tr-lista{padding:6px 16px}"+
+".tr-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,.9fr);gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--c-line-2)}"+
+".tr-row:last-child{border-bottom:0}"+
+".tr-es{min-width:0;display:flex;flex-direction:column;gap:2px} .tr-es b{font-weight:600;font-size:13.5px;overflow-wrap:anywhere} .tr-es span{font-size:11.5px;color:var(--c-mut)}"+
+".tr-in{width:100%;min-width:0;background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:8px 10px;color:var(--c-ink);font:inherit;font-size:13.5px}"+
+".tr-row.aj .tr-in{border-color:var(--gold,#b8934a)}"+
+".tr-st{min-width:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12px}"+
+".tr-auto{background:rgba(184,147,74,.16);color:var(--c-ink)} .tr-sin{color:var(--c-mut);overflow-wrap:anywhere}"+
+"@media (max-width:760px){.tr-row{grid-template-columns:minmax(0,1fr)}}"+
 ".fld .lbl small{text-transform:none;letter-spacing:0;font-weight:400;color:var(--c-faint)}"+
 ".pp-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,10px);opacity:0;background:var(--c-ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:13px;z-index:300;transition:.2s}"+
 ".pp-toast.on{opacity:1;transform:translate(-50%,0)}"+
@@ -28085,7 +29065,7 @@ tpl({id:"hojas_logo",nombre:"Hojas y logo de la pareja",desc:"Distinciones y log
 tpl({id:"sello",nombre:"Sello de fecha",desc:"Frase de agradecimiento en caligrafía verde y un sello con vuestros nombres y la fecha",cat:["boda","otros"],fondo:"#FFFFFF",tinta:"#2B2B2B",color:"#6E8F68",mx:46,x0:52,w:190,zona:{y0:182},pieY:818,pie:"sin",noNom:true,
   est:{tit:est("Cormorant Garamond",10.4,"#2B2B2B",{al:"left",up:1,ls:0.6,b:0,lh:1.2}),lin:est("Cormorant Garamond",7.2,"#3A3A3A",{al:"left",i:1,lh:1.42}),peq:est("Cormorant Garamond",6.8,"#3A3A3A",{al:"left",i:1,lh:1.5}),ast:est("Cormorant Garamond",7,"#6E8F68",{al:"left"}),nom:est("Allura",26,"#6E8F68"),rot:est("Allura",26,"#6E8F68")},
   deco:function(sc,tp,dm){ var o=[IMG("@lz:distinciones_guias",W-146,34,100,100*(LZ_MAN.distinciones_guias||{w:1266,h:120}).h/(LZ_MAN.distinciones_guias||{w:1266,h:120}).w),LZI("logo_lesmoles",W-148,50,104),LZI("hoja_2",W-68,70,40)];
-    o.push(TX("lema",dm.idioma==="ca"?"gràcies per formar part del nostre viatge":"gracias por formar parte de nuestro viaje",24,108,W-48,est("Allura",15,"#6E8F68",{lh:1.15}),{i18n:{es:"gracias por formar parte\nde nuestro viaje",ca:"gràcies per formar part\ndel nostre viatge"}}));
+    o.push(TX("lema",dm.idioma==="ca"?"gràcies per formar part del nostre viatge":dm.idioma==="en"?"thank you for being part of our journey":"gracias por formar parte de nuestro viaje",24,108,W-48,est("Allura",15,"#6E8F68",{lh:1.15}),{i18n:{es:"gracias por formar parte\nde nuestro viaje",ca:"gràcies per formar part\ndel nostre viatge",en:"thank you for being\npart of our journey"}}));
     o.push(LZI("hoja_10",W-56,236,22)); o.push(LZI("hoja_6",W-80,548,54));
     o.push(monoDeco(dm,"sello",W/2-60,684,120,120,"#6E8F68","Cormorant Garamond")); return o; }});
 /* marinero */
@@ -28138,7 +29118,7 @@ tpl({id:"nino",nombre:"Niño de comunión",desc:"Un niño con las manos juntas, 
   deco:function(sc,tp,dm){ return [TX("nom2","",20,40,W-40,est("Mrs Saint Delafield",40,"#C8785A",{lh:1.0}),{campo:"{nombre}"}),TX("fec","",20,104,W-40,est("Special Elite",6.2,"#C8785A",{ls:0.5}),{campo:"{tipo} · {fecha}"}),LZI("nino",8,608,78)]; }});
 tpl({id:"comunion_script",nombre:"Primera comunión · dorado",desc:"Dos palabras grandes a pluma en dorado pálido y texto a máquina",cat:["comunion","bautizo","otros"],fondo:"#FFFFFF",tinta:"#444444",color:"#CDAE74",mx:40,zona:{y0:196},pieY:816,pie:"events",noNom:true,
   est:{tit:est("Special Elite",7,"#222222",{ls:0.4,lh:1.2}),lin:est("Montserrat",6.5,"#555555",{lh:1.55}),peq:est("Montserrat",6.1,"#666666",{ls:0.4,lh:1.55}),ast:est("Montserrat",5.9,"#CDAE74"),nom:est("Mrs Saint Delafield",34,"#CDAE74"),rot:est("Mrs Saint Delafield",44,"#E3CFA6")},
-  deco:function(sc,tp,dm){ return [TX("lema","primera comunión",20,34,W-40,est("Mrs Saint Delafield",44,"#E3CFA6",{lh:0.95}),{i18n:{es:"primera\ncomunión",ca:"primera\ncomunió"}}),TX("fec","",20,134,W-40,est("Montserrat",6,"#D5BC8C",{ls:1.4}),{campo:"{fecha}"})]; }});
+  deco:function(sc,tp,dm){ return [TX("lema","primera comunión",20,34,W-40,est("Mrs Saint Delafield",44,"#E3CFA6",{lh:0.95}),{i18n:{es:"primera\ncomunión",ca:"primera\ncomunió",en:"first\ncommunion"}}),TX("fec","",20,134,W-40,est("Montserrat",6,"#D5BC8C",{ls:1.4}),{campo:"{fecha}"})]; }});
 
 /* ══ ARTE PROCEDURAL ═════════════════════════════════════════════════════
    Ilustraciones y texturas que se dibujan con código (nada de imágenes): acuarelas, mármol, terrazo,
@@ -28880,7 +29860,7 @@ tpl({id:"m40",tags:["Moderno", "Oscuro"],nombre:"Pizarra de tiza",desc:"Pizarra 
   deco:function(sc,tp,dm){ return [S({f:"tiza",x:0,y:0,w:W,h:H,seed:4}),TX("rot","menú",30,46,W-60,est("Amatic SC",64,"#F2EEE4",{b:1,ls:4})),S({f:"estrellas",x:W/2-30,y:126,w:60,h:7,fill:"#F2C14E",stroke:""}),nomC(40,722,W-80,"Amatic SC",30,"#F2EEE4",{b:1,ls:2,lh:1.1}),TX("pie","LES MOLES · ULLDECONA",30,H-44,W-60,est("Shadows Into Light",8,"#F2C14E",{ls:3}))]; }});
 tpl({id:"m41",tags:["Oscuro", "Ilustrado"],nombre:"Navidad de acebo",desc:"Verde bosque con acebo, bayas rojas y copos de nieve; con título de Navidad",cat:["otros"],fondo:"#16382C",tinta:"#F5EBD6",color:"#E5C77E",mx:52,zona:{y0:206},pieY:808,pie:"sin",noNom:true,nomMax:650,
   est:{tit:est("Cormorant SC",11,"#E5C77E",{b:1,ls:2,lh:1.2}),lin:est("Cormorant Garamond",10.4,"#F5EBD6",{lh:1.4}),peq:est("Cormorant Garamond",8.4,"#F5EBD6",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#E5C77E"),nom:est("Mr De Haviland",40,"#E5C77E",{lh:1}),rot:est("Mr De Haviland",50,"#E5C77E",{lh:0.95})},
-  deco:function(sc,tp,dm){ return [S({f:"nieve",x:0,y:0,w:W,h:H,seed:8,n:120,tam:6,hueco:[[30,200,W-30,700]],stroke:"#F5EBD6"}),S({f:"acebo",x:W/2-62,y:20,w:124,h:96,fill:"#4C9A6A",fill2:"#D9453F",seed:3,n:5}),S({f:"acebo",x:-40,y:H-130,w:150,h:110,fill:"#4C9A6A",fill2:"#D9453F",seed:7,n:5,rot:0.5}),S({f:"acebo",x:W-110,y:H-130,w:150,h:110,fill:"#4C9A6A",fill2:"#D9453F",seed:11,n:5,rot:-0.5}),TX("rot","menú de Navidad",30,106,W-60,est("Mr De Haviland",50,"#E5C77E",{lh:0.95}),{i18n:{es:"menú de Navidad",ca:"menú de Nadal"}}),nomC(30,664,W-60,"Mr De Haviland",40,"#E5C77E",{lh:1})]; }});
+  deco:function(sc,tp,dm){ return [S({f:"nieve",x:0,y:0,w:W,h:H,seed:8,n:120,tam:6,hueco:[[30,200,W-30,700]],stroke:"#F5EBD6"}),S({f:"acebo",x:W/2-62,y:20,w:124,h:96,fill:"#4C9A6A",fill2:"#D9453F",seed:3,n:5}),S({f:"acebo",x:-40,y:H-130,w:150,h:110,fill:"#4C9A6A",fill2:"#D9453F",seed:7,n:5,rot:0.5}),S({f:"acebo",x:W-110,y:H-130,w:150,h:110,fill:"#4C9A6A",fill2:"#D9453F",seed:11,n:5,rot:-0.5}),TX("rot","menú de Navidad",30,106,W-60,est("Mr De Haviland",50,"#E5C77E",{lh:0.95}),{i18n:{es:"menú de Navidad",ca:"menú de Nadal",en:"Christmas menu"}}),nomC(30,664,W-60,"Mr De Haviland",40,"#E5C77E",{lh:1})]; }});
 
 
 /* ═══ SERIE «TINTA Y LAVADO» · dibujados a mano ═══════════════════════════ */
@@ -28910,7 +29890,7 @@ tpl({id:"m48",nombre:"Bosque de animalitos",desc:"Conejo, zorro y búho en fila,
   deco:function(sc,tp,dm){ return [dib("conejo",8,26,92,92,{seed:2}),dib("zorro",102,26,94,94,{seed:3}),dib("buho",198,26,92,92,{seed:2}),TX("rot","menú",30,122,W-60,est("Delicious Handrawn",40,"#3A3228")),dib("erizo",168,664,118,118,{seed:3}),nomC(24,672,170,"Delicious Handrawn",28,"#3A3228",{lh:1.1,al:"left"})]; }});
 tpl({id:"m49",nombre:"Cordero y espigas",desc:"Un corderito con la banderola de la cruz, entre espigas de trigo, para comuniones",cat:["comunion","bautizo"],tags:["Dibujado","Ilustrado","Clásico"],fondo:"#FFFCF3",tinta:"#3A342C",color:"#B8902B",mx:60,zona:{y0:262},pieY:814,pie:"lz",noNom:true,nomMax:720,
   est:{tit:est("Homemade Apple",9.6,"#B8902B",{lh:1.3}),lin:est("Cormorant Garamond",10.4,"#3A342C",{lh:1.4}),peq:est("Cormorant Garamond",8.4,"#3A342C",{ls:1,lh:1.5}),ast:est("Homemade Apple",9,"#B8902B"),nom:est("Waiting for the Sunrise",30,"#3A342C",{lh:1.1}),rot:est("Homemade Apple",22,"#3A342C")},
-  deco:function(sc,tp,dm){ return [dib("herbario",-4,30,66,92,{tipo:"trigo",seed:5}),dib("herbario",W-62,30,66,92,{tipo:"trigo",seed:9}),dib("cordero",66,24,166,140,{seed:4}),TX("rot","primera\ncomunión",30,176,W-60,est("Homemade Apple",22,"#3A342C",{lh:1.15}),{i18n:{es:"primera\ncomunión",ca:"primera\ncomunió"}}),nomC(30,738,W-60,"Waiting for the Sunrise",30,"#3A342C",{lh:1.1})]; }});
+  deco:function(sc,tp,dm){ return [dib("herbario",-4,30,66,92,{tipo:"trigo",seed:5}),dib("herbario",W-62,30,66,92,{tipo:"trigo",seed:9}),dib("cordero",66,24,166,140,{seed:4}),TX("rot","primera\ncomunión",30,176,W-60,est("Homemade Apple",22,"#3A342C",{lh:1.15}),{i18n:{es:"primera\ncomunión",ca:"primera\ncomunió",en:"first\ncommunion"}}),nomC(30,738,W-60,"Waiting for the Sunrise",30,"#3A342C",{lh:1.1})]; }});
 tpl({id:"m50",nombre:"Bicicleta con flores",desc:"Una bici con la cesta llena de amapolas y margaritas, dibujada a pluma",cat:["boda","otros"],tags:["Dibujado","Ilustrado","Color vivo"],fondo:"#FFFDF8",tinta:"#2E3A38",color:"#4FA396",mx:56,zona:{y0:262},pieY:814,pie:"lz",noNom:true,nomMax:720,
   est:{tit:est("Reenie Beanie",18,"#4FA396",{lh:1.1}),lin:est("Patrick Hand",10.4,"#2E3A38",{lh:1.35}),peq:est("Patrick Hand",8.6,"#2E3A38",{ls:0.4,lh:1.4}),ast:est("Reenie Beanie",13,"#E4574A"),nom:est("Reenie Beanie",38,"#2E3A38",{lh:1}),rot:est("Reenie Beanie",54,"#2E3A38")},
   deco:function(sc,tp,dm){ return [dib("bici",14,26,270,189,{seed:2}),TX("rot","menú",30,208,W-60,est("Reenie Beanie",54,"#2E3A38")),nomC(30,734,W-60,"Reenie Beanie",38,"#2E3A38",{lh:1})]; }});
@@ -28919,7 +29899,7 @@ tpl({id:"m51",nombre:"¡A celebrar!",desc:"Tarta de dos pisos, globos y banderin
   deco:function(sc,tp,dm){ return [dib("cumple",30,8,238,238,{seed:2}),TX("rot","menú",30,236,W-60,est("Gochi Hand",40,"#2E2E36")),nomC(30,738,W-60,"Gochi Hand",26,"#2E2E36",{lh:1.1})]; }});
 tpl({id:"m52",nombre:"Las doce uvas",desc:"Reloj en medianoche rodeado de las doce uvas y fuegos artificiales, en azul noche",cat:["otros"],tags:["Dibujado","Ilustrado","Oscuro"],fondo:"#1E2540",tinta:"#F3EDE0",color:"#E5B94A",mx:54,zona:{y0:300},pieY:808,pie:"sin",noNom:true,nomMax:700,
   est:{tit:est("Delicious Handrawn",13.6,"#E5B94A",{lh:1.2}),lin:est("Cormorant Garamond",10.6,"#F3EDE0",{lh:1.4}),peq:est("Cormorant Garamond",8.6,"#F3EDE0",{ls:1,lh:1.5}),ast:est("Delicious Handrawn",11,"#E9695C"),nom:est("Delicious Handrawn",28,"#E5B94A",{lh:1.1}),rot:est("Delicious Handrawn",36,"#F3EDE0",{lh:1.05})},
-  deco:function(sc,tp,dm){ return [dib("nochevieja",34,6,230,230,{seed:3,stroke:"#F3EDE0",colors:["#E5B94A","#E9695C","#6BA3C9","#8A5C90","#2C3558"]}),TX("rot","menú de Nochevieja",30,232,W-60,est("Delicious Handrawn",30,"#F3EDE0",{lh:1.05}),{i18n:{es:"menú de Nochevieja",ca:"menú de Cap d'Any"}}),nomC(30,730,W-60,"Delicious Handrawn",28,"#E5B94A",{lh:1.1}),TX("pie","LES MOLES · ULLDECONA",30,H-44,W-60,est("Delicious Handrawn",8.6,"#E5B94A",{ls:3}))]; }});
+  deco:function(sc,tp,dm){ return [dib("nochevieja",34,6,230,230,{seed:3,stroke:"#F3EDE0",colors:["#E5B94A","#E9695C","#6BA3C9","#8A5C90","#2C3558"]}),TX("rot","menú de Nochevieja",30,232,W-60,est("Delicious Handrawn",30,"#F3EDE0",{lh:1.05}),{i18n:{es:"menú de Nochevieja",ca:"menú de Cap d'Any",en:"New Year's Eve menu"}}),nomC(30,730,W-60,"Delicious Handrawn",28,"#E5B94A",{lh:1.1}),TX("pie","LES MOLES · ULLDECONA",30,H-44,W-60,est("Delicious Handrawn",8.6,"#E5B94A",{ls:3}))]; }});
 tpl({id:"m53",nombre:"Ramo silvestre",desc:"Amapolas, margaritas, acianos, lavanda y espigas atados con un lazo rosa",cat:["boda","comunion","otros"],tags:["Dibujado","Ilustrado","Elegante"],fondo:"#FFFDF7",tinta:"#34302A",color:"#C9493F",mx:56,zona:{y0:286},pieY:814,pie:"lz",noNom:true,nomMax:720,
   est:{tit:est("Homemade Apple",9.6,"#C9493F",{lh:1.3}),lin:est("Cormorant Garamond",10.4,"#34302A",{lh:1.4}),peq:est("Cormorant Garamond",8.4,"#34302A",{ls:1,lh:1.5}),ast:est("Homemade Apple",9,"#C9493F"),nom:est("Birthstone",40,"#C9493F",{lh:1}),rot:est("Birthstone",50,"#34302A")},
   deco:function(sc,tp,dm){ return [dib("ramo",60,10,180,216,{seed:2}),TX("rot","menú",30,228,W-60,est("Birthstone",50,"#34302A")),nomC(30,734,W-60,"Birthstone",40,"#C9493F",{lh:1})]; }});
@@ -28928,7 +29908,7 @@ tpl({id:"m54",nombre:"Conchas en la arena",desc:"Vieira, estrella de mar y carac
   deco:function(sc,tp,dm){ return [TX("rot","menú",30,36,W-60,est("Nanum Pen Script",52,"#34383C")),nomC(30,522,W-60,"Nanum Pen Script",34,"#34383C",{lh:1}),dib("conchas",24,544,250,250,{seed:9})]; }});
 tpl({id:"m55",nombre:"Sant Jordi",desc:"Una rosa que sale de un libro, para el día del libro y la rosa",cat:["otros"],tags:["Dibujado","Ilustrado","Local"],fondo:"#FFFBF2",tinta:"#2E2A33",color:"#C9493F",mx:56,zona:{y0:312},pieY:814,pie:"lz",noNom:true,nomMax:720,
   est:{tit:est("Delicious Handrawn",14,"#C9493F",{lh:1.2}),lin:est("Cormorant Garamond",10.4,"#2E2A33",{lh:1.4}),peq:est("Cormorant Garamond",8.4,"#2E2A33",{ls:1,lh:1.5}),ast:est("Delicious Handrawn",11,"#C9493F"),nom:est("Delicious Handrawn",28,"#2E2A33",{lh:1.1}),rot:est("Delicious Handrawn",36,"#2E2A33")},
-  deco:function(sc,tp,dm){ return [dib("santjordi",52,6,194,214,{seed:3}),TX("rot","menú de Sant Jordi",30,224,W-60,est("Delicious Handrawn",32,"#2E2A33"),{i18n:{es:"menú de Sant Jordi",ca:"menú de Sant Jordi"}}),nomC(30,738,W-60,"Delicious Handrawn",28,"#2E2A33",{lh:1.1})]; }});
+  deco:function(sc,tp,dm){ return [dib("santjordi",52,6,194,214,{seed:3}),TX("rot","menú de Sant Jordi",30,224,W-60,est("Delicious Handrawn",32,"#2E2A33"),{i18n:{es:"menú de Sant Jordi",ca:"menú de Sant Jordi",en:"Sant Jordi menu"}}),nomC(30,738,W-60,"Delicious Handrawn",28,"#2E2A33",{lh:1.1})]; }});
 tpl({id:"m56",nombre:"Herbario mediterráneo",desc:"Olivo, lavanda y trigo como láminas de botánica con su nombre latino",cat:["boda","otros","comunion"],tags:["Dibujado","Elegante","Clásico","Local"],fondo:"#F8F3E6",tinta:"#3A352B",color:"#6B7F58",mx:56,zona:{y0:236},pieY:814,pie:"lz",noNom:true,nomMax:716,
   est:{tit:est("Cormorant SC",11.4,"#6B7F58",{b:1,ls:1.4,lh:1.2}),lin:est("Cormorant Garamond",10.4,"#3A352B",{lh:1.4}),peq:est("Cormorant Garamond",8.4,"#3A352B",{ls:1,lh:1.5}),ast:est("Cormorant Garamond",10,"#6B7F58"),nom:est("Cormorant Garamond",22,"#3A352B",{i:1,lh:1.15}),rot:est("Cormorant SC",22,"#3A352B",{ls:8})},
   deco:function(sc,tp,dm){ var cap=function(t,x){ return TX("cap","Fig. "+t[0],x,164,86,est("Cormorant Garamond",6.4,"#7A7260",{i:1,ls:0.4,lh:1.2}),{campo:""}); }; var r=[S({f:"rect",x:16,y:16,w:W-32,h:H-32,stroke:"#9A917A",sw:0.8,doble:3}),TX("rot","MENÚ",30,40,W-60,est("Cormorant SC",22,"#3A352B",{ls:8})),dib("herbario",18,70,84,118,{tipo:"olivo",seed:3}),dib("herbario",107,70,84,118,{tipo:"lavanda",seed:4}),dib("herbario",196,70,84,118,{tipo:"trigo",seed:5})];
@@ -28963,7 +29943,7 @@ function bloquesDe(dm){
     else if(x.t==="gap") corte="gap"; else if(x.t==="sm") corte=corte||"sm"; });
   return out;
 }
-function hashDe(dm){ var s=JSON.stringify(dm.items||[])+"|"+(dm.pareja||"")+(dm.idioma==="ca"?"|ca":""); var h=0; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h); }
+function hashDe(dm){ var s=JSON.stringify(dm.items||[])+"|"+(dm.pareja||"")+(dm.idioma==="ca"||dm.idioma==="en"?"|"+dm.idioma:""); var h=0; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h); }
 function partirNombre(t,w,e){ var tmp={f:e.f,s:e.s,b:e.b,i:e.i,ls:e.ls||0}; if(anchoTxt(t,tmp)>w*0.78){ var m=String(t).match(/^(.+?\s(?:y|i|&|\+|e)\s)(.+)$/i); if(m) return m[1].trim()+"\n"+m[2].trim(); } return t; }
 /* apila los bloques del menú de arriba abajo, centrados, con espacios proporcionados; si no caben, reduce el tamaño todo lo justo */
 function pieTopDe(tp){ if(tp.pie==="sin") return (tp.pieY||818)-6; if(tp.pie==="lz"||tp.pie==="events"){ var m=pieLz(tp); return (tp.pieY||818)+6-m.lh-m.gap-m.dh; } var L=imgsFab()["@logos"]; if(tp.pieTxt||!L) return (tp.pieY||818)-22; var lw=Math.min(150,W-90), lh=lw*L.h/L.w; return (tp.pieY||818)-lh+6; }
@@ -28989,7 +29969,7 @@ function ajustaSeat(it,dm){
     else { ajusta(1); if(n>(cf.autoN||18)||it.s<(it.s0||it.s)*0.82) ajusta(2); } }   /* automático: una columna; dos si no cabe sin achicar mucho la letra */
   else if(it.una){ it.s=it.s0||it.s; var tx=String(it.txt||"").replace(/\s*\n\s*/g," "), a=anchoTxt(tx,it); if(a>it.w&&a>0) it.s=r1(Math.max(7,it.s*it.w/a*0.98)); }
 }
-function aplicaCampos(sc,dm){ sc.items.forEach(function(it){ if(it.i18n&&it.t==="txt"&&!it.man){ it.txt=it.i18n[dm.idioma==="ca"?"ca":"es"]||it.i18n.es; medir(it); } if(!it.campo||it.man) return;
+function aplicaCampos(sc,dm){ sc.items.forEach(function(it){ if(it.i18n&&it.t==="txt"&&!it.man){ it.txt=it.i18n[dm.idioma==="ca"||dm.idioma==="en"?dm.idioma:"es"]||it.i18n.es; medir(it); } if(!it.campo||it.man) return;
   if(it.t==="txt"){ it.txt=valorCampo(it.campo,dm); if(sc.modo==="seat") ajustaSeat(it,dm); medir(it); }
   else if(it.t==="shape"&&it.f==="monograma"){ var ini=function(n){ return String(n||"").trim().charAt(0).toUpperCase(); }; it.a=ini(dm.parejaA)||it.a; it.b=ini(dm.parejaB)||it.b; it.nom=valorCampo(it.campo,dm)||it.nom; it.fec=dm.fechaCorta||it.fec; } }); }
 function bloquesNombre(tp,dm){ return (dm.pareja&&!tp.noNom)?[{k:"nom",txt:dm.pareja}]:[]; }
@@ -29109,7 +30089,7 @@ PLANT_SEAT.forEach(function(t){ TPL_POR[t.id]=t; });
 /* los datos de una mesa para rellenar los campos del cartel */
 function datosMesa(dm,mesa){
   var o={}; Object.keys(dm||{}).forEach(function(k){ o[k]=dm[k]; });
-  var m=mesa||{titulo:(dm&&dm.idioma==="es"?"Mesa 1":"Taula 1"),num:1,nombres:["Anna Ralda","Jordi Roig","Dolors Monllaó","Ramon Roig","Cinta Duatis","Imma Alcoverro","Laia Duatis","Jana Cabó"]};
+  var m=mesa||{titulo:(dm&&dm.idioma==="en"?"Table 1":dm&&dm.idioma==="es"?"Mesa 1":"Taula 1"),num:1,nombres:["Anna Ralda","Jordi Roig","Dolors Monllaó","Ramon Roig","Cinta Duatis","Imma Alcoverro","Laia Duatis","Jana Cabó"]};
   o.mesa=m.titulo; o.lista=m.nombres.join("\n"); o.num=m.num; o.n=m.nombres.length; return o;
 }
 function aplicaMesa(sc,dm,mesa){ aplicaCampos(sc,datosMesa(dm,mesa)); sc.items.forEach(medir); }
@@ -29237,7 +30217,7 @@ function aviso(t){ if(BR.toast) BR.toast(t); }
 /* ── el menú cambió: ¿hay que reescribir los textos? ── */
 function datos(){ return BR.minutaDatos?BR.minutaDatos():{items:[],pareja:""}; }
 function rellenaDesdeMenu(silencio){ rellena(ST.sc,datos()); empuja(); guardar(); pintaTodo(); if(!silencio) aviso("Textos puestos desde el menú. Con «Deshacer» vuelves atrás."); }
-function cambiaIdioma(id){ if(ST.sc.items.some(function(i){ return i.man&&i.auto; })&&!window.confirm("Has retocado a mano algunos textos del menú. Al cambiar de idioma se volverán a escribir desde el menú (puedes deshacerlo). ¿Seguir?")){ pestana("p"); return; } if(BR.minutaSet) BR.minutaSet("idioma",id); rellenaDesdeMenu(true); if(ST.pest==="p") pestana("p"); aviso(id==="ca"?"Minuta en català: platos, títulos y bodega traducidos. Si algún plato escrito a mano no queda bien, corrígelo sobre el papel.":"Minuta en castellano."); }
+function cambiaIdioma(id){ if(ST.sc.items.some(function(i){ return i.man&&i.auto; })&&!window.confirm("Has retocado a mano algunos textos del menú. Al cambiar de idioma se volverán a escribir desde el menú (puedes deshacerlo). ¿Seguir?")){ pestana("p"); return; } if(BR.minutaSet) BR.minutaSet("idioma",id); rellenaDesdeMenu(true); if(ST.pest==="p") pestana("p"); aviso(id==="ca"?"Minuta en català: platos, títulos y bodega traducidos. Si algún plato escrito a mano no queda bien, corrígelo sobre el papel (o en Parámetros → Traducciones del menú).":id==="en"?"Minuta en inglés: platos, títulos y bodega traducidos. Los platos escritos a mano se traducen con un glosario: revísalos sobre el papel (o en Parámetros → Traducciones del menú).":"Minuta en castellano."); }
 function cambiaDiseno(id){ if(ST&&ST.modo==="seat") return cambiaDisenoS(id); return cambiaDisenoM(id); }
 function cambiaDisenoM(id){ aseguraTpl(id).then(function(){ var dm=datos(); ST.sc=genera(id,dm); ST.sel=null; ST.sc.items.forEach(medir); empuja(); guardar(); pintaTodo(); pestana(ST.pest); }); }
 
@@ -29329,7 +30309,7 @@ function paginaHTML(){ if(esSeat()) return paginaHTMLs(); return '<div class="lz
   '<label class="lz-rg">Fondo<input type="color" class="lz-col" data-lz-pg="fondo" value="'+esc(colorOk(ST.sc.fondo))+'"></label>'+
   '<label class="lz-rg">Zoom<input type="range" min="0.4" max="4" step="0.05" data-lz-pg="zoom" value="'+ST.zoom+'"></label>'+
   '<label class="ag-chk"><input type="checkbox" data-lz-pg="guias"'+(ST.guias?' checked':'')+'> Ver margen de seguridad</label></div>'+
-  '<div class="lz-sec">Idioma y vinos</div><div class="lz-pg"><div class="lz-seg" role="group" aria-label="Idioma de la minuta"><button type="button" class="lz-segb'+(datos().idioma!=="ca"?" on":"")+'" data-lz-a="idioma-es">Castellano</button><button type="button" class="lz-segb'+(datos().idioma==="ca"?" on":"")+'" data-lz-a="idioma-ca">Català</button></div><label class="lz-rg lz-wide">Denominación de los vinos<input class="lz-t" type="text" data-lz-pg="do" value="'+esc(datos().doTxt)+'" placeholder="D.O. Terra Alta"></label></div>'+
+  '<div class="lz-sec">Idioma y vinos</div><div class="lz-pg"><div class="lz-seg" role="group" aria-label="Idioma de la minuta"><button type="button" class="lz-segb'+(datos().idioma!=="ca"&&datos().idioma!=="en"?" on":"")+'" data-lz-a="idioma-es">Castellano</button><button type="button" class="lz-segb'+(datos().idioma==="ca"?" on":"")+'" data-lz-a="idioma-ca">Català</button><button type="button" class="lz-segb'+(datos().idioma==="en"?" on":"")+'" data-lz-a="idioma-en">English</button></div><label class="lz-rg lz-wide">Denominación de los vinos<input class="lz-t" type="text" data-lz-pg="do" value="'+esc(datos().doTxt)+'" placeholder="D.O. Terra Alta"></label></div>'+
   '<div class="lz-sec">Texto del menú</div><div class="lz-pg"><button type="button" class="btn sm gold" data-lz-a="rellenar">Rellenar desde el menú</button><button type="button" class="btn sm" data-lz-a="repartir">Repartir espacios</button><label class="lz-rg">Espacio entre bloques<input type="range" min="0" max="30" step="1" data-lz-pg="gap" value="'+(ST.gap==null?7:ST.gap)+'"></label></div>'+
   '<div class="lz-sec">Estilo de este diseño</div><div class="lz-pg"><button type="button" class="btn sm" data-lz-a="restablecer">Volver al diseño original</button>'+(esAdmin()?'<button type="button" class="btn sm" data-lz-a="guardarpl">Guardar como plantilla propia</button>':'')+'</div>'+
   '<div class="lz-sec">Descargar</div><div class="lz-pg"><button type="button" class="btn sm gold" data-lz-a="pdf">PDF · dos por hoja A4</button><button type="button" class="btn sm" data-lz-a="png">PNG · una minuta</button></div>'; }
@@ -29416,7 +30396,7 @@ function alClic(ev){
   else if(a2==="centrar") centra(); else if(a2==="dup") duplica(); else if(a2==="del") borra(); else if(a2==="atras") orden(-1); else if(a2==="adelante") orden(1);
   else if(a2==="bloq"&&it2){ it2.bloq=!it2.bloq; empuja(); guardar(); pintaTodo(); aviso(it2.bloq?"Bloqueado: no se mueve por error. Tócalo y pulsa el candado para soltarlo.":"Desbloqueado."); }
   else if(a2==="z+") ponZoom(ST.zoom*1.25); else if(a2==="z-") ponZoom(ST.zoom/1.25); else if(a2==="zfit") zoomFit(); else if(a2==="mano"){ ST.mano=!ST.mano; ST.cv.style.cursor=ST.mano?"grab":"default"; barra(); }
-  else if(a2==="idioma-es"||a2==="idioma-ca"){ cambiaIdioma(a2.slice(7)); } else if(a2==="monopng"&&it2&&it2.f==="monograma") exportaMonoPNG(it2);
+  else if(a2==="idioma-es"||a2==="idioma-ca"||a2==="idioma-en"){ cambiaIdioma(a2.slice(7)); } else if(a2==="monopng"&&it2&&it2.f==="monograma") exportaMonoPNG(it2);
   else if(a2==="tinte-neg"&&it2) cambia("tinte","#111111"); else if(a2==="tinte-bln"&&it2) cambia("tinte","#FFFFFF"); else if(a2==="tinte-off"&&it2){ cambia("tinte",""); }
   else if(a2==="atodos") aplicaEstiloATodos(); else if(a2==="sinrelleno"&&it2) cambia("fill",""); else if(a2==="semilla"&&it2) cambia("seed",Math.floor(Math.random()*9999));
   else if(a2==="rellenar"){ rellenaDesdeMenu(); } else if(a2==="repartir"){ reparte(ST.sc,ST.gap==null?7:ST.gap); empuja(); guardar(); pintaTodo(); }
@@ -29712,7 +30692,7 @@ function mesasHTML(){
     '<p class="esc-hint">Quien solo viene al aperitivo no se sienta, así que no sale en ningún cartel.</p></div>'+
     '<div class="lz-sec">Título de cada mesa</div><div class="lz-pg">'+
     '<label class="lz-rg lz-wide">Qué pone'+selHTML("titulo",[["auto","El nombre de la mesa; si no tiene, «Taula 3»"],["num","Siempre el número («Taula 3»)"],["numnombre","Número y nombre («Taula 1 · Olivera»)"]])+'</label>'+
-    '<label class="lz-rg lz-wide">Idioma'+selHTML("idioma",[["","El del plano ("+(d.idiomaPlano==="es"?"castellano":"català")+")"],["es","Castellano (Mesa, 12 de diciembre)"],["ca","Català (Taula, 12 de desembre)"]])+'</label>'+
+    '<label class="lz-rg lz-wide">Idioma'+selHTML("idioma",[["","El del plano ("+(d.idiomaPlano==="es"?"castellano":"català")+")"],["es","Castellano (Mesa, 12 de diciembre)"],["ca","Català (Taula, 12 de desembre)"],["en","English (Table, 12 December)"]])+'</label>'+
     '<label class="lz-rg lz-wide">Palabra antes del número<input class="lz-t" type="text" data-lz-cfg="pref" value="'+esc(c.pref)+'" placeholder="'+esc(d.pref||"Taula")+'"></label></div>';
   if(m){ h+='<div class="lz-sec">Esta mesa · '+esc(m.titulo)+'</div><div class="lz-pg">'+
     '<label class="lz-rg lz-wide">Título<input class="lz-t" type="text" data-lz-mt="titulo" value="'+esc(ov.titulo||"")+'" placeholder="'+esc(m.tituloAuto)+'"></label>'+

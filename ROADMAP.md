@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.11** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.12** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,13 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.12
+- **Los menús que ven los clientes, en castellano, català y English.** La **minuta** (la automática de dos por hoja, el diseñador y el PDF) y el **portal del cliente** (pestañas «El día» y «Aprobar») se pueden ver en los tres idiomas. En la minuta, el desplegable **«Idioma de la minuta»** cambia al momento la vista previa, los títulos de cada tiempo (Aperitius, Entrants, Peixos…), la bodega («el celler», «Vi blanc D.O. Terra Alta», «Cava rosat»), la pista de baile, la fecha y el «y / i / &» del nombre de la pareja. En el portal, el cliente elige **ES · CA · EN** y se acuerda de lo que eligió.
+  - **Idioma del cliente en la ficha.** Un campo nuevo, «Idioma del cliente», decide con qué idioma arrancan la minuta y el portal; en la minuta se puede cambiar para ese evento.
+  - **Traducción revisada de los 150 platos del catálogo** al catalán y al inglés (con apóstrofos y contracciones del catalán: *Crema d'espàrrecs*, *Arròs d'ànec del Delta de l'Ebre*, *caramel·litzada*). Los platos **escritos a mano** en un evento se traducen con un glosario de cocina (más de 700 palabras y frases) con el orden propio de cada idioma («lasaña de verduras» → *Vegetable lasagne*, «rape en salsa de almendras» → *Monkfish in almond sauce*).
+  - **Parámetros → «Traducciones del menú».** Lista los platos (catálogo y escritos a mano) con su traducción al catalán o al inglés y su origen (*Revisada*, *Automática · a revisar*, *Ajustada*), avisa de las palabras que no ha podido traducir y deja corregir cualquiera: lo que se escribe manda sobre todo lo demás, en todos los eventos, y llega solo a la minuta y al portal. Vacío o igual que la propuesta = vuelve a como estaba.
+  - **La aprobación del menú no cambia:** el texto aprobado sigue siendo el castellano, así que los menús ya aprobados no se invalidan al añadir idiomas.
 
 ### Novedad de la versión 02.11
 - **Parámetros de la barra libre: cerveza en litros, licores por marca en botellas y refrescos con las tónicas.** En **Parámetros → Bebidas** hay una tarjeta nueva, **«Barra libre de partida»**, con un botón que añade de una vez: **Cerveza** (en litros), **7 licores por marca** (Ron Barceló, Ron Brugal, Ginebra Puerto de Indias, Ginebra Seagram's, Whisky Cutty Sark, Whisky Ballantine's, Vodka Absolut) y **5 refrescos** (Coca-Cola, Coca-Cola Zero, Fanta naranja, Fanta limón y Tónica), cada uno con su «una unidad cada N personas». Las marcas que falten («etc.») se añaden con «Añadir una bebida» eligiendo el grupo «Barra libre · licores».
