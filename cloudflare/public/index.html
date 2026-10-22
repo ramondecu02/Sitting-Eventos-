@@ -4137,7 +4137,20 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .ev-alb{border-color:#8C2F43; color:#8C2F43} .ev-alb.ok{border-color:var(--success); color:var(--success)}
 @media (max-width:900px){ .alb-grid{grid-template-columns:1fr} .alb-side{position:static; order:-1} }
 @media (max-width:520px){ .alb-v{grid-template-columns:1fr auto} .alb-v .i{grid-column:1/-1; text-align:left} }
-.aq-slot{margin:0 0 14px} .aq-slot[hidden]{display:none}
+.aq-slot{margin:0 clamp(12px,2.5vw,28px) 10px} .aq-slot[hidden]{display:none}
+.aq-lks{display:flex; flex-wrap:wrap; gap:4px 14px}
+.aq-mini{border:1px solid var(--c-line); border-radius:10px; background:var(--panel); font-size:13px}
+.aq-mini>summary{display:flex; align-items:center; gap:10px; min-height:40px; padding:5px 12px; cursor:pointer; list-style:none}
+.aq-mini>summary::-webkit-details-marker{display:none}
+.aq-mini>summary>i{flex:none; width:9px; height:9px; border-radius:50%; background:var(--c-line-2)}
+.aq-mini.abierto>summary>i,.aq-mini.cambio>summary>i{background:var(--warning)} .aq-mini.espera>summary>i{background:var(--gold,#C9952B)} .aq-mini.ok>summary>i{background:var(--success)}
+.aq-mini .aq-mt{flex:1; min-width:0; color:var(--c-mut); overflow:hidden; text-overflow:ellipsis; white-space:nowrap} .aq-mini .aq-mt b{color:var(--c-ink); font-weight:600}
+.aq-mini>summary .btn{flex:none; min-height:30px; padding:3px 12px; font-size:12.5px}
+.aq-car{flex:none; width:8px; height:8px; border-right:2px solid var(--c-mut); border-bottom:2px solid var(--c-mut); transform:rotate(45deg); margin:0 4px 3px; transition:transform .15s}
+.aq-mini[open]>summary .aq-car{transform:rotate(-135deg); margin-bottom:-3px}
+.aq-mini>summary:focus-visible{outline:2px solid var(--gold,#C9952B); outline-offset:2px; border-radius:10px}
+.aq-mbody{padding:0 8px 8px} .aq-mbody .aq{margin:0; border:0; border-left:0; border-radius:8px; background:transparent; padding:8px 6px 4px}
+@media (max-width:560px){ .aq-mini .aq-mt{white-space:normal} }
 .aq-peq{font-size:12.5px; color:var(--c-mut)}
 .pq-sec{margin:0 0 20px; background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:16px 18px}
 .pq-sec h2{margin:0 0 12px; font:600 19px/1.25 var(--font-display,Georgia,serif); display:flex; align-items:baseline; gap:4px 12px; flex-wrap:wrap}
@@ -24500,7 +24513,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
       .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
   }
-  var Q={host:null,ev:null,data:null,cargando:false,err:"",res:{},resOk:false,publicando:false,txt:"",c:null,vistaImg:null,aq:{},aqT:{},aqBusy:false,aqSlot:null};
+  var Q={host:null,ev:null,data:null,cargando:false,err:"",res:{},resOk:false,publicando:false,txt:"",c:null,vistaImg:null,aq:{},aqT:{},aqBusy:false,aqSlot:null,aqOpen:false};
 
   /* ═══ lo que hay sin leer, por evento (para las tarjetas del Inicio y el aviso) ═══ */
   function cargarResumen(cb){
@@ -24660,9 +24673,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function aqDatos(e){ return (e&&Q.aq&&Q.aq[e.id])||null; }
   function aqNombres(e){ var F=(e&&e.ficha)||{}; return [F.parejaA,F.parejaB].filter(Boolean).join(" y ")||F.contacto||"el cliente"; }
   function aqQuien(){ var u=null; try{ u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){} return (u&&(u.name||u.email))||"Equipo"; }
+  function menuCerrado(e){ var c=e&&e.cierreMenu, a=e&&e.aprobaciones&&e.aprobaciones.menu; if(c&&typeof c==="object"&&("ts" in c)) return !!c.ts; return !!(a&&a.ts); }   /* igual que menuAprobarDe(): sin «cierreMenu» (eventos de antes), vale una aprobación ya dada */
   function aqEstado(e){
-    var D=aqDatos(e), cm=e.cierreMenu||null, mf=menuFoto(e), sh=e.share||{}, o={portal:!!sh.on,hayMenu:mf.length>0,platos:nPlatos(mf),cerrado:!!(cm&&cm.ts),sinMinuta:!!(cm&&cm.sinMinuta),cargado:!!D};
-    o.menuCambiado=o.cerrado&&!!cm.menuH&&cm.menuH!==hashT(JSON.stringify(mf));
+    var D=aqDatos(e), cm=e.cierreMenu||null, mf=menuFoto(e), sh=e.share||{}, o={portal:!!sh.on,hayMenu:mf.length>0,platos:nPlatos(mf),cerrado:menuCerrado(e),sinMinuta:!!(cm&&cm.sinMinuta),cargado:!!D};
+    o.menuCambiado=o.cerrado&&!!(cm&&cm.menuH)&&cm.menuH!==hashT(JSON.stringify(mf));
     var sm=D&&D.estado&&D.estado.menu, sn=D&&D.estado&&D.estado.minuta;
     o.menuOk=!!(sm&&sm.ok&&!o.menuCambiado); o.menuNombre=(sm&&sm.nombre)||""; o.menuTs=(sm&&sm.ts)||0;
     o.minPub=!!(D&&D.minuta); o.minOk=!!(sn&&sn.ok); o.minNombre=(sn&&sn.nombre)||""; o.minTs=(D&&D.minuta&&D.minuta.ts)||0;
@@ -24692,18 +24706,31 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var fm, fn;
     if(!s.hayMenu) fm=aqFila("","·","El menú","Todavía no hay platos marcados.",'<button type="button" class="aq-lnk" data-aq="ir" data-k="m-sel">Elegir los platos</button>');
     else fm=aqFila(s.menuOk?"ok":s.cerrado?(s.menuCambiado?"aviso":"espera"):"","" +(s.menuOk?"✓":s.menuCambiado?"!":s.cerrado?"…":"○"),"El menú · "+s.platos+(s.platos===1?" plato":" platos"),
-      s.menuOk?"Aprobado por <b>"+esc(s.menuNombre)+"</b>"+(s.menuTs?" el "+esc(fch(s.menuTs)):""):s.menuCambiado?"Ha cambiado después de cerrarlo.":s.cerrado?"Cerrado y enviado: lo está revisando.":"Abierto: el cliente solo lo ve como borrador.",'<button type="button" class="aq-lnk" data-aq="ir" data-k="m-sel">Revisar el menú</button>');
+      s.menuOk?"Aprobado por <b>"+esc(s.menuNombre)+"</b>"+(s.menuTs?" el "+esc(fch(s.menuTs)):""):s.menuCambiado?"Ha cambiado después de cerrarlo.":s.cerrado?"Cerrado y enviado: lo está revisando.":"Abierto: el cliente solo lo ve como borrador.",'<span class="aq-lks"><button type="button" class="aq-lnk" data-aq="ir" data-k="m-sel">Revisar el menú</button></span>');
     if(s.sinMinuta) fn=aqFila("","–","La minuta","Este evento va sin minuta.",'<button type="button" class="aq-lnk" data-aq="conminuta">Añadir la minuta</button>');
     else fn=aqFila(s.minDesfasada||s.minCambiada?"aviso":s.minOk?"ok":s.minPub?"espera":"","" +(s.minDesfasada||s.minCambiada?"!":s.minOk?"✓":s.minPub?"…":"○"),"La minuta",
       s.minDesfasada?(s.minOk?"Aprobada por <b>"+esc(s.minNombre)+"</b>, pero el menú ha cambiado y la minuta ya no está al día con él.":"No está al día con el menú (se cambió algún plato después de diseñarla)."):s.minOk?"Aprobada por <b>"+esc(s.minNombre)+"</b>":s.minCambiada?"Has cambiado la minuta después de publicarla.":s.minPub?"Publicada el "+esc(fch(s.minTs))+": la está revisando.":s.minHay?"Diseñada, sin publicar todavía.":"Todavía sin diseñar: al enviar se crea sola con el diseño de la casa; luego la puedes retocar.",
-      (s.minDesfasada?'<button type="button" class="aq-lnk" data-aq="ponal">Ponerla al día con el menú</button> · ':'')+'<button type="button" class="aq-lnk" data-aq="ir" data-k="m-card">Ver y retocar la minuta</button>'+(s.minPub&&!s.faltaEnviar?'':''));
+      '<span class="aq-lks">'+(s.minDesfasada?'<button type="button" class="aq-lnk" data-aq="ponal">Ponerla al día con el menú</button>':'')+'<button type="button" class="aq-lnk" data-aq="ir" data-k="m-card">Ver y retocar la minuta</button></span>');
     var sinMinChk=(!s.cerrado||s.faltaEnviar)&&s.portal&&s.hayMenu?'<label class="aq-chk"><input type="checkbox" data-aq="sinmin"'+(s.sinMinuta?"":" checked")+'> Incluir la minuta (se publica a la vez)</label>':"";
     var peq=s.portal&&s.hayMenu&&(s.cerrado||true)?'<span class="aq-peq">'+(aqLink(e)?'Lo ve en su portal: <a href="'+esc(aqLink(e))+'" target="_blank" rel="noopener">abrir el portal del cliente</a>.':"")+'</span>':"";
     return '<section class="aq '+cls+'" data-aq-card aria-label="Aprobación del cliente"><div><div class="aq-eb">Aprobación del cliente</div><h3>'+tit+'</h3><p class="aq-tx">'+txt+'</p></div>'+(s.portal&&s.hayMenu?pasos:"")+(s.portal&&s.hayMenu?'<div class="aq-filas">'+fm+fn+'</div>':"")+sinMinChk+'<div class="aq-acc">'+btn+'</div>'+peq+'</section>';
   }
-  function aqRefresca(){ try{ var e=evActual(); if(Q.aqSlot&&document.body.contains(Q.aqSlot)&&e) Q.aqSlot.innerHTML=aqHTML(e); }catch(_){} try{ if(activo()) pintar(); }catch(_){} }
+  /* en «Elegir platos» y «Menú para invitados» solo una línea fina y plegada: dice cómo va y deja enviarlo al portal del cliente sin más;
+     al abrirla sale la tarjeta entera (que vive, a lo grande, en «Portal del cliente») */
+  function aqMiniHTML(e){
+    if(!e||!puede()) return ""; var s=aqEstado(e); if(!s.portal||!s.hayMenu) return "";
+    var cls, txt, btn="";
+    if(s.todo){ cls="ok"; txt="Aprobado por "+esc([s.menuNombre,s.minNombre].filter(function(x,i,a){ return x&&a.indexOf(x)===i; }).join(" y ")||aqNombres(e)); }
+    else if(s.faltaEnviar&&!s.cerrado){ cls="abierto"; txt="Menú abierto: el cliente lo ve como borrador"; btn='<button type="button" class="btn sm gold" data-aq="enviar"'+(Q.aqBusy?" disabled":"")+'>'+(Q.aqBusy?"Enviando…":"Enviar al portal del cliente")+'</button>'; }
+    else if(s.faltaEnviar){ cls="cambio"; txt="Hay cambios sin enviar al cliente"; btn='<button type="button" class="btn sm gold" data-aq="enviar"'+(Q.aqBusy?" disabled":"")+'>'+(Q.aqBusy?"Enviando…":"Enviar los cambios")+'</button>'; }
+    else { cls="espera"; txt="Enviado: esperando que el cliente lo apruebe"; }
+    return '<details class="aq-mini '+cls+'"'+(Q.aqOpen?" open":"")+'><summary><i aria-hidden="true"></i><span class="aq-mt"><b>Portal del cliente</b> · '+txt+'</span>'+btn+'<span class="aq-car" aria-hidden="true"></span></summary><div class="aq-mbody">'+aqHTML(e)+'</div></details>';
+  }
+  document.addEventListener("toggle",function(ev){ var d=ev.target; if(d&&d.classList&&d.classList.contains("aq-mini")) Q.aqOpen=d.open; },true);
+  window.LM_aprobEstado=aqEstado;
+  function aqRefresca(){ try{ var e=evActual(); if(Q.aqSlot&&document.body.contains(Q.aqSlot)&&e){ var mh=aqMiniHTML(e); Q.aqSlot.innerHTML=mh; Q.aqSlot.hidden=!mh; } }catch(_){} try{ if(activo()) pintar(); }catch(_){} }
   function aqCargar(e){ if(!e||!backend()||!puede()||!(e.share&&e.share.on)) return; api("/api/portal?ev="+encodeURIComponent(e.id),"GET").then(function(j){ if(j._status===200){ Q.aq[e.id]=j; if(Q.ev===e.id) Q.data=j; aqRefresca(); } }).catch(function(){}); }
-  window.LM_aprobMount=function(slot){ var e=evActual(); Q.aqSlot=slot; if(!e||!puede()||!backend()){ slot.hidden=true; slot.innerHTML=""; return; } slot.innerHTML=aqHTML(e); if(!aqDatos(e)||Date.now()-(Q.aqT[e.id]||0)>20000){ Q.aqT[e.id]=Date.now(); aqCargar(e); } };
+  window.LM_aprobMount=function(slot){ var e=evActual(); Q.aqSlot=slot; if(!e||!puede()||!backend()){ slot.hidden=true; slot.innerHTML=""; return; } var mh=aqMiniHTML(e); slot.innerHTML=mh; slot.hidden=!mh; if(!aqDatos(e)||Date.now()-(Q.aqT[e.id]||0)>20000){ Q.aqT[e.id]=Date.now(); aqCargar(e); } };
   function aqMensaje(e,para){
     var F=e.ficha||{}, pri=String(F.parejaA||F.contacto||"").split(" ")[0], link=aqLink(e), sin=!!(e.cierreMenu&&e.cierreMenu.sinMinuta);
     return "Hola"+(pri?" "+pri:"")+", ya tenéis el menú"+(sin?"":" y la minuta")+" de "+nombreEv(e)+" listos para revisar. Entrad en vuestro portal"+(link?" ("+link+")":"")+", apartado «Aprobar»: si está todo bien, aprobadlo con vuestro nombre; si queréis cambiar algo, escribidnos desde «Mensajes». ¡Gracias!";
