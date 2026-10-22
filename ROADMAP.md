@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.14** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.15** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,21 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.15
+- **Portal de clientes pulido** (sin cambiar su estilo: mismas letras y colores de la casa, más cuidado en los detalles):
+  - **Cabecera que dice la verdad:** «51 días para vuestra boda», «Mañana», «¡Hoy!» y «3 días desde vuestra boda» (antes ponía «0 días» o «-3 días»); si no hay fecha, no se enseña ningún contador; con todo pagado dice «Al día · todo pagado, gracias». Los nombres muy largos se ajustan sin romper la cabecera.
+  - **Pantallas con la marca de la casa** cuando no hay portal que enseñar: «Abriendo vuestro portal…», **sin conexión** (con «Reintentar», que también se hace solo al volver la conexión y dice que el enlace sigue valiendo), **enlace que no existe** y **portal cerrado** (con botones «Escribir» y «Llamar» a Les Moles). Antes un corte de red decía «enlace no disponible».
+  - **Presupuesto en el móvil:** cada línea se apila (concepto, cantidad × precio, importe) y ya no se sale de la pantalla; **«Guardar una copia en PDF»** (impresión limpia: solo el presupuesto, sin cabecera ni pestañas, con el nombre «Presupuesto · …»).
+  - **Pagos recibidos** con fecha y el importe sin partirse; los conceptos largos (transferencias, IBAN) se parten bien.
+  - **Teclado y lector de pantalla:** las pestañas se mueven con las flechas, Inicio y Fin; el panel está bien etiquetado; foco visible en todo; zonas de toque de 40 px como mínimo.
+  - **Contacto con un toque:** «Escribir» y «Llamar» (con el primer teléfono si hay varios) en «El día» y en las pantallas de aviso.
+  - **Añadir las fechas al calendario del móvil** (archivo .ics en «Inicio»): reuniones, pagos, entrega de la lista y el día del evento, de día completo y con aviso el día anterior. No lleva el enlace privado del cliente.
+- **Lista de invitados más cómoda y a prueba de pérdidas:**
+  - **«Pegar una lista»:** una persona por línea, con la alergia después de una coma o un guion, y «niño», «niña» o «bebé» en la línea para marcarlo. Muestra antes cuántas personas entran (y cuántas con alergia o niños), se puede añadir a una mesa nueva o a una existente y tiene **«Deshacer»** (que ahora dura 8 segundos).
+  - **Aviso de nombres repetidos** («Ana López (2)»), que solo avisa, nunca quita nada.
+  - **Topes iguales a los del servidor** (70 letras por nombre, 90 por alergia, 50 por mesa, 40 personas por mesa y 80 mesas): antes lo que sobraba se perdía sin avisar.
+  - **Guardado robusto:** el estado se ve siempre en la barra de abajo («Guardando…», «Guardado a las 12:31»). Si se corta la conexión pone **«Sin guardar»**, reintenta solo cada 8 segundos y al volver la conexión, y guarda una **copia en el propio móvil** que se recupera si se cierra o recarga la página; el navegador avisa si se intenta cerrar con cambios sin guardar. Un «Enviar» que no pudo salir sale solo al volver la conexión. Si el servidor responde con un «no» claro (cambios cerrados, falta la privacidad), lo dice y no insiste.
 
 ### Novedad de la versión 02.14
 - **Avisos por correo a cada departamento.** Eventos, Cocina, Compras, Servicio y Contabilidad reciben por correo lo que les toca, sin tener que entrar al programa:
