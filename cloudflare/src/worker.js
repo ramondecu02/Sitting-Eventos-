@@ -1933,7 +1933,10 @@ async function porAccion(request, env, url) {
     if (!item) return json({ error: "invalid" }, 400);
     if (nombre.length < 2) return json({ error: "invalid", message: "Escribid vuestro nombre para aprobar." }, 400);
     const d = await porDatos(env, ev); let h, firmado = null;
-    if (item === "menu") { h = d.estado.menuHash; if (!((ev.share.portal || {}).menu || []).length) return json({ error: "invalid", message: "Todavía no hay menú que aprobar." }, 400); }
+    if (item === "menu") {
+      h = d.estado.menuHash; if (!((ev.share.portal || {}).menu || []).length) return json({ error: "invalid", message: "Todavía no hay menú que aprobar." }, 400);
+      if ((ev.share.portal || {}).menuAprobar === false) return json({ error: "abierto", message: "Todavía estamos cerrando el menú. En cuanto esté listo os avisamos y podréis aprobarlo." }, 400);
+    }
     else if (item === "contrato") {
       const co = porContratoDe(ev); if (!co) return json({ error: "invalid", message: "Ahora mismo no hay nada que aceptar." }, 400);
       const firmante = String(b.firmante) === "2" ? 2 : 1;
