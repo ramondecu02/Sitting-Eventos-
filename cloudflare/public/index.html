@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.16 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.17 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.16".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.17".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2742,6 +2742,17 @@ details.beb-sec>summary:focus-visible{outline:2px solid var(--olive); outline-of
 .pvl-tx{flex:1 1 220px; display:flex; flex-direction:column; gap:2px; min-width:0}
 .pvl-tx span{font-size:12.5px; color:var(--c-mut)}
 @media (max-width:640px){ .pvl-d{min-height:58px; padding:20px 3px 4px} .pvl-ev{font-size:0; gap:0} .pvl-ev i{width:100%; height:5px} .pvl-num{top:5px; left:5px} .pvl-cnt{top:4px; right:3px; font-size:10px} .pvl-top b{font-size:21px; min-width:0} }
+.fld-wide{grid-column:1/-1}
+.locseg{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px}
+.locbtn{display:inline-flex; align-items:center; gap:9px; min-height:44px; padding:8px 16px; border:1.5px solid var(--c-line-2); border-radius:12px; background:var(--bg); color:var(--c-ink); font:600 14px var(--font-text,system-ui); cursor:pointer}
+.locbtn i{width:12px; height:12px; border-radius:3px; background:var(--lc,#8E8C84)}
+.locbtn.on{border-color:var(--lc,#8E8C84); background:color-mix(in srgb,var(--lc,#8E8C84) 14%,var(--bg)); box-shadow:0 0 0 1px var(--lc,#8E8C84) inset}
+.locbtn:focus-visible{outline:2px solid var(--lc,#8E8C84); outline-offset:2px}
+.loc-chip{display:inline-flex; align-items:center; gap:6px; padding:2px 9px 2px 7px; border-radius:99px; border:1px solid var(--c-line-2); background:var(--bg-2); font:600 11px/1.5 var(--font-text,system-ui); color:var(--c-ink); white-space:nowrap}
+.loc-chip i{width:8px; height:8px; border-radius:2px; flex:none}
+.loc-chip[data-l="vinyes"]{border-color:#8C2F43; color:#8C2F43; background:color-mix(in srgb,#8C2F43 9%,var(--bg))}
+.ctx-loc{display:block; margin-top:3px} .ctx-loc:empty{display:none}
+.cal-loc{display:inline-block; width:7px; height:7px; border-radius:2px; margin-right:4px; vertical-align:1px}
 .fld-local{display:inline-flex; align-items:center; gap:6px; margin-top:5px; font-size:11.5px; color:var(--c-mut)}
 .fld-local::before{content:""; width:9px; height:9px; border-radius:2px; background:#8E8C84}
 .fld-local[data-l="moles"]::before{background:#C9952B}.fld-local[data-l="vinyes"]::before{background:#8C2F43}.fld-local[data-l="fuera"]::before{background:#2F6DB0}
@@ -4093,6 +4104,38 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .aq-chk{display:flex; gap:8px; align-items:center; font-size:13.5px; color:var(--c-mut)} .aq-chk input{width:18px; height:18px}
 .aq-rec{display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:13px; color:var(--c-mut)}
 .aq-peq a,.aq a{color:var(--c-ink)}
+/* v02.17 · albarán de Les Vinyes y su tarifa */
+.alb-wrap{display:block}
+.alb-grid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:18px; align-items:start}
+.alb-side{position:sticky; top:12px}
+.alb-card{margin:0 0 16px; background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:16px 18px}
+.alb-card h2{margin:0 0 12px; font:600 19px/1.25 var(--font-display,Georgia,serif); display:flex; align-items:baseline; gap:4px 12px; flex-wrap:wrap}
+.alb-card h2 small{font:500 13px var(--font-text,system-ui); color:var(--c-mut)}
+.alb-f{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px 16px; margin-bottom:6px}
+.alb-f .fld input,.alb-f .fld textarea,.alb-env .fld input,.alb-env .fld textarea,.alb-card textarea{width:100%}
+.alb-hint{display:block; margin-top:6px; font-size:12.5px; color:var(--c-mut); line-height:1.45}
+.alb-p{margin:0 0 12px; color:var(--c-mut); font-size:14.5px; line-height:1.5}
+.alb-aviso{margin:0 0 16px; padding:12px 16px; border:1px solid var(--warning); border-left-width:5px; border-radius:12px; background:var(--warning-soft); font-size:14px; line-height:1.5} .alb-aviso a{color:var(--c-ink)} .alb-aviso .btn{margin-left:8px}
+.alb-ok{margin:0 0 12px; padding:10px 14px; border-radius:10px; background:#EAF0DF; color:#2F4A22; font-size:14px; line-height:1.5}
+.alb-cat{margin:0 0 14px} .alb-cat h3{margin:0 0 6px; font:700 11px/1 var(--font-text,system-ui); letter-spacing:.14em; text-transform:uppercase; color:#8C2F43}
+.alb-v{display:grid; grid-template-columns:minmax(0,1fr) auto 92px; gap:10px; align-items:center; padding:8px 10px; border:1px solid var(--c-line); border-radius:10px; margin-bottom:6px; background:var(--bg)}
+.alb-v.on{border-color:#8C2F43; background:color-mix(in srgb,#8C2F43 7%,var(--bg))}
+.alb-v .n{font-size:14.5px; font-weight:600; overflow-wrap:anywhere} .alb-v .n small{display:block; font-weight:400; color:var(--c-mut); font-size:12px}
+.alb-v .q{display:flex; align-items:center; gap:6px} .alb-v .q input{width:64px; text-align:center; min-height:40px}
+.alb-v .i{text-align:right; font-weight:700; font-variant-numeric:tabular-nums; font-size:14px}
+.alb-b{width:40px; height:40px; border-radius:10px; border:1px solid var(--c-line-2); background:var(--panel); color:var(--c-ink); font-size:20px; line-height:1; cursor:pointer}
+.alb-b:hover{background:var(--bg-2)} .alb-b:focus-visible{outline:2px solid #8C2F43; outline-offset:2px}
+.alb-tot{display:grid; gap:8px}
+.alb-tot>div{display:grid; grid-template-columns:1fr auto auto auto; gap:2px 10px; align-items:baseline; padding:6px 0; border-bottom:1px solid var(--c-line)}
+.alb-tot span{color:var(--c-mut); font-size:13px} .alb-tot b{font-size:18px; font-variant-numeric:tabular-nums} .alb-tot i{font-style:normal; color:var(--c-mut); font-size:12.5px} .alb-tot em{font-style:normal; font-weight:700; text-align:right; font-variant-numeric:tabular-nums}
+.alb-tot .sub{grid-template-columns:1fr auto} .alb-tot .gran{grid-template-columns:1fr auto; border:0; padding-top:12px} .alb-tot .gran span{font-weight:700; color:var(--c-ink)} .alb-tot .gran em{font-size:22px}
+.alb-est{font:700 11px/1 var(--font-text,system-ui); letter-spacing:.1em; text-transform:uppercase; padding:4px 9px; border-radius:99px; background:var(--bg-2); color:var(--c-mut)} .alb-est.ok{background:#EAF0DF; color:#2F4A22}
+.alb-acc{display:flex; flex-wrap:wrap; gap:8px; align-items:center} .alb-acc .btn{min-height:44px}
+.alb-env{display:grid; gap:12px; margin-top:10px}
+.alb-vc{display:grid; grid-template-columns:minmax(0,1fr) 100px auto 40px; gap:8px; align-items:center; margin-bottom:6px} .alb-vc input{width:100%; min-height:40px}
+.ev-alb{border-color:#8C2F43; color:#8C2F43} .ev-alb.ok{border-color:var(--success); color:var(--success)}
+@media (max-width:900px){ .alb-grid{grid-template-columns:1fr} .alb-side{position:static; order:-1} }
+@media (max-width:520px){ .alb-v{grid-template-columns:1fr auto} .alb-v .i{grid-column:1/-1; text-align:left} }
 .aq-slot{margin:0 0 14px} .aq-slot[hidden]{display:none}
 .aq-peq{font-size:12.5px; color:var(--c-mut)}
 .pq-sec{margin:0 0 20px; background:var(--panel); border:1px solid var(--c-line); border-radius:16px; padding:16px 18px}
@@ -4539,11 +4582,11 @@ html.cne-abierto{overflow:hidden}
   <div class="side-brand"><img class="side-mark" id="side-mark" alt=""><b>Les Moles<small>Events</small></b><button type="button" class="side-hide" id="side-hide" aria-label="Esconder el menú" title="Esconder el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button></div>
   <button class="side-ctx" id="side-ctx" type="button" title="Volver al panel de eventos">
     <span class="ctx-ic" aria-hidden="true"></span>
-    <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span></span>
+    <span class="ctx-tx"><span class="ctx-lbl">Evento activo</span><span class="ctx-nm" id="side-ctx-nm">—</span><span class="ctx-loc" id="side-ctx-loc"></span></span>
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.16</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.17</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4910,6 +4953,7 @@ Lluc (trona)</div>
         <button class="hv-btn" data-when="todos" type="button" aria-pressed="false">Todos</button>
       </div>
       <select id="home-tipo" class="home-tipo" aria-label="Filtrar por tipo de evento"><option value="">Todos los tipos</option></select>
+      <select id="home-loc" class="home-tipo" aria-label="Filtrar por local"><option value="">Todos los locales</option><option value="moles">Les Moles</option><option value="vinyes">Les Vinyes del Convent</option><option value="fuera">Catering / fuera</option></select>
       <select id="home-con" class="home-tipo" aria-label="Filtrar por contrato firmado" hidden><option value="">Todos los contratos</option><option value="sin">Sin contrato firmado</option><option value="con">Con contrato firmado</option></select>
     </div>
     <div class="home-search" id="home-search"><input type="text" id="home-q" placeholder="Buscar evento por nombre…" aria-label="Buscar evento"></div>
@@ -8885,6 +8929,89 @@ function descargarPresupuesto(e,paperSize){
   return deliver(base+".pdf",buildPDF(pages)).then(function(){ toast("Presupuesto descargado en PDF."); })
     .catch(function(){ toast("No se ha podido descargar el PDF.",true); });
 }
+/* ══ ALBARÁN PARA LES VINYES DEL CONVENT ═════════════════════════════
+   En los eventos que se celebran en Les Vinyes, Les Moles les pasa un albarán con los comensales y el vino que se ha gastado (de su
+   carta) y ellos facturan: precio por comensal (bodas a un precio, el resto a otro) + cada botella a su precio + IVA. Sale de su plantilla
+   «ALBARANS EVENTS TARIFA 2026»: los precios están en Parámetros → Les Vinyes del Convent y el albarán de cada evento en e.albaran. */
+var VINYES_CATS=[["negre","Vi negre"],["blanc","Vi blanc"],["rosat","Vi rosat"],["espumos","Espumosos"],["brisat","Brisat"]];
+var VINYES_DEF={v:1, correo:"enoturisme@lesvinyesdelconvent.com", facturar:"contabilidad@lesmoles.com", iva:21, comensal:{boda:12,otros:7},
+  vinos:[
+    {id:"vn1",cat:"negre",n:"Ceps Via Verda Negre 2024",p:4},{id:"vn2",cat:"negre",n:"Costums Negre 2020",p:7.9},{id:"vn3",cat:"negre",n:"Mon Pare 2022",p:10.93},{id:"vn4",cat:"negre",n:"Mon Pare Magnum 2022",p:20.6},
+    {id:"vb1",cat:"blanc",n:"Ceps Via Verda Blanc 2024",p:4},{id:"vb2",cat:"blanc",n:"Costums Blanc 2021",p:7.9},{id:"vb3",cat:"blanc",n:"Mas de Sotorres 2021",p:8.92},
+    {id:"vr1",cat:"rosat",n:"Lola Bel Magnum 2025",p:11.693},{id:"vr2",cat:"rosat",n:"Lola Bel 2025",p:6},
+    {id:"ve1",cat:"espumos",n:"La Senyoria Blanc 2019",p:10.93},{id:"ve2",cat:"espumos",n:"La Senyoria Rosat 2020",p:10.93},{id:"ve3",cat:"espumos",n:"Diferents 2020",p:9.1},
+    {id:"vx1",cat:"brisat",n:"Paisatges Picassians 2022",p:8.92}]};
+function vinyesTarifa(){
+  var d=null; try{ d=paramData("vinyes"); }catch(_){}
+  var T=JSON.parse(JSON.stringify(VINYES_DEF));
+  if(d&&typeof d==="object"){
+    ["correo","facturar"].forEach(function(k){ if(typeof d[k]==="string") T[k]=d[k]; });
+    if(isFinite(+d.iva)&&d.iva!=="") T.iva=+d.iva;
+    if(d.comensal){ if(isFinite(+d.comensal.boda)&&d.comensal.boda!=="") T.comensal.boda=+d.comensal.boda; if(isFinite(+d.comensal.otros)&&d.comensal.otros!=="") T.comensal.otros=+d.comensal.otros; }
+    if(Array.isArray(d.vinos)) T.vinos=d.vinos.filter(function(v){ return v&&v.id&&String(v.n||"").trim(); }).map(function(v){ return {id:String(v.id),cat:VINYES_CATS.some(function(c){ return c[0]===v.cat; })?v.cat:"negre",n:String(v.n),p:+v.p||0}; });
+    T.propia=true;
+  }
+  return T;
+}
+/* comensales por defecto: los del plano sin el staff ni las tronas (adultos + niños); se pueden corregir a mano en el albarán */
+function albaranComensales(e){ var c=planCounts(e), ad=Math.max(0,c.adultos-(c.staff||0)); return {n:ad+(c.ninos||0),ad:ad,ni:c.ninos||0,st:c.staff||0,tr:c.bebes||0}; }
+function albaranEsBoda(e){ return eventoTipo(e)==="Boda"; }
+function albaranCalc(e){
+  var T=vinyesTarifa(), A=(e&&e.albaran)||{}, base=albaranComensales(e);
+  var tar=(A.tarifa==="boda"||A.tarifa==="otros")?A.tarifa:(albaranEsBoda(e)?"boda":"otros");
+  var com=(A.comensales!=null&&A.comensales!==""&&isFinite(+A.comensales))?Math.max(0,Math.round(+A.comensales)):base.n;
+  var pc=tar==="boda"?T.comensal.boda:T.comensal.otros, lineas=[], sub=com*pc;
+  var porCat=[]; VINYES_CATS.forEach(function(c){ var ls=[]; T.vinos.forEach(function(v){ if(v.cat!==c[0]) return; var q=+((A.vinos||{})[v.id])||0; if(q>0){ ls.push({id:v.id,n:v.n,q:q,p:v.p,imp:q*v.p}); sub+=q*v.p; } }); if(ls.length) porCat.push({k:c[0],t:c[1],ls:ls}); });
+  var iva=sub*T.iva/100;
+  return {T:T,tar:tar,tarAuto:albaranEsBoda(e)?"boda":"otros",com:com,comAuto:base.n,base:base,pc:pc,porCat:porCat,botellas:porCat.reduce(function(n,c){ return n+c.ls.reduce(function(m,l){ return m+l.q; },0); },0),sub:sub,iva:iva,pIva:T.iva,total:sub+iva};
+}
+function fmtP3(n){ return (+n||0).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:3})+" €"; }
+function albaranFecha(e){ var A=e.albaran||{}; return A.fecha||((e.ficha&&e.ficha.fecha)||""); }
+function albaranTipo(e){ var A=e.albaran||{}; return String(A.tipo||eventoTipo(e)||"").trim(); }
+function albaranPages(e,pw,ph){
+  var M=50, W=pw-2*M, pages=[], cur=[], y=0, A=e.albaran||{}, K=albaranCalc(e);
+  var xQ=M+W*0.62, xP=M+W*0.80, xI=M+W;
+  function nueva(){ if(cur.length) pages.push(cur); cur=[]; y=M+10; cur.push(TX(pw/2,ph-30,"Les Moles Events · Ulldecona",{size:7.5,fo:"sans",a:"middle",c:FADE,ls:2})); }
+  function sitio(h){ if(y+h>ph-M-10) nueva(); }
+  function sec(t){ sitio(46); y+=16; cur.push(TX(M,y,t.toUpperCase(),{size:9,fo:"sansb",a:"start",c:GOLD,ls:2.2})); cur.push(TX(xQ,y,"QUANTITAT",{size:7,fo:"sans",a:"end",c:FADE,ls:1.4})); cur.push(TX(xP,y,"PREU",{size:7,fo:"sans",a:"end",c:FADE,ls:1.4})); cur.push(TX(xI,y,"TOTAL",{size:7,fo:"sans",a:"end",c:FADE,ls:1.4})); y+=7; cur.push(LN(M,y,M+W,y,"#C9B182",0.8)); y+=16; }
+  function fila(izq,cant,precio,imp,o){ o=o||{}; sitio(20); var sz=o.big?13:11.5, fo=o.bold?"sansb":"ser";
+    partir(izq,xQ-M-50,fo,sz,0).forEach(function(l,i){ cur.push(TX(M,y+i*14,l,{size:sz,fo:fo,a:"start",c:o.c||INK})); });
+    var nl=partir(izq,xQ-M-50,fo,sz,0).length;
+    if(cant!=null&&cant!=="") cur.push(TX(xQ,y,String(cant),{size:11,fo:"sans",a:"end",c:INK}));
+    if(precio!=null&&precio!=="") cur.push(TX(xP,y,precio,{size:11,fo:"sans",a:"end",c:SOFT}));
+    if(imp!=null) cur.push(TX(xI,y,imp,{size:o.big?13:11.5,fo:o.bold?"sansb":"sans",a:"end",c:o.c||INK}));
+    y+=(nl-1)*14+8; if(!o.sinRaya) cur.push(LN(M,y,M+W,y,"#EAE2D0",0.6)); y+=13; }
+  function dato(k,v){ sitio(18); cur.push(TX(M,y,k,{size:8,fo:"sans",a:"start",c:FADE,ls:1.4})); partir(v||"—",W-150,"sans",11,0).forEach(function(l,i){ cur.push(TX(M+150,y+i*14,l,{size:11,fo:"sans",a:"start",c:INK})); }); y+=Math.max(1,partir(v||"—",W-150,"sans",11,0).length)*14+4; }
+  nueva();
+  cur.push(TX(M,y,"LES MOLES EVENTS",{size:9,fo:"sans",a:"start",c:GOLD,ls:3.5}));
+  cur.push(TX(xI,y,"Emès el "+dmyFromISO(hoyISO()),{size:9,fo:"sans",a:"end",c:SOFT}));
+  y+=34; cur.push(TX(M,y,"Albarà",{size:28,fo:"ser",a:"start",c:INK})); y+=22;
+  cur.push(TX(M,y,"Les Vinyes del Convent · "+(nombreLimpio(e.name)||"Esdeveniment"),{size:13,fo:"ser",a:"start",c:INK})); y+=26;
+  dato("DATA",albaranFecha(e)?dmyFromISO(albaranFecha(e)):"");
+  dato("TIPUS D'ESDEVENIMENT",albaranTipo(e));
+  dato("CORREU ELECTRÒNIC",K.T.correo);
+  dato("ENVIAR FACTURA A:",K.T.facturar);
+  if(A.num) dato("REFERÈNCIA",A.num);
+  y+=4;
+  sec("Comensals");
+  fila(K.tar==="boda"?"Número de comensals · bodes":"Número de comensals · altres esdeveniments",K.com,fmtP3(K.pc),fmtEur(K.com*K.pc));
+  if(K.porCat.length) K.porCat.forEach(function(c){ sec(c.t); c.ls.forEach(function(l){ fila(l.n,l.q,fmtP3(l.p),fmtEur(l.imp)); }); });
+  else { sec("Vi"); fila("Cap vi consumit",null,null,null,{c:SOFT,sinRaya:true}); }
+  sitio(120); y+=8;
+  cur.push(R(M,y-16,W,30,3,"#F4EFE3",null,0)); cur.push(TX(M+12,y+3,"TOTAL ESDEVENIMENT",{size:10,fo:"sansb",a:"start",c:INK,ls:1.6})); cur.push(TX(xI-12,y+3,fmtEur(K.sub),{size:13,fo:"sansb",a:"end",c:INK})); y+=32;
+  cur.push(TX(M+12,y,K.pIva+"% DE IVA",{size:9.5,fo:"sans",a:"start",c:SOFT,ls:1.2})); cur.push(TX(xI-12,y,fmtEur(K.iva),{size:11.5,fo:"sans",a:"end",c:SOFT})); y+=22;
+  cur.push(R(M,y-16,W,34,3,"#EAF0DF",null,0)); cur.push(TX(M+12,y+4,"TOTAL A FACTURAR",{size:11,fo:"sansb",a:"start",c:INK,ls:1.8})); cur.push(TX(xI-12,y+5,fmtEur(K.total),{size:17,fo:"sansb",a:"end",c:INK})); y+=40;
+  if(A.nota){ sitio(40); partir("Nota: "+A.nota,W,"sans",10,0).forEach(function(l){ cur.push(TX(M,y,l,{size:10,fo:"sans",a:"start",c:SOFT})); y+=13; }); }
+  pages.push(cur);
+  return pages;
+}
+function albaranPDFBytes(e,paperSize){ var P=PAPERS[paperSize||"A4"]||PAPERS.A4; return buildPDF(albaranPages(e,P.w,P.h).map(function(x){ return pageOf(x,P.w,P.h,null); })); }
+function albaranNombreArchivo(e){ var f=albaranFecha(e); return "albara_"+(nombreLimpio(e.name)||"evento").replace(/[^\w\-]+/g,"_").slice(0,50)+(f?"_"+f:""); }
+function descargarAlbaran(e){
+  if(!e) return Promise.resolve();
+  return deliver(albaranNombreArchivo(e)+".pdf",albaranPDFBytes(e)).then(function(){ toast("Albarán descargado en PDF."); }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
+}
+function albaranPDFb64(e){ var b=albaranPDFBytes(e), s="", i; for(i=0;i<b.length;i+=8192) s+=String.fromCharCode.apply(null,b.subarray(i,i+8192)); return btoa(s); }
 function descargarHojaMenu(nombreArchivo,paperSize){
   return descargarHoja("#mnu-body .sheet .frame",nombreArchivo,paperSize);
 }
@@ -9500,7 +9627,7 @@ function openShare(){
    varios eventos recién creados se llaman igual y no hay forma de saber cuál
    es cuál. Añadiendo sus mesas y comensales se distinguen de un vistazo. */
 function eventLabel(e){
-  var n=e.name||"Sin título";
+  var n=e.name||"Sin título"; var lc=localEv(e); if(lc==="vinyes") n="Les Vinyes · "+n; else if(lc==="fuera") n="Fuera · "+n;
   try{
     var d=parseM(e.text||""), t=totals(d);
     if(!d.tables.length) return n+" — sin plano todavía";
@@ -9941,6 +10068,8 @@ var SECCIONES=[
   {k:"coh",      g:"Planificación", t:"Coordinación"},
   {k:"avisos",   g:"Planificación", t:"Avisos y correo"},
   {k:"portal",   g:"Planificación", t:"Portal del cliente"},
+  /* solo en los eventos de Les Vinyes del Convent: lo que se les pasa (comensales y vino consumido) para que facturen */
+  {k:"albaran",  g:"Planificación", t:"Albarán Les Vinyes", si:function(){ try{ return localEv(current())==="vinyes"; }catch(_){ return false; } }},
   /* el día del evento, en el móvil: lo ven todos los roles menos Compras */
   {k:"srv",      g:"Servicio en directo", t:"Modo servicio"},
   {k:"cierre",   g:"Servicio en directo", t:"Cierre del evento"},
@@ -9985,6 +10114,7 @@ var SECCIONES=[
   {k:"p-estado",   g:"Parámetros", t:"Estado del sistema"},
   {k:"p-privacidad",g:"Parámetros", t:"Privacidad y datos"},
   {k:"p-correo",  g:"Parámetros", t:"Correo y avisos"},
+  {k:"p-vinyes",  g:"Parámetros", t:"Les Vinyes del Convent"},
   {k:"p-contrato",g:"Parámetros", t:"Contrato y propuesta"},
   {k:"p-consultas",g:"Parámetros", t:"Consultas web"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
@@ -10051,6 +10181,8 @@ function syncAppbar(){
     });
   }
   secSel.value=seccionActual();
+  /* «Albarán Les Vinyes» aparece y desaparece en el menú según el local del evento activo */
+  try{ var vA=!!SECCIONES.filter(function(x){ return x.k==="albaran"; }).filter(secVisible).length; if(vA!==navAlbaran){ navAlbaran=vA; if(typeof renderSidenav==="function") renderSidenav(); } }catch(_){}
   if(typeof syncSidenav==="function"){ try{ syncSidenav(); }catch(_){ } }
   try{ syncPanelHead(); }catch(_){ }
   try{ if(window.LM_cohBar) window.LM_cohBar(); }catch(_){ }
@@ -10122,12 +10254,14 @@ var ICONS={
    el administrador devuelve siempre true; con backend real y un rol acotado
    (Cocina, Compras, Servicio…) solo deja ver las secciones de ese rol. */
 function puedeVer(k){ try{ return (window.LM_SESSION&&window.LM_SESSION.can)?window.LM_SESSION.can(k):true; }catch(_){ return true; } }
-function grupos(){ var gs=[],seen={}; SECCIONES.forEach(function(s){ if(!puedeVer(s.k)) return; if(!seen[s.g]){seen[s.g]=1; gs.push(s.g);} }); return gs; }
-function seccionesDe(g){ return SECCIONES.filter(function(s){ return s.g===g && puedeVer(s.k); }); }
+function secVisible(s){ if(!puedeVer(s.k)) return false; if(s.si){ try{ return !!s.si(); }catch(_){ return false; } } return true; }
+function grupos(){ var gs=[],seen={}; SECCIONES.forEach(function(s){ if(!secVisible(s)) return; if(!seen[s.g]){seen[s.g]=1; gs.push(s.g);} }); return gs; }
+function seccionesDe(g){ return SECCIONES.filter(function(s){ return s.g===g && secVisible(s); }); }
 function grupoDeSeccion(k){ for(var i=0;i<SECCIONES.length;i++) if(SECCIONES[i].k===k) return SECCIONES[i].g; return null; }
 function grupoCorto(g){ return g.split(" ")[0]; }
 
 var GRUPO_NEGOCIO={"Previsión":1,"Inventario":1,"Parámetros":1,"Rentabilidad":1};
+var navAlbaran=null;
 /* v02.05 · el grupo en el que estás se pliega y se despliega con un clic en su título, sin cambiar de pantalla.
    Al ir a otra pantalla (la que sea) vuelve a salir desplegado el grupo en el que caes. */
 var navPlegado=false, navUltimaSec=null;
@@ -10203,7 +10337,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.16</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.17</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10249,6 +10383,7 @@ function syncSidenav(){
     });
   });
   var c=current(); var nm=$("side-ctx-nm"); if(nm) nm.textContent=c?(nombreLimpio(c.name)||"Sin título"):"—";
+  var nl=$("side-ctx-loc"); if(nl) nl.innerHTML=c?localChipHTML(c,false):"";
   try{ pintarPresencia(); }catch(_){}
   var ctx=$("side-ctx"); if(ctx) ctx.classList.toggle("on",enHome);
   // barra inferior (móvil)
@@ -10412,7 +10547,7 @@ function evCardEl(e){
   var card=document.createElement("button"); card.type="button"; card.className="evcard"+(dr!=null&&dr<0?" past":""); card.dataset.id=e.id;
   card.style.setProperty("--evcol",col);
   card.innerHTML=
-    '<div class="ev-tags"><div class="ev-cat" style="color:'+col+'"><i class="ev-dot" style="background:'+col+'"></i>'+escH(cat)+'</div>'+
+    '<div class="ev-tags"><div class="ev-cat" style="color:'+col+'"><i class="ev-dot" style="background:'+col+'"></i>'+escH(cat)+'</div>'+localChipHTML(e,true)+
       '<span class="ev-est'+(est==="confirmada"?" conf":(est==="celebrada"||est==="cerrada")?" done":"")+'">'+escH(CICLO_T[est]||"Planificación")+'</span>'+
       (dr!=null&&dr>=0&&dr<=7?'<span class="ev-week">'+(dr===0?"Hoy":dr===1?"Mañana":"Esta semana")+'</span>':'')+'</div>'+
     '<div class="ev-nm">'+escH(nombreLimpio(e.name)||"Sin título")+'</div>'+
@@ -10422,7 +10557,7 @@ function evCardEl(e){
       '<span class="evpill"><b>'+mesas+'</b><span>'+(mesas===1?"mesa":"mesas")+'</span></span>'+
     '</div>'+
     '<div class="ev-prog"><div class="ev-prog-bar"><i style="width:'+pct+'%"></i></div><span class="ev-prog-pct">'+pct+'%</span></div>'+
-    (window.LM_cohChip?window.LM_cohChip(e):"")+(window.LM_portalChip?window.LM_portalChip(e):"");
+    (window.LM_cohChip?window.LM_cohChip(e):"")+(window.LM_portalChip?window.LM_portalChip(e):"")+(window.LM_albaranChip?window.LM_albaranChip(e):"");
   card.addEventListener("click",function(){ abrirEvento(e.id); });
   var w=document.createElement("div"); w.className="evcard-w"; w.appendChild(card);
   var dup=document.createElement("button"); dup.type="button"; dup.className="ev-dup"; dup.title="Duplicar evento";
@@ -10460,7 +10595,7 @@ function duplicarEvento(id,quedarse){
   c.presupuesto=c.presupuesto||{}; c.presupuesto.pagos=[];
   (c.tareas||[]).forEach(function(t){ t.estado="pendiente"; delete t.hecha; delete t.fechaHecha; });
   /* contrato firmado (con DNI), justificantes, aprobaciones del cliente, cierre y fichajes del día: son del evento original */
-  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","camarerosAvisar","hitos","contrato","docs","aprobaciones","cierre","cierreServicio","turnos"].forEach(function(k){ delete c[k]; });
+  ["agendaHecho","comunicaciones","share","camareros","camarerosHora","camarerosAlta","camarerosBaja","camarerosAvisar","hitos","contrato","docs","aprobaciones","cierreMenu","albaran","cierre","cierreServicio","turnos"].forEach(function(k){ delete c[k]; });
   c.comunicaciones=[]; c.hitos={}; c.camareros={}; c.camarerosHora={}; c.camarerosAvisar={};
   c.updated=Date.now();
   /* planos de fondo propios del evento (catering), si los tiene */
@@ -10776,6 +10911,15 @@ function pvTipoEvento(f){ var t=pvNorm((f.tipo||"")+" "+(f.nombre||"")+" "+(f.es
   if(/empresa|corporat|gala|congres|jornada|cena de empresa/.test(t)) return "Evento corporativo"; return "Celebración"; }
 function pvEspacio(e){ var n=pvNorm(e); if(/vinyes|viyes|vinyas/.test(n)) return "Les Vinyes del Convent"; if(/foodtruck|fodtruck/.test(n)) return "Foodtruck"; if(/catering|cater/.test(n)) return "Catering"; if(/moles/.test(n)) return "Les Moles"; return String(e||"").trim(); }
 function localClave(t){ var n=pvNorm(t); if(!n) return "sin"; if(/vinyes|viyes|vinyas/.test(n)) return "vinyes"; if(/catering|cater|foodtruck|fodtruck/.test(n)) return "fuera"; if(/moles/.test(n)) return "moles"; return "fuera"; }
+/* v02.17 · EL LOCAL DEL EVENTO: Les Moles, Les Vinyes del Convent o fuera (catering). La fuente es el texto de «Local» de la ficha
+   (así la Previsión y las consultas siguen cuadrando); aquí se le da identidad: color, nombre corto e insignia. */
+var LOCALES_EV=[{k:"moles",t:"Les Moles",corto:"Les Moles",c:"#C9952B",ub:"Les Moles · Ulldecona"},
+  {k:"vinyes",t:"Les Vinyes del Convent",corto:"Les Vinyes",c:"#8C2F43",ub:"Les Vinyes del Convent"},
+  {k:"fuera",t:"Catering / otro lugar",corto:"Fuera",c:"#2F6DB0",ub:"Catering · "}];
+function localEv(e){ var k=localClave(e&&e.ficha&&e.ficha.ubicacion); return k==="sin"?"":k; }
+function localInfo(e){ var k=localEv(e); return LOCALES_EV.filter(function(x){ return x.k===k; })[0]||null; }
+function localChipHTML(e,corto){ var l=localInfo(e); if(!l) return ""; return '<span class="loc-chip" data-l="'+l.k+'" title="Local: '+escH(l.t)+'"><i style="background:'+l.c+'"></i>'+escH(corto?l.corto:l.t)+'</span>'; }
+window.LM_localEv=localEv; window.LM_localChip=localChipHTML;
 var PV_EV_CONF={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
 function pvHoy(){ var d=new Date(); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 function pvISO(s){ return /^\d{4}-\d\d-\d\d$/.test(s||""); }
@@ -10915,19 +11059,19 @@ function renderHomeList(){
   store.events.forEach(function(e){ tipos[eventoTipo(e)]=1; });
   if(tsel){ var tv=tsel.value; tsel.innerHTML='<option value="">Todos los tipos</option>'+Object.keys(tipos).sort().map(function(t){ return '<option'+(t===tv?" selected":"")+'>'+escH(t)+'</option>'; }).join("");
     if(tv&&!tipos[tv]) tsel.value=""; }
-  var tipoF=tsel?tsel.value:"";
+  var tipoF=tsel?tsel.value:"", lsel=$("home-loc"), locF=lsel?lsel.value:"";
   /* contrato firmado (aceptado en el portal o subido a mano): solo lo ven quienes tienen el portal */
   var csel=$("home-con"), conF=""; if(csel){ var vc=puedeVer("portal"); csel.hidden=!vc; if(!vc) csel.value=""; conF=csel.value; }
   var wseg=$("home-when"); if(wseg) Array.prototype.forEach.call(wseg.children,function(b){ b.setAttribute("aria-pressed",b.dataset.when===homeWhen?"true":"false"); });
   function pasado(e){ var dr=diasRestantes(e); return dr!=null&&dr<0; }
-  var base=store.events.filter(function(e){ return (!q || (e.name||"").toLowerCase().indexOf(q)>=0) && (!tipoF||eventoTipo(e)===tipoF) && (!conF||(!e.anonimizado&&(conF==="con")===conFirmado(e))); });
+  var base=store.events.filter(function(e){ return (!q || (e.name||"").toLowerCase().indexOf(q)>=0) && (!tipoF||eventoTipo(e)===tipoF) && (!locF||localEv(e)===locF) && (!conF||(!e.anonimizado&&(conF==="con")===conFirmado(e))); });
   var evs=base.filter(function(e){ return homeWhen==="todos"||(homeWhen==="pas"?pasado(e):!pasado(e)); });
   /* próximos: del más cercano al más lejano (sin fecha, al final); pasados: del más reciente hacia atrás */
   var dir=homeWhen==="pas"?-1:1;
   evs.sort(function(a,b){ var ma=evFechaMs(a),mb=evFechaMs(b); if(ma==null&&mb==null) return 0; if(ma==null) return 1; if(mb==null) return -1; return dir*(ma-mb); });
   if(!evs.length&&base.length&&homeWhen!=="todos"){
     var otros=base.length, mm=document.createElement("div"); mm.className="home-more";
-    mm.innerHTML=(homeWhen==="prox"?"No hay eventos próximos":"No hay eventos pasados")+(q||tipoF||conF?" con este filtro":"")+'. <button type="button" data-when-go="todos">Ver los '+otros+' '+(otros===1?"evento":"eventos")+'</button>';
+    mm.innerHTML=(homeWhen==="prox"?"No hay eventos próximos":"No hay eventos pasados")+(q||tipoF||conF||locF?" con este filtro":"")+'. <button type="button" data-when-go="todos">Ver los '+otros+' '+(otros===1?"evento":"eventos")+'</button>';
     grid.appendChild(mm); return;
   }
   if(!evs.length){ var em=document.createElement("div"); em.className="home-empty"; em.style.gridColumn="1/-1"; em.textContent=q?("Ningún evento coincide con «"+q+"»."):"Todavía no hay eventos. Crea el primero con «+ Nuevo evento»."; grid.appendChild(em); return; }
@@ -10994,6 +11138,7 @@ function setHomeWhen(v){ homeWhen=v; try{ localStorage.setItem("lm_home_when",v)
   var ws=$("home-when"); if(ws) ws.addEventListener("click",function(ev){ var b=ev.target.closest("[data-when]"); if(b) setHomeWhen(b.dataset.when); });
   var ts=$("home-tipo"); if(ts) ts.addEventListener("change",renderHomeList);
   var tc=$("home-con"); if(tc) tc.addEventListener("change",renderHomeList);
+  var tl=$("home-loc"); if(tl) tl.addEventListener("change",renderHomeList);
   var g=$("home-grid"); if(g) g.addEventListener("click",function(ev){ var b=ev.target.closest&&ev.target.closest("[data-when-go]"); if(b) setHomeWhen(b.getAttribute("data-when-go")); });
 })();
 function defaultCalMonth(){
@@ -11095,8 +11240,8 @@ function renderHomeCalendar(){
         } else if(it.kind==="pay"){
           html+='<button class="cal-ev cal-pay'+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" data-sec="presup" title="'+escH(it.concepto+" · "+it.ev)+'">'+AG_IC.pago+' <b>'+escH(it.concepto)+'</b>'+(it.importe?' <small>'+fmtEur(it.importe)+'</small>':'')+'</button>';
         } else {
-          var col=tipoColor(it.tipo);
-          html+='<button class="cal-ev cal-evt'+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo+(it.conf?"":" · pendiente de confirmar"))+'" style="--ec:'+col+'"><b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
+          var col=tipoColor(it.tipo), evL=null; try{ evL=store.events.filter(function(x){ return x.id===it.id; })[0]; }catch(_){} var lI=evL?localInfo(evL):null;
+          html+='<button class="cal-ev cal-evt'+(it.conf?"":" nc")+'" type="button" data-id="'+escH(it.id)+'" title="'+escH(it.name+" · "+it.tipo+(lI?" · "+lI.t:"")+(it.conf?"":" · pendiente de confirmar"))+'" style="--ec:'+col+'">'+(lI?'<i class="cal-loc" style="background:'+lI.c+'"></i>':'')+'<b>'+escH(it.name)+'</b>'+(it.pax?' <small>'+it.pax+' pax</small>':'')+'</button>';
         }
       });
     }
@@ -11106,7 +11251,7 @@ function renderHomeCalendar(){
   var tset={}; store.events.forEach(function(e){ tset[eventoTipo(e)]=1; });
   var tkeys=Object.keys(tset).sort();
   var hayPrev=false, hayPend=false; Object.keys(byDay).forEach(function(d){ byDay[d].forEach(function(it){ if(it.kind==="prev"){ if(it.pend) hayPend=true; else hayPrev=true; } }); });
-  if(tkeys.length||hayPrev||hayPend) html+='<div class="cal-legend">'+tkeys.map(function(t){ return '<span class="cal-lg"><i style="background:'+tipoColor(t)+'"></i>'+esc(t)+'</span>'; }).join("")+
+  if(tkeys.length||hayPrev||hayPend) html+='<div class="cal-legend">'+LOCALES_EV.map(function(l){ return '<span class="cal-lg"><i class="cal-loc" style="background:'+l.c+'"></i>'+esc(l.t)+'</span>'; }).join("")+tkeys.map(function(t){ return '<span class="cal-lg"><i style="background:'+tipoColor(t)+'"></i>'+esc(t)+'</span>'; }).join("")+
     (hayPend?'<span class="cal-lg"><i class="lg-pend"></i>Pendiente de confirmar (Previsión)</span>':'')+
     (hayPrev?'<span class="cal-lg"><i class="lg-prev"></i>En la Previsión, sin evento</span>':'')+'</div>';
   cal.innerHTML=html;
@@ -11475,7 +11620,7 @@ function renderResumen(){
     '<div class="rsm-inner">'+
       '<header class="rsm-head">'+
         '<div class="rsm-head-main">'+
-          '<div class="rsm-eyebrow">'+escH(cat)+'</div>'+
+          '<div class="rsm-eyebrow">'+escH(cat)+' '+localChipHTML(e,false)+'</div>'+
           '<h1 class="rsm-title">'+title+'</h1>'+
           '<div class="rsm-meta">'+
             '<span class="badge '+(estado==="confirmada"||estado==="celebrada"?"done":(estado==="cerrada"?"todo":"prog"))+'">'+escH(estadoT)+'</span>'+
@@ -11549,6 +11694,8 @@ function renderResumen(){
       '</div><button class="btn sm gold" id="pt-save" type="button">Guardar datos</button> <span class="portal-hint">Mientras estén vacíos, el portal no enseña esas líneas.</span></details>':'')+
     '</section></div>';
   if(!puedeVer("portal")) shareHTML='<div class="rsm-inner" style="padding-top:0"><section class="share-card portal-card"><div class="share-h">Portal del cliente</div><p class="share-p">'+(e.share.on?"El portal del cliente está activo.":"El portal del cliente no está activo.")+' Lo gestiona administración.</p></section></div>';
+  /* eventos de Les Vinyes del Convent: su albarán, a la vista */
+  try{ var albH=(window.LM_albaranResumenHTML&&puedeVer("albaran"))?window.LM_albaranResumenHTML(e):""; if(albH) host.insertAdjacentHTML("beforeend",'<div class="rsm-inner" style="padding-top:0"><section class="share-card portal-card"><div class="share-h">Albarán para Les Vinyes del Convent</div>'+albH+'</section></div>'); }catch(_){}
   host.insertAdjacentHTML("beforeend",shareHTML);
   var _on=$("rsm-share-on"); if(_on) _on.addEventListener("click",function(){
     if(!e.share.id||e.share.id.length<24) e.share.id=tokenNuevo();
@@ -11674,7 +11821,7 @@ function renderHomeNovios(){
    Nace del Excel real de boda (INFORMACIÓN GENERAL, DISTRIBUCIÓN,
    SEGUIMIENTO ECONÓMICO). ═══════════════════════════════════════════════ */
 var planView="crm", planBound=false;
-var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,pedidos:1,consultas:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
+var PLAN_KEYS={crm:1,timeline:1,tareas:1,prov:1,presup:1,comm:1,hist:1,coh:1,avisos:1,portal:1,albaran:1,"p-vinyes":1,pedidos:1,consultas:1,srv:1,cierre:1,"cam-horas":1,fotos:1,docs:1,
   "p-inicio":1,"p-platos":1,"p-bebidas":1,"p-servicio":1,"p-comercial":1,"p-pvp":1,"p-alg":1,"p-trad":1,"p-tareas":1,"p-agenda":1,"p-copias":1,"p-estado":1,"p-privacidad":1,"p-correo":1,"p-contrato":1,"p-consultas":1,
   "r-evento":1,"r-temp":1,"r-precios":1,"prev":1,"montaje":1,"seat":1};
 var CICLO=[
@@ -11927,6 +12074,8 @@ function renderPlanV(k){
   if(k==="p-estado"){ if(window.LM_renderEstado) window.LM_renderEstado(host); return; }
   if(k==="p-privacidad"){ if(window.LM_renderPriv) window.LM_renderPriv(host); return; }
   if(k==="p-correo"){ if(window.LM_renderCorreoCfg) window.LM_renderCorreoCfg(host); return; }
+  if(k==="albaran"){ if(window.LM_renderAlbaran) window.LM_renderAlbaran(host); return; }
+  if(k==="p-vinyes"){ if(window.LM_renderVinyesCfg) window.LM_renderVinyesCfg(host); return; }
   if(k==="p-contrato"){ if(window.LM_renderContratoCfg) window.LM_renderContratoCfg(host); return; }
   if(k==="p-consultas"){ if(window.LM_renderConsultasCfg) window.LM_renderConsultasCfg(host); return; }
   if(k==="consultas"){ if(window.LM_renderConsultas) window.LM_renderConsultas(host); return; }
@@ -12026,6 +12175,7 @@ function onPlanClick(ev){
   var e=current(); if(!e) return;
   var act=b.getAttribute("data-act"), i=+b.getAttribute("data-i");
   if(act==="cycle"){ e.ficha.estado=b.getAttribute("data-k"); }
+  else if(act==="local"){ var lk=b.getAttribute("data-k"), li=LOCALES_EV.filter(function(x){ return x.k===lk; })[0]; if(li){ if(localEv(e)!==lk) e.ficha.ubicacion=li.ub; try{ if(window.syncAppbar) setTimeout(window.syncAppbar,0); }catch(_){} } }
   else if(act==="prov-add"){ e.proveedores.push({id:uid(),servicio:"Otros",empresa:"",contacto:"",telefono:"",precio:0,estado:"Pendiente"}); }
   else if(act==="prov-del"){ borrarConUndo(e.proveedores,i,"Proveedor eliminado"); }
   else if(act==="extra-add"){ e.presupuesto.extras.push({id:uid(),concepto:"",importe:0}); }
@@ -12096,7 +12246,10 @@ function viewFicha(e){
   '<div class="pcard"><div class="fldset">'+
     fld("Tipo de evento","ficha.tipo",F.tipo,"select",{options:TIPO_EVENTO})+
     fld("Fecha","ficha.fecha",F.fecha,"date",{live:true})+
-    '<label class="fld"><span class="lbl">Local</span><input type="text" data-f="ficha.ubicacion" list="dl-locales" value="'+escH(F.ubicacion||"")+'" placeholder="Les Moles, Les Vinyes o el lugar del catering"><span class="fld-local" data-l="'+localClave(F.ubicacion)+'">'+({moles:"Cuenta como Les Moles",vinyes:"Cuenta como Les Vinyes del Convent",fuera:"Cuenta como catering / fuera",sin:"Sin local asignado"})[localClave(F.ubicacion)]+'</span></label>'+
+    '<div class="fld fld-wide"><span class="lbl" id="lbl-local">Local del evento</span><div class="locseg" role="radiogroup" aria-labelledby="lbl-local">'+LOCALES_EV.map(function(l){ var on=localEv(e)===l.k; return '<button type="button" role="radio" aria-checked="'+on+'" class="locbtn'+(on?" on":"")+'" data-act="local" data-k="'+l.k+'" style="--lc:'+l.c+'"><i aria-hidden="true"></i>'+escH(l.t)+'</button>'; }).join("")+'</div>'+
+      (localEv(e)==="fuera"?'<input type="text" data-f="ficha.ubicacion" value="'+escH(F.ubicacion||"")+'" placeholder="Catering · nombre del sitio (finca, restaurante del cliente…)" aria-label="Lugar del catering">':'')+
+      (!localEv(e)?'<span class="fld-local" data-l="sin">Sin local asignado: elige uno.</span>':'')+
+      (localEv(e)==="vinyes"?'<span class="fld-local" data-l="vinyes">Evento en Les Vinyes del Convent: aparece «Albarán Les Vinyes» en Planificación, con los comensales y el vino consumido para pasarles.</span>':'')+'</div>'+
     '<datalist id="dl-locales"><option value="Les Moles · Ulldecona"></option><option value="Les Vinyes del Convent"></option><option value="Catering · "></option><option value="Foodtruck"></option></datalist>'+
     '<div class="fld"><span class="lbl">Invitados (del plano)</span><div class="fld-val">'+c.pax+' · '+c.mesas+' mesa'+(c.mesas===1?"":"s")+'</div></div>'+
     fld("Menús staff","ficha.staff",F.staff,"number",{live:true})+
@@ -13762,6 +13915,8 @@ window.SITTING_BRIDGE={
   save:save,
   conEvento:function(e,fn){ var prev=__evForzado; __evForzado=e; try{ return fn(); } finally{ __evForzado=prev; } },
   presupTotals:presupTotals, planCounts:planCounts, staffMenus:staffMenus, cicloT:function(){ return CICLO_T; },
+  vinyes:{def:function(){ return JSON.parse(JSON.stringify(VINYES_DEF)); },cats:VINYES_CATS,tarifa:vinyesTarifa,calc:albaranCalc,comensales:albaranComensales,esBoda:albaranEsBoda,fecha:albaranFecha,tipo:albaranTipo,pdf:descargarAlbaran,pdfB64:albaranPDFb64,nombreArchivo:albaranNombreArchivo,fmt:fmtEur,fmtP:fmtP3},
+  localEv:localEv, localChip:localChipHTML,
   impTabla:impTabla, impXlsx:impXlsx,
   eventName:eventName,
   switchActiveEvent:switchActiveEvent,
@@ -24600,6 +24755,203 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
 </script>
 
 <script>
+/* ═════════════════════════════════════════════════════════════════
+   ALBARÁN PARA LES VINYES DEL CONVENT · pantalla del evento y tarifa en Parámetros
+   En los eventos de Les Vinyes, Les Moles les pasa un albarán: los comensales y el vino que se ha gastado de su carta.
+   Ellos facturan (comensal a un precio las bodas y a otro el resto + cada botella a su precio + IVA).
+   Vive en e.albaran; los precios, en Parámetros → Les Vinyes del Convent (param «vinyes»). Salen de su plantilla Excel «TARIFA 2026».
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
+  var BR=window.SITTING_BRIDGE; if(!BR||!BR.vinyes) return; var V=BR.vinyes;
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function toast(m,mal){ try{ if(BR.toast) BR.toast(m,mal); }catch(_){} }
+  function evActual(){ try{ return BR.current(); }catch(_){ return null; } }
+  function rol(){ try{ return window.LM_SESSION?window.LM_SESSION.role():"admin"; }catch(_){ return "admin"; } }
+  function esAdmin(){ return rol()==="admin"; }
+  function puedeEnviar(){ return ["admin","eventos"].indexOf(rol())>=0&&!!(window.LM_backend&&window.LM_backend()); }
+  function quien(){ var u=null; try{ u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); }catch(_){} return (u&&(u.name||u.email))||"Equipo"; }
+  function z(n){ return (n<10?"0":"")+n; }
+  function fch(ms){ var d=new Date(ms); return z(d.getDate())+"/"+z(d.getMonth()+1)+"/"+d.getFullYear(); }
+  function num(v){ var n=+String(v==null?"":v).replace(",","."); return isFinite(n)?n:0; }
+  function nf(n){ return String(Math.round(n*1000)/1000).replace(".",","); }
+  function api(path,method,body){
+    return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
+  }
+  var U={host:null,env:null,enviando:false,tm:null};
+  function AL(e){ return e.albaran||(e.albaran={}); }
+  function guardar(e){ e.updated=Date.now(); BR.save(); }
+
+  /* ═══ el albarán de un evento ═══ */
+  function refConsumo(e){
+    var R=e.menu&&e.menu.bebidasReal; if(!R) return "";
+    var m={blanco:"vino blanco",tinto:"vino tinto",cava:"cava",cavaRosado:"cava rosado"}, o=[];
+    Object.keys(m).forEach(function(k){ var r=R[k]; if(r&&r.q!=null&&r.q!==""&&isFinite(+r.q)&&+r.q>0) o.push(m[k]+" "+r.q); });
+    return o.length?"En Bebida → Consumo real apuntaste (botellas): "+o.join(" · ")+". Son de las marcas de Les Moles: aquí hay que repartirlas entre los vinos de Les Vinyes.":"";
+  }
+  function comHint(K){ var b=K.base; return 'Del plano: '+b.ad+(b.ad===1?" adulto":" adultos")+' + '+b.ni+(b.ni===1?" niño":" niños")+' = <b>'+b.n+'</b> (sin '+b.st+' de staff ni '+b.tr+(b.tr===1?" trona":" tronas")+').'+(K.com!==b.n?' <button type="button" class="aq-lnk" data-ab-act="comauto">Usar el del plano</button>':''); }
+  function resumenHTML(e,K){
+    var A=AL(e), T=K.T;
+    return '<div class="alb-tot"><div><span>Comensales</span><b>'+K.com+'</b><i>× '+V.fmtP(K.pc)+'</i><em>'+V.fmt(K.com*K.pc)+'</em></div>'+
+      '<div><span>Vino</span><b>'+K.botellas+'</b><i>'+(K.botellas===1?"botella":"botellas")+'</i><em>'+V.fmt(K.sub-K.com*K.pc)+'</em></div>'+
+      '<div class="sub"><span>Total del evento</span><em>'+V.fmt(K.sub)+'</em></div>'+
+      '<div class="sub"><span>'+esc(nf(K.pIva))+' % de IVA</span><em>'+V.fmt(K.iva)+'</em></div>'+
+      '<div class="gran"><span>Total a facturar</span><em>'+V.fmt(K.total)+'</em></div></div>';
+  }
+  function lineaVino(v,q){ var imp=q*v.p;
+    return '<div class="alb-v'+(q>0?" on":"")+'" data-v="'+esc(v.id)+'"><div class="n">'+esc(v.n)+'<small>'+esc(V.fmtP(v.p))+' la botella</small></div>'+
+      '<div class="q" role="group" aria-label="Botellas de '+esc(v.n)+'"><button type="button" class="alb-b" data-ab-act="dec" data-id="'+esc(v.id)+'" aria-label="Quitar una botella de '+esc(v.n)+'">−</button><input type="number" inputmode="numeric" min="0" step="1" data-ab-q="'+esc(v.id)+'" value="'+(q>0?q:"")+'" placeholder="0" aria-label="Botellas de '+esc(v.n)+'"><button type="button" class="alb-b" data-ab-act="inc" data-id="'+esc(v.id)+'" aria-label="Añadir una botella de '+esc(v.n)+'">+</button></div>'+
+      '<div class="i" id="alb-i-'+esc(v.id)+'">'+(q>0?esc(V.fmt(imp)):"")+'</div></div>'; }
+  function envioHTML(e,K){
+    var A=AL(e), T=K.T, sent=A.estado==="enviado"&&A.enviado, h="";
+    h+='<section class="alb-card"><h2>Pasárselo a Les Vinyes</h2>';
+    if(sent) h+='<div class="alb-ok"><b>Enviado el '+esc(fch(A.enviado.ts))+'</b> a '+esc(A.enviado.a||T.correo)+(A.enviado.sim?' <i>(simulado: el correo aún no está activado, no ha salido)</i>':'')+' · por '+esc(A.enviado.por||"")+'. Les Vinyes facturan a '+esc(T.facturar)+'. <button type="button" class="aq-lnk" data-ab-act="reabrir">Volver a abrirlo</button></div>';
+    else h+='<p class="alb-p">Se manda a <b>'+esc(T.correo)+'</b> con el PDF adjunto (en català). Ellos nos facturan a <b>'+esc(T.facturar)+'</b>.</p>';
+    if(U.env&&U.env.ev===e.id){
+      h+='<div class="alb-env"><label class="fld"><span class="lbl">Para</span><input type="email" data-ab-env="to" value="'+esc(U.env.to)+'"></label><label class="fld"><span class="lbl">Asunto</span><input type="text" data-ab-env="subject" value="'+esc(U.env.subject)+'"></label><label class="fld"><span class="lbl">Mensaje</span><textarea rows="9" data-ab-env="text">'+esc(U.env.text)+'</textarea></label>'+
+        '<div class="alb-acc"><button type="button" class="btn gold" data-ab-act="enviar-ya"'+(U.enviando?" disabled":"")+'>'+(U.enviando?"Enviando…":"Enviar ahora con el PDF")+'</button><button type="button" class="btn" data-ab-act="cancelar-env">Cancelar</button></div></div>';
+    } else {
+      h+='<div class="alb-acc"><button type="button" class="btn'+(sent?"":" gold")+'" data-ab-act="pdf">Descargar el PDF</button>'+
+        (puedeEnviar()?'<button type="button" class="btn'+(sent?"":" gold")+'" data-ab-act="enviar"'+(sent?' title="Ya se envió: se vuelve a preparar"':"")+'>'+(sent?"Volver a enviarlo por correo":"Enviar por correo…")+'</button>':'')+
+        (sent?'':'<button type="button" class="btn" data-ab-act="marcar" title="Si se lo has pasado por otro medio">Marcar como enviado</button>')+'</div>';
+    }
+    return h+'</section>';
+  }
+  function pintaAlb(){
+    var host=U.host, e=evActual(); if(!host) return;
+    var top=host.scrollTop, h='<div class="pv-inner alb-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Planificación · Les Vinyes del Convent</div><h1 class="pv-title">Albarán de Les Vinyes</h1><div class="pv-sub">'+esc(e?(BR.eventLabel?BR.eventLabel(e):e.name):"")+'</div>'+
+      '<p class="pv-guide">Lo que se les pasa después del evento: los comensales y el vino que se ha gastado de su carta. Ellos facturan con su tarifa. Se guarda solo.</p></div></header>';
+    if(!e){ host.innerHTML=h+'<p class="empty">Selecciona un evento.</p></div>'; return; }
+    if(V.tarifa&&BR.localEv(e)!=="vinyes"){
+      var lc=BR.localEv(e);
+      host.innerHTML=h+'<section class="alb-card"><h2>Este evento no es de Les Vinyes del Convent</h2><p class="alb-p">'+(lc==="moles"?"Se celebra en <b>Les Moles</b>":lc==="fuera"?"Se celebra <b>fuera</b> (catering)":"Todavía no tiene local")+', así que no lleva albarán. El albarán solo se usa en los eventos que se celebran en Les Vinyes.</p>'+
+        '<div class="alb-acc"><button type="button" class="btn gold" data-ab-act="hacer-vinyes">Es un evento de Les Vinyes del Convent</button><button type="button" class="btn" data-goto="crm">Ver la ficha del evento</button></div></section></div>'; return; }
+    var A=AL(e), K=V.calc(e), T=K.T, conf=!!(T.propia&&((BR.param("vinyes")||{}).confirmado));
+    var vinosCat=V.cats.map(function(c){ var vs=T.vinos.filter(function(v){ return v.cat===c[0]; }); if(!vs.length) return ""; return '<div class="alb-cat"><h3>'+esc(c[1])+'</h3>'+vs.map(function(v){ return lineaVino(v,+((A.vinos||{})[v.id])||0); }).join("")+'</div>'; }).join("");
+    var rc=refConsumo(e), b=K.base;
+    h+=(conf?'':'<div class="alb-aviso"><b>Revisa los precios por comensal.</b> La plantilla tenía dos filas «número de comensales», a 7 € y a 12 €, sin decir cuál era para bodas. Se ha puesto <b>bodas '+esc(V.fmtP(T.comensal.boda))+'</b> y <b>otros eventos '+esc(V.fmtP(T.comensal.otros))+'</b>. Si es al revés, cámbialo en <a href="#" data-goto="p-vinyes">Parámetros → Les Vinyes del Convent</a>.'+(esAdmin()?' <button type="button" class="btn sm" data-ab-act="confirmar">Está bien así</button>':'')+'</div>')+
+      '<div class="alb-grid"><div class="alb-main">'+
+      '<section class="alb-card"><h2>Datos</h2><div class="alb-f">'+
+        '<label class="fld"><span class="lbl">Fecha del evento</span><input type="date" data-ab="fecha" value="'+esc(V.fecha(e))+'"></label>'+
+        '<label class="fld"><span class="lbl">Tipo de evento</span><input type="text" data-ab="tipo" value="'+esc(V.tipo(e))+'" placeholder="Boda, comunión…"></label>'+
+        '<label class="fld"><span class="lbl">Referencia <small>(opcional)</small></span><input type="text" data-ab="num" value="'+esc(A.num||"")+'" placeholder="Nº de albarán"></label></div>'+
+        '<div class="alb-f"><label class="fld"><span class="lbl">Comensales que han estado</span><input type="number" inputmode="numeric" min="0" step="1" data-ab="com" value="'+K.com+'"><span class="alb-hint" id="alb-comhint">'+comHint(K)+'</span></label>'+
+        '<div class="fld"><span class="lbl" id="alb-lbl-tar">Tarifa por comensal</span><div class="locseg" role="radiogroup" aria-labelledby="alb-lbl-tar">'+
+          [["boda","Boda",T.comensal.boda],["otros","Otros eventos",T.comensal.otros]].map(function(x){ var on=K.tar===x[0]; return '<button type="button" role="radio" aria-checked="'+on+'" class="locbtn'+(on?" on":"")+'" data-ab-act="tar" data-k="'+x[0]+'" style="--lc:#8C2F43"><i aria-hidden="true"></i>'+x[1]+' · '+esc(V.fmtP(x[2]))+'</button>'; }).join("")+'</div>'+
+          '<span class="alb-hint">'+(A.tarifa&&A.tarifa!==K.tarAuto?'La has cambiado a mano (por el tipo de evento sería «'+(K.tarAuto==="boda"?"Boda":"Otros eventos")+'»). <button type="button" class="aq-lnk" data-ab-act="tar" data-k="">Volver a la automática</button>':'Elegida por el tipo de evento ('+esc(V.tipo(e)||"sin tipo")+').')+'</span></div></div></section>'+
+      '<section class="alb-card"><h2>Vino consumido <small>botellas, de la carta de Les Vinyes</small></h2>'+(rc?'<p class="alb-hint" style="margin:0 0 10px">'+esc(rc)+'</p>':'')+vinosCat+
+        (T.vinos.length?'':'<p class="alb-p">Todavía no hay vinos en la tarifa. Añádelos en Parámetros → Les Vinyes del Convent.</p>')+'</section>'+
+      '<section class="alb-card"><h2>Nota <small>opcional, sale en el PDF</small></h2><label class="fld"><textarea rows="2" data-ab="nota" maxlength="300" placeholder="Algo que quieras decirles sobre este albarán">'+esc(A.nota||"")+'</textarea></label></section>'+
+      envioHTML(e,K)+'</div>'+
+      '<aside class="alb-side"><section class="alb-card alb-resumen" id="alb-resumen" aria-live="polite"><h2>Resumen <span class="alb-est '+(A.estado==="enviado"?"ok":"")+'">'+(A.estado==="enviado"?"Enviado":"Borrador")+'</span></h2>'+resumenHTML(e,K)+'</section></aside></div></div>';
+    host.innerHTML=h; host.scrollTop=top;
+    if(!host.__alb){ host.__alb=true; host.addEventListener("input",onInput); host.addEventListener("change",onInput); host.addEventListener("click",onClic); }
+  }
+  /* sin repintar (no se pierde el cursor): se actualizan los importes y el resumen */
+  function actualiza(e){
+    var K=V.calc(e), A=AL(e), T=K.T, r=document.getElementById("alb-resumen");
+    var ch=document.getElementById("alb-comhint"), chh=comHint(K); if(ch&&ch.__h!==chh){ ch.innerHTML=chh; ch.__h=chh; }   /* solo si cambia: si no, se rehace el botón que se está pulsando y el clic se pierde */
+    if(r) r.innerHTML='<h2>Resumen <span class="alb-est '+(A.estado==="enviado"?"ok":"")+'">'+(A.estado==="enviado"?"Enviado":"Borrador")+'</span></h2>'+resumenHTML(e,K);
+    T.vinos.forEach(function(v){ var q=+((A.vinos||{})[v.id])||0, i=document.getElementById("alb-i-"+v.id); if(i) i.textContent=q>0?V.fmt(q*v.p):""; var row=U.host.querySelector('.alb-v[data-v="'+v.id+'"]'); if(row) row.classList.toggle("on",q>0); });
+  }
+  function onInput(ev){
+    var e=evActual(), t=ev.target; if(!e||!t||!t.getAttribute) return; var A=AL(e);
+    var env=t.getAttribute("data-ab-env"); if(env&&U.env){ U.env[env]=t.value; return; }
+    var q=t.getAttribute("data-ab-q");
+    if(q!==null){ A.vinos=A.vinos||{}; var n=Math.max(0,Math.round(num(t.value))); if(n>0) A.vinos[q]=n; else delete A.vinos[q]; clearTimeout(U.tm); U.tm=setTimeout(function(){ guardar(e); },500); actualiza(e); return; }
+    var f=t.getAttribute("data-ab"); if(!f) return;
+    if(f==="com"){ var c=t.value===""?"":Math.max(0,Math.round(num(t.value))); if(c===""||c===V.comensales(e).n) delete A.comensales; else A.comensales=c; }
+    else if(f==="fecha"||f==="tipo"||f==="num"||f==="nota") A[f]=t.value;
+    clearTimeout(U.tm); U.tm=setTimeout(function(){ guardar(e); },500);
+    if(f==="com"||ev.type==="change") actualiza(e);
+  }
+  function setQ(e,id,d){ var A=AL(e); A.vinos=A.vinos||{}; var n=Math.max(0,(+A.vinos[id]||0)+d); if(n>0) A.vinos[id]=n; else delete A.vinos[id]; guardar(e); var inp=U.host.querySelector('[data-ab-q="'+id+'"]'); if(inp) inp.value=n>0?n:""; actualiza(e); }
+  function mensajeCat(e,K){
+    var A=AL(e), f=V.fecha(e), tipo=V.tipo(e), vinos=K.porCat.reduce(function(a,c){ return a.concat(c.ls); },[]);
+    return "Bon dia,\n\nUs fem arribar l'albarà de l'esdeveniment del "+(f?(f.split("-").reverse().join("/")):"—")+(tipo?" ("+tipo+")":"")+" a Les Vinyes del Convent:\n\n"+
+      "· "+K.com+" comensals × "+V.fmtP(K.pc)+" = "+V.fmt(K.com*K.pc)+"\n"+
+      (vinos.length?vinos.map(function(l){ return "· "+l.q+" × "+l.n+" ("+V.fmtP(l.p)+") = "+V.fmt(l.imp); }).join("\n"):"· Cap vi consumit")+"\n\n"+
+      "Total de l'esdeveniment: "+V.fmt(K.sub)+"\n"+nf(K.pIva)+"% d'IVA: "+V.fmt(K.iva)+"\nTotal a facturar: "+V.fmt(K.total)+"\n\n"+
+      "Si us plau, envieu la factura a "+K.T.facturar+".\nAdjuntem l'albarà en PDF.\n\nMoltes gràcies,\n"+quien()+"\nLes Moles Events";
+  }
+  function onClic(ev){
+    var e=evActual(); if(!e) return; var b=ev.target.closest&&ev.target.closest("[data-ab-act]"); if(!b) return; var a=b.getAttribute("data-ab-act"), A=AL(e);
+    if(a==="inc"||a==="dec"){ setQ(e,b.getAttribute("data-id"),a==="inc"?1:-1); return; }
+    if(a==="tar"){ var k=b.getAttribute("data-k"); if(k) A.tarifa=k; else delete A.tarifa; guardar(e); pintaAlb(); return; }
+    if(a==="comauto"){ delete A.comensales; guardar(e); pintaAlb(); return; }
+    if(a==="hacer-vinyes"){ e.ficha=e.ficha||{}; e.ficha.ubicacion="Les Vinyes del Convent"; guardar(e); try{ if(window.syncAppbar) window.syncAppbar(); }catch(_){} pintaAlb(); return; }
+    if(a==="confirmar"){ var d=JSON.parse(JSON.stringify(BR.param("vinyes")||BR.vinyes.def())); d.confirmado=true; BR.setParam("vinyes",d); pintaAlb(); return; }
+    if(a==="pdf"){ V.pdf(e); return; }
+    if(a==="marcar"){ A.estado="enviado"; A.enviado={ts:Date.now(),por:quien(),a:V.calc(e).T.correo,manual:true}; guardar(e); pintaAlb(); toast("Marcado como enviado."); return; }
+    if(a==="reabrir"){ A.estado="borrador"; delete A.enviado; guardar(e); pintaAlb(); return; }
+    if(a==="enviar"){ var K=V.calc(e); U.env={ev:e.id,to:K.T.correo,subject:"Albarà de l'esdeveniment del "+(V.fecha(e)?V.fecha(e).split("-").reverse().join("/"):"")+" · Les Moles",text:mensajeCat(e,K)}; pintaAlb(); var ta=U.host.querySelector('[data-ab-env="text"]'); if(ta) ta.scrollIntoView({block:"center"}); return; }
+    if(a==="cancelar-env"){ U.env=null; pintaAlb(); return; }
+    if(a==="enviar-ya"){
+      if(!U.env||U.enviando) return; var em=String(U.env.to||"").trim(); if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ toast("Escribe un correo válido en «Para».",true); return; }
+      U.enviando=true; pintaAlb();
+      api("/api/correo/enviar","POST",{kind:"proveedor",ev:e.id,to:em,subject:U.env.subject,text:U.env.text,adjuntos:[{nombre:V.nombreArchivo(e)+".pdf",b64:V.pdfB64(e)}],ref:"alb:"+e.id+":"+Date.now()}).then(function(j){
+        U.enviando=false;
+        if(j._status===200){ A.estado="enviado"; A.enviado={ts:Date.now(),por:quien(),a:em,sim:j.estado==="simulado"}; guardar(e); U.env=null; toast(j.estado==="simulado"?"Guardado como SIMULADO: el correo aún no está activado, no ha salido.":"Albarán enviado a "+em+"."); }
+        else toast(j.message||"No se ha podido enviar el correo.",true);
+        pintaAlb(); }).catch(function(){ U.enviando=false; toast("Sin conexión con el servidor.",true); pintaAlb(); });
+    }
+  }
+  window.LM_renderAlbaran=function(host){ U.host=host; U.env=null; pintaAlb(); };
+  /* en la tarjeta del evento y en el Resumen */
+  window.LM_albaranChip=function(e){
+    try{ if(BR.localEv(e)!=="vinyes") return ""; var A=e.albaran||{}; if(A.estado==="enviado") return '<div class="ev-co ev-alb ok" title="El albarán de Les Vinyes ya está enviado">Albarán Les Vinyes: enviado</div>';
+      var f=e.ficha&&e.ficha.fecha; if(f&&f<=new Date().toISOString().slice(0,10)) return '<div class="ev-co ev-alb" title="El evento ya se celebró y falta pasarles el albarán">Albarán Les Vinyes: por pasar</div>'; }catch(_){} return "";
+  };
+  window.LM_albaranResumenHTML=function(e){
+    try{ if(BR.localEv(e)!=="vinyes") return ""; var A=e.albaran||{}, K=V.calc(e);
+      return '<div class="portal-st portal-act"><span><b>Les Vinyes del Convent</b> · albarán: '+(A.estado==="enviado"?'enviado el '+esc(fch(A.enviado.ts)):'borrador')+' · '+K.com+' comensales, '+K.botellas+(K.botellas===1?' botella':' botellas')+' · <b>'+esc(V.fmt(K.total))+'</b> a facturar</span><button class="btn sm'+(A.estado==="enviado"?"":" gold")+'" type="button" data-goto="albaran">'+(A.estado==="enviado"?"Ver el albarán":"Preparar el albarán")+'</button></div>'; }catch(_){ return ""; }
+  };
+
+  /* ═══ Parámetros → Les Vinyes del Convent: la tarifa ═══ */
+  var C={host:null};
+  function datosCfg(){ var d=BR.param("vinyes"); var T=V.tarifa(); return {v:1,correo:T.correo,facturar:T.facturar,iva:T.iva,comensal:{boda:T.comensal.boda,otros:T.comensal.otros},vinos:T.vinos.map(function(x){ return {id:x.id,cat:x.cat,n:x.n,p:x.p}; }),confirmado:!!(d&&d.confirmado)}; }
+  function guardaCfg(d){ BR.setParam("vinyes",d); }
+  function pintaCfg(){
+    var host=C.host; if(!host) return; var top=host.scrollTop, d=datosCfg();
+    var h='<div class="pv-inner alb-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Les Vinyes del Convent</h1><div class="pv-sub">Tarifa 2026</div>'+
+      '<p class="pv-guide">Lo que nos cobra Les Vinyes en los eventos que se celebran allí: un precio por comensal (las bodas, a uno; el resto de eventos, a otro) y cada botella de su carta, más IVA. Con esto se calcula el albarán de cada evento. Los cambios se guardan al salir de cada campo.</p></div></header>';
+    if(!esAdmin()){ host.innerHTML=h+'<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div></div>'; return; }
+    h+=(d.confirmado?'':'<div class="alb-aviso"><b>Comprueba cuál es cuál.</b> En la plantilla había dos filas «número de comensales», a 7 € y a 12 €, sin decir cuál era para bodas: se ha puesto <b>bodas 12 €</b> y <b>otros eventos 7 €</b>. <button type="button" class="btn sm" data-av="confirmar">Está bien así</button></div>')+
+      '<section class="alb-card"><h2>Por comensal <small>sin IVA</small></h2><div class="alb-f">'+
+        '<label class="fld"><span class="lbl">Bodas</span><input type="text" inputmode="decimal" data-av="boda" value="'+esc(nf(d.comensal.boda))+'" aria-label="Precio por comensal en bodas"></label>'+
+        '<label class="fld"><span class="lbl">Otros eventos</span><input type="text" inputmode="decimal" data-av="otros" value="'+esc(nf(d.comensal.otros))+'" aria-label="Precio por comensal en otros eventos"></label>'+
+        '<label class="fld"><span class="lbl">IVA %</span><input type="text" inputmode="decimal" data-av="iva" value="'+esc(nf(d.iva))+'"></label></div></section>'+
+      '<section class="alb-card"><h2>Correos</h2><div class="alb-f"><label class="fld"><span class="lbl">Les Vinyes (a quién se manda el albarán)</span><input type="email" data-av="correo" value="'+esc(d.correo)+'"></label>'+
+        '<label class="fld"><span class="lbl">Nos facturan a</span><input type="email" data-av="facturar" value="'+esc(d.facturar)+'"></label></div></section>'+
+      '<section class="alb-card"><h2>Vinos y precio por botella <small>sin IVA</small></h2>'+V.cats.map(function(c){ var vs=d.vinos.filter(function(v){ return v.cat===c[0]; });
+        return '<div class="alb-cat"><h3>'+esc(c[1])+'</h3>'+vs.map(function(v){ return '<div class="alb-vc" data-id="'+esc(v.id)+'"><input type="text" data-av-v="n" value="'+esc(v.n)+'" aria-label="Nombre del vino"><input type="text" inputmode="decimal" data-av-v="p" value="'+esc(nf(v.p))+'" aria-label="Precio de la botella"><span>€</span><button type="button" class="alb-b" data-av="del" data-id="'+esc(v.id)+'" aria-label="Quitar '+esc(v.n)+'">×</button></div>'; }).join("")+
+          '<button type="button" class="btn sm" data-av="add" data-cat="'+c[0]+'">+ Añadir un '+esc(c[1].toLowerCase())+'</button></div>'; }).join("")+'</section>'+
+      '<div class="alb-acc"><button type="button" class="btn sm danger" data-av="reset">Volver a la plantilla de 2026</button></div></div>';
+    host.innerHTML=h; host.scrollTop=top;
+    if(!host.__av){ host.__av=true; host.addEventListener("change",cfgCambio); host.addEventListener("click",cfgClic); }
+  }
+  function cfgCambio(ev){
+    var t=ev.target; if(!t||!t.getAttribute||!esAdmin()) return; var d=datosCfg(), k=t.getAttribute("data-av"), kv=t.getAttribute("data-av-v");
+    if(k==="boda"||k==="otros") d.comensal[k]=Math.max(0,num(t.value)); else if(k==="iva") d.iva=Math.max(0,num(t.value)); else if(k==="correo"||k==="facturar") d[k]=String(t.value||"").trim();
+    else if(kv){ var id=t.closest(".alb-vc").getAttribute("data-id"), v=d.vinos.filter(function(x){ return x.id===id; })[0]; if(!v) return; if(kv==="n") v.n=String(t.value||"").trim()||v.n; else v.p=Math.max(0,num(t.value)); }
+    else return;
+    d.confirmado=d.confirmado||false; guardaCfg(d); pintaCfg();
+  }
+  function cfgClic(ev){
+    var b=ev.target.closest&&ev.target.closest("[data-av]"); if(!b||!esAdmin()) return; var a=b.getAttribute("data-av"); if(["boda","otros","iva","correo","facturar"].indexOf(a)>=0) return;
+    var d=datosCfg();
+    if(a==="confirmar"){ d.confirmado=true; guardaCfg(d); pintaCfg(); }
+    else if(a==="add"){ var cat=b.getAttribute("data-cat"); d.vinos.push({id:"v"+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),cat:cat,n:"Vino nuevo",p:0}); guardaCfg(d); pintaCfg(); }
+    else if(a==="del"){ var id=b.getAttribute("data-id"); d.vinos=d.vinos.filter(function(x){ return x.id!==id; }); guardaCfg(d); pintaCfg(); toast("Vino quitado de la tarifa. Los albaranes que ya lo llevaban dejan de contarlo."); }
+    else if(a==="reset"){ var f=V.def(); f.confirmado=d.confirmado; guardaCfg(f); pintaCfg(); toast("Tarifa de 2026 restaurada."); }
+  }
+  window.LM_renderVinyesCfg=function(host){ C.host=host; pintaCfg(); };
+})();
+</script>
+
+
+<script>
 /* ══════════════════════════════════════════════════════════════════════
    PORTAL DEL CLIENTE — su página privada (enlace ?cliente=<token>).
    Se abre con ?cliente=<token> (o el antiguo ?novios=) en la URL. Salta el login por completo y pinta
@@ -25542,10 +25894,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
      control de acceso (hoy el admin lo ve todo). El servidor asigna el rol. */
   var ROLES={
     admin:{label:"Administrador", secciones:"*"},
-    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","presup","hist","plan","list","card","seat","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","fotos","docs","prev","consultas"]},
+    eventos:{label:"Eventos", secciones:["resumen","crm","timeline","tareas","presup","hist","plan","list","card","seat","montaje","m-sel","m-prod","m-compra","pedidos","m-aler","m-serv","m-bebida","m-esc","m-card","cam","cam-rep","cam-horas","cierre","avisos","portal","albaran","fotos","docs","prev","consultas"]},
     cocina:{label:"Cocina", secciones:["resumen","m-sel","m-prod","m-aler","m-serv","m-esc","inv","docs"]},
     compras:{label:"Compras", secciones:["resumen","m-compra","pedidos","prov","presup","inv","docs"]},
-    contabilidad:{label:"Contabilidad", secciones:["resumen","crm","presup","prov","pedidos","cam-horas","cierre","prev","docs"]},
+    contabilidad:{label:"Contabilidad", secciones:["resumen","crm","presup","prov","pedidos","cam-horas","cierre","albaran","prev","docs"]},
     servicio:{label:"Servicio", secciones:["resumen","cam","cam-rep","cam-horas","m-serv","m-esc","plan","list","montaje","docs"]}
   };
   var $=function(id){ return document.getElementById(id); };
@@ -25615,7 +25967,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(!ROLES_DEF){ ROLES_DEF={}; Object.keys(ROLES).forEach(function(k){ ROLES_DEF[k]=ROLES[k].secciones; }); }
     /* las secciones que se añaden en versiones nuevas llegan solas a los roles que las tienen de fábrica, salvo que el
        administrador ya haya guardado los permisos con esa sección a la vista (el servidor apunta cuáles conocía: _known) */
-    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos","consultas","presup","seat"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
+    var NUEVAS=["cam-horas","cierre","avisos","portal","pedidos","consultas","presup","seat","albaran"], known=(d.roles&&Array.isArray(d.roles._known))?d.roles._known:[];
     Object.keys(ROLES).forEach(function(k){
       if(k==="admin") return;
       var o=d.roles&&Array.isArray(d.roles[k])?d.roles[k]:null, lista=o?(o.indexOf("resumen")<0?["resumen"].concat(o):o.slice()):ROLES_DEF[k];
@@ -26209,6 +26561,7 @@ var GRUPOS_P=[
     ["p-comercial","Presupuesto y pagos","Primer pago, precios de partida, tipos de evento y servicios de proveedores.",["comercial"]],
     ["p-agenda","Agenda con el cliente","La señal y los pasos que se programan solos desde la fecha del evento.",["agenda"]],
     ["p-contrato","Contrato y propuesta","El texto del contrato, sus cláusulas y los datos de la empresa.",null],
+    ["p-vinyes","Les Vinyes del Convent","La tarifa por comensal (bodas y otros eventos), los vinos y sus precios para los albaranes.",null],
     ["p-consultas","Consultas web","El formulario público de consultas, sus tipos, salones y disponibilidad.",null],
     ["p-correo","Correo y avisos","La cuenta de envío, las plantillas y los recordatorios automáticos.",null]]},
   {t:"Sistema y datos", it:[

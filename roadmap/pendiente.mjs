@@ -67,7 +67,7 @@ const html = `<!doctype html>
 
 <div class="resumen">
 <div><b>${ok} de ${tot}</b><span>casillas de las fases hechas; las ${tot - ok} que quedan vacías dependen del correo, del contrato y de dos mejoras de calidad</span></div>
-<div><b>${nTuyo}</b><span>cosas que dependen del restaurante (3 urgentes, 8 antes del primer evento real, 4 sin prisa)</span></div>
+<div><b>${nTuyo}</b><span>cosas que dependen del restaurante (${pendienteTuyo[0].items.length} urgentes, ${pendienteTuyo[1].items.length} antes del primer evento real, ${pendienteTuyo[2].items.length} sin prisa)</span></div>
 <div><b>${esperaOk.length}</b><span>decisiones que esperan tu OK: el rediseño visual y una fila de la escaleta</span></div>
 <div><b>${puedoHacer.length}</b><span>mejoras que puedo hacer cuando me lo pidas, con su estimación</span></div>
 </div>

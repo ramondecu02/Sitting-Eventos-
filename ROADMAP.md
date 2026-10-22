@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.16** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.17** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,17 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.17
+- **Aprobar el menú y la minuta, en un solo paso.** Antes el menú se enseñaba al cliente en cuanto tenía platos y la minuta había que «publicarla» a mano desde otra pantalla. Ahora hay una tarjeta **«Aprobación del cliente»** arriba de «Elegir platos», de «Menú para invitados» y de «Portal del cliente», con cuatro pasos (cerrar el menú · minuta lista · enviado al cliente · aprobado) y **un solo botón que dice qué toca**:
+  - **«Cerrar el menú y enviar a aprobar»:** cierra el menú, crea y publica la minuta (si no estaba diseñada, la monta sola con el diseño de la casa; si el menú cambió, la pone al día) y deja un mensaje al cliente en su portal. Casilla «Incluir la minuta» para eventos sin minuta.
+  - Mientras el menú está **abierto**, el cliente lo ve como borrador («Estamos cerrando el menú…») y **no puede aprobarlo** (el servidor también lo impide). Los eventos que ya tenían una aprobación siguen como estaban.
+  - **Esperando al cliente:** se ve cuándo se envió y se ofrece «Copiar un recordatorio», «Avisar por WhatsApp» y «Avisar por correo». **Si cambias un plato o la minuta después**, la tarjeta dice «Has cambiado algo desde que se envió» y ofrece «Enviar los cambios a aprobar»; el cliente tiene que volver a aprobar. «Volver a abrir el menú» lo deja otra vez como borrador.
+  - El Resumen del evento dice «Menú: abierto / enviado / aprobado» y lleva el botón «Cerrar y enviar a aprobar».
+- **Les Moles y Les Vinyes del Convent, bien diferenciados.** En la ficha, «Local del evento» son **tres botones** (Les Moles · Les Vinyes del Convent · Catering / otro lugar) en vez de un texto libre. Cada local tiene su color y una **insignia** que se ve en la tarjeta de cada evento, en el menú lateral (evento activo), en el Resumen, en el desplegable de eventos y como cuadradito en el calendario; en Inicio hay un **filtro por local**. Sigue cuadrando con la Previsión y las consultas web.
+- **Albarán para Les Vinyes del Convent** (solo en los eventos que se celebran allí): la sección **«Albarán Les Vinyes»** (Planificación) aparece sola en esos eventos. Lleva la fecha, el tipo, los **comensales** (los del plano, sin staff ni tronas, corregibles), la **tarifa por comensal** (bodas a un precio y el resto de eventos a otro, elegida por el tipo de evento y cambiable) y las **botellas de vino consumidas** de su carta (13 vinos con su precio, en 5 grupos), con el total, el IVA y **«Total a facturar»** al momento, como su plantilla de Excel. **Descargar PDF** (en català) y **Enviar por correo** a `enoturisme@lesvinyesdelconvent.com` con el PDF adjunto y el mensaje preparado (queda «simulado» mientras el correo no esté activado); ellos facturan a `contabilidad@lesmoles.com`. Estado «borrador / enviado» y aviso en Inicio de los eventos celebrados sin albarán.
+  - **Parámetros → Les Vinyes del Convent:** precio por comensal (bodas / otros eventos), IVA, los dos correos y la lista de vinos con su precio (se pueden cambiar, añadir y quitar). Viene con la tarifa de 2026 de la plantilla. **Ojo:** la plantilla tenía dos filas «número de comensales» (7 € y 12 €) sin decir cuál era de bodas; se ha puesto **bodas 12 € y otros 7 €** y la app avisa hasta que un administrador pulsa «Está bien así».
+  - Lo ven los roles Administración, Eventos y Contabilidad (Contabilidad descarga el PDF; el envío por correo es de Administración y Eventos).
 
 ### Novedad de la versión 02.16
 - **Minuta y escaleta con lo justo de bebida.** Lo que se imprime ya no lleva todas las bebidas del evento:
@@ -686,6 +697,7 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 | 7 | **Consultas web:** activar el formulario en Parámetros → Consultas web, decidir tipos, salones y si dice «fecha libre», y poner el enlace `…/?consulta` en tu web, Instagram y Google Business | Tú | Recibir consultas |
 | 8 | **Vigilante externo:** un monitor gratuito (p. ej. UptimeRobot) que mire `…/api/health` | Tú (5 minutos) | Enterarte si la app se cae |
 | 9 | **Precios del «Análisis de compras»** del Maître: volver a importarlos cuando cambien | Quien compra | Costes estimados al día |
+| 12 | **Les Vinyes del Convent:** en Parámetros → Les Vinyes del Convent, confirmar cuál de los dos precios por comensal (12 € o 7 €) es el de bodas y cuál el de los demás eventos, repasar los precios de los vinos y pulsar «Está bien así»; probar el albarán con un evento real y avisar a Les Vinyes del correo desde el que les llegará | Tú | Albaranes correctos desde el primer evento |
 | 11 | **Revisar el catalán y el inglés de los menús:** que alguien que hable catalán repase en Parámetros → «Traducciones del menú» los platos traducidos a mano y el glosario de cocina; lo que se corrige allí se aplica a la minuta y al portal | Alguien de sala o cocina | Menús en català y English sin erratas de cara al cliente |
 | 10 | **Un evento piloto de principio a fin** (consulta → contrato → pedidos → servicio → cierre) y apuntar lo que chirríe | Equipo | Pulir con uso real |
 

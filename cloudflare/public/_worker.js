@@ -567,15 +567,16 @@ async function storeGet(request, env) {
    · comunicaciones con el cliente → quien tenga «comm»; teléfono, correo, notas… de la ficha → «crm» o «portal»;
    · Previsión de banquetes → «prev». */
 const ROLES_DEF = {
-  eventos: ["resumen", "crm", "timeline", "tareas", "presup", "hist", "plan", "list", "card", "seat", "montaje", "m-sel", "m-prod", "m-compra", "pedidos", "m-aler", "m-serv", "m-bebida", "m-esc", "m-card", "cam", "cam-rep", "cam-horas", "cierre", "avisos", "portal", "fotos", "docs", "prev", "consultas"],
+  eventos: ["resumen", "crm", "timeline", "tareas", "presup", "hist", "plan", "list", "card", "seat", "montaje", "m-sel", "m-prod", "m-compra", "pedidos", "m-aler", "m-serv", "m-bebida", "m-esc", "m-card", "cam", "cam-rep", "cam-horas", "cierre", "avisos", "portal", "albaran", "fotos", "docs", "prev", "consultas"],
   cocina: ["resumen", "m-sel", "m-prod", "m-aler", "m-serv", "m-esc", "inv", "docs"],
   compras: ["resumen", "m-compra", "pedidos", "prov", "presup", "inv", "docs"],
-  contabilidad: ["resumen", "crm", "presup", "prov", "pedidos", "cam-horas", "cierre", "prev", "docs"],
+  contabilidad: ["resumen", "crm", "presup", "prov", "pedidos", "cam-horas", "cierre", "albaran", "prev", "docs"],
   servicio: ["resumen", "cam", "cam-rep", "cam-horas", "m-serv", "m-esc", "plan", "list", "montaje", "docs"],
 };
-const SEC_NUEVAS = ["cam-horas", "cierre", "avisos", "portal", "pedidos", "consultas", "presup", "seat"];   /* igual que en la app: llegan solas a quien las tiene de fábrica */
+const SEC_NUEVAS = ["cam-horas", "cierre", "avisos", "portal", "pedidos", "consultas", "presup", "seat", "albaran"];   /* igual que en la app: llegan solas a quien las tiene de fábrica */
 const PUERTAS = [
   { sec: ["portal"], ev: ["share", "contrato"] },
+  { sec: ["albaran"], ev: ["albaran"] },
   { sec: ["presup"], ev: ["presupuesto", "_snap"] },
   { sec: ["comm"], ev: ["comunicaciones"] },
   { sec: ["crm", "portal"], ficha: ["contacto", "telefono", "email", "origen", "comoNos", "notas", "foto"] },
