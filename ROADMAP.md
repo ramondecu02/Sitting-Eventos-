@@ -694,6 +694,6 @@ El resumen de todo lo pendiente, en tres páginas, está en `ROADMAP_pendiente.p
 - Proveedor de **firma electrónica avanzada** si el contrato necesita más validez.
 - Claves de **Turnstile** para el formulario si algún día entra spam.
 - **Auditoría con varios revisores** de toda la app.
-- **Pruebas automáticas en cada entrega:** llevar las unas 40 pruebas de navegador al repositorio y que GitHub las ejecute en cada subida (incluye arreglar 3 pruebas antiguas que ya fallaban).
+- **Pruebas automáticas en cada entrega:** llevar unas 40 pruebas de navegador al repositorio y que GitHub las ejecute en cada subida (incluye arreglar 3 pruebas antiguas que ya fallaban).
 - **Pegar la lista de invitados desde un Excel con columnas** (nombre | alergia | tipo); hoy se pega una persona por línea.
 - Permitir el **zoom en el móvil** (hoy bloqueado a petición tuya).
