@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.15** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.16** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.16
+- **Minuta y escaleta con lo justo de bebida.** Lo que se imprime ya no lleva todas las bebidas del evento:
+  - **La minuta** (la que se pone en las mesas para seguir el menú) lleva solo los **vinos**: vino blanco, vino tinto, cava, cava rosado y las bebidas propias que sean vino (por ejemplo «Vino rosado · Raimat»). Ya no salen el agua, la cerveza, los licores, los refrescos ni las demás bebidas propias. «Barra libre» sigue en la pista de baile porque es el programa de la fiesta, no una bebida. Vale en castellano, català y English.
+  - **La escaleta** lleva solo el **agua y los vinos**, en una sección «Agua y vinos» con su marca y cuántas botellas.
+  - **El cálculo y la previsión de bebidas no cambian:** Bebida (Previsión y Consumo real) y la lista de compra siguen con todas las bebidas, y el resumen del evento las sigue enseñando. Una minuta que ya se había editado a mano conserva su texto; para quitarle las bebidas de antes, «Volver al texto automático».
 
 ### Novedad de la versión 02.15
 - **Portal de clientes pulido** (sin cambiar su estilo: mismas letras y colores de la casa, más cuidado en los detalles):

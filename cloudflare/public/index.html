@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.15 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.16 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.15".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.16".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4518,7 +4518,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.15</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.16</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10177,7 +10177,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.15</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.16</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11283,7 +11283,7 @@ function resumenDoc(e){
   try{ var sa=sec("Aperitivos"); if(sa) sa.filas.forEach(function(f){ if(jam||f.sust||f.head) return; if(!/jam[oó]n/i.test((f.txt||"")+" "+(f.sub||""))) return;
     var pl=String(f.txt||"").replace(/^\d+\.\s*/,"").replace(/^Jamón\s*·\s*/i,""), marca=String(f.sub||"").replace(/\s*·?\s*a cortar\s*$/i,"").trim(), esMarca=marca&&!/^por mesa$/i.test(marca);
     jam='<div class="jm"><span>Jamón</span><b>'+escH(esMarca?marca:pl)+'</b>'+(f.q?'<em>'+escH(f.q)+'</em>':'')+(esMarca&&pl!==marca?'<i>'+escH(pl)+'</i>':'')+'</div>'; }); }catch(_){}
-  var bebs=[]; try{ var sb=sec("Bebidas"); if(sb) sb.filas.forEach(function(f){ if(f.head||f.sust||!f.txt) return;
+  var bebs=[]; try{ var sb={filas:(md&&md.bebTodas)||[]}; if(sb) sb.filas.forEach(function(f){ if(f.head||f.sust||!f.txt) return;
     var m=/^([\d.,]+)\s*(.*)$/.exec(String(f.q||"")); bebs.push({n:m?m[1]:"",u:m?m[2]:"",t:f.txt,s:f.sub||""}); }); }catch(_){}
   var bebHTML=bebs.length?'<div class="bb">'+bebs.map(function(b){ return '<div class="b"><b>'+escH(b.n||"—")+(b.u?'<small>'+escH(b.u)+'</small>':'')+'</b><span>'+escH(b.t)+'</span>'+(b.s?'<i>'+escH(b.s)+'</i>':'')+'</div>'; }).join("")+'</div>':'<p class="muted">Bebidas por definir.</p>';
   /* ── mesas y material ── */
@@ -16800,6 +16800,13 @@ function bebidaLineas(real){
     out.push({key:"x:"+x.id,extra:x,label:String(x.label||"").trim()||"Bebida",prod:String(x.prod||"").trim(),q:+x.q||0,calc:null,manual:true,ud:x.ud||"botellas",base:1}); });
   return out;
 }
+/* v02.16 · lo que va en PAPEL: la minuta (la que se pone en las mesas) lleva solo los vinos; la escaleta, el agua y los vinos.
+   Cerveza, licores, refrescos y las bebidas propias se calculan y se ven en «Bebida», pero no salen en esos documentos.
+   Cuentan como vino el vino blanco, el tinto, el cava y el cava rosado, y las bebidas propias cuyo nombre diga vino, cava o champán. */
+function esVinoLinea(l){ if(!l) return false; if(l.key==="blanco"||l.key==="tinto"||l.key==="cava"||l.key==="cavaRosado") return true;
+  if(l.cat) return false; return /(^|[^a-zà-ÿ])(vino|vinos|vi|vins|wine|cava|champ[aá]n|champagne)([^a-zà-ÿ]|$)/i.test(String(l.label||"")+" "+String(l.prod||"")); }
+function esAguaLinea(l){ if(!l) return false; if(l.key==="agua") return true; if(l.cat) return false; return /(^|[^a-zà-ÿ])(agua|aigua|water)([^a-zà-ÿ]|$)/i.test(String(l.label||"")+" "+String(l.prod||"")); }
+function bebidaLineasPapel(conAgua){ return bebidaLineas().filter(function(l){ return esVinoLinea(l)||(conAgua&&esAguaLinea(l)); }); }
 function prodInput(k,val,opciones,ph){
   var dl="beb-dl-"+String(k).replace(/[^a-z0-9]/gi,"");
   return '<input class="beb-prod" type="text" data-k="'+esc(k)+'" list="'+dl+'" value="'+esc(val||"")+'" placeholder="'+esc(ph||"Elegir o escribir…")+'" aria-label="Producto">'+
@@ -17498,12 +17505,10 @@ function parejaBonita(txt){
 function bodegaLineas(L,doTxt){
   L=L||mnLang("es"); var out=[], ca=L.id==="ca";
   function sinColor(n){ return String(n).replace(/^(vino\s+|vi\s+|wine\s+)?(tinto|blanco|negre|blanc|rosado|rosat|red|white|rosé)\s+/i,"").replace(/\s+(tinto|blanco|negre|blanc|rosado|rosat)$/i,"").trim(); }
-  try{ bebidaLineas().forEach(function(l){
+  try{ bebidaLineasPapel(false).forEach(function(l){      /* en la minuta, solo los vinos (nada de agua, cerveza, licores, refrescos ni otras bebidas) */
     if(!l.q&&!l.prod) return;
-    if(l.cat&&l.cat.grupo) return;                  /* cerveza, licores y refrescos: no salen en la minuta */
     var prod=String(l.prod||"").replace(/\s*\([^)]*\)\s*$/,"").trim(), lab=String(l.label||"").trim(), k=l.key, txt="";
-    if(k==="agua") txt=prod?prod.replace(/^agua\b/i,mnL3(L.id,"Agua","Aigua","Water")):L.agua;
-    else if(k==="blanco"||k==="tinto"){ txt=prod?L.vi[k]+" "+sinColor(prod):L.vi[k]; if(doTxt) txt+=" "+doTxt; }
+    if(k==="blanco"||k==="tinto"){ txt=prod?L.vi[k]+" "+sinColor(prod):L.vi[k]; if(doTxt) txt+=" "+doTxt; }
     else if(k==="cava") txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+" "+prod):L.cava;
     else if(k==="cavaRosado"){ var ros=mnL3(L.id," rosado"," rosat"," rosé"); txt=prod?(/^cava\b/i.test(prod)?prod:L.cava+ros+" "+prod):L.cava+ros; }
     else txt=prod||lab;
@@ -18156,10 +18161,12 @@ function escModelo(){
       md.secs.push({t:"Alergias",sub:"por tipo",filas:fa});
     }
   }
-  /* bebidas: solo bebidas (el jamón va con los aperitivos) */
-  var bl=bebidaLineas().filter(function(l){ return l.q||l.prod; });
-  if(bl.length) md.secs.push({t:"Bebidas",filas:bl.map(function(l){ var m=l.prod||l.label;
-    return {txt:m, sub:escNorm(m)===escNorm(l.label)?"":l.label, q:l.q?l.q+" "+udCorta(l.ud):""}; })});
+  /* bebidas: en la escaleta solo el agua y los vinos (el jamón va con los aperitivos); el resto se calcula y se ve en «Bebida».
+     El resumen del evento sí enseña todas, por eso se guardan aparte en md.bebTodas */
+  var filaBeb=function(l){ var m=l.prod||l.label; return {txt:m, sub:escNorm(m)===escNorm(l.label)?"":l.label, q:l.q?l.q+" "+udCorta(l.ud):""}; };
+  var blAll=bebidaLineas().filter(function(l){ return l.q||l.prod; }), bl=blAll.filter(function(l){ return esVinoLinea(l)||esAguaLinea(l); });
+  md.bebTodas=blAll.map(filaBeb);
+  if(bl.length) md.secs.push({t:"Agua y vinos",filas:bl.map(filaBeb)});
   /* ── aperitivos: los normales en el orden de salida y, debajo, los
      adaptados con para quién (el reparto por persona se ve y se retoca en
      «Datos de la escaleta · Aperitivos por persona») ── */
