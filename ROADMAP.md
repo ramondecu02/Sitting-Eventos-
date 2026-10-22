@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.17** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.18** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,10 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.18
+- **Todo lo que está en la mesa de staff cuenta, y se cobra, como staff.** Antes solo contaban como staff los que no llevaban ninguna marca: quien tenía «(vegetariano)», «(vegano)» o «(niño)» en la mesa de staff se contaba como invitado normal y se cobraba al precio de adulto (o de niño). Ahora **todos** los de una mesa cuyo nombre lleve «staff» o «personal» son staff en el presupuesto, la escaleta, el servicio y el portal del cliente, **y conservan su dieta** (el vegetariano sigue saliendo para cocina). Además, una línea escrita como «-Marc» (la raya pegada al nombre) ya no se queda con la raya en el nombre.
+- **El resumen de la Previsión sigue a los filtros.** Las cuatro tarjetas de arriba (Confirmadas, Pendientes, Bodas y Comensales) eran siempre las del año entero. Ahora cuentan solo lo que se ve con el filtro de estado, tipo, espacio o búsqueda: con «Les Vinyes» salen las confirmadas, los comensales y las bodas de Les Vinyes. Cuando hay un filtro puesto, lo dice («Las cifras son solo de lo que ves»), la cabecera pone «12 de 55 celebraciones (con el filtro)» y hay un botón «Quitar los filtros».
 
 ### Novedad de la versión 02.17
 - **Aprobar el menú y la minuta, en un solo paso.** Antes el menú se enseñaba al cliente en cuanto tenía platos y la minuta había que «publicarla» a mano desde otra pantalla. Ahora hay una tarjeta **«Aprobación del cliente»** arriba de «Elegir platos», de «Menú para invitados» y de «Portal del cliente», con cuatro pasos (cerrar el menú · minuta lista · enviado al cliente · aprobado) y **un solo botón que dice qué toca**:
