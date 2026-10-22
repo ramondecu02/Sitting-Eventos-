@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Les Moles Events · Lo que queda por hacer</title><style>
+@font-face{font-family:'Instrument Sans';src:url('fonts/instrument-sans-latin-400-normal.woff2') format('woff2');font-weight:400;font-style:normal}
+@font-face{font-family:'Instrument Sans';src:url('fonts/instrument-sans-latin-400-italic.woff2') format('woff2');font-weight:400;font-style:italic}
+@font-face{font-family:'Instrument Sans';src:url('fonts/instrument-sans-latin-700-normal.woff2') format('woff2');font-weight:700;font-style:normal}
+@font-face{font-family:'Instrument Serif';src:url('fonts/instrument-serif-latin-400-normal.woff2') format('woff2');font-weight:400;font-style:normal}
+:root{--ink:#1a1a1a;--ink2:#2a2a27;--mut:#56554e;--mut2:#8d8c80;--ol:#6e7d50;--ol2:#b9c29e;--line:#cfcbb6;--cream:#f1efe4;--cardok:#f8faf3}
+@page{size:A4;margin:13mm 14mm 17mm}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;font:9.1pt/1.32 'Instrument Sans','Liberation Sans',Arial,sans-serif;color:var(--ink)}
+h1,h2,h3{font-family:'Instrument Serif','Liberation Serif',Georgia,serif;font-weight:400;margin:0}
+ul{list-style:none;margin:0;padding:0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--ink);padding-bottom:6pt}
+.top .k{font-weight:700;font-size:7.3pt;letter-spacing:.3em;text-transform:uppercase;color:var(--ol)}
+.top h1{font-size:23pt;line-height:1.05;margin-top:3pt}
+.top .r{text-align:right;font-size:7.8pt;color:var(--mut);line-height:1.45}
+.top .r b{color:var(--ink)}
+.leyenda{display:flex;gap:16pt;align-items:center;background:var(--cream);border-radius:3pt;padding:5pt 9pt;margin:9pt 0 12pt;font-size:7.6pt;color:var(--mut)}
+.leyenda span{display:inline-flex;gap:5pt;align-items:center}
+h2.sec{font-size:15pt;margin:14pt 0 6pt;break-after:avoid}
+h2.sec small{font:400 8.4pt 'Instrument Sans',sans-serif;color:var(--mut);margin-left:6pt}
+.lista li{display:flex;gap:7pt;align-items:flex-start;padding:2.2pt 0;break-inside:avoid}
+.lista li .cb{margin-top:1.4pt}
+.nw{white-space:nowrap}
+.lista .sub{display:block;font-style:italic;font-size:7.6pt;color:var(--mut)}
+.cb{flex:none;display:inline-block;width:8.6pt;height:8.6pt;border:.75pt solid var(--ink);border-radius:2pt;background:#fff}
+.cb.on{background:var(--ol) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 5.2 4.2 7.4 8 2.8' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% 100% no-repeat;border-color:var(--ol)}
+.cb.big{width:12pt;height:12pt;border-width:1.5pt;border-radius:3pt}
+.cb.on.big{border-color:var(--ol)}
+table{width:100%;border-collapse:collapse;font-size:8.6pt}
+th{font-weight:700;font-size:7pt;letter-spacing:.22em;text-transform:uppercase;color:var(--ol);text-align:left;padding:3pt 4pt;border-bottom:1.2pt solid var(--ink)}
+td{padding:5pt 4pt;border-bottom:.6pt solid var(--line);vertical-align:top}
+tr{break-inside:avoid}
+td.d,td.v{white-space:nowrap}
+td.d{width:58pt}td.v{width:44pt;text-align:right;color:var(--mut)}
+td.d .cb{margin-right:7pt;vertical-align:-1.5pt}
+.fase{break-before:page}
+.fase.f1{break-before:auto}
+.banner{display:flex;align-items:baseline;gap:9pt;background:var(--cream);border-bottom:2pt solid var(--ink);padding:7pt 9pt 6pt;margin:12pt 0 10pt;break-after:avoid}
+.banner .fn{font-weight:700;font-size:8pt;letter-spacing:.3em;text-transform:uppercase;color:var(--ol)}
+.banner h2{font-size:17pt}
+.banner .sub{font-size:8.8pt;color:var(--mut)}
+.banner em{margin-left:auto;font-size:8pt;color:var(--mut)}
+.card{border:1px solid var(--line);border-left:3pt solid var(--ol);border-radius:4pt;background:#fff;padding:8pt 11pt 6pt;margin:0 0 9pt;break-inside:avoid}
+.card.done{background:var(--cardok);border-left-color:var(--ol2)}
+.card header{display:flex;gap:9pt;align-items:flex-start}
+.card header .ttl{flex:1;min-width:0}
+.num{font-weight:700;font-size:7.8pt;letter-spacing:.14em;color:var(--ol)}
+.card h3{font-size:13.2pt;line-height:1.15;margin-top:1pt}
+.meta{text-align:right;white-space:nowrap;line-height:1.35}
+.meta b{display:block;font-size:8.6pt}
+.meta span{font-size:7.8pt;color:var(--mut)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18pt;margin-top:5pt}
+.cols h4{margin:0 0 4pt;font-weight:700;font-size:7.3pt;letter-spacing:.24em;text-transform:uppercase;color:var(--ol)}
+.cols li{display:flex;gap:7pt;align-items:flex-start;padding:1.6pt 0;line-height:1.3}
+.cols li .cb{margin-top:1.5pt;width:8pt;height:8pt}
+.cols ul.hc li{font-style:italic;color:var(--ink2)}
+.card footer{display:flex;justify-content:flex-end;gap:16pt;margin-top:7pt;padding-top:4pt;border-top:.7pt dashed var(--line);font-size:7.3pt;color:var(--mut2)}
+.card footer i{display:inline-block;width:70pt;border-bottom:.7pt solid var(--mut2);margin-left:4pt}
+.fin{break-before:auto;padding-top:6pt}
+
+.resumen{display:grid;grid-template-columns:repeat(4,1fr);gap:8pt;margin:9pt 0 4pt}
+.resumen div{background:var(--cream);border-radius:3pt;padding:7pt 9pt;break-inside:avoid}
+.resumen b{display:block;font:400 21pt/1 'Instrument Serif','Liberation Serif',Georgia,serif;color:var(--ink)}
+.resumen span{display:block;margin-top:3pt;font-size:7.6pt;line-height:1.3;color:var(--mut)}
+.lead{font-size:9.4pt;line-height:1.4;margin:9pt 0 0;color:var(--ink2)}
+h3.gr{display:flex;gap:8pt;align-items:baseline;font-size:13.4pt;margin:12pt 0 4pt;break-after:avoid}
+h3.gr span{font:700 7.8pt 'Instrument Sans','Liberation Sans',Arial,sans-serif;letter-spacing:.14em;color:var(--ol)}
+table.pend{table-layout:fixed}
+table.pend td{font-size:8.3pt;line-height:1.32}
+table.pend th.n,table.pend td.n{width:36pt;white-space:nowrap}
+table.pend td.n .cb{margin-right:4pt;vertical-align:-1.5pt}
+table.pend td.n b{font-size:7.8pt;color:var(--ol);letter-spacing:.06em}
+table.pend th.q,table.pend td.q{width:62pt;color:var(--mut)}
+table.pend th.u,table.pend td.u{width:120pt;color:var(--mut)}
+.ok-box{border:1px solid var(--line);border-left:3pt solid var(--ol);border-radius:4pt;padding:7pt 11pt;margin:0 0 7pt;break-inside:avoid;background:#fff}
+.ok-box h4{margin:0 0 2pt;font:700 8.8pt 'Instrument Sans','Liberation Sans',Arial,sans-serif;display:flex;gap:7pt;align-items:center}
+.ok-box p{margin:0 0 0 15pt;font-size:8.4pt;line-height:1.35;color:var(--ink2)}
+table.yo td.e{width:62pt;white-space:nowrap;color:var(--mut)}
+table.yo td.t{width:150pt;font-weight:700}
+table.yo td{font-size:8.3pt}
+table.yo td.t .cb{margin-right:6pt;vertical-align:-1.5pt}
+table.ab td{font-size:8.1pt}
+table.ab td.a{width:98pt;font-weight:700}
+table.ab td.c{width:118pt;color:var(--mut)}
+.pie-nota{margin-top:11pt;padding-top:5pt;border-top:.7pt dashed var(--line);font-size:7.6pt;color:var(--mut)}
+</style></head><body>
+<div class="top"><div><div class="k">Les Moles Events</div><h1>Lo que queda por hacer</h1></div>
+<div class="r"><b>Versión 02.15</b> · 22 de octubre de 2026<br>Qué falta, quién lo desbloquea y qué puedo hacer yo<br>Las fases de desarrollo están terminadas</div></div>
+
+<p class="lead">El programa ya hace todo lo que el roadmap prometía. <b>Lo imprescindible que queda no es programar, es activar y decidir:</b> una cuenta de correo, un par de decisiones y la revisión del contrato por tu asesor. Con eso se pasa de «probado» a «en uso». Ordenado de lo más a lo menos urgente.</p>
+
+<div class="resumen">
+<div><b>134 de 142</b><span>casillas de las fases hechas; las 8 que quedan vacías dependen del correo, del contrato y de dos mejoras de calidad</span></div>
+<div><b>15</b><span>cosas que dependen del restaurante (3 urgentes, 8 antes del primer evento real, 4 sin prisa)</span></div>
+<div><b>2</b><span>decisiones que esperan tu OK: el rediseño visual y una fila de la escaleta</span></div>
+<div><b>7</b><span>mejoras que puedo hacer cuando me lo pidas, con su estimación</span></div>
+</div>
+
+<h2 class="sec">A · Lo que depende del restaurante <small>el número es el de la sección 8 de ROADMAP.md</small></h2>
+
+<h3 class="gr"><span>1</span>Lo primero · sin esto no se puede empezar en serio</h3>
+<table class="pend"><thead><tr><th class="n">N.º</th><th>Qué hay que hacer</th><th class="q">Quién</th><th class="u">Qué desbloquea</th></tr></thead><tbody>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>1</b></td><td>Cuenta de correo (Resend, gratuita) con el dominio del restaurante verificado (lo que tarda es el DNS). Secretos RESEND_API_KEY, MAIL_FROM y CRON_TOKEN en cada proyecto de Cloudflare Pages; en GitHub, el secreto CRON_TOKEN, la variable SITE_URL y avisos.yml en la rama principal. Al activarlo se cierran 3 casillas de la fase 3: llega el resumen del lunes a las 8:00, un cliente de prueba recibe el recordatorio de la lista y cada envío queda registrado</td><td class="q">Tú</td><td class="u">Que salgan de verdad los avisos a clientes y camareros, el resumen semanal, los resúmenes por departamento (02.14), los pedidos a proveedores y el acuse de las consultas. Hoy todo queda «simulado» en la bandeja</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>2</b></td><td>Decidir cuál de los tres proyectos de Cloudflare Pages es el de producción y desconectar los otros dos</td><td class="q">Tú</td><td class="u">Que nadie entre en una copia sin datos</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>3</b></td><td>Definir las personas: nombre, correo y teléfono de cada perfil (Administrador —Jeroni—, Eventos, Cocina, Compras, Contabilidad y Servicio) e invitarlas desde «Equipo y accesos»; una persona de referencia que apruebe cada entrega; dos administradores como mínimo; decidir si Eventos ve Proveedores y Comunicación. Poner también el correo de cada persona (y hasta 4 extra por departamento) para que reciban su resumen</td><td class="q">Tú</td><td class="u">Empezar a usarlo en serio y que cada departamento reciba lo suyo</td></tr>
+</tbody></table>
+
+<h3 class="gr"><span>2</span>Antes del primer evento real</h3>
+<table class="pend"><thead><tr><th class="n">N.º</th><th>Qué hay que hacer</th><th class="q">Quién</th><th class="u">Qué desbloquea</th></tr></thead><tbody>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>4</b></td><td>Contrato: que el administrador lea el texto base (es vuestro contrato de siempre, castellano y català) en Parámetros → Contrato y propuesta, idealmente con el asesor, lo marque como «revisado» y confirme los datos de la empresa y el IBAN; decidir si basta la firma electrónica simple. Las erratas del Word siguen ahí («Efectivida», dos «Tercera» en catalán…) y se corrigen con «Editar sobre el papel». Al hacerlo se cierran 3 casillas de la fase 4: contrato de prueba, aceptación desde el portal y revisión del asesor</td><td class="q">Tú + asesor</td><td class="u">Poder publicar contratos a los clientes</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>4b</b></td><td>Documentos de clientes: cuántos días se guardan los DNI tras el evento (hoy 90) y cuánto los justificantes de pago (hoy, hasta anonimizar el evento; contabilidad suele exigir años). Y que el primer pago del contrato (3 semanas antes) coincida con el aviso de la agenda (hoy 18 días)</td><td class="q">Tú + asesor</td><td class="u">Cumplir RGPD y obligaciones contables; que el cliente no reciba dos fechas</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>4c</b></td><td>Portal del cliente: cuántos días después del evento se cierra (hoy 30) y crear enlace nuevo en los eventos que aún tengan un enlace antiguo y corto (esa pantalla los lista)</td><td class="q">Tú</td><td class="u">Que el IBAN, el presupuesto y el contrato no queden abiertos para siempre</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>5</b></td><td>Datos del responsable de privacidad en Parámetros → Privacidad y datos, y que el asesor revise los textos del aviso y del consentimiento</td><td class="q">Tú + asesor</td><td class="u">RGPD con los textos propios del restaurante</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>6</b></td><td>Proveedores de compra: darlos de alta (nombre, teléfono, correo) y asignarles los artículos la primera vez</td><td class="q">Quien compra</td><td class="u">Pedidos agrupados por proveedor</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>7</b></td><td>Consultas web: activar el formulario, elegir tipos y salones y si dice «fecha libre», y poner el enlace …/?consulta en la web, Instagram y Google Business</td><td class="q">Tú</td><td class="u">Recibir consultas</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>3b</b></td><td>Cargar los Excel de Previsión 2027 y 2028 con «Importar Excel» y revisar los casos dudosos: «Boda Laia i Albert» (¿12/06/2027?), «Comida Jordi Aleu» (la hoja decía 2026), «Boda Núria i Victor» (solo «octubre» y un teléfono raro), «Boda Zaida» (1/1/2028) y «Laura y Sergi» (solo el nombre). Si «Laia i Albert» se creó dos veces, borrar la repetida</td><td class="q">Tú</td><td class="u">Previsión al día</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>4d</b></td><td>Platos por completar (Parámetros → Platos y escandallo → «Con avisos»): tabla de quesos y tarta tatin sin escandallo, sopa fría de tomate con ingredientes sin cantidad; y confirmar con cocina los alérgenos de los 346 ingredientes (Parámetros → Alérgenos)</td><td class="q">Cocina</td><td class="u">Producción, «Qué preparar» y alergias al día y sin «pendiente»</td></tr>
+</tbody></table>
+
+<h3 class="gr"><span>3</span>Cuando puedas</h3>
+<table class="pend"><thead><tr><th class="n">N.º</th><th>Qué hay que hacer</th><th class="q">Quién</th><th class="u">Qué desbloquea</th></tr></thead><tbody>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>8</b></td><td>Vigilante externo (p. ej. UptimeRobot, gratuito) mirando …/api/health</td><td class="q">Tú · 5 minutos</td><td class="u">Enterarte si la app se cae</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>9</b></td><td>Volver a importar los precios del «Análisis de compras» del Maître cuando cambien</td><td class="q">Quien compra</td><td class="u">Costes estimados al día</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>11</b></td><td>Revisar el catalán y el inglés de los menús: que alguien que hable catalán repase en Parámetros → «Traducciones del menú» los platos traducidos a mano y el glosario de cocina (lo que se corrige ahí se aplica a la minuta y al portal)</td><td class="q">Alguien de sala o cocina</td><td class="u">Menús en català y English sin erratas de cara al cliente</td></tr>
+<tr><td class="n"><span class="cb " role="img" aria-label="pendiente"></span><b>10</b></td><td>Un evento piloto de principio a fin (consulta → contrato → pedidos → servicio → cierre) y anotar lo que chirríe</td><td class="q">Equipo</td><td class="u">Pulir con uso real</td></tr>
+</tbody></table>
+
+<h2 class="sec">B · Lo que espera tu OK <small>no se toca nada hasta que lo digas</small></h2>
+<div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Rediseño visual</h4><p>El prototipo v5 (Artifact) sigue siendo solo un prototipo: no se ha tocado la app real. Para empezar a llevarlo, por fases y pantalla a pantalla, necesito tu OK y cuatro respuestas: la tipografía elegida, los textos o palabras que vetas, las fotos de la casa para los huecos de foto y si quieres enseñar reseñas de clientes. El portal de clientes de la 02.15 se pulió sin cambiar su estilo, a propósito</p></div>
+<div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Fila «Bebés en trona (sin menú)»</h4><p>En los menús de la escaleta, ¿la quito? Te la propuse y está sin confirmar</p></div>
+
+<h2 class="sec">C · Lo que puedo hacer yo cuando me lo pidas <small>estimaciones de desarrollo y pruebas</small></h2>
+<table class="yo"><thead><tr><th>Qué</th><th>Estimación</th><th>Para qué</th></tr></thead><tbody>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Pruebas automáticas en cada entrega</td><td class="e">~1–2 días</td><td>Llevar al repositorio unas 40 pruebas de navegador que hoy paso a mano en cada versión y que GitHub las ejecute en cada subida (incluye dejar al día 3 pruebas antiguas que ya fallaban). Cierra la casilla de Calidad continua</td></tr>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Avisos por correo de «el cliente ha escrito / ha aprobado»</td><td class="e">~½ día</td><td>Hoy se ven en el Inicio de la app; con el correo activo (punto 1) llegarían también a la persona de Eventos</td></tr>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Pegar la lista de invitados desde un Excel con columnas</td><td class="e">~½ día</td><td>Hoy se pega una persona por línea y «Apellido, Nombre» se leería como alergia; con columnas (nombre | alergia | tipo) se evita</td></tr>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Auditoría con varios revisores de toda la app</td><td class="e">a demanda</td><td>Diseño, cifras y móvil, como la de la 01.97. Cierra la otra casilla de Calidad continua</td></tr>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Firma electrónica avanzada</td><td class="e">depende del proveedor</td><td>Solo si el contrato necesita más validez que la firma simple (punto 4)</td></tr>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Turnstile en el formulario de consultas</td><td class="e">~½ día</td><td>Solo si algún día entra spam</td></tr>
+<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Permitir el zoom en el móvil</td><td class="e">~½ hora</td><td>Hoy está bloqueado a petición tuya; los lectores de pantalla lo recomiendan</td></tr>
+</tbody></table>
+
+<h2 class="sec">D · Las 8 casillas que siguen vacías en las fases <small>y qué las cierra</small></h2>
+<table class="ab"><thead><tr><th>Dónde</th><th>Casillas</th><th>Se cierra con</th></tr></thead><tbody>
+<tr><td class="a">3.1 Avisos por correo</td><td>Llega el resumen del lunes a las 8:00 · Un cliente de prueba recibe el recordatorio de la lista · Cada envío queda registrado</td><td class="c">Activar el correo (punto 1)</td></tr>
+<tr><td class="a">4.1 Presupuesto → contrato → firma</td><td>Se genera el contrato de un evento de prueba · El cliente lo acepta desde el portal y queda registrado con fecha y hora · El asesor revisa el texto base y lo marcas «revisado»</td><td class="c">Revisión del contrato (punto 4)</td></tr>
+<tr><td class="a">Calidad continua</td><td>Auditoría con varios revisores · Pruebas automáticas de los flujos críticos en cada entrega</td><td class="c">Las dos están en «Lo que puedo hacer yo»</td></tr>
+</tbody></table>
+
+<p class="pie-nota">Para marcar lo hecho, dímelo y actualizo este documento (<i>node roadmap/pendiente.mjs</i> lo regenera; el detalle completo de cada fase está en ROADMAP_checklist.pdf y en ROADMAP.md).</p>
+</body></html>

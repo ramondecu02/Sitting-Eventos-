@@ -361,3 +361,54 @@ export const opcionales = [
   'Auditoría con varios revisores de toda la app (diseño, cifras, móvil)',
   'Permitir el zoom en el móvil (hoy bloqueado a petición tuya; los lectores de pantalla lo recomiendan)',
 ];
+
+/* ───────── Lo que queda por hacer (alimenta ROADMAP_pendiente.pdf) ───────── */
+
+/* Lo que desbloquea el restaurante. [n.º, qué, quién, qué desbloquea]; n.º = el de la sección 8 de ROADMAP.md */
+export const pendienteTuyo = [
+  { grupo: 'Lo primero · sin esto no se puede empezar en serio', items: [
+    ['1', 'Cuenta de correo (Resend, gratuita) con el dominio del restaurante verificado (lo que tarda es el DNS). Secretos RESEND_API_KEY, MAIL_FROM y CRON_TOKEN en cada proyecto de Cloudflare Pages; en GitHub, el secreto CRON_TOKEN, la variable SITE_URL y avisos.yml en la rama principal. Al activarlo se cierran 3 casillas de la fase 3: llega el resumen del lunes a las 8:00, un cliente de prueba recibe el recordatorio de la lista y cada envío queda registrado', 'Tú', 'Que salgan de verdad los avisos a clientes y camareros, el resumen semanal, los resúmenes por departamento (02.14), los pedidos a proveedores y el acuse de las consultas. Hoy todo queda «simulado» en la bandeja'],
+    ['2', 'Decidir cuál de los tres proyectos de Cloudflare Pages es el de producción y desconectar los otros dos', 'Tú', 'Que nadie entre en una copia sin datos'],
+    ['3', 'Definir las personas: nombre, correo y teléfono de cada perfil (Administrador —Jeroni—, Eventos, Cocina, Compras, Contabilidad y Servicio) e invitarlas desde «Equipo y accesos»; una persona de referencia que apruebe cada entrega; dos administradores como mínimo; decidir si Eventos ve Proveedores y Comunicación. Poner también el correo de cada persona (y hasta 4 extra por departamento) para que reciban su resumen', 'Tú', 'Empezar a usarlo en serio y que cada departamento reciba lo suyo'],
+  ] },
+  { grupo: 'Antes del primer evento real', items: [
+    ['4', 'Contrato: que el administrador lea el texto base (es vuestro contrato de siempre, castellano y català) en Parámetros → Contrato y propuesta, idealmente con el asesor, lo marque como «revisado» y confirme los datos de la empresa y el IBAN; decidir si basta la firma electrónica simple. Las erratas del Word siguen ahí («Efectivida», dos «Tercera» en catalán…) y se corrigen con «Editar sobre el papel». Al hacerlo se cierran 3 casillas de la fase 4: contrato de prueba, aceptación desde el portal y revisión del asesor', 'Tú + asesor', 'Poder publicar contratos a los clientes'],
+    ['4b', 'Documentos de clientes: cuántos días se guardan los DNI tras el evento (hoy 90) y cuánto los justificantes de pago (hoy, hasta anonimizar el evento; contabilidad suele exigir años). Y que el primer pago del contrato (3 semanas antes) coincida con el aviso de la agenda (hoy 18 días)', 'Tú + asesor', 'Cumplir RGPD y obligaciones contables; que el cliente no reciba dos fechas'],
+    ['4c', 'Portal del cliente: cuántos días después del evento se cierra (hoy 30) y crear enlace nuevo en los eventos que aún tengan un enlace antiguo y corto (esa pantalla los lista)', 'Tú', 'Que el IBAN, el presupuesto y el contrato no queden abiertos para siempre'],
+    ['5', 'Datos del responsable de privacidad en Parámetros → Privacidad y datos, y que el asesor revise los textos del aviso y del consentimiento', 'Tú + asesor', 'RGPD con los textos propios del restaurante'],
+    ['6', 'Proveedores de compra: darlos de alta (nombre, teléfono, correo) y asignarles los artículos la primera vez', 'Quien compra', 'Pedidos agrupados por proveedor'],
+    ['7', 'Consultas web: activar el formulario, elegir tipos y salones y si dice «fecha libre», y poner el enlace …/?consulta en la web, Instagram y Google Business', 'Tú', 'Recibir consultas'],
+    ['3b', 'Cargar los Excel de Previsión 2027 y 2028 con «Importar Excel» y revisar los casos dudosos: «Boda Laia i Albert» (¿12/06/2027?), «Comida Jordi Aleu» (la hoja decía 2026), «Boda Núria i Victor» (solo «octubre» y un teléfono raro), «Boda Zaida» (1/1/2028) y «Laura y Sergi» (solo el nombre). Si «Laia i Albert» se creó dos veces, borrar la repetida', 'Tú', 'Previsión al día'],
+    ['4d', 'Platos por completar (Parámetros → Platos y escandallo → «Con avisos»): tabla de quesos y tarta tatin sin escandallo, sopa fría de tomate con ingredientes sin cantidad; y confirmar con cocina los alérgenos de los 346 ingredientes (Parámetros → Alérgenos)', 'Cocina', 'Producción, «Qué preparar» y alergias al día y sin «pendiente»'],
+  ] },
+  { grupo: 'Cuando puedas', items: [
+    ['8', 'Vigilante externo (p. ej. UptimeRobot, gratuito) mirando …/api/health', 'Tú · 5 minutos', 'Enterarte si la app se cae'],
+    ['9', 'Volver a importar los precios del «Análisis de compras» del Maître cuando cambien', 'Quien compra', 'Costes estimados al día'],
+    ['11', 'Revisar el catalán y el inglés de los menús: que alguien que hable catalán repase en Parámetros → «Traducciones del menú» los platos traducidos a mano y el glosario de cocina (lo que se corrige ahí se aplica a la minuta y al portal)', 'Alguien de sala o cocina', 'Menús en català y English sin erratas de cara al cliente'],
+    ['10', 'Un evento piloto de principio a fin (consulta → contrato → pedidos → servicio → cierre) y anotar lo que chirríe', 'Equipo', 'Pulir con uso real'],
+  ] },
+];
+
+/* Lo que solo puede decidir quien manda */
+export const esperaOk = [
+  ['Rediseño visual', 'El prototipo v5 (Artifact) sigue siendo solo un prototipo: no se ha tocado la app real. Para empezar a llevarlo, por fases y pantalla a pantalla, necesito tu OK y cuatro respuestas: la tipografía elegida, los textos o palabras que vetas, las fotos de la casa para los huecos de foto y si quieres enseñar reseñas de clientes. El portal de clientes de la 02.15 se pulió sin cambiar su estilo, a propósito'],
+  ['Fila «Bebés en trona (sin menú)»', 'En los menús de la escaleta, ¿la quito? Te la propuse y está sin confirmar'],
+];
+
+/* Lo que puedo hacer yo cuando me lo pidas. [qué, estimación, detalle] */
+export const puedoHacer = [
+  ['Pruebas automáticas en cada entrega', '~1–2 días', 'Llevar al repositorio unas 40 pruebas de navegador que hoy paso a mano en cada versión y que GitHub las ejecute en cada subida (incluye dejar al día 3 pruebas antiguas que ya fallaban). Cierra la casilla de Calidad continua'],
+  ['Avisos por correo de «el cliente ha escrito / ha aprobado»', '~½ día', 'Hoy se ven en el Inicio de la app; con el correo activo (punto 1) llegarían también a la persona de Eventos'],
+  ['Pegar la lista de invitados desde un Excel con columnas', '~½ día', 'Hoy se pega una persona por línea y «Apellido, Nombre» se leería como alergia; con columnas (nombre | alergia | tipo) se evita'],
+  ['Auditoría con varios revisores de toda la app', 'a demanda', 'Diseño, cifras y móvil, como la de la 01.97. Cierra la otra casilla de Calidad continua'],
+  ['Firma electrónica avanzada', 'depende del proveedor', 'Solo si el contrato necesita más validez que la firma simple (punto 4)'],
+  ['Turnstile en el formulario de consultas', '~½ día', 'Solo si algún día entra spam'],
+  ['Permitir el zoom en el móvil', '~½ hora', 'Hoy está bloqueado a petición tuya; los lectores de pantalla lo recomiendan'],
+];
+
+/* Las 8 casillas que siguen vacías en las fases y qué las cierra */
+export const casillasAbiertas = [
+  ['3.1 Avisos por correo', 'Llega el resumen del lunes a las 8:00 · Un cliente de prueba recibe el recordatorio de la lista · Cada envío queda registrado', 'Activar el correo (punto 1)'],
+  ['4.1 Presupuesto → contrato → firma', 'Se genera el contrato de un evento de prueba · El cliente lo acepta desde el portal y queda registrado con fecha y hora · El asesor revisa el texto base y lo marcas «revisado»', 'Revisión del contrato (punto 4)'],
+  ['Calidad continua', 'Auditoría con varios revisores · Pruebas automáticas de los flujos críticos en cada entrega', 'Las dos están en «Lo que puedo hacer yo»'],
+];

@@ -680,11 +680,20 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 | 7 | **Consultas web:** activar el formulario en Parámetros → Consultas web, decidir tipos, salones y si dice «fecha libre», y poner el enlace `…/?consulta` en tu web, Instagram y Google Business | Tú | Recibir consultas |
 | 8 | **Vigilante externo:** un monitor gratuito (p. ej. UptimeRobot) que mire `…/api/health` | Tú (5 minutos) | Enterarte si la app se cae |
 | 9 | **Precios del «Análisis de compras»** del Maître: volver a importarlos cuando cambien | Quien compra | Costes estimados al día |
+| 11 | **Revisar el catalán y el inglés de los menús:** que alguien que hable catalán repase en Parámetros → «Traducciones del menú» los platos traducidos a mano y el glosario de cocina; lo que se corrige allí se aplica a la minuta y al portal | Alguien de sala o cocina | Menús en català y English sin erratas de cara al cliente |
 | 10 | **Un evento piloto de principio a fin** (consulta → contrato → pedidos → servicio → cierre) y apuntar lo que chirríe | Equipo | Pulir con uso real |
+
+**Esperan tu OK (no se toca nada hasta que lo digas):**
+- **Rediseño visual:** el prototipo v5 sigue siendo solo un prototipo. Para llevarlo a la app real, por fases, hacen falta tu OK y la tipografía elegida, los textos que vetas, las fotos de la casa para los huecos y si quieres enseñar reseñas de clientes.
+- **Fila «Bebés en trona (sin menú)»** en los menús de la escaleta: ¿se quita?
+
+El resumen de todo lo pendiente, en tres páginas, está en `ROADMAP_pendiente.pdf` (`node roadmap/pendiente.mjs`).
 
 **Opcionales (si los quieres, se hacen):**
 - Avisos por correo de «el cliente ha escrito / ha aprobado» (hoy se ven en el Inicio de la app).
 - Proveedor de **firma electrónica avanzada** si el contrato necesita más validez.
 - Claves de **Turnstile** para el formulario si algún día entra spam.
 - **Auditoría con varios revisores** de toda la app.
+- **Pruebas automáticas en cada entrega:** llevar las unas 40 pruebas de navegador al repositorio y que GitHub las ejecute en cada subida (incluye arreglar 3 pruebas antiguas que ya fallaban).
+- **Pegar la lista de invitados desde un Excel con columnas** (nombre | alergia | tipo); hoy se pega una persona por línea.
 - Permitir el **zoom en el móvil** (hoy bloqueado a petición tuya).
