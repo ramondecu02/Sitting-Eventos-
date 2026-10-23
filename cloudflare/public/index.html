@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.20 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.21 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.20".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.21".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -694,6 +694,19 @@ p.imp-warn{padding-left:12px}
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:background .12s,color .12s}
 .nav-sub:hover{background:var(--bg); color:var(--c-ink)}
 .nav-sub.active{background:color-mix(in srgb,var(--olive) 12%,transparent); color:var(--olive); font-weight:700}
+/* v02.20 · subsecciones de Parámetros en el menú lateral */
+.nav-sg{display:flex; flex-direction:column; margin:3px 0 1px}
+.nav-sgh{display:flex; align-items:center; gap:8px; width:100%; border:0; background:transparent; cursor:pointer; min-height:34px; padding:6px 8px 6px 10px; border-radius:var(--r-sm); color:var(--nav-mut,var(--c-mut)); font:inherit; font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; text-align:left; transition:background .12s,color .12s}
+.nav-sgh:hover{background:transparent; color:var(--nav-ink,var(--c-ink))}
+.nav-sgh .sg-tx{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.nav-sgh .sg-n{font-size:10px; font-weight:600; letter-spacing:0; opacity:.6}
+.nav-sgh .sg-caret{display:flex; transition:transform .16s; opacity:.7} .nav-sgh .sg-caret svg{width:11px; height:11px}
+.nav-sg.open>.nav-sgh .sg-caret{transform:rotate(90deg)}
+.nav-sg.open>.nav-sgh,.nav-sg.tiene>.nav-sgh{color:var(--nav-ink,var(--c-ink))}
+.nav-sg.tiene:not(.open)>.nav-sgh::after{content:""; width:6px; height:6px; border-radius:50%; background:var(--olive); flex:0 0 auto}
+.nav-sgi{display:none; flex-direction:column; gap:0; margin:0 0 4px 6px; padding-left:8px; border-left:1px solid var(--nav-line,var(--c-line))}
+.nav-sg.open>.nav-sgi{display:flex}
+.msubnav .ms-sep{flex:0 0 auto; font-size:9px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--nav-faint,var(--c-faint)); padding:0 2px 0 8px; white-space:nowrap}
 .nav-sub.add{color:var(--gold); font-weight:600; opacity:.9}
 .nav-sub.add:hover{opacity:1; background:color-mix(in srgb,var(--gold) 9%,transparent)}
 .side-foot{padding:12px 16px 16px; border-top:1px solid var(--c-line)}
@@ -4071,6 +4084,13 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-chequeo li .ic{flex:0 0 22px; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font:700 12px/1 var(--font-text,system-ui); margin-top:1px}
 .av-chequeo li.ok .ic{background:var(--success-soft); color:var(--success)} .av-chequeo li.aviso .ic{background:var(--warning-soft); color:var(--warning-tx)} .av-chequeo li.mal .ic{background:var(--danger-soft); color:var(--danger)}
 .av-chequeo li.mal{border-color:var(--danger)} .av-chequeo li.aviso{border-color:var(--warning)}
+.av-tabs{display:flex; flex-wrap:wrap; border-radius:18px; margin:0 0 14px}
+.av-tabs button{display:inline-flex; align-items:center; gap:7px}
+.av-tabs .av-pt{width:8px; height:8px; border-radius:50%; background:var(--warning)}
+.av-tabs .av-n{font:700 11px/1 var(--font-text); min-width:18px; height:18px; padding:0 5px; border-radius:99px; display:inline-flex; align-items:center; justify-content:center; background:color-mix(in srgb,var(--gold) 22%,transparent); color:var(--c-ink)}
+.av-tabs button.on .av-n{background:color-mix(in srgb,var(--bg) 28%,transparent); color:var(--bg)}
+.av-barra{position:sticky; bottom:0; z-index:5; margin:14px -4px 0; padding:10px 4px; background:var(--bg); border-top:1px solid var(--c-line)}
+.av-ap{font:600 11px/1 var(--font-text); letter-spacing:.04em; color:var(--c-mut); margin-left:8px; vertical-align:middle}
 .av-guia code{background:var(--bg-2); border-radius:6px; padding:1px 6px; font-size:12.5px; overflow-wrap:anywhere}
 .av-h2{margin:22px 0 8px; font:600 19px/1.2 var(--font-display,Georgia,serif)}
 .av-peq{font-size:13.5px; color:var(--c-mut); line-height:1.5; margin:0 0 10px}
@@ -4605,7 +4625,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.20</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.21</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10123,20 +10143,20 @@ var SECCIONES=[
   {k:"p-inicio",   g:"Parámetros", t:"Todos los parámetros"},
   {k:"p-platos",   g:"Parámetros", t:"Platos y escandallo"},
   {k:"p-bebidas",  g:"Parámetros", t:"Bebidas"},
-  {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
-  {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
-  {k:"p-pvp",      g:"Parámetros", t:"Precios de venta"},
   {k:"p-alg",      g:"Parámetros", t:"Alérgenos"},
+  {k:"p-pvp",      g:"Parámetros", t:"Precios de venta"},
   {k:"p-trad",     g:"Parámetros", t:"Traducciones del menú"},
+  {k:"p-servicio", g:"Parámetros", t:"Servicio y camareros"},
   {k:"p-tareas",   g:"Parámetros", t:"Tareas por fase"},
+  {k:"p-comercial",g:"Parámetros", t:"Presupuesto y pagos"},
   {k:"p-agenda",   g:"Parámetros", t:"Agenda con el cliente"},
+  {k:"p-contrato",g:"Parámetros", t:"Contrato y propuesta"},
+  {k:"p-vinyes",  g:"Parámetros", t:"Les Vinyes del Convent"},
+  {k:"p-consultas",g:"Parámetros", t:"Consultas web"},
+  {k:"p-correo",  g:"Parámetros", t:"Correo y avisos"},
   {k:"p-copias",   g:"Parámetros", t:"Copias de seguridad"},
   {k:"p-estado",   g:"Parámetros", t:"Estado del sistema"},
   {k:"p-privacidad",g:"Parámetros", t:"Privacidad y datos"},
-  {k:"p-correo",  g:"Parámetros", t:"Correo y avisos"},
-  {k:"p-vinyes",  g:"Parámetros", t:"Les Vinyes del Convent"},
-  {k:"p-contrato",g:"Parámetros", t:"Contrato y propuesta"},
-  {k:"p-consultas",g:"Parámetros", t:"Consultas web"},
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
@@ -10281,6 +10301,18 @@ function grupoDeSeccion(k){ for(var i=0;i<SECCIONES.length;i++) if(SECCIONES[i].
 function grupoCorto(g){ return g.split(" ")[0]; }
 
 var GRUPO_NEGOCIO={"Previsión":1,"Inventario":1,"Parámetros":1,"Rentabilidad":1};
+/* v02.20 · Parámetros por subsecciones (las mismas de la portada «Todos los parámetros»): en el menú lateral, cada una se pliega y se despliega */
+var PARAM_SUBS=[
+  ["Menú y cocina",["p-platos","p-bebidas","p-alg","p-pvp","p-trad"]],
+  ["Servicio en sala",["p-servicio","p-tareas"]],
+  ["Clientes y ventas",["p-comercial","p-agenda","p-contrato","p-vinyes"]],
+  ["Comunicación",["p-consultas","p-correo"]],
+  ["Sistema y datos",["p-copias","p-estado","p-privacidad"]]
+];
+function paramSub(k){ for(var i=0;i<PARAM_SUBS.length;i++) if(PARAM_SUBS[i][1].indexOf(k)>=0) return PARAM_SUBS[i][0]; return ""; }
+window.LM_paramSub=paramSub; window.LM_PARAM_SUBS=PARAM_SUBS;
+window.LM_ebP=function(k){ var sg=paramSub(k); return "Parámetros · "+(sg?sg+" · ":"")+"solo administración"; };
+var navSgAb={};
 var navAlbaran=null;
 /* v02.05 · el grupo en el que estás se pliega y se despliega con un clic en su título, sin cambiar de pantalla.
    Al ir a otra pantalla (la que sea) vuelve a salir desplegado el grupo en el que caes. */
@@ -10305,11 +10337,26 @@ function renderSidenav(){
       if(g===gAct){ navPlegado=!navPlegado; syncSidenav(); return; }
       irASeccion(seccionesDe(g)[0].k); });
     var subs=document.createElement("div"); subs.className="nav-subs";
-    seccionesDe(g).forEach(function(s){
+    function addSub(parent,s){
       var b=document.createElement("button"); b.type="button"; b.className="nav-sub"; b.dataset.k=s.k; b.textContent=s.t;
       b.addEventListener("click",function(){ irASeccion(s.k); });
-      subs.appendChild(b);
-    });
+      parent.appendChild(b);
+    }
+    if(g==="Parámetros"){
+      var byK={}, usadas={}; seccionesDe(g).forEach(function(s){ byK[s.k]=s; });
+      if(byK["p-inicio"]) addSub(subs,byK["p-inicio"]);
+      PARAM_SUBS.forEach(function(sg){
+        var its=sg[1].filter(function(k){ return byK[k]; }); if(!its.length) return;
+        var box=document.createElement("div"); box.className="nav-sg"; box.dataset.sg=sg[0];
+        var h=document.createElement("button"); h.type="button"; h.className="nav-sgh"; h.setAttribute("aria-expanded","false");
+        h.innerHTML='<span class="sg-tx">'+escH(sg[0])+'</span><span class="sg-n" aria-hidden="true">'+its.length+'</span><span class="sg-caret" aria-hidden="true">'+ICONS.caret+'</span>';
+        h.addEventListener("click",function(){ navSgAb[sg[0]]=!box.classList.contains("open"); syncSidenav(); });
+        var body=document.createElement("div"); body.className="nav-sgi";
+        its.forEach(function(k){ usadas[k]=1; addSub(body,byK[k]); });
+        box.appendChild(h); box.appendChild(body); subs.appendChild(box);
+      });
+      Object.keys(byK).forEach(function(k){ if(k!=="p-inicio"&&!usadas[k]) addSub(subs,byK[k]); });
+    } else seccionesDe(g).forEach(function(s){ addSub(subs,s); });
     if(g==="Inventario"){
       var addb=document.createElement("button"); addb.type="button"; addb.className="nav-sub add"; addb.textContent="+ Sección nueva";
       addb.addEventListener("click",function(){ var el=$("ab-inv-new"); if(el) el.click(); });
@@ -10357,7 +10404,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.20</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.21</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10374,7 +10421,9 @@ function renderMsub(g){
   var ms=$("msubnav"); if(!ms) return;
   ms.innerHTML=""; ms.dataset.g=g||"";
   if(!g) return;
+  var ultSub="";
   seccionesDe(g).forEach(function(s){
+    if(g==="Parámetros"){ var sg=paramSub(s.k); if(sg&&sg!==ultSub){ ultSub=sg; var sp=document.createElement("span"); sp.className="ms-sep"; sp.textContent=sg; ms.appendChild(sp); } }
     var b=document.createElement("button"); b.type="button"; b.dataset.k=s.k; b.textContent=s.t;
     b.addEventListener("click",function(){ irASeccion(s.k); });
     ms.appendChild(b);
@@ -10392,7 +10441,12 @@ function syncSidenav(){
   Array.prototype.forEach.call(document.querySelectorAll(".nav-flat"),function(b){
     b.classList.toggle("active", !enHome && b.dataset.k===actual);
   });
-  if(actual!==navUltimaSec){ navUltimaSec=actual; navPlegado=false; }
+  if(actual!==navUltimaSec){ navUltimaSec=actual; navPlegado=false; navSgAb={}; var sgA=actual?paramSub(actual):""; if(sgA) navSgAb[sgA]=true; }
+  Array.prototype.forEach.call(document.querySelectorAll(".nav-sg"),function(box){
+    var nom=box.dataset.sg, mia=!!(actual&&paramSub(actual)===nom), ab=navSgAb[nom]===true;
+    box.classList.toggle("open",ab); box.classList.toggle("tiene",mia);
+    var h=box.querySelector(".nav-sgh"); if(h) h.setAttribute("aria-expanded",ab?"true":"false");
+  });
   Array.prototype.forEach.call(document.querySelectorAll(".nav-group"),function(grp){
     var esMio=grp.dataset.g===gAct, abierto=esMio&&!navPlegado, gh0=grp.querySelector(".nav-gh");
     grp.classList.toggle("open",abierto); grp.classList.toggle("tiene",esMio);
@@ -21459,7 +21513,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function tarjeta(t,v,sub,cls){ return '<div class="es-k'+(cls?" "+cls:"")+'"><span>'+esc(t)+'</span><b>'+v+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'; }
   function pintarE(){
     if(!hostE) return; var top=hostE.scrollTop, d=E.d, h='';
-    h+='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Estado del sistema</h1><p class="pv-guide">De un vistazo: si algo falla o se está quedando sin espacio, aquí se ve antes de que lo note nadie en sala. Se actualiza solo cada 30 segundos.</p></div><div class="pv-actions"><button type="button" class="btn sm" data-es="act">Actualizar</button></div></header>';
+    h+='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-estado")+'</div><h1 class="pv-title">Estado del sistema</h1><p class="pv-guide">De un vistazo: si algo falla o se está quedando sin espacio, aquí se ve antes de que lo note nadie en sala. Se actualiza solo cada 30 segundos.</p></div><div class="pv-actions"><button type="button" class="btn sm" data-es="act">Actualizar</button></div></header>';
     if(E.err) h+='<div class="pcard es-err" role="alert"><p>'+esc(E.err)+'</p></div>';
     if(!d&&!E.err) h+='<div class="pcard"><p class="pp-empty">Cargando el estado…</p></div>';
     if(d){
@@ -21529,7 +21583,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function pintarP(){
     if(!hostP) return; var top=hostP.scrollTop, d=P.d, h='';
-    h+='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Privacidad y datos</h1><p class="pv-guide">Las alergias son datos de salud y los nombres de clientes e invitados son datos personales: aquí se decide cuánto tiempo se guardan, se anonimiza lo que ya no hace falta y se atienden las peticiones de las personas (acceso y supresión).</p></div></header>';
+    h+='<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-privacidad")+'</div><h1 class="pv-title">Privacidad y datos</h1><p class="pv-guide">Las alergias son datos de salud y los nombres de clientes e invitados son datos personales: aquí se decide cuánto tiempo se guardan, se anonimiza lo que ya no hace falta y se atienden las peticiones de las personas (acceso y supresión).</p></div></header>';
     if(P.err) h+='<div class="pcard es-err" role="alert"><p>'+esc(P.err)+'</p></div>';
     if(!d&&!P.err) h+='<div class="pcard"><p class="pp-empty">Cargando…</p></div>';
     if(d){
@@ -22524,7 +22578,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function pinta(){
     var host=S.host; if(!host) return;
     var c=K.cfg(), E=c.empresa, rev=K.revisado(c), r=c.revisado, cambio=!!(r&&r.h&&!rev), ev=null; try{ ev=BR.current(); }catch(_){}
-    var h='<div class="pv-inner cn-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Contrato y propuesta</h1>'+
+    var h='<div class="pv-inner cn-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-contrato")+'</div><h1 class="pv-title">Contrato y propuesta</h1>'+
       '<p class="pv-guide">Los textos que salen en el PDF y en el portal del cliente cuando se publica una propuesta o un contrato desde «Presupuesto». Las variables entre llaves se rellenan solas con los datos de cada evento.</p></div></header>';
     h+=estadoHTML(c);
     h+='<h2 class="cn-h2">La empresa</h2><div class="pcard"><div class="fldset">'+
@@ -23203,11 +23257,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* ── Parámetros → Consultas web ── */
   function pintaCfg(){
     var host=U.cfgHost; if(!host) return;
-    if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Consultas web</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
-    if(!U.cfg){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Consultas web</h1></div></header><p class="empty">'+esc(U.cfgErr||"Cargando…")+'</p></div>'; return; }
+    if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-consultas")+'</div><h1 class="pv-title">Consultas web</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
+    if(!U.cfg){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-consultas")+'</div><h1 class="pv-title">Consultas web</h1></div></header><p class="empty">'+esc(U.cfgErr||"Cargando…")+'</p></div>'; return; }
     var c=U.cfg.cfg, link=location.origin+"/?consulta";
     function chk(k,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+k+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
-    var h='<div class="pv-inner cs-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Consultas web</h1><p class="pv-guide">El formulario público donde quien aún no es cliente os pregunta por su celebración. Las consultas llegan a Previsión → «Consultas web» y os avisan por correo.</p></div></header>';
+    var h='<div class="pv-inner cs-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-consultas")+'</div><h1 class="pv-title">Consultas web</h1><p class="pv-guide">El formulario público donde quien aún no es cliente os pregunta por su celebración. Las consultas llegan a Previsión → «Consultas web» y os avisan por correo.</p></div></header>';
     h+='<div class="cs-info '+(c.on?"on":"off")+'"><div><span>Formulario</span><b>'+(c.on?"Activado":"Apagado")+'</b><small>'+(c.on?'Lo puede abrir cualquiera con este enlace:':'Nadie puede enviar consultas mientras esté apagado.')+'</small>'+(c.on?'<code>'+esc(link)+'</code> <button type="button" class="btn sm" data-cf-a="copiar">Copiar</button> <a class="btn sm" href="'+esc(link)+'" target="_blank" rel="noopener">Abrirlo</a>':'')+'</div>'+
       '<div><span>Protección contra spam</span><b>Activa</b><small>Campo trampa, tiempo mínimo, tope de 4 consultas por hora y persona (10 al día) y 80 al día en total'+(U.cfg.turnstile?'; además <b>Turnstile</b> de Cloudflare.':'. <i>Turnstile</i> (el control de Cloudflare) es opcional: si lo quieres, hacen falta las claves TURNSTILE_SITEKEY y TURNSTILE_SECRET en Cloudflare.')+'</small></div></div>';
     h+='<div class="pcard"><div class="fldset">'+chk("on",c.on,"Activar el formulario de consultas")+
@@ -24418,28 +24472,29 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function pintarCfg(){
     var host=C.host; if(!host) return;
-    if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
-    if(!C.cfg){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">'+esc(C.err||"Cargando…")+'</p></div>'; return; }
+    if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-correo")+'</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
+    if(!C.cfg){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-correo")+'</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">'+esc(C.err||"Cargando…")+'</p></div>'; return; }
     var s=C.estado, cfg=C.cfg, rs=cfg.resumen, cl=cfg.cliente, D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
     function chk(id,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+id+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
     function num(id,v,mi,ma){ return '<input type="number" min="'+mi+'" max="'+ma+'" data-cf="'+id+'" value="'+esc(v)+'" aria-label="'+esc(id)+'">'; }
-    var h='<div class="pv-inner av-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1><p class="pv-guide">El servicio de correo, lo que se envía solo y los textos de los avisos.</p></div></header>';
-    h+='<div class="av-estado '+(s.proveedor.listo?"ok":"no")+'"><div><span>Envío de correo</span><b>'+(s.proveedor.listo?"Activado":"Sin activar")+'</b><small>'+(s.proveedor.listo?"Sale desde "+esc(s.proveedor.from):esc(s.proveedor.motivo)+" Mientras tanto los correos se guardan como «simulado» y no salen.")+'</small></div>'+
+    var h='<div class="pv-inner av-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-correo")+'</div><h1 class="pv-title">Correo y avisos</h1><p class="pv-guide">El servicio de correo, lo que se envía solo y los textos de los avisos.</p></div></header>';
+    var P={con:'',env:'',asp:'',pla:'',res:'',dep:'',rec:''};
+    P.con+='<div class="av-estado '+(s.proveedor.listo?"ok":"no")+'"><div><span>Envío de correo</span><b>'+(s.proveedor.listo?"Activado":"Sin activar")+'</b><small>'+(s.proveedor.listo?"Sale desde "+esc(s.proveedor.from):esc(s.proveedor.motivo)+" Mientras tanto los correos se guardan como «simulado» y no salen.")+'</small></div>'+
       '<div><span>Envíos automáticos</span><b>'+(s.cron.token?"Con llave":"Sin llave")+'</b><small>'+(s.cron.token?"El servidor acepta la llamada programada (CRON_TOKEN).":"Falta CRON_TOKEN: el resumen y los recordatorios no pueden salir solos.")+'</small></div>'+
       '<div><span>Errores y rebotes</span><b>'+(s.errores24h||0)+'</b><small>'+(s.errores24h?"No han salido (24 h) o no han llegado (7 días): mira la bandeja en «Avisos y correo».":"Sin problemas.")+'</small></div></div>'+guia(location.origin)+
       '<div class="av-acciones"><button type="button" class="btn" data-cfa="comprobar"'+(C.comprobando?" disabled":"")+'>'+(C.comprobando?"Comprobando…":"Comprobar la conexión con Resend")+'</button><span class="av-peq">No envía nada: mira la clave, el remitente y el dominio.</span></div>'+chequeoHTML(C.comp);
-    h+='<h2 class="av-h2">Resumen del equipo</h2><div class="pcard"><div class="fldset">'+chk("resumen.on",rs.on,"Enviar el resumen")+
+    P.res='<h2 class="av-h2">Resumen del equipo <small class="av-ap">'+(rs.on?'':'apagado de fábrica')+'</small></h2><div class="pcard"><div class="fldset">'+chk("resumen.on",rs.on,"Enviar el resumen")+
       '<label class="fld"><span class="lbl">Cada</span><select data-cf="resumen.freq"><option value="semanal"'+(rs.freq==="semanal"?" selected":"")+'>Semana</option><option value="diario"'+(rs.freq==="diario"?" selected":"")+'>Día</option><option value="off"'+(rs.freq==="off"?" selected":"")+'>(apagado)</option></select></label>'+
       '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="resumen.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+rs.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("resumen.hora",rs.hora,0,23)+'</label>'+
       '<label class="fld"><span class="lbl">Para</span><select data-cf="resumen.para"><option value="equipo"'+(rs.para==="equipo"?" selected":"")+'>Administración y eventos (por su correo de acceso)</option><option value="lista"'+(rs.para==="lista"?" selected":"")+'>Una lista de correos</option></select></label>'+
       '<label class="fld wide"><span class="lbl">Lista de correos <small>(separados por comas; solo si has elegido «una lista»)</small></span><input type="text" data-cf="resumen.lista" value="'+esc(rs.lista)+'" placeholder="jefe@lesmoles.com, sala@lesmoles.com"></label></div></div>';
-    h+=depsHTML(cfg,s);
-    h+='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
+    P.dep=depsHTML(cfg,s);
+    P.rec='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
       chk("cliente.on",cl.on,"Enviar recordatorios automáticos a los clientes")+chk("cliente.lista",cl.lista,"La lista de invitados")+chk("cliente.pago",cl.pago,"Los pagos")+chk("cliente.reunion",cl.reunion,"Las reuniones")+
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("cliente.hora",cl.hora,0,23)+'</label></div></div>';
     var cp=cfg.copia||{yo:false,lista:""};
-    h+='<h2 class="av-h2">Firma, respuestas y aspecto</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Firma de los mensajes</span><input type="text" data-cf="firma" value="'+esc(cfg.firma)+'" maxlength="200"></label>'+
+    P.asp+='<h2 class="av-h2">Firma, respuestas y aspecto</h2><div class="pcard"><div class="fldset"><label class="fld"><span class="lbl">Firma de los mensajes</span><input type="text" data-cf="firma" value="'+esc(cfg.firma)+'" maxlength="200"></label>'+
       '<label class="fld"><span class="lbl">Si contestan a un correo escrito desde la app, la respuesta va a…</span><select data-cf="respuesta"><option value="quien"'+(cfg.respuesta!=="general"?" selected":"")+'>Quien lo ha enviado (su correo de acceso)</option><option value="general"'+(cfg.respuesta==="general"?" selected":"")+'>Siempre al correo general de aquí abajo</option></select></label>'+
       '<label class="fld"><span class="lbl">Correo general para las respuestas <small>(y para lo que sale solo)</small></span><input type="email" data-cf="responder" value="'+esc(cfg.responder)+'" placeholder="info@lesmoles.com"></label>'+
       chk("marca",cfg.marca!==false,"Correos con el diseño de la casa (nombre, botón al enlace privado y pie). Apagado: salen como texto sencillo.")+
@@ -24448,10 +24503,14 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<label class="fld wide"><span class="lbl">Copia oculta fija de lo que sale a los clientes <small>(hasta 4 correos, separados por comas; también los recordatorios automáticos)</small></span><input type="text" data-cf="copia.lista" value="'+esc(cp.lista||"")+'" placeholder="administracion@lesmoles.com"></label></div>'+
       '<div class="av-acciones"><button type="button" class="btn" data-cfa="vista">Ver cómo llega un correo al cliente</button></div>'+
       (C.vista?'<div class="av-vprev"><div class="av-vprev-h"><span>Ejemplo con la plantilla «la lista de invitados»</span><button type="button" class="btn sm" data-cfa="vista-cierra">Cerrar</button></div><iframe sandbox="" title="Vista previa del correo" srcdoc="'+esc(C.vista)+'"></iframe></div>':'')+'</div>';
-    h+='<h2 class="av-h2">Plantillas</h2><p class="av-peq">Las variables entre llaves se rellenan solas con los datos del evento. WhatsApp usa los mismos textos.</p>'+PL_TXT.map(function(p){
+    P.pla+='<h2 class="av-h2">Plantillas</h2><p class="av-peq">Las variables entre llaves se rellenan solas con los datos del evento. WhatsApp usa los mismos textos.</p>'+PL_TXT.map(function(p){
       var largo=!/asunto|intro/.test(p[0]), mod=C.plant[p[0]]!==(C.estado.plantillasPorDefecto||{})[p[0]];
       return '<div class="pcard av-pl"><label class="fld wide"><span class="lbl">'+esc(p[1])+(p[2]?' <small>'+esc(p[2])+'</small>':'')+(mod?' <em>personalizada</em>':'')+'</span>'+(largo?'<textarea rows="'+(p[0]==="camarero"||p[0]==="cliente_lista"||p[0]==="cliente_pago"?7:5)+'" data-pl="'+p[0]+'">'+esc(C.plant[p[0]])+'</textarea>':'<input type="text" data-pl="'+p[0]+'" value="'+esc(C.plant[p[0]])+'">')+'</label>'+(mod?'<button type="button" class="btn sm" data-cfa="restaurar" data-k="'+p[0]+'">Volver a la de fábrica</button>':'')+'</div>'; }).join("");
-    h+='<div class="av-acciones"><button type="button" class="btn gold" data-cfa="guardar"'+(C.guardando?" disabled":"")+'>Guardar</button><button type="button" class="btn" data-cfa="prueba">Enviar un correo de prueba a mi correo</button><button type="button" class="btn" data-cfa="simular">Ver qué se enviaría ahora</button></div>'+
+    P.env=P.dep+P.rec+P.res;
+    var tab=C.tab&&P[C.tab]!=null?C.tab:(s.proveedor.listo?"env":"con"), nPers=Object.keys(C.plant||{}).filter(function(k){ return C.plant[k]!==(C.estado.plantillasPorDefecto||{})[k]; }).length;
+    var TABS=[["con","Conexión",s.proveedor.listo?"":'<i class="av-pt" title="Sin activar" aria-hidden="true"></i><span class="sr-only"> (sin activar)</span>'],["env","Qué se envía",""],["asp","Aspecto y respuestas",""],["pla","Plantillas",nPers?'<b class="av-n">'+nPers+'</b><span class="sr-only"> personalizadas</span>':""]];
+    h+='<div class="av-tog av-tabs" role="group" aria-label="Secciones de Correo y avisos">'+TABS.map(function(t){ return '<button type="button" data-cfa="tab" data-t="'+t[0]+'" aria-pressed="'+(tab===t[0])+'"'+(tab===t[0]?' class="on"':'')+'>'+esc(t[1])+t[2]+'</button>'; }).join("")+'</div>'+P[tab];
+    h+='<div class="av-acciones av-barra"><button type="button" class="btn gold" data-cfa="guardar"'+(C.guardando?" disabled":"")+'>Guardar</button><button type="button" class="btn" data-cfa="prueba">Enviar un correo de prueba a mi correo</button><button type="button" class="btn" data-cfa="simular">Ver qué se enviaría ahora</button></div>'+
       (C.msg?'<p class="av-res '+(C.msg.ok?(C.msg.sim?"sim":"ok"):"mal")+'" role="status">'+esc(C.msg.txt)+'</p>':'')+
       (C.sim?'<pre class="av-vista" tabindex="0" aria-label="Qué se enviaría ahora">'+esc(C.sim)+'</pre>':'')+'</div>';
     var y=host.scrollTop; host.innerHTML=h; host.scrollTop=y;
@@ -24472,6 +24531,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     if(a==="guardar"){ C.guardando=true; C.msg=null; pintarCfg();
       api("/api/correo","PUT",{cfg:C.cfg,plantillas:C.plant}).then(function(j){ C.guardando=false;
         if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:fallo(j,"No se ha podido guardar.")}; pintarCfg(); } }); }
+    else if(a==="tab"){ C.tab=b.getAttribute("data-t"); pintarCfg(); if(C.host) C.host.scrollTop=0; }
     else if(a==="vista-cierra"){ C.vista=null; pintarCfg(); }
     else if(a==="comprobar"){ C.comprobando=true; C.comp=null; pintarCfg();
       api("/api/correo/comprobar","POST",{}).then(function(j){ C.comprobando=false;
@@ -24962,7 +25022,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   function guardaCfg(d){ BR.setParam("vinyes",d); }
   function pintaCfg(){
     var host=C.host; if(!host) return; var top=host.scrollTop, d=datosCfg();
-    var h='<div class="pv-inner alb-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div><h1 class="pv-title">Les Vinyes del Convent</h1><div class="pv-sub">Tarifa 2026</div>'+
+    var h='<div class="pv-inner alb-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-vinyes")+'</div><h1 class="pv-title">Les Vinyes del Convent</h1><div class="pv-sub">Tarifa 2026</div>'+
       '<p class="pv-guide">Lo que nos cobra Les Vinyes en los eventos que se celebran allí: un precio por comensal (las bodas, a uno; el resto de eventos, a otro) y cada botella de su carta, más IVA. Con esto se calcula el albarán de cada evento. Los cambios se guardan al salir de cada campo.</p></div></header>';
     if(!esAdmin()){ host.innerHTML=h+'<div class="pcard"><p>Esta sección solo la puede ver un administrador.</p></div></div>'; return; }
     h+=(d.confirmado?'':'<div class="alb-aviso"><b>Comprueba cuál es cuál.</b> En la plantilla había dos filas «número de comensales», a 7 € y a 12 €, sin decir cuál era para bodas: se ha puesto <b>bodas 12 €</b> y <b>otros eventos 7 €</b>. <button type="button" class="btn sm" data-av="confirmar">Está bien así</button></div>')+
@@ -26578,7 +26638,7 @@ function cabecera(k){
     '<p class="pv-guide">Lo que se ajusta una vez y vale para <b>todos los eventos</b>: los platos y su escandallo, las bebidas, el servicio, los precios, el contrato y los avisos. Cada tarjeta lleva a su pantalla; los cambios se guardan solos y siempre se puede volver a los valores de fábrica.</p></div></header>';
   var v=VISTAS[k];
   if(k==="p-copias"){ var u=BK.datos&&BK.datos.backups&&BK.datos.backups[0];
-    return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div>'+
+    return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+esc(LM_ebP(k))+'</div>'+
       '<h1 class="pv-title">'+esc(v.t)+'</h1><div class="pv-sub pp-meta">'+(u?'<span class="pp-state mod">Al día</span> Última copia '+esc(bkHace(u.ts))+' · '+esc(fmtFechaHora(u.ts)):'<span class="pp-state">Sin copias todavía</span>')+'</div>'+
       '<p class="pv-guide">'+esc(v.guia)+'</p></div></header>'; }
   var metas=v.secs.map(function(s){ return {s:s,m:BR.paramMeta(s)}; });
@@ -26587,7 +26647,7 @@ function cabecera(k){
   var estado=tocado.length
     ? '<span class="pp-state mod">Modificado</span> Último cambio: '+esc(fmtFechaHora(ult.m.updated))+(ult.m.by?' · '+esc(ult.m.by):'')
     : (ult?'<span class="pp-state">Valores de fábrica</span> Restaurados el '+esc(fmtFechaHora(ult.m.updated)):'<span class="pp-state">Valores de fábrica</span>');
-  return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros · solo administración</div>'+
+  return '<header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+esc(LM_ebP(k))+'</div>'+
     '<h1 class="pv-title">'+esc(v.t)+'</h1><div class="pv-sub pp-meta">'+estado+'</div>'+
     '<p class="pv-guide">'+esc(v.guia)+' Los cambios se guardan solos y se aplican a todos los eventos.</p></div>'+
     (tocado.length&&k!=="p-alg"?'<div class="pv-actions"><button type="button" class="btn sm danger" data-pa="reset" data-secs="'+esc(v.secs.join(","))+'">Restaurar valores de fábrica</button></div>':'')+
@@ -26609,9 +26669,10 @@ var GRUPOS_P=[
     ["p-comercial","Presupuesto y pagos","Primer pago, precios de partida, tipos de evento y servicios de proveedores.",["comercial"]],
     ["p-agenda","Agenda con el cliente","La señal y los pasos que se programan solos desde la fecha del evento.",["agenda"]],
     ["p-contrato","Contrato y propuesta","El texto del contrato, sus cláusulas y los datos de la empresa.",null],
-    ["p-vinyes","Les Vinyes del Convent","La tarifa por comensal (bodas y otros eventos), los vinos y sus precios para los albaranes.",null],
+    ["p-vinyes","Les Vinyes del Convent","La tarifa por comensal (bodas y otros eventos), los vinos y sus precios para los albaranes.",null]]},
+  {t:"Comunicación", it:[
     ["p-consultas","Consultas web","El formulario público de consultas, sus tipos, salones y disponibilidad.",null],
-    ["p-correo","Correo y avisos","La cuenta de envío, las plantillas y los recordatorios automáticos.",null]]},
+    ["p-correo","Correo y avisos","La conexión con Resend, lo que se envía solo, el aspecto y las plantillas.",null]]},
   {t:"Sistema y datos", it:[
     ["p-copias","Copias de seguridad","Recuperar eventos borrados o volver a como estaba un día.",null],
     ["p-estado","Estado del sistema","Errores, espacio usado y salud de la app.",null],

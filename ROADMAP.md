@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.20** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.21** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,10 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.21
+- **Parámetros, por subsecciones.** En el menú lateral, «Parámetros» ya no es una lista de 17 pantallas: lleva **cinco subsecciones plegables**, con el número de pantallas de cada una — **Menú y cocina** (platos, bebidas, alérgenos, precios de venta, traducciones), **Servicio en sala** (servicio y camareros, tareas por fase), **Clientes y ventas** (presupuesto y pagos, agenda, contrato, Les Vinyes), **Comunicación** (consultas web, correo y avisos) y **Sistema y datos** (copias, estado, privacidad). Se abre sola la de la pantalla en la que estás (las demás se pliegan) y se nota cuál es la tuya aunque la pliegues. «Todos los parámetros» sigue arriba y su portada tiene las mismas cinco subsecciones. Cada pantalla dice en su cabecera dónde está («Parámetros · Menú y cocina · solo administración»), y en el móvil la barra de pantallas lleva las cinco etiquetas.
+- **«Correo y avisos», en cuatro pestañas:** **Conexión** (estado, guía, comprobar con Resend), **Qué se envía** (lo pendiente de cada persona, recordatorios a clientes y el resumen del equipo, que va al final por estar apagado), **Aspecto y respuestas** (firma, respuestas, diseño, pie y copias) y **Plantillas** (con el contador de las personalizadas). Lo que se escribe no se pierde al cambiar de pestaña, **Guardar** guarda todas a la vez y su barra queda siempre a la vista. Se abre en «Conexión» mientras el correo no esté activado.
 
 ### Novedad de la versión 02.20
 - **Si algo falla sin explicación**, las pantallas de correo ya no dicen «No se ha podido enviar» a secas: dicen el código (por ejemplo «error 401: unauth», «error 500» o «sin conexión con el servidor»), y una caída de red ya no deja el botón colgado.
