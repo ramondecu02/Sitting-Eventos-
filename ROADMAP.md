@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.19** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.20** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -38,6 +38,9 @@ WhatsApp suelto ni Excel.
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
 
+### Novedad de la versión 02.20
+- **Si algo falla sin explicación**, las pantallas de correo ya no dicen «No se ha podido enviar» a secas: dicen el código (por ejemplo «error 401: unauth», «error 500» o «sin conexión con el servidor»), y una caída de red ya no deja el botón colgado.
+
 ### Novedad de la versión 02.19
 - **El correo, listo para usarse con Resend de verdad.** Hasta ahora todo se probaba con un simulador; esta versión endurece lo que ocurre cuando Resend contesta cosas reales:
   - **«Comprobar la conexión con Resend»** (Parámetros → Correo y avisos, solo administración): mira que haya clave, que el remitente (`MAIL_FROM`) tenga forma de correo y no sea de una cuenta gratuita, que haya llave para los envíos automáticos y, con la propia clave, **si el dominio está verificado en Resend**. **No envía nada.** Cada punto sale en verde, amarillo o rojo y dice qué hacer. Una clave «solo envío» (la recomendada) no puede ver los dominios: se explica y no se cuenta como fallo.
@@ -48,7 +51,6 @@ WhatsApp suelto ni Excel.
   - La guía de la pantalla se pone al día: permiso «Sending access» de la clave, el paso de comprobar y cómo probar antes de verificar el dominio (`MAIL_FROM` = `onboarding@resend.dev`, solo llega al correo con el que te registraste).
 - **«Lo que falta por hacer» en el correo de Eventos.** El resumen del departamento de Eventos (y el del equipo) incluye ahora, por cada evento con compromiso (reserva, planificación o confirmado) que aún no se ha celebrado: **«Falta elegir los platos del menú»** (a 45 días o menos), **«Falta hacer la minuta»** y **«Falta cerrar el menú y enviarlo a aprobar al cliente»** (a 30 días o menos; avisa si antes hay que activar su portal) y **«El cliente aún no ha aprobado el menú / la minuta»** con los días desde que se le envió (a partir de 3 días, o a 14 del evento). Respeta «sin minuta» por decisión y los eventos antiguos con el menú ya aprobado. Salen ordenadas por lo que falta para el evento y el resumen **no se manda si no hay nada pendiente**. Para que llegue a `eventos@lesmoles.com`: Parámetros → Correo y avisos → Eventos → «Enviar su resumen», «Cada: Día» y ese correo en «Otros correos».
 - **De fábrica, solo sale lo pendiente de cada persona** (decisión del restaurante): se apagan el **resumen semanal del equipo** y los **avisos entre departamentos por correo** (siguen existiendo dentro del programa, en «Coordinación»; se pueden volver a encender en Parámetros → Correo y avisos, por departamento con «Avisarle por correo…» y para el equipo con «Enviar el resumen»). Los cinco departamentos reciben lo suyo pendiente, solo si hay algo: **Eventos cada mañana** (minuta, cerrar el menú, aprobación del cliente…) y Cocina, Compras, Servicio y Contabilidad cada lunes. Los ajustes que ya estuvieran guardados se adaptan a esto respetando los correos extra, las horas y las plantillas. El remitente puede ser cualquier dirección del dominio (por ejemplo `avisos@lesmoles.com`, aunque no exista como buzón), con las respuestas hacia el buzón que se elija; **no se puede enviar «como» una cuenta de Gmail** con Resend.
-- **Si algo falla sin explicación**, las pantallas de correo ya no dicen «No se ha podido enviar» a secas: dicen el código (por ejemplo «error 401: unauth», «error 500» o «sin conexión con el servidor»), y una caída de red ya no deja el botón colgado.
 - **Tu parte:** la misma de siempre (cuenta de Resend, DNS del dominio, secretos en Cloudflare y en GitHub). Lo que no puedo hacer yo es enviar un correo real: no tengo tu clave. Lo que sí está probado es todo el recorrido contra un simulador que imita las respuestas de Resend (claves, dominios, cupo, límite de 2 por segundo, caídas y silencios).
 
 ### Novedad de la versión 02.18
