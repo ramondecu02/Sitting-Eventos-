@@ -24115,8 +24115,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* ═══ llamadas al servidor ═══ */
   function api(path,method,body){
     return fetch(path,{method:method||"GET",headers:{"Accept":"application/json","Content-Type":"application/json"},credentials:"same-origin",body:body!=null?JSON.stringify(body):undefined})
-      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); });
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ j=j||{}; j._status=r.status; return j; }); })
+      .catch(function(){ return {_status:0}; });
   }
+  /* v02.19 · si el servidor no da un motivo, se dice qué ha pasado (el código de error) en vez de un «no se ha podido» a secas */
+  function fallo(j,base){ if(j&&j.message) return j.message; var st=j&&j._status; return String(base||"No se ha podido").replace(/\.$/,"")+" ("+(st?"error "+st+(j.error?": "+j.error:""):"sin conexión con el servidor")+")."; }
 
   /* ═══ la sección «Avisos y correo» ═══ */
   var U={host:null,ev:null,estado:null,cargando:false,err:"",comp:null,vista:null,alcance:"evento",res:{}};
@@ -24128,14 +24131,14 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     api("/api/correo?n=60"+(U.alcance==="evento"&&e?"&ev="+encodeURIComponent(e.id):""),"GET").then(function(j){
       if(j._status===200){ U.estado=j; U.err=""; if(j.plantillas){ T.plant=Object.assign({},DEF,j.plantillas); T.firma=(j.cfg&&j.cfg.firma)||T.firma; T.cargado=true; }
         if(j.proveedor&&j.proveedor.listo&&Date.now()-(U.entregaTs||0)>60e3&&(j.bandeja||[]).some(function(r){ return (r.estado==="enviado"||r.estado==="programado")&&["delivered","opened","clicked","bounced","complained","failed","suppressed","canceled"].indexOf(r.entrega)<0; })) comprobarEntrega(false); }
-      else U.err=(j._status===403?"Tu rol no puede ver el correo.":(j.message||"No se ha podido cargar el estado del correo."));
+      else U.err=(j._status===403?"Tu rol no puede ver el correo.":(fallo(j,"No se ha podido cargar el estado del correo.")));
     }).catch(function(){ U.err="Sin conexión con el servidor."; }).finally(function(){ U.cargando=false; if(cb) cb(); });
   }
   function comprobarEntrega(aMano){
     if(U.comprobando) return; U.entregaTs=Date.now(); U.comprobando=!!aMano; if(aMano) pintar();
     api("/api/correo/estado","POST",{}).then(function(j){
       U.comprobando=false;
-      if(aMano) toast(j._status!==200?(j.message||"No se ha podido comprobar."):j.cambios?j.cambios+(j.cambios===1?" correo ha cambiado de estado.":" correos han cambiado de estado."):"Sin novedades: todo sigue igual.",j._status!==200);
+      if(aMano) toast(j._status!==200?(fallo(j,"No se ha podido comprobar.")):j.cambios?j.cambios+(j.cambios===1?" correo ha cambiado de estado.":" correos han cambiado de estado."):"Sin novedades: todo sigue igual.",j._status!==200);
       if(j._status===200&&(j.cambios||aMano)) cargarEstado(pintar); else if(aMano) pintar();
     }).catch(function(){ U.comprobando=false; if(aMano){ toast("Sin conexión con el servidor.",true); pintar(); } });
   }
@@ -24286,7 +24289,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       U.enviando=false;
       if(j._status===200&&j.repetido){ c.repetido=true; U.res.comp={ok:false,msg:"Este aviso ya se envió antes. Si quieres mandarlo otra vez, pulsa «Enviarlo otra vez»."}; }
       else if(j._status===200) { U.res.comp={ok:true,estado:j.estado,msg:j.estado==="simulado"?"Guardado en la bandeja como SIMULADO: el correo todavía no está activado, no ha salido.":j.estado==="programado"?"Programado para el "+fechaHora(cuando.getTime())+". Saldrá solo a esa hora; mientras tanto lo puedes cancelar desde la bandeja de abajo.":"Enviado a "+c.to+(c.adj&&c.adj.length?" con "+c.adj.length+(c.adj.length===1?" archivo adjunto":" archivos adjuntos"):"")+"."}; if(c.alEnviar) c.alEnviar(); }
-      else U.res.comp={ok:false,msg:j.message||"No se ha podido enviar."};
+      else U.res.comp={ok:false,msg:fallo(j,"No se ha podido enviar.")};
       cargarEstado(pintar);
     }).catch(function(){ U.enviando=false; U.res.comp={ok:false,msg:"Sin conexión con el servidor."}; pintar(); });
   }
@@ -24324,13 +24327,13 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     }
     else if(a==="enviar") enviarComp();
     else if(a==="cerrar-comp"){ U.comp=null; U.res.comp=null; pintar(); }
-    else if(a==="resumen-vista"){ api("/api/correo/resumen","POST",{modo:"vista"}).then(function(j){ if(j._status===200) U.vista=j; else U.res.resumen={ok:false,msg:j.message||"No se ha podido preparar."}; pintar(); }); }
+    else if(a==="resumen-vista"){ api("/api/correo/resumen","POST",{modo:"vista"}).then(function(j){ if(j._status===200) U.vista=j; else U.res.resumen={ok:false,msg:fallo(j,"No se ha podido preparar.")}; pintar(); }); }
     else if(a==="resumen-yo"||a==="resumen-equipo"){
       b.disabled=true;
       api("/api/correo/resumen","POST",{modo:a==="resumen-yo"?"yo":"equipo"}).then(function(j){
         if(j._status===200) U.res.resumen=a==="resumen-yo"?{ok:true,estado:j.estado,msg:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido.":"Enviado a tu correo."}
           :{ok:j.ok,estado:j.simulados?"simulado":"enviado",msg:(j.enviados?j.enviados+" enviados":"")+(j.simulados?(j.enviados?" · ":"")+j.simulados+" simulados (el correo no está activado)":"")+(j.errores?" · "+j.errores+" con error":"")+"."};
-        else U.res.resumen={ok:false,msg:j.message||"No se ha podido enviar."};
+        else U.res.resumen={ok:false,msg:fallo(j,"No se ha podido enviar.")};
         cargarEstado(pintar);
       });
     }
@@ -24339,11 +24342,11 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     else if(a==="vista-cierra"){ if(U.comp){ U.comp.vista=null; pintar(); } }
     else if(a==="vista"){
       var cv=U.comp; if(!cv) return; var rt=U.host; ["to","subject","text"].forEach(function(k2){ var el=rt.querySelector('[data-av-c="'+k2+'"]'); if(el) cv[k2]=el.value; });
-      b.disabled=true; api("/api/correo/vista","POST",{kind:cv.kind,subject:cv.subject,text:cv.text}).then(function(j){ if(j._status===200) cv.vista=j.html; else U.res.comp={ok:false,msg:j.message||"No se ha podido preparar la vista previa."}; pintar(); });
+      b.disabled=true; api("/api/correo/vista","POST",{kind:cv.kind,subject:cv.subject,text:cv.text}).then(function(j){ if(j._status===200) cv.vista=j.html; else U.res.comp={ok:false,msg:fallo(j,"No se ha podido preparar la vista previa.")}; pintar(); });
     }
     else if(a==="comprobar"){ comprobarEntrega(true); }
-    else if(a==="cancelar-prog"){ b.disabled=true; api("/api/correo/cancelar","POST",{id:+id}).then(function(j){ toast(j._status===200?"Envío cancelado: no saldrá.":(j.message||"No se ha podido cancelar."),j._status!==200); cargarEstado(pintar); }); }
-    else if(a==="reintentar"){ b.disabled=true; api("/api/correo/reintentar","POST",{id:+id}).then(function(j){ toast(j._status===200?(j.estado==="simulado"?"Sigue simulado: el correo no está activado.":"Enviado."):(j.message||"No se ha podido enviar."),j._status!==200); cargarEstado(pintar); }); }
+    else if(a==="cancelar-prog"){ b.disabled=true; api("/api/correo/cancelar","POST",{id:+id}).then(function(j){ toast(j._status===200?"Envío cancelado: no saldrá.":(fallo(j,"No se ha podido cancelar.")),j._status!==200); cargarEstado(pintar); }); }
+    else if(a==="reintentar"){ b.disabled=true; api("/api/correo/reintentar","POST",{id:+id}).then(function(j){ toast(j._status===200?(j.estado==="simulado"?"Sigue simulado: el correo no está activado.":"Enviado."):(fallo(j,"No se ha podido enviar.")),j._status!==200); cargarEstado(pintar); }); }
   }
   window.LM_renderAvisos=function(host){
     var e=evActual();
@@ -24370,7 +24373,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     ["proveedor_asunto","Proveedor · asunto","{evento} {fecha}"],["proveedor","Proveedor · texto","{nombre} {evento} {fecha} {servicio} {firma}"]];
   function cargarCfg(){
     if(C.cargando) return; C.cargando=true;
-    api("/api/correo?n=30","GET").then(function(j){ if(j._status===200){ C.estado=j; C.cfg=JSON.parse(JSON.stringify(j.cfg)); C.plant=Object.assign({},j.plantillas); C.err=""; } else C.err=j.message||"No se ha podido cargar."; })
+    api("/api/correo?n=30","GET").then(function(j){ if(j._status===200){ C.estado=j; C.cfg=JSON.parse(JSON.stringify(j.cfg)); C.plant=Object.assign({},j.plantillas); C.err=""; } else C.err=fallo(j,"No se ha podido cargar."); })
       .catch(function(){ C.err="Sin conexión con el servidor."; }).finally(function(){ C.cargando=false; pintarCfg(); });
   }
   function guia(origen){
@@ -24468,23 +24471,23 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var b=t.closest?t.closest("[data-cfa]"):null; if(!b) return; var a=b.getAttribute("data-cfa");
     if(a==="guardar"){ C.guardando=true; C.msg=null; pintarCfg();
       api("/api/correo","PUT",{cfg:C.cfg,plantillas:C.plant}).then(function(j){ C.guardando=false;
-        if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:j.message||"No se ha podido guardar."}; pintarCfg(); } }); }
+        if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:fallo(j,"No se ha podido guardar.")}; pintarCfg(); } }); }
     else if(a==="vista-cierra"){ C.vista=null; pintarCfg(); }
     else if(a==="comprobar"){ C.comprobando=true; C.comp=null; pintarCfg();
       api("/api/correo/comprobar","POST",{}).then(function(j){ C.comprobando=false;
-        C.comp=j._status===200?j:{items:[{estado:"mal",t:j.message||"No se ha podido comprobar."}],mal:1,aviso:0,resumen:"No se ha podido hacer la comprobación."}; pintarCfg(); }); }
+        C.comp=j._status===200?j:{items:[{estado:"mal",t:fallo(j,"No se ha podido comprobar.")}],mal:1,aviso:0,resumen:"No se ha podido hacer la comprobación."}; pintarCfg(); }); }
     else if(a==="vista"){ b.disabled=true;
       var v={nombre:"Marta y Jordi",evento:"Boda de Marta i Jordi",fecha:"sábado 12 de diciembre de 2026",enlace:location.origin+"/?cliente=ejemplo",firma:C.cfg.firma||""};
       var tx=String(C.plant.cliente_lista||"").replace(/\{(\w+)\}/g,function(m,k3){ return Object.prototype.hasOwnProperty.call(v,k3)?v[k3]:m; });
-      api("/api/correo/vista","POST",{kind:"cliente",subject:"La lista de invitados de "+v.evento,text:tx,cfg:C.cfg}).then(function(j){ if(j._status===200) C.vista=j.html; else C.msg={ok:false,txt:j.message||"No se ha podido preparar la vista previa."}; pintarCfg(); }); }
+      api("/api/correo/vista","POST",{kind:"cliente",subject:"La lista de invitados de "+v.evento,text:tx,cfg:C.cfg}).then(function(j){ if(j._status===200) C.vista=j.html; else C.msg={ok:false,txt:fallo(j,"No se ha podido preparar la vista previa.")}; pintarCfg(); }); }
     else if(a==="restaurar"){ var k2=b.getAttribute("data-k"); C.plant[k2]=(C.estado.plantillasPorDefecto||{})[k2]; api("/api/correo","PUT",{plantillas:(function(){ var o={}; o[k2]=null; return o; })()}).then(function(){ cargarCfg(); }); }
     else if(a==="prueba"){ b.disabled=true; C.msg=null;
       api("/api/correo/enviar","POST",{kind:"prueba",to:(yo().email||""),subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona. Así se ve un botón a un enlace:\n"+location.origin+"/\n\n"+(C.cfg.firma||"")}).then(function(j){
-        C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(yo().email||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:j.message||"No se ha podido enviar."}; cargarCfg(); }); }
+        C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(yo().email||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:fallo(j,"No se ha podido enviar.")}; cargarCfg(); }); }
     else if(a==="dep-vista"||a==="dep-yo"||a==="dep-equipo"){
       var dk=b.getAttribute("data-d"), modo=a==="dep-vista"?"vista":a==="dep-yo"?"yo":"equipo"; b.disabled=true;
       api("/api/correo/resumen","POST",{modo:modo,dep:dk}).then(function(j){
-        if(j._status!==200) C.depRes={d:dk,ok:false,txt:j.message||"No se ha podido."};
+        if(j._status!==200) C.depRes={d:dk,ok:false,txt:fallo(j,"No se ha podido.")};
         else if(modo==="vista") C.depRes={d:dk,ok:true,txt:j.vacio?"Hoy no hay nada que contar a este departamento (no se mandaría nada).":"Así quedaría hoy ("+j.eventos+(j.eventos===1?" evento":" eventos")+"):",texto:j.texto};
         else if(modo==="yo") C.depRes={d:dk,ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido.":"Enviado a tu correo."};
         else C.depRes={d:dk,ok:j.ok,sim:!!j.simulados,txt:(j.enviados?j.enviados+" enviados":"")+(j.simulados?(j.enviados?" · ":"")+j.simulados+" simulados (el correo no está activado)":"")+(j.errores?" · "+j.errores+" con error":"")+(!j.destinatarios?"Nadie de este departamento tiene correo.":".")};
