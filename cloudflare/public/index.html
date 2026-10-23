@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.25 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.26 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.25".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.26".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4634,7 +4634,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.25</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.26</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10413,7 +10413,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.25</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.26</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -25292,6 +25292,14 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* v02.15 · pulido del portal */
   "#novios.pn{color-scheme:light}",
   "#novios .pn-names{overflow-wrap:anywhere}#novios .pn-hero.larga .pn-names{font-size:clamp(28px,6.6vw,46px);line-height:1.1;margin-top:24px}",
+  /* foto de la cabecera (v02.26): detrás de todo, con un degradado oscuro para que el texto se lea con cualquier foto */
+  "#novios .pn-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--op,50% 40%);z-index:-2;display:block}@media (max-width:620px){#novios .pn-foto{object-position:var(--opm,50% 40%)}}#novios .pn-foto.nueva{animation:pnFoto .9s cubic-bezier(.2,.7,.2,1) both}",
+  "@keyframes pnFoto{from{opacity:0;transform:scale(1.045)}to{opacity:1;transform:none}}",
+  "#novios .pn-hero.conf::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(18,18,18,.42) 0,rgba(18,18,18,.16) 55%,rgba(18,18,18,0) 85%),linear-gradient(180deg,rgba(18,18,18,.86) 0,rgba(18,18,18,.66) 64px,rgba(18,18,18,.3) 42%,rgba(18,18,18,.66) 62%,rgba(18,18,18,.88) 100%)}",
+  "#novios .pn-hero.conf>svg{display:none}#novios .pn-hero.conf .pn-names,#novios .pn-hero.conf .pn-brand,#novios .pn-hero.conf .pn-when{text-shadow:0 1px 2px rgba(0,0,0,.45),0 2px 22px rgba(0,0,0,.5)}#novios .pn-hero.conf .pn-brand,#novios .pn-hero.conf .pn-brand span:last-child,#novios .pn-hero.conf .pn-count span{color:#E4E3DA}#novios .pn-hero.conf .pn-when{color:#E4E3DA}",
+  "#novios .pn-hero.sec>.pn-wrap{display:flex;flex-direction:column;min-height:clamp(150px,19vw,360px)}#novios .pn-hero.sec .pn-names{margin-top:auto;padding-top:22px;font-size:clamp(30px,6vw,46px)}#novios .pn-hero.sec.larga .pn-names{font-size:clamp(26px,5.2vw,40px)}#novios .pn-hero.sec .pn-when{margin-top:10px}",
+  "#novios .pn-hero.ini>.pn-wrap{min-height:clamp(250px,26vw,500px);display:flex;flex-direction:column}#novios .pn-hero.ini .pn-names{margin-top:auto;padding-top:26px}#novios .pn-hero.ini .pn-count{margin-top:24px}",
+  "@media (min-width:900px){#novios .pn-hero{padding-block:40px 32px}}",
   "#novios .pn-count b.txt{font-size:22px;line-height:1.35;white-space:normal}#novios .pn-count b.txt.ok{color:var(--ol2)}@media (max-width:620px){#novios .pn-count b.txt{font-size:18px}#novios .pn-count div{padding-right:10px}#novios .pn-count div+div{padding-left:12px}}",
   "#novios .pn-tab{min-height:40px}#novios .pn-tab:focus-visible,#novios .pn-btn:focus-visible,#novios .pn-lg:focus-visible,#novios .pn-x:focus-visible,#novios .pn-flnk:focus-visible,#novios summary:focus-visible,#novios a:focus-visible,#novios .pn-chip:focus-visible,#novios textarea:focus-visible{outline:2px solid var(--olt);outline-offset:2px}",
   "#novios .pn-btn,#novios .pn-chip,#novios .pn-tab,#novios .pn-lg{transition:transform .12s ease-out,background .15s,border-color .15s,color .15s}#novios .pn-btn:active,#novios .pn-chip:active,#novios .pn-tab:active,#novios .pn-lg:active{transform:scale(.97)}",
@@ -25314,7 +25322,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   "#novios .pn-estado-c{margin:auto;max-width:430px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding:36px 0}#novios .pn-estado-c .pn-h2{font-size:30px}#novios .pn-estado-c .pn-lead{margin:8px auto 0;max-width:38ch}#novios .pn-estado-c .pn-lead b{color:var(--pi)}",
   "#novios .pn-spin{width:34px;height:34px;border-radius:50%;border:2px solid var(--pl2);border-top-color:var(--olt);animation:pnSpin .9s linear infinite;margin-bottom:12px}@keyframes pnSpin{to{transform:rotate(360deg)}}",
   "#novios .pn-cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}#novios .pn-cta .pn-btn{max-width:100%;height:auto;min-height:44px;padding-block:8px;overflow-wrap:anywhere;text-align:center}",
-  "@media (prefers-reduced-motion:reduce){#novios .pn-panel{animation:none}#novios .pn-spin{animation-duration:3s}#novios .pn-btn:active,#novios .pn-chip:active,#novios .pn-tab:active,#novios .pn-lg:active{transform:none}}"
+  "@media (prefers-reduced-motion:reduce){#novios .pn-panel,#novios .pn-foto.nueva{animation:none}#novios .pn-spin{animation-duration:3s}#novios .pn-btn:active,#novios .pn-chip:active,#novios .pn-tab:active,#novios .pn-lg:active{transform:none}}"
   ].join("\n");
   function css(){ if(document.getElementById("pn-css")) return; var st=document.createElement("style"); st.id="pn-css"; st.textContent=CSS; document.head.appendChild(st); }
 
@@ -25344,16 +25352,33 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     try{ var blob=new Blob([r.txt],{type:"text/calendar;charset=utf-8"}), u=URL.createObjectURL(blob), a=document.createElement("a"); a.href=u; a.download="fechas-les-moles.ics"; host.appendChild(a); a.click();
       setTimeout(function(){ try{ URL.revokeObjectURL(u); a.remove(); }catch(_){} },1500); aviso(r.n+(r.n===1?" fecha lista":" fechas listas")+" para vuestro calendario. Abrid el archivo descargado."); }
     catch(_){ aviso("Este navegador no deja descargar el calendario."); } }
+  /* La foto de la cabecera de cada apartado (v02.26): /portal/<nombre>-800.webp (móvil) y -1536.webp (pantalla grande).
+     Los números son lo que queda a la vista al recortar la foto (object-position): % de alto en pantalla grande, y % de ancho y de alto en móvil. Sin nombres de personas en los archivos. */
+  var FOTOS={inicio:["inicio",59,85,50],pagos:["pagos",27,50,15],presu:["presupuesto",36,50,40],inv:["invitados",36,50,40],plano:["plano",39,50,48],dia:["dia",27,50,15],aprob:["aprobar",31,50,27],docs:["documentos",42,50,56],msg:["mensajes",19,50,0],contrato:["documentos",42,50,56]}, FOTO_ULT="", FOTOS_PRE=false;
+  function fotoSrc(k,w){ return "/portal/"+FOTOS[k][0]+"-"+w+".webp"; }
+  /* con la página ya pintada y el móvil sin ahorro de datos, se van guardando las demás fotos para que al cambiar de apartado ya estén */
+  function precargaFotos(){
+    if(FOTOS_PRE) return; FOTOS_PRE=true;
+    try{ if(navigator.connection&&navigator.connection.saveData) return; }catch(_){}
+    var w=(window.innerWidth||800)*(window.devicePixelRatio||1)>800?1536:800, L=Object.keys(FOTOS).filter(function(k){ return k!==tab&&k!=="contrato"; }), i=0;
+    function una(){ if(i>=L.length) return; var im=new Image(); im.decoding="async"; im.src=fotoSrc(L[i++],w); setTimeout(una,350); }
+    var ini=function(){ una(); }; if(window.requestIdleCallback) window.requestIdleCallback(ini,{timeout:4000}); else setTimeout(ini,1500);
+  }
+  function vFoto(){
+    var k=FOTOS[tab]?tab:"inicio", nueva=FOTO_ULT!==k; FOTO_ULT=k;
+    return '<img class="pn-foto'+(nueva?" nueva":"")+'" alt="" aria-hidden="true"'+(nueva?' fetchpriority="high"':'')+' src="'+fotoSrc(k,800)+'" srcset="'+fotoSrc(k,800)+' 800w, '+fotoSrc(k,1536)+' 1536w" sizes="100vw" style="--op:50% '+FOTOS[k][1]+'%;--opm:'+FOTOS[k][2]+'% '+FOTOS[k][3]+'%">';
+  }
   function vHero(){
-    var n=nombres(), f=d0(P().fecha||(D.event&&D.event.fecha)), dd=dias(f), pr=P().presupuesto||{}, c=cuenta(), nom=PAL().nom;
+    var n=nombres(), f=d0(P().fecha||(D.event&&D.event.fecha)), dd=dias(f), pr=P().presupuesto||{}, c=cuenta(), nom=PAL().nom, ini=tab==="inicio";
     var larga=(n.a.length+(n.b||"").length)>34||n.a.length>24||(n.b||"").length>24, c1="", c3="";
     /* los días que faltan (o que han pasado) con su frase; sin fecha no se enseña nada */
     if(dd!=null) c1='<div>'+(dd>1?'<b class="pn-n">'+dd+'</b><span>días para '+esc(nom)+'</span>':dd===1?'<b class="pn-n txt">Mañana</b><span>es '+esc(nom)+'</span>':dd===0?'<b class="pn-n txt">¡Hoy!</b><span>es '+esc(nom)+'</span>':'<b class="pn-n">'+(-dd)+'</b><span>'+(dd===-1?"día":"días")+' desde '+esc(nom)+'</span>')+'</div>';
     if(pr.total>0) c3=(pr.pend>0.5)?'<div><b class="pn-n">'+esc(eur(pr.pend).replace(",00",""))+'</b><span>pendiente de pagar</span></div>':'<div><b class="pn-n txt ok">Al día</b><span>todo pagado, gracias</span></div>';
-    return '<header class="pn-hero'+(larga?" larga":"")+'">'+MOLA+'<div class="pn-wrap"><div class="pn-brand"><span>Les Moles · Ulldecona</span><span>'+esc(P().tipo||PAL().marca)+'</span></div>'+
+    /* Inicio lleva todo (nombres, fecha, cuenta atrás); el resto de apartados, una cabecera más baja con su foto: lo de los contadores ya está en Inicio y en cada apartado */
+    return '<header class="pn-hero conf '+(ini?"ini":"sec")+(larga?" larga":"")+'">'+vFoto()+MOLA+'<div class="pn-wrap"><div class="pn-brand"><span>Les Moles · Ulldecona</span><span>'+esc(P().tipo||PAL().marca)+'</span></div>'+
       '<h1 class="pn-names">'+(n.solo?esc(n.a):esc(n.a)+' <i>&amp;</i> '+esc(n.b))+'</h1>'+
       '<div class="pn-when">'+(f?'<span>'+esc(largo(f))+'</span>':'')+(P().ubicacion?'<span>'+esc(P().ubicacion)+'</span>':'')+'</div>'+
-      '<div class="pn-count">'+c1+'<div><b class="pn-n" id="pn-c-inv">'+c.total+'</b><span>invitados en vuestra lista</span></div>'+c3+'</div></div></header>';
+      (ini?'<div class="pn-count">'+c1+'<div><b class="pn-n" id="pn-c-inv">'+c.total+'</b><span>invitados en vuestra lista</span></div>'+c3+'</div>':'')+'</div></header>';
   }
   function conDoc(){ var C=P().contrato; return (C&&C.texto)?C:null; }
   function conFirmantes(){ return (AP&&AP.contratoFirmantes)===2?2:1; }
@@ -25779,6 +25804,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     try{ var tw=host.querySelector(".pn-tabs .pn-wrap"), ts=tw&&tw.querySelector(".pn-tab[aria-selected=true]"); if(ts) tw.scrollLeft=Math.max(0,ts.offsetLeft-(tw.clientWidth-ts.offsetWidth)/2); }catch(_){}
     if(tab==="inv"&&(BUSCA||SOLOAL)) aplicaFiltro();
     try{ var n=nombres(); document.title=(n.solo?n.a:n.a+" & "+n.b)+" · Les Moles"; }catch(_){}
+    precargaFotos();
   }
   function soloContadores(){ var c=cuenta(), t=document.getElementById("pn-tally"); if(t) t.innerHTML=vTally(c); var dp=document.getElementById("pn-dup"); if(dp) dp.innerHTML=vDup(); var i=document.getElementById("pn-c-inv"); if(i) i.textContent=c.total; }
 
@@ -25833,8 +25859,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* ── interacción ── */
   function onClick(ev){
     var t=ev.target;
-    var tb=t.closest&&t.closest("[data-pn-tab]"); if(tb){ tab=tb.getAttribute("data-pn-tab"); pintar(); var tabs=host.querySelector(".pn-tabs"); if(tabs&&host.scrollTop>tabs.offsetTop) host.scrollTop=tabs.offsetTop; return; }
-    var go=t.closest&&t.closest("[data-pn-go]"); if(go){ tab=go.getAttribute("data-pn-go"); pintar(); return; }
+    /* al cambiar de apartado se vuelve arriba, para ver su foto y su principio */
+    var tb=t.closest&&t.closest("[data-pn-tab]"); if(tb){ var antes=tab; tab=tb.getAttribute("data-pn-tab"); pintar(); if(tab!==antes) host.scrollTop=0; return; }
+    var go=t.closest&&t.closest("[data-pn-go]"); if(go){ tab=go.getAttribute("data-pn-go"); pintar(); host.scrollTop=0; return; }
     var cp=t.closest&&t.closest("[data-pn-copy]"); if(cp){ var el=document.getElementById(cp.getAttribute("data-pn-copy")); if(!el) return;
       var sel=function(){ var r=document.createRange(); r.selectNodeContents(el); var s=window.getSelection(); s.removeAllRanges(); s.addRange(r); aviso("Seleccionado: cópialo con Ctrl+C o mantén pulsado."); };
       try{ navigator.clipboard.writeText(el.textContent).then(function(){ aviso("Copiado."); },sel); }catch(_){ sel(); } return; }

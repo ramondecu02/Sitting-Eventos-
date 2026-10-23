@@ -3,11 +3,11 @@
      una versión nueva (petición condicional: si no ha cambiado, no se descarga nada) y, si la hay, se guarda y se avisa a la app para que cambie
      cuando convenga. Antes se esperaba a la red hasta 6 s con la pantalla en blanco.
    · La primera vez (sin copia) se descarga de la red.
-   · Las fotos del salón (/lz/…) y los iconos se guardan la primera vez que se ven.
+   · Las fotos del salón (/lz/…), las de las cabeceras del portal (/portal/…) y los iconos se guardan la primera vez que se ven.
    · La API (/api/…) NUNCA pasa por aquí: los datos de trabajo ya se guardan primero en el propio
      dispositivo y se suben cuando vuelve la conexión (lo hace la app).
    La versión (V) la pone el despliegue: al cambiar, se guarda la app nueva, se borra la vieja y se avisa a las pestañas abiertas. */
-const V = "02.25";
+const V = "02.26";
 const SHELL = "lm-app-" + V, EST = "lm-estaticos-1";
 const PRE = ["/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
 
@@ -67,5 +67,5 @@ self.addEventListener("fetch", (e) => {
   const u = new URL(r.url);
   if (u.origin !== self.location.origin || u.pathname.startsWith("/api/")) return;
   if (r.mode === "navigate") { e.respondWith(abrirApp(e)); return; }
-  if (u.pathname.startsWith("/lz/") || u.pathname.startsWith("/fonts/") || u.pathname.startsWith("/icons/") || u.pathname === "/manifest.webmanifest") e.respondWith(guardadoPrimero(r));
+  if (u.pathname.startsWith("/lz/") || u.pathname.startsWith("/fonts/") || u.pathname.startsWith("/portal/") || u.pathname.startsWith("/icons/") || u.pathname === "/manifest.webmanifest") e.respondWith(guardadoPrimero(r));
 });

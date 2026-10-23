@@ -83,6 +83,7 @@ export const hecho = [
   'Correo: arreglado el «error 502» que escondía el motivo de los fallos de Resend (Cloudflare cambiaba la respuesta) · v02.23',
   'Letra nueva: títulos y cifras en Optima y texto en Inter, en la aplicación y en el portal del cliente (servidas desde la propia web); el archivo de Optima facilitado era la edición cirílica y se han reconstruido sus letras acentuadas, pendiente de una Optima latina con licencia · v02.24',
   'Estaciones: el carrito de helados con su propia franja en la escaleta y utensilios propios por plato dentro de una misma estación (pulpo y hamburguesa de la brasa), en Parámetros y en el check list · v02.25',
+  'Portal del cliente con una foto distinta en la cabecera de cada apartado (Inicio, Pagos, Presupuesto, Invitados, Plano, El día, Aprobar, Documentos y Mensajes): cabecera completa en Inicio y más baja en el resto, fotos de menos de 2 MB en total (800 y 1536 px), texto legible sobre cualquier foto y sin nombres de personas en los archivos · v02.26',
 ];
 
 export const decisiones = [

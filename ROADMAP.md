@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.25** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.26** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.26
+- **Portal del cliente: una foto distinta en la cabecera de cada apartado.** Al pasar de una pestaña a otra, la cabecera cambia de foto (con una entrada suave): **Inicio** (entrada al banquete en los jardines), **Pagos** (la moto), **Presupuesto** (el salón, en blanco y negro), **Invitados** (los amigos), **Plano** (la entrada a la ceremonia), **El día** (los votos), **Aprobar** (el aperitivo), **Documentos** (el brindis) y **Mensajes** (la tarta). Si hay contrato o propuesta, esa pestaña usa la foto de Documentos (no había una décima).
+- **Cabecera pensada para las fotos.** Inicio conserva todo (nombres, fecha, días que faltan, invitados y pendiente de pago) sobre su foto; **el resto de apartados llevan una cabecera más baja** (marca, nombres y fecha) para no gastar la pantalla del móvil. Al cambiar de apartado se vuelve arriba, para ver su foto y el principio de la pantalla. Cada foto tiene ajustado qué parte se ve al recortarla (caras arriba, nombres sobre los cuerpos) en móvil y en pantalla grande; un degradado oscuro asegura que **el texto se lea con cualquier foto** (medido en las 9 fotos y en 4 anchos: contraste mínimo 4,5 en el texto pequeño y 3 en los nombres).
+- **Ligeras y sin nombres de personas.** Las 9 fotos se han reducido de 24 MB a **menos de 2 MB en total** (WebP, versión de 800 px para móvil y de 1536 px para pantalla grande; el móvil solo baja las de 800). Se guardan en el dispositivo tras la primera vez, y con la página ya pintada se van descargando las demás para que al cambiar de apartado ya estén (no se hace si el móvil tiene el ahorro de datos activado). Los archivos están en `portal/` con nombres neutros (`inicio-800.webp`, `pagos-1536.webp`…): **no llevan los nombres de las parejas**. Son archivos públicos de la web: cualquiera que conozca su dirección puede verlos.
+- Si la foto no llega (sin conexión), la cabecera queda con el fondo oscuro de siempre y se lee igual; al imprimir no sale; con «reducir movimiento» no se anima.
 
 ### Novedad de la versión 02.25
 - **El carrito de helados, estación independiente.** En la escaleta salía colgando de «Buffet» (su fila se quedaba debajo de la franja anterior). Ahora tiene **su propia franja** («Carrito de helados · 6 variedades») y una sola fila con su cantidad.
