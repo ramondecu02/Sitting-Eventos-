@@ -2753,7 +2753,7 @@ async function correoEnviarRoute(request, env) {
      by: a.s.name || a.s.email, origen: new URL(request.url).origin,
     bcc: kind === "prueba" ? [] : corCopias(cfg, kind, quien), replyTo: kind === "prueba" ? "" : (cfg.respuesta === "quien" && quien ? quien : cfg.responder), adjuntos: ad.lista, programar: prog });
   if (r.ok) await logAct(env, a.s, "correo_enviado", (r.estado === "simulado" ? "(simulado) " : r.estado === "programado" ? "(programado) " : "") + kind + " → " + String(b.to || a.s.email).slice(0, 80) + (ad.lista.length ? " · " + ad.lista.length + " adjuntos" : ""));
-  return json(r, r.ok ? 200 : (r.error === "invalid" ? 400 : 502));
+  return json(r, r.ok ? 200 : (r.error === "invalid" ? 400 : 424));
 }
 async function correoReintentar(request, env) {
   const a = await correoSesion(request, env, false); if (a.err) return a.err;
@@ -2763,7 +2763,7 @@ async function correoReintentar(request, env) {
   if (row.estado === "enviado" || row.estado === "programado") return json({ ok: true, repetido: true, id: row.id, estado: row.estado });
   if (row.adj) return json({ error: "adjuntos", message: "Este correo llevaba archivos adjuntos y no se guardan: vuelve a redactarlo y adjuntarlos." }, 400);
   const r = await correoEnviar(env, { fila: row.id, kind: row.kind, ev: row.ev, to: row.to_addr, subject: row.subject, text: row.body, ref: row.ref || "", by: a.s.name || a.s.email, origen: new URL(request.url).origin, bcc: row.bcc || "", replyTo: row.reply_to || "" });
-  return json(r, r.ok ? 200 : 502);
+  return json(r, r.ok ? 200 : 424);
 }
 /* resumen a mano: vista previa, prueba a uno mismo o envío al equipo ahora */
 async function correoResumenRoute(request, env) {
@@ -2773,7 +2773,7 @@ async function correoResumenRoute(request, env) {
   if (COR_DEPS.indexOf(b.dep) >= 0) {
     const origen = new URL(request.url).origin, RD = corResumenDep(doc, M.iso, b.dep, cfg, plant, origen);
     if (b.modo === "vista") return json({ ok: true, asunto: RD.asunto, texto: RD.texto, vacio: RD.vacio, eventos: RD.eventos });
-    if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: RD.asunto, text: RD.texto, ref: "resdep-prueba:" + b.dep + ":" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email, origen }); return json(r, r.ok ? 200 : 502); }
+    if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: RD.asunto, text: RD.texto, ref: "resdep-prueba:" + b.dep + ":" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email, origen }); return json(r, r.ok ? 200 : 424); }
     if (b.modo === "equipo") {
       if (a.s.role !== "admin") return json({ error: "forbidden", message: "Solo el administrador puede enviarlo." }, 403);
       const dest = await corDestDep(env, b.dep, cfg), res = [];
@@ -2785,7 +2785,7 @@ async function correoResumenRoute(request, env) {
   }
   const R = corResumen(doc, M.iso, cfg, plant);
   if (b.modo === "vista") return json({ ok: true, asunto: R.asunto, texto: R.texto, eventos: R.eventos });
-  if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: R.asunto, text: R.texto, ref: "resumen-prueba:" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email }); return json(r, r.ok ? 200 : 502); }
+  if (b.modo === "yo") { const r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: R.asunto, text: R.texto, ref: "resumen-prueba:" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email }); return json(r, r.ok ? 200 : 424); }
   if (b.modo === "equipo") {
     if (a.s.role !== "admin") return json({ error: "forbidden", message: "Solo el administrador puede enviarlo al equipo." }, 403);
     const dest = await corDestinatarios(env, cfg), res = [];
@@ -2860,8 +2860,8 @@ async function correoCancelar(request, env) {
     if (row.prog_ts && +row.prog_ts <= Date.now() + 30e3) return json({ error: "invalid", message: "Ya está a punto de salir: no se puede cancelar." }, 400);
     try {
       const x = await corResend(env, "/emails/" + encodeURIComponent(row.prov_id) + "/cancel", { method: "POST" });
-      if (!x.ok) { let j = {}; try { j = await x.json(); } catch (_) {} return json({ error: "proveedor", message: "El servicio de correo no ha podido cancelarlo: " + String((j && j.message) || ("HTTP " + x.status)).slice(0, 200) }, 502); }
-    } catch (err) { return json({ error: "red", message: "No se ha podido contactar con el servicio de correo." }, 502); }
+      if (!x.ok) { let j = {}; try { j = await x.json(); } catch (_) {} return json({ error: "proveedor", message: "El servicio de correo no ha podido cancelarlo: " + String((j && j.message) || ("HTTP " + x.status)).slice(0, 200) }, 424); }
+    } catch (err) { return json({ error: "red", message: "No se ha podido contactar con el servicio de correo." }, 424); }
   }
   await env.DB.prepare("UPDATE outbox SET estado='cancelado', entrega='canceled', entrega_ts=?1 WHERE id=?2").bind(Date.now(), row.id).run();
   await logAct(env, a.s, "correo_cancelado", "Canceló un correo programado → " + String(row.to_addr).slice(0, 80));
@@ -3807,6 +3807,8 @@ function cookie(request, name) {
 }
 
 /* ── utilidades ─────────────────────────────────────────────────────── */
+/* OJO: nunca devolver 502 ni 504 desde aquí: Cloudflare cambia esas respuestas por su propia página de error y el mensaje se pierde.
+   Cuando falla un servicio de fuera (el correo) se usa 424. */
 function json(obj, status = 200, headers = {}) {
   return new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store", ...headers } });
 }

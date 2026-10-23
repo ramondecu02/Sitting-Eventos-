@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.22** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.23** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,9 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.23
+- **Arreglado el «error 502» del correo.** Cuando Resend rechazaba un correo (dominio sin verificar, clave, remitente…), el programa devolvía un código 502 y **Cloudflare lo cambiaba por su propia página de error**, con lo que el motivo real se perdía y la pantalla solo decía «No se ha podido enviar». Ahora los fallos de un servicio de fuera (el correo) se devuelven con otro código (424) y **la pantalla enseña el motivo de verdad**, en castellano y con lo que hay que hacer. Queda anotado en el código para no volver a usar 502 ni 504.
 
 ### Novedad de la versión 02.22
 - **Escaleta: el carrito de helados es UNA fila.** Una estación completa —el carrito de helados— sale en la escaleta y en el «Orden de salida» como **una sola línea** («Carrito de helados · 6 variedades», con su cantidad), no con cada helado suelto. Al subirla, bajarla, arrastrarla o escribir su posición se mueven los 6 a la vez, y el selector «Aperitivo / Estación» también cambia los 6. Las demás estaciones siguen con cada plato en su fila (brasa, pulpo, buffet…). El resumen cuenta estaciones, no platos.

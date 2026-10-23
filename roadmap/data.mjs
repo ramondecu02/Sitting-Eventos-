@@ -80,6 +80,7 @@ export const hecho = [
   'Correo con Resend de verdad: «Comprobar la conexión» (clave, remitente y dominio sin enviar nada), errores de Resend en castellano, los fallos de configuración no gastan los 3 intentos y el envío automático se detiene hasta que se arregle, ritmo de 2 por segundo con reintento ante «demasiado seguido», y «Reintentar» que reutiliza la misma fila de la bandeja · el resumen de Eventos y del equipo dicen lo que falta por hacer en cada evento (platos, minuta, cerrar el menú, aprobación del cliente) · de fábrica solo sale lo pendiente de cada persona (sin resumen del equipo ni avisos entre departamentos por correo) · v02.19',
   'Parámetros por subsecciones: el menú lateral con cinco subsecciones plegables (Menú y cocina, Servicio en sala, Clientes y ventas, Comunicación, Sistema y datos), migas en cada cabecera y Correo y avisos en cuatro pestañas (Conexión, Qué se envía, Aspecto y respuestas, Plantillas) · v02.21',
   'Escaleta: el carrito de helados como una sola fila (y se mueve entero) y los molletes como aperitivo · minuta con «en nuestro comedor…» (català y English también) antes de los platos del banquete · v02.22',
+  'Correo: arreglado el «error 502» que escondía el motivo de los fallos de Resend (Cloudflare cambiaba la respuesta) · v02.23',
 ];
 
 export const decisiones = [
