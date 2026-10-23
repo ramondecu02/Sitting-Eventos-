@@ -10,3 +10,5 @@
   Cache-Control: no-cache
 /icons/*
   Cache-Control: public, max-age=604800
+/fonts/*
+  Cache-Control: public, max-age=604800

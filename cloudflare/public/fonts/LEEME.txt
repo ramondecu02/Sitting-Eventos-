@@ -1,0 +1,5 @@
+Letras de Les Moles Events (v02.24)
+- optima.woff2 ......... títulos y cifras grandes (archivo «optima.ttf» facilitado por el restaurante, convertido a WOFF2)
+- inter-400/500/700 .... texto de la aplicación y del portal del cliente (Inter, licencia SIL OFL: ver OFL-Inter.txt)
+  Recortadas a alfabeto latino ampliado, puntuación, flechas y símbolos de uso habitual; conservan las cifras tabulares.
+Para cambiar de letra: sustituir estos archivos y los nombres de «@font-face» al principio de index.html.

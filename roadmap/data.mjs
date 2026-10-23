@@ -81,6 +81,7 @@ export const hecho = [
   'Parámetros por subsecciones: el menú lateral con cinco subsecciones plegables (Menú y cocina, Servicio en sala, Clientes y ventas, Comunicación, Sistema y datos), migas en cada cabecera y Correo y avisos en cuatro pestañas (Conexión, Qué se envía, Aspecto y respuestas, Plantillas) · v02.21',
   'Escaleta: el carrito de helados como una sola fila (y se mueve entero) y los molletes como aperitivo · minuta con «en nuestro comedor…» (català y English también) antes de los platos del banquete · v02.22',
   'Correo: arreglado el «error 502» que escondía el motivo de los fallos de Resend (Cloudflare cambiaba la respuesta) · v02.23',
+  'Letra nueva: títulos y cifras en Optima y texto en Inter, en la aplicación y en el portal del cliente (servidas desde la propia web); el archivo de Optima facilitado era la edición cirílica y se han reconstruido sus letras acentuadas, pendiente de una Optima latina con licencia · v02.24',
 ];
 
 export const decisiones = [

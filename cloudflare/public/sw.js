@@ -7,7 +7,7 @@
    · La API (/api/…) NUNCA pasa por aquí: los datos de trabajo ya se guardan primero en el propio
      dispositivo y se suben cuando vuelve la conexión (lo hace la app).
    La versión (V) la pone el despliegue: al cambiar, se guarda la app nueva, se borra la vieja y se avisa a las pestañas abiertas. */
-const V = "02.23";
+const V = "02.24";
 const SHELL = "lm-app-" + V, EST = "lm-estaticos-1";
 const PRE = ["/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png"];
 
@@ -67,5 +67,5 @@ self.addEventListener("fetch", (e) => {
   const u = new URL(r.url);
   if (u.origin !== self.location.origin || u.pathname.startsWith("/api/")) return;
   if (r.mode === "navigate") { e.respondWith(abrirApp(e)); return; }
-  if (u.pathname.startsWith("/lz/") || u.pathname.startsWith("/icons/") || u.pathname === "/manifest.webmanifest") e.respondWith(guardadoPrimero(r));
+  if (u.pathname.startsWith("/lz/") || u.pathname.startsWith("/fonts/") || u.pathname.startsWith("/icons/") || u.pathname === "/manifest.webmanifest") e.respondWith(guardadoPrimero(r));
 });

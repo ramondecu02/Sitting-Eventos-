@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.23** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.24** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.24
+- **Letra nueva en la aplicación y en el portal del cliente:** los **títulos y las cifras grandes van en Optima** y **el texto, en Inter**. Las letras se sirven desde la propia web (carpeta `fonts/`, unos 110 KB en total, guardadas en el dispositivo después de la primera vez), ya no hace falta bajarlas de Google. Las hojas para imprimir (escaleta, check list, minutas…) conservan su letra de papel (Cormorant). Se ha comprobado pantalla a pantalla (escritorio y móvil) que no se corta ni se desborda nada nuevo.
+- **Dos avisos sobre los archivos de letra que se facilitaron:**
+  - **El archivo «Neue Haas Grotesk» contenía en realidad Inter** (una letra libre, muy parecida): es la que se usa. Si el restaurante tiene licencia de Neue Haas Grotesk, basta con sustituir los tres archivos `inter-*.woff2`.
+  - **El archivo de Optima era la edición cirílica («AG Baltia»)**: sus letras acentuadas (á é í ó ú ü ñ ç ¿ ¡…) eran letras cirílicas, así que «Previsión» salía «Previsiyn». Se han reconstruido las acentuadas con las piezas de la propia letra (ver `tools/fuentes/LEEME.md`); se ven bien, pero es una solución provisional. **Lo ideal es una Optima latina completa con licencia web** (el archivo original marca «uso restringido» en su cabecera); al tenerla, se sustituye `fonts/optima.woff2` y listo. El símbolo € y las flechas los pone Inter, porque Optima no los trae.
 
 ### Novedad de la versión 02.23
 - **Arreglado el «error 502» del correo.** Cuando Resend rechazaba un correo (dominio sin verificar, clave, remitente…), el programa devolvía un código 502 y **Cloudflare lo cambiaba por su propia página de error**, con lo que el motivo real se perdía y la pantalla solo decía «No se ha podido enviar». Ahora los fallos de un servicio de fuera (el correo) se devuelven con otro código (424) y **la pantalla enseña el motivo de verdad**, en castellano y con lo que hay que hacer. Queda anotado en el código para no volver a usar 502 ni 504.
