@@ -2409,6 +2409,8 @@ function corResumen(doc, hoy, cfg, plant) {
   if (faltan.length) cola.push("· Faltan camareros en: " + faltan.map((e) => corNombreEv(e) + " (" + (sn(e).camSi || 0) + " de " + sn(e).camNec + ")").join(" · "));
   const sinS = prox14.filter((e) => (sn(e).sinSust || 0) > 0);
   if (sinS.length) cola.push("· Alergias o dietas sin plato sustituto: " + sinS.map((e) => corNombreEv(e) + " (" + sn(e).sinSust + ")").join(" · "));
+  const fal = []; prox30.forEach((e) => corFaltas(e, hoy).forEach((t) => fal.push({ d: dias(e), l: "· " + corNombreEv(e) + " (" + corFechaCorta(e.ficha.fecha) + "): " + t })));
+  fal.sort((a, b) => a.d - b.d).slice(0, 8).forEach((x) => cola.push(x.l));
   const hitos = [];
   prox30.forEach((e) => (sn(e).hitos || []).forEach((h) => { if (!h.done && h.fecha && corDias(hoy, h.fecha) <= 3) hitos.push({ e, h, d: corDias(hoy, h.fecha) }); }));
   hitos.sort((a, b) => a.d - b.d).slice(0, 8).forEach((x) => cola.push("· " + x.h.t + (x.h.importe != null && x.h.importe > 0 ? " · " + corEur(x.h.importe) : "") + " — " + corNombreEv(x.e) + (x.d < 0 ? " (vencido hace " + (-x.d) + (x.d === -1 ? " día)" : " días)") : x.d === 0 ? " (hoy)" : x.d === 1 ? " (mañana)" : " (en " + x.d + " días)")));
@@ -2474,6 +2476,24 @@ function corAvisosPara(e, dep) {
   return Object.keys(a).map((k) => a[k]).filter((x) => x && x.txt && !x.anulado && !x.hecho && (x.para === dep || x.para === "todos")).sort((p, q) => (p.ts || 0) - (q.ts || 0));
 }
 function corNPlatos(e) { const m = (e && e.menu) || {}; return Object.keys(m.dishes || {}).filter((k) => m.dishes[k]).length + ((m.propios || []).filter((x) => x && String(x.name || "").trim()).length); }
+/* v02.19 · lo que FALTA por hacer en un evento y se ve en el propio evento: los platos, la minuta, el cierre del menú y la aprobación del cliente.
+   Solo eventos con compromiso (reserva, planificación, confirmada) y aún por celebrar. Devuelve frases ya escritas. */
+function corFaltas(e, hoy) {
+  const F = (e && e.ficha) || {}, out = [];
+  if (!/^(reserva|planificacion|confirmada)$/.test(F.estado || "") || !/^\d{4}-\d{2}-\d{2}$/.test(F.fecha || "")) return out;
+  const d = corDias(hoy, F.fecha); if (d < 0) return out;
+  const cm = e.cierreMenu && typeof e.cierreMenu === "object" ? e.cierreMenu : null, ap = e.aprobaciones || {}, aMenu = !!(ap.menu && ap.menu.ts), aMin = !!(ap.minuta && ap.minuta.ts);
+  const cerrado = cm && "ts" in cm ? !!cm.ts : aMenu, sinMin = !!(cm && cm.sinMinuta), lz = e.menu && e.menu.minuta && e.menu.minuta.lienzo, hayMin = !!(lz && Array.isArray(lz.items) && lz.items.length), portal = !!(e.share && e.share.on);
+  if (!corNPlatos(e)) { if (d <= 45) out.push("Falta elegir los platos del menú"); return out; }
+  if (!sinMin && !hayMin && d <= 30) out.push("Falta hacer la minuta");
+  if (!cerrado && d <= 30) out.push("Falta cerrar el menú y enviarlo a aprobar al cliente" + (portal ? "" : " (antes hay que activar su portal)"));
+  if (cm && cerrado && portal && (!aMenu || (!sinMin && !aMin))) {
+    const dd = cm.ts ? Math.max(0, corDias(corMadrid(new Date(+cm.ts)).iso, hoy)) : 0;
+    if (dd >= 3 || d <= 14) out.push("El cliente aún no ha aprobado " + (!aMenu && !sinMin && !aMin ? "el menú ni la minuta" : !aMenu ? "el menú" : "la minuta") + (dd >= 1 ? " (se lo enviasteis hace " + dd + (dd === 1 ? " día)" : " días)") : ""));
+  }
+  return out;
+}
+function corEnDias(n) { return n === 0 ? "es hoy" : n === 1 ? "es mañana" : "faltan " + n + " días"; }
 /* el resumen de un departamento: solo lee. Devuelve {asunto, texto, vacio, ...} */
 function corResumenDep(doc, hoy, dep, cfg, plant, origen) {
   const T = COR_DEP_T[dep], vent = COR_DEP_VENT[dep], diario = (cfg.deps[dep] || {}).freq === "diario";
@@ -2523,10 +2543,12 @@ function corResumenDep(doc, hoy, dep, cfg, plant, origen) {
     evs.filter((e) => (e.ficha.estado || "") === "celebrada").slice(0, 6).forEach((e) => pend.push("· Celebrado y sin cerrar: " + corNombreEv(e) + " (" + corFechaCorta(e.ficha.fecha) + ")"));
   }
   if (dep === "eventos") {
+    const fl = []; vivos.forEach((e) => corFaltas(e, hoy).forEach((t) => fl.push({ d: dias(e), l: "· " + nom(e) + " (" + corEnDias(dias(e)) + ") — " + t })));
+    fl.sort((a, b) => a.d - b.d).forEach((x) => pend.push(x.l));
     vivos.filter((e) => dias(e) <= 30 && COR_SIN_CONFIRMAR[e.ficha.estado || ""]).slice(0, 6).forEach((e) => pend.push("· Sin confirmar a " + dias(e) + (dias(e) === 1 ? " día" : " días") + ": " + corNombreEv(e)));
     vivos.filter((e) => dias(e) <= 30).forEach((e) => (sn(e).hitos || []).forEach((h) => { if (!h.done && h.fecha && corDias(hoy, h.fecha) <= 3 && h.tipo !== "pago") pend.push("· " + h.t + " — " + corNombreEv(e) + (corDias(hoy, h.fecha) < 0 ? " (vencido)" : corDias(hoy, h.fecha) === 0 ? " (hoy)" : " (" + corFechaCorta(h.fecha) + ")")); }));
   }
-  if (pend.length) bloques.push({ t: "QUEDA POR HACER (" + pend.length + ")", l: pend.slice(0, 10) });
+  if (pend.length) bloques.push({ t: "QUEDA POR HACER (" + pend.length + ")", l: pend.slice(0, dep === "eventos" ? 14 : 10) });
   /* 3 · los avisos que le han dejado los demás departamentos */
   const av = [];
   evs.concat((doc.events || []).filter((e) => e && e.id && !e.anonimizado && !(e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || "")))).forEach((e) => { corAvisosPara(e, dep).forEach((a) => av.push("· " + corNombreEv(e) + (e.ficha && e.ficha.fecha ? " (" + corFechaCorta(e.ficha.fecha) + ")" : "") + ": " + String(a.txt).slice(0, 300) + " — " + (COR_DEP_T[a.de] || a.de) + (a.por ? ", " + a.por : ""))); });
