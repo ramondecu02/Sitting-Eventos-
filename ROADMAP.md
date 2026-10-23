@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.24** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.25** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,10 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.25
+- **El carrito de helados, estación independiente.** En la escaleta salía colgando de «Buffet» (su fila se quedaba debajo de la franja anterior). Ahora tiene **su propia franja** («Carrito de helados · 6 variedades») y una sola fila con su cantidad.
+- **Utensilios propios por plato dentro de una misma estación (la brasa: el pulpo no usa lo mismo que la hamburguesa).** En Parámetros → Platos y escandallo, al abrir un plato que lleva estación, hay **dos bloques**: *«Mobiliario y utensilios de la estación»* (los comparten todos sus platos) y *«Utensilios solo de este plato»* (además de los de la estación), con su botón para añadir. En el check list de servicio, lo propio de cada plato sale **debajo de ese plato** y no debajo de los demás. Si se prefiere una estación aparte por tipo de brasa, basta con cambiar el campo «Estación» de ese plato (p. ej. «Brasa · pulpo»): cada nombre distinto es una franja distinta en la escaleta y en el check list.
 
 ### Novedad de la versión 02.24
 - **Letra nueva en la aplicación y en el portal del cliente:** los **títulos y las cifras grandes van en Optima** y **el texto, en Inter**. Las letras se sirven desde la propia web (carpeta `fonts/`, unos 110 KB en total, guardadas en el dispositivo después de la primera vez), ya no hace falta bajarlas de Google. Las hojas para imprimir (escaleta, check list, minutas…) conservan su letra de papel (Cormorant). Se ha comprobado pantalla a pantalla (escritorio y móvil) que no se corta ni se desborda nada nuevo.

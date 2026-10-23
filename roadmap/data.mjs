@@ -82,6 +82,7 @@ export const hecho = [
   'Escaleta: el carrito de helados como una sola fila (y se mueve entero) y los molletes como aperitivo · minuta con «en nuestro comedor…» (català y English también) antes de los platos del banquete · v02.22',
   'Correo: arreglado el «error 502» que escondía el motivo de los fallos de Resend (Cloudflare cambiaba la respuesta) · v02.23',
   'Letra nueva: títulos y cifras en Optima y texto en Inter, en la aplicación y en el portal del cliente (servidas desde la propia web); el archivo de Optima facilitado era la edición cirílica y se han reconstruido sus letras acentuadas, pendiente de una Optima latina con licencia · v02.24',
+  'Estaciones: el carrito de helados con su propia franja en la escaleta y utensilios propios por plato dentro de una misma estación (pulpo y hamburguesa de la brasa), en Parámetros y en el check list · v02.25',
 ];
 
 export const decisiones = [
