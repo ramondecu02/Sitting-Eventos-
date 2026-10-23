@@ -2100,14 +2100,15 @@ async function portalQuitar(request, env, url) {
 let COR_OK = false;
 const COR_PURGA_DIAS = 180;
 const COR_CFG_DEF = {
-  resumen: { on: true, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
+  v: 2,   /* v02.19 · de fábrica solo sale lo pendiente de cada persona; el resumen del equipo y los avisos entre departamentos por correo, apagados */
+  resumen: { on: false, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
   cliente: { on: false, hora: 9, lista: true, pago: true, reunion: true },
   deps: {   /* v02.14 · lo que recibe cada departamento: su resumen (solo si hay algo) y los avisos que le dejan los demás */
-    eventos: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },   /* eventos ya recibe el resumen del equipo */
-    cocina: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },
-    compras: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },
-    servicio: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true },
-    contabilidad: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: true }
+    eventos: { on: true, freq: "diario", dia: 1, hora: 8, extra: "", aviso: false },   /* lo que falta por hacer (minuta, cerrar el menú…) cada mañana, solo si hay algo */
+    cocina: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
+    compras: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
+    servicio: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
+    contabilidad: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false }
   },
   firma: "Les Moles Events", responder: "",
   respuesta: "quien",                       /* quien = si contestan, le llega a quien lo ha enviado · general = al correo de «responder» */
@@ -2166,6 +2167,8 @@ async function correoCfg(env) {
   } catch (_) {}
   const cfg = corMezcla(COR_CFG_DEF, c), plant = Object.assign({}, COR_PLANT);
   COR_DEPS.forEach((d) => { cfg.deps[d] = Object.assign({}, COR_CFG_DEF.deps[d], (c.deps && c.deps[d]) || {}); });
+  /* ajustes guardados antes de la 02.19 (sin «v»): se aplica lo decidido (solo lo pendiente de cada persona); los correos extra, horas y plantillas se respetan */
+  if (Object.keys(c).length && !c.v) { cfg.resumen.on = false; COR_DEPS.forEach((d) => { cfg.deps[d].aviso = false; }); cfg.deps.eventos.on = true; cfg.v = 2; }
   Object.keys(pl).forEach((k) => { if (COR_PLANT[k] != null && typeof pl[k] === "string" && pl[k].trim()) plant[k] = pl[k]; });
   return { cfg, plant, custom: pl };
 }
@@ -2552,7 +2555,7 @@ function corResumenDep(doc, hoy, dep, cfg, plant, origen) {
   /* 3 · los avisos que le han dejado los demás departamentos */
   const av = [];
   evs.concat((doc.events || []).filter((e) => e && e.id && !e.anonimizado && !(e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || "")))).forEach((e) => { corAvisosPara(e, dep).forEach((a) => av.push("· " + corNombreEv(e) + (e.ficha && e.ficha.fecha ? " (" + corFechaCorta(e.ficha.fecha) + ")" : "") + ": " + String(a.txt).slice(0, 300) + " — " + (COR_DEP_T[a.de] || a.de) + (a.por ? ", " + a.por : ""))); });
-  if (av.length) bloques.push({ t: "AVISOS PARA " + T.toUpperCase() + " (" + av.length + ")", l: av.slice(0, 12) });
+  if (av.length && (cfg.deps[dep] || {}).aviso !== false) bloques.push({ t: "AVISOS PARA " + T.toUpperCase() + " (" + av.length + ")", l: av.slice(0, 12) });
   /* 4 · lo que ha cambiado en lo que necesita desde que el departamento revisó cada evento */
   const cam = [];
   vivos.forEach((e) => {
@@ -2704,6 +2707,7 @@ async function correoPut(request, env) {
       }
     }
   }
+  out.v = 2;
   if (c.firma != null) out.firma = String(c.firma).slice(0, 200);
   if (c.responder != null) { const r = String(c.responder).trim(); if (r && !corEmailOk(r)) return json({ error: "invalid", message: "El correo para las respuestas no es válido." }, 400); out.responder = r; }
   if (c.respuesta === "quien" || c.respuesta === "general") out.respuesta = c.respuesta;
