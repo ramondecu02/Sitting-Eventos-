@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.21** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.22** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.22
+- **Escaleta: el carrito de helados es UNA fila.** Una estación completa —el carrito de helados— sale en la escaleta y en el «Orden de salida» como **una sola línea** («Carrito de helados · 6 variedades», con su cantidad), no con cada helado suelto. Al subirla, bajarla, arrastrarla o escribir su posición se mueven los 6 a la vez, y el selector «Aperitivo / Estación» también cambia los 6. Las demás estaciones siguen con cada plato en su fila (brasa, pulpo, buffet…). El resumen cuenta estaciones, no platos.
+- **Los molletes son aperitivo.** Antes, cualquier aperitivo con «estación» en el catálogo (molletes) pasaba solo a estación. Ahora solo pasan a estación el café, copa y puro y los arroces; los molletes y las croquetas se quedan en Aperitivos. Se puede cambiar a mano, como siempre, con el selector del orden de salida.
+- **Minuta: «en nuestro comedor…».** Los aperitivos y las estaciones salen bajo «en los jardines…»; **el banquete (entrantes, pescados, carnes, postres…) sale bajo «en nuestro comedor…»** (en català «al nostre menjador…», en English «in our dining room…»), con su espacio y antes de «la bodega…». El texto se puede cambiar o dejar vacío en «Encabezado del banquete» de la propia pantalla de la minuta, y no sale si el evento no tiene aperitivos ni estaciones. Las minutas ya diseñadas se marcan como «desactualizadas» hasta que se vuelva a generar.
 
 ### Novedad de la versión 02.21
 - **Parámetros, por subsecciones.** En el menú lateral, «Parámetros» ya no es una lista de 17 pantallas: lleva **cinco subsecciones plegables**, con el número de pantallas de cada una — **Menú y cocina** (platos, bebidas, alérgenos, precios de venta, traducciones), **Servicio en sala** (servicio y camareros, tareas por fase), **Clientes y ventas** (presupuesto y pagos, agenda, contrato, Les Vinyes), **Comunicación** (consultas web, correo y avisos) y **Sistema y datos** (copias, estado, privacidad). Se abre sola la de la pantalla en la que estás (las demás se pliegan) y se nota cuál es la tuya aunque la pliegues. «Todos los parámetros» sigue arriba y su portada tiene las mismas cinco subsecciones. Cada pantalla dice en su cabecera dónde está («Parámetros · Menú y cocina · solo administración»), y en el móvil la barra de pantallas lleva las cinco etiquetas.

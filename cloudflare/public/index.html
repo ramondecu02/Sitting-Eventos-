@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.21 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.22 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.21".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.22".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4625,7 +4625,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.21</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.22</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10404,7 +10404,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.21</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.22</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -17853,14 +17853,14 @@ function datosMinuta(){
   var GR=function(k){ return k==="APERITIVOS"?2:(k==="POSTRES"||k==="TARTA")?4:(k==="PAN"||k==="NIÑOS"||k==="RECENA")?5:3; };
   var porClave={}; secciones.forEach(function(x){ porClave[x.k]=x; });
   var bloques=[], ult=0, F0=(e&&e.ficha)||{};
-  function meter(grupo,lineas){ if(!lineas.length) return;
+  function meter(grupo,lineas,jar){ if(!lineas.length) return;
     var sep=null; if(bloques.length){ sep=grupo===ult?"sm":(grupo>=4?"gap":"ast"); }
-    bloques.push({g:grupo,sep:sep,lineas:lineas}); ult=grupo; }
-  if(hayCl&&!fuera.APERITIVOS) meter(1,[L.clasico]);
+    bloques.push({g:grupo,sep:sep,lineas:lineas,jar:!!jar}); ult=grupo; }
+  if(hayCl&&!fuera.APERITIVOS) meter(1,[L.clasico],true);
   secciones.forEach(function(x){
     var ls=x.platos;
     if(x.k==="APERITIVOS"&&hayCl){ ls=ap.filter(function(d){ return !clSet[d._uid]; }).map(function(d){ return L.plato(d.name); }); }
-    meter(GR(x.k),ls); });
+    meter(GR(x.k),ls,x.k==="APERITIVOS"||x.k==="ESTACIONES"); });
   var doTxt=(mn.do==null||String(mn.do).trim()==="")?"D.O. Terra Alta":(/^(-|ninguna|no)$/i.test(String(mn.do).trim())?"":String(mn.do).trim());
   var cierres=[], bod=bodegaLineas(L,doTxt), pi=(mn.pista!=null?String(mn.pista).split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean):pistaDefecto(sel,e,L));
   todas.push({k:"BODEGA",t:"La bodega",n:bod.length,fuera:!!fuera.BODEGA}); todas.push({k:"PISTA",t:"La pista de baile",n:pi.length,fuera:!!fuera.PISTA});
@@ -17869,10 +17869,13 @@ function datosMinuta(){
   var cat=minutaCat(e,mn), parejaA=String(F0.parejaA||"").trim(), parejaB=String(F0.parejaB||"").trim();
   var pareja=(mn.titulo&&String(mn.titulo).trim())||(cat==="boda"?((parejaA&&parejaB)?(parejaA+L.y+parejaB):parejaBonita(titulo0)):nombreHomenajeado(titulo0));
   var cab1=(mn.cab1!=null?String(mn.cab1).trim():L.cab1);
-  var auto=[];
+  /* v02.22 · los aperitivos y las estaciones son «en los jardines…»; el banquete (entrantes, pescados, carnes, postres…) es «en nuestro comedor…» */
+  var comedor=(mn.comedor!=null?String(mn.comedor).trim():L.comedor);
+  var auto=[], comedorPuesto=false;
   if(cab1) auto.push({t:"tit",s:cab1});
   bloques.forEach(function(bq,bi){
-    if(bi>0){ if(bq.sep==="ast") auto.push({t:"ast"}); else if(bq.sep==="gap") auto.push({t:"gap"}); else auto.push({t:"sm"}); }
+    if(comedor&&!comedorPuesto&&bi>0&&!bq.jar&&bloques[bi-1].jar){ comedorPuesto=true; auto.push({t:"gap"}); auto.push({t:"tit",s:comedor}); }
+    else if(bi>0){ if(bq.sep==="ast") auto.push({t:"ast"}); else if(bq.sep==="gap") auto.push({t:"gap"}); else auto.push({t:"sm"}); }
     bq.lineas.forEach(function(t){ auto.push({t:"lin",s:t}); }); });
   cierres.forEach(function(cz){ auto.push({t:"gap"}); auto.push({t:"tit",s:cz.t}); cz.lineas.forEach(function(t){ auto.push({t:"peq",s:t}); }); });
   if(pareja) auto.push({t:"gap"}), auto.push({t:"nom",s:pareja});
@@ -17882,7 +17885,7 @@ function datosMinuta(){
   return {titulo:titulo,titulo0:titulo0,fecha:fecha,secciones:secciones,todas:todas,pie:"Les Moles · Ulldecona",
     formato:(mn.formato==="hoja"?"hoja":mn.formato==="doble"?"doble":"lienzo"), bloques:bloques, cierres:cierres, pareja:nom?nom.s:(editado?"":pareja),
     rotulo:rot?rot.s:"", items:items.filter(function(x){ return x.t!=="nom"&&x.t!=="rot"; }), editado:editado, textoAuto:itemsATexto(auto), textoActual:editado?String(mn.texto):itemsATexto(auto),
-    cab1:cab1, pistaDef:pistaDefecto(sel,e,L), tpl:plantillaDe(mn.plantilla||"olivo"),
+    cab1:cab1, comedor:comedor, comedorDef:L.comedor, pistaDef:pistaDefecto(sel,e,L), tpl:plantillaDe(mn.plantilla||"olivo"),
     idioma:idioma, cat:cat, doTxt:doTxt, fechaTxt:(mn.sub!=null&&String(mn.sub).trim()!==""?String(mn.sub).trim():fechaTxt), fechaCorta:fechaCorta,
     parejaA:parejaA, parejaB:parejaB, nombreCorto:(cat==="boda"?(parejaA&&parejaB?parejaA+" & "+parejaB:pareja):pareja), tipoTxt:(cat==="bautizo"?mnL3(idioma,"Bautizo","Bateig","Christening"):cat==="comunion"?mnL3(idioma,"Primera comunión","Primera comunió","First Communion"):cat==="boda"?mnL3(idioma,"Fecha de boda","Data de boda","Wedding date"):"")};
 }
@@ -17951,6 +17954,7 @@ function renderTarjeta(){
     (ed?'':
       (doble||lienzo)?'<label class="fld"><span class="lbl">Nombre de la pareja <small>(sale abajo, en grande)</small></span><input type="text" data-mc="titulo" value="'+esc(mn.titulo||"")+'" placeholder="'+esc(dm.pareja)+'"></label>'+
         '<label class="fld"><span class="lbl">Encabezado <small>(bajo «menú»)</small></span><input type="text" data-mc="cab1" value="'+esc(mn.cab1!=null?mn.cab1:"en los jardines...")+'" placeholder="en los jardines..."></label>'+
+        '<label class="fld"><span class="lbl">Encabezado del banquete <small>(antes de los platos del comedor; vacío = ninguno)</small></span><input type="text" data-mc="comedor" value="'+esc(mn.comedor!=null?mn.comedor:dm.comedorDef)+'" placeholder="'+esc(dm.comedorDef)+'"></label>'+
         '<label class="fld"><span class="lbl">En la pista de baile <small>(una línea por cada cosa)</small></span><textarea rows="2" data-mc="pista" placeholder="'+esc(dm.pistaDef.join(" · "))+'">'+esc(mn.pista!=null?mn.pista:dm.pistaDef.join("\n"))+'</textarea></label>'+
         '<label class="fld"><span class="lbl">Idioma de la minuta</span><select data-mc="idioma"><option value="es"'+(dm.idioma==="es"?" selected":"")+'>Castellano</option><option value="ca"'+(dm.idioma==="ca"?" selected":"")+'>Català</option><option value="en"'+(dm.idioma==="en"?" selected":"")+'>English</option></select></label>'+
         '<label class="fld"><span class="lbl">Tipo de minuta <small>(los diseños se ordenan por tipo)</small></span><select data-mc="cat">'+[["","Según el evento ("+({boda:"Boda",bautizo:"Bautizo",comunion:"Comunión",otros:"Otros eventos"}[minutaCat(ev(),{})])+")"],["boda","Boda"],["bautizo","Bautizo"],["comunion","Comunión"],["otros","Otros eventos"]].map(function(o){ return '<option value="'+o[0]+'"'+((mn.cat||"")===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></label>'+
@@ -17988,7 +17992,7 @@ function renderTarjeta(){
   wirePrintBtn();
   if(lienzo&&window.LM_lienzo){ window.LM_lienzo.mount($("lz-host")); }
   var bd=$("mnu-body");
-  Array.prototype.forEach.call(bd.querySelectorAll("[data-mc]"),function(i){ i.addEventListener("change",function(){ var m=menu().minuta=menu().minuta||{}; var k=i.getAttribute("data-mc"); m[k]=(k==="pista"?i.value.replace(/\s+$/,""):i.value.trim()); if(dm.formato==="lienzo"&&/^(idioma|cat|do|titulo|cab1|pista)$/.test(k)) m.refrescar=1; touchSave(); renderTarjeta(); }); });
+  Array.prototype.forEach.call(bd.querySelectorAll("[data-mc]"),function(i){ i.addEventListener("change",function(){ var m=menu().minuta=menu().minuta||{}; var k=i.getAttribute("data-mc"); m[k]=(k==="pista"?i.value.replace(/\s+$/,""):i.value.trim()); if(dm.formato==="lienzo"&&/^(idioma|cat|do|titulo|cab1|comedor|pista)$/.test(k)) m.refrescar=1; touchSave(); renderTarjeta(); }); });
   Array.prototype.forEach.call(bd.querySelectorAll("[data-mc-k]"),function(i){ i.addEventListener("change",function(){ var k=i.getAttribute("data-mc-k"), m=menu().minuta=menu().minuta||{}; if(!m.fuera){ m.fuera={}; Object.keys(MN_FUERA_DEF).forEach(function(q){ m.fuera[q]=true; }); } if(i.checked) delete m.fuera[k]; else m.fuera[k]=true; touchSave(); renderTarjeta();
     var b2=bd.querySelector('[data-mc-k="'+k.replace(/"/g,'\\"')+'"]'); if(b2) b2.focus(); }); });
   /* texto editable: la vista previa se actualiza al escribir, sin perder el cursor */
@@ -18060,8 +18064,13 @@ function escEsEstacion(d){
   if(d.escBloque) return d.escBloque==="est";
   if(d._famKey==="ESTACIONES"||d._famKey==="RECENA") return true;
   if(d._famKey!=="APERITIVOS") return false;
-  return (!!d.station&&!/croquet/i.test(d.station))||/^arroz/.test(escNorm(d.name));
+  /* v02.22 · los molletes y las croquetas son aperitivos aunque lleven su «estación» en el catálogo: solo el café, copa y puro (y los arroces) pasan a estación */
+  return (!!d.station&&/caf[eé]|copa|puro/i.test(d.station))||/^arroz/.test(escNorm(d.name));
 }
+/* v02.22 · una estación COMPLETA (el carrito de helados) es UNA fila en la escaleta y en el orden de salida, no cada producto que lleva */
+var ESC_EST_COMPLETA=/carrito/i;
+function escGrupoDe(d){ return (d&&d._famKey==="ESTACIONES"&&d.station&&ESC_EST_COMPLETA.test(d.station))?"st:"+String(d.station).toLowerCase():""; }
+function escGrupos(l){ var gs=[], ix={}; (l||[]).forEach(function(d){ var k=escGrupoDe(d); if(k&&ix[k]!=null){ gs[ix[k]].ds.push(d); return; } if(k) ix[k]=gs.length; gs.push({k:k,d:d,ds:[d]}); }); return gs; }
 /* quién come qué, contado sobre el plano */
 function escCuentas(){
   var doc=BR.planDoc?BR.planDoc():{tables:[]}, t=evTotals();
@@ -18459,6 +18468,7 @@ function escModelo(){
      (brasas, pulpo, mini hamburguesa… no se juntan en una sola línea) */
   if(eo.length){ var fe=[];
     eo.forEach(function(k){ var ds=grp[k];
+      if(escGrupoDe(ds[0])){ fe.push(fila(k,ds.length+(ds.length===1?" variedad":" variedades"),Q("es:"+escNorm(k),adTot*escPor(ds[0])))); return; }
       if(ds.length===1&&ds[0].name===k){ fe.push(fila(k,null,Q("es:"+escNorm(k),adTot*escPor(ds[0])))); return; }
       fe.push({head:k, plato:true, est:true, hq:String(ds.length), hqTxt:ds.length===1?" plato":" platos"});
       ds.forEach(function(d){ fe.push(fila(d.name,null,Q(ds.length===1?"es:"+escNorm(k):"es:"+escNorm(k)+":"+escNorm(d.name).slice(0,30),adTot*escPor(d)))); }); });
@@ -18721,18 +18731,19 @@ function renderEscaleta(){
       escIn("Aperitivo","horaAperitivo",F.horaAperitivo,"text","p. ej. 20:00")+escIn("Banquete","horaBanquete",F.horaBanquete,"text","p. ej. 21:15")+escIn("Barra libre","horaBarra",F.horaBarra,"text","p. ej. 00:30")+
     '</div>';
   /* 2 · orden de salida + aperitivo/estación */
-  function filaOrden(d,i,n,tipo){
-    return '<li class="esc-ord-it" data-uid="'+esc(d._uid)+'"><span class="esc-drag" title="Arrastra para cambiar el orden" aria-hidden="true">⠿</span>'+
-      '<input type="number" class="esc-ord-num" data-esc-pos="'+esc(d._uid)+'" min="1" max="'+n+'" value="'+(i+1)+'" aria-label="Posición de '+esc(d.name)+' (1 a '+n+')">'+
-      '<span class="esc-ord-nm esc-drag-nm">'+esc(d.name)+(d.station?' <small>'+esc(escEtqStation(d.station))+'</small>':'')+'</span>'+
-      '<button type="button" class="btn ico sm" data-esc-mv="'+esc(d._uid)+'" data-dir="-1" aria-label="Subir '+esc(d.name)+'"'+(i===0?" disabled":"")+'>↑</button>'+
-      '<button type="button" class="btn ico sm" data-esc-mv="'+esc(d._uid)+'" data-dir="1" aria-label="Bajar '+esc(d.name)+'"'+(i===n-1?" disabled":"")+'>↓</button>'+
-      '<select data-esc-bloque="'+esc(d._uid)+'" aria-label="Tipo de '+esc(d.name)+'"><option value="aper"'+(tipo==="aper"?" selected":"")+'>Aperitivo</option><option value="est"'+(tipo==="est"?" selected":"")+'>Estación</option></select></li>';
+  function filaOrden(d,i,n,tipo,g){
+    var comp=!!(g&&g.k), nm=comp?escEtqStation(d.station):d.name, gu=comp?g.ds.map(function(x){ return x._uid; }).join(","):"";
+    return '<li class="esc-ord-it" data-uid="'+esc(d._uid)+'"'+(comp?' data-grupo="'+esc(gu)+'"':'')+'><span class="esc-drag" title="Arrastra para cambiar el orden" aria-hidden="true">⠿</span>'+
+      '<input type="number" class="esc-ord-num" data-esc-pos="'+esc(d._uid)+'" min="1" max="'+n+'" value="'+(i+1)+'" aria-label="Posición de '+esc(nm)+' (1 a '+n+')">'+
+      '<span class="esc-ord-nm esc-drag-nm">'+esc(nm)+(comp?' <small>'+g.ds.length+(g.ds.length===1?' variedad':' variedades')+'</small>':(d.station?' <small>'+esc(escEtqStation(d.station))+'</small>':''))+'</span>'+
+      '<button type="button" class="btn ico sm" data-esc-mv="'+esc(d._uid)+'" data-dir="-1" aria-label="Subir '+esc(nm)+'"'+(i===0?" disabled":"")+'>↑</button>'+
+      '<button type="button" class="btn ico sm" data-esc-mv="'+esc(d._uid)+'" data-dir="1" aria-label="Bajar '+esc(nm)+'"'+(i===n-1?" disabled":"")+'>↓</button>'+
+      '<select data-esc-bloque="'+esc(d._uid)+'"'+(comp?' data-grupo="'+esc(gu)+'"':'')+' aria-label="Tipo de '+esc(nm)+'"><option value="aper"'+(tipo==="aper"?" selected":"")+'>Aperitivo</option><option value="est"'+(tipo==="est"?" selected":"")+'>Estación</option></select></li>';
   }
   var dOrd=(AP.std.length||AP.est.length)?
-    '<p class="esc-hint">Arrastra cada plato con el ratón (o el dedo) desde ⠿, escribe su número de posición, o usa ↑ ↓. Es el orden de la escaleta y el de la lista de cada persona. Cambia «Aperitivo / Estación» si algo está en el sitio equivocado (p. ej. molletes o arroz).</p>'+
+    '<p class="esc-hint">Arrastra cada plato con el ratón (o el dedo) desde ⠿, escribe su número de posición, o usa ↑ ↓. Es el orden de la escaleta y el de la lista de cada persona. Cambia «Aperitivo / Estación» si algo está en el sitio equivocado (p. ej. un arroz). Una estación completa, como el carrito de helados, sale como <b>una sola fila</b>.</p>'+
     '<div class="esc-ord-cols"><div><div class="esc-ord-h">Aperitivos</div><ol class="esc-ord">'+AP.std.map(function(d,i){ return filaOrden(d,i,AP.std.length,"aper"); }).join("")+'</ol></div>'+
-    '<div><div class="esc-ord-h">Estaciones</div><ol class="esc-ord">'+(AP.est.length?AP.est.map(function(d,i){ return filaOrden(d,i,AP.est.length,"est"); }).join(""):'<li class="esc-hint">Ninguna</li>')+'</ol></div></div>'
+    '<div><div class="esc-ord-h">Estaciones</div><ol class="esc-ord">'+(AP.est.length?(function(){ var GE=escGrupos(AP.est); return GE.map(function(g,i){ return filaOrden(g.d,i,GE.length,"est",g); }).join(""); })():'<li class="esc-hint">Ninguna</li>')+'</ol></div></div>'
     :'<p class="esc-hint">Marca los aperitivos en «Elegir platos».</p>';
   /* 5 · menú infantil */
   var INF=md.inf, porSt={}, stO=[];
@@ -18766,7 +18777,7 @@ function renderEscaleta(){
     escDet("hor","Horario",F.horaBriefing?"Briefing "+F.horaBriefing:"falta la hora del briefing",dHor,!F.horaBriefing)+
     escDet("par","Paradas · regalos y pausas",(Array.isArray(cfg.paradas)&&cfg.paradas.length)?cfg.paradas.length+(cfg.paradas.length===1?" parada":" paradas"):"entre qué platos y cuánto dura",escParadasHTML(md),!!(Array.isArray(cfg.paradas)&&cfg.paradas.length&&md.paradas.some(function(p){ return p.huerfana||!p.dur; })))+
     escDet("det","Detalles de servicio · velas, cumpleaños, dedicatorias",(Array.isArray(cfg.detalles)&&cfg.detalles.length)?cfg.detalles.length+(cfg.detalles.length===1?" detalle":" detalles"):"no son alergias: no restan platos",escDetallesHTML(md),!!(Array.isArray(cfg.detalles)&&cfg.detalles.some(function(d){ return md.detalles.some(function(x){ return x.id===d.id&&x.huerfano; }); })))+
-    escDet("ord","Orden de salida · aperitivos y estaciones",AP.std.length+" aperitivos · "+AP.est.length+" estaciones",dOrd,true)+
+    escDet("ord","Orden de salida · aperitivos y estaciones",AP.std.length+" aperitivos · "+(function(){ var q={}; AP.est.forEach(function(d){ q[d.station?escEtqStation(d.station):d.name]=1; }); return Object.keys(q).length; })()+" estaciones",dOrd,true)+
     escDet("inf","Menú infantil",c.ninos+(c.ninos===1?" niño":" niños")+" · "+(INF.elegidos.length+INF.extra.length)+" platos",dInf,c.ninos>0&&(!(INF.elegidos.length+INF.extra.length)||(!INF.pers&&F.tipo&&F.tipo!=="Boda")))+
     escDet("stf","Menú staff",c.staff+(c.staff===1?" persona":" personas")+" · "+(md.staffMenu.length?md.staffMenu.length+" platos":"sin configurar"),dSt,c.staff>0&&!md.staffMenu.length)+
     escDet("mas","Alergias, tarta, cafés, ressopó y notas","",dMas,false)+
@@ -18816,16 +18827,20 @@ function renderEscaleta(){
 function escIn(lbl,k,v,type,ph){ return '<label class="fld"><span class="lbl">'+esc(lbl)+'</span><input type="'+type+'" data-esc-f="'+k+'" value="'+esc(v||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></label>'; }
 /* mueve un plato a la posición j (0 = el primero) dentro de su lista
    (aperitivos o estaciones) y guarda el orden de las dos */
-function escPosDe(u){ var AE=escAperYEst(escCfg()), l=(AE.aper.some(function(d){ return d._uid===u; })?AE.aper:AE.est); return l.map(function(d){ return d._uid; }).indexOf(u); }
+function escPosDe(u){ var AE=escAperYEst(escCfg()), l=(AE.aper.some(function(d){ return d._uid===u; })?AE.aper:AE.est), G=escGrupos(l);
+  for(var i=0;i<G.length;i++) if(G[i].ds.some(function(d){ return d._uid===u; })) return i; return -1; }
 function escMoverA(u,j){
   var cfg=escCfg(), AE=escAperYEst(cfg), enAper=AE.aper.some(function(d){ return d._uid===u; });
-  var lista=(enAper?AE.aper:AE.est).map(function(d){ return d._uid; }), otra=(enAper?AE.est:AE.aper).map(function(d){ return d._uid; });
-  var i=lista.indexOf(u); if(i<0) return false; j=Math.max(0,Math.min(lista.length-1,j)); if(i===j) return false;
-  lista.splice(i,1); lista.splice(j,0,u);
+  var G=escGrupos(enAper?AE.aper:AE.est), otra=(enAper?AE.est:AE.aper).map(function(d){ return d._uid; });
+  var i=-1; G.forEach(function(g,k){ if(g.ds.some(function(d){ return d._uid===u; })) i=k; });
+  if(i<0) return false; j=Math.max(0,Math.min(G.length-1,j)); if(i===j) return false;
+  var mov=G.splice(i,1)[0]; G.splice(j,0,mov);
+  var lista=[]; G.forEach(function(g){ g.ds.forEach(function(d){ lista.push(d._uid); }); });
   cfg.orden=lista.concat(otra); touchSave(); renderEscaleta(); return true;
 }
 function escGuardarOrdenDOM(ol){
-  var cfg=escCfg(), AE=escAperYEst(cfg), uids=Array.prototype.map.call(ol.querySelectorAll(".esc-ord-it"),function(li){ return li.getAttribute("data-uid"); });
+  var cfg=escCfg(), AE=escAperYEst(cfg), uids=[];
+  Array.prototype.forEach.call(ol.querySelectorAll(".esc-ord-it"),function(li){ var gu=li.getAttribute("data-grupo"); (gu?gu.split(","):[li.getAttribute("data-uid")]).forEach(function(u){ uids.push(u); }); });
   var enAper=AE.aper.some(function(d){ return d._uid===uids[0]; });
   cfg.orden=uids.concat((enAper?AE.est:AE.aper).map(function(d){ return d._uid; })); touchSave(); renderEscaleta();
 }
@@ -18858,7 +18873,7 @@ function wireEscaleta(){
     else if(t.hasAttribute("data-esc-pos")){ var pu=t.getAttribute("data-esc-pos"), pn=parseInt(t.value,10);
       if(!(pn>=1)){ renderEscaleta(); return; } if(!escMoverA(pu,pn-1)) renderEscaleta();
       var ni=$("mnu-body").querySelector('[data-esc-pos="'+pu+'"]'); if(ni) ni.focus(); return; }
-    else if(t.hasAttribute("data-esc-bloque")){ cfg.bloque=cfg.bloque||{}; cfg.bloque[t.getAttribute("data-esc-bloque")]=t.value; }
+    else if(t.hasAttribute("data-esc-bloque")){ cfg.bloque=cfg.bloque||{}; var gb=t.getAttribute("data-grupo"); (gb?gb.split(","):[t.getAttribute("data-esc-bloque")]).forEach(function(u){ cfg.bloque[u]=t.value; }); }
     else if(t.hasAttribute("data-esc-sust")){ cfg.aaSust=cfg.aaSust||{}; cfg.aaSust[t.getAttribute("data-esc-sust")]=t.value; }
     else if(t.hasAttribute("data-esc-inf")){ var INF=escInfantil(cfg), cur=INF.elegidos.map(function(d){ return d._uid; }), u=t.getAttribute("data-esc-inf");
       if(t.checked){ if(cur.indexOf(u)<0) cur.push(u); } else cur=cur.filter(function(x){ return x!==u; }); cfg.infantil=cur; }
