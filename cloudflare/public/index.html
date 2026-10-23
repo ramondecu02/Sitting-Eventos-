@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.18 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.19 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.18".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.19".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4066,6 +4066,11 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-guia{margin:0 0 14px; background:var(--panel); border:1px solid var(--c-line); border-radius:12px; padding:10px 16px}
 .av-guia summary{cursor:pointer; font-weight:700; min-height:36px; display:flex; align-items:center}
 .av-guia ol{margin:8px 0 6px; padding-left:20px; display:flex; flex-direction:column; gap:8px; font-size:14px; line-height:1.5}
+.av-chequeo{margin:0 0 16px} .av-chequeo ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px}
+.av-chequeo li{display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border:1px solid var(--c-line); border-radius:10px; background:var(--panel); font-size:14px; line-height:1.45}
+.av-chequeo li .ic{flex:0 0 22px; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font:700 12px/1 var(--font-text,system-ui); margin-top:1px}
+.av-chequeo li.ok .ic{background:var(--success-soft); color:var(--success)} .av-chequeo li.aviso .ic{background:var(--warning-soft); color:var(--warning-tx)} .av-chequeo li.mal .ic{background:var(--danger-soft); color:var(--danger)}
+.av-chequeo li.mal{border-color:var(--danger)} .av-chequeo li.aviso{border-color:var(--warning)}
 .av-guia code{background:var(--bg-2); border-radius:6px; padding:1px 6px; font-size:12.5px; overflow-wrap:anywhere}
 .av-h2{margin:22px 0 8px; font:600 19px/1.2 var(--font-display,Georgia,serif)}
 .av-peq{font-size:13.5px; color:var(--c-mut); line-height:1.5; margin:0 0 10px}
@@ -4600,7 +4605,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.18</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.19</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10352,7 +10357,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.18</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.19</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -24370,11 +24375,18 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   }
   function guia(origen){
     return '<details class="av-guia"><summary>Cómo activar el envío de correos (una sola vez)</summary><ol>'+
-      '<li>Crea una cuenta gratuita en <b>resend.com</b> y en «Domains» añade el dominio desde el que quieras escribir (por ejemplo <i>lesmoles.com</i>); te pedirá poner unos registros en el DNS del dominio. Hasta que esté verificado, los correos no salen.</li>'+
-      '<li>En Resend, «API Keys» → crea una clave y cópiala.</li>'+
-      '<li>En Cloudflare, en cada proyecto de Pages → <i>Settings → Variables and Secrets</i>, añade (como <b>secreto</b>): <code>RESEND_API_KEY</code> (la clave), <code>MAIL_FROM</code> (por ejemplo <code>Les Moles Events &lt;eventos@lesmoles.com&gt;</code>) y <code>CRON_TOKEN</code> (una contraseña larga inventada por ti). Vuelve a desplegar.</li>'+
-      '<li>Para que el resumen y los recordatorios <b>salgan solos</b>: en GitHub, repositorio → <i>Settings → Secrets and variables → Actions</i>: crea el <u>secreto</u> <code>CRON_TOKEN</code> (el mismo) y la <u>variable</u> <code>SITE_URL</code> con <code>'+esc(origen)+'</code>. El archivo <code>.github/workflows/avisos.yml</code> ya está en el proyecto: llama al servidor cada hora y el servidor decide si toca enviar algo (tiene que estar en la rama principal del repositorio).</li>'+
-      '<li>Pulsa «Enviar un correo de prueba» aquí abajo: te debe llegar. Mientras no esté todo, nada se envía de verdad: queda «simulado» en la bandeja.</li></ol></details>';
+      '<li>Crea una cuenta gratuita en <b>resend.com</b> (el plan gratis da 100 correos al día y 3.000 al mes). En «Domains» → <i>Add Domain</i> añade el dominio desde el que quieras escribir (por ejemplo <i>lesmoles.com</i>); te pedirá poner unos registros en el DNS del dominio (SPF y DKIM). Hasta que ponga «Verified», los correos no salen.</li>'+
+      '<li>En Resend, «API Keys» → <i>Create API Key</i> con permiso <b>«Sending access»</b> (solo envío: es lo más seguro). Cópiala en el momento: solo se enseña una vez.</li>'+
+      '<li>En Cloudflare, en <b>cada</b> proyecto de Pages → <i>Settings → Variables and Secrets</i>, añade (como <b>secreto</b>): <code>RESEND_API_KEY</code> (la clave), <code>MAIL_FROM</code> (por ejemplo <code>Les Moles Events &lt;eventos@lesmoles.com&gt;</code>, con el dominio verificado) y <code>CRON_TOKEN</code> (una contraseña larga inventada por ti). Vuelve a desplegar para que los coja.</li>'+
+      '<li>Aquí abajo pulsa <b>«Comprobar la conexión con Resend»</b>: mira la clave, el remitente y el dominio sin enviar nada y te dice qué falta.</li>'+
+      '<li>Pulsa «Enviar un correo de prueba»: te debe llegar. <small>Para probar antes de verificar el dominio puedes poner <code>MAIL_FROM</code> = <code>onboarding@resend.dev</code>: solo llegará al correo con el que te registraste en Resend.</small> Mientras no esté todo, nada se envía de verdad: queda «simulado» en la bandeja.</li>'+
+      '<li>Para que el resumen y los recordatorios <b>salgan solos</b>: en GitHub, repositorio → <i>Settings → Secrets and variables → Actions</i>: crea el <u>secreto</u> <code>CRON_TOKEN</code> (el mismo) y la <u>variable</u> <code>SITE_URL</code> con <code>'+esc(origen)+'</code>. El archivo <code>.github/workflows/avisos.yml</code> ya está en el proyecto: llama al servidor cada hora y el servidor decide si toca enviar algo (tiene que estar en la rama principal del repositorio).</li></ol></details>';
+  }
+  /* v02.19 · el resultado de «Comprobar la conexión»: un punto por cosa, con lo que hay que hacer */
+  function chequeoHTML(c){
+    if(!c) return "";
+    var T={ok:"Bien",aviso:"Aviso",mal:"Por arreglar"}, I={ok:"✔",aviso:"!",mal:"✖"};
+    return '<div class="av-chequeo" role="status"><ul>'+(c.items||[]).map(function(i){ return '<li class="'+esc(i.estado)+'"><span class="ic" aria-hidden="true">'+(I[i.estado]||"•")+'</span><span><span class="sr-only">'+(T[i.estado]||"")+': </span>'+esc(i.t)+'</span></li>'; }).join("")+'</ul><p class="av-res '+(c.mal?"mal":c.aviso?"sim":"ok")+'">'+esc(c.resumen||"")+'</p></div>';
   }
   /* v02.14 · lo que recibe cada departamento */
   function depsHTML(cfg,s){
@@ -24411,7 +24423,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var h='<div class="pv-inner av-wrap"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">Parámetros</div><h1 class="pv-title">Correo y avisos</h1><p class="pv-guide">El servicio de correo, lo que se envía solo y los textos de los avisos.</p></div></header>';
     h+='<div class="av-estado '+(s.proveedor.listo?"ok":"no")+'"><div><span>Envío de correo</span><b>'+(s.proveedor.listo?"Activado":"Sin activar")+'</b><small>'+(s.proveedor.listo?"Sale desde "+esc(s.proveedor.from):esc(s.proveedor.motivo)+" Mientras tanto los correos se guardan como «simulado» y no salen.")+'</small></div>'+
       '<div><span>Envíos automáticos</span><b>'+(s.cron.token?"Con llave":"Sin llave")+'</b><small>'+(s.cron.token?"El servidor acepta la llamada programada (CRON_TOKEN).":"Falta CRON_TOKEN: el resumen y los recordatorios no pueden salir solos.")+'</small></div>'+
-      '<div><span>Errores y rebotes</span><b>'+(s.errores24h||0)+'</b><small>'+(s.errores24h?"No han salido (24 h) o no han llegado (7 días): mira la bandeja en «Avisos y correo».":"Sin problemas.")+'</small></div></div>'+guia(location.origin);
+      '<div><span>Errores y rebotes</span><b>'+(s.errores24h||0)+'</b><small>'+(s.errores24h?"No han salido (24 h) o no han llegado (7 días): mira la bandeja en «Avisos y correo».":"Sin problemas.")+'</small></div></div>'+guia(location.origin)+
+      '<div class="av-acciones"><button type="button" class="btn" data-cfa="comprobar"'+(C.comprobando?" disabled":"")+'>'+(C.comprobando?"Comprobando…":"Comprobar la conexión con Resend")+'</button><span class="av-peq">No envía nada: mira la clave, el remitente y el dominio.</span></div>'+chequeoHTML(C.comp);
     h+='<h2 class="av-h2">Resumen del equipo</h2><div class="pcard"><div class="fldset">'+chk("resumen.on",rs.on,"Enviar el resumen")+
       '<label class="fld"><span class="lbl">Cada</span><select data-cf="resumen.freq"><option value="semanal"'+(rs.freq==="semanal"?" selected":"")+'>Semana</option><option value="diario"'+(rs.freq==="diario"?" selected":"")+'>Día</option><option value="off"'+(rs.freq==="off"?" selected":"")+'>(apagado)</option></select></label>'+
       '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="resumen.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+rs.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
@@ -24457,6 +24470,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       api("/api/correo","PUT",{cfg:C.cfg,plantillas:C.plant}).then(function(j){ C.guardando=false;
         if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:j.message||"No se ha podido guardar."}; pintarCfg(); } }); }
     else if(a==="vista-cierra"){ C.vista=null; pintarCfg(); }
+    else if(a==="comprobar"){ C.comprobando=true; C.comp=null; pintarCfg();
+      api("/api/correo/comprobar","POST",{}).then(function(j){ C.comprobando=false;
+        C.comp=j._status===200?j:{items:[{estado:"mal",t:j.message||"No se ha podido comprobar."}],mal:1,aviso:0,resumen:"No se ha podido hacer la comprobación."}; pintarCfg(); }); }
     else if(a==="vista"){ b.disabled=true;
       var v={nombre:"Marta y Jordi",evento:"Boda de Marta i Jordi",fecha:"sábado 12 de diciembre de 2026",enlace:location.origin+"/?cliente=ejemplo",firma:C.cfg.firma||""};
       var tx=String(C.plant.cliente_lista||"").replace(/\{(\w+)\}/g,function(m,k3){ return Object.prototype.hasOwnProperty.call(v,k3)?v[k3]:m; });

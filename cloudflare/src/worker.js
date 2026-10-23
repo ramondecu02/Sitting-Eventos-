@@ -55,6 +55,7 @@
  *   POST /api/correo/vista      {kind?, subject?, text} el correo tal como llegará (HTML con la marca), para la vista previa
  *   POST /api/correo/estado     comprueba en el servicio de correo si lo enviado ha llegado (entregado, rebotado…)
  *   POST /api/correo/cancelar   {id}      cancela un envío programado que aún no ha salido
+ *   POST /api/correo/comprobar  mira si la clave de Resend, el remitente y el dominio están bien, SIN enviar nada (solo admin)
  *   POST /api/correo/resumen    {modo: vista|yo|equipo}  el resumen del equipo a mano
  *   POST /api/correo/cron       lo que se manda solo (resumen, resúmenes por departamento y recordatorios); con «Authorization: Bearer CRON_TOKEN» o el administrador
  *   POST /api/correo/aviso      {ev, para, txt, id?} avisa por correo a las personas de un departamento (o a todos) de un aviso entre departamentos (cualquier rol)
@@ -211,6 +212,7 @@ async function api(request, env, url) {
   if (p === "/api/correo/vista" && m === "POST") return correoVista(request, env);
   if (p === "/api/correo/estado" && m === "POST") return correoEstadoRoute(request, env);
   if (p === "/api/correo/cancelar" && m === "POST") return correoCancelar(request, env);
+  if (p === "/api/correo/comprobar" && m === "POST") return correoComprobar(request, env);
   if (p === "/api/correo/aviso" && m === "POST") return correoAviso(request, env);
   if (p === "/api/correo/destinos" && m === "GET") return correoDestinos(request, env);
   if (p === "/api/consulta/form" && m === "GET") return consForm(request, env);
@@ -2091,7 +2093,10 @@ async function portalQuitar(request, env, url) {
    de Resend + remitente) los correos se guardan como «simulado» y NO salen: así todo
    se puede probar sin enviar nada. Las plantillas (asunto y texto) las edita el
    administrador. Las configuraciones van en la tabla meta (clave «correo»).
-   Variables del servidor: RESEND_API_KEY · MAIL_FROM · CRON_TOKEN. */
+   Variables del servidor: RESEND_API_KEY · MAIL_FROM · CRON_TOKEN.
+   v02.19 · Con Resend de verdad: las llamadas van a su ritmo (2 por segundo) y con tiempo máximo; los errores de Resend se traducen y, si lo que falla es
+   la configuración (clave, dominio, cupo), no gastan los 3 intentos de un aviso y el envío automático se detiene hasta la siguiente vuelta;
+   «Comprobar la conexión» (solo admin) mira clave, remitente y dominio sin enviar nada. */
 let COR_OK = false;
 const COR_PURGA_DIAS = 180;
 const COR_CFG_DEF = {
@@ -2170,6 +2175,29 @@ function corProveedor(env) {
   if (!from) return { listo: false, from, motivo: "Falta el remitente (MAIL_FROM), por ejemplo «Les Moles Events <eventos@tudominio.com>»." };
   return { listo: true, from, motivo: "" };
 }
+/* v02.19 · todas las llamadas a Resend pasan por aquí: se identifican, tienen tiempo máximo y van a su ritmo
+   (Resend admite 2 por segundo; pasarse da «429»: se espacian 0,55 s). MAIL_PACE_MS solo lo usan las pruebas. */
+let COR_PROX = 0;
+async function corResend(env, path, init) {
+  init = init || {};
+  const ritmo = env.MAIL_PACE_MS != null ? Math.max(0, +env.MAIL_PACE_MS || 0) : 550, ahora = Date.now(), t = Math.max(ahora, COR_PROX);
+  COR_PROX = t + ritmo;
+  if (t > ahora) await new Promise((r) => setTimeout(r, t - ahora));
+  return fetch("https://api.resend.com" + path, { method: init.method || "GET", headers: Object.assign({ Authorization: "Bearer " + String(env.RESEND_API_KEY).trim(), "User-Agent": "LesMolesEvents/2.19" }, init.headers || {}), body: init.body, signal: AbortSignal.timeout(init.timeout || +env.MAIL_TIMEOUT_MS || 20000) });
+}
+/* lo que contesta Resend, en castellano. config = lo arregla quien administra el correo (no el correo en sí): no gasta intentos del aviso */
+function corErrorProv(status, j) {
+  const nombre = String((j && j.name) || ""), det = String((j && (j.message || j.error)) || "").replace(/\s+/g, " ").slice(0, 220), con = (c, m) => ({ config: c, msg: m + (det ? " (Resend dice: " + det + ")" : (status ? " (HTTP " + status + ")" : "")) });
+  if (/quota/i.test(nombre) || /(daily|monthly).*(quota|limit)/i.test(det)) return con(true, "Se ha agotado el cupo de envíos del plan de Resend (el gratuito da 100 al día y 3.000 al mes).");
+  if (status === 401 || nombre === "invalid_api_key" || nombre === "missing_api_key") return con(true, "Resend no acepta la clave (falta, está mal copiada o la han borrado). Crea otra en Resend → API Keys y cámbiala en Cloudflare (RESEND_API_KEY).");
+  if (/only send testing emails/i.test(det)) return con(true, "Con el remitente de pruebas de Resend solo se puede escribir al correo de tu cuenta de Resend. Para escribir a los demás hay que verificar tu dominio.");
+  if (/not verified/i.test(det)) return con(true, "El dominio del remitente no está verificado en Resend. Entra en Resend → Domains y pon los registros DNS que te pide.");
+  if (nombre === "invalid_from_address" || (status === 422 && /\bfrom\b/i.test(det))) return con(true, "El remitente (MAIL_FROM) no es válido. Debe ser como «Les Moles Events <eventos@tudominio.com>».");
+  if (status === 429) return con(false, "Resend recibe demasiados envíos seguidos; se volverá a intentar.");
+  if (status >= 500) return con(false, "Resend tiene un problema ahora mismo; se volverá a intentar.");
+  if (status === 403) return con(true, "Resend no deja enviar con esta clave.");
+  return con(false, "Resend ha rechazado este correo.");
+}
 function corRellenar(t, v) { return String(t == null ? "" : t).replace(/\{(\w+)\}/g, (m, k) => (Object.prototype.hasOwnProperty.call(v, k) && v[k] != null ? String(v[k]) : m)); }
 /* el correo tal como llega: con el diseño de la casa (o sencillo si se apaga). Siempre se manda también el texto plano. */
 const COR_FUENTE = "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
@@ -2231,7 +2259,7 @@ function corCopias(cfg, kind, emailQuien) {
    m: kind, ev, to, subject, text, ref, by · replyTo, bcc[] · adjuntos[{filename,content}] · programar (ms) · origen */
 async function correoEnviar(env, m) {
   await ensureCorreo(env);
-  const prov = corProveedor(env), { cfg } = await correoCfg(env), ahora = Date.now();
+  const prov = corProveedor(env), cfg = m.cfg || (await correoCfg(env)).cfg, ahora = Date.now();
   const to = String(m.to || "").trim(), subject = String(m.subject || "").replace(/[\r\n]+/g, " ").trim().slice(0, 200), body = String(m.text || "").slice(0, 8000);
   if (!corEmailOk(to)) return { ok: false, error: "invalid", message: "El correo del destinatario no es válido." };
   if (!subject || !body.trim()) return { ok: false, error: "invalid", message: "Falta el asunto o el texto." };
@@ -2239,11 +2267,11 @@ async function correoEnviar(env, m) {
   const replyTo = corEmailOk(m.replyTo) ? String(m.replyTo).trim() : (corEmailOk(cfg.responder) ? String(cfg.responder).trim() : "");
   const bccTxt = bcc.join(", ") || null, adjTxt = adj.length ? JSON.stringify(adj.map((x) => String(x.filename).slice(0, 80))) : null;
   let row = null;
-  if (m.ref) {
-    row = await env.DB.prepare("SELECT * FROM outbox WHERE ref=?1").bind(String(m.ref).slice(0, 200)).first();
-    if (row && (row.estado === "enviado" || row.estado === "simulado" || row.estado === "programado")) return { ok: true, repetido: true, id: row.id, estado: row.estado };
-    if (row && row.intentos >= 3) return { ok: false, error: "max-intentos", message: "Este aviso ya falló 3 veces.", id: row.id, estado: row.estado };
-  }
+  /* m.fila = un reintento hecho a mano sobre esa misma fila de la bandeja: la reutiliza (no crea otra, que dejaría el error viejo para siempre) y el tope de 3 intentos es solo para lo automático */
+  if (m.fila) row = await env.DB.prepare("SELECT * FROM outbox WHERE id=?1").bind(Math.floor(+m.fila) || 0).first();
+  else if (m.ref) row = await env.DB.prepare("SELECT * FROM outbox WHERE ref=?1").bind(String(m.ref).slice(0, 200)).first();
+  if (row && (row.estado === "enviado" || row.estado === "programado" || (row.estado === "simulado" && !m.fila))) return { ok: true, repetido: true, id: row.id, estado: row.estado };
+  if (row && !m.fila && row.intentos >= 3) return { ok: false, error: "max-intentos", message: "Este aviso ya falló 3 veces.", id: row.id, estado: row.estado };
   let id;
   if (row) { id = row.id; await env.DB.prepare("UPDATE outbox SET to_addr=?1, subject=?2, body=?3, estado='pendiente', error=NULL, bcc=?4, reply_to=?5, adj=?6, prog_ts=?7, entrega=NULL WHERE id=?8").bind(to, subject, body, bccTxt, replyTo || null, adjTxt, prog || null, id).run(); }
   else {
@@ -2261,20 +2289,25 @@ async function correoEnviar(env, m) {
     if (bcc.length) payload.bcc = bcc;
     if (adj.length) payload.attachments = adj.map((x) => ({ filename: x.filename, content: x.content }));
     if (prog) payload.scheduled_at = new Date(prog).toISOString();
-    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim(), "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    let j = {}; try { j = await r.json(); } catch (_) {}
+    const init = { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) };
+    let r = await corResend(env, "/emails", init), j = {};
+    try { j = await r.json(); } catch (_) {}
+    if (r.status === 429 && !/quota/i.test(String((j && j.name) || ""))) {   /* demasiado seguido: se espera lo que pida Resend (1-3 s) y se prueba una vez más */
+      await new Promise((x) => setTimeout(x, Math.min(3, Math.max(1, +r.headers.get("retry-after") || 1)) * 1000));
+      r = await corResend(env, "/emails", init); j = {}; try { j = await r.json(); } catch (_) {}
+    }
     if (r.ok && j && j.id) {
       const est = prog ? "programado" : "enviado";
       await env.DB.prepare("UPDATE outbox SET estado=?1, intentos=intentos+1, sent_ts=?2, prov_id=?3, error=NULL, entrega=?4, entrega_ts=?5 WHERE id=?6").bind(est, prog || Date.now(), String(j.id).slice(0, 80), prog ? "scheduled" : "sent", Date.now(), id).run();
       return { ok: true, id, estado: est, programado: prog || null };
     }
-    const msg = ((j && (j.message || j.error)) || ("HTTP " + r.status)).toString().slice(0, 300);
-    await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+1, error=?1 WHERE id=?2").bind(msg, id).run();
-    return { ok: false, id, estado: "error", error: "proveedor", message: "El servicio de correo lo ha rechazado: " + msg };
+    const er = corErrorProv(r.status, j);
+    await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+?1, error=?2 WHERE id=?3").bind(er.config ? 0 : 1, er.msg, id).run();
+    return { ok: false, id, estado: "error", error: "proveedor", config: er.config, message: er.msg };
   } catch (err) {
-    const msg = String(err && err.message || err).slice(0, 300);
+    const tarde = err && (err.name === "TimeoutError" || err.name === "AbortError"), msg = tarde ? "Resend no ha contestado a tiempo. Puede que el correo haya salido: mira en Resend → Emails antes de reintentarlo." : "No se ha podido contactar con Resend: " + String(err && err.message || err).slice(0, 200);
     await env.DB.prepare("UPDATE outbox SET estado='error', intentos=intentos+1, error=?1 WHERE id=?2").bind(msg, id).run();
-    return { ok: false, id, estado: "error", error: "red", message: "No se ha podido contactar con el servicio de correo: " + msg };
+    return { ok: false, id, estado: "error", error: "red", message: msg };
   }
 }
 /* ¿ha llegado? El servicio de correo sabe qué ha pasado con cada envío (entregado, rebotado, spam…): se le pregunta por los de los
@@ -2294,8 +2327,9 @@ async function corEntregaRefrescar(env, opt) {
   for (const r of (results || [])) {
     let j = null;
     try {
-      const x = await fetch("https://api.resend.com/emails/" + encodeURIComponent(r.prov_id), { headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim() } });
+      const x = await corResend(env, "/emails/" + encodeURIComponent(r.prov_id));
       if (x.status === 429) break;
+      if (x.status === 401 || x.status === 403) return { revisados: rev, cambios, claveMal: true };
       if (x.ok) j = await x.json();
     } catch (_) { break; }
     rev++;
@@ -2533,14 +2567,16 @@ async function correoAutomatico(env, ahora, origen, opt) {
   opt = opt || {};
   await ensureCorreo(env);
   const { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(ahora), out = { ahora: ahora.getTime(), hoy: M.iso, resumen: null, deps: [], clientes: [], errores: 0, enviados: 0, simulados: 0 };
-  const cuenta = (r) => { if (r.repetido) return; if (r.estado === "enviado") out.enviados++; else if (r.estado === "simulado") out.simulados++; else if (!r.ok) out.errores++; };
+  const cuenta = (r) => { if (r.repetido || r.omitido) return; if (r.estado === "enviado") out.enviados++; else if (r.estado === "simulado") out.simulados++; else if (!r.ok) out.errores++; };
+  /* si Resend dice que lo que falla es la configuración (clave, dominio, cupo), no se insiste: el resto espera a la próxima vuelta, sin gastar intentos */
+  const envia = async (m) => { if (out.parado) return { ok: false, omitido: true }; const r = await correoEnviar(env, Object.assign({ cfg }, m)); if (r.config) out.parado = r.message; return r; };
   /* 1 · el resumen del equipo */
   const rs = cfg.resumen;
   if (rs.on && rs.freq !== "off" && M.h >= (+rs.hora || 0) && (rs.freq === "diario" || M.wd === (+rs.dia || 0) )) {
     const periodo = rs.freq === "diario" ? M.iso : corSemana(M.iso), R = corResumen(doc, M.iso, cfg, plant), dest = await corDestinatarios(env, cfg);
     out.resumen = { periodo, destinatarios: dest.length, asunto: R.asunto, eventos: R.eventos, enviados: 0 };
     if (opt.simular) out.resumen.texto = R.texto;
-    else for (const to of dest) { const r = await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen:" + periodo + ":" + to, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) out.resumen.enviados++; }
+    else for (const to of dest) { const r = await envia({ kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen:" + periodo + ":" + to, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) out.resumen.enviados++; }
   }
   /* 1b · el resumen de cada departamento (solo si tiene algo y hay a quién mandárselo) */
   for (const dep of COR_DEPS) {
@@ -2551,7 +2587,7 @@ async function correoAutomatico(env, ahora, origen, opt) {
     out.deps.push(item);
     if (R.vacio || !dest.length) continue;
     if (opt.simular) item.texto = R.texto;
-    else for (const d of dest) { const r = await correoEnviar(env, { kind: "resumen", to: d.email, subject: R.asunto, text: R.texto, ref: "resdep:" + dep + ":" + periodo + ":" + d.email, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) item.enviados++; }
+    else for (const d of dest) { const r = await envia({ kind: "resumen", to: d.email, subject: R.asunto, text: R.texto, ref: "resdep:" + dep + ":" + periodo + ":" + d.email, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) item.enviados++; }
   }
   /* 2 · recordatorios a los clientes (apagados de fábrica) */
   if (cfg.cliente.on && M.h >= (+cfg.cliente.hora || 0)) {
@@ -2564,7 +2600,7 @@ async function correoAutomatico(env, ahora, origen, opt) {
         if (!tipo || !cfg.cliente[tipo] || h.done || h.fecha !== M.iso) continue;
         const m = corMensajeCliente(e, h, tipo, cfg, plant, portal, origen), ref = "cli:" + e.id + ":" + h.id + ":" + h.fecha;
         out.clientes.push({ ev: e.id, evento: corNombreEv(e), hito: h.id, tipo, a: m.to });
-        if (!opt.simular) cuenta(await correoEnviar(env, { kind: "cliente", ev: e.id, to: m.to, subject: m.subject, text: m.text, ref, by: "automático", origen, bcc: corCopias(cfg, "cliente", ""), replyTo: cfg.responder }));
+        if (!opt.simular) cuenta(await envia({ kind: "cliente", ev: e.id, to: m.to, subject: m.subject, text: m.text, ref, by: "automático", origen, bcc: corCopias(cfg, "cliente", ""), replyTo: cfg.responder }));
       }
     }
   }
@@ -2700,7 +2736,7 @@ async function correoReintentar(request, env) {
   if (!row) return json({ error: "not-found" }, 404);
   if (row.estado === "enviado" || row.estado === "programado") return json({ ok: true, repetido: true, id: row.id, estado: row.estado });
   if (row.adj) return json({ error: "adjuntos", message: "Este correo llevaba archivos adjuntos y no se guardan: vuelve a redactarlo y adjuntarlos." }, 400);
-  const r = await correoEnviar(env, { kind: row.kind, ev: row.ev, to: row.to_addr, subject: row.subject, text: row.body, ref: row.ref || ("reintento:" + row.id), by: a.s.name || a.s.email, origen: new URL(request.url).origin, bcc: row.bcc || "", replyTo: row.reply_to || "" });
+  const r = await correoEnviar(env, { fila: row.id, kind: row.kind, ev: row.ev, to: row.to_addr, subject: row.subject, text: row.body, ref: row.ref || "", by: a.s.name || a.s.email, origen: new URL(request.url).origin, bcc: row.bcc || "", replyTo: row.reply_to || "" });
   return json(r, r.ok ? 200 : 502);
 }
 /* resumen a mano: vista previa, prueba a uno mismo o envío al equipo ahora */
@@ -2748,8 +2784,43 @@ async function correoVista(request, env) {
 async function correoEstadoRoute(request, env) {
   const a = await correoSesion(request, env, false); if (a.err) return a.err;
   await ensureCorreo(env);
-  const r = await corEntregaRefrescar(env, { limite: 25 });
+  const r = await corEntregaRefrescar(env, { limite: 15 });
   return json({ ok: true, ...r });
+}
+/* v02.19 · ¿está bien montado el correo? Mira la clave, el remitente y el dominio en Resend SIN enviar nada.
+   Cada punto: ok · aviso · mal, con lo que hay que hacer. Una clave «solo envío» (la recomendada) no puede ver los dominios: eso no es un fallo. */
+async function correoComprobar(request, env) {
+  const a = await correoSesion(request, env, true); if (a.err) return a.err;
+  const prov = corProveedor(env), key = String(env.RESEND_API_KEY || "").trim(), from = String(env.MAIL_FROM || "").trim(), items = [];
+  const add = (k, estado, t) => items.push({ k, estado, t });
+  add("clave", key ? "ok" : "mal", key ? "Hay una clave de Resend puesta en Cloudflare (RESEND_API_KEY)." : "Falta la clave. En Cloudflare, en el proyecto de Pages → Settings → Variables and Secrets, añade RESEND_API_KEY (como secreto) y vuelve a desplegar.");
+  const em = String((/<([^<>]+)>/.exec(from) || [0, from])[1] || "").trim(), dom = em.indexOf("@") > 0 ? em.split("@").pop().toLowerCase() : "";
+  if (!from) add("remitente", "mal", "Falta el remitente. Añade MAIL_FROM en Cloudflare, por ejemplo: Les Moles Events <eventos@tudominio.com>");
+  else if (!corEmailOk(em)) add("remitente", "mal", "MAIL_FROM no tiene forma de correo (" + from.slice(0, 80) + "). Debe ser como: Les Moles Events <eventos@tudominio.com>");
+  else if (/^(gmail|googlemail|hotmail|outlook|live|yahoo|icloud|me|msn)\./.test(dom)) add("remitente", "mal", "No se puede escribir desde una cuenta gratuita como " + em + ": hace falta un correo de un dominio propio (el de la web del restaurante) verificado en Resend.");
+  else if (dom === "resend.dev") add("remitente", "aviso", "Estás con el remitente de pruebas de Resend (" + em + "): sirve para probar, pero solo llega al correo de tu cuenta de Resend. Para escribir a clientes y equipo hay que verificar tu dominio.");
+  else add("remitente", "ok", "Los correos saldrán de " + em + ".");
+  add("cron", String(env.CRON_TOKEN || "").trim() ? "ok" : "aviso", String(env.CRON_TOKEN || "").trim() ? "Hay llave para los envíos automáticos (CRON_TOKEN)." : "Falta CRON_TOKEN: el resumen y los recordatorios no podrán salir solos (lo escrito a mano sí).");
+  if (key && corEmailOk(em) && dom !== "resend.dev" && !items.some((x) => x.k === "remitente" && x.estado === "mal")) {
+    try {
+      const r = await corResend(env, "/domains", { timeout: 12000 });
+      let j = {}; try { j = await r.json(); } catch (_) {}
+      if (r.ok) {
+        const lista = Array.isArray(j && j.data) ? j.data : [], d = lista.filter((x) => String((x && x.name) || "").toLowerCase() === dom)[0];
+        add("resend", "ok", "Resend acepta la clave.");
+        if (d && String(d.status) === "verified") add("dominio", "ok", "El dominio " + dom + " está verificado en Resend: ya se puede enviar.");
+        else if (d) add("dominio", "mal", "El dominio " + dom + " está en Resend pero aún no está verificado (estado: " + String(d.status || "?").slice(0, 30) + "). Entra en Resend → Domains y pon en el DNS del dominio los registros que te pide; puede tardar un rato.");
+        else add("dominio", "mal", "El dominio " + dom + " no está en tu cuenta de Resend" + (lista.length ? " (la cuenta tiene: " + lista.map((x) => String(x.name || "")).slice(0, 5).join(", ") + ")" : "") + ". Añádelo en Resend → Domains o cambia MAIL_FROM por una dirección de un dominio que sí esté.");
+      } else if (r.status === 401 && String((j && j.name) || "") === "restricted_api_key") add("resend", "ok", "La clave es de «solo envío» (lo más seguro). Resend no deja a este tipo de clave ver los dominios, así que el estado del dominio lo confirmará el correo de prueba.");
+      else if (r.status === 401 || r.status === 403) add("resend", "mal", corErrorProv(r.status, j).msg);
+      else if (r.status === 429) add("resend", "aviso", "Resend va justo de velocidad ahora mismo. Vuelve a probar en unos segundos.");
+      else add("resend", "aviso", "Resend ha contestado algo inesperado (HTTP " + r.status + "). Prueba con el correo de prueba.");
+    } catch (err) {
+      add("resend", "aviso", (err && (err.name === "TimeoutError" || err.name === "AbortError")) ? "Resend no ha contestado a tiempo. Vuelve a probar en un momento." : "No se ha podido contactar con Resend desde el servidor. Vuelve a probar en un momento.");
+    }
+  }
+  const mal = items.filter((x) => x.estado === "mal").length, aviso = items.filter((x) => x.estado === "aviso").length;
+  return json({ ok: true, listo: prov.listo, items, mal, aviso, resumen: mal ? (mal === 1 ? "Hay una cosa por arreglar antes de que salgan correos." : "Hay " + mal + " cosas por arreglar antes de que salgan correos.") : aviso ? "Casi: no hay nada roto, pero mira los avisos." : "Todo en orden: pulsa «Enviar un correo de prueba» para verlo llegar." });
 }
 /* cancelar un envío programado que aún no ha salido */
 async function correoCancelar(request, env) {
@@ -2762,7 +2833,7 @@ async function correoCancelar(request, env) {
   if (row.estado === "programado") {
     if (row.prog_ts && +row.prog_ts <= Date.now() + 30e3) return json({ error: "invalid", message: "Ya está a punto de salir: no se puede cancelar." }, 400);
     try {
-      const x = await fetch("https://api.resend.com/emails/" + encodeURIComponent(row.prov_id) + "/cancel", { method: "POST", headers: { Authorization: "Bearer " + String(env.RESEND_API_KEY).trim() } });
+      const x = await corResend(env, "/emails/" + encodeURIComponent(row.prov_id) + "/cancel", { method: "POST" });
       if (!x.ok) { let j = {}; try { j = await x.json(); } catch (_) {} return json({ error: "proveedor", message: "El servicio de correo no ha podido cancelarlo: " + String((j && j.message) || ("HTTP " + x.status)).slice(0, 200) }, 502); }
     } catch (err) { return json({ error: "red", message: "No se ha podido contactar con el servicio de correo." }, 502); }
   }
