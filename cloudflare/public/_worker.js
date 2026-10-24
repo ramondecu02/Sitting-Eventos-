@@ -2190,7 +2190,7 @@ async function corResend(env, path, init) {
 }
 /* lo que contesta Resend, en castellano. config = lo arregla quien administra el correo (no el correo en sí): no gasta intentos del aviso */
 function corErrorProv(status, j) {
-  const nombre = String((j && j.name) || ""), det = String((j && (j.message || j.error)) || "").replace(/\s+/g, " ").slice(0, 220), con = (c, m) => ({ config: c, msg: m + (det ? " (Resend dice: " + det + ")" : (status ? " (HTTP " + status + ")" : "")) });
+  const nombre = String((j && j.name) || ""), det0 = String((j && (j.message || j.error)) || "").replace(/\s+/g, " "), det = det0.length > 340 ? det0.slice(0, 337) + "…" : det0, con = (c, m) => ({ config: c, msg: m + (det ? " (Resend dice: " + det + ")" : (status ? " (HTTP " + status + ")" : "")) });
   if (/quota/i.test(nombre) || /(daily|monthly).*(quota|limit)/i.test(det)) return con(true, "Se ha agotado el cupo de envíos del plan de Resend (el gratuito da 100 al día y 3.000 al mes).");
   if (status === 401 || nombre === "invalid_api_key" || nombre === "missing_api_key") return con(true, "Resend no acepta la clave (falta, está mal copiada o la han borrado). Crea otra en Resend → API Keys y cámbiala en Cloudflare (RESEND_API_KEY).");
   if (/only send testing emails/i.test(det)) return con(true, "Con el remitente de pruebas de Resend solo se puede escribir al correo de tu cuenta de Resend. Para escribir a los demás hay que verificar tu dominio.");

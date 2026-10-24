@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.26** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.27** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,9 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.27
+- **Correo de prueba con el remitente de pruebas de Resend.** Con `onboarding@resend.dev` (el que se usa mientras no haya dominio verificado), Resend solo deja escribir **al correo con el que se registró la cuenta**. Si el correo de prueba va a otra dirección, ahora la pantalla explica la regla y ofrece el botón **«Enviar la prueba a (esa dirección)»** con un clic, en vez de obligar a cambiar el correo de nadie. La frase de Resend ya no sale cortada a medias. Para escribir a los demás (equipo y clientes) sigue haciendo falta verificar un dominio.
 
 ### Novedad de la versión 02.26
 - **Portal del cliente: una foto distinta en la cabecera de cada apartado.** Al pasar de una pestaña a otra, la cabecera cambia de foto (con una entrada suave): **Inicio** (entrada al banquete en los jardines), **Pagos** (la moto), **Presupuesto** (el salón, en blanco y negro), **Invitados** (los amigos), **Plano** (la entrada a la ceremonia), **El día** (los votos), **Aprobar** (el aperitivo), **Documentos** (el brindis) y **Mensajes** (la tarta). Si hay contrato o propuesta, esa pestaña usa la foto de Documentos (no había una décima).
