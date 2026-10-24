@@ -2176,7 +2176,7 @@ async function correoCfg(env) {
      ahora cada persona recibe su hoja semanal; los que alguien ha cambiado a propósito (horas, correos extra, otra frecuencia) se respetan */
   if (Object.keys(c).length && (+c.v || 0) < 3) {
     const vieja = { eventos: { on: true, freq: "diario", dia: 1, hora: 8, extra: "" }, cocina: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" }, compras: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" }, servicio: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" }, contabilidad: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" } };
-    COR_DEPS.forEach((d) => { const o = cfg.deps[d], v = vieja[d]; if (o.on === true && o.freq === v.freq && +o.dia === v.dia && +o.hora === v.hora && !String(o.extra || "").trim() && o.aviso === false) o.on = false; });
+    COR_DEPS.forEach((d) => { const o = cfg.deps[d], v = vieja[d], sv = (c.deps && c.deps[d]) || {}; if (sv.on === undefined) o.on = true; /* antes «encendido» era lo de fábrica */ if (o.on === true && o.freq === v.freq && +o.dia === v.dia && +o.hora === v.hora && !String(o.extra || "").trim() && o.aviso === false) o.on = false; });
     cfg.v = 3;
   }
   Object.keys(pl).forEach((k) => { if (COR_PLANT[k] != null && typeof pl[k] === "string" && pl[k].trim()) plant[k] = pl[k]; });
