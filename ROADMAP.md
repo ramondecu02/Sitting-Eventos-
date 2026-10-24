@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.30** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.31** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,10 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.31
+- **El «Resumen del equipo» ya se puede probar.** Ese bloque (un solo correo, igual para todos, a una lista de direcciones o a administración y eventos) no tenía botones: solo salía el día que le tocaba. Ahora lleva **«Ver el resumen de hoy»**, **«Enviarme ese resumen de prueba»** y **«Enviarlo ahora a la lista»** (pide confirmación y, al terminar, dice **a qué direcciones ha salido** y si alguna ha dado error). Usan lo guardado: hay que pulsar «Guardar» antes de probar.
+- **No confundir con la hoja semanal de cada persona:** el resumen del equipo va a la lista que se escriba ahí (puede ser un buzón como cuina@…); la hoja semanal por persona va a las personas de «Equipo y accesos», por su correo de acceso, cada una con lo de su rol.
 
 ### Novedad de la versión 02.30
 - **Hoja semanal de cada persona.** Cada **lunes a partir de las 8:00** (hora de Madrid), **cada persona del equipo** recibe en su correo de acceso **las tareas que quedan por hacer** en los eventos de las **próximas 3 semanas**, con **el rol responsable de cada una**. Arriba va **«Te toca a ti · (su rol)»** y debajo **«Resto del equipo»**, agrupado por rol y con el rol de cada tarea entre corchetes; la **administración** recibe todas, en una sección por rol («Tareas de Cocina», «Tareas de Compras»…). Antes de las tareas, los eventos de las próximas semanas con sus comensales. **A quien no tiene nada pendiente no se le manda nada** (se puede cambiar con «Mandarla también a quien no tiene nada pendiente»), **no se repite en la misma semana** y Cocina, Compras y Servicio **no ven importes**, tampoco en «Resto del equipo».

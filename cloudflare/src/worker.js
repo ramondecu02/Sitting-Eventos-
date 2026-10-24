@@ -2950,9 +2950,9 @@ async function correoResumenRoute(request, env) {
   if (b.modo === "equipo") {
     if (a.s.role !== "admin") return json({ error: "forbidden", message: "Solo el administrador puede enviarlo al equipo." }, 403);
     const dest = await corDestinatarios(env, cfg), res = [];
-    for (const to of dest) res.push(await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen-manual:" + Date.now() + ":" + to, by: a.s.name || a.s.email }));
+    for (const to of dest) res.push(await correoEnviar(env, { kind: "resumen", to, subject: R.asunto, text: R.texto, ref: "resumen-manual:" + Date.now() + ":" + to, by: a.s.name || a.s.email, origen: new URL(request.url).origin }));
     await logAct(env, a.s, "correo_enviado", "Resumen al equipo (" + dest.length + (dest.length === 1 ? " persona)" : " personas)"));
-    return json({ ok: res.every((r) => r.ok), enviados: res.filter((r) => r.estado === "enviado").length, simulados: res.filter((r) => r.estado === "simulado").length, errores: res.filter((r) => !r.ok).length, destinatarios: dest.length });
+    return json({ ok: res.every((r) => r.ok), enviados: res.filter((r) => r.estado === "enviado").length, simulados: res.filter((r) => r.estado === "simulado").length, errores: res.filter((r) => !r.ok).length, destinatarios: dest.length, a: dest, fallos: res.map((r, i) => r.ok ? null : { a: dest[i], motivo: r.message || r.error || "" }).filter(Boolean).slice(0, 5) });
   }
   return json({ error: "invalid" }, 400);
 }

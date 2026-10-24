@@ -88,6 +88,7 @@ export const hecho = [
   'Listados reales de utensilios por elaboración, de serie: brasa hamburguesa, chuletón y pulpo (cada una con su montaje completo y sus cantidades), carro de helados, café, copa y puro y buffet de ostras; salen bajo su plato en el check list y se completan a lo ya guardado sin pisarlo · v02.28',
   'Correo con el dominio propio (eventos@lesmolesevents.app, verificado) y aspecto cuidado también en Outlook de escritorio: botón con su relleno, logo alineado con el título y ancho fijo de 600 px · v02.29',
   'Hoja semanal de cada persona (lunes 8:00): sus tareas por hacer en las próximas 3 semanas con el rol responsable de cada una («Te toca a ti» y «Resto del equipo»), sacadas del checklist por fases y de lo que el programa detecta; rol de cada tarea editable en Parámetros → Tareas por fase y visible en el checklist del evento; resúmenes por departamento apagados de fábrica · v02.30',
+  'El «Resumen del equipo» se puede probar desde la pantalla: ver el de hoy, enviármelo y enviarlo ahora a la lista, diciendo a qué direcciones ha salido · v02.31',
 ];
 
 export const decisiones = [

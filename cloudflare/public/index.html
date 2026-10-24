@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.30 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.31 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.30".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.31".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4636,7 +4636,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.30</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.31</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10415,7 +10415,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.30</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.31</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -24613,7 +24613,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="resumen.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+rs.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("resumen.hora",rs.hora,0,23)+'</label>'+
       '<label class="fld"><span class="lbl">Para</span><select data-cf="resumen.para"><option value="equipo"'+(rs.para==="equipo"?" selected":"")+'>Administración y eventos (por su correo de acceso)</option><option value="lista"'+(rs.para==="lista"?" selected":"")+'>Una lista de correos</option></select></label>'+
-      '<label class="fld wide"><span class="lbl">Lista de correos <small>(separados por comas; solo si has elegido «una lista»)</small></span><input type="text" data-cf="resumen.lista" value="'+esc(rs.lista)+'" placeholder="jefe@lesmoles.com, sala@lesmoles.com"></label></div></div>';
+      '<label class="fld wide"><span class="lbl">Lista de correos <small>(separados por comas; solo si has elegido «una lista»)</small></span><input type="text" data-cf="resumen.lista" value="'+esc(rs.lista)+'" placeholder="jefe@lesmoles.com, sala@lesmoles.com"></label></div>'+
+      '<p class="av-peq">Es <b>un solo correo igual para todos</b>: lo que hay en los próximos eventos. Se manda a la lista de arriba o, si eliges «Administración y eventos», a esas personas por su correo de acceso. <b>Guarda antes de probar</b>: los botones usan lo guardado.</p>'+
+      '<div class="av-acciones"><button type="button" class="btn sm" data-cfa="eq-vista">Ver el resumen de hoy</button><button type="button" class="btn sm" data-cfa="eq-yo">Enviarme ese resumen de prueba</button><button type="button" class="btn sm" data-cfa="eq-equipo">Enviarlo ahora a '+(rs.para==="lista"?"la lista":"administración y eventos")+'</button></div>'+
+      (C.eqRes?'<p class="av-res '+(C.eqRes.ok?(C.eqRes.sim?"sim":"ok"):"mal")+'" role="status">'+esc(C.eqRes.txt)+'</p>'+(C.eqRes.texto?'<pre class="av-vista" tabindex="0" aria-label="Resumen del equipo">'+esc(C.eqRes.texto)+'</pre>':''):'')+'</div>';
     P.sem=semanalHTML(cfg);
     P.dep=depsHTML(cfg,s);
     P.rec='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
@@ -24673,6 +24676,15 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     else if(a==="prueba"){ b.disabled=true; C.msg=null; var para=b.getAttribute("data-to")||(yo().email||"");
       api("/api/correo/enviar","POST",{kind:"prueba",to:para,subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona. Así se ve un botón a un enlace:\n"+location.origin+"/\n\n"+(C.cfg.firma||"")}).then(function(j){
         C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(para||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:fallo(j,"No se ha podido enviar."),a:(function(m){ return m&&m[1]!==para?m[1]:""; })(/own email address \(([^)\s]+@[^)\s]+)\)/i.exec((j&&j.message)||""))}; cargarCfg(); }); }
+    else if(a==="eq-vista"||a==="eq-yo"||a==="eq-equipo"){
+      var emodo=a==="eq-vista"?"vista":a==="eq-yo"?"yo":"equipo"; b.disabled=true;
+      if(a==="eq-equipo"&&!window.confirm("¿Enviar ahora el resumen del equipo a "+(C.cfg.resumen.para==="lista"?"estas direcciones (las guardadas):\n\n"+String(C.cfg.resumen.lista||"").split(/[\s,;]+/).filter(Boolean).join("\n"):"administración y eventos (por su correo de acceso)")+"?")){ b.disabled=false; return; }
+      api("/api/correo/resumen","POST",{modo:emodo}).then(function(j){
+        if(j._status!==200) C.eqRes={ok:false,txt:fallo(j,"No se ha podido.")};
+        else if(emodo==="vista") C.eqRes={ok:true,txt:"Así quedaría hoy ("+j.eventos+(j.eventos===1?" evento":" eventos")+"):",texto:j.asunto+"\n\n"+j.texto};
+        else if(emodo==="yo") C.eqRes={ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido.":"Enviado a tu correo."};
+        else C.eqRes={ok:j.ok,sim:!!j.simulados,txt:(j.enviados?"Enviado a "+j.enviados+(j.enviados===1?" dirección":" direcciones"):"")+(j.simulados?(j.enviados?" · ":"")+j.simulados+" simulados (el correo no está activado)":"")+(j.errores?" · "+j.errores+" con error"+((j.fallos&&j.fallos.length)?": "+j.fallos.map(function(f){ return f.a+(f.motivo?" ("+f.motivo+")":""); }).join("; "):""):"")+(j.destinatarios?"":"No hay a quién mandárselo: la lista está vacía o no hay personas de administración y eventos con correo.")+((j.a&&j.a.length)?" → "+j.a.join(", "):"")};
+        pintarCfg(); }); }
     else if(a==="sem-vista"||a==="sem-yo"||a==="sem-equipo"){
       var smodo=a==="sem-vista"?"vista":a==="sem-yo"?"yo":"equipo"; b.disabled=true;
       if(a==="sem-equipo"&&!window.confirm("¿Enviar ahora la hoja semanal a cada persona del equipo? A quien no tenga nada pendiente no se le manda.")){ b.disabled=false; return; }
