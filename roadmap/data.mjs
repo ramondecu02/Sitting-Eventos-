@@ -99,6 +99,7 @@ export const hecho = [
   'Pantallas bien en tablet y portátil (el plano abre encajado entero, barra del plano compacta, lista de invitados sin solaparse) y hoja resumen de boda en una A4 (dos como mucho) · v02.34',
   'El primer pago, una vez cobrado, queda fijado: al añadir o quitar invitados solo cambia el último pago (total − señal − primer pago); igual en portal, presupuesto, PDF, agenda y avisos · v02.35',
   'Las bebidas añadidas en Consumo real (Coca-Cola, Fanta, refrescos) ya cuentan en los costes: precio por nombre para todos los eventos, en la fila de Consumo real, en Rentabilidad y en Precios y costes · v02.35',
+  'Avisos por correo de lo que hace el cliente en su portal (mensajes al momento; justificantes, DNI, aprobaciones y lista en un resumen por persona cada hora), con horas de silencio, tope diario, botón directo al portal de cada evento y «Enviarme un aviso de ejemplo» · v02.36',
 ];
 
 export const decisiones = [
@@ -380,7 +381,6 @@ export const falta = [
 ];
 
 export const opcionales = [
-  'Avisos por correo de lo que hace el cliente en su portal (mensajes, documentos, aprobaciones, lista): propuesta en la sección 9 del ROADMAP',
   'Google Calendar para agendar reuniones desde el programa: estudio y fases en la sección 9 del ROADMAP',
   'Proveedor de firma electrónica avanzada, si el contrato necesita más validez',
   'Claves de Turnstile para el formulario de consultas, si algún día entra spam',
@@ -421,15 +421,13 @@ export const pendienteTuyo = [
 /* Lo que solo puede decidir quien manda */
 export const esperaOk = [
   ['Rediseño visual', 'El prototipo v5 (Artifact) sigue siendo solo un prototipo: no se ha tocado la app real. Para empezar a llevarlo, por fases y pantalla a pantalla, necesito tu OK y cuatro respuestas: la tipografía elegida, los textos o palabras que vetas, las fotos de la casa para los huecos de foto y si quieres enseñar reseñas de clientes. El portal de clientes de la 02.15 se pulió sin cambiar su estilo, a propósito'],
-  ['Avisos del portal por correo', 'Decidir quién recibe cada tipo de aviso, si llegan al momento o en resumen cada hora (propongo resumen cada hora y al momento solo los mensajes), si el correo lleva el texto del mensaje y las horas de silencio (ROADMAP, sección 9.1)'],
-  ['Google Calendar', 'Decidir si usáis Google Workspace o Gmail, qué calendario sería el de Eventos, qué tipos de reunión y duración se agendan y si el cliente podrá elegir hueco desde su portal; propongo empezar por las fases 1 y 2 (ROADMAP, sección 9.2)'],
+  ['Google Calendar', 'Decidir si usáis Google Workspace o Gmail, qué calendario sería el de Eventos, qué tipos de reunión y duración se agendan y si el cliente podrá elegir hueco desde su portal; propongo empezar por las fases 1 y 2 (ROADMAP, sección 9.1)'],
   ['Fila «Bebés en trona (sin menú)»', 'En los menús de la escaleta, ¿la quito? Te la propuse y está sin confirmar'],
 ];
 
 /* Lo que puedo hacer yo cuando me lo pidas. [qué, estimación, detalle] */
 export const puedoHacer = [
   ['Pruebas automáticas en cada entrega', '~1–2 días', 'Llevar al repositorio unas 40 pruebas de navegador que hoy paso a mano en cada versión y que GitHub las ejecute en cada subida (incluye dejar al día 3 pruebas antiguas que ya fallaban). Cierra la casilla de Calidad continua'],
-  ['Avisos por correo de lo que hace el cliente en su portal', '~1–1,5 días', 'Mensajes, justificantes, DNI, aprobaciones y cambios en la lista, a cada departamento, al momento o en resumen cada hora, con horas de silencio y un botón directo al portal del cliente. Hace falta el correo activo (punto 1). Propuesta completa en la sección 9.1 del ROADMAP'],
   ['Google Calendar · fase 1: «Añadir a Google Calendar» y archivo .ics', '~1 día', 'En cada reunión y en el correo al cliente (invitación adjunta). No hay que conectar ninguna cuenta'],
   ['Google Calendar · fase 2: calendario de Les Moles suscribible', '~½ día', 'Una dirección privada de solo lectura con eventos, reuniones y fechas de pago para añadir a Google Calendar'],
   ['Google Calendar · fase 3: agendar reuniones desde el programa (API de Google)', '~3–4 días', 'Botón «Agendar reunión» que crea el evento en el calendario de Eventos, invita al cliente, añade Meet y muestra los huecos libres. Hay que crear la conexión en Google (yo te guío) y decidir la cuenta. Sección 9.2 del ROADMAP'],

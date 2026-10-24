@@ -58,6 +58,7 @@
  *   POST /api/correo/comprobar  mira si la clave de Resend, el remitente y el dominio están bien, SIN enviar nada (solo admin)
  *   POST /api/correo/resumen    {modo: vista|yo|equipo}  el resumen del equipo a mano
  *   POST /api/correo/cron       lo que se manda solo (resumen, resúmenes por departamento y recordatorios); con «Authorization: Bearer CRON_TOKEN» o el administrador
+ *   POST /api/correo/portal-prueba  un aviso del portal de ejemplo (datos inventados) al correo de quien lo pide
  *   POST /api/correo/aviso      {ev, para, txt, id?} avisa por correo a las personas de un departamento (o a todos) de un aviso entre departamentos (cualquier rol)
  *   GET  /api/correo/destinos   cuántas personas recibirían un aviso en cada departamento (cualquier rol; sin correos)
  *   GET  /api/health            ¿vivo? (público, sin datos; para un vigilante externo tipo UptimeRobot)
@@ -104,11 +105,11 @@ function conSeguridad(res, html) {
   return o;
 }
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       try {
-        return conSeguridad(await api(request, env, url), false);
+        return conSeguridad(await api(request, env, url, ctx), false);
       } catch (err) {
         await logError(env, "servidor", url.pathname + " (" + request.method + ")", String(err && err.message || err), null);
         return conSeguridad(json({ error: "server", message: "Ha fallado algo en el servidor. Si se repite, avisa a quien lleva la herramienta." }, 500), false);
@@ -139,7 +140,7 @@ export default {
 /* v02.00 · quien entra con una contraseña temporal solo puede cambiarla (o salir): el resto del servidor le contesta «must-change» aunque
    se salte la pantalla de la app. Lo público (portal del cliente, formulario de consultas, invitaciones, vigilante) no pasa por aquí. */
 const SIN_SESION = /^\/api\/((me|setup|login|logout|invitacion|health|share|error)(\/|$)|consulta$|consulta\/(form|disp)$)/;
-async function api(request, env, url) {
+async function api(request, env, url, ctx) {
   const p = url.pathname;
   const m = request.method.toUpperCase();
   if (!SIN_SESION.test(p) && p !== "/api/me/password") {
@@ -156,9 +157,9 @@ async function api(request, env, url) {
   if (p === "/api/actividad" && m === "GET") return actList(request, env, url);
   if (p === "/api/roles" && m === "PUT") return rolesPut(request, env);
   if (p === "/api/seguridad" && m === "PUT") return seguridadPut(request, env);
-  if (p === "/api/share" && m === "GET") return shareRoute(request, env, url);
-  if (p === "/api/share" && m === "POST") return sharePost(request, env, url);
-  if (p === "/api/share/accion" && m === "POST") return porAccion(request, env, url);
+  if (p === "/api/share" && m === "GET") return shareRoute(request, env, url, ctx);
+  if (p === "/api/share" && m === "POST") return sharePost(request, env, url, ctx);
+  if (p === "/api/share/accion" && m === "POST") return porAccion(request, env, url, ctx);
   if (p === "/api/share/img" && m === "GET") return porImgCliente(request, env, url);
   if (p === "/api/portal" && m === "GET") return portalGet(request, env, url);
   if (p === "/api/portal/img" && m === "GET") return portalImg(request, env, url);
@@ -207,6 +208,7 @@ async function api(request, env, url) {
   if (p === "/api/correo" && m === "PUT") return correoPut(request, env);
   if (p === "/api/correo/plantillas" && m === "GET") return correoPlantillas(request, env);
   if (p === "/api/correo/enviar" && m === "POST") return correoEnviarRoute(request, env);
+  if (p === "/api/correo/portal-prueba" && m === "POST") return correoPortalPrueba(request, env);
   if (p === "/api/correo/reintentar" && m === "POST") return correoReintentar(request, env);
   if (p === "/api/correo/resumen" && m === "POST") return correoResumenRoute(request, env);
   if (p === "/api/correo/cron" && m === "POST") return correoCron(request, env);
@@ -373,11 +375,12 @@ async function eventoDeCliente(request, env, token, msg404) {
 function tokenFuerte(t) { return typeof t === "string" && t.length >= 24; }
 function hoyISO() { return new Date(Date.now() + 2 * 3600e3).toISOString().slice(0, 10); }  /* hora de España (aprox.) */
 
-async function shareRoute(request, env, url) {
+async function shareRoute(request, env, url, ctx) {
   const token = (url.searchParams.get("t") || "").trim();
   if (!token) return json({ error: "not-found" }, 404);
   const ac = await eventoDeCliente(request, env, token); if (ac.res) return ac.res;
   const ev = ac.ev;
+  await pnApertura(env, ctx, ev, url.origin);
   const F = ev.ficha || {};
   const counts = countPlano(ev.text || "");
   const pub = {
@@ -429,7 +432,7 @@ function listaLimpia(b) {
   if (total > 1200) return null;
   return { parejaA: limpio(b.parejaA, 60), parejaB: limpio(b.parejaB, 60), mesas };
 }
-async function sharePost(request, env, url) {
+async function sharePost(request, env, url, ctx) {
   const token = (url.searchParams.get("t") || "").trim();
   if (!tokenFuerte(token)) return json({ error: "old-link", message: "Este enlace es antiguo. Pedid a Les Moles uno nuevo para poder editar." }, 403);
   const ac = await eventoDeCliente(request, env, token, "Este enlace ya no está activo."); if (ac.res) return ac.res;
@@ -466,6 +469,12 @@ async function sharePost(request, env, url) {
   const enviada = enviar ? now : (prev ? prev.enviada : null);
   await env.DB.prepare("INSERT INTO novios_listas (token, event_id, data, estado, enviada, updated, revisada, base) VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL, ?7) ON CONFLICT(token) DO UPDATE SET event_id=?2, data=?3, estado=?4, enviada=?5, updated=?6, base=?7")
     .bind(token, String(ev.id), JSON.stringify(data), estado, enviada, now, base).run();
+  /* v02.36 · solo cuando la ENVÍAN (no cada borrador que se guarda solo): cuántos son, cuántas alergias y qué ha cambiado respecto a lo que teníais */
+  if (enviar) {
+    const cuenta = (l) => { let g = 0, a = 0; ((l && l.mesas) || []).forEach((m) => (m.g || []).forEach((x) => { g++; if (String(x.a || "").trim()) a++; })); return { g, a, m: ((l && l.mesas) || []).length }; };
+    const cd = cuenta(data), cb = cuenta(baseL), dif = cd.g - cb.g;
+    await pnRegistrar(env, ctx, ev, url.origin, { tipo: "lista", quien: "", texto: "Ha enviado la lista de invitados: " + cd.g + (cd.g === 1 ? " invitado" : " invitados") + " en " + cd.m + (cd.m === 1 ? " mesa" : " mesas") + (cd.a ? " · " + cd.a + (cd.a === 1 ? " con alergia o dieta" : " con alergia o dieta") : "") + (dif ? " (" + (dif > 0 ? "+" : "") + dif + " respecto a lo que teníais)" : "") });
+  }
   return json({ ok: true, estado, enviada, updated: now });
 }
 
@@ -942,6 +951,7 @@ async function privLimpiarTablas(env, ids, nombres) {
     await env.DB.prepare("DELETE FROM consultas WHERE ev_id=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM portal_msg WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM portal_arch WHERE ev=?1").bind(String(id)).run();
+    await ensurePortalNov(env); await env.DB.prepare("DELETE FROM portal_novedad WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM outbox WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM servicio WHERE ev=?1").bind(String(id)).run();
     await env.DB.prepare("DELETE FROM historial WHERE event_id=?1").bind(String(id)).run();
@@ -1930,16 +1940,18 @@ function porSirve(r) {
   return new Response(u, { headers: { "Content-Type": r.mime || m[1], "Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff" } });
 }
 /* POST /api/share/accion?t=..  {tipo: aprobar | comentario | archivo | quitar} */
-async function porAccion(request, env, url) {
+async function porAccion(request, env, url, ctx) {
   const a = await porClienteSesion(request, env, url, false); if (a.err) return a.err;
   const { ev } = a, b = await body(request), ahora = Date.now();
+  const nov = (n) => pnRegistrar(env, ctx, ev, url.origin, n);   /* v02.36 · apunta lo que hace el cliente y avisa por correo si toca */
   await ensurePortal(env);
   if (b.tipo === "comentario") {
     const texto = porTexto(b.texto, 1500); if (!texto) return json({ error: "invalid", message: "Escribid el mensaje." }, 400);
     const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM portal_msg WHERE ev=?1 AND de='cliente' AND ts>?2").bind(ev.id, ahora - 864e5).first();
     if (n && n.n >= POR_MSG_DIA) return json({ error: "limit", message: "Habéis mandado muchos mensajes hoy. Llamad a Les Moles si es urgente." }, 429);
     const nombre = porTexto(b.nombre, 60);
-    await env.DB.prepare("INSERT INTO portal_msg (ev, ts, de, nombre, texto, leido) VALUES (?1, ?2, 'cliente', ?3, ?4, 0)").bind(ev.id, ahora, nombre, texto).run();
+    const rm = await env.DB.prepare("INSERT INTO portal_msg (ev, ts, de, nombre, texto, leido) VALUES (?1, ?2, 'cliente', ?3, ?4, 0)").bind(ev.id, ahora, nombre, texto).run();
+    await nov({ tipo: "msg", quien: nombre, texto, ref: (rm.meta && rm.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM portal_msg WHERE ev=?1").bind(ev.id).first()).id });
     return json({ ok: true, ...(await porDatos(env, ev)) });
   }
   /* v02.33 · el cliente puede borrar sus propios mensajes (nunca los del equipo: son el registro de lo que se le ha dicho) */
@@ -1947,7 +1959,7 @@ async function porAccion(request, env, url) {
     const r = await env.DB.prepare("SELECT id, de FROM portal_msg WHERE id=?1 AND ev=?2").bind(Math.floor(+b.id || 0), ev.id).first();
     if (!r) return json({ error: "not-found", message: "Ese mensaje ya no existe." }, 404);
     if (r.de !== "cliente") return json({ error: "forbidden", message: "Solo podéis borrar los mensajes que habéis escrito vosotros." }, 403);
-    await env.DB.prepare("DELETE FROM portal_msg WHERE id=?1").bind(r.id).run();
+    await env.DB.prepare("DELETE FROM portal_msg WHERE id=?1").bind(r.id).run(); await pnQuitaMsg(env, ev.id, r.id);
     await logAct(env, null, "mensaje_borrado", "El cliente borró un mensaje suyo del chat del portal · " + String(ev.name || "").slice(0, 80));
     return json({ ok: true, ...(await porDatos(env, ev)) });
   }
@@ -1978,6 +1990,7 @@ async function porAccion(request, env, url) {
     const r = await storeEditar(env, (doc) => porAprobar(doc, ev.id, item, nombre, h, ahora, firmado));
     if (!r.ok) return json({ error: "busy", message: "Había muchos cambios a la vez. Probad otra vez." }, 409);
     const ev2 = await eventoCompartido(env, a.token) || ev;
+    await nov({ tipo: "aprob", quien: nombre, extra: { item }, texto: item === "menu" ? "Ha aprobado el menú (" + nombre + ")" : item === "minuta" ? "Ha aprobado la minuta (" + nombre + ")" : "Ha aceptado " + (firmado && firmado.tipo === "propuesta" ? "la propuesta" : "el contrato") + (firmado && firmado.firmante === 2 ? " como segunda persona (" : " (") + nombre + ")" });
     /* queda en el historial del evento, con el nombre de quien aprobó */
     try { await ensureHistorial(env); await hiAnotar(env, ev2, ev, item === "contrato" ? ["aprobaciones", "contrato"] : ["aprobaciones"], "", nombre + " (cliente)", item === "contrato" ? ("Aceptó " + (firmado.tipo === "propuesta" ? "la propuesta" : "el contrato") + " (versión " + firmado.ver + ")") : "Aprobó " + (item === "menu" ? "el menú" : "la minuta"), ahora, false); } catch (_) {}
     return json({ ok: true, ...(await porDatos(env, ev2)) });
@@ -1994,6 +2007,7 @@ async function porAccion(request, env, url) {
     else { const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM evento_docs WHERE ev=?1 AND kind='justificante'").bind(ev.id).first(); if (c && c.n >= DOC_JUS_MAX) return json({ error: "limit", message: "Ya hay muchos justificantes. Escribid a Les Moles." }, 429); }
     await env.DB.prepare("INSERT INTO evento_docs (ev, kind, persona, de, por, nombre, mime, bytes, hash, src, ts, ref, concepto, importe, fecha, estado, nota, leido) VALUES (?1,?2,?3,'cliente',?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,'',0)")
       .bind(ev.id, kind, persona, porTexto(b.por, 60), porTexto(b.nombre, 80), f.mime, f.bytes, porHash(b.src), b.src, ahora, porTexto(b.ref, 60), porTexto(b.concepto, 120), docNum(b.importe), docFecha(b.fecha), kind === "justificante" ? "pendiente" : "").run();
+    await nov(pnDoc(kind, porTexto(b.por, 60), docNum(b.importe)));
     return json({ ok: true, ...(await porDatos(env, ev)) });
   }
   /* v02.33 · archivos grandes del cliente (un PDF de 2 MB del DNI, por ejemplo): se suben por trozos igual que el contrato firmado a mano.
@@ -2018,7 +2032,7 @@ async function porAccion(request, env, url) {
   if (b.tipo === "doc-parte" || b.tipo === "doc-fin") {
     await ensureDocs(env);
     if ((+request.headers.get("content-length") || 0) > DOC_BODY_MAX) return json({ error: "too-big", message: "El trozo es demasiado grande." }, 413);
-    const r = await env.DB.prepare("SELECT id, ev, kind, mime, bytes FROM evento_docs WHERE id=?1 AND ev=?2 AND de='cliente' AND estado='subiendo'").bind(Math.floor(+b.id || 0), ev.id).first();
+    const r = await env.DB.prepare("SELECT id, ev, kind, mime, bytes, por, importe FROM evento_docs WHERE id=?1 AND ev=?2 AND de='cliente' AND estado='subiendo'").bind(Math.floor(+b.id || 0), ev.id).first();
     if (!r) return json({ error: "not-found", message: "Esa subida ya no existe: volved a empezar." }, 404);
     const total = DOC_CON_PARTES(+r.bytes);
     if (b.tipo === "doc-parte") {
@@ -2038,6 +2052,7 @@ async function porAccion(request, env, url) {
     const ok = (r.mime === "image/jpeg" && cab.charCodeAt(0) === 0xFF && cab.charCodeAt(1) === 0xD8) || (r.mime === "image/png" && cab.slice(1, 4) === "PNG") || (r.mime === "image/webp" && cab.slice(0, 4) === "RIFF" && cab.slice(8, 12) === "WEBP") || (r.mime === "application/pdf" && cab.slice(0, 5) === "%PDF-");
     if (!ok) return falla("Solo se pueden enviar fotos (JPG, PNG, WebP) o PDF de verdad.");
     await env.DB.prepare("UPDATE evento_docs SET estado=?2, hash=?3, ts=?4 WHERE id=?1").bind(r.id, r.kind === "justificante" ? "pendiente" : "", porHash(b64.slice(0, 4000) + ":" + b64.slice(-4000)) + "-" + b64.length, ahora).run();
+    await nov(pnDoc(r.kind, r.por, r.importe));
     return json({ ok: true, ...(await porDatos(env, ev)) });
   }
   if (b.tipo === "doc-quitar") {
@@ -2121,7 +2136,7 @@ async function portalMsgQuitar(request, env, url) {
   const ev = await porEventoPorId(env, url.searchParams.get("ev")); if (!ev) return json({ error: "not-found" }, 404);
   const r = await env.DB.prepare("SELECT id, de FROM portal_msg WHERE id=?1 AND ev=?2").bind(Math.floor(+url.searchParams.get("id") || 0), ev.id).first();
   if (!r) return json({ error: "not-found", message: "Ese mensaje ya no existe." }, 404);
-  await env.DB.prepare("DELETE FROM portal_msg WHERE id=?1").bind(r.id).run();
+  await env.DB.prepare("DELETE FROM portal_msg WHERE id=?1").bind(r.id).run(); await pnQuitaMsg(env, ev.id, r.id);
   await logAct(env, a.s, "mensaje_borrado", (r.de === "cliente" ? "Mensaje del cliente" : "Mensaje del equipo") + " borrado del chat del portal · " + String(ev.name || "").slice(0, 80));
   return json({ ok: true, ...(await porDatos(env, ev, 200)) });
 }
@@ -2181,6 +2196,19 @@ const COR_CFG_DEF = {
   resumen: { on: false, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
   semanal: { on: true, dia: 1, hora: 8, dias: 21, vacio: false },   /* v02.30 · la hoja semanal de cada persona: sus tareas y su rol en cada una (lunes 8:00, próximas 3 semanas; sin nada pendiente, no se manda) */
   cliente: { on: false, hora: 9, lista: true, pago: true, reunion: true },
+  /* v02.36 · avisos al EQUIPO de lo que hace el cliente en su portal. modo: hora = un resumen por persona en la llamada horaria · dia = uno al día a la hora de «diaHora» · ya = cada cosa al momento.
+     msgYa: los mensajes salen al momento aunque el modo sea resumen. silencio: de «desde» a «hasta» (hora de Madrid) no sale nada: sale en el primer resumen después.
+     tope: máximo de avisos «al momento» por evento y día (lo demás va al resumen). texto: el correo lleva el texto del mensaje (cortado) o solo «te ha escrito».
+     tipos: quién recibe cada cosa (departamentos y correos extra); sin: personas que no quieren estos avisos. */
+  portal: { on: true, modo: "hora", msgYa: true, diaHora: 8, silencio: { on: true, desde: 22, hasta: 8 }, tope: 6, texto: true, sin: [],
+    tipos: {
+      msg: { on: true, deps: ["eventos"], extra: "" },
+      justificante: { on: true, deps: ["contabilidad"], extra: "" },
+      dni: { on: true, deps: ["eventos"], extra: "" },
+      aprob: { on: true, deps: ["eventos"], extra: "", cocinaMenu: true },
+      lista: { on: true, deps: ["eventos"], extra: "" },
+      apertura: { on: false, deps: ["eventos"], extra: "" }
+    } },
   deps: {   /* v02.14 · lo que recibe cada departamento: su resumen (solo si hay algo) y los avisos que le dejan los demás · v02.30 · apagados de fábrica (los sustituye la hoja semanal de cada persona) */
     eventos: { on: false, freq: "diario", dia: 1, hora: 8, extra: "", aviso: false },
     cocina: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
@@ -2247,6 +2275,10 @@ async function correoCfg(env) {
   } catch (_) {}
   const cfg = corMezcla(COR_CFG_DEF, c), plant = Object.assign({}, COR_PLANT);
   COR_DEPS.forEach((d) => { cfg.deps[d] = Object.assign({}, COR_CFG_DEF.deps[d], (c.deps && c.deps[d]) || {}); });
+  /* v02.36 · los avisos del portal tienen dos niveles más (silencio y tipos): cada tipo se mezcla con el suyo de fábrica */
+  { const sp = (c.portal && typeof c.portal === "object") ? c.portal : {}; cfg.portal.silencio = Object.assign({}, COR_CFG_DEF.portal.silencio, sp.silencio || {});
+    Object.keys(COR_CFG_DEF.portal.tipos).forEach((t) => { const st = (sp.tipos && sp.tipos[t]) || {}; cfg.portal.tipos[t] = Object.assign({}, COR_CFG_DEF.portal.tipos[t], st); if (!Array.isArray(cfg.portal.tipos[t].deps)) cfg.portal.tipos[t].deps = COR_CFG_DEF.portal.tipos[t].deps.slice(); });
+    if (!Array.isArray(cfg.portal.sin)) cfg.portal.sin = []; }
   /* ajustes guardados antes de la 02.19 (sin «v»): se aplica lo decidido (solo lo pendiente de cada persona); los correos extra, horas y plantillas se respetan */
   if (Object.keys(c).length && !c.v) { cfg.resumen.on = false; COR_DEPS.forEach((d) => { cfg.deps[d].aviso = false; }); cfg.deps.eventos.on = true; cfg.v = 2; }
   /* guardado antes de la 02.30: los resúmenes por departamento que siguen EXACTAMENTE como venían de fábrica (encendidos, sin tocar nada) se apagan, porque
@@ -2401,6 +2433,38 @@ function corPartesResumen(t, o) {
   });
   return P;
 }
+/* v02.36 · el correo de los avisos del portal: un bloque por evento (nombre y fecha), cada novedad como una tarjeta con su barra de color y su etiqueta, y el botón al portal de ese evento.
+   El texto que se guarda y se manda como alternativa es el mismo («▸ Evento · fecha», «· [Mensaje] 12:41 · …» y el enlace). */
+const COR_PN_TONO = { mensaje: "#8a9a6b", justificante: "#d9a53a", identidad: "#a8a290", aprobado: "#4f8a5b", lista: "#b8924a", portal: "#cfc8b6" };
+function corPartesPortal(t, o) {
+  const p = (txt) => '<p style="margin:0 0 14px;font:15px/1.65 ' + COR_FUENTE + ';color:#2b2b2b">' + txt + "</p>";
+  const intro = [], bloques = []; let cur = null;
+  t.split("\n").forEach((l) => {
+    const s = l.trim(); if (!s) return;
+    if (/^▸\s+/.test(s)) { cur = { t: s.replace(/^▸\s+/, ""), rows: [], url: "" }; bloques.push(cur); return; }
+    if (!cur) { intro.push(s); return; }
+    if (/^https?:\/\/\S+$/.test(s)) { cur.url = s; return; }
+    if (/^[·•]\s+/.test(s)) cur.rows.push(s.replace(/^[·•]\s+/, "")); else cur.rows.push(s);
+  });
+  const P = [], partes = String(o.subject || "").split(" · ").map((x) => x.trim()).filter(Boolean), tit = partes[0] || "Portal del cliente", sub = partes.slice(1).join(" · ");
+  P.push('<div style="margin:0 0 4px;font:25px/1.2 Georgia,\'Times New Roman\',serif;color:#1f2a24">' + corEsc(tit) + "</div>" + (sub ? '<div style="margin:0 0 16px;font:600 11px/1.4 ' + COR_FUENTE + ';letter-spacing:.14em;text-transform:uppercase;color:#8a6d3b">' + corEsc(sub) + "</div>" : '<div style="height:12px;line-height:12px;font-size:0">&nbsp;</div>'));
+  intro.forEach((x) => P.push(p(corEnlazar(x))));
+  bloques.forEach((b, i) => {
+    const m = /^(.*?)(?: · (\d\d\/\d\d\/\d{4}))?$/.exec(b.t) || [];
+    P.push('<div style="margin:' + (i ? "22px" : "6px") + ' 0 10px;padding-top:' + (i ? "14px" : "0") + ';' + (i ? "border-top:1px solid #e8e2d4;" : "") + 'font:700 15px/1.3 ' + COR_FUENTE + ';color:#1f2a24">' + corEsc(m[1] || b.t) + (m[2] ? ' <span style="font:600 12px/1.3 ' + COR_FUENTE + ';color:#8b8b8b">' + corEsc(m[2]) + "</span>" : "") + "</div>");
+    const filas = b.rows.map((r) => {
+      const q = /^\[([^\]]+)\]\s*(\S+(?: \S+)?)? · (.*)$/.exec(r), chip = q ? q[1] : "", hora = q ? (q[2] || "") : "", cuerpo = q ? q[3] : r, barra = COR_PN_TONO[corNorm(chip)] || COR_PN_TONO.portal;
+      /* la hora puede venir con el día («21/10 21:10»): la regex toma dos palabras como máximo */
+      return '<tr><td style="padding:0 0 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f3;border:1px solid #ece6d6"><tr><td width="4" bgcolor="' + barra + '" style="width:4px;background:' + barra + ';font-size:0;line-height:0">&nbsp;</td>' +
+        '<td style="padding:10px 14px;font:15px/1.5 ' + COR_FUENTE + ';color:#2b2b2b"><table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px"><tr>' +
+        (chip ? '<td bgcolor="#efece4" style="background:#efece4;border-radius:4px;padding:2px 8px;font:700 10px/1.4 ' + COR_FUENTE + ';letter-spacing:.1em;color:#4b4a43;text-transform:uppercase">' + corEsc(chip) + "</td>" : "") +
+        (hora ? '<td width="6" style="width:6px;font-size:0">&nbsp;</td><td style="font:600 11px/1.4 ' + COR_FUENTE + ';color:#8b8b8b">' + corEsc(hora) + "</td>" : "") + "</tr></table>" + corEnlazar(cuerpo) + "</td></tr></table></td></tr>";
+    }).join("");
+    P.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">' + filas + "</table>");
+    if (b.url) P.push(corBoton(b.url, "Abrir el portal de este evento"));
+  });
+  return P;
+}
 function corHtml(texto, o) {
   o = o || {};
   const t = String(texto == null ? "" : texto).replace(/\r/g, "").trim();
@@ -2408,6 +2472,7 @@ function corHtml(texto, o) {
   let partes = []; let par = [];
   const cierra = () => { if (par.length) { const trasLista = partes.length && /^<div style="margin:0 0 7px/.test(partes[partes.length - 1]); partes.push('<p style="margin:' + (trasLista ? "18px" : "0") + ' 0 14px;font:15px/1.65 ' + COR_FUENTE + ';color:#2b2b2b">' + par.map(corEnlazar).join("<br>") + "</p>"); par = []; } };
   if (o.kind === "resumen") { try { partes = corPartesResumen(t, o); } catch (_) { partes = []; } }
+  else if (o.kind === "portal") { try { partes = corPartesPortal(t, o); } catch (_) { partes = []; } }
   if (!partes.length) t.split("\n").forEach((l) => {
     const s = l.trim();
     if (!s) { cierra(); return; }
@@ -2923,6 +2988,8 @@ async function correoAutomatico(env, ahora, origen, opt) {
       const r = await envia({ kind: "resumen", to: u.email, subject: R.asunto, text: R.texto, ref: "sem:" + periodo + ":" + u.email, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) out.semanal.enviados++;
     }
   }
+  /* 1d · v02.36 · lo que han hecho los clientes en su portal: un resumen por persona (los mensajes ya salieron al momento) */
+  if (!out.parado) { try { out.portal = await pnResumen(env, doc, cfg, M, origen, opt, envia, cuenta, () => !!out.parado); } catch (e) { out.portal = { error: String(e && e.message || e) }; } }
   /* 2 · recordatorios a los clientes (apagados de fábrica) */
   if (cfg.cliente.on && M.h >= (+cfg.cliente.hora || 0)) {
     const portal = (((doc.params || {}).sec || {}).portal || {}).data || {};
@@ -2943,6 +3010,156 @@ async function correoAutomatico(env, ahora, origen, opt) {
     try { await env.DB.prepare("DELETE FROM outbox WHERE ts < ?1").bind(ahora.getTime() - COR_PURGA_DIAS * 864e5).run(); } catch (_) {}
     try { out.entregas = await corEntregaRefrescar(env, { limite: 30, forzar: true }); } catch (_) {}
   }
+  return out;
+}
+/* ══ v02.36 · AVISOS POR CORREO DE LO QUE HACE EL CLIENTE EN SU PORTAL ══════════════════════════════════════
+   Cuando el cliente actúa en su portal (escribe, sube un justificante o un documento de identidad, aprueba el menú, la minuta o el contrato, envía la lista
+   de invitados, o abre el portal por primera vez) se apunta una «novedad» y se avisa por correo a quien toque (Parámetros → Correo y avisos → Portal del cliente):
+     · los mensajes salen al momento (si así se ha dejado) y el resto en un resumen por persona, cada hora, con la llamada horaria de siempre;
+     · de «desde» a «hasta» (de noche) no sale nada: sale en el primer resumen de después;
+     · un tope de avisos «al momento» por evento y día; lo que sobra va al resumen;
+     · si el equipo ya ha leído un mensaje en el programa antes de que salga el resumen, no se repite.
+   El correo nunca lleva documentos ni su contenido (solo «ha subido un DNI»), y el texto de los mensajes va cortado a 200 caracteres.
+   estado de cada novedad (portal_novedad.enviado): 0 pendiente · 1 en un resumen · 2 al momento · 3 descartada (leída en el programa, sin destinatarios o evento borrado). */
+const PN_ROT = { msg: "Mensaje", justificante: "Justificante", dni: "Identidad", aprob: "Aprobado", lista: "Lista", apertura: "Portal" };
+let PN_OK = false;
+async function ensurePortalNov(env) {
+  if (PN_OK) return;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS portal_novedad (id INTEGER PRIMARY KEY AUTOINCREMENT, ev TEXT NOT NULL, ts INTEGER NOT NULL, tipo TEXT NOT NULL, quien TEXT, texto TEXT, ref TEXT, extra TEXT, enviado INTEGER NOT NULL DEFAULT 0)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS portal_novedad_env ON portal_novedad (enviado, ts)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS portal_novedad_ev ON portal_novedad (ev, ts)").run();
+  PN_OK = true;
+}
+/* un mensaje borrado del chat (por el cliente o por el equipo) deja de existir también como novedad: su texto no se queda copiado */
+async function pnQuitaMsg(env, ev, id) { try { await ensurePortalNov(env); await env.DB.prepare("DELETE FROM portal_novedad WHERE ev=?1 AND tipo='msg' AND ref=?2").bind(String(ev), String(id)).run(); } catch (_) {} }
+/* ¿es de noche (hora de Madrid)? «desde» y «hasta» pueden cruzar la medianoche (22 → 8); 0 → 24 es todo el día */
+function pnSilencio(cfg, M) {
+  const s = (cfg.portal || {}).silencio; if (!s || !s.on) return false;
+  const d = +s.desde, h = +s.hasta, x = M.h; if (d === h) return false;
+  return d < h ? (x >= d && x < h) : (x >= d || x < h);
+}
+/* quién recibe cada cosa: los departamentos de ese tipo (y «cocina» si es el menú aprobado y está así) + los correos extra, sin las personas que no quieren avisos */
+async function pnDestinos(env, cfg, tipo, extra) {
+  const P = cfg.portal || {}, t = (P.tipos || {})[tipo]; if (!t || !t.on) return [];
+  const deps = (t.deps || []).slice();
+  if (tipo === "aprob" && extra && extra.item === "menu" && t.cocinaMenu && deps.indexOf("cocina") < 0) deps.push("cocina");
+  const sin = (P.sin || []).map((x) => String(x).toLowerCase()), out = [];
+  const add = (d) => { if (sin.indexOf(d.email) >= 0 || out.some((o) => o.email === d.email)) return; out.push(d); };
+  for (const dep of deps) { if (dep !== "admin" && COR_DEPS.indexOf(dep) < 0) continue; (await corDestDep(env, dep, dep === "admin" ? { deps: {} } : cfg)).forEach(add); }
+  String(t.extra || "").split(/[\s,;]+/).forEach((x) => { x = x.trim().toLowerCase(); if (corEmailOk(x)) add({ email: x, name: "" }); });
+  return out;
+}
+const pnCorta = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
+/* una novedad, en una línea: «· [Mensaje] 12:41 · Marta: «texto»» (con el día si no es de hoy) */
+function pnLinea(n, cfg, hoyIso) {
+  const d = new Date(+n.ts), M = corMadrid(d), hh = ("0" + M.h).slice(-2) + ":" + ("0" + M.min).slice(-2), cuando = M.iso === hoyIso ? hh : ("0" + M.d).slice(-2) + "/" + ("0" + M.m).slice(-2) + " " + hh;
+  let cuerpo = String(n.texto || "");
+  if (n.tipo === "msg") { const q = n.quien ? pnCorta(n.quien, 40) : "El cliente"; cuerpo = cfg.portal.texto === false || !cuerpo ? q + " te ha escrito un mensaje." : q + ": «" + pnCorta(cuerpo, 200) + "»"; }
+  return "· [" + PN_ROT[n.tipo] + "] " + cuando + " · " + cuerpo;
+}
+const pnEnlace = (origen, id) => String(origen || "") + "/?ev=" + encodeURIComponent(id) + "&sec=portal";
+function pnFechaCorta(iso) { return /^\d{4}-\d{2}-\d{2}$/.test(iso || "") ? iso.split("-").reverse().join("/") : ""; }
+/* el texto del correo (el mismo se manda como alternativa en texto plano): un bloque por evento con sus novedades y el enlace directo a su portal */
+function pnTexto(items, evs, cfg, origen, nombre, hoyIso) {
+  const porEv = [], idx = {};
+  items.forEach((n) => { if (idx[n.ev] == null) { idx[n.ev] = porEv.length; porEv.push({ ev: n.ev, l: [] }); } porEv[idx[n.ev]].l.push(n); });
+  const L = [];
+  L.push((nombre ? "Hola, " + corPila(nombre) + ". " : "") + (items.length === 1 ? "Esto es lo que ha hecho un cliente en su portal:" : "Esto es lo que han hecho los clientes en su portal desde el último aviso:"));
+  porEv.forEach((b) => {
+    const e = evs[b.ev] || {}, f = pnFechaCorta((e.ficha || {}).fecha);
+    L.push("", "▸ " + corNombreEv(e) + (f ? " · " + f : ""));
+    b.l.forEach((n) => L.push(pnLinea(n, cfg, hoyIso)));
+    L.push(pnEnlace(origen, b.ev));
+  });
+  return L.join("\n");
+}
+function pnAsunto(items, evs) {
+  const ids = items.map((n) => n.ev).filter((x, i, a) => a.indexOf(x) === i), nom = ids.length === 1 ? corNombreEv(evs[ids[0]] || {}) : "";
+  if (items.length === 1 && items[0].tipo === "msg") return "Mensaje " + (items[0].quien ? "de " + pnCorta(items[0].quien, 40) : "del cliente") + " · " + nom;
+  return "Portal del cliente · " + items.length + (items.length === 1 ? " novedad" : " novedades") + (nom ? " · " + nom : " · " + ids.length + " eventos");
+}
+/* lo que se cuenta de un documento subido: nunca su contenido, solo que ha llegado (y, en un justificante, el importe si lo han puesto) */
+function pnDoc(kind, quien, importe) {
+  return kind === "dni" ? { tipo: "dni", quien, texto: "Ha subido un documento de identidad" }
+    : { tipo: "justificante", quien, texto: "Ha subido un justificante de pago" + (+importe > 0 ? " de " + corEur(+importe) : "") };
+}
+/* la primera vez que se abre el portal de un evento (apagado de fábrica; se mira la configuración como mucho una vez por minuto para no cargar cada visita) */
+let PN_AP = { t: 0, on: false };
+async function pnApertura(env, ctx, ev, origen) {
+  try {
+    const ahora = Date.now();
+    if (ahora - PN_AP.t > 60000) { await ensureCorreo(env); const { cfg } = await correoCfg(env); PN_AP = { t: ahora, on: !!(cfg.portal.on && cfg.portal.tipos.apertura.on) }; }
+    if (!PN_AP.on) return;
+    await ensurePortalNov(env);
+    if (await env.DB.prepare("SELECT id FROM portal_novedad WHERE ev=?1 AND tipo='apertura' LIMIT 1").bind(String(ev.id)).first()) return;
+    await pnRegistrar(env, ctx, ev, origen, { tipo: "apertura", texto: "Ha abierto el portal por primera vez" });
+  } catch (_) {}
+}
+/* se apunta la novedad y, si toca, sale al momento (en segundo plano si el servidor lo permite). Nunca rompe lo que el cliente estaba haciendo. */
+async function pnRegistrar(env, ctx, ev, origen, n) {
+  try {
+    await ensurePortalNov(env); await ensureCorreo(env);
+    const { cfg } = await correoCfg(env), P = cfg.portal;
+    if (!P.on || !P.tipos[n.tipo] || !P.tipos[n.tipo].on) return;
+    const ahora = Date.now();
+    const r = await env.DB.prepare("INSERT INTO portal_novedad (ev, ts, tipo, quien, texto, ref, extra, enviado) VALUES (?1,?2,?3,?4,?5,?6,?7,0)")
+      .bind(String(ev.id), ahora, n.tipo, String(n.quien || "").slice(0, 80), String(n.texto || "").slice(0, 400), n.ref != null ? String(n.ref) : null, n.extra ? JSON.stringify(n.extra) : null).run();
+    const id = (r.meta && r.meta.last_row_id) || (await env.DB.prepare("SELECT MAX(id) AS id FROM portal_novedad").first()).id;
+    const ya = P.modo === "ya" || (n.tipo === "msg" && P.msgYa);
+    if (!ya || pnSilencio(cfg, corMadrid(new Date(ahora)))) return;
+    const hoy = await env.DB.prepare("SELECT COUNT(*) AS n FROM portal_novedad WHERE ev=?1 AND enviado=2 AND ts>?2").bind(String(ev.id), ahora - 864e5).first();
+    if (hoy && hoy.n >= (+P.tope || 6)) return;
+    const trabajo = pnEnviarYa(env, cfg, ev, Object.assign({ id, ts: ahora }, n), origen).catch((e) => logError(env, "servidor", "aviso del portal al momento", String(e && e.message || e), null).catch(() => {}));
+    if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(trabajo); else await trabajo;
+  } catch (e) { try { await logError(env, "servidor", "avisos del portal", String(e && e.message || e), null); } catch (_) {} }
+}
+async function pnEnviarYa(env, cfg, ev, n, origen) {
+  const dest = await pnDestinos(env, cfg, n.tipo, n.extra), evs = {}; evs[ev.id] = ev;
+  const hoyIso = corMadrid(new Date()).iso, it = [{ id: n.id, ev: String(ev.id), ts: n.ts, tipo: n.tipo, quien: n.quien, texto: n.texto }];
+  if (!dest.length) { await env.DB.prepare("UPDATE portal_novedad SET enviado=3 WHERE id=?1").bind(n.id).run(); return; }
+  const asunto = pnAsunto(it, evs);
+  for (const d of dest) await correoEnviar(env, { cfg, kind: "portal", ev: String(ev.id), to: d.email, subject: asunto, text: pnTexto(it, evs, cfg, origen, d.name, hoyIso), ref: "pn1:" + n.id + ":" + d.email, by: "automático", origen });
+  await env.DB.prepare("UPDATE portal_novedad SET enviado=2 WHERE id=?1").bind(n.id).run();
+}
+/* el resumen: lo pendiente, un correo por persona con todo lo suyo. Lo llama la llamada horaria (correoAutomatico). */
+async function pnResumen(env, doc, cfg, M, origen, opt, envia, cuenta, parado) {
+  const P = cfg.portal, out = { on: !!P.on, modo: P.modo, pendientes: 0, personas: 0, enviados: 0, descartadas: 0, silencio: false, espera: false };
+  await ensurePortalNov(env);
+  const ahoraMs = opt && opt.ahoraMs ? opt.ahoraMs : Date.now();
+  if (!opt.simular) { try { await env.DB.prepare("DELETE FROM portal_novedad WHERE ts<?1 OR (enviado<>0 AND ts<?2)").bind(ahoraMs - 60 * 864e5, ahoraMs - 2 * 864e5).run(); } catch (_) {} }
+  if (!P.on) return out;
+  if (pnSilencio(cfg, M)) { out.silencio = true; return out; }
+  if (P.modo === "dia") {
+    const ult = await env.DB.prepare("SELECT v FROM meta WHERE k='pn_dia'").first();
+    if (M.h < (+P.diaHora || 0) || (ult && ult.v === M.iso)) { out.espera = true; return out; }
+  }
+  const rows = ((await env.DB.prepare("SELECT id, ev, ts, tipo, quien, texto, ref, extra FROM portal_novedad WHERE enviado=0 ORDER BY ts, id LIMIT 300").all()).results || []);
+  out.pendientes = rows.length; if (!rows.length) return out;
+  const evs = {}; (doc.events || []).forEach((e) => { if (e && e.id) evs[e.id] = e; });
+  const cacheD = {}, porPersona = {}, descartar = [], usadas = [];
+  for (const n of rows) {
+    const e = evs[n.ev];
+    if (!e || e.anonimizado) { descartar.push(n.id); continue; }
+    if (n.tipo === "msg" && n.ref) {   /* lo que el equipo ya ha leído en el programa (o el cliente ha borrado) no se repite por correo */
+      const m = await env.DB.prepare("SELECT leido FROM portal_msg WHERE id=?1 AND ev=?2").bind(Math.floor(+n.ref) || 0, n.ev).first();
+      if (!m || m.leido) { descartar.push(n.id); continue; }
+    }
+    let ex = null; try { ex = n.extra ? JSON.parse(n.extra) : null; } catch (_) {}
+    const clave = n.tipo + ":" + ((ex && ex.item) || ""); if (!cacheD[clave]) cacheD[clave] = await pnDestinos(env, cfg, n.tipo, ex);
+    if (!cacheD[clave].length) { descartar.push(n.id); continue; }
+    cacheD[clave].forEach((d) => { (porPersona[d.email] = porPersona[d.email] || { name: d.name, items: [] }).items.push(n); });
+    usadas.push(n.id);
+  }
+  out.descartadas = descartar.length;
+  const emails = Object.keys(porPersona); out.personas = emails.length;
+  if (opt.simular) { if (emails.length) { const x = porPersona[emails[0]]; out.vista = { para: emails[0], asunto: pnAsunto(x.items, evs), texto: pnTexto(x.items, evs, cfg, origen, x.name, M.iso) }; } return out; }
+  for (const email of emails) {
+    const x = porPersona[email], ultimo = x.items[x.items.length - 1].id;
+    const r = await envia({ kind: "portal", ev: x.items.length && x.items.every((n) => n.ev === x.items[0].ev) ? x.items[0].ev : null, to: email, subject: pnAsunto(x.items, evs), text: pnTexto(x.items, evs, cfg, origen, x.name, M.iso), ref: "pnr:" + email + ":" + ultimo, by: "automático", origen });
+    cuenta(r); if (r.ok && !r.repetido) out.enviados++;
+  }
+  const marca = async (ids, v) => { for (let i = 0; i < ids.length; i += 50) { const t = ids.slice(i, i + 50); await env.DB.prepare("UPDATE portal_novedad SET enviado=?1 WHERE id IN (" + t.map((_, k) => "?" + (k + 2)).join(",") + ")").bind(v, ...t).run(); } };
+  if (!parado()) { await marca(usadas, 1); await marca(descartar, 3); if (P.modo === "dia") await env.DB.prepare("INSERT INTO meta (k, v) VALUES ('pn_dia', ?1) ON CONFLICT(k) DO UPDATE SET v=?1").bind(M.iso).run(); }
   return out;
 }
 function corMensajeCliente(e, h, tipo, cfg, plant, portal, origen) {
@@ -3007,6 +3224,36 @@ async function correoPut(request, env) {
     ["on", "lista", "pago", "reunion"].forEach((x) => { if (k[x] != null) out.cliente[x] = !!k[x]; });
     if (k.hora != null) out.cliente.hora = num(k.hora, 0, 23, out.cliente.hora);
   }
+  if (c.portal && typeof c.portal === "object") {
+    const k = c.portal, o = out.portal;
+    if (k.on != null) o.on = !!k.on;
+    if (["hora", "dia", "ya"].indexOf(k.modo) >= 0) o.modo = k.modo;
+    if (k.msgYa != null) o.msgYa = !!k.msgYa;
+    if (k.texto != null) o.texto = !!k.texto;
+    if (k.diaHora != null) o.diaHora = num(k.diaHora, 0, 23, o.diaHora);
+    if (k.tope != null) o.tope = num(k.tope, 1, 50, o.tope);
+    if (k.silencio && typeof k.silencio === "object") {
+      if (k.silencio.on != null) o.silencio.on = !!k.silencio.on;
+      if (k.silencio.desde != null) o.silencio.desde = num(k.silencio.desde, 0, 23, o.silencio.desde);
+      if (k.silencio.hasta != null) o.silencio.hasta = num(k.silencio.hasta, 0, 24, o.silencio.hasta);
+    }
+    if (Array.isArray(k.sin)) { const l = k.sin.map((x) => String(x || "").trim().toLowerCase()).filter(Boolean); if (l.some((x) => !corEmailOk(x))) return json({ error: "invalid", message: "Alguna de las personas que no reciben los avisos tiene un correo no válido." }, 400); o.sin = l.slice(0, 60); }
+    if (k.tipos && typeof k.tipos === "object") {
+      for (const t of Object.keys(COR_CFG_DEF.portal.tipos)) {
+        const x = k.tipos[t]; if (!x || typeof x !== "object") continue;
+        const q = o.tipos[t];
+        if (x.on != null) q.on = !!x.on;
+        if (x.cocinaMenu != null && t === "aprob") q.cocinaMenu = !!x.cocinaMenu;
+        if (Array.isArray(x.deps)) q.deps = x.deps.filter((d, i, a) => (COR_DEPS.indexOf(d) >= 0 || d === "admin") && a.indexOf(d) === i);
+        if (x.extra != null) {
+          const l = String(x.extra).split(/[\s,;]+/).filter(Boolean);
+          if (l.some((y) => !corEmailOk(y))) return json({ error: "invalid", message: "Algún correo extra de los avisos del portal no es válido." }, 400);
+          if (l.length > 4) return json({ error: "invalid", message: "Hasta 4 correos extra por tipo de aviso." }, 400);
+          q.extra = l.join(", ");
+        }
+      }
+    }
+  }
   if (c.deps && typeof c.deps === "object") {
     for (const d of COR_DEPS) {
       const k = c.deps[d]; if (!k || typeof k !== "object") continue;
@@ -3046,6 +3293,23 @@ async function correoPut(request, env) {
   await logAct(env, a.s, "correo_config", "Cambió los ajustes de correo y avisos");
   const nuevo = await correoCfg(env);
   return json({ ok: true, cfg: nuevo.cfg, plantillas: nuevo.plant });
+}
+/* POST /api/correo/portal-prueba — un aviso del portal de ejemplo (con datos inventados) para quien lo pide, para ver cómo llega. No toca ningún evento. */
+async function correoPortalPrueba(request, env) {
+  const a = await correoSesion(request, env, false); if (a.err) return a.err;
+  await ensureCorreo(env);
+  const { cfg } = await correoCfg(env), origen = new URL(request.url).origin, ahora = Date.now(), hoyIso = corMadrid(new Date(ahora)).iso;
+  const evs = { ejemplo1: { name: "Boda de Marta i Jordi — 12/12/2026", ficha: { fecha: "2026-12-12" } }, ejemplo2: { name: "Comunión de Pau — 17/05/2027", ficha: { fecha: "2027-05-17" } } };
+  const it = [
+    { ev: "ejemplo1", ts: ahora - 95 * 60e3, tipo: "msg", quien: "Marta Vidal", texto: "Hola! ¿Podemos cambiar a mis tíos a la mesa 4? Y confirmamos que somos 3 más. Gracias" },
+    { ev: "ejemplo1", ts: ahora - 70 * 60e3, tipo: "justificante", quien: "", texto: "Ha subido un justificante de pago de 22.294,45 €" },
+    { ev: "ejemplo1", ts: ahora - 40 * 60e3, tipo: "aprob", quien: "Marta Vidal", texto: "Ha aprobado el menú (Marta Vidal)" },
+    { ev: "ejemplo2", ts: ahora - 20 * 60e3, tipo: "lista", quien: "", texto: "Ha enviado la lista de invitados: 42 invitados en 5 mesas · 3 con alergia o dieta (+2 respecto a lo que teníais)" },
+    { ev: "ejemplo2", ts: ahora - 5 * 60e3, tipo: "dni", quien: "", texto: "Ha subido un documento de identidad" }
+  ];
+  const r = await correoEnviar(env, { cfg, kind: "portal", to: a.s.email, subject: pnAsunto(it, evs), text: pnTexto(it, evs, cfg, origen, a.s.name, hoyIso), ref: "pn-prueba:" + a.s.uid + ":" + ahora, by: a.s.name || a.s.email, origen });
+  if (r.ok) await logAct(env, a.s, "correo_enviado", (r.estado === "simulado" ? "(simulado) " : "") + "aviso del portal de ejemplo → " + String(a.s.email).slice(0, 80));
+  return json(r, r.ok ? 200 : (r.error === "invalid" ? 400 : 424));
 }
 async function correoEnviarRoute(request, env) {
   const s0 = await session(request, env);

@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.35 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.36 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.35".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.36".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4107,6 +4107,7 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-tabs .av-pt{width:8px; height:8px; border-radius:50%; background:var(--warning)}
 .av-tabs .av-n{font:700 11px/1 var(--font-text); min-width:18px; height:18px; padding:0 5px; border-radius:99px; display:inline-flex; align-items:center; justify-content:center; background:color-mix(in srgb,var(--gold) 22%,transparent); color:var(--c-ink)}
 .av-tabs button.on .av-n{background:color-mix(in srgb,var(--bg) 28%,transparent); color:var(--bg)}
+@media (max-width:520px){ .av-tabs{gap:2px} .av-tabs button{padding:8px 11px; font-size:12.5px} }   /* v02.36 · con cinco pestañas, en el móvil siguen cabiendo en dos filas */
 .av-barra{position:sticky; bottom:0; z-index:5; margin:14px -4px 0; padding:10px 4px; background:var(--bg); border-top:1px solid var(--c-line)}
 @media (max-width:700px){ .av-barra{position:static; border-top:0; margin:14px 0 0; padding:0} }
 .av-ap{font:600 11px/1 var(--font-text); letter-spacing:.04em; color:var(--c-mut); margin-left:8px; vertical-align:middle}
@@ -4115,6 +4116,8 @@ a.av-wa:hover{background:#177A41; border-color:#177A41; color:#fff}
 .av-peq{font-size:13.5px; color:var(--c-mut); line-height:1.5; margin:0 0 10px}
 .av-chk{display:flex; align-items:center; gap:8px; font-weight:600; min-height:38px; cursor:pointer}
 .av-chk input{width:20px; height:20px}
+.av-pn-f{padding:12px 0; border-top:1px solid var(--c-line)} .av-pn-f:first-child{border-top:0}
+.av-pn-d{display:flex; flex-wrap:wrap; gap:2px 16px; margin:4px 0 6px 28px} .av-pn-d .av-chk{font-weight:500; min-height:32px}
 .av-pl{margin:0 0 10px} .av-pl textarea,.av-pl input{width:100%; font:inherit; font-size:14.5px; border:1px solid var(--c-line-2); border-radius:10px; background:var(--field); color:var(--c-ink); padding:9px 11px; resize:vertical}
 .av-pl em{font:700 10px/1 var(--font-text); font-style:normal; background:var(--accent-wash,var(--bg-2)); border-radius:99px; padding:3px 8px; margin-left:6px; letter-spacing:.05em; text-transform:uppercase}
 .av-acciones{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 8px}
@@ -4648,7 +4651,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.35</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.36</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10589,7 +10592,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.35</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.36</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11703,6 +11706,24 @@ function abrirEvento(id,sec){
   irASeccion(sec||"resumen");
 }
 function nuevoDesdeHome(){ openNewEvent(); }
+/* v02.36 · enlace directo desde un correo de aviso: «/?ev=ID&sec=portal» abre ese evento en esa sección en cuanto la app está lista (con la sesión iniciada y los eventos cargados) */
+(function(){
+  var q; try{ q=new URLSearchParams(location.search); }catch(_){ return; }
+  var id=q.get("ev"), sec=q.get("sec")||"resumen"; if(!id||q.get("cliente")) return;
+  var n=0, hecho=0, t=setInterval(function(){
+    n++; if(n>240){ clearInterval(t); return; }
+    try{
+      var ok=SECCIONES.some(function(c){ return c.k===sec; });
+      if(hecho){   /* ya se abrió: se comprueba que la pantalla ha quedado marcada (si la app aún se estaba montando, se repite) y se limpia la dirección */
+        if(document.querySelector('[aria-current="page"]')||hecho>6){ clearInterval(t); try{ history.replaceState(null,"",location.pathname+location.hash); }catch(_){} return; }
+        hecho++; abrirEvento(id,ok?sec:"resumen"); return;
+      }
+      var u=window.LM_SESSION&&window.LM_SESSION.user&&window.LM_SESSION.user(); if(!u) return;
+      var e=(store.events||[]).filter(function(x){ return x&&x.id===id; })[0]; if(!e) return;
+      hecho=1; abrirEvento(id,ok?sec:"resumen");
+    }catch(_){}
+  },500);
+})();
 window.showHome=showHome;
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -25046,6 +25067,34 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     return h;
   }
   /* v02.30 · la hoja semanal de cada persona: sus tareas por hacer y su rol en cada una */
+  /* v02.36 · avisos de lo que hace el cliente en su portal: cuándo llegan, a quién y con qué horas de silencio */
+  var PN_TIPOS=[["msg","Mensaje nuevo del cliente"],["justificante","Justificante de pago subido"],["dni","Documento de identidad subido"],["aprob","Menú, minuta o contrato aprobado"],["lista","Lista de invitados enviada"],["apertura","Primera vez que abren el portal"]];
+  function portalHTML(cfg){
+    var pt=cfg.portal||{}, ti=pt.tipos||{}, sil=pt.silencio||{on:true,desde:22,hasta:8}, r=C.pnRes;
+    function chk(id,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+id+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
+    function num(id,v,mi,ma,et){ return '<input type="number" min="'+mi+'" max="'+ma+'" data-cf="'+id+'" value="'+esc(v)+'" aria-label="'+esc(et||id)+'">'; }
+    var DEPS=[["admin","Administración"],["eventos","Eventos"],["cocina","Cocina"],["compras","Compras"],["servicio","Servicio"],["contabilidad","Contabilidad"]];
+    var h='<h2 class="av-h2">Avisos de lo que hace el cliente en su portal <small class="av-ap">'+(pt.on?"encendidos":"apagados")+'</small></h2><div class="pcard">'+
+      '<p class="av-peq">Cuando el cliente <b>escribe, sube un justificante o un documento de identidad, aprueba el menú, la minuta o el contrato, o envía la lista de invitados</b>, el equipo recibe un correo con un botón que abre directamente el portal de ese evento. '+
+      'El correo <b>nunca lleva documentos</b> (solo «ha subido un documento de identidad»). Los resúmenes salen con la llamada horaria de siempre (la misma de la hoja semanal); lo que el equipo ya haya leído en el programa antes de que salga el resumen no se repite. <b>Guarda antes de probar.</b></p><div class="fldset">'+
+      chk("portal.on",pt.on,"Avisar por correo de lo que hacen los clientes en su portal")+
+      '<label class="fld"><span class="lbl">Cuándo llegan</span><select data-cf="portal.modo">'+[["hora","Un resumen cada hora (un correo por persona)"],["dia","Un resumen al día"],["ya","Cada cosa al momento"]].map(function(o){ return '<option value="'+o[0]+'"'+(pt.modo===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">Resumen diario a partir de las (hora de Madrid)</span>'+num("portal.diaHora",pt.diaHora,0,23,"Hora del resumen diario")+'</label>'+
+      chk("portal.msgYa",pt.msgYa!==false,"Los mensajes del cliente salen al momento (aunque lo demás vaya en resumen)")+
+      chk("portal.texto",pt.texto!==false,"El correo lleva el texto del mensaje (cortado a 200 caracteres)")+
+      chk("portal.silencio.on",!!sil.on,"Horas de silencio: de noche no se envía nada; sale en el primer resumen de después")+
+      '<label class="fld"><span class="lbl">Silencio desde las</span>'+num("portal.silencio.desde",sil.desde,0,23,"Silencio desde")+'</label><label class="fld"><span class="lbl">…hasta las</span>'+num("portal.silencio.hasta",sil.hasta,0,24,"Silencio hasta")+'</label>'+
+      '<label class="fld"><span class="lbl">Máximo de avisos «al momento» por evento y día <small>(lo que sobra va al resumen)</small></span>'+num("portal.tope",pt.tope,1,50,"Máximo de avisos al momento")+'</label></div>'+
+      '<h3 class="av-h3" style="margin:18px 0 4px">Quién recibe cada aviso</h3><div class="av-pn">'+PN_TIPOS.map(function(x){ var q=ti[x[0]]||{on:false,deps:[],extra:""};
+        return '<div class="av-pn-f"><label class="av-chk"><input type="checkbox" data-cf="portal.tipos.'+x[0]+'.on"'+(q.on?" checked":"")+'> <b>'+esc(x[1])+'</b></label>'+
+          '<div class="av-pn-d" role="group" aria-label="Quién recibe: '+esc(x[1])+'">'+DEPS.map(function(d){ return '<label class="av-chk"><input type="checkbox" data-cfp="dep" data-t="'+x[0]+'" data-d="'+d[0]+'"'+((q.deps||[]).indexOf(d[0])>=0?" checked":"")+'> '+d[1]+'</label>'; }).join("")+
+          (x[0]==="aprob"?'<label class="av-chk"><input type="checkbox" data-cf="portal.tipos.aprob.cocinaMenu"'+(q.cocinaMenu!==false?" checked":"")+'> y Cocina, si es el menú</label>':'')+'</div>'+
+          '<label class="fld wide"><span class="lbl">Otros correos <small>(opcional, hasta 4, separados por comas)</small></span><input type="text" data-cf="portal.tipos.'+x[0]+'.extra" value="'+esc(q.extra||"")+'" placeholder="eventos@lesmoles.com"></label></div>'; }).join("")+'</div>'+
+      '<div class="fldset"><label class="fld wide"><span class="lbl">Personas que NO quieren estos avisos <small>(correos separados por comas)</small></span><input type="text" data-cfp="sin" value="'+esc((pt.sin||[]).join(", "))+'" placeholder="persona@lesmoles.com"></label></div>'+
+      '<div class="av-acciones"><button type="button" class="btn sm" data-cfa="pn-prueba">Enviarme un aviso de ejemplo</button><span class="av-peq">Con datos inventados, para ver cómo llega; no toca ningún evento.</span></div>'+
+      (r?'<p class="av-res '+(r.ok?(r.sim?"sim":"ok"):"mal")+'" role="status">'+esc(r.txt)+'</p>':'')+'</div>';
+    return h;
+  }
   function semanalHTML(cfg){
     var sm=cfg.semanal||{on:true,dia:1,hora:8,dias:21,vacio:false}, D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"], r=C.semRes;
     function chk(id,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+id+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
@@ -25089,6 +25138,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<div class="av-acciones"><button type="button" class="btn sm" data-cfa="eq-vista">Ver el resumen de hoy</button><button type="button" class="btn sm" data-cfa="eq-yo">Enviarme ese resumen de prueba</button><button type="button" class="btn sm" data-cfa="eq-equipo">Enviarlo ahora a '+(rs.para==="lista"?"la lista":"administración y eventos")+'</button></div>'+
       (C.eqRes?'<p class="av-res '+(C.eqRes.ok?(C.eqRes.sim?"sim":"ok"):"mal")+'" role="status">'+esc(C.eqRes.txt)+'</p>'+(C.eqRes.texto?'<pre class="av-vista" tabindex="0" aria-label="Resumen del equipo">'+esc(C.eqRes.texto)+'</pre>':''):'')+'</div>';
     P.sem=semanalHTML(cfg);
+    P.por=portalHTML(cfg);
     P.dep=depsHTML(cfg,s);
     P.rec='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
       chk("cliente.on",cl.on,"Enviar recordatorios automáticos a los clientes")+chk("cliente.lista",cl.lista,"La lista de invitados")+chk("cliente.pago",cl.pago,"Los pagos")+chk("cliente.reunion",cl.reunion,"Las reuniones")+
@@ -25110,7 +25160,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var hayDep=DEPS_C.some(function(x){ var c=(cfg.deps||{})[x[0]]||{}; return c.on&&c.freq!=="off"; });
     P.env=P.sem+((cfg.semanal&&cfg.semanal.on&&hayDep)?'<p class="av-res sim" role="note">Tienes encendida la hoja semanal de cada persona <b>y también</b> resúmenes por departamento: el mismo día recibiría dos correos con cosas parecidas. Para quedarte solo con la hoja semanal, apaga «Enviar su resumen» en los departamentos de abajo.</p>':'')+P.dep+P.rec+P.res;
     var tab=C.tab&&P[C.tab]!=null?C.tab:(s.proveedor.listo?"env":"con"), nPers=Object.keys(C.plant||{}).filter(function(k){ return C.plant[k]!==(C.estado.plantillasPorDefecto||{})[k]; }).length;
-    var TABS=[["con","Conexión",s.proveedor.listo?"":'<i class="av-pt" title="Sin activar" aria-hidden="true"></i><span class="sr-only"> (sin activar)</span>'],["env","Qué se envía",""],["asp","Aspecto y respuestas",""],["pla","Plantillas",nPers?'<b class="av-n">'+nPers+'</b><span class="sr-only"> personalizadas</span>':""]];
+    var TABS=[["con","Conexión",s.proveedor.listo?"":'<i class="av-pt" title="Sin activar" aria-hidden="true"></i><span class="sr-only"> (sin activar)</span>'],["env","Qué se envía",""],["por","Portal del cliente",""],["asp","Aspecto y respuestas",""],["pla","Plantillas",nPers?'<b class="av-n">'+nPers+'</b><span class="sr-only"> personalizadas</span>':""]];
     h+='<div class="av-tog av-tabs" role="group" aria-label="Secciones de Correo y avisos">'+TABS.map(function(t){ return '<button type="button" data-cfa="tab" data-t="'+t[0]+'" aria-pressed="'+(tab===t[0])+'"'+(tab===t[0]?' class="on"':'')+'>'+esc(t[1])+t[2]+'</button>'; }).join("")+'</div>'+P[tab];
     h+='<div class="av-acciones av-barra"><button type="button" class="btn gold" data-cfa="guardar"'+(C.guardando?" disabled":"")+'>Guardar</button><button type="button" class="btn" data-cfa="prueba">Enviar un correo de prueba a mi correo</button><button type="button" class="btn" data-cfa="simular">Ver qué se enviaría ahora</button></div>'+
       (C.msg?'<p class="av-res '+(C.msg.ok?(C.msg.sim?"sim":"ok"):"mal")+'" role="status">'+esc(C.msg.txt)+'</p>'+(C.msg.a?'<p style="margin:8px 0 0;color:var(--c-mut,#6b6a62)">Con el remitente de pruebas sí puede llegar a esa dirección: <button type="button" class="btn" data-cfa="prueba" data-to="'+esc(C.msg.a)+'">Enviar la prueba a '+esc(C.msg.a)+'</button></p>':''):'')+
@@ -25125,6 +25175,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     var t=ev.target;
     if(ev.type!=="click"){
       if(t.hasAttribute&&t.hasAttribute("data-cfa-rol")){ C.semRol=t.value; return; }
+      var cpp=t.getAttribute&&t.getAttribute("data-cfp");
+      if(cpp==="dep"){ var tp=t.getAttribute("data-t"), dd=t.getAttribute("data-d"), qq=C.cfg.portal.tipos[tp]; qq.deps=qq.deps||[]; var ix=qq.deps.indexOf(dd); if(t.checked&&ix<0) qq.deps.push(dd); if(!t.checked&&ix>=0) qq.deps.splice(ix,1); return; }
+      if(cpp==="sin"){ C.cfg.portal.sin=String(t.value||"").split(/[\s,;]+/).map(function(x){ return x.trim().toLowerCase(); }).filter(Boolean); return; }
       var k=t.getAttribute&&t.getAttribute("data-cf"), pl=t.getAttribute&&t.getAttribute("data-pl");
       if(k){ var v=t.type==="checkbox"?t.checked:t.type==="number"?Math.round(+t.value):t.value; if(/\.(dia)$/.test(k)) v=+v; setPath(C.cfg,k,v); }
       else if(pl){ C.plant[pl]=t.value; }
@@ -25136,6 +25189,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
         if(j._status===200){ C.msg={ok:true,txt:"Guardado."}; T.cargado=false; T.plant=Object.assign({},DEF,j.plantillas); T.firma=j.cfg.firma; cargarCfg(); } else { C.msg={ok:false,txt:fallo(j,"No se ha podido guardar.")}; pintarCfg(); } }); }
     else if(a==="tab"){ C.tab=b.getAttribute("data-t"); pintarCfg(); if(C.host) C.host.scrollTop=0; }
     else if(a==="vista-cierra"){ C.vista=null; pintarCfg(); }
+    else if(a==="pn-prueba"){ b.disabled=true; C.pnRes=null;
+      api("/api/correo/portal-prueba","POST",{}).then(function(j){ C.pnRes=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido nada.":"Enviado a tu correo: así llega un aviso del portal (mira también el spam)."}:{ok:false,txt:fallo(j,"No se ha podido enviar.")}; pintarCfg(); }); }
     else if(a==="comprobar"){ C.comprobando=true; C.comp=null; pintarCfg();
       api("/api/correo/comprobar","POST",{}).then(function(j){ C.comprobando=false;
         C.comp=j._status===200?j:{items:[{estado:"mal",t:fallo(j,"No se ha podido comprobar.")}],mal:1,aviso:0,resumen:"No se ha podido hacer la comprobación."}; pintarCfg(); }); }
@@ -25176,6 +25231,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     else if(a==="simular"){ b.disabled=true; api("/api/correo/cron","POST",{simular:true}).then(function(j){
       var l=["Hoy es "+dmy(j.hoy)+"."]; l.push(j.resumen?"Resumen del equipo: se mandaría a "+j.resumen.destinatarios+(j.resumen.destinatarios===1?" persona":" personas")+" («"+j.resumen.asunto+"»)."+(j.resumen.texto?"\n\n"+j.resumen.texto:""):"Resumen del equipo: hoy no toca (o ya se envió).");
       (j.deps||[]).forEach(function(d){ l.push("","Resumen de "+d.dep+": "+(d.vacio?"no hay nada que contar hoy.":d.destinatarios?"se mandaría a "+d.destinatarios+(d.destinatarios===1?" persona":" personas")+" («"+d.asunto+"»)."+(d.texto?"\n\n"+d.texto:""):"nadie tiene correo en este departamento.")); });
+      if(j.portal){ var pn=j.portal; l.push("","Avisos del portal del cliente: "+(!pn.on?"apagados.":pn.silencio?"ahora toca silencio: no sale nada hasta que acabe.":pn.espera?"el resumen diario aún no toca (o ya salió hoy).":pn.pendientes?(pn.pendientes+(pn.pendientes===1?" novedad pendiente":" novedades pendientes")+" → "+pn.personas+(pn.personas===1?" persona":" personas")+(pn.descartadas?" ("+pn.descartadas+" descartadas por estar ya leídas)":"")+"."+(pn.vista?"\n\nEjemplo para "+pn.vista.para+" («"+pn.vista.asunto+"»):\n\n"+pn.vista.texto:"")):"no hay nada pendiente.")); }
       l.push("","Recordatorios a clientes de hoy: "+(j.clientes&&j.clientes.length?j.clientes.map(function(c){ return "\n· "+c.evento+" ("+c.tipo+") → "+c.a; }).join(""):"ninguno."));
       C.sim=l.join("\n"); C.msg=null; pintarCfg(); }); }
   }

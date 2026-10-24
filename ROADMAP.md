@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.35** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.36** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,16 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.36
+- **Avisos por correo de lo que hace el cliente en su portal.** Cuando el cliente **escribe un mensaje, sube un justificante o un documento de identidad, aprueba el menú, la minuta o el contrato, o envía la lista de invitados**, el equipo lo recibe en el correo, con un **botón «Abrir el portal de este evento»** que lleva directo a esa sección del programa (si no habías entrado, te pide la contraseña y te deja ahí).
+- **Quién recibe cada cosa (de fábrica, se cambia en Parámetros → Correo y avisos → «Portal del cliente»):** mensajes, DNI, aprobaciones y lista → **Eventos**; justificantes de pago → **Contabilidad**; el **menú aprobado** también a **Cocina**. Cada tipo se puede apagar, repartir entre departamentos (incluida la administración) y llevar hasta 4 correos extra; y cada persona puede pedir **no recibir** estos avisos.
+- **Cuándo llegan:** los **mensajes salen al momento**; lo demás, en **un resumen cada hora con un solo correo por persona** (varias novedades de varios eventos juntas, con un botón por evento). También se puede elegir «un resumen al día» (a la hora que digas) o «cada cosa al momento». **De 22:00 a 8:00 no sale nada** (lo de la noche sale en el primer resumen de la mañana) y hay un **tope de 6 avisos «al momento» por evento y día**: lo que sobra va al resumen, así que nunca es una avalancha.
+- **Sin repetir y sin ruido:** si el equipo ya ha leído el mensaje en el programa antes de que salga el resumen, no se manda; un borrador de la lista de invitados no avisa (solo cuando la **envían**, con cuántos son y cuántas alergias); abrir el portal por primera vez está apagado de fábrica.
+- **Privacidad:** el correo **nunca lleva documentos ni sus nombres** (solo «ha subido un documento de identidad» o «un justificante de pago de 2.500 €»); el texto del mensaje va **cortado a 200 caracteres** (y se puede apagar para que solo diga «te ha escrito un mensaje»). Cocina y Servicio no reciben ningún importe. La copia del aviso se **borra al anonimizar o borrar el evento** y **al borrar el mensaje del chat**, y lo ya enviado no se guarda más de 2 días.
+- **Botón «Enviarme un aviso de ejemplo»** en la propia pestaña (con datos inventados de dos eventos) para ver cómo llega antes de fiarte. Diseño igual que los demás correos, a una columna y legible en el móvil.
+- **Lo que necesita:** el correo activado (Resend, punto 1 de la sección 8) y la **llamada horaria** que ya usa la hoja semanal (la acción de GitHub «avisos»): sin ella, los mensajes siguen saliendo al momento pero los resúmenes no salen.
+- **Comprobado:** 86 comprobaciones del servidor (mensaje al momento con y sin texto, tope, resumen por persona, justificante a Contabilidad, DNI a Eventos, menú aprobado a Cocina, lista enviada, mensajes ya leídos, silencio, modo al día y al momento, personas excluidas, correos extra, apagado general y por tipo, evento borrado, borrado de la copia al anonimizar, permisos y que ningún correo lleve ni el nombre ni el contenido del archivo) y 37 de pantalla (la pestaña y sus ajustes guardados, aviso de ejemplo, correo a 700 y 360 px, accesibilidad, móvil y el enlace directo con y sin sesión).
 
 ### Novedad de la versión 02.35
 - **El primer pago se fija.** Cuando el pago del 65 % queda registrado, **su importe es el que se cobró y ya no cambia** aunque luego se añadan o se quiten invitados: lo único que se mueve con esos cambios es **el último pago** (= total − señal − primer pago). Antes, el plan volvía a calcular el 65 % con el total nuevo y el portal pedía de más (por ejemplo «209,49 € de primer pago» cuando ya habían pagado 22.294,45 €). Mientras el primer pago no está cobrado, sigue siendo el 65 % del total de ese momento. Si el total baja por debajo de lo cobrado, el último pago queda a 0 y se avisa de lo cobrado de más.
@@ -698,7 +708,7 @@ se recupera con el código manual por evento.
 - **Historial del evento:** cada aprobación queda en «Historial de cambios» (sección «aprobaciones», «Aprobó el menú», con el nombre que escribió el cliente y «(cliente)»).
 - **Límites y datos:** tope de 30 mensajes y 40 archivos al día por evento (con mensaje claro al cliente); las imágenes se validan en el servidor (tipo y tamaño); los mensajes y archivos viven en tablas aparte (no engordan el documento del evento), **se borran al anonimizar el evento** y los **encuentra el buscador de personas del RGPD**. Todo el portal es **solo del evento de su enlace**: sin sesión, el servidor solo entrega lo que corresponde a ese enlace.
 - **Comprobado** (servidor real + dos navegadores: el equipo y el cliente en móvil de 390 px): las 8 pestañas, el plano con sus mesas, aprobar menú y minuta, **que un cambio del equipo invalide la aprobación**, mensajes en los dos sentidos con lectura, subida real de imágenes (la grande se reduce, el límite de 8, quitar), publicar la minuta (48 KB, vertical), permisos (eventos sí, cocina no), enlace de otro evento sin acceso, límites diarios, fusión de cambios (el equipo y el cliente tocan el mismo evento sin pisarse), borrado RGPD, **sin desbordes en móvil** y sin errores en consola.
-- **Tu parte:** ninguna; funciona con lo que ya hay. (Los avisos por correo de «el cliente ha escrito / ha aprobado» no están: hoy se ven en el Inicio de la app. Si los quieres, se añaden a las plantillas de 3.1.)
+- **Tu parte:** ninguna; funciona con lo que ya hay. (Desde la 02.36, lo que hace el cliente en su portal también llega por correo al equipo: ver la novedad de esa versión.)
 
 ---
 
@@ -812,7 +822,6 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 El resumen de todo lo pendiente, en tres páginas, está en `ROADMAP_pendiente.pdf` (`node roadmap/pendiente.mjs`).
 
 **Opcionales (si los quieres, se hacen):**
-- **Avisos por correo de lo que hace el cliente en su portal** (mensajes, documentos, aprobaciones, lista de invitados): propuesta completa en la sección 9.
 - **Google Calendar** para agendar reuniones desde el programa: estudio y fases en la sección 9.
 - Proveedor de **firma electrónica avanzada** si el contrato necesita más validez.
 - Claves de **Turnstile** para el formulario si algún día entra spam.
@@ -823,27 +832,7 @@ El resumen de todo lo pendiente, en tres páginas, está en `ROADMAP_pendiente.p
 
 ## 9. Lo siguiente que se propone (esperan tu OK)
 
-### 9.1 Avisos por correo de lo que hace el cliente en su portal (≈ 1–1,5 días)
-**Hoy:** lo que el cliente hace en su portal se ve en el Inicio de la app (contadores de «sin leer»), pero no llega nada al correo.
-
-**Qué avisaría (cada cosa se puede apagar):**
-1. **Mensaje nuevo** del cliente (con las primeras líneas del texto).
-2. **Documentos subidos:** justificante de pago → Contabilidad; DNI → Eventos (el correo nunca lleva el documento ni su contenido: solo «ha subido un DNI»).
-3. **Aprobaciones y firmas:** menú, minuta, contrato (quién y cuándo) → Eventos, y el menú aprobado también a Cocina.
-4. **Lista de invitados o alergias modificadas:** un solo aviso con el resumen («+3 invitados, 1 alergia nueva»), no uno por cada cambio.
-5. **Primera vez que abren el portal** y, opcionalmente, «el cliente no entra desde hace N días».
-
-**A quién:** por rol, con los mismos departamentos de «Avisos y correo» (Eventos, Cocina, Compras, Servicio, Contabilidad) y hasta 4 correos extra por tipo; cada persona puede silenciar los suyos.
-
-**Cuándo:** tres modos a elegir — **al momento**, **resumen cada hora** (varias novedades del mismo evento en un solo correo) o **resumen diario a las 8:00**; con **horas de silencio** (de 22:00 a 8:00 se guardan y salen por la mañana). Un tope por evento y día para que nunca sea una avalancha.
-
-**Cómo es el correo:** el mismo diseño de los demás, con el nombre del evento y la fecha, lo que ha pasado y un botón **«Abrir el portal del cliente de este evento»** que va directo a esa sección.
-
-**Cómo se haría:** una tabla de «novedades del portal» que se rellena cuando el cliente actúa; el envío usa el correo ya configurado (Resend) y deja constancia en la actividad; se ajusta en **Parámetros → Correo y avisos → Portal del cliente**. Pruebas con correo simulado para cada tipo, el modo resumen, las horas de silencio y los topes.
-
-**Necesito que decidas:** (a) quién recibe cada tipo (la propuesta de arriba), (b) al momento o resumen (propongo **resumen cada hora + al momento solo los mensajes**), (c) si el correo lleva el texto del mensaje o solo «te ha escrito» (propongo el texto, cortado a 200 caracteres), (d) horas de silencio. **Requisito:** el correo de Resend activado (punto 1 de la sección 8).
-
-### 9.2 Google Calendar para agendar reuniones desde el programa (estudio)
+### 9.1 Google Calendar para agendar reuniones desde el programa (estudio)
 **Es posible.** Hay tres niveles, de menos a más trabajo; cada uno vale por sí solo:
 
 | Fase | Qué hace | Qué hace falta de tu parte | Esfuerzo |

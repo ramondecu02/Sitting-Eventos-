@@ -87,15 +87,15 @@ table.ab td.c{width:118pt;color:var(--mut)}
 .pie-nota{margin-top:11pt;padding-top:5pt;border-top:.7pt dashed var(--line);font-size:7.6pt;color:var(--mut)}
 </style></head><body>
 <div class="top"><div><div class="k">Les Moles Events</div><h1>Lo que queda por hacer</h1></div>
-<div class="r"><b>Versión 02.35</b> · 24 de octubre de 2026<br>Qué falta, quién lo desbloquea y qué puedo hacer yo<br>Las fases de desarrollo están terminadas</div></div>
+<div class="r"><b>Versión 02.36</b> · 24 de octubre de 2026<br>Qué falta, quién lo desbloquea y qué puedo hacer yo<br>Las fases de desarrollo están terminadas</div></div>
 
 <p class="lead">El programa ya hace todo lo que el roadmap prometía. <b>Lo imprescindible que queda no es programar, es activar y decidir:</b> una cuenta de correo, un par de decisiones y la revisión del contrato por tu asesor. Con eso se pasa de «probado» a «en uso». Ordenado de lo más a lo menos urgente.</p>
 
 <div class="resumen">
 <div><b>134 de 142</b><span>casillas de las fases hechas; las 8 que quedan vacías dependen del correo, del contrato y de dos mejoras de calidad</span></div>
 <div><b>18</b><span>cosas que dependen del restaurante (3 urgentes, 8 antes del primer evento real, 7 sin prisa)</span></div>
-<div><b>4</b><span>decisiones que esperan tu OK: el rediseño visual y una fila de la escaleta</span></div>
-<div><b>10</b><span>mejoras que puedo hacer cuando me lo pidas, con su estimación</span></div>
+<div><b>3</b><span>decisiones que esperan tu OK: el rediseño visual y una fila de la escaleta</span></div>
+<div><b>9</b><span>mejoras que puedo hacer cuando me lo pidas, con su estimación</span></div>
 </div>
 
 <h2 class="sec">A · Lo que depende del restaurante <small>el número es el de la sección 8 de ROADMAP.md</small></h2>
@@ -132,14 +132,12 @@ table.ab td.c{width:118pt;color:var(--mut)}
 
 <h2 class="sec">B · Lo que espera tu OK <small>no se toca nada hasta que lo digas</small></h2>
 <div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Rediseño visual</h4><p>El prototipo v5 (Artifact) sigue siendo solo un prototipo: no se ha tocado la app real. Para empezar a llevarlo, por fases y pantalla a pantalla, necesito tu OK y cuatro respuestas: la tipografía elegida, los textos o palabras que vetas, las fotos de la casa para los huecos de foto y si quieres enseñar reseñas de clientes. El portal de clientes de la 02.15 se pulió sin cambiar su estilo, a propósito</p></div>
-<div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Avisos del portal por correo</h4><p>Decidir quién recibe cada tipo de aviso, si llegan al momento o en resumen cada hora (propongo resumen cada hora y al momento solo los mensajes), si el correo lleva el texto del mensaje y las horas de silencio (ROADMAP, sección 9.1)</p></div>
-<div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Google Calendar</h4><p>Decidir si usáis Google Workspace o Gmail, qué calendario sería el de Eventos, qué tipos de reunión y duración se agendan y si el cliente podrá elegir hueco desde su portal; propongo empezar por las fases 1 y 2 (ROADMAP, sección 9.2)</p></div>
+<div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Google Calendar</h4><p>Decidir si usáis Google Workspace o Gmail, qué calendario sería el de Eventos, qué tipos de reunión y duración se agendan y si el cliente podrá elegir hueco desde su portal; propongo empezar por las fases 1 y 2 (ROADMAP, sección 9.1)</p></div>
 <div class="ok-box"><h4><span class="cb " role="img" aria-label="pendiente"></span>Fila «Bebés en trona (sin menú)»</h4><p>En los menús de la escaleta, ¿la quito? Te la propuse y está sin confirmar</p></div>
 
 <h2 class="sec">C · Lo que puedo hacer yo cuando me lo pidas <small>estimaciones de desarrollo y pruebas</small></h2>
 <table class="yo"><thead><tr><th>Qué</th><th>Estimación</th><th>Para qué</th></tr></thead><tbody>
 <tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Pruebas automáticas en cada entrega</td><td class="e">~1–2 días</td><td>Llevar al repositorio unas 40 pruebas de navegador que hoy paso a mano en cada versión y que GitHub las ejecute en cada subida (incluye dejar al día 3 pruebas antiguas que ya fallaban). Cierra la casilla de Calidad continua</td></tr>
-<tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Avisos por correo de lo que hace el cliente en su portal</td><td class="e">~1–1,5 días</td><td>Mensajes, justificantes, DNI, aprobaciones y cambios en la lista, a cada departamento, al momento o en resumen cada hora, con horas de silencio y un botón directo al portal del cliente. Hace falta el correo activo (punto 1). Propuesta completa en la sección 9.1 del ROADMAP</td></tr>
 <tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Google Calendar · fase 1: «Añadir a Google Calendar» y archivo .ics</td><td class="e">~1 día</td><td>En cada reunión y en el correo al cliente (invitación adjunta). No hay que conectar ninguna cuenta</td></tr>
 <tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Google Calendar · fase 2: calendario de Les Moles suscribible</td><td class="e">~½ día</td><td>Una dirección privada de solo lectura con eventos, reuniones y fechas de pago para añadir a Google Calendar</td></tr>
 <tr><td class="t"><span class="cb " role="img" aria-label="pendiente"></span>Google Calendar · fase 3: agendar reuniones desde el programa (API de Google)</td><td class="e">~3–4 días</td><td>Botón «Agendar reunión» que crea el evento en el calendario de Eventos, invita al cliente, añade Meet y muestra los huecos libres. Hay que crear la conexión en Google (yo te guío) y decidir la cuenta. Sección 9.2 del ROADMAP</td></tr>
