@@ -90,6 +90,9 @@ export const hecho = [
   'Hoja semanal de cada persona (lunes 8:00): sus tareas por hacer en las próximas 3 semanas con el rol responsable de cada una («Te toca a ti» y «Resto del equipo»), sacadas del checklist por fases y de lo que el programa detecta; rol de cada tarea editable en Parámetros → Tareas por fase y visible en el checklist del evento; resúmenes por departamento apagados de fábrica · v02.30',
   'El «Resumen del equipo» se puede probar desde la pantalla: ver el de hoy, enviármelo y enviarlo ahora a la lista, diciendo a qué direcciones ha salido · v02.31',
   'Correos de resumen con diseño: cifras arriba (con las vencidas en rojo), cada tarea como tarjeta con su barra de color, rol e insignia de plazo, eventos con su fecha y botón «Abrir el programa»; bien en móvil y en Outlook de escritorio · v02.32',
+  'Pagos que cuadran siempre (una sola cuenta: señal + primer pago + último; el dinero apuntado se reparte sobre los plazos y un plazo solo está pagado si el dinero lo cubre) y portal del cliente que explica la resta de la señal, con «Plan de pagos» también en el programa · v02.33',
+  'DNIs y justificantes grandes: PDF de hasta 5 MB por trozos y fotos pesadas que se reducen solas, para el cliente y para el equipo · v02.33',
+  'Borrar mensajes del chat (el cliente los suyos, el equipo cualquiera, con confirmación y anotado) y botón «Imprimir la semana» en Inicio (una hoja A4, dos como mucho) · v02.33',
 ];
 
 export const decisiones = [
