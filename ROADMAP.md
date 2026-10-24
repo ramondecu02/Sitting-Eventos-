@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.29** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.30** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,14 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.30
+- **Hoja semanal de cada persona.** Cada **lunes a partir de las 8:00** (hora de Madrid), **cada persona del equipo** recibe en su correo de acceso **las tareas que quedan por hacer** en los eventos de las **próximas 3 semanas**, con **el rol responsable de cada una**. Arriba va **«Te toca a ti · (su rol)»** y debajo **«Resto del equipo»**, agrupado por rol y con el rol de cada tarea entre corchetes; la **administración** recibe todas, en una sección por rol («Tareas de Cocina», «Tareas de Compras»…). Antes de las tareas, los eventos de las próximas semanas con sus comensales. **A quien no tiene nada pendiente no se le manda nada** (se puede cambiar con «Mandarla también a quien no tiene nada pendiente»), **no se repite en la misma semana** y Cocina, Compras y Servicio **no ven importes**, tampoco en «Resto del equipo».
+- **De dónde salen las tareas:** (1) el **checklist por fases** de cada evento (lo que vence dentro del plazo o ya está fuera de plazo, con «vence el…» o «fuera de plazo desde el…», y las bloqueadas o en proceso marcadas); (2) **lo que el programa ya sabe que falta**: elegir los platos, hacer la minuta, cerrar el menú y enviarlo a aprobar, cliente sin aprobar, evento sin confirmar, alergias sin plato sustituto, pedidos por enviar, camareros por confirmar o avisar, pasos de la agenda vencidos y cobros vencidos o de los próximos 7 días.
+- **El rol de cada tarea del checklist** se elige en **Parámetros → Tareas por fase** (debajo de cada fase, un selector por tarea; de serie: confirmar menú → Eventos, alergias → Cocina, confirmar proveedores → Compras, plan de montaje → Servicio…). Si una tarea propia no está en la lista, el programa lo deduce por palabras («pedido» → Compras, «camareros» → Servicio, «pago» → Contabilidad…) y si no, Eventos. El rol sale también como etiqueta en el **checklist de cada evento**.
+- **Parámetros → Correo y avisos → Qué se envía** abre ahora con un bloque «Hoja semanal de cada persona»: encender/apagar, día, hora, plazo (2, 3, 4 o 6 semanas) y los botones **«Ver la mía de hoy»** (el administrador puede verla «como si fuera de» otro rol), **«Enviarme la mía de prueba»** y **«Enviarla ahora a cada persona»**. Las plantillas del asunto y de la primera línea se editan en la pestaña Plantillas.
+- **Los resúmenes por departamento vienen ahora apagados de fábrica**, porque los sustituye esta hoja: si siguen encendidos a la vez, el mismo lunes llegarían dos correos con cosas parecidas (la pantalla lo avisa). A los ajustes guardados antes se les apagan solo los que seguían exactamente como venían de fábrica; los que alguien tocó a propósito (hora, correos extra, frecuencia…) siguen como estaban.
+- **Para que salga sola cada lunes** falta que algo llame al servidor cada hora (cron-job.org, gratis): sin esa llamada solo sale con el botón «Enviarla ahora a cada persona».
 
 ### Novedad de la versión 02.29
 - **Correo con el dominio propio funcionando** (`eventos@lesmolesevents.app`, verificado en Resend; las respuestas van al buzón general que se ponga en «Aspecto y respuestas»).
