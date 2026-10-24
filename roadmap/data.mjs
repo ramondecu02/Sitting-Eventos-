@@ -93,6 +93,10 @@ export const hecho = [
   'Pagos que cuadran siempre (una sola cuenta: señal + primer pago + último; el dinero apuntado se reparte sobre los plazos y un plazo solo está pagado si el dinero lo cubre) y portal del cliente que explica la resta de la señal, con «Plan de pagos» también en el programa · v02.33',
   'DNIs y justificantes grandes: PDF de hasta 5 MB por trozos y fotos pesadas que se reducen solas, para el cliente y para el equipo · v02.33',
   'Borrar mensajes del chat (el cliente los suyos, el equipo cualquiera, con confirmación y anotado) y botón «Imprimir la semana» en Inicio (una hoja A4, dos como mucho) · v02.33',
+  'Rentabilidad con el beneficio neto en grande, gráfico en cascada interactivo (€, % o por menú; tocar una barra enseña de qué se compone), detalle en desplegables y hoja de rentabilidad en PDF · v02.34',
+  'Precios que faltan puestos a mano en el propio evento (ingredientes, bebidas, tarta, staff, camarero), rellenando seguido con Tab; el Maître pasa a ser opcional · v02.34',
+  'Bebida calculada con la previsión hasta que se apunta el consumo real y después con lo real (y el jamón gastado de verdad); en Les Vinyes del Convent, el albarán cuenta como gasto del evento y su vino no se cuenta dos veces · v02.34',
+  'Pantallas bien en tablet y portátil (el plano abre encajado entero, barra del plano compacta, lista de invitados sin solaparse) y hoja resumen de boda en una A4 (dos como mucho) · v02.34',
 ];
 
 export const decisiones = [

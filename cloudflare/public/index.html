@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.33 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.34 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.33".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.34".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -2296,6 +2296,14 @@ details.help[open] summary::before{content:""; transform:rotate(45deg)}
 .grp{border-left-color:var(--c-line); padding-left:10px}
 .mini{font-size:10px; letter-spacing:.14em; font-weight:600}
 .hintbar{background:var(--raise); border-bottom:1px solid var(--c-line); color:var(--c-mut); padding:8px 18px}
+/* v02.34 · portátiles y tablets: la barra del plano ocupa menos (sin los rótulos pequeños) y deja sitio al plano */
+@media screen and (min-width:1081px) and (max-width:1560px){
+  .stage .topbar{gap:6px 8px; padding:8px 14px}
+  .stage .topbar .mini:not(#rsz){display:none}
+  .stage .topbar .btn.sm{padding:5px 10px; font-size:12px}
+  .stage .topbar .grp{padding-left:7px; gap:5px}
+  .hintbar{padding:5px 14px; font-size:11.5px; line-height:1.45}
+}
 .canvas{background:
   radial-gradient(circle at 1px 1px, color-mix(in srgb,var(--c-ink) 9%,transparent) 1px, transparent 0) 0 0/22px 22px, var(--bg)}
 .room{box-shadow:0 1px 2px rgba(26,26,26,.05), 0 30px 60px -28px rgba(26,26,26,.35)}
@@ -4640,7 +4648,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.33</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.34</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -4731,7 +4739,7 @@ html.cne-abierto{overflow:hidden}
         <input type="file" id="bgFile" accept="image/png,image/jpeg,image/webp" hidden>
       </div>
 
-      <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div style="display:flex;flex-direction:column;flex:1;min-height:250px">   <!-- v02.34 · antes min-height:0: en pantallas bajas (portátil, tablet) el cuadro se salía y se montaba sobre las cifras -->
         <label class="lbl" for="src">Lista de invitados por mesas</label>
         <textarea id="src" spellcheck="false"></textarea>
       </div>
@@ -5355,7 +5363,7 @@ function fitRoomToPlano(silent){
   plan().orient=orientForWH(w,h);
   resizeRoom(w,h,RMAX);
   renderPlan(); syncLocUI(); save();
-  setTimeout(function(){userZoomed=false;fitZoom(false);},20);
+  setTimeout(function(){userZoomed=false;fitZoom();},20);
   return true;
 }
 /* la sala toma su TAMAÑO REAL a partir de las medidas en metros: «que cuadren» */
@@ -5366,7 +5374,7 @@ function applyRealScale(silent){
   p.orient=orientForWH(w,h);
   resizeRoom(w,h,RMAX_CAL);
   renderPlan(); syncLocUI(); save();
-  setTimeout(function(){userZoomed=false;fitZoom(false);},20);
+  setTimeout(function(){userZoomed=false;fitZoom();},20);
   return true;
 }
 
@@ -9068,6 +9076,162 @@ function descargarAlbaran(e){
   return deliver(albaranNombreArchivo(e)+".pdf",albaranPDFBytes(e)).then(function(){ toast("Albarán descargado en PDF."); }).catch(function(){ toast("No se ha podido descargar el PDF.",true); });
 }
 function albaranPDFb64(e){ var b=albaranPDFBytes(e), s="", i; for(i=0;i<b.length;i+=8192) s+=String.fromCharCode.apply(null,b.subarray(i,i+8192)); return btoa(s); }
+/* ══ HOJA DE RENTABILIDAD (PDF) ══════════════════════════════════════
+   Página 1: el beneficio neto del evento de un vistazo (cifra grande, ingresos, costes, por menú, la cascada de ingresos a beneficio,
+   el reparto de los costes y lo que falta). Después, una sección por partida con su detalle. Los datos son los de BR.rent.calc
+   (la misma cuenta que la pantalla), que se le pasan ya hechos. */
+var RENT_COL={ing:"#6E7D50",elab:"#2a78d6",mp:"#eda100",beb:"#eb6834",per:"#e87ba4",ext:"#1baf7a",alb:"#7a5bd1",pos:"#2f7d4f",neg:"#8E2C48"};
+function rentEur0(n){ n=Math.round(+n||0); return fmtMiles(Math.abs(n),0)+" €"; }
+function rentEurS(n){ n=Math.round(+n||0); return (n<0?"- ":"")+fmtMiles(Math.abs(n),0)+" €"; }
+function rentPct(n){ return n==null||!isFinite(n)?"-":(Math.round(n*10)/10).toString().replace(".",",")+" %"; }
+function rentFilas(r){
+  var v={elab:r.elabTotal||0, mp:(r.mpTotal||0)+(r.merma||0), beb:r.bebTotal||0, per:r.perTotal||0, ext:r.extTotal||0, alb:r.albTotal||0};
+  var T=[["elab","Platos elaborados"],["mp","Materia prima"],["beb","Bebida"],["per","Personal"],["ext","Extras (lo que cuestan)"]];
+  if(r.vinyes) T.push(["alb","Albarán Les Vinyes"]);
+  return T.map(function(t){ return {k:t[0],t:t[1],v:v[t[0]]||0}; });
+}
+function rentPages(r,pw,ph){
+  var M=40, W=pw-2*M, pages=[], cur=[], y=0, filas=rentFilas(r), nom=nombreLimpio(r.nombre)||"Evento";
+  function nueva(){ if(cur.length) pages.push(cur); cur=[]; y=M+6;
+    cur.push(TX(pw/2,ph-24,"Les Moles Events · Ulldecona · hoja de rentabilidad · "+nom,{size:7.5,fo:"sans",a:"middle",c:FADE,ls:1}));
+    cur.push(TX(pw-M,ph-24,"pág. "+(pages.length+1),{size:7.5,fo:"sans",a:"end",c:FADE})); }
+  function sitio(h){ if(y+h>ph-M-14) nueva(); }
+  var neto=r.margen, positivo=neto>=0, colN=positivo?RENT_COL.pos:RENT_COL.neg, tope=r.ingresos>0?r.ingresos:1;
+  nueva();
+  /* cabecera */
+  cur.push(TX(M,y+8,"LES MOLES EVENTS",{size:9,fo:"sans",a:"start",c:GOLD,ls:3.5}));
+  cur.push(TX(pw-M,y+8,"Hoja de rentabilidad · "+dmyFromISO(hoyISO()),{size:9,fo:"sans",a:"end",c:SOFT}));
+  y+=40; cur.push(TX(M,y,"Beneficio neto del evento",{size:25,fo:"ser",a:"start",c:INK})); y+=21;
+  partir(nom,W,"ser",14,0).slice(0,2).forEach(function(l){ cur.push(TX(M,y,l,{size:14,fo:"ser",a:"start",c:INK})); y+=17; });
+  var det=[]; if(r.fecha) det.push(capFirst(new Date(r.fecha+"T00:00:00").toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"})));
+  det.push(r.comensales+" menús ("+r.adultos+" adultos · "+r.ninos+" niños · "+r.staff+" staff)"); det.push(r.vinyes?"Les Vinyes del Convent":"Les Moles");
+  cur.push(TX(M,y,det.join(" · "),{size:10,fo:"seri",a:"start",c:SOFT})); y+=12;
+  /* la cifra grande */
+  y+=10; var hy=y, hh=104;
+  cur.push(R(M,hy,W,hh,6,positivo?"#EEF3E4":"#F8E9ED",null,0));
+  cur.push(R(M,hy,5,hh,2,colN,null,0));
+  cur.push(TX(M+22,hy+24,(r.completo?"BENEFICIO NETO":"BENEFICIO NETO · PROVISIONAL"),{size:9,fo:"sansb",a:"start",c:colN,ls:2}));
+  cur.push(TX(M+22,hy+70,(r.completo?"":"hasta ")+rentEurS(neto),{size:44,fo:"sansb",a:"start",c:colN}));
+  cur.push(TX(M+22,hy+92,"ingresos sin IVA menos los costes del evento",{size:9,fo:"sans",a:"start",c:SOFT}));
+  var kx=M+W-22;
+  cur.push(TX(kx,hy+28,rentPct(r.pct),{size:24,fo:"sansb",a:"end",c:colN}));
+  cur.push(TX(kx,hy+42,"de los ingresos",{size:8.5,fo:"sans",a:"end",c:SOFT}));
+  cur.push(TX(kx,hy+70,r.comensales?rentEurS(neto/r.comensales):"-",{size:18,fo:"sansb",a:"end",c:INK}));
+  cur.push(TX(kx,hy+84,"de beneficio por menú",{size:8.5,fo:"sans",a:"end",c:SOFT}));
+  y=hy+hh+16;
+  /* cuatro cifras */
+  var kw=(W-3*10)/4;
+  [["INGRESOS SIN IVA",rentEur0(r.ingresos),"con IVA "+rentEur0(r.ingresosIVA)],["COSTES",(r.completo?"":"desde ")+rentEur0(r.costes),r.ingresos>0?rentPct(r.costes/r.ingresos*100)+" de los ingresos":""],
+   ["INGRESO POR MENÚ",r.comensales?rentEur0(r.ingresos/r.comensales):"-","coste "+(r.comensales?rentEur0(r.costes/r.comensales):"-")],["MENÚS",String(r.comensales),r.adultos+" ad. · "+r.ninos+" ni. · "+r.staff+" st."]].forEach(function(k,i){
+    var kx0=M+i*(kw+10); cur.push(R(kx0,y,kw,58,5,"#F7F3EA",null,0));
+    cur.push(TX(kx0+10,y+16,k[0],{size:7,fo:"sansb",a:"start",c:FADE,ls:1.3}));
+    var ksz=17; while(ksz>10&&textW({s:k[1],fo:"sansb",size:ksz,ls:0})>kw-18) ksz-=0.5;
+    cur.push(TX(kx0+10,y+37,k[1],{size:ksz,fo:"sansb",a:"start",c:INK}));
+    cur.push(TX(kx0+10,y+50,clipW(k[2],kw-16,"sans",7.5,0),{size:7.5,fo:"sans",a:"start",c:SOFT})); });
+  y+=58+22;
+  /* la cascada: de los ingresos al beneficio */
+  cur.push(TX(M,y,"DE LOS INGRESOS AL BENEFICIO",{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2.2})); y+=8; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=8;
+  var x0=M+128, tw=W-128-92, mn=Math.min(0,neto), mx=r.ingresos>0?r.ingresos:1, esc=tw/(mx-mn);
+  function X(v){ return x0+(v-mn)*esc; }
+  var rowH=25, run=r.ingresos, zx=X(0);
+  function filaC(lbl,a,b,col,txt,sub,bold){
+    cur.push(TX(M,y+14,lbl,{size:10.5,fo:bold?"sansb":"sans",a:"start",c:INK}));
+    var l=X(Math.min(a,b)), w=Math.max(2,Math.abs(X(b)-X(a)));
+    cur.push(R(x0,y+4,tw,15,3,"#F3EFE5",null,0)); cur.push(R(l,y+4,w,15,3,col,null,0));
+    cur.push(TX(M+W,y+13,txt,{size:10.5,fo:"sansb",a:"end",c:INK}));
+    if(sub) cur.push(TX(M+W,y+22,sub,{size:7.5,fo:"sans",a:"end",c:SOFT}));
+    y+=rowH; }
+  filaC("Ingresos sin IVA",0,r.ingresos,RENT_COL.ing,rentEur0(r.ingresos),"100 %",true);
+  filas.forEach(function(f){ if(!(f.v>0)&&f.k!=="alb") return; var nuevo=run-f.v; filaC(f.t,run,nuevo,RENT_COL[f.k],"- "+rentEur0(f.v),rentPct(r.ingresos>0?f.v/r.ingresos*100:null)); run=nuevo; });
+  if(mn<0) cur.push(LN(zx,y-rowH*(filas.length+1)+2,zx,y,"#8E2C48",0.8));
+  cur.push(LN(M,y+1,M+W,y+1,"#C9B182",0.7)); y+=4;
+  filaC("Beneficio neto",0,neto,colN,rentEurS(neto),rentPct(r.pct),true);
+  y+=22;
+  /* el reparto de los costes en una barra */
+  if(r.costes>0){
+    cur.push(TX(M,y,"REPARTO DE LOS COSTES",{size:8.5,fo:"sansb",a:"start",c:GOLD,ls:2.2})); y+=8; cur.push(LN(M,y,M+W,y,"#C9B182",0.7)); y+=10;
+    var sx=M; filas.forEach(function(f){ if(!(f.v>0)) return; var w=f.v/r.costes*W; cur.push(R(sx,y,Math.max(1,w-1),13,2,RENT_COL[f.k],null,0)); sx+=w; });
+    y+=13+14; var lx=M, cw=W/Math.min(3,filas.filter(function(f){ return f.v>0; }).length||1), n=0;
+    filas.forEach(function(f){ if(!(f.v>0)) return; var cx=M+(n%3)*cw, cy=y+Math.floor(n/3)*14; n++;
+      cur.push(R(cx,cy-7,7,7,2,RENT_COL[f.k],null,0)); cur.push(TX(cx+12,cy,f.t+"  "+rentPct(f.v/r.costes*100),{size:8.5,fo:"sans",a:"start",c:INK})); });
+    y+=Math.ceil(n/3)*14+8; }
+  /* de dónde salen las cifras */
+  var orig=[];
+  if(r.beb&&r.beb.length) orig.push("Bebida: "+(r.bebOrigen==="real"?"consumo real apuntado":r.bebOrigen==="mixto"?"consumo real, y previsión donde falta":"previsión (sin consumo real apuntado)")+(r.bebOrigen!=="prevision"&&r.bebPrevTotal?" · previsto "+rentEur0(r.bebPrevTotal)+", real "+rentEur0(r.bebTotal):""));
+  orig.push("Personal: "+(r.per&&r.per.real?"horas reales de los camareros":"horas previstas"));
+  if(r.vinyes) orig.push("Les Vinyes: albarán "+(r.alb&&r.alb.enviado?"enviado":"en borrador")+" (sin IVA, que se recupera)");
+  (r.notas||[]).forEach(function(n){ if(!/^Bebida:/.test(n)) orig.push(n); });
+  if(orig.length){ sitio(20+orig.length*13); y+=4; orig.forEach(function(t){ partir("· "+t,W,"sans",8.5,0).forEach(function(l){ cur.push(TX(M,y,l,{size:8.5,fo:"sans",a:"start",c:SOFT})); y+=12; }); }); y+=2; }
+  /* lo que falta */
+  if(r.avisos&&r.avisos.length){ var av=[]; r.avisos.forEach(function(a){ partir("· "+a,W-28,"sans",8.5,0).forEach(function(l){ av.push(l); }); });
+    var ah=24+Math.min(av.length,7)*12; sitio(ah+8); cur.push(R(M,y,W,ah,5,"#FBF3E2",null,0)); cur.push(R(M,y,3,ah,1,"#C99A2E",null,0));
+    cur.push(TX(M+14,y+15,"CIFRAS INCOMPLETAS: el beneficio real puede ser menor",{size:8,fo:"sansb",a:"start",c:"#7A5A12",ls:1.2}));
+    av.slice(0,7).forEach(function(l,i){ cur.push(TX(M+14,y+29+i*12,l,{size:8.5,fo:"sans",a:"start",c:INK})); });
+    if(av.length>7) cur.push(TX(M+W-10,y+ah-6,"…",{size:8.5,fo:"sans",a:"end",c:SOFT}));
+    y+=ah+8; }
+  /* ─ el detalle: una sección por partida, a partir de la página 2 (la 1 queda como resumen visual) ─ */
+  nueva(); y-=12;
+  function sec(t,col,tot,pct){ sitio(70); y+=12; cur.push(R(M,y-12,W,22,3,"#F4EFE3",null,0)); cur.push(R(M,y-12,4,22,1,col,null,0));
+    cur.push(TX(M+14,y+3,t.toUpperCase(),{size:9.5,fo:"sansb",a:"start",c:INK,ls:1.6}));
+    cur.push(TX(M+W-10,y+3,tot+(pct?"  ·  "+pct:""),{size:10.5,fo:"sansb",a:"end",c:INK})); y+=26; }
+  var xC=M+W*0.62, xP=M+W*0.80, xI=M+W;
+  function cab(a,b,c){ cur.push(TX(M,y,a,{size:7,fo:"sans",a:"start",c:FADE,ls:1.2})); if(b) cur.push(TX(xC,y,b,{size:7,fo:"sans",a:"end",c:FADE,ls:1.2})); if(c) cur.push(TX(xP,y,c,{size:7,fo:"sans",a:"end",c:FADE,ls:1.2})); cur.push(TX(xI,y,"TOTAL",{size:7,fo:"sans",a:"end",c:FADE,ls:1.2})); y+=5; cur.push(LN(M,y,M+W,y,"#C9B182",0.5)); y+=11; }
+  function fila(t,sub,cant,pu,imp,o){ o=o||{}; sitio(sub?30:19); var sz=o.bold?10.5:10, fo=o.bold?"sansb":"sans";
+    var ls=partir(t,xC-M-64,fo,sz,0).slice(0,2); ls.forEach(function(l,i){ cur.push(TX(M+(o.sang?10:0),y+i*12,l,{size:sz,fo:fo,a:"start",c:o.c||INK})); });
+    if(cant!=null&&cant!=="") cur.push(TX(xC,y,String(cant),{size:9.5,fo:"sans",a:"end",c:INK}));
+    if(pu!=null&&pu!=="") cur.push(TX(xP,y,pu,{size:9.5,fo:"sans",a:"end",c:SOFT}));
+    if(imp!=null) cur.push(TX(xI,y,imp,{size:sz,fo:fo,a:"end",c:o.c||INK}));
+    y+=(ls.length-1)*12; if(sub){ cur.push(TX(M+(o.sang?10:0),y+11,clipW(sub,xC-M-64,"sans",7.5,0),{size:7.5,fo:"sans",a:"start",c:SOFT})); y+=11; }
+    y+=6; if(!o.sinRaya) cur.push(LN(M,y,M+W,y,"#EFE8D8",0.5)); y+=11; }
+  var pc=function(v){ return r.costes>0?rentPct(v/r.costes*100):""; };
+  /* ingresos */
+  sec("Ingresos",RENT_COL.ing,rentEur0(r.ingresos),"");
+  fila("Menús (adultos, niños y staff)",null,null,null,rentEur0(r.menus)); fila("Extras cobrados",null,null,null,rentEur0(r.extrasVenta));
+  fila("Total con IVA ("+String(r.iva).replace(".",",")+" %)",null,null,null,rentEur0(r.ingresosIVA)); fila("IVA que se descuenta",null,null,null,"- "+rentEur0(r.ingresosIVA-r.ingresos));
+  fila("Ingresos sin IVA",null,null,null,rentEur0(r.ingresos),{bold:true,sinRaya:true});
+  /* platos */
+  function platos(tipo,t,col,tot,extra){
+    var fs=r.mp.filter(function(x){ return tipo==="elab"?x.tipo==="elab":x.tipo!=="elab"; }); if(!fs.length&&!(extra&&tot>0)) return;
+    sec(t,col,rentEur0(tot),pc(tot)); cab("PLATO","RACIONES","€ / RACIÓN");
+    var g=""; fs.forEach(function(x){ if(x.grupo!==g){ g=x.grupo; sitio(34); cur.push(TX(M,y,g.toUpperCase(),{size:7.5,fo:"sansb",a:"start",c:GOLD,ls:1.3})); y+=12; }
+      fila(x.txt,x.completo?(x.est&&x.est.indexOf("estimado")===0?"estimado: "+x.est.replace(/^estimado:\s*/,""):null):(x.faltan&&x.faltan.length?"faltan "+x.faltan.length+" precios de ingredientes":"sin precio"),x.rac,(Math.round(x.cu*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €",rentEur0(x.total),{sang:true,c:x.completo?INK:RUBY}); });
+    if(extra) extra(); }
+  platos("elab","Platos elaborados",RENT_COL.elab,r.elabTotal||0);
+  platos("mp","Materia prima",RENT_COL.mp,(r.mpTotal||0)+(r.merma||0),r.merma?function(){ fila("Merma ("+String(r.mermaPct).replace(".",",")+" % sobre la materia prima)",null,null,null,rentEur0(r.merma)); }:null);
+  /* bebida */
+  if(r.beb&&r.beb.length){
+    sec("Bebida",RENT_COL.beb,rentEur0(r.bebTotal),pc(r.bebTotal));
+    partir("Calculada con "+(r.bebOrigen==="real"?"el consumo real que se apuntó después del evento":r.bebOrigen==="mixto"?"el consumo real donde se apuntó y la previsión en el resto":"la previsión (todavía no hay consumo real apuntado)")+(r.bebOrigen!=="prevision"&&r.bebPrevTotal?". Con la previsión habría salido "+rentEur0(r.bebPrevTotal)+".":"."),W,"seri",9,0).forEach(function(l){ cur.push(TX(M,y,l,{size:9,fo:"seri",a:"start",c:SOFT})); y+=12; }); y+=4;
+    cab("BEBIDA","CANTIDAD","€ / UD.");
+    r.beb.forEach(function(x){ var u=x.ud==="botellas"?(x.q===1?"botella":"botellas"):x.ud;
+      fila(x.marca||x.txt,(x.marca?x.txt+" · ":"")+(x.origen==="real"?"real"+(x.prevQ!=null?" (previsto "+String(x.prevQ).replace(".",",")+")":""):"previsión")+(x.alb?" · va en el albarán de Les Vinyes":""),String(x.q).replace(".",",")+" "+u,x.alb?"-":(x.cu?(Math.round(x.cu*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2})+" €":"sin precio"),x.alb?"en albarán":rentEur0(x.total),{sang:true,c:x.completo?INK:RUBY}); });
+  }
+  /* personal */
+  var p=r.per||{};
+  sec("Personal",RENT_COL.per,rentEur0(r.perTotal),pc(r.perTotal));
+  if(p.real) fila("Horas reales: "+p.nReal+(p.nReal===1?" camarero":" camareros")+" · "+String(Math.round(p.horasReales*100)/100).replace(".",",")+" h"+(p.faltanH?" + "+p.faltanH+" × "+String(p.horas).replace(".",",")+" h previstas":""),"× "+(p.hora?(Math.round(p.hora*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2})+" €/h":"sin precio por hora"),null,null,rentEur0(r.perTotal));
+  else fila(p.n+(p.n===1?" camarero":" camareros")+" × "+String(p.horas).replace(".",",")+" h"+(p.estimado?" (estimado)":""),"× "+(p.hora?(Math.round(p.hora*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2})+" €/h":"sin precio por hora"),null,null,rentEur0(r.perTotal));
+  /* extras */
+  if(r.ext&&r.ext.length){ sec("Extras",RENT_COL.ext,rentEur0(r.extTotal),pc(r.extTotal)); cab("EXTRA","COBRAMOS","NOS CUESTA");
+    r.ext.forEach(function(x){ fila(x.txt,x.presup?"presupuesto":x.prov?"proveedor que paga Les Moles":"gasto que no se cobra",x.presup?rentEur0(x.cobra):"-",x.conCoste||!x.presup?rentEur0(x.cuesta):"sin coste",x.presup&&!x.conCoste?"-":rentEurS((x.cobra||0)-x.cuesta),{sang:true,c:x.presup&&!x.conCoste?RUBY:INK}); }); }
+  /* Les Vinyes */
+  if(r.vinyes&&r.alb){ sec("Albarán Les Vinyes del Convent",RENT_COL.alb,rentEur0(r.albTotal),pc(r.albTotal)); cab("CONCEPTO","CANTIDAD","PRECIO");
+    fila("Comensales ("+(r.alb.tar==="boda"?"tarifa de bodas":"tarifa de otros eventos")+")",null,r.alb.com,(Math.round(r.alb.pc*100)/100).toLocaleString("es-ES",{minimumFractionDigits:2})+" €",rentEur0(r.alb.com*r.alb.pc));
+    (r.alb.porCat||[]).forEach(function(c){ c.ls.forEach(function(l){ fila(l.n,c.t,l.q,(Math.round(l.p*1000)/1000).toLocaleString("es-ES",{minimumFractionDigits:2,maximumFractionDigits:3})+" €",rentEur0(l.imp),{sang:true}); }); });
+    if(!r.alb.botellas) fila("Sin vino apuntado todavía",null,null,null,"-",{c:RUBY});
+    fila("Total del albarán sin IVA",null,null,null,rentEur0(r.alb.sub),{bold:true,sinRaya:true});
+    cur.push(TX(M,y,"El IVA ("+String(r.alb.pIva).replace(".",",")+" %: "+rentEur0(r.alb.iva)+") no cuenta como gasto porque se recupera.",{size:8.5,fo:"seri",a:"start",c:SOFT})); y+=14; }
+  sitio(40); y+=8; partir("El beneficio neto es lo que deja el evento: ingresos sin IVA menos sus costes directos (comida, bebida, personal, extras y, en Les Vinyes, el albarán). No incluye los gastos generales de la empresa (alquileres, suministros, gestoría…).",W,"seri",8.5,0).forEach(function(l){ cur.push(TX(M,y,l,{size:8.5,fo:"seri",a:"start",c:SOFT})); y+=11; });
+  pages.push(cur);
+  return pages;
+}
+function rentNombreArchivo(r){ return "rentabilidad_"+(nombreLimpio(r.nombre)||"evento").replace(/[^\w\-]+/g,"_").slice(0,50)+(r.fecha?"_"+r.fecha:""); }
+function descargarRentabilidad(r){
+  if(!r) return Promise.resolve();
+  var P=PAPERS.A4, pages=rentPages(r,P.w,P.h).map(function(x){ return pageOf(x,P.w,P.h,null); });
+  return deliver(rentNombreArchivo(r)+".pdf",buildPDF(pages)).then(function(){ toast("Hoja de rentabilidad descargada ("+pages.length+(pages.length===1?" página":" páginas")+")."); })
+    .catch(function(){ toast("No se ha podido descargar el PDF.",true); });
+}
 function descargarHojaMenu(nombreArchivo,paperSize){
   return descargarHoja("#mnu-body .sheet .frame",nombreArchivo,paperSize);
 }
@@ -9837,7 +10001,7 @@ $("pdfBtn").addEventListener("click",function(){openExport(view);});
 Array.prototype.forEach.call($("locseg").children,function(b){
   b.addEventListener("click",function(){
     current().loc=b.dataset.loc; sel=null; setUserSize(1);
-    render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
+    render(); save(); setTimeout(function(){userZoomed=false;fitZoom();},30);
   });
 });
 /* Recorta el plano a la SALA. Dos intentos, de más fino a más bruto:
@@ -9964,10 +10128,15 @@ var userZoomed=false;
 function setZoom(z){ if(!isFinite(z)) z=1; zoom=Math.max(.14,Math.min(2.4,z)); renderPlan(); }
 /* al abrir se ajusta al ANCHO (caber entero dejaba los nombres a 4 px);
    el botón «Ajustar» enseña la hoja completa */
+/* sin argumento = automático: en una pantalla grande (el ordenador de la oficina) se ajusta al ANCHO, como siempre; en una tablet o un portátil con poca
+   anchura, si la hoja entera cabe con el nombre todavía legible (≥ 42 %), se enseña ENTERA en vez de ampliada y cortada */
 function fitZoom(whole){
   setRoom();
   var c=$("canvas"), w=(c.clientWidth||900)-30, h=(c.clientHeight||600)-30;
+  /* en tablet el plano va en el flujo de la página (su alto es el de todo el plano): lo que importa es lo que se ve de pantalla */
+  try{ var vis=(window.innerHeight||768)-Math.max(0,Math.min(c.getBoundingClientRect().top,260))-30; if(vis>200&&vis<h) h=vis; }catch(_){}
   var byW=w/RW, byH=Math.max(h,360)/RH;
+  if(whole===undefined){ var peque=(c.clientWidth||900)<=1000||(window.matchMedia&&window.matchMedia("(pointer:coarse)").matches); whole=peque&&Math.min(byW,byH)>=0.42; }
   setZoom(whole?Math.min(byW,byH):byW);
 }
 $("zw").addEventListener("click",function(){userZoomed=false;fitZoom(false);});
@@ -10023,10 +10192,10 @@ function deleteTable(n){
 }
 $("p-del").addEventListener("click",function(){ if(sel!==null) deleteTable(sel); });
 $("undo").addEventListener("click",undo);
-function bumpRoom(f){ pushUndo(); setRoom(); setRoomSize(RW*f,RH*f); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},20); }
+function bumpRoom(f){ pushUndo(); setRoom(); setRoomSize(RW*f,RH*f); save(); setTimeout(function(){userZoomed=false;fitZoom();},20); }
 $("rsm").addEventListener("click",function(){ bumpRoom(1/1.12); });
-$("rotL").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(false); render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30); });
-$("rotR").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(true); render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30); });
+$("rotL").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(false); render(); save(); setTimeout(function(){userZoomed=false;fitZoom();},30); });
+$("rotR").addEventListener("click",function(){ pushUndo(); sel=null; selMark=null; cerrarPanelMarca(); girarPlano(true); render(); save(); setTimeout(function(){userZoomed=false;fitZoom();},30); });
 $("puerta").addEventListener("change",function(){ pushUndo(); plan().puerta=this.value; renderPlan(); save(); });
 $("addMark").addEventListener("change",function(){ var v=this.value; this.value=""; if(v==="lm") colocarMarcasLM(); else if(v) anadirMarca(v); });
 /* proporción de la sala frente a la de la hoja (lado largo / lado corto) */
@@ -10047,7 +10216,7 @@ function ajustarAHoja(){
   if(r.sala>r.hoja){ if(vert) w=Math.round(RH/r.hoja); else h=Math.round(RW/r.hoja); }
   else { if(vert) h=Math.round(RW*r.hoja); else w=Math.round(RH*r.hoja); }
   resizeRoom(w,h,RMAX_CAL); renderPlan(); syncLocUI(); save();
-  setTimeout(function(){userZoomed=false;fitZoom(false);},20);
+  setTimeout(function(){userZoomed=false;fitZoom();},20);
   toast("Sala ajustada a la hoja "+($("paper").value||"A4")+" ("+plan().rw+"×"+plan().rh+").");
 }
 $("fitsheet").addEventListener("click",ajustarAHoja);
@@ -10056,7 +10225,7 @@ Array.prototype.forEach.call($("orientseg").children,function(b){
   b.addEventListener("click",function(){
     pushUndo(); sel=null;
     rotateRoomTo(b.dataset.o);
-    render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
+    render(); save(); setTimeout(function(){userZoomed=false;fitZoom();},30);
   });
 });
 $("tpl").addEventListener("change",function(){
@@ -10068,7 +10237,7 @@ $("tpl").addEventListener("change",function(){
      la plantilla, para que las mesas giren con el plano que tenían. */
   if((nt==="s17"||nt==="rect")&&orientOf()!=="p") rotateRoomTo("p");
   p.template=nt;
-  render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
+  render(); save(); setTimeout(function(){userZoomed=false;fitZoom();},30);
 });
 /* 3 columnas (6+6+5), mesa 1 abajo a la izquierda */
 $("salon").addEventListener("click",function(){
@@ -10086,7 +10255,7 @@ $("salon").addEventListener("click",function(){
     var col=Math.floor(i/6), row=i%6;
     if(col<COLS.length) p.pos[n]={x:Math.round(m.fx(COLS[col],ROWS[row])),y:Math.round(m.fy(COLS[col],ROWS[row]))};
   });
-  render(); save(); setTimeout(function(){userZoomed=false;fitZoom(false);},30);
+  render(); save(); setTimeout(function(){userZoomed=false;fitZoom();},30);
   toast("Mesas colocadas en las 3 columnas de la sala.",false,"Deshacer",undo);
 });
 document.addEventListener("keydown",function(e){
@@ -10176,7 +10345,7 @@ var SECCIONES=[
   /* rentabilidad: solo el administrador (ningún otro rol la tiene en su lista) */
   {k:"r-evento",   g:"Rentabilidad", t:"Rentabilidad del evento"},
   {k:"r-temp",     g:"Rentabilidad", t:"Temporada"},
-  {k:"r-precios",  g:"Rentabilidad", t:"Precios del Maître"},
+  {k:"r-precios",  g:"Rentabilidad", t:"Precios y costes"},
   /* la previsión de banquetes del año (el Excel «PREVISION BANQUETES») */
   {k:"prev",       g:"Previsión", t:"Previsión de banquetes"},
   {k:"consultas",  g:"Previsión", t:"Consultas web"}
@@ -10420,7 +10589,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.33</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.34</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11594,6 +11763,31 @@ function ringSvg(pct){
    llegan, a quién llamar, qué se bebe y qué jamón hay, qué mesas y material
    hacen falta, quién tiene alergia y lo que queda por cerrar. NO lleva
    presupuesto, precios ni pagos. Todo sale del evento: nada se escribe aparte. */
+/* v02.34 · el script que lleva la hoja de ruta: mide lo que ocupa y, si no cabe en UNA hoja, la reparte en dos sin partir cajas; si ni así cabe, aprieta por pasos */
+var RESUMEN_AJUSTE='<script>(function(){'+
+  'var D=document,pg=D.querySelector(".pg");if(!pg)return;var AV=985;'+                       /* píxeles útiles de una A4 (277 mm = 1047 px) con un margen de seguridad para que el salto de página no la parta */
+  'function alto(x){return x.getBoundingClientRect().height;}function q(k){return pg.querySelector("[data-bx=\\""+k+"\\"]");}'+
+  'pg.style.minHeight="0";if(alto(pg)<=AV){pg.style.minHeight="";return;}'+
+  'pg.classList.add("c1");if(alto(pg)<=AV){pg.style.minHeight="";return;}pg.classList.remove("c1");'+     /* una hoja con la letra un poco más pequeña antes que dos */
+  'var cols=pg.querySelector(".cols"),L=cols.children[0],R=cols.children[1];'+
+  'var s1=D.createElement("section"),s2=D.createElement("section");s1.className="sec s1";s2.className="sec s2";'+
+  'var top=q("top"),hrs=q("hrs"),nums=q("nums"),pie=q("pie");'+
+  'var c1=D.createElement("div");c1.className="cols";var c1l=D.createElement("div"),c1r=D.createElement("div");c1.appendChild(c1l);c1.appendChild(c1r);'+
+  'var c2=D.createElement("div");c2.className="cols";var c2l=D.createElement("div"),c2r=D.createElement("div");c2.appendChild(c2l);c2.appendChild(c2r);'+
+  'function a(par,k){var x=q(k);if(x)par.appendChild(x);}'+
+  'a(c1l,"comida");a(c1r,"jam");a(c1r,"beb");a(c1r,"mat");a(c2l,"aler");a(c2r,"pend");a(c2r,"notas");'+
+  'var h2=D.createElement("div");h2.className="h2o";h2.innerHTML="<b></b><span>Hoja de ruta · 2 de 2</span>";h2.firstChild.textContent=%NOMBRE%;'+
+  'top.querySelector(".eb").textContent+=" · 1 de 2";'+
+  's1.appendChild(top);s1.appendChild(hrs);s1.appendChild(nums);s1.appendChild(c1);s2.appendChild(h2);s2.appendChild(c2);s2.appendChild(pie);'+
+  'pg.innerHTML="";pg.style.minHeight="0";pg.appendChild(s1);pg.appendChild(s2);'+
+  'function cabe(){return alto(s1)<=AV&&alto(s2)<=AV;}'+
+  'function fusiona(){var cm=[].slice.call(pg.querySelectorAll("[data-bx=comida] .cm"));if(cm.length<6)return;var grp=D.createElement("div");grp.className="cm fus";var sp=D.createElement("span");sp.style.setProperty("--c","#8E2C48");sp.textContent="Menú";var p=D.createElement("p");'+
+    'var hechos=[];cm.forEach(function(x){var l=x.querySelector("span"),t=x.querySelector("p");if(!l||!t)return;if(/PLATO|POSTRE|SORBETE|TARTA|MEN[UÚ]/i.test(l.textContent)&&!/NI[ÑN]OS|STAFF/i.test(l.textContent)){p.appendChild(D.createTextNode((p.childNodes.length?" · ":"")+l.textContent.toLowerCase()+": "+t.textContent));hechos.push(x);}});'+
+    'if(hechos.length>3){hechos[0].parentNode.insertBefore(grp,hechos[0]);grp.appendChild(sp);grp.appendChild(p);hechos.forEach(function(x){x.remove();});}}'+
+  'function recorta(){[].forEach.call(pg.querySelectorAll(".al p"),function(p){var ss=[].slice.call(p.children);if(ss.length>16){ss.slice(14).forEach(function(x){x.remove();});var m=D.createElement("span");m.className="x";m.textContent="y "+(ss.length-14)+" más…";p.appendChild(m);}});'+
+    'var nt=pg.querySelector(".nt");if(nt&&nt.textContent.length>700)nt.textContent=nt.textContent.slice(0,700).replace(/\\s+\\S*$/,"")+"…";}'+
+  'var niveles=["c1","c2","c3","c4"];for(var i=0;i<niveles.length&&!cabe();i++){pg.classList.add(niveles[i]);if(niveles[i]==="c2")fusiona();if(niveles[i]==="c4")recorta();}'+
+  '})();<\/script>';
 function resumenDoc(e){
   var BRG=window.SITTING_BRIDGE||{};
   var d,t; try{ d=parseM(e.text||""); t=totals(d); }catch(_){ d={sub:"",tables:[]}; t={pax:0,adults:0,child:0,baby:0,staff:0,aler:0}; }
@@ -11675,7 +11869,7 @@ function resumenDoc(e){
   var pendHTML=pend.length?'<ul>'+pend.slice(0,7).map(function(x){ return '<li>'+escH(x)+'</li>'; }).join("")+(pend.length>7?'<li>y '+(pend.length-7)+' más…</li>':'')+'</ul>':'<p class="okk">✓ Nada pendiente de decidir</p>';
   var hoy=new Date().toISOString().slice(0,10);
   var css='@page{size:A4;margin:10mm}*{box-sizing:border-box}html{-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
-    'body{font:9.2pt/1.3 Arial,Helvetica,sans-serif;color:#1c1b18;margin:0}.pg{min-height:268mm;display:flex;flex-direction:column;gap:2.4mm}'+
+    'body{font:9.2pt/1.3 Arial,Helvetica,sans-serif;color:#1c1b18;margin:0}.pg{width:190mm;margin:0 auto;min-height:268mm;display:flex;flex-direction:column;gap:2.4mm}'+
     '.top{display:flex;justify-content:space-between;align-items:stretch;gap:5mm;background:#1c1b18;color:#fff;border-radius:2mm;padding:3.2mm 5mm}'+
     '.top .eb{font-size:6.8pt;letter-spacing:.22em;text-transform:uppercase;color:#c9d2ad;font-weight:700}.top h1{font:600 19pt/1.05 Georgia,serif;margin:.8mm 0 1mm}.top .fe{font-size:10.5pt;font-weight:700}.top .lu{font-size:8pt;color:#d8d5c8;margin-top:.8mm}'+
     '.ct{min-width:52mm;border-left:1px solid #5b5a52;padding-left:5mm;font-size:8.6pt;line-height:1.45;display:flex;flex-direction:column;justify-content:center}.ct span{font-size:6.5pt;letter-spacing:.18em;text-transform:uppercase;color:#c9d2ad;font-weight:700;margin-bottom:.8mm}.ct b{font-size:12pt;letter-spacing:.02em;margin-top:.6mm}.ct .em{font-size:7.8pt;color:#d8d5c8}.ct.vac div{color:#e7b4a9}'+
@@ -11691,27 +11885,33 @@ function resumenDoc(e){
     '.al{padding:1.1mm 0;border-top:1px dotted #d8d2c0}.al:first-of-type{border-top:0}.al b{font-size:8.3pt;color:#8E2C48}.al b em{font-style:normal;background:#8E2C48;color:#fff;border-radius:3mm;padding:0 1.6mm;font-size:7.2pt;margin-left:1mm}.al p{margin:.4mm 0 0;font-size:8.2pt;line-height:1.5}.al span{display:inline-block;margin-right:2.4mm;white-space:nowrap}.al span i{font-style:normal;color:#6B6257;font-size:7.3pt}.al span.x{color:#a3333d;font-weight:700}.al span.x:after{content:" ?"}'+
     '.pd ul{margin:0;padding:0;list-style:none}.pd li{position:relative;padding:.7mm 0 .7mm 4mm;font-size:8.4pt}.pd li:before{content:"!";position:absolute;left:0;color:#a3333d;font-weight:700}.bx.pd{border-color:#a3333d;background:#fffafa}.bx.pd h2{color:#a3333d}.okk{margin:0;color:#56613F;font-weight:700;font-size:9pt}'+
     '.pv{font-size:8.2pt;padding:.5mm 0}.pv i{font-style:normal;color:#6B6257;margin-left:1mm}.nt{white-space:pre-wrap;font-size:8.6pt}.muted{color:#8a867b;font-style:italic;margin:0;font-size:8.4pt}'+
-    '.pie{margin-top:auto;padding-top:1.6mm;border-top:1px solid #e3ded2;font-size:6.6pt;color:#8a867b;text-align:center;letter-spacing:.06em}';
-  var bloqueNotas=(notas||prov)?'<div class="bx"><h2>A tener en cuenta</h2>'+(notas?'<div class="nt">'+escH(notas)+'</div>':'')+(prov?'<div style="margin-top:1.6mm">'+prov+'</div>':'')+'</div>':'';
+    '.pie{margin-top:auto;padding-top:1.6mm;border-top:1px solid #e3ded2;font-size:6.6pt;color:#8a867b;text-align:center;letter-spacing:.06em}'+
+    /* v02.34 · si no cabe en una hoja, el script del final la reparte en DOS (la 1ª: horas, cifras, comida, bebida y material; la 2ª: alergias, lo que falta y notas) sin partir ninguna caja; y si aun así no cabe, aprieta letra y márgenes por pasos */
+    '.sec{display:flex;flex-direction:column;gap:2.4mm;min-height:268mm}.sec.s1{break-after:page;page-break-after:always}.bx,.jm,.cm,.al,.m,.b,.h,.n{break-inside:avoid;page-break-inside:avoid}'+
+    '.h2o{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #1c1b18;padding-bottom:1.6mm}.h2o b{font:600 15pt Georgia,serif}.h2o span{font-size:7.4pt;letter-spacing:.14em;text-transform:uppercase;color:#56613F;font-weight:700}'+
+    '.c1{font-size:8.4pt}.c1 .cm p,.c1 .al p,.c1 .nt{font-size:7.9pt;line-height:1.28}.c1 .bx{padding:1.5mm 2.4mm}.c1 .cm{padding:.6mm 0}.c1 .sec,.c1.pg{gap:1.8mm}.c1 .top h1{font-size:16pt}.c1 .h b{font-size:12.5pt}.c1 .h.ll b{font-size:17pt}.c1 .n b{font-size:13pt}'+
+    '.c2 .al p{column-count:2;column-gap:4mm}.c2 .al span{display:block;margin-right:0}.c2 .cm.fus p{font-size:7.6pt}.c2 .bb{grid-template-columns:1fr 1fr 1fr}.c2 .b b{font-size:12pt}'+
+    '.c3{font-size:7.8pt}.c3 .cm p,.c3 .al p,.c3 .nt{font-size:7.2pt;line-height:1.22}.c3 .m b,.c3 .b b{font-size:11pt}.c3 .pv{display:inline-block;margin-right:3mm}';
+  var bloqueNotas=(notas||prov)?'<div class="bx" data-bx="notas"><h2>A tener en cuenta</h2>'+(notas?'<div class="nt">'+escH(notas)+'</div>':'')+(prov?'<div style="margin-top:1.6mm">'+prov+'</div>':'')+'</div>':'';
   return '<!doctype html><html lang="es"><head><meta charset="utf-8"><title>'+escH(nombre)+' · Hoja de ruta</title><style>'+css+'</style></head><body><div class="pg">'+
-    '<div class="top"><div><div class="eb">Les Moles Events · Hoja de ruta'+(F.tipo?' · '+escH(F.tipo):'')+'</div><h1>'+escH(nombre)+'</h1>'+(fechaTxt?'<div class="fe">'+escH(fechaTxt)+'</div>':'')+(lugar?'<div class="lu">'+escH(lugar)+'</div>':'')+'</div>'+contHTML+'</div>'+
-    '<div class="hrs">'+horHTML+'</div><div class="nums">'+numsHTML+'</div>'+
+    '<div class="top" data-bx="top"><div><div class="eb">Les Moles Events · Hoja de ruta'+(F.tipo?' · '+escH(F.tipo):'')+'</div><h1>'+escH(nombre)+'</h1>'+(fechaTxt?'<div class="fe">'+escH(fechaTxt)+'</div>':'')+(lugar?'<div class="lu">'+escH(lugar)+'</div>':'')+'</div>'+contHTML+'</div>'+
+    '<div class="hrs" data-bx="hrs">'+horHTML+'</div><div class="nums" data-bx="nums">'+numsHTML+'</div>'+
     '<div class="cols"><div>'+
-      '<div class="bx"><h2>Qué se come</h2>'+comidaHTML+'</div>'+
-      '<div class="bx"><h2>Alergias y dietas <em>'+(totAler||orden.length?(totAler||"")+(totAler===1?" persona":" personas"):"")+'</em></h2>'+alerHTML+'</div>'+
+      '<div class="bx" data-bx="comida"><h2>Qué se come</h2>'+comidaHTML+'</div>'+
+      '<div class="bx" data-bx="aler"><h2>Alergias y dietas <em>'+(totAler||orden.length?(totAler||"")+(totAler===1?" persona":" personas"):"")+'</em></h2>'+alerHTML+'</div>'+
       bloqueNotas+'</div><div>'+
-      (jam||'')+
-      '<div class="bx"><h2>Bebida</h2>'+bebHTML+'</div>'+
-      '<div class="bx"><h2>Mesas y material <em>aperitivo: '+pma+' por mesa</em></h2>'+mesHTML+'</div>'+
-      '<div class="bx pd"><h2>Por cerrar</h2>'+pendHTML+'</div></div></div>'+
-    '<div class="pie">Les Moles Events · '+escH(nombre)+' · generada el '+dmyFromISO(hoy)+' · sin presupuesto</div></div></body></html>';
+      (jam?jam.replace('<div class="jm">','<div class="jm" data-bx="jam">'):'')+
+      '<div class="bx" data-bx="beb"><h2>Bebida</h2>'+bebHTML+'</div>'+
+      '<div class="bx" data-bx="mat"><h2>Mesas y material <em>aperitivo: '+pma+' por mesa</em></h2>'+mesHTML+'</div>'+
+      '<div class="bx pd" data-bx="pend"><h2>Por cerrar</h2>'+pendHTML+'</div></div></div>'+
+    '<div class="pie" data-bx="pie">Les Moles Events · '+escH(nombre)+' · generada el '+dmyFromISO(hoy)+' · sin presupuesto</div></div>'+RESUMEN_AJUSTE.replace("%NOMBRE%",function(){ return JSON.stringify(nombre).replace(/</g,"\\u003c"); })+'</body></html>';
 }
 window.LM_resumenDoc=resumenDoc;
 function imprimirResumen(e){
   if(!e) return;
   var doc=resumenDoc(e);
   var ifr=document.createElement("iframe"); ifr.setAttribute("aria-hidden","true");
-  ifr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0";
+  ifr.style.cssText="position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none";   /* del tamaño de una hoja para que el script de la hoja pueda medir */
   document.body.appendChild(ifr);
   var w=ifr.contentWindow, dd=w.document; dd.open(); dd.write(doc); dd.close();
   var done=false; function go(){ if(done)return; done=true; try{ w.focus(); w.print(); }catch(_){} setTimeout(function(){ ifr.parentNode&&ifr.parentNode.removeChild(ifr); },1200); }
@@ -14101,7 +14301,7 @@ document.addEventListener("click",function(e){ if(armed&&!armed.el.contains(e.ta
 window.addEventListener("beforeunload",save);
 
 render();
-setTimeout(function(){userZoomed=false;fitZoom(false);},60);
+setTimeout(function(){userZoomed=false;fitZoom();},60);
 window.addEventListener("load",function(){ setTimeout(function(){ if(!userZoomed&&view==="plan") fitZoom(); },120); });
 
 /* la app arranca en el panel de eventos, no dentro de un evento */
@@ -14164,6 +14364,7 @@ window.SITTING_BRIDGE={
   presupTotals:presupTotals, planCounts:planCounts, staffMenus:staffMenus, cicloT:function(){ return CICLO_T; },
   vinyes:{def:function(){ return JSON.parse(JSON.stringify(VINYES_DEF)); },cats:VINYES_CATS,tarifa:vinyesTarifa,calc:albaranCalc,comensales:albaranComensales,esBoda:albaranEsBoda,fecha:albaranFecha,tipo:albaranTipo,pdf:descargarAlbaran,pdfB64:albaranPDFb64,nombreArchivo:albaranNombreArchivo,fmt:fmtEur,fmtP:fmtP3},
   localEv:localEv, localChip:localChipHTML,
+  rentPDF:descargarRentabilidad, rentPages:rentPages,
   impTabla:impTabla, impXlsx:impXlsx,
   eventName:eventName,
   switchActiveEvent:switchActiveEvent,
@@ -19837,11 +20038,20 @@ function rentCostePlato(d,P,AM){
   var o=(P.platos||{})[d._uid];
   if(o){ if(o.p!=null&&o.p!=="") return {c:+o.p,faltan:[],n:0,elab:true,fuente:"a mano"};
     if(o.a&&AM[o.a]){ var a=AM[o.a], r=+o.r>0?+o.r:1; return {c:(a.pu!=null?+a.pu:+a.p)/r,faltan:[],n:0,elab:true,fuente:(a.o||a.n)+(r!==1?" ÷ "+String(r).replace(".",","):"")}; } }
-  var c=0, faltan=[];
+  var c=0, faltan=[], det=[];
   (d.ingredients||[]).forEach(function(ing){
-    var v=rentCosteLinea(ing,rentPrecioIng(ing.name,P,AM));
-    if(v==null) faltan.push(ing.name); else c+=v; });
-  return {c:c, faltan:faltan, n:(d.ingredients||[]).length, elab:false};
+    var pr=rentPrecioIng(ing.name,P,AM), v=rentCosteLinea(ing,pr);
+    if(v==null){ faltan.push(ing.name);
+      /* por qué no sale: sin precio, sin cantidad en el escandallo, o precio por peso y escandallo por unidades (o al revés) sin los gramos por unidad */
+      var qb=rentQBase(ing);
+      det.push({name:ing.name, motivo:!pr?"precio":ing.qty==null?"cantidad":"gramos", mag:qb.mag, q:qb.q, unit:ing.unit||""}); }
+    else c+=v; });
+  return {c:c, faltan:faltan, det:det, n:(d.ingredients||[]).length, elab:false};
+}
+/* la cantidad de un ingrediente en la unidad base de su magnitud (g, ml o unidades) */
+function rentQBase(ing){
+  var uIng=escNorm(ing.unit||""), mag=/^(gr|g|kg)$/.test(uIng)?"m":/^(ml|cl|l)$/.test(uIng)?"v":"u";
+  return {mag:mag, q:ing.qty==null?null:ing.qty*(uIng==="kg"||uIng==="l"?1000:uIng==="cl"?10:1)};
 }
 /* todos los ingredientes del catálogo, con su unidad y en qué platos salen */
 function rentIngredientes(){
@@ -19863,12 +20073,18 @@ function rentCalc(){
   var e=ev(); if(!e) return null;
   var RP=rentParams(), P=rentPrecios(), AM=rentArtMap(P), R=e.rent||{};
   var cfg=escCfg(), c=escCuentas(), ban=escBanquete(c,cfg), ctx=prodCtx(), t=evTotals(); t.esc=ctx;
-  var sel=selectedDishes(), mp=[], faltanIng={}, avisos=[];
+  var sel=selectedDishes(), mp=[], faltanIng={}, avisos=[], notas=[], need={}, faltaSust=[];
+  /* lo que falta de cada ingrediente (para poder ponerle precio desde el propio evento): por qué, cuánto se necesita y en qué platos */
+  function anotaFalta(cp,rac,plato){ (cp.det||[]).forEach(function(f){ var k=rentClave(f.name), x=need[k];
+    if(!x) x=need[k]={k:k,nombre:f.name,motivo:f.motivo,platos:[],m:0,v:0,u:0,sinCant:0,unit:{}};
+    var rk={precio:3,gramos:2,cantidad:1}; if(rk[f.motivo]>rk[x.motivo]) x.motivo=f.motivo;   /* si en un plato falta el precio y en otro la cantidad, manda lo que se puede arreglar poniendo el precio */
+    if(x.platos.indexOf(plato)<0) x.platos.push(plato);
+    if(f.q!=null) x[f.mag]+=f.q*rac; else x.sinCant++; if(f.unit) x.unit[f.unit]=1; }); }
   /* 1 · materia prima: cada plato marcado × sus raciones reales */
   sel.forEach(function(d){
     if(esTartaDish(d)) return;   /* la tarta se cuenta aparte, abajo */
     var rac=racionesDe(d,t); if(!rac) return;
-    var cp=rentCostePlato(d,P,AM);
+    var cp=rentCostePlato(d,P,AM); anotaFalta(cp,rac,d.name);
     cp.faltan.forEach(function(n){ faltanIng[n]=(faltanIng[n]||0)+1; });
     mp.push({grupo:d._famKey==="NIÑOS"?"Menú infantil":(d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES")?"Aperitivo y estaciones":d._famKey==="RECENA"?"Ressopó":"Banquete",
       txt:d.name, rac:rac, cu:cp.c, total:cp.c*rac, faltan:cp.faltan, completo:!cp.faltan.length, tipo:cp.elab?"elab":"mp", fuente:cp.fuente||""});
@@ -19880,8 +20096,9 @@ function rentCalc(){
     var d=rentPlatoPorNombre(x.txt), k=rentClave(x.txt), cu=null, est="", falt=[], tipo="elab";
     if(/tarta|pastel|pastis/.test(escNorm(x.txt))){ return; }
     if(P.extra[k]!=null&&P.extra[k]!==""){ cu=+P.extra[k]; est="precio a mano"; }
-    else if(d){ var cp=rentCostePlato(d,P,AM); cu=cp.c; falt=cp.faltan; tipo=cp.elab?"elab":"mp"; est=cp.elab?"elaborado":cp.faltan.length?"escandallo incompleto":"escandallo"; }
+    else if(d){ var cp=rentCostePlato(d,P,AM); cu=cp.c; falt=cp.faltan; tipo=cp.elab?"elab":"mp"; est=cp.elab?"elaborado":cp.faltan.length?"escandallo incompleto":"escandallo"; anotaFalta(cp,x.n,d.name); }
     else { var orig=x.aper?null:rentPlatoPorNombre(x.de); if(orig){ var co=rentCostePlato(orig,P,AM); cu=co.c; tipo=co.elab?"elab":"mp"; est="estimado: como "+x.de; } }
+    if(cu==null) faltaSust.push({k:k,txt:x.txt,n:x.n,para:x.para||""});
     mp.push({grupo:x.aper?"Aperitivos adaptados":"Platos sustitutivos", txt:x.txt, rac:x.n, cu:cu||0, total:(cu||0)*x.n, sub:(x.aper?"Para: ":"En lugar de "+x.de+" · Para: ")+x.para,
       extraK:k, est:est, faltan:falt, completo:cu!=null&&!falt.length, tipo:tipo});
   });
@@ -19899,11 +20116,45 @@ function rentCalc(){
   var merma=mpTotal*(+RP.merma||0)/100;
   /* 2 · bebida: las botellas de la hoja de Bebida × el precio de la marca
      elegida (su artículo del Maître) o, si no, el de la categoría */
-  var beb=[];
-  bebidaLineas().forEach(function(l){
-    var marca=l.prod, pb=(l.extra&&l.extra.precio!=null)?{pu:+l.extra.precio,fuente:"a mano"}:rentPrecioBeb(l.cat||{key:l.key},marca,P,AM,RP), pu=pb?pb.pu:null;
-    beb.push({txt:l.label, marca:marca, q:l.q, cu:pu||0, total:(pu||0)*l.q, fuente:pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", completo:pu!=null||!l.q}); });
+  /* Mientras no hay consumo real apuntado, la bebida sale de la PREVISIÓN. En cuanto se apunta lo que se bebió de verdad (Bebida → Consumo real),
+     cada línea con su cantidad real pasa a contar con ella; las que aún no tienen real siguen con la previsión (y se avisa). */
+  var beb=[], bebPrevTotal=0, vinyes=false, bebSinReal=[], prevKeys={}, lineasB=[];
+  try{ vinyes=!!(BR.localEv&&BR.localEv(e)==="vinyes"); }catch(_){}
+  bebidaLineas().forEach(function(l){ prevKeys[l.key]=1; });
+  lineasB=bebidaLineas(true);
+  var hayReal=lineasB.some(function(l){ return bebRealQ(bebRealGet(l.key))!=null; });
+  lineasB.forEach(function(l){
+    var rq=bebRealQ(bebRealGet(l.key)), enPrev=!!prevKeys[l.key];
+    if(rq==null&&!enPrev) return;
+    var q=rq!=null?rq:l.q, origen=rq!=null?"real":"prevision";
+    /* en Les Vinyes el vino es de su carta y nos lo facturan en el albarán (se cuenta abajo): aquí no se vuelve a contar con el precio del Maître */
+    var delAlb=vinyes&&esVinoLinea(l);
+    var marca=l.prod, pb=delAlb?null:(l.extra&&l.extra.precio!=null&&l.extra.precio!=="")?{pu:+l.extra.precio,fuente:"a mano"}:rentPrecioBeb(l.cat||{key:l.key},marca,P,AM,RP), pu=pb?pb.pu:null;
+    var pk=l.extra?"":(marca?rentClave(marca):"cat:"+l.cat.key);
+    beb.push({key:l.key, txt:l.label, marca:marca, q:q, ud:l.ud||"botellas", prevQ:enPrev?l.q:null, origen:origen, cu:pu||0, total:(pu||0)*q, pk:pk, exId:l.extra?l.extra.id:"",
+      fuente:delAlb?"Va en el albarán de Les Vinyes":pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", alb:delAlb, completo:delAlb||pu!=null||!q});
+    if(enPrev&&!delAlb) bebPrevTotal+=(pu||0)*l.q;
+    if(hayReal&&rq==null&&enPrev&&l.q>0) bebSinReal.push(l.label);
+  });
   var bebTotal=beb.reduce(function(s,x){ return s+x.total; },0);
+  var bebOrigen=!hayReal?"prevision":bebSinReal.length?"mixto":"real";
+  if(bebOrigen==="mixto") notas.push("Bebida: ya hay consumo real apuntado, pero falta el de "+bebSinReal.join(", ")+": de momento esas líneas cuentan con la previsión.");
+  else if(bebOrigen==="prevision"&&beb.length&&bebPasado()) notas.push("Bebida: el evento ya se celebró y no hay consumo real apuntado, así que el coste va con la previsión. Apunta lo que se bebió en Bebida → Consumo real.");
+  /* el jamón se gasta por kilos: si se apuntó lo gastado de verdad, se corrige la materia prima con la diferencia respecto al escandallo */
+  var jamonAj=null;
+  try{ var rj=bebRealQ(bebRealGet("jamon")); if(rj!=null){ var jm=jamonDelMenu(), kgPrev=jm.gramos/1000, pkg=null;
+      jm.platos.forEach(function(nm){ var dj=rentPlatoPorNombre(nm); if(!dj||pkg!=null) return; (dj.ingredients||[]).forEach(function(ing){ if(pkg!=null||!/jam[oó]n/i.test(ing.name)) return;
+        var pj=rentPrecioIng(ing.name,P,AM); if(pj&&(pj.u==="kg"||pj.u==="g")) pkg=pj.u==="kg"?pj.p:pj.p*1000; }); });
+      if(pkg!=null){ var aj=(rj-kgPrev)*pkg; jamonAj={real:rj, prev:kgPrev, pkg:pkg, importe:aj};
+        mp.push({grupo:"Aperitivo y estaciones", txt:"Jamón: ajuste a lo gastado de verdad", rac:1, cu:aj, total:aj, completo:true, tipo:"mp", fuente:"gastaron "+fmtNum(rj,2)+" kg en lugar de los "+fmtNum(kgPrev,2)+" kg previstos × "+fmtNum(pkg,2)+" €/kg", ajuste:true}); } } }catch(_){}
+  /* Les Vinyes del Convent: el albarán que les pasamos (comensales + su vino) nos lo facturan ellos, así que es un gasto del evento. Sin IVA (se recupera). */
+  var alb=null, albTotal=0;
+  try{ if(vinyes&&BR.vinyes){ var KA=BR.vinyes.calc(e), AA=e.albaran||{};
+      alb={sub:KA.sub, iva:KA.iva, pIva:KA.pIva, total:KA.total, com:KA.com, pc:KA.pc, tar:KA.tar, botellas:KA.botellas, porCat:KA.porCat, enviado:AA.estado==="enviado"};
+      albTotal=KA.sub; } }catch(_){}
+  /* ¿cuál es el elaborado/MP de la bebida? (se recalcula abajo, al sumar el jamón) */
+  var mpTotal2=0; mp.forEach(function(x){ if(x.tipo!=="elab") mpTotal2+=x.total||0; });
+  if(jamonAj){ mpTotal=mpTotal2; merma=mpTotal*(+RP.merma||0)/100; }
   /* 3 · personal: los camareros que vienen (o los previstos) × horas × €/hora */
   var camSi=window.LM_camSiN?window.LM_camSiN(e):Object.keys(e.camareros||{}).filter(function(k){ return e.camareros[k]==="si"; }).length;
   var nCam=(R.camareros!=null&&R.camareros!=="")?+R.camareros:(camSi||t.camareros), camEst=!(R.camareros!=null&&R.camareros!=="")&&!camSi;
@@ -19927,20 +20178,32 @@ function rentCalc(){
   (e.proveedores||[]).forEach(function(p){ if(R.prov&&R.prov[p.id]) ext.push({txt:(p.servicio||"Proveedor")+(p.empresa?" · "+p.empresa:""), cobra:0, cuesta:+p.precio||0, conCoste:true, prov:true}); });
   (R.otros||[]).forEach(function(o){ ext.push({txt:o.concepto||"Otro gasto", cobra:0, cuesta:+o.importe||0, conCoste:true, otro:true}); });
   var extTotal=ext.reduce(function(s,x){ return s+x.cuesta; },0), extCobro=ext.reduce(function(s,x){ return s+(x.cobra||0); },0);
-  var costes=elabTotal+mpTotal+merma+bebTotal+perTotal+extTotal, margen=ingresos-costes;
+  var costes=elabTotal+mpTotal+merma+bebTotal+perTotal+extTotal+albTotal, margen=ingresos-costes;
   var comensales=c.adultos+c.ninos+c.staff;
-  var nFaltan=Object.keys(faltanIng).length;
-  if(nFaltan) avisos.push(nFaltan+(nFaltan===1?" ingrediente sin precio":" ingredientes sin precio")+": el coste de la materia prima sale por debajo del real.");
-  if(mp.some(function(x){ return x.tarta&&!x.completo; })) avisos.push("Falta el coste por ración de la tarta.");
-  if(mp.some(function(x){ return x.staff&&!x.completo; })) avisos.push("Falta el coste del menú staff por persona.");
+  /* las cifras que faltan, ordenadas por lo que se necesita, para poner el precio a mano en el propio evento */
+  var faltaIng=Object.keys(need).map(function(k){ return need[k]; }).sort(function(a,b){ return (b.m+b.v+b.u)-(a.m+a.v+a.u); });
+  var nFaltan=Object.keys(faltanIng).length, nPrecio=faltaIng.filter(function(x){ return x.motivo==="precio"; }).length, nGramos=faltaIng.filter(function(x){ return x.motivo==="gramos"; }).length, nCant=faltaIng.filter(function(x){ return x.motivo==="cantidad"; }).length;
+  if(nPrecio) avisos.push(nPrecio+(nPrecio===1?" ingrediente sin precio":" ingredientes sin precio")+": el coste de la materia prima sale por debajo del real.");
+  if(nGramos) avisos.push(nGramos+(nGramos===1?" ingrediente tiene precio pero no se sabe cuánto pesa cada unidad":" ingredientes tienen precio pero no se sabe cuánto pesa cada unidad")+" (el escandallo va en unidades y el precio por kilo, o al revés).");
+  if(nCant) avisos.push(nCant+(nCant===1?" ingrediente del escandallo no lleva cantidad":" ingredientes del escandallo no llevan cantidad")+": no se puede calcular su coste (se arregla en Parámetros → Platos).");
+  var faltaTarta=mp.some(function(x){ return x.tarta&&!x.completo; }), faltaStaff=mp.some(function(x){ return x.staff&&!x.completo; });
+  if(faltaTarta) avisos.push("Falta el coste por ración de la tarta.");
+  if(faltaStaff) avisos.push("Falta el coste del menú staff por persona.");
   if(beb.some(function(x){ return !x.completo; })) avisos.push("Hay bebidas sin precio.");
-  if(!(+RP.horaCamarero>0)&&nCam) avisos.push("Falta el coste por hora de los camareros.");
+  var faltaHora=!(+RP.horaCamarero>0)&&nCam>0;
+  if(faltaHora) avisos.push("Falta el coste por hora de los camareros.");
   if(sinCoste) avisos.push(sinCoste+(sinCoste===1?" extra del presupuesto no tiene":" extras del presupuesto no tienen")+" coste: se cobra pero no se sabe cuánto cuesta.");
+  if(faltaSust.length) avisos.push(faltaSust.length+(faltaSust.length===1?" plato sustitutivo no tiene":" platos sustitutivos no tienen")+" coste por ración.");
+  if(alb&&!alb.botellas) avisos.push("El albarán de Les Vinyes no tiene vino apuntado: de momento solo cuenta el precio por comensal ("+Math.round(alb.com*alb.pc*100)/100+" €). El vino de este evento no lleva coste de Maître porque lo factura Les Vinyes.");
   if(!PT.total) avisos.push("El presupuesto del evento está a 0 €: no hay ingresos.");
+  var faltan={ing:faltaIng, beb:beb.filter(function(x){ return !x.completo; }), tarta:faltaTarta, staff:faltaStaff, hora:faltaHora, sust:faltaSust,
+    ext:ext.filter(function(x){ return x.presup&&!x.conCoste; })};
+  faltan.n=faltaIng.filter(function(x){ return x.motivo!=="cantidad"; }).length+faltan.beb.length+(faltaTarta?1:0)+(faltaStaff?1:0)+(faltaHora?1:0)+faltaSust.length+faltan.ext.length;
   return {id:e.id, nombre:e.name||"Evento", fecha:(e.ficha&&e.ficha.fecha)||"", estado:(e.ficha&&e.ficha.estado)||"planificacion",
     adultos:c.adultos, ninos:c.ninos, staff:c.staff, comensales:comensales,
     ingresos:ingresos, ingresosIVA:PT.total, iva:iva, menus:PT.menus, extrasVenta:PT.extras,
-    mp:mp, elabTotal:elabTotal, mpTotal:mpTotal, merma:merma, mermaPct:+RP.merma||0, beb:beb, bebTotal:bebTotal,
+    mp:mp, elabTotal:elabTotal, mpTotal:mpTotal, merma:merma, mermaPct:+RP.merma||0, beb:beb, bebTotal:bebTotal, bebPrevTotal:bebPrevTotal, bebOrigen:bebOrigen, bebSinReal:bebSinReal, jamonAj:jamonAj,
+    alb:alb, albTotal:albTotal, vinyes:vinyes, notas:notas, faltan:faltan,
     per:{n:nCam, estimado:camEst, asignados:camSi, horas:horas, hora:+RP.horaCamarero||0, total:perTotal, real:!!hReal, horasReales:hReal?hReal.total:0, nReal:hReal?hReal.n:0, faltanH:faltanH}, perTotal:perTotal, perPrev:perPrev,
     ext:ext, extTotal:extTotal, extCobro:extCobro, costes:costes, margen:margen, pct:ingresos>0?margen/ingresos*100:null,
     faltanIng:faltanIng, avisos:avisos, completo:!avisos.length};
@@ -22732,7 +22995,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       var real=r.per&&r.per.real;
       h+='<tr><td>Personal de sala</td><td class="n">'+eur(r.perPrev!=null?r.perPrev:r.perTotal)+'</td><td class="n">'+(real?eur(r.perTotal)+' <small>'+window.LM_horasTxt(r.per.horasReales)+' reales</small>':'<small>sin horas reales</small>')+'</td><td class="n">'+(real?dif(r.perPrev,r.perTotal," €"):"")+'</td></tr>';
       h+='<tr class="tot"><td>Costes del evento <small>(Rentabilidad)</small></td><td class="n" colspan="2">'+eur(r.costes)+'</td><td class="n"></td></tr>';
-      h+='<tr class="tot"><td>Margen <small>(ingresos sin IVA − costes)</small></td><td class="n" colspan="2"><b>'+eur(r.margen)+'</b>'+(r.pct!=null?' <small>'+String(Math.round(r.pct*10)/10).replace(".",",")+' %</small>':'')+'</td><td class="n"></td></tr>';
+      h+='<tr class="tot"><td>Beneficio neto <small>(ingresos sin IVA − costes)</small></td><td class="n" colspan="2"><b>'+eur(r.margen)+'</b>'+(r.pct!=null?' <small>'+String(Math.round(r.pct*10)/10).replace(".",",")+' %</small>':'')+'</td><td class="n"></td></tr>';
     }
     h+='</tbody></table></div>';
     if(r) h+='<p class="ci-peq">Los costes de comida y bebida son los de <b>Rentabilidad</b> (calculados con los escandallos y los precios); lo que se mide de verdad aquí son los <b>cobros</b>, las <b>horas del personal</b> y los <b>comensales que llegaron</b>.</p>';
@@ -28046,15 +28309,15 @@ function pctTx(n){ return n==null?"—":fmtN.format(Math.round(n*10)/10)+" %"; }
 function numTx(n){ return n==null||n===""?"":String(n).replace(".",","); }
 function toast(msg){ var t=document.createElement("div"); t.className="pp-toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(function(){ t.classList.add("on"); },10); setTimeout(function(){ t.classList.remove("on"); setTimeout(function(){ t.remove(); },300); },2400); }
 var MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-var CATS=[{k:"elab",t:"Platos elaborados"},{k:"beb",t:"Bebida"},{k:"ext",t:"Extras"},{k:"mp",t:"Materia prima"},{k:"per",t:"Personal"}];
+var CATS=[{k:"elab",t:"Platos elaborados"},{k:"mp",t:"Materia prima"},{k:"beb",t:"Bebida"},{k:"per",t:"Personal"},{k:"ext",t:"Extras"},{k:"alb",t:"Albarán Les Vinyes"}];
 /* los eventos que cuentan en la temporada: los reservados en adelante */
 var CONFIRMADOS={reserva:1,planificacion:1,confirmada:1,celebrada:1,cerrada:1};
-var ui={q:"", filtro:"todos", anio:null, todos:false, orden:"margen", dir:-1, imp:null};
+var ui={q:"", filtro:"todos", anio:null, todos:false, orden:"margen", dir:-1, imp:null, open:{}, wf:"eur", wfSel:null, masFalta:false, todoAbierto:false, entra:false};
 
 var VISTAS={
-  "r-evento":{t:"Rentabilidad del evento", guia:"Lo que se cobra (presupuesto, sin IVA) frente a lo que cuesta: la materia prima de los platos con las mismas raciones que Producción, la bebida de la hoja de Bebida, los camareros y los extras. Los precios de producto salen del Maître (en «Precios del Maître»)."},
-  "r-temp":{t:"Temporada", guia:"Todos los eventos del año juntos: ingresos, costes, margen y qué boda ha sido más rentable. Cuenta los eventos reservados en adelante; los que aún están en contacto o propuesta se pueden añadir."},
-  "r-precios":{t:"Precios del Maître", guia:"Exporta desde el Maître la lista de artículos con su precio (Excel o CSV) y súbela aquí. Cada ingrediente de los escandallos se enlaza con su artículo por el nombre; los que no coincidan se enlazan a mano o se les pone el precio a mano. También aquí los costes fijos: IVA, camareros, menú staff, tarta y bebida."}
+  "r-evento":{t:"Rentabilidad del evento", guia:"El beneficio neto del evento: lo que se cobra (presupuesto, sin IVA) menos lo que cuesta. La comida sale de los escandallos con las mismas raciones que Producción; la bebida, de la previsión hasta que apuntas lo que se bebió de verdad; los camareros, de sus horas reales; y en Les Vinyes del Convent, el albarán que nos facturan. Los precios que falten se ponen aquí mismo, a mano."},
+  "r-temp":{t:"Temporada", guia:"Todos los eventos del año juntos: ingresos, costes, beneficio neto y qué boda ha sido más rentable. Cuenta los eventos reservados en adelante; los que aún están en contacto o propuesta se pueden añadir."},
+  "r-precios":{t:"Precios y costes", guia:"Los precios de lo que se compra y los costes fijos (IVA, camareros, menú staff, tarta, merma, botellas). Los precios también se pueden poner a mano desde la propia Rentabilidad de cada evento, sin pasar por aquí. Si usas el Maître, exporta de allí la lista de artículos con su precio (Excel o CSV) y súbela: cada ingrediente de los escandallos se enlaza con su artículo por el nombre, y lo que escribas a mano siempre manda."}
 };
 function cabecera(k,extra){
   var v=VISTAS[k];
@@ -28068,15 +28331,23 @@ function avisosHTML(av){
   return '<div class="rt-avisos" role="note"><b>Cifras incompletas</b><ul>'+av.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>'+
     '<button type="button" class="btn sm" data-goto="r-precios">Completar precios</button></div>';
 }
-/* reparto de los costes: una barra al 100 % con las cuatro partidas */
-function barraCostes(r){
-  var v={elab:r.elabTotal||0, mp:r.mpTotal+r.merma, beb:r.bebTotal, per:r.perTotal, ext:r.extTotal}, tot=r.costes;
+/* las partidas de coste del evento, en el orden de la cascada (la de Les Vinyes solo en sus eventos) */
+function partidas(r){
+  var L=[{k:"elab",t:"Platos elaborados",v:r.elabTotal||0},{k:"mp",t:"Materia prima",v:(r.mpTotal||0)+(r.merma||0)},{k:"beb",t:"Bebida",v:r.bebTotal||0},{k:"per",t:"Personal",v:r.perTotal||0},{k:"ext",t:"Extras",v:r.extTotal||0}];
+  if(r.vinyes) L.push({k:"alb",t:"Albarán Les Vinyes",v:r.albTotal||0});
+  return L;
+}
+/* reparto de los costes: una barra al 100 %. En el evento (inter) cada tramo se puede tocar: se resalta en todo el gráfico y abre su detalle */
+function barraCostes(r,inter){
+  var v={elab:r.elabTotal||0, mp:(r.mpTotal||0)+(r.merma||0), beb:r.bebTotal||0, per:r.perTotal||0, ext:r.extTotal||0, alb:r.albTotal||0}, tot=r.costes;
   if(!(tot>0)) return '<p class="pp-empty">Todavía no hay costes con precio.</p>';
-  var segs=CATS.filter(function(c){ return v[c.k]>0; }).map(function(c,i){ var p=v[c.k]/tot*100;
-    return '<span class="rt-seg rt-c-'+c.k+'" style="flex:'+p.toFixed(3)+' 1 0" title="'+esc(c.t)+': '+esc(eur(v[c.k]))+' · '+esc(pctTx(p))+'"></span>'; }).join("");
-  return '<div class="rt-bar" role="img" aria-label="Reparto de los costes">'+segs+'</div>'+
-    '<div class="rt-leg">'+CATS.map(function(c){ var p=tot>0?v[c.k]/tot*100:0;
-      return '<div class="rt-leg-i"><span class="rt-sw rt-c-'+c.k+'" aria-hidden="true"></span><span class="rt-leg-t">'+esc(c.t)+'</span><b>'+esc(eur(v[c.k]))+'</b><span class="rt-leg-p">'+esc(pctTx(p))+'</span></div>'; }).join("")+'</div>';
+  var cs=CATS.filter(function(c){ return v[c.k]>0; });
+  var segs=cs.map(function(c){ var p=v[c.k]/tot*100, tip=c.t+": "+eur(v[c.k])+" · "+pctTx(p)+" de los costes";
+    return inter?'<button type="button" class="rt-seg rt-c-'+c.k+'" data-cat="'+c.k+'" data-ra="ir-sec" data-k="'+c.k+'" style="flex:'+p.toFixed(3)+' 1 0" title="'+esc(tip)+'" aria-label="'+esc(tip)+'"></button>'
+      :'<span class="rt-seg rt-c-'+c.k+'" style="flex:'+p.toFixed(3)+' 1 0" title="'+esc(tip)+'"></span>'; }).join("");
+  return '<div class="rt-bar" role="'+(inter?"group":"img")+'" aria-label="Reparto de los costes">'+segs+'</div>'+
+    '<div class="rt-leg">'+cs.map(function(c){ var p=v[c.k]/tot*100, in_='<span class="rt-sw rt-c-'+c.k+'" aria-hidden="true"></span><span class="rt-leg-t">'+esc(c.t)+'</span><b>'+esc(eur(v[c.k]))+'</b><span class="rt-leg-p">'+esc(pctTx(p))+'</span>';
+      return inter?'<button type="button" class="rt-leg-i rt-leg-b" data-cat="'+c.k+'" data-ra="ir-sec" data-k="'+c.k+'">'+in_+'</button>':'<div class="rt-leg-i">'+in_+'</div>'; }).join("")+'</div>';
 }
 
 /* ══ EVENTO ══════════════════════════════════════════════════════════ */
@@ -28088,37 +28359,197 @@ function tablaPlatos(filas,R,RP,vacio){
     return '<tr class="rt-grp"><td colspan="3">'+esc(g)+'</td><td class="rnum">'+esc(eur(sub))+'</td><td></td></tr>'+grupos[g].map(function(x){
       var cu;
       if(x.tarta) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="ev" data-k="costeTarta" value="'+esc(numTx(R.costeTarta))+'" placeholder="'+esc(numTx(RP.costeTarta)||"€/ración")+'" aria-label="Coste por ración de la tarta">';
+      else if(x.staff) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="rp" data-k="costeStaff" value="'+esc(numTx(RP.costeStaff))+'" placeholder="€/persona" aria-label="Coste del menú staff por persona">';
       else if(x.extraK&&!/^(escandallo|elaborado)/.test(x.est||"")) cu='<input class="rnum rt-in" inputmode="decimal" data-rp="extra" data-k="'+esc(x.extraK)+'" value="'+esc(numTx(BR.rent.precios().extra[x.extraK]))+'" placeholder="'+esc(x.cu?numTx(Math.round(x.cu*100)/100):"€/ración")+'" aria-label="Coste por ración de '+esc(x.txt)+'">';
       else cu=esc(eur2(x.cu));
       var est=x.completo?(x.est&&x.est.indexOf("estimado")===0?'<span class="rt-est" title="'+esc(x.est)+'">estimado</span>':'<span class="rt-okc" aria-label="Completo" title="'+esc(x.fuente||"")+'">✓</span>')
         :x.faltan&&x.faltan.length?'<span class="rt-falta" title="Sin precio: '+esc(x.faltan.join(", "))+'">faltan '+x.faltan.length+'</span>'
-        :x.staff?'<button type="button" class="rt-link" data-goto="r-precios">poner coste</button>':'<span class="rt-falta">sin precio</span>';
-      return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span>'+(x.sub?'<span class="rt-sub">'+esc(x.sub)+'</span>':x.fuente?'<span class="rt-sub">'+esc(x.fuente)+'</span>':'')+'</td><td class="rnum">'+x.rac+'</td><td class="rnum rt-cu">'+cu+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+est+'</td></tr>'; }).join("");
+        :'<span class="rt-falta">sin precio</span>';
+      return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span>'+(x.sub?'<span class="rt-sub">'+esc(x.sub)+'</span>':x.fuente?'<span class="rt-sub">'+esc(x.fuente)+'</span>':'')+'</td><td class="rnum">'+x.rac+'</td><td class="rnum rt-cu">'+cu+'</td><td class="rnum'+(x.total<0?" rt-negtx":"")+'">'+esc(eur(x.total))+'</td><td class="rt-st">'+est+'</td></tr>'; }).join("");
   }).join("");
   return '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Plato</th><th class="rnum">Raciones</th><th class="rnum">€ / ración</th><th class="rnum">Total</th><th>Estado</th></tr></thead><tbody>'+t+'</tbody></table></div>';
+}
+/* ── lo que se necesita de un ingrediente, en palabras ── */
+function cantTxt(x){ var p=[];
+  if(x.m>0) p.push(x.m>=1000?fmtN.format(Math.round(x.m/10)/100)+" kg":fmtN.format(Math.round(x.m))+" g");
+  if(x.v>0) p.push(x.v>=1000?fmtN.format(Math.round(x.v/10)/100)+" l":fmtN.format(Math.round(x.v))+" ml");
+  if(x.u>0) p.push(fmtN.format(Math.round(x.u*10)/10)+" ud");
+  return p.join(" + "); }
+function unidadDef(x){ return x.m>0?"kg":x.v>0?"l":"ud"; }
+function pesoFalta(x){ return x.m/1000+x.v/1000+x.u/20; }
+
+/* un desplegable por partida; qué está abierto se guarda en ui.open (la pantalla se rehace al cambiar cualquier precio) */
+function seccion(k,titulo,nota,valor,pct,cuerpo,porDefecto,cat){
+  var ab=ui.open[k]!=null?ui.open[k]:!!porDefecto;
+  return '<details class="rt-sec" data-sec="'+k+'"'+(cat?' data-cat="'+cat+'"':'')+(ab?" open":"")+'><summary>'+
+    '<span class="rt-sw rt-c-'+esc(cat||k)+'" aria-hidden="true"></span><span class="rt-sec-t">'+esc(titulo)+'</span>'+(nota?'<span class="rt-sec-n">'+nota+'</span>':'')+
+    (valor!=null?'<span class="rt-sec-v">'+valor+'</span>':'')+(pct!=null?'<span class="rt-sec-p">'+pct+'</span>':'')+'</summary><div class="rt-sec-b">'+cuerpo+'</div></details>';
+}
+/* las cifras más grandes de cada partida (para el detalle que se abre al tocar una barra del gráfico) */
+function topItems(r,k){
+  function top(a,fn){ return a.map(fn).filter(function(x){ return Math.abs(x.v)>0.005; }).sort(function(p,q){ return Math.abs(q.v)-Math.abs(p.v); }); }
+  var iva=1+(+r.iva||0)/100;
+  if(k==="elab") return top(r.mp.filter(function(x){ return x.tipo==="elab"; }),function(x){ return {n:x.txt,v:x.total,s:x.rac+" raciones"}; });
+  if(k==="mp"){ var l=top(r.mp.filter(function(x){ return x.tipo!=="elab"; }),function(x){ return {n:x.txt,v:x.total,s:x.ajuste?"":x.rac+" raciones"}; }); if(r.merma>0) l.push({n:"Merma ("+numTx(r.mermaPct)+" %)",v:r.merma,s:""}); return l; }
+  if(k==="beb") return top(r.beb,function(x){ return {n:x.marca||x.txt,v:x.total,s:x.alb?"en el albarán":(x.origen==="real"?"real":"previsión")+" · "+numTx(x.q)+" "+(x.ud==="botellas"?"bot.":x.ud)}; });
+  if(k==="per") return [{n:r.per.real?"Horas reales de "+r.per.nReal+(r.per.nReal===1?" camarero":" camareros"):r.per.n+(r.per.n===1?" camarero":" camareros")+" × "+numTx(r.per.horas)+" h",v:r.perTotal,s:r.per.hora?eur2(r.per.hora)+"/h":"sin €/hora"}];
+  if(k==="ext") return top(r.ext,function(x){ return {n:x.txt,v:x.cuesta,s:x.presup?"presupuesto":x.prov?"proveedor":"gasto"}; });
+  if(k==="alb"&&r.alb){ var o=[{n:"Comensales ("+r.alb.com+" × "+eur2(r.alb.pc)+")",v:r.alb.com*r.alb.pc,s:r.alb.tar==="boda"?"tarifa de bodas":"otros eventos"}];
+    (r.alb.porCat||[]).forEach(function(c){ c.ls.forEach(function(x){ o.push({n:x.n,v:x.imp,s:x.q+" × "+eur2(x.p)}); }); }); return o; }
+  if(k==="ing") return [{n:"Menús",v:r.menus/iva,s:"sin IVA"},{n:"Extras cobrados",v:r.extrasVenta/iva,s:"sin IVA"}].filter(function(x){ return x.v>0.005; });
+  return [];
+}
+/* el detalle que se abre bajo una fila del gráfico */
+function detalleWF(r,k){
+  var P=partidas(r), mc=r.comensales||0, p=P.filter(function(x){ return x.k===k; })[0], tit, v, extra="", items=[], abre=true;
+  if(k==="ing"){ tit="Ingresos sin IVA"; v=r.ingresos; items=topItems(r,"ing"); }
+  else if(k==="neto"){ tit="Beneficio neto"; v=r.margen; abre=false;
+    items=[{n:"Ingresos sin IVA",v:r.ingresos,s:""},{n:"Costes del evento",v:-r.costes,s:r.ingresos>0?pctTx(r.costes/r.ingresos*100)+" de los ingresos":""}];
+    extra=mc?'<p class="rt-wf-x">Por menú: ingreso '+esc(eur2(r.ingresos/mc))+' − coste '+esc(eur2(r.costes/mc))+' = <b>'+esc(eur2(r.margen/mc))+'</b>.</p>':""; }
+  else if(p){ tit=p.t; v=-p.v; items=topItems(r,k); }
+  else return "";
+  var lis=items.slice(0,5).map(function(x){ return '<li><span>'+esc(x.n)+(x.s?' <small>'+esc(x.s)+'</small>':'')+'</span><b>'+esc(eur(x.v))+'</b></li>'; }).join("");
+  if(items.length>5) lis+='<li class="rt-wf-mas"><span>y '+(items.length-5)+' más…</span></li>';
+  return '<div class="rt-wf-det" data-cat="'+esc(k)+'"><div class="rt-wf-dh"><b>'+esc(tit)+'</b><span>'+esc(eur(Math.abs(v)))+(r.ingresos>0&&k!=="ing"?" · "+esc(pctTx(Math.abs(v)/r.ingresos*100))+" de los ingresos":"")+(mc&&k!=="ing"?" · "+esc(eur2(Math.abs(v)/mc))+" por menú":"")+'</span></div>'+
+    (lis?'<ul>'+lis+'</ul>':'')+extra+(abre?'<div class="rt-wf-da"><button type="button" class="btn sm" data-ra="wf-open" data-k="'+esc(k)+'">Ver el detalle ↓</button></div>':"")+'</div>';
+}
+/* la cascada: de los ingresos al beneficio neto, una barra por partida; tocar una barra enseña de qué se compone */
+function cascada(r){
+  var P=partidas(r).filter(function(x){ return x.v>0||x.k==="alb"; }), ing=r.ingresos, neto=r.margen, mc=r.comensales||0;
+  var mn=Math.min(0,neto), mx=Math.max(ing,0.01), rango=(mx-mn)||1, modo=ui.wf||"eur", entra=0;
+  function pos(v){ return (v-mn)/rango*100; }
+  function txt(v,signo){ var s=signo<0?"− ":"";
+    if(modo==="pct") return s+pctTx(ing>0?Math.abs(v)/ing*100:null);
+    if(modo==="menu") return s+(mc?eur2(Math.abs(v)/mc):"—");
+    return s+eur(Math.abs(v)); }
+  function fila(k,lbl,sub,a,b,v,signo,cls,cat){
+    var l=pos(Math.min(a,b)), w=Math.max(0.7,pos(Math.max(a,b))-l), sel=ui.wfSel===k, d=(entra++)*45;
+    var aria=lbl+": "+(signo<0?"menos ":"")+eur(Math.abs(v))+(ing>0?", "+pctTx(Math.abs(v)/ing*100)+" de los ingresos":"");
+    return '<button type="button" class="rt-wf-r'+(sel?" on":"")+(k==="neto"?" rt-wf-neto":"")+'" data-ra="wf" data-k="'+k+'"'+(cat?' data-cat="'+cat+'"':'')+' aria-expanded="'+sel+'" aria-label="'+esc(aria)+'">'+
+      '<span class="rt-wf-l">'+esc(lbl)+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+
+      '<span class="rt-wf-t"><i class="rt-wf-z" style="left:'+pos(0).toFixed(2)+'%"></i><i class="rt-wf-b '+cls+'" style="left:'+l.toFixed(2)+'%;width:'+w.toFixed(2)+'%;animation-delay:'+d+'ms"></i></span>'+
+      '<span class="rt-wf-v'+(signo<0?" rt-wf-m":"")+((k==="neto"&&neto<0)?" rt-negtx":"")+'">'+esc(txt(v,signo))+'</span></button>'+(sel?detalleWF(r,k):""); }
+  var run=ing, h=fila("ing","Ingresos sin IVA","",0,ing,ing,1,"rt-b-ing","");
+  P.forEach(function(x){ var n=run-x.v;
+    var sub=x.k==="beb"?(r.bebOrigen==="real"?"consumo real":r.bebOrigen==="mixto"?"real y previsión":"previsión"):x.k==="per"?(r.per.real?"horas reales":"horas previstas"):x.k==="alb"?(r.alb&&r.alb.enviado?"enviado":"borrador"):"";
+    h+=fila(x.k,x.t,sub,run,n,x.v,-1,"rt-c-"+x.k,x.k); run=n; });
+  h+=fila("neto","Beneficio neto",r.completo?"":"provisional",0,neto,neto,1,neto>=0?"rt-b-pos":"rt-b-neg","");
+  var modos=[["eur","€"],["pct","% de ingresos"],["menu","€ por menú"]];
+  return '<div class="rt-wf-top"><div class="rt-chart-h">De los ingresos al beneficio <span>— toca una barra para ver de qué se compone</span></div>'+
+    '<div class="pp-chips rt-wf-modos" role="group" aria-label="Cómo ver las cifras" style="margin:0">'+modos.map(function(m){ return '<button type="button" class="pp-chip'+(modo===m[0]?" on":"")+'" data-ra="wf-modo" data-k="'+m[0]+'" aria-pressed="'+(modo===m[0])+'">'+esc(m[1])+'</button>'; }).join("")+'</div></div>'+
+    '<div class="rt-wf">'+h+'</div>';
+}
+/* el anillo del beneficio: qué parte de lo que se cobra se queda en la caja */
+function anillo(r){
+  var pct=r.pct, neg=r.margen<0, p=Math.max(0,Math.min(100,Math.abs(pct||0))), R_=44, C_=2*Math.PI*R_;
+  return '<svg viewBox="0 0 108 108" class="rt-ring" role="img" aria-label="Beneficio: '+esc(pctTx(pct))+' de los ingresos"><circle cx="54" cy="54" r="'+R_+'" class="rt-ring-bg"/>'+
+    '<circle cx="54" cy="54" r="'+R_+'" class="rt-ring-fg'+(neg?" neg":"")+'" stroke-dasharray="'+(C_*p/100).toFixed(2)+' '+C_.toFixed(2)+'" transform="rotate(-90 54 54)"/>'+
+    '<text x="54" y="55" text-anchor="middle" class="rt-ring-n">'+esc(pct==null?"—":fmtN.format(Math.round(pct))+" %")+'</text><text x="54" y="71" text-anchor="middle" class="rt-ring-s">del ingreso</text></svg>';
+}
+/* ── los precios que faltan, para ponerlos a mano en el propio evento (sin pasar por el Maître) ── */
+function filaFalta(nombre,sub,campo){ return '<div class="rt-fr"><div class="rt-fr-n"><b>'+esc(nombre)+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><div class="rt-fr-c">'+campo+'</div></div>'; }
+function inp(rp,k,ph,aria,extra){ return '<input class="rnum" type="text" inputmode="decimal" data-rp="'+rp+'" data-k="'+esc(k)+'"'+(extra||"")+' placeholder="'+esc(ph||"0,00")+'" aria-label="'+esc(aria)+'">'; }
+function panelFalta(r,e){
+  var F=r.faltan, P=BR.rent.precios(), RP=BR.rent.params(), R=e.rent||{}, h="";
+  var ing=F.ing.filter(function(x){ return x.motivo!=="cantidad"; }).sort(function(a,b){ return pesoFalta(b)-pesoFalta(a); });
+  var sinCant=F.ing.filter(function(x){ return x.motivo==="cantidad"; });
+  var MAX=12, ver=ui.masFalta?ing:ing.slice(0,MAX);
+  if(ing.length){
+    h+='<div class="pp-subh">Ingredientes <span>— precio de compra; con él se calcula el coste de cada plato</span></div>'+ver.map(function(x){
+      var x0=P.ing[x.k]||{}, u=x0.u||unidadDef(x), cant=cantTxt(x), usos=x.platos.length+(x.platos.length===1?" plato":" platos");
+      if(x.motivo==="gramos"){
+        return filaFalta(x.nombre,'Tiene precio, pero el escandallo lo pide en '+(x.m>0?"gramos":x.v>0?"mililitros":"unidades")+' y el precio va '+(x.m>0||x.v>0?"por unidad":"por kilo o litro")+': ¿cuánto pesa 1 unidad? · '+esc(cant)+' · '+usos,
+          inp("ing-g",x.k,"g por ud","Gramos por unidad de "+x.nombre)+'<span class="rt-fr-u">g por unidad</span>'); }
+      return filaFalta(x.nombre,(cant?'necesitas ≈ '+esc(cant)+' · ':'')+usos,
+        inp("fal-ing",x.k,"0,00","Precio de "+x.nombre)+'<select data-rp="ing-u" data-k="'+esc(x.k)+'" aria-label="Unidad del precio de '+esc(x.nombre)+'">'+["kg","l","ud","g","ml"].map(function(o){ return '<option value="'+o+'"'+(o===u?" selected":"")+'>€ / '+o+'</option>'; }).join("")+'</select>');
+    }).join("");
+    if(ing.length>MAX) h+='<div class="rt-fr-mas"><button type="button" class="btn sm" data-ra="mas-falta">'+(ui.masFalta?"Ver menos":"Ver los "+(ing.length-MAX)+" restantes")+'</button></div>';
+  }
+  if(F.beb.length) h+='<div class="pp-subh">Bebidas <span>— € por botella (o por la unidad en que se cuente)</span></div>'+F.beb.map(function(x){
+    return filaFalta(x.marca||x.txt,(x.marca?esc(x.txt)+" · ":"")+esc(numTx(x.q))+" "+esc(x.ud==="botellas"?"botellas":x.ud)+" ("+(x.origen==="real"?"consumo real":"previsión")+")",
+      inp("fal-beb",x.pk||x.exId,"0,00","Precio de "+(x.marca||x.txt),' data-id="'+esc(x.exId||"")+'"')+'<span class="rt-fr-u">€ / '+esc(x.ud==="botellas"?"botella":x.ud.replace(/s$/,""))+'</span>'); }).join("");
+  var otros="";
+  if(F.tarta) otros+=filaFalta("Tarta","coste por ración, de este evento",inp("ev","costeTarta",numTx(RP.costeTarta)||"0,00","Coste por ración de la tarta")+'<span class="rt-fr-u">€ / ración</span>');
+  if(F.staff) otros+=filaFalta("Menú staff","lo que cuesta cada menú del personal",inp("rp","costeStaff","0,00","Coste del menú staff por persona")+'<span class="rt-fr-u">€ / persona</span>');
+  if(F.hora) otros+=filaFalta("Camarero","coste por hora, a coste empresa (vale para todos los eventos)",inp("rp","horaCamarero","0,00","Coste por hora de un camarero")+'<span class="rt-fr-u">€ / hora</span>');
+  F.sust.forEach(function(x){ otros+=filaFalta(x.txt,x.n+(x.n===1?" ración":" raciones")+(x.para?" · para "+esc(x.para):""),inp("extra",x.k,"0,00","Coste por ración de "+x.txt)+'<span class="rt-fr-u">€ / ración</span>'); });
+  F.ext.forEach(function(x){ otros+=filaFalta(x.txt,"extra del presupuesto: se cobra "+esc(eur(x.cobraIVA))+" pero no sabemos cuánto cuesta",inp("ex-c",x.id,"0,00","Coste de "+x.txt,' data-id="'+esc(x.id)+'"')+'<span class="rt-fr-u">€ en total</span>'); });
+  if(otros) h+='<div class="pp-subh">Otros costes</div>'+otros;
+  if(sinCant.length) h+='<div class="pp-subh">Sin cantidad en el escandallo <span>— no se pueden calcular desde aquí</span></div><p class="pp-note" style="margin-top:0">'+sinCant.map(function(x){ return esc(x.nombre); }).join(", ")+'. Pon la cantidad por persona en <button type="button" class="rt-link" data-goto="p-platos">Parámetros → Platos y escandallo</button>.</p>';
+  return '<p class="pp-note" style="margin-top:0">Escribe lo que cuesta cada cosa y el beneficio se recalcula al momento. El precio se guarda para <b>todos los eventos</b> (un precio por ingrediente o bebida), así que solo lo pones una vez. <b>No hace falta el CSV del Maître</b>: si algún día lo importas, lo que escribas a mano manda sobre el suyo.</p>'+h;
+}
+function chipsOrigen(r){
+  var c=[];
+  if(r.beb&&r.beb.length) c.push('<button type="button" class="rt-chip '+(r.bebOrigen==="prevision"?"":"ok")+'" data-ra="ir-sec" data-k="beb" title="'+esc(r.bebOrigen==="prevision"?"Todavía no hay consumo real apuntado: la bebida va con la previsión.":r.bebOrigen==="mixto"?"Hay consumo real, pero faltan líneas por apuntar.":"Calculada con lo que se bebió de verdad.")+'">Bebida: '+(r.bebOrigen==="real"?"consumo real":r.bebOrigen==="mixto"?"real + previsión":"previsión")+'</button>');
+  c.push('<button type="button" class="rt-chip '+(r.per.real?"ok":"")+'" data-ra="ir-sec" data-k="per">Personal: '+(r.per.real?"horas reales":"horas previstas")+'</button>');
+  if(r.vinyes) c.push('<button type="button" class="rt-chip ok" data-ra="ir-sec" data-k="alb">Les Vinyes: albarán '+esc(eur(r.albTotal))+(r.alb&&r.alb.enviado?" · enviado":" · borrador")+'</button>');
+  if(r.faltan.n) c.push('<button type="button" class="rt-chip warn" data-ra="ir-sec" data-k="falta">'+r.faltan.n+(r.faltan.n===1?" precio por poner":" precios por poner")+'</button>');
+  return '<div class="rt-chips" aria-label="De dónde salen las cifras">'+c.join("")+'</div>';
 }
 function vEvento(){
   var e=BR.current();
   if(!e) return cabecera("r-evento")+'<div class="pcard"><p>Elige un evento arriba.</p></div>';
-  var r=BR.rent.calc(), RP=BR.rent.params(), R=e.rent||{};
-  var extra=esc(r.nombre)+' · '+r.comensales+' menús ('+r.adultos+' adultos · '+r.ninos+' niños · '+r.staff+' staff)';
+  var r=BR.rent.calc(), RP=BR.rent.params(), R=e.rent||{}, mc=r.comensales||0, neg=r.margen<0;
+  var extra=esc(r.nombre)+' · '+r.comensales+' menús ('+r.adultos+' adultos · '+r.ninos+' niños · '+r.staff+' staff)'+(r.vinyes?' · <b>Les Vinyes del Convent</b>':'');
   var h=cabecera("r-evento",extra);
-  var mc=r.comensales||0;
+  /* el beneficio neto, en grande */
+  h+='<section class="rt-hero'+(neg?" neg":"")+'" aria-live="polite"><div class="rt-hero-main"><div class="rt-hero-eyebrow">Beneficio neto'+(r.completo?"":' <span class="rt-prov">provisional</span>')+'</div>'+
+    '<div class="rt-hero-num">'+(r.completo?"":'<small>hasta</small> ')+esc(eur(r.margen))+'</div>'+
+    '<div class="rt-hero-sub">Ingresos sin IVA '+esc(eur(r.ingresos))+' − costes '+(r.completo?"":"(con precio) ")+esc(eur(r.costes))+'. El IVA queda aparte.</div>'+chipsOrigen(r)+'</div>'+
+    '<div class="rt-hero-ring">'+anillo(r)+'</div>'+
+    '<div class="rt-hero-act"><button type="button" class="btn gold" data-ra="pdf">Descargar la hoja (PDF)</button><span>Resumen visual con el beneficio neto y el detalle por partidas.</span></div></section>';
   h+='<div class="rsm-kpis">'+
     kpi("Ingresos sin IVA",esc(eur(r.ingresos)),"Presupuesto "+esc(eur(r.ingresosIVA))+" con IVA ("+esc(numTx(r.iva))+" %)")+
-    kpi(r.completo?"Costes":"Costes · provisional",(r.completo?"":"≥ ")+esc(eur(r.costes)),r.completo?(r.ingresos>0?esc(pctTx(r.costes/r.ingresos*100))+" de los ingresos":""):"faltan precios (ver avisos)")+
-    kpi(r.completo?"Margen":"Margen · provisional",(r.completo?"":"≤ ")+esc(eur(r.margen)),r.completo?"Margen "+esc(pctTx(r.pct)):"con los costes que ya tienen precio",(r.completo?"accent":"")+(r.margen<0?" rt-neg":""))+
-    kpi("Por menú",mc?esc(eur(r.margen/mc)):"—",mc?"Ingreso "+esc(eur(r.ingresos/mc))+" · coste "+esc(eur(r.costes/mc)):"")+
-    '</div>'+avisosHTML(r.avisos);
-  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes(r)+'</div>';
+    kpi(r.completo?"Costes":"Costes · provisional",(r.completo?"":"≥ ")+esc(eur(r.costes)),r.ingresos>0?esc(pctTx(r.costes/r.ingresos*100))+" de los ingresos"+(r.completo?"":" · faltan precios"):"")+
+    kpi("Beneficio por menú",mc?esc(eur2(r.margen/mc)):"—",mc?"Ingreso "+esc(eur(r.ingresos/mc))+" · coste "+esc(eur(r.costes/mc)):"",neg?"rt-neg":"")+
+    kpi("Beneficio sobre ingresos",esc(pctTx(r.pct)),r.completo?"":"provisional",neg?"rt-neg":"")+'</div>';
+  /* avisos y, si falta algo, el panel para ponerlo a mano aquí mismo */
+  if(r.avisos.length) h+='<div class="rt-avisos" role="note"><b>Cifras incompletas</b><ul>'+r.avisos.map(function(a){ return '<li>'+esc(a)+'</li>'; }).join("")+'</ul>'+(r.faltan.n?'<button type="button" class="btn sm gold" data-ra="ir-sec" data-k="falta">Poner los precios que faltan</button> ':'')+'<button type="button" class="btn sm" data-goto="r-precios">Importar el Maître (opcional)</button></div>';
+  else h+='<div class="rt-ok">✓ Todos los costes tienen precio.</div>';
+  (r.notas||[]).forEach(function(n){ h+='<div class="rt-nota" role="note">'+esc(n)+'</div>'; });
+  if(r.faltan.n||r.faltan.ing.length) h+=seccion("falta",r.faltan.n?"Precios que faltan en este evento":"Ingredientes sin cantidad en el escandallo",r.faltan.n?'<span class="rt-bad">'+r.faltan.n+'</span>':"",null,null,panelFalta(r,e),true,"falta");
+  /* el gráfico */
+  h+='<div class="pv-sec">Cómo se llega al beneficio</div><div class="pcard rt-wfcard">'+cascada(r)+'</div>';
+  h+='<div class="pv-sec">Reparto de los costes <span class="pv-sec-note">— toca un tramo para ver su detalle</span></div><div class="pcard">'+barraCostes(r,true)+'</div>';
+  /* el detalle, por secciones desplegables */
+  var pc=function(v){ return r.costes>0?esc(pctTx(v/r.costes*100)):""; };
+  h+='<div class="pv-sec">Detalle por partidas <button type="button" class="rt-link rt-sec-all" data-ra="sec-all">'+(ui.todoAbierto?"Cerrar todas":"Abrir todas")+'</button></div>';
+  /* ingresos */
+  h+=seccion("ing","Ingresos",'<span class="rt-sec-nn">menús y extras cobrados</span>',esc(eur(r.ingresos)),"",
+    '<div class="rt-lines">'+
+    '<div><span>Menús</span><b>'+esc(eur(r.menus))+'</b></div><div><span>Extras cobrados</span><b>'+esc(eur(r.extrasVenta))+'</b></div>'+
+    '<div><span>Total con IVA</span><b>'+esc(eur(r.ingresosIVA))+'</b></div><div><span>IVA ('+esc(numTx(r.iva))+' %)</span><b>−'+esc(eur(r.ingresosIVA-r.ingresos))+'</b></div>'+
+    '<div class="rt-tot"><span>Ingresos sin IVA</span><b>'+esc(eur(r.ingresos))+'</b></div></div>'+
+    '<p class="pp-note">Los precios de venta y los extras se cambian en <button type="button" class="rt-link" data-goto="presup">Presupuesto</button>.</p>',false,"ing");
   /* 1 · platos elaborados (coste por ración) */
-  h+='<div class="pv-sec">Platos elaborados <span class="pv-sec-note">— '+esc(eur(r.elabTotal))+' · se compran hechos o tienen su coste por ración</span></div>'+
-    tablaPlatos(r.mp.filter(function(x){ return x.tipo==="elab"; }),R,RP,"Ningún plato con coste por ración. Se marcan en «Precios del Maître › Platos elaborados».");
-  /* 2 · bebida */
-  h+='<div class="pv-sec">Bebida <span class="pv-sec-note">— '+esc(eur(r.bebTotal))+'</span></div><div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Bebida</th><th class="rnum">Botellas</th><th class="rnum">€ / botella</th><th class="rnum">Total</th><th>Precio</th></tr></thead><tbody>'+
-    r.beb.map(function(x){ return '<tr><td><span class="rt-pl">'+esc(x.marca||x.txt)+'</span>'+(x.marca?'<span class="rt-sub">'+esc(x.txt)+'</span>':'')+'</td><td class="rnum">'+x.q+'</td><td class="rnum">'+(x.cu?esc(eur2(x.cu)):"—")+'</td><td class="rnum">'+esc(eur(x.total))+'</td><td class="rt-st">'+(x.fuente?esc(x.fuente):'<span class="rt-falta">sin precio</span>')+'</td></tr>'; }).join("")+
-    '</tbody></table></div>';
-  /* 3 · extras: cuánto cuesta y cuánto se cobra */
+  h+=seccion("elab","Platos elaborados",'<span class="rt-sec-nn">se compran hechos o tienen su coste por ración</span>',esc(eur(r.elabTotal)),pc(r.elabTotal),
+    tablaPlatos(r.mp.filter(function(x){ return x.tipo==="elab"; }),R,RP,"Ningún plato con coste por ración. Se marcan en «Precios y costes › Platos elaborados»."),false,"elab");
+  /* 2 · materia prima (platos por escandallo) */
+  var mpF=r.mp.filter(function(x){ return x.tipo!=="elab"; });
+  h+=seccion("mp","Materia prima",'<span class="rt-sec-nn">platos por su escandallo'+(r.merma?" · con "+esc(numTx(r.mermaPct))+" % de merma: "+esc(eur(r.merma)):"")+'</span>',esc(eur(r.mpTotal+r.merma)),pc(r.mpTotal+r.merma),
+    tablaPlatos(mpF,R,RP,"No hay platos por escandallo."),false,"mp");
+  /* 3 · bebida: previsión o, si ya se apuntó, lo bebido de verdad */
+  var dB=r.bebOrigen==="prevision"?0:r.bebTotal-r.bebPrevTotal;
+  var notaB=r.bebOrigen==="real"?'Calculada con el <b>consumo real</b> que se apuntó después del evento.':r.bebOrigen==="mixto"?'Calculada con el <b>consumo real</b> donde ya se apuntó y con la <b>previsión</b> en el resto ('+esc(r.bebSinReal.join(", "))+').':'Calculada con la <b>previsión</b>. En cuanto apuntes lo que se bebió de verdad en <button type="button" class="rt-link" data-goto="m-bebida">Bebida → Consumo real</button>, esta cifra pasará a ser la real.';
+  h+=seccion("beb","Bebida",'<span class="rt-sec-nn">'+(r.bebOrigen==="real"?"consumo real":r.bebOrigen==="mixto"?"real y previsión":"previsión")+'</span>',esc(eur(r.bebTotal)),pc(r.bebTotal),
+    '<p class="pp-note" style="margin-top:0">'+notaB+(r.bebOrigen!=="prevision"&&r.bebPrevTotal>0?' Con la previsión habría salido <b>'+esc(eur(r.bebPrevTotal))+'</b>'+(Math.abs(dB)>=0.5?' ('+(dB>0?'+':'−')+esc(eur(Math.abs(dB)))+' de diferencia)':'')+'.':'')+'</p>'+
+    (r.beb.length?'<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Bebida</th><th class="rnum">Cantidad</th><th>Cuenta con</th><th class="rnum">€ / unidad</th><th class="rnum">Total</th><th>Precio</th></tr></thead><tbody>'+
+    r.beb.map(function(x){ return '<tr><td><span class="rt-pl">'+esc(x.marca||x.txt)+'</span>'+(x.marca?'<span class="rt-sub">'+esc(x.txt)+'</span>':'')+'</td><td class="rnum">'+esc(numTx(x.q))+' <small>'+esc(x.ud==="botellas"?"bot.":x.ud)+'</small></td>'+
+      '<td class="rt-st">'+(x.origen==="real"?'<span class="rt-okc">real</span>'+(x.prevQ!=null?' <span class="rt-sub-i">previsto '+esc(numTx(x.prevQ))+'</span>':''):'<span class="rt-est">previsión</span>')+'</td>'+
+      '<td class="rnum">'+(x.alb?"—":x.cu?esc(eur2(x.cu)):"—")+'</td><td class="rnum">'+(x.alb?"en albarán":esc(eur(x.total)))+'</td><td class="rt-st">'+(x.fuente?esc(x.fuente):'<span class="rt-falta">sin precio</span>')+'</td></tr>'; }).join("")+
+    '</tbody></table></div>':'<p class="pp-empty">Este evento no lleva bebida en la hoja de Bebida.</p>')+
+    (r.jamonAj?'<p class="pp-note">Jamón: se gastaron <b>'+esc(numTx(Math.round(r.jamonAj.real*100)/100))+' kg</b> en lugar de los '+esc(numTx(Math.round(r.jamonAj.prev*100)/100))+' kg del escandallo: '+(r.jamonAj.importe>=0?"suma ":"resta ")+esc(eur(Math.abs(r.jamonAj.importe)))+' a la materia prima.</p>':""),false,"beb");
+  /* 4 · personal */
+  var p=r.per;
+  h+=seccion("per","Personal",'<span class="rt-sec-nn">'+(p.real?"horas reales":"horas previstas")+'</span>',esc(eur(r.perTotal)),pc(r.perTotal),
+    '<div class="fldset">'+
+    '<label class="fld"><span class="lbl">Camareros <small>'+(p.asignados?p.asignados+" asignados":"previstos: "+p.n)+'</small></span><input type="text" inputmode="numeric" data-rp="ev" data-k="camareros" value="'+esc(numTx(R.camareros))+'" placeholder="'+esc(p.asignados||p.n)+'"></label>'+
+    '<label class="fld"><span class="lbl">Horas por camarero</span><input type="text" inputmode="decimal" data-rp="ev" data-k="horas" value="'+esc(numTx(R.horas))+'" placeholder="'+esc(numTx(RP.horasCamarero))+'"></label>'+
+    '<label class="fld"><span class="lbl">Coste por hora <small>todos los eventos</small></span><input type="text" inputmode="decimal" data-rp="rp" data-k="horaCamarero" value="'+esc(numTx(RP.horaCamarero))+'" placeholder="€ / hora"></label>'+
+    (p.real?'<div class="fld wide" style="grid-column:1/-1"><span class="lbl">Coste con las horas reales</span><div class="fld-val">'+p.nReal+(p.nReal===1?' camarero':' camareros')+' · <b>'+esc(numTx(p.horasReales))+' h</b>'+(p.faltanH?' + '+p.faltanH+' × '+esc(numTx(p.horas))+' h previstas (sin hora apuntada)':'')+' × '+(p.hora?esc(eur2(p.hora))+'/h':'€/hora sin poner')+' = <b>'+esc(eur(r.perTotal))+'</b> <span class="rt-est">real</span> <small>(previsto: '+esc(eur(r.perPrev))+')</small></div></div>':'')+
+    '<div class="fld"><span class="lbl">Coste previsto</span><div class="fld-val">'+p.n+' × '+esc(numTx(p.horas))+' h × '+(p.hora?esc(eur2(p.hora))+'/h':'€/hora sin poner')+' = <b>'+esc(eur(r.perPrev!=null?r.perPrev:r.perTotal))+'</b>'+(p.estimado?' <span class="rt-est">estimado</span>':'')+'</div></div>'+
+    '</div><p class="pp-note">Las horas reales se apuntan en <button type="button" class="rt-link" data-goto="cam-horas">Camareros → Turnos y horas</button>; en cuanto hay alguna, el coste deja de ser una estimación.</p>',false,"per");
+  /* 5 · extras: cuánto cuesta y cuánto se cobra */
   var CAT=BR.rent.extrasCat(), provs=(e.proveedores||[]).filter(function(x){ return x.empresa||+x.precio; });
   var optsCat=function(sel){ return '<option value="">— sin artículo —</option>'+CAT.map(function(c){ return '<option value="'+esc(c.k)+'"'+(c.k===sel?" selected":"")+'>'+esc(c.n)+' · '+esc(eur2(c.coste))+'</option>'; }).join(""); };
   var exMargen=r.extCobro-r.extTotal;
@@ -28132,7 +28563,7 @@ function vEvento(){
     return '<tr><td><span class="rt-pl">'+esc(x.txt)+'</span><span class="rt-sub">'+(x.presup?"Presupuesto"+(x.fuente?" · "+esc(x.fuente):""):x.prov?"Proveedor que paga Les Moles":"Gasto (no se cobra)")+'</span></td>'+
       '<td class="rnum">'+(x.presup?esc(eur(x.cobra)):"—")+'</td><td class="rt-cu">'+cuesta+'</td>'+
       '<td class="rnum'+(m<0?" rt-negtx":"")+'">'+(x.presup&&!x.conCoste?'<span class="rt-falta">sin coste</span>':esc(eur(m)))+'</td></tr>'; }).join("");
-  h+='<div class="pv-sec">Extras <span class="pv-sec-note">— cobramos '+esc(eur(r.extCobro))+' · cuestan '+esc(eur(r.extTotal))+' · margen '+esc(eur(exMargen))+'</span></div>'+
+  h+=seccion("ext","Extras",'<span class="rt-sec-nn">cobramos '+esc(eur(r.extCobro))+' · margen '+esc(eur(exMargen))+'</span>',esc(eur(r.extTotal)),pc(r.extTotal),
     '<div class="dtable-wrap"><table class="dtable rt-t rt-ex"><thead><tr><th>Extra</th><th class="rnum">Cobramos (sin IVA)</th><th>Nos cuesta</th><th class="rnum">Margen</th></tr></thead><tbody>'+
     (filasEx||'<tr><td colspan="4" class="pp-empty">No hay extras en el presupuesto ni gastos apuntados.</td></tr>')+'</tbody></table>'+
     '<div class="dtable-foot rt-exadd"><select id="rt-exadd-k" aria-label="Extra del catálogo">'+optsCat("").replace("— sin artículo —","Añadir un extra del catálogo…")+'</select>'+
@@ -28140,25 +28571,17 @@ function vEvento(){
       '<button type="button" class="btn sm gold" data-ra="ex-add">+ Añadir al presupuesto</button><button type="button" class="btn sm" data-ra="otro-add">+ Gasto que no se cobra</button></div></div>'+
     ((R.otros||[]).length?'<div class="pcard" style="margin-top:10px"><div class="pp-subh" style="margin-top:0">Gastos que no se cobran</div>'+(R.otros||[]).map(function(o,i){ return '<div class="pp-tramo"><input type="text" data-rp="otro" data-i="'+i+'" data-k="concepto" value="'+esc(o.concepto||"")+'" placeholder="Concepto" aria-label="Concepto"><input type="text" inputmode="decimal" data-rp="otro" data-i="'+i+'" data-k="importe" value="'+esc(numTx(o.importe))+'" placeholder="0" style="width:110px;text-align:right" aria-label="Importe"><span>€</span><button type="button" class="row-del" data-ra="otro-del" data-i="'+i+'" aria-label="Quitar gasto">×</button></div>'; }).join("")+'</div>':'')+
     (provs.length?'<div class="pcard" style="margin-top:10px"><div class="pp-subh" style="margin-top:0">Proveedores del evento <span>— marca los que paga Les Moles</span></div>'+provs.map(function(x){
-      return '<label class="rt-prov"><input type="checkbox" data-rp="prov" data-id="'+esc(x.id)+'"'+(R.prov&&R.prov[x.id]?" checked":"")+'> <span>'+esc(x.servicio||"Proveedor")+(x.empresa?" · "+esc(x.empresa):"")+'</span><b>'+esc(eur(+x.precio||0))+'</b></label>'; }).join("")+'</div>':'');
-  /* 4 · materia prima (platos por escandallo) */
-  var mpF=r.mp.filter(function(x){ return x.tipo!=="elab"; });
-  h+='<div class="pv-sec">Materia prima <span class="pv-sec-note">— '+esc(eur(r.mpTotal+r.merma))+' · platos por su escandallo'+(r.merma?' (con '+esc(numTx(r.mermaPct))+' % de merma: '+esc(eur(r.merma))+')':'')+'</span></div>'+
-    tablaPlatos(mpF,R,RP,"No hay platos por escandallo.");
-  /* personal */
-  var p=r.per;
-  h+='<div class="pv-sec">Personal <span class="pv-sec-note">— '+esc(eur(r.perTotal))+'</span></div><div class="pcard"><div class="fldset">'+
-    '<label class="fld"><span class="lbl">Camareros <small>'+(p.asignados?p.asignados+" asignados":"previstos: "+p.n)+'</small></span><input type="text" inputmode="numeric" data-rp="ev" data-k="camareros" value="'+esc(numTx(R.camareros))+'" placeholder="'+esc(p.asignados||p.n)+'"></label>'+
-    '<label class="fld"><span class="lbl">Horas por camarero</span><input type="text" inputmode="decimal" data-rp="ev" data-k="horas" value="'+esc(numTx(R.horas))+'" placeholder="'+esc(numTx(RP.horasCamarero))+'"></label>'+
-    (p.real?'<div class="fld wide" style="grid-column:1/-1"><span class="lbl">Coste con las horas reales</span><div class="fld-val">'+p.nReal+(p.nReal===1?' camarero':' camareros')+' · <b>'+esc(numTx(p.horasReales))+' h</b>'+(p.faltanH?' + '+p.faltanH+' × '+esc(numTx(p.horas))+' h previstas (sin hora apuntada)':'')+' × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perTotal))+'</b> <span class="rt-est">real</span> <small>(previsto: '+esc(eur(r.perPrev))+')</small></div></div>':'')+
-    '<div class="fld"><span class="lbl">Coste previsto</span><div class="fld-val">'+p.n+' × '+esc(numTx(p.horas))+' h × '+(p.hora?esc(eur2(p.hora))+'/h':'<button type="button" class="rt-link" data-goto="r-precios">poner €/hora</button>')+' = <b>'+esc(eur(r.perPrev!=null?r.perPrev:r.perTotal))+'</b>'+(p.estimado?' <span class="rt-est">estimado</span>':'')+'</div></div>'+
-    '</div></div>';
-  /* ingresos */
-  h+='<div class="pv-sec">Ingresos</div><div class="pcard"><div class="rt-lines">'+
-    '<div><span>Menús</span><b>'+esc(eur(r.menus))+'</b></div><div><span>Extras cobrados</span><b>'+esc(eur(r.extrasVenta))+'</b></div>'+
-    '<div><span>Total con IVA</span><b>'+esc(eur(r.ingresosIVA))+'</b></div><div><span>IVA ('+esc(numTx(r.iva))+' %)</span><b>−'+esc(eur(r.ingresosIVA-r.ingresos))+'</b></div>'+
-    '<div class="rt-tot"><span>Ingresos sin IVA</span><b>'+esc(eur(r.ingresos))+'</b></div></div>'+
-    '<p class="pp-note">Los precios de venta y los extras se cambian en <button type="button" class="rt-link" data-goto="presup">Presupuesto</button>.</p></div>';
+      return '<label class="rt-prov"><input type="checkbox" data-rp="prov" data-id="'+esc(x.id)+'"'+(R.prov&&R.prov[x.id]?" checked":"")+'> <span>'+esc(x.servicio||"Proveedor")+(x.empresa?" · "+esc(x.empresa):"")+'</span><b>'+esc(eur(+x.precio||0))+'</b></label>'; }).join("")+'</div>':''),false,"ext");
+  /* 6 · Les Vinyes: el albarán que les pasamos nos lo facturan ellos */
+  if(r.vinyes&&r.alb){
+    var A=r.alb, lin=[]; lin.push('<div><span>Comensales: '+A.com+' × '+esc(eur2(A.pc))+' <small>('+(A.tar==="boda"?"tarifa de bodas":"tarifa de otros eventos")+')</small></span><b>'+esc(eur2(A.com*A.pc))+'</b></div>');
+    (A.porCat||[]).forEach(function(c){ c.ls.forEach(function(l){ lin.push('<div><span>'+esc(l.n)+' <small>'+l.q+' × '+esc(eur2(l.p))+' · '+esc(c.t)+'</small></span><b>'+esc(eur2(l.imp))+'</b></div>'); }); });
+    if(!A.botellas) lin.push('<div><span class="rt-bad">Sin vino apuntado en el albarán todavía</span><b>—</b></div>');
+    lin.push('<div class="rt-tot"><span>Total del albarán, sin IVA</span><b>'+esc(eur2(A.sub))+'</b></div>');
+    h+=seccion("alb","Albarán Les Vinyes del Convent",'<span class="rt-sec-nn">'+(A.enviado?"enviado":"borrador")+' · lo facturan ellos</span>',esc(eur(r.albTotal)),pc(r.albTotal),
+      '<p class="pp-note" style="margin-top:0">En los eventos de Les Vinyes, el albarán que les pasamos (comensales + el vino de su carta que se ha gastado) nos lo facturan a nosotros: es un <b>gasto del evento</b>. Cuenta <b>sin IVA</b> ('+esc(numTx(A.pIva))+' %: '+esc(eur2(A.iva))+') porque ese IVA se recupera. Por eso el vino de este evento no se vuelve a contar con el precio del Maître.</p>'+
+      '<div class="rt-lines">'+lin.join("")+'</div><p class="pp-note"><button type="button" class="btn sm" data-goto="albaran">'+(A.enviado?"Ver el albarán":"Preparar el albarán")+'</button></p>',false,"alb"); }
+  h+='<p class="pp-note rt-pie">Beneficio neto = ingresos sin IVA − costes directos del evento (comida, bebida, personal, extras y, en Les Vinyes, el albarán). No incluye los gastos generales de la empresa (alquileres, suministros, gestoría…).</p>';
   return h;
 }
 
@@ -28191,15 +28614,15 @@ function grafMeses(rows){
       :'M'+bx+','+y0+'V'+(top+hh-rr)+'Q'+bx+','+(top+hh)+' '+(bx+rr)+','+(top+hh)+'H'+(bx+bw-rr)+'Q'+(bx+bw)+','+(top+hh)+' '+(bx+bw)+','+(top+hh-rr)+'V'+y0+'Z');
     return (path?'<path d="'+path+'" class="rt-mbar'+(x.mar<0?" neg":"")+'"/>':'')+
       '<text x="'+cx+'" y="'+(H-9)+'" class="rt-ax" text-anchor="middle">'+MESES[x.i]+'</text>'+
-      '<rect x="'+(pl+cw*x.i)+'" y="'+pt+'" width="'+cw+'" height="'+(H-pt-pb)+'" class="rt-hit" data-mes="'+x.i+'" data-tip="'+esc(x.n?(MESES[x.i].charAt(0).toUpperCase()+MESES[x.i].slice(1)+" · "+x.n+(x.n===1?" evento":" eventos")+"|Ingresos "+eur(x.ing)+"|Costes "+eur(x.cos)+"|Margen "+eur(x.mar)+(x.ing>0?" ("+pctTx(x.mar/x.ing*100)+")":"")):(MESES[x.i]+" · sin eventos"))+'"/>'; }).join("");
-  return '<div class="rt-chart"><div class="rt-chart-h">Margen por mes <span>(miles de €)</span></div>'+
-    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Margen por mes de la temporada">'+g+bars+'</svg><div class="rt-tip" hidden></div></div>';
+      '<rect x="'+(pl+cw*x.i)+'" y="'+pt+'" width="'+cw+'" height="'+(H-pt-pb)+'" class="rt-hit" data-mes="'+x.i+'" data-tip="'+esc(x.n?(MESES[x.i].charAt(0).toUpperCase()+MESES[x.i].slice(1)+" · "+x.n+(x.n===1?" evento":" eventos")+"|Ingresos "+eur(x.ing)+"|Costes "+eur(x.cos)+"|Beneficio neto "+eur(x.mar)+(x.ing>0?" ("+pctTx(x.mar/x.ing*100)+")":"")):(MESES[x.i]+" · sin eventos"))+'"/>'; }).join("");
+  return '<div class="rt-chart"><div class="rt-chart-h">Beneficio neto por mes <span>(miles de €)</span></div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Beneficio neto por mes de la temporada">'+g+bars+'</svg><div class="rt-tip" hidden></div></div>';
 }
-var ORDENES={nombre:"Evento",fecha:"Fecha",comensales:"Menús",ingresos:"Ingresos",costes:"Costes",margen:"Margen",pct:"% margen",porMenu:"Margen / menú"};
+var ORDENES={nombre:"Evento",fecha:"Fecha",comensales:"Menús",ingresos:"Ingresos",costes:"Costes",margen:"Beneficio neto",pct:"% beneficio",porMenu:"Beneficio / menú"};
 function vTemporada(){
   var D=datosTemporada(), rows=D.rows;
-  var T={ing:0,cos:0,mar:0,men:0,elab:0,mp:0,merma:0,beb:0,per:0,ext:0,exCob:0,inc:0};
-  rows.forEach(function(r){ T.ing+=r.ingresos; T.cos+=r.costes; T.mar+=r.margen; T.men+=r.comensales; T.mp+=r.mpTotal; T.elab+=r.elabTotal; T.exCob+=r.extCobro; T.merma+=r.merma; T.beb+=r.bebTotal; T.per+=r.perTotal; T.ext+=r.extTotal; if(!r.completo) T.inc++; r.porMenu=r.comensales?r.margen/r.comensales:0; });
+  var T={ing:0,cos:0,mar:0,men:0,elab:0,mp:0,merma:0,beb:0,per:0,ext:0,alb:0,exCob:0,inc:0};
+  rows.forEach(function(r){ T.ing+=r.ingresos; T.cos+=r.costes; T.mar+=r.margen; T.men+=r.comensales; T.mp+=r.mpTotal; T.elab+=r.elabTotal; T.exCob+=r.extCobro; T.merma+=r.merma; T.beb+=r.bebTotal; T.per+=r.perTotal; T.ext+=r.extTotal; T.alb+=r.albTotal||0; if(!r.completo) T.inc++; r.porMenu=r.comensales?r.margen/r.comensales:0; });
   var h=cabecera("r-temp");
   h+='<div class="pp-bar rt-filt"><label class="fld rt-anio"><span class="lbl">Temporada</span><select data-rp="anio">'+(D.anios.length?D.anios:[ui.anio]).map(function(a){ return '<option'+(a===ui.anio?" selected":"")+'>'+a+'</option>'; }).join("")+'</select></label>'+
     '<label class="ag-chk"><input type="checkbox" data-rp="todos"'+(ui.todos?" checked":"")+'> Incluir los que aún no están reservados'+(D.fuera&&!ui.todos?" ("+D.fuera+")":"")+'</label>'+
@@ -28209,10 +28632,10 @@ function vTemporada(){
     kpi("Eventos",String(rows.length),T.men+" menús")+
     kpi("Ingresos sin IVA",esc(eur(T.ing)),T.men?esc(eur(T.ing/T.men))+" por menú":"")+
     kpi(T.inc?"Costes · provisional":"Costes",(T.inc?"≥ ":"")+esc(eur(T.cos)),T.inc?T.inc+(T.inc===1?" evento con precios sin cargar":" eventos con precios sin cargar"):(T.men?esc(eur(T.cos/T.men))+" por menú":""))+
-    kpi(T.inc?"Margen · provisional":"Margen",(T.inc?"≤ ":"")+esc(eur(T.mar)),"Margen "+esc(pctTx(T.ing>0?T.mar/T.ing*100:null))+(T.men?" · "+esc(eur(T.mar/T.men))+" por menú":""),(T.inc?"":"accent")+(T.mar<0?" rt-neg":""))+
+    kpi(T.inc?"Beneficio neto · provisional":"Beneficio neto",(T.inc?"≤ ":"")+esc(eur(T.mar)),esc(pctTx(T.ing>0?T.mar/T.ing*100:null))+" de los ingresos"+(T.men?" · "+esc(eur(T.mar/T.men))+" por menú":""),(T.inc?"":"accent")+(T.mar<0?" rt-neg":""))+
     '</div>'+(T.inc?'<div class="rt-avisos" role="note"><b>'+T.inc+(T.inc===1?" evento tiene":" eventos tienen")+' cifras incompletas</b> (faltan precios): su coste sale por debajo del real. Van marcados en la tabla. <button type="button" class="btn sm" data-goto="r-precios">Completar precios</button></div>':'');
-  h+='<div class="pv-sec">Margen por mes</div><div class="pcard">'+grafMeses(rows)+'</div>';
-  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes({elabTotal:T.elab,mpTotal:T.mp,merma:T.merma,bebTotal:T.beb,perTotal:T.per,extTotal:T.ext,costes:T.cos})+
+  h+='<div class="pv-sec">Beneficio neto por mes</div><div class="pcard">'+grafMeses(rows)+'</div>';
+  h+='<div class="pv-sec">Reparto de los costes</div><div class="pcard">'+barraCostes({elabTotal:T.elab,mpTotal:T.mp,merma:T.merma,bebTotal:T.beb,perTotal:T.per,extTotal:T.ext,albTotal:T.alb,costes:T.cos})+
     '<p class="pp-note">Extras de la temporada: se han cobrado '+esc(eur(T.exCob))+' (sin IVA) y han costado '+esc(eur(T.ext))+' · margen '+esc(eur(T.exCob-T.ext))+'.</p></div>';
   var k=ui.orden, dir=ui.dir;
   rows.sort(function(a,b){ var va=a[k], vb=b[k]; if(k==="nombre"||k==="fecha") return String(va||"").localeCompare(String(vb||""),"es")*dir; return ((va==null?-1e12:va)-(vb==null?-1e12:vb))*dir; });
@@ -28227,8 +28650,8 @@ function vTemporada(){
 }
 function descargarCSV(){
   var rows=ui.ultimas||[], sep=";", n2=function(v){ return (Math.round((v||0)*100)/100).toString().replace(".",","); };
-  var out=[["Evento","Fecha","Estado","Menús","Ingresos sin IVA","Platos elaborados","Bebida","Extras (coste)","Extras (cobrado sin IVA)","Materia prima","Merma","Personal","Costes","Margen","% margen","Completo"].join(sep)];
-  rows.forEach(function(r){ out.push([String(r.nombre).replace(/;/g,","),r.fecha,r.estado,r.comensales,n2(r.ingresos),n2(r.elabTotal),n2(r.bebTotal),n2(r.extTotal),n2(r.extCobro),n2(r.mpTotal),n2(r.merma),n2(r.perTotal),n2(r.costes),n2(r.margen),r.pct==null?"":n2(r.pct),r.completo?"sí":"no"].join(sep)); });
+  var out=[["Evento","Fecha","Estado","Menús","Ingresos sin IVA","Platos elaborados","Bebida","Extras (coste)","Extras (cobrado sin IVA)","Materia prima","Merma","Personal","Albarán Les Vinyes","Costes","Beneficio neto","% beneficio","Completo"].join(sep)];
+  rows.forEach(function(r){ out.push([String(r.nombre).replace(/;/g,","),r.fecha,r.estado,r.comensales,n2(r.ingresos),n2(r.elabTotal),n2(r.bebTotal),n2(r.extTotal),n2(r.extCobro),n2(r.mpTotal),n2(r.merma),n2(r.perTotal),n2(r.albTotal),n2(r.costes),n2(r.margen),r.pct==null?"":n2(r.pct),r.completo?"sí":"no"].join(sep)); });
   var blob=new Blob(["﻿"+out.join("\r\n")],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
   a.href=URL.createObjectURL(blob); a.download="rentabilidad_temporada_"+ui.anio+".csv"; document.body.appendChild(a); a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
@@ -28309,9 +28732,9 @@ function impArts(){
 function vImport(){
   var P=BR.rent.precios(), I=ui.imp;
   var dias=P.imp?Math.floor((Date.now()-P.imp.fecha)/86400000):null;
-  var h='<div class="pcard rt-imp"><div class="pcard-h"><h3>Importar del Maître</h3><span class="pp-ej">'+(P.imp?esc(P.imp.n)+' artículos'+(P.imp.periodo?' · compras del '+esc(P.imp.periodo):'')+' · importado el '+esc(new Date(P.imp.fecha).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"})):'Todavía no se ha importado nada')+'</span></div>'+
+  var h='<div class="pcard rt-imp"><div class="pcard-h"><h3>Importar del Maître <span class="pp-ej">(opcional)</span></h3><span class="pp-ej">'+(P.imp?esc(P.imp.n)+' artículos'+(P.imp.periodo?' · compras del '+esc(P.imp.periodo):'')+' · importado el '+esc(new Date(P.imp.fecha).toLocaleDateString("es-ES",{day:"numeric",month:"short",year:"numeric"})):'Todavía no se ha importado nada')+'</span></div>'+
     (dias!=null&&dias>30?'<p class="rt-falta" style="margin:0 0 8px">Los precios tienen '+dias+' días: conviene volver a importar el informe del Maître.</p>':'')+
-    '<p class="pp-note" style="margin-top:0">En el Maître, saca el informe <b>«Análisis de compras» por artículos</b> del periodo que quieras (por ejemplo, desde el 1 de enero) y expórtalo a CSV o Excel. También vale un listado con el <b>nombre</b> y el <b>precio de compra</b>. Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
+    '<p class="pp-note" style="margin-top:0"><b>No es obligatorio:</b> los precios que falten también se pueden poner a mano, ingrediente a ingrediente, en la pantalla de Rentabilidad de cada evento (y aquí abajo). Si prefieres cargarlos de golpe: en el Maître, saca el informe <b>«Análisis de compras» por artículos</b> del periodo que quieras (por ejemplo, desde el 1 de enero) y expórtalo a CSV o Excel. También vale un listado con el <b>nombre</b> y el <b>precio de compra</b>. Al volver a importar se actualizan los precios y se conservan los enlaces que hayas hecho a mano.</p>'+
     '<div class="row rt-imp-src"><label class="btn gold sm" for="rt-file">Subir Excel o CSV</label><input type="file" id="rt-file" accept=".xlsx,.xls,.csv,.tsv,.txt,text/csv" class="sr-only">'+
     '<details class="rt-paste"><summary>o pegar las celdas</summary><textarea id="rt-paste" rows="4" aria-label="Celdas copiadas del Excel del Maître" placeholder="Artículo&#9;Unidad&#9;Precio&#10;Harina de trigo&#9;kg&#9;0,85"></textarea><button type="button" class="btn sm" data-ra="paste">Leer</button></details></div>';
   if(I){
@@ -28466,7 +28889,7 @@ function vPrecios(){
 /* ══ pintar y eventos ════════════════════════════════════════════════ */
 var hostRef=null, vista=null, pintando=false;
 function render(k,host){
-  hostRef=host||hostRef; vista=k||vista; if(!hostRef||!vista||pintando) return;
+  hostRef=host||hostRef; if(k&&k!==vista) ui.entra=true; vista=k||vista; if(!hostRef||!vista||pintando) return;
   pintando=true; try{ pintar(); } finally{ pintando=false; }
 }
 function pintar(){
@@ -28478,11 +28901,42 @@ function pintar(){
     else if(vista==="r-precios") body=vPrecios();
     else body=vEvento();
   }catch(err){ body='<div class="pcard"><p>No se ha podido calcular la rentabilidad.</p></div>'; try{ console.error(err); }catch(_){} }
-  hostRef.innerHTML='<div class="pv-inner rt-root" data-vista="'+esc(vista)+'">'+body+'</div>';
+  hostRef.innerHTML='<div class="pv-inner rt-root'+(ui.entra?' rt-entra':'')+'" data-vista="'+esc(vista)+'">'+body+'</div>';
+  ui.entra=false;
   hostRef.scrollTop=top;
+  /* se estaba rellenando una lista de precios con el teclado: el foco pasa al siguiente campo (la fila rellenada desaparece al repintar) */
+  if(ui.refoco){ var rf=ui.refoco; ui.refoco=null;
+    var cand=hostRef.querySelectorAll('input[data-rp="'+rf.rp+'"]'), nx=null;
+    Array.prototype.forEach.call(cand,function(x){ if(!nx&&x.getAttribute("data-k")===rf.k&&(x.getAttribute("data-id")||"")===(rf.id||"")) nx=x; });
+    if(nx){ try{ nx.focus({preventScroll:true}); nx.select(); var rr=nx.getBoundingClientRect(), hr=hostRef.getBoundingClientRect(); if(rr.bottom>hr.bottom-40||rr.top<hr.top+40) nx.scrollIntoView({block:"center"}); }catch(_){} } }
   if(!hostRef.__rtBound){ hostRef.__rtBound=true; hostRef.addEventListener("change",onChange); hostRef.addEventListener("input",onInput); hostRef.addEventListener("click",onClick);
-    hostRef.addEventListener("keydown",function(ev){ if(ev.key==="Enter"&&ev.target.classList&&ev.target.classList.contains("rt-row")) ev.target.click(); });
+    hostRef.addEventListener("keydown",function(ev){ if(ev.key==="Enter"&&ev.target.classList&&ev.target.classList.contains("rt-row")) ev.target.click();
+      if(ev.key==="Tab"||ev.key==="Enter"){ ui.tecla=Date.now(); ui.atras=!!ev.shiftKey; } });
+    hostRef.addEventListener("toggle",function(ev){ var d=ev.target; if(d&&d.matches&&d.matches("details.rt-sec")&&!pintando) ui.open[d.getAttribute("data-sec")]=d.open; },true);
+    hostRef.addEventListener("pointerover",function(ev){ if(!enRent()) return; var c=ev.target.closest&&ev.target.closest("[data-cat]"); resalta(c?c.getAttribute("data-cat"):""); });
+    hostRef.addEventListener("pointerleave",function(){ resalta(""); });
+    hostRef.addEventListener("focusin",function(ev){ if(!enRent()) return; var c=ev.target.closest&&ev.target.closest(".rt-wf-r[data-cat],.rt-seg[data-cat],.rt-leg-b[data-cat]"); if(c) resalta(c.getAttribute("data-cat")); });
+    hostRef.addEventListener("focusout",function(ev){ if(ev.target.closest&&ev.target.closest(".rt-wf-r,.rt-seg,.rt-leg-b")) resalta(""); });
     hostRef.addEventListener("pointermove",onTip); hostRef.addEventListener("pointerleave",function(){ var t=hostRef.querySelector(".rt-tip"); if(t) t.hidden=true; }); }
+}
+/* al pasar por una partida (en la cascada, la barra de reparto o su sección) se resalta en todo el gráfico y se apagan las demás */
+function resalta(k){
+  var root=hostRef&&hostRef.querySelector(".rt-root"); if(!root) return;
+  Array.prototype.forEach.call(root.querySelectorAll(".rt-hl"),function(x){ x.classList.remove("rt-hl"); });
+  root.classList.toggle("rt-dim",!!k);
+  if(k) Array.prototype.forEach.call(root.querySelectorAll('[data-cat="'+k+'"]'),function(x){ x.classList.add("rt-hl"); });
+}
+/* abre una sección del detalle y la enseña */
+function abrirSec(k){
+  ui.open[k]=true; render();
+  var d=hostRef.querySelector('details[data-sec="'+k+'"]'); if(d){ try{ d.scrollIntoView({block:"start",behavior:"smooth"}); }catch(_){ d.scrollIntoView(); } }
+}
+/* si se rellena con el teclado (Tab o Intro), se recuerda el siguiente campo de precio para no perder el sitio al repintar */
+function recuerdaSiguiente(el){
+  ui.refoco=null; if(!(Date.now()-(ui.tecla||0)<700)||ui.atras) return;
+  var l=Array.prototype.filter.call(hostRef.querySelectorAll('input[type="text"][data-rp]'),function(x){ return !/^(q|qa|qp|qe)$/.test(x.getAttribute("data-rp")) && (el.compareDocumentPosition(x)&4); });
+  var n=l[0]; if(!n) return;
+  ui.refoco={rp:n.getAttribute("data-rp"),k:n.getAttribute("data-k"),id:n.getAttribute("data-id")||""};
 }
 window.LM_renderRent=render;
 function enRent(){ return hostRef&&hostRef.querySelector(".rt-root"); }
@@ -28518,6 +28972,17 @@ function onChange(ev){
   var el=ev.target, rp=el.getAttribute&&el.getAttribute("data-rp"), k=el.getAttribute&&el.getAttribute("data-k"), v=el.value;
   if(el.id==="rt-file"){ leerArchivo(el.files&&el.files[0]); return; }
   if(!rp||/^(q|qa|qp|qe)$/.test(rp)) return;
+  if(el.tagName==="INPUT") recuerdaSiguiente(el);
+  /* el precio de un ingrediente que falta, con la unidad que se haya elegido en su fila */
+  if(rp==="fal-ing"){ var fr=el.closest(".rt-fr"), fs=fr&&fr.querySelector('select[data-rp="ing-u"]'), fu=(fs&&fs.value)||"kg", nf=num(v);
+    if(v.trim()&&(nf==null||nf<0)){ toast("Número no válido."); render(); return; }
+    guardarPrecios(function(d){ var x=d.ing[k]||{}; if(v.trim()){ x.p=nf; x.u=fu; } else delete x.p; d.ing[k]=x; }); return; }
+  /* el precio de una bebida que falta: el de su marca/categoría, o el de la bebida añadida a mano en este evento */
+  if(rp==="fal-beb"){ var fid=el.getAttribute("data-id"), nb=num(v);
+    if(v.trim()&&(nb==null||nb<0)){ toast("Número no válido."); render(); return; }
+    if(fid){ var e0=BR.current(), it=e0&&e0.menu&&(e0.menu.bebidasExtra||[]).filter(function(z){ return z&&z.id===fid; })[0];
+      if(it){ if(v.trim()) it.precio=nb; else delete it.precio; e0.updated=Date.now(); BR.save(); } render(); return; }
+    guardarPrecios(function(d){ d.beb=d.beb||{}; var x=d.beb[k]||{}; if(v.trim()) x.p=nb; else delete x.p; d.beb[k]=x; }); return; }
   if(rp==="anio"){ ui.anio=+v; render(); return; }
   if(rp==="todos"){ ui.todos=el.checked; render(); return; }
   if(rp==="ev"){ var n=num(v); if(v.trim()&&(n==null||n<0)){ toast("Número no válido."); render(); return; } guardarEv(function(R){ if(v.trim()) R[k]=n; else delete R[k]; }); return; }
@@ -28599,6 +29064,12 @@ function onClick(ev){
   if(a==="ord"){ var k=b.getAttribute("data-k"); if(ui.orden===k) ui.dir=-ui.dir; else { ui.orden=k; ui.dir=(k==="nombre"||k==="fecha")?1:-1; } render(); return; }
   if(a==="ver"){ var id=b.getAttribute("data-id"); if(BR.switchActiveEvent) BR.switchActiveEvent(id); if(window.irASeccion) window.irASeccion("r-evento"); return; }
   if(a==="csv"){ descargarCSV(); return; }
+  if(a==="wf"){ var wk=b.getAttribute("data-k"); ui.wfSel=ui.wfSel===wk?null:wk; render(); var wb=hostRef.querySelector('.rt-wf-r[data-k="'+wk+'"]'); if(wb) wb.focus({preventScroll:true}); return; }
+  if(a==="wf-modo"){ ui.wf=b.getAttribute("data-k"); render(); return; }
+  if(a==="wf-open"||a==="ir-sec"){ abrirSec(b.getAttribute("data-k")); return; }
+  if(a==="sec-all"){ ui.todoAbierto=!ui.todoAbierto; ["ing","elab","mp","beb","per","ext","alb","falta"].forEach(function(k){ ui.open[k]=ui.todoAbierto; }); render(); return; }
+  if(a==="mas-falta"){ ui.masFalta=!ui.masFalta; render(); return; }
+  if(a==="pdf"){ if(BR.rentPDF){ var rr=BR.rent.calc(); if(rr) BR.rentPDF(rr); } return; }
   if(a==="filtro"){ ui.filtro=b.getAttribute("data-k"); render(); return; }
   if(a==="tab"){ ui.tab=b.getAttribute("data-k"); ui.qa=""; render(); var tb=hostRef.querySelector('.rt-tab.on'); if(tb) tb.focus(); return; }
   if(a==="man-add"){ var tp=b.getAttribute("data-k"), mid="a"+Date.now().toString(36);
@@ -28643,7 +29114,7 @@ st.textContent=
 ".rt-bar{display:flex;gap:2px;height:18px;border-radius:4px;overflow:hidden;background:var(--bg-2)}"+
 ".rt-seg{display:block;min-width:3px}"+
 ".rt-c-elab{background:var(--viz-elab)}.rt-c-mp{background:var(--viz-mp)}.rt-c-beb{background:var(--viz-beb)}.rt-c-per{background:var(--viz-per)}.rt-c-ext{background:var(--viz-ext)}"+
-".rt-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px 18px;margin-top:14px}"+
+".rt-leg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px 18px;margin-top:14px}"+
 ".rt-leg-i{display:flex;align-items:baseline;gap:8px;font-size:13px;color:var(--c-mut)}"+
 ".rt-leg-i b{color:var(--c-ink);font-variant-numeric:tabular-nums;margin-left:auto}"+
 ".rt-leg-p{font-size:11.5px;color:var(--c-faint);min-width:46px;text-align:right;font-variant-numeric:tabular-nums}"+
@@ -28699,6 +29170,75 @@ st.textContent=
 ".rt-man{margin-bottom:14px}.rt-man .pcard-h{align-items:center}"+
 ".rt-addm td{padding:6px 14px!important;background:var(--panel)}.rt-addm input{width:100%;max-width:420px;border-style:dashed!important}"+
 ".rt-det{margin-top:4px}.rt-det summary{cursor:pointer;font-size:13.5px;color:var(--c-ink);padding:8px 0;font-weight:600}"+
+
+/* ── Rentabilidad v02.34: beneficio neto, cascada interactiva, desplegables y precios a mano ── */
+".rt-root{--viz-alb:#7a5bd1;--viz-ing:var(--olive-deep);--viz-pos:#2f7d4f;--viz-neg:#8E2C48;--rt-warn:#C99A2E}"+
+"@media (prefers-color-scheme: dark){:root:not([data-theme=\"light\"]) .rt-root{--viz-alb:#9a82e8;--viz-pos:#4fae78;--viz-neg:#e0708d}}"+
+":root[data-theme=\"dark\"] .rt-root{--viz-alb:#9a82e8;--viz-pos:#4fae78;--viz-neg:#e0708d}"+
+".rt-c-alb{background:var(--viz-alb)}"+
+".rt-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'main ring' 'act act';gap:14px 24px;align-items:center;margin:18px 0 14px;padding:22px 24px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--viz-pos) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--viz-pos) 30%,var(--c-line))}"+
+".rt-hero.neg{background:color-mix(in srgb,var(--viz-neg) 9%,var(--panel));border-color:color-mix(in srgb,var(--viz-neg) 32%,var(--c-line))}"+
+".rt-hero-main{grid-area:main;min-width:0}.rt-hero-ring{grid-area:ring}.rt-hero-act{grid-area:act;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--c-ink) 10%,transparent);font-size:12.5px;color:var(--c-mut)}"+
+".rt-hero-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--viz-pos)}.rt-hero.neg .rt-hero-eyebrow{color:var(--viz-neg)}"+
+".rt-prov{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:99px;background:color-mix(in srgb,var(--rt-warn) 20%,transparent);color:var(--c-ink);letter-spacing:0;text-transform:none;font-size:11px}"+
+".rt-hero-num{font-family:var(--font-display);font-size:clamp(40px,7vw,64px);line-height:1.05;margin:6px 0 4px;font-variant-numeric:tabular-nums;color:var(--viz-pos);overflow-wrap:anywhere}.rt-hero.neg .rt-hero-num{color:var(--viz-neg)}"+
+".rt-hero-num small{font-size:.32em;font-family:var(--font-text);color:var(--c-mut);margin-right:4px}"+
+".rt-hero-sub{font-size:13px;color:var(--c-mut)}"+
+".rt-ring{width:112px;height:112px;display:block}.rt-ring-bg{fill:none;stroke:color-mix(in srgb,var(--c-ink) 10%,transparent);stroke-width:9}"+
+".rt-ring-fg{fill:none;stroke:var(--viz-pos);stroke-width:9;stroke-linecap:round}.rt-ring-fg.neg{stroke:var(--viz-neg)}"+
+".rt-ring-n{font-size:21px;font-weight:700;fill:var(--c-ink);font-variant-numeric:tabular-nums;font-family:var(--font-text)}.rt-ring-s{font-size:9px;fill:var(--c-mut);font-family:var(--font-text)}"+
+".rt-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}"+
+".rt-chip{border:1px solid var(--c-line-2);background:var(--panel);color:var(--c-mut);border-radius:99px;padding:4px 11px;font:inherit;font-size:12px;cursor:pointer;transition:background .15s,border-color .15s}"+
+".rt-chip:hover{border-color:var(--c-ink);color:var(--c-ink)}.rt-chip.ok{border-color:color-mix(in srgb,var(--viz-pos) 45%,var(--c-line));color:var(--c-ink)}.rt-chip.warn{border-color:var(--rt-warn);background:color-mix(in srgb,var(--rt-warn) 14%,var(--panel));color:var(--c-ink);font-weight:600}"+
+".rt-nota{margin:10px 0 0;padding:9px 13px;border-radius:var(--r-lg);background:var(--bg-2);font-size:12.5px;color:var(--c-mut);border-left:3px solid var(--c-line-2)}"+
+".rt-bad{display:inline-block;min-width:20px;text-align:center;padding:1px 8px;border-radius:99px;background:var(--rt-warn);color:#1d1a12;font-weight:700;font-size:12px}"+
+".rt-sec-all{margin-left:12px;font-size:12.5px;font-weight:400;letter-spacing:0;text-transform:none}"+
+/* cascada */
+".rt-wfcard{padding-bottom:10px}.rt-wf-top{display:flex;gap:12px 18px;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}.rt-wf-top .rt-chart-h{margin:0}"+
+".rt-wf{display:flex;flex-direction:column;gap:2px}"+
+".rt-wf-r{display:grid;grid-template-columns:minmax(110px,170px) minmax(0,1fr) minmax(78px,112px);gap:12px;align-items:center;width:100%;padding:7px 8px;border:0;border-radius:8px;background:transparent;font:inherit;color:var(--c-ink);text-align:left;cursor:pointer;transition:background .15s}"+
+".rt-wf-r:hover,.rt-wf-r.on{background:color-mix(in srgb,var(--c-ink) 5%,transparent)}.rt-wf-r:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}"+
+".rt-wf-l{display:flex;flex-direction:column;font-size:13.5px;line-height:1.25;min-width:0}.rt-wf-l small{font-size:11px;color:var(--c-mut)}"+
+".rt-wf-t{position:relative;height:22px;border-radius:5px;background:color-mix(in srgb,var(--c-ink) 6%,transparent)}"+
+".rt-wf-z{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--c-line-2)}"+
+".rt-wf-b{position:absolute;top:3px;bottom:3px;border-radius:4px;min-width:2px;transform-origin:left center}"+
+".rt-b-ing{background:var(--viz-ing)}.rt-b-pos{background:var(--viz-pos)}.rt-b-neg{background:var(--viz-neg)}"+
+".rt-wf-v{text-align:right;font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;white-space:nowrap}.rt-wf-m{font-weight:500;color:var(--c-mut)}"+
+".rt-wf-neto{margin-top:6px;border-top:1px solid var(--c-line);border-radius:0 0 8px 8px;padding-top:11px}.rt-wf-neto .rt-wf-l{font-weight:700;font-size:14.5px}.rt-wf-neto .rt-wf-v{font-size:16px}"+
+".rt-wf-det{margin:2px 8px 10px;padding:12px 14px;border-radius:10px;background:var(--bg-2);border:1px solid var(--c-line);font-size:13px}"+
+".rt-wf-dh{display:flex;gap:6px 12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}.rt-wf-dh span{color:var(--c-mut);font-size:12.5px}"+
+".rt-wf-det ul{list-style:none;margin:0;padding:0}.rt-wf-det li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--c-line)}.rt-wf-det li:last-child{border-bottom:0}"+
+".rt-wf-det li small{color:var(--c-mut)}.rt-wf-det li b{font-variant-numeric:tabular-nums;white-space:nowrap}.rt-wf-mas{color:var(--c-mut);font-size:12px}"+
+".rt-wf-da{margin-top:8px}.rt-wf-x{margin:8px 0 0;color:var(--c-mut);font-size:12.5px}"+
+".rt-leg-b{background:transparent;border:0;font:inherit;text-align:left;cursor:pointer;padding:3px 6px;margin:-3px -6px;border-radius:6px}.rt-leg-b:hover{background:color-mix(in srgb,var(--c-ink) 5%,transparent)}"+
+"button.rt-seg{border:0;padding:0;cursor:pointer}button.rt-seg:hover{filter:brightness(1.1)}button.rt-seg:focus-visible,.rt-leg-b:focus-visible{outline:2px solid var(--focus);outline-offset:1px}"+
+".rt-dim .rt-wf [data-cat]:not(.rt-hl),.rt-dim .rt-bar [data-cat]:not(.rt-hl),.rt-dim .rt-leg [data-cat]:not(.rt-hl){opacity:.38}.rt-sec.rt-hl>summary{background:color-mix(in srgb,var(--c-ink) 6%,transparent)}"+
+".rt-wf-r[data-cat],.rt-seg,.rt-leg-i{transition:opacity .15s}"+
+/* desplegables por partida */
+".rt-sec{border:1px solid var(--c-line);border-radius:var(--r-lg);background:var(--panel);margin-bottom:8px;scroll-margin-top:12px}.rt-sec[open]{border-color:var(--c-line-2)}"+
+".rt-sec>summary{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;list-style:none;border-radius:var(--r-lg);font-size:14.5px}.rt-sec>summary::-webkit-details-marker{display:none}"+
+".rt-sec>summary::after{content:'';width:8px;height:8px;border-right:2px solid var(--c-mut);border-bottom:2px solid var(--c-mut);transform:rotate(45deg);margin:-4px 2px 0 6px;transition:transform .2s;flex:none}.rt-sec[open]>summary::after{transform:rotate(-135deg);margin-top:4px}"+
+".rt-sec>summary:hover{background:color-mix(in srgb,var(--c-ink) 4%,transparent)}.rt-sec>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}"+
+".rt-sec-t{font-weight:700;color:var(--c-ink)}.rt-sec-n{flex:1;min-width:0;font-size:12.5px;color:var(--c-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rt-sec-nn{color:var(--c-mut)}"+
+".rt-sec-v{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}.rt-sec-n+.rt-sec-v{margin-left:0}.rt-sec-p{min-width:44px;text-align:right;font-size:12px;color:var(--c-faint);font-variant-numeric:tabular-nums}"+
+".rt-sec-b{padding:2px 16px 16px}.rt-sec-b .dtable-wrap{margin-top:6px}"+
+".rt-sec[data-sec=\"falta\"]{border-color:var(--rt-warn);background:color-mix(in srgb,var(--rt-warn) 7%,var(--panel));margin-top:12px}.rt-sec[data-sec=\"falta\"] .rt-sw{background:var(--rt-warn)}"+
+".rt-sec[data-sec=\"ing\"] .rt-sw{background:var(--viz-ing)}"+
+/* precios que faltan */
+".rt-fr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:8px 0;border-bottom:1px solid var(--c-line)}.rt-fr:last-of-type{border-bottom:0}"+
+".rt-fr-n{min-width:0}.rt-fr-n b{display:block;font-weight:600;font-size:13.5px;overflow-wrap:anywhere}.rt-fr-n small{display:block;font-size:11.5px;color:var(--c-mut);margin-top:1px}"+
+".rt-fr-c{display:flex;gap:8px;align-items:center;justify-content:flex-end}.rt-fr-c input{width:96px;background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:7px 9px;color:var(--c-ink);font:inherit;font-size:14px;text-align:right}"+
+".rt-fr-c input:focus{outline:2px solid var(--focus);outline-offset:0}.rt-fr-c select{background:var(--field);border:1px solid var(--c-line-2);border-radius:var(--r-sm);padding:7px 6px;color:var(--c-ink);font:inherit;font-size:13px}"+
+".rt-fr-u{font-size:12px;color:var(--c-mut);white-space:nowrap}.rt-fr-mas{padding:10px 0 0}"+
+".rt-pie{margin-top:18px;max-width:70ch}"+
+/* entrada: las barras de la cascada crecen una vez al entrar en la pantalla (no en cada repintado) */
+"@keyframes rt-grow{from{transform:scaleX(0);opacity:.2}to{transform:scaleX(1);opacity:1}}"+
+".rt-entra .rt-wf-b{animation:rt-grow .55s cubic-bezier(.23,1,.32,1) both}"+
+"@media (prefers-reduced-motion:reduce){.rt-entra .rt-wf-b{animation:none}.rt-sec>summary::after{transition:none}}"+
+"@media (max-width:760px){.rt-hero{grid-template-columns:minmax(0,1fr) 84px;grid-template-areas:'main ring' 'act act';gap:12px;padding:18px 16px;align-items:start}.rt-ring{width:84px;height:84px}"+
+" .rt-wf-r{grid-template-columns:minmax(0,1fr) minmax(70px,auto);grid-template-areas:'l v' 't t';gap:4px 10px}.rt-wf-l{grid-area:l}.rt-wf-t{grid-area:t}.rt-wf-v{grid-area:v}"+
+" .rt-sec>summary{flex-wrap:wrap;padding:12px}.rt-sec-n{flex-basis:100%;order:5;white-space:normal}.rt-sec-b{padding:2px 12px 14px}"+
+" .rt-fr{grid-template-columns:minmax(0,1fr)}.rt-fr-c{justify-content:flex-start}}"+
 "@media (max-width:760px){.rt-root .rt-num{font-size:28px}}";
 document.head.appendChild(st);
 })();
