@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.34** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.35** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.35
+- **El primer pago se fija.** Cuando el pago del 65 % queda registrado, **su importe es el que se cobró y ya no cambia** aunque luego se añadan o se quiten invitados: lo único que se mueve con esos cambios es **el último pago** (= total − señal − primer pago). Antes, el plan volvía a calcular el 65 % con el total nuevo y el portal pedía de más (por ejemplo «209,49 € de primer pago» cuando ya habían pagado 22.294,45 €). Mientras el primer pago no está cobrado, sigue siendo el 65 % del total de ese momento. Si el total baja por debajo de lo cobrado, el último pago queda a 0 y se avisa de lo cobrado de más.
+- **Cómo se reconoce el pago del 65 %.** Por el concepto: «Primer pago…», «1er pago», «Segundo pago» (cuando hay señal, la señal es el primero), «Pago 65 %»; el botón **«+ Primer pago»** ya lo escribe bien. Un cobro **sin nombre** cuenta como primer pago si, quitada la señal, llega a la mitad de ese 65 %; un «primer pago a cuenta» de menos de la mitad **no** fija nada (es un cobro a medias). Un plazo cobrado en dos veces con su nombre suma.
+- **Lo ves igual en todas partes:** el **portal** (el primer pago sale «Pagado» con «Importe fijado cuando se registró el pago» y el último explica «lo que queda del total después de la señal y del primer pago; si cambia el número de invitados, solo varía este último pago»), el **plan de pagos** del Presupuesto («Cobrado · fijado» y una nota con la diferencia respecto al 65 % de ahora), el **PDF del presupuesto**, la **agenda**, los **avisos** y el resumen que usa el servidor para los recordatorios.
+- **Bebidas añadidas en «Consumo real» (Coca-Cola, Fanta, refrescos…) ya cuentan en los costes.** Esas bebidas no tenían dónde ponerles precio y valían 0 €. Ahora el precio se pone **por nombre, para todos los eventos**: en la propia fila de **Consumo real** (campo «Precio por lata» con el coste al lado, solo administración), en «Precios que faltan» de Rentabilidad y en **Precios y costes → Bebidas → «Bebidas añadidas en los eventos»**. Si una bebida tiene un precio escrito solo para un evento, ese manda. Y una marca elegida (por ejemplo Coca-Cola dentro de «Refrescos») que no tenga precio propio usa el precio a mano de su categoría.
 
 ### Novedad de la versión 02.34
 - **Rentabilidad con el beneficio neto en grande.** La pantalla de Rentabilidad del evento abre con **el beneficio neto** (ingresos sin IVA menos costes) en cifra grande, con un anillo del porcentaje y unas etiquetas que dicen **de dónde sale cada cifra** («Bebida: previsión / consumo real», «Personal: horas reales», «Les Vinyes: albarán 756 €», «N precios por poner»). Donde antes ponía «Margen» ahora pone **«Beneficio neto»** (también en Temporada, en el CSV y en el cierre del evento).
@@ -795,6 +801,8 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 | 9 | **Precios del «Análisis de compras»** del Maître: volver a importarlos cuando cambien | Quien compra | Costes estimados al día |
 | 12 | **Les Vinyes del Convent:** en Parámetros → Les Vinyes del Convent, confirmar cuál de los dos precios por comensal (12 € o 7 €) es el de bodas y cuál el de los demás eventos, repasar los precios de los vinos y pulsar «Está bien así»; probar el albarán con un evento real y avisar a Les Vinyes del correo desde el que les llegará | Tú | Albaranes correctos desde el primer evento |
 | 11 | **Revisar el catalán y el inglés de los menús:** que alguien que hable catalán repase en Parámetros → «Traducciones del menú» los platos traducidos a mano y el glosario de cocina; lo que se corrige allí se aplica a la minuta y al portal | Alguien de sala o cocina | Menús en català y English sin erratas de cara al cliente |
+| 13 | **Pagos:** registrar el pago del 65 % con el botón **«+ Primer pago»** (o con «Primer pago» en el concepto) para que su importe quede fijado, y revisar los eventos que ya tienen pagos para ver que el último pago es el que esperas | Quien lleva los cobros | Que los cambios de invitados solo muevan el último pago |
+| 14 | **Precios a mano:** ir poniendo en Rentabilidad de cada evento los precios que faltan (ingredientes, bebidas añadidas, tarta, menú staff y €/hora del camarero); se guardan para todos los eventos | Administración | El beneficio neto real, sin depender del CSV del Maître |
 | 10 | **Un evento piloto de principio a fin** (consulta → contrato → pedidos → servicio → cierre) y apuntar lo que chirríe | Equipo | Pulir con uso real |
 
 **Esperan tu OK (no se toca nada hasta que lo digas):**
@@ -804,10 +812,48 @@ Todo lo que podía hacer el programa por su cuenta **está hecho y probado**. Lo
 El resumen de todo lo pendiente, en tres páginas, está en `ROADMAP_pendiente.pdf` (`node roadmap/pendiente.mjs`).
 
 **Opcionales (si los quieres, se hacen):**
-- Avisos por correo de «el cliente ha escrito / ha aprobado» (hoy se ven en el Inicio de la app).
+- **Avisos por correo de lo que hace el cliente en su portal** (mensajes, documentos, aprobaciones, lista de invitados): propuesta completa en la sección 9.
+- **Google Calendar** para agendar reuniones desde el programa: estudio y fases en la sección 9.
 - Proveedor de **firma electrónica avanzada** si el contrato necesita más validez.
 - Claves de **Turnstile** para el formulario si algún día entra spam.
 - **Auditoría con varios revisores** de toda la app.
 - **Pruebas automáticas en cada entrega:** llevar unas 40 pruebas de navegador al repositorio y que GitHub las ejecute en cada subida (incluye arreglar 3 pruebas antiguas que ya fallaban).
 - **Pegar la lista de invitados desde un Excel con columnas** (nombre | alergia | tipo); hoy se pega una persona por línea.
 - Permitir el **zoom en el móvil** (hoy bloqueado a petición tuya).
+
+## 9. Lo siguiente que se propone (esperan tu OK)
+
+### 9.1 Avisos por correo de lo que hace el cliente en su portal (≈ 1–1,5 días)
+**Hoy:** lo que el cliente hace en su portal se ve en el Inicio de la app (contadores de «sin leer»), pero no llega nada al correo.
+
+**Qué avisaría (cada cosa se puede apagar):**
+1. **Mensaje nuevo** del cliente (con las primeras líneas del texto).
+2. **Documentos subidos:** justificante de pago → Contabilidad; DNI → Eventos (el correo nunca lleva el documento ni su contenido: solo «ha subido un DNI»).
+3. **Aprobaciones y firmas:** menú, minuta, contrato (quién y cuándo) → Eventos, y el menú aprobado también a Cocina.
+4. **Lista de invitados o alergias modificadas:** un solo aviso con el resumen («+3 invitados, 1 alergia nueva»), no uno por cada cambio.
+5. **Primera vez que abren el portal** y, opcionalmente, «el cliente no entra desde hace N días».
+
+**A quién:** por rol, con los mismos departamentos de «Avisos y correo» (Eventos, Cocina, Compras, Servicio, Contabilidad) y hasta 4 correos extra por tipo; cada persona puede silenciar los suyos.
+
+**Cuándo:** tres modos a elegir — **al momento**, **resumen cada hora** (varias novedades del mismo evento en un solo correo) o **resumen diario a las 8:00**; con **horas de silencio** (de 22:00 a 8:00 se guardan y salen por la mañana). Un tope por evento y día para que nunca sea una avalancha.
+
+**Cómo es el correo:** el mismo diseño de los demás, con el nombre del evento y la fecha, lo que ha pasado y un botón **«Abrir el portal del cliente de este evento»** que va directo a esa sección.
+
+**Cómo se haría:** una tabla de «novedades del portal» que se rellena cuando el cliente actúa; el envío usa el correo ya configurado (Resend) y deja constancia en la actividad; se ajusta en **Parámetros → Correo y avisos → Portal del cliente**. Pruebas con correo simulado para cada tipo, el modo resumen, las horas de silencio y los topes.
+
+**Necesito que decidas:** (a) quién recibe cada tipo (la propuesta de arriba), (b) al momento o resumen (propongo **resumen cada hora + al momento solo los mensajes**), (c) si el correo lleva el texto del mensaje o solo «te ha escrito» (propongo el texto, cortado a 200 caracteres), (d) horas de silencio. **Requisito:** el correo de Resend activado (punto 1 de la sección 8).
+
+### 9.2 Google Calendar para agendar reuniones desde el programa (estudio)
+**Es posible.** Hay tres niveles, de menos a más trabajo; cada uno vale por sí solo:
+
+| Fase | Qué hace | Qué hace falta de tu parte | Esfuerzo |
+|---|---|---|---|
+| **1 · Añadir al calendario** | Botón «Añadir a Google Calendar» en cada reunión (con título, día, hora, lugar y el enlace al evento) y archivo `.ics` que vale para Google, Outlook y Apple; el correo al cliente puede llevar la invitación adjunta y se la añade con un clic | Nada: no hay que conectar ninguna cuenta | ≈ 1 día |
+| **2 · Calendario de Les Moles, suscribible** | Una dirección privada (solo lectura) con todos los eventos, reuniones y fechas de pago, que se añade una vez a Google Calendar («Añadir por URL») y se actualiza sola (Google tarda unas horas en refrescarla) | Pegar la dirección en el Google Calendar de cada persona | ≈ ½ día |
+| **3 · Conexión completa (API de Google)** | Botón **«Agendar reunión»** en el evento: eliges tipo (reunión de dudas, degustación, visita), día, hora y duración; **crea el evento en el calendario de Eventos**, invita al cliente y al equipo, puede añadir **enlace de Google Meet**, **muestra los huecos libres** para no pisar nada, y si cambias o cancelas se actualiza en los dos lados. Opcional: que el cliente elija entre 3 huecos desde su portal | Crear la conexión en Google (yo te guío paso a paso, ≈ 30 min) y decidir la cuenta | ≈ 3–4 días |
+
+**Lo que condiciona la fase 3:** si Les Moles usa **Google Workspace** (cuenta con dominio propio) la conexión es la más sencilla y estable y permite invitar a clientes; con un **Gmail gratuito** también se puede, pero hay que renovar el permiso con más cuidado y los invitados se limitan. Los datos del cliente (nombre, correo, fecha) pasan por Google, así que hay que añadirlo al aviso de privacidad. El permiso se guarda cifrado en Cloudflare, no en el programa.
+
+**Mi recomendación:** empezar por las **fases 1 y 2** (valor inmediato, sin tocar ninguna cuenta) y decidir la 3 cuando me digas qué cuenta de Google usáis y qué tipos de reunión queréis agendar.
+
+**Necesito que decidas:** (a) ¿Google Workspace o Gmail?; (b) qué calendario sería el «de Eventos» y quién lo ve; (c) tipos y duración de las reuniones (hoy hay «reunión de dudas» y «última reunión» en la agenda automática); (d) si el cliente podrá proponer o elegir hueco desde su portal.

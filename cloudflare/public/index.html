@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.34 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.35 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.34".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.35".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4648,7 +4648,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.34</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.35</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -8966,8 +8966,8 @@ function presupPages(e,pw,ph){
   cur.push(TX(xI-12,y+4,fmtEur(total),{size:15,fo:"sansb",a:"end",c:INK})); y+=34;
   /* plan de pagos */
   /* igual que la agenda, el contrato y el portal: señal + primer pago (% del total) + lo que queda */
-  var ps=pctSenal(), sen=Math.max(0,+agendaCfg().senal||0), pp=Math.round(total*ps)/100, ult=Math.max(0,Math.round((total-sen-pp)*100)/100);
-  if(total>0){ partir("Plan de pagos: "+(sen>0?"señal "+fmtEur(sen)+" · ":"")+"primer pago "+ps+" % "+fmtEur(pp)+" · último pago "+fmtEur(ult),W,"sans",9.5,0).forEach(function(l){ cur.push(TX(M,y,l,{size:9.5,fo:"sans",a:"start",c:SOFT})); y+=12; }); y-=6; }
+  var pl0=planPagos(e), ps=pctSenal(), sen=pl0.S, pp=pl0.P1, ult=Math.max(0,Math.round((pl0.T-pl0.S-pl0.P1)*100)/100);
+  if(total>0){ partir("Plan de pagos: "+(sen>0?"señal "+fmtEur(sen)+" · ":"")+"primer pago "+(pl0.p1Fijo?"(cobrado, fijado) ":ps+" % ")+fmtEur(pp)+" · último pago (lo que queda) "+fmtEur(ult),W,"sans",9.5,0).forEach(function(l){ cur.push(TX(M,y,l,{size:9.5,fo:"sans",a:"start",c:SOFT})); y+=12; }); y-=6; }
   /* pagos hechos */
   sec("Pagos realizados");
   if(pagos.length){
@@ -10589,7 +10589,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.34</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.35</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10949,7 +10949,7 @@ function portalFoto(e){
     var pend=(!h.done&&h.pendiente!=null)?h.pendiente:h.importe, pr=pl.h[h.id];
     var par=(pr&&!h.done&&pr.pag>0)?"Ya habéis pagado "+fmtEur(pr.pag)+" de "+fmtEur(pr.nom)+": falta el resto.":"";
     var o={id:h.id,tipo:h.tipo,t:(tx.t||h.t)+(h.id==="pago1"?" ("+pct+" %)":""),d:(tx.d||h.d||"")+(par?((tx.d||h.d)?" ":"")+par:""),fecha:h.fecha,importe:pend!=null?Math.round(pend*100)/100:null,done:!!h.done};
-    if(pr){ o.prev=pr.nom; o.pag=pr.pag; if(h.resto) o.resto=true; if(pr.done&&pr.fecha) o.fpago=pr.fecha; }
+    if(pr){ o.prev=pr.nom; o.pag=pr.pag; if(h.resto) o.resto=true; if(pr.done&&pr.fecha) o.fpago=pr.fecha; if(h.bloq) o.bloq=true; }
     pasos.push(o);
     if(h.cierre) cierre=h.fecha;
   });
@@ -12337,26 +12337,50 @@ function isoDe(d){ return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"
      · un plazo está pagado solo si el dinero registrado lo cubre (las marcas a mano de antes ya no cuentan en los pagos: sin pago registrado no
        hay pago), y lo que falta de todos los plazos suma siempre lo mismo que «Pendiente» = total − pagado.
    Todo en céntimos enteros para que ni un céntimo se pierda al redondear. */
-function pagoClase(c){ c=String(c||"").trim().toLowerCase(); if(/^(se[ñn]al|reserva|anticipo)/.test(c)) return "senal"; if(/^primer/.test(c)) return "p1"; if(/^([uú]ltimo|resto|saldo|segundo)/.test(c)) return "resto"; return ""; }
+/* a qué plazo va un pago, por lo que dice el concepto. «Segundo pago» es el del 65 % cuando hay señal (la señal es el primero) */
+function pagoClase(c,conSenal){
+  c=String(c||"").trim().toLowerCase(); var pc=pctSenal();
+  if(/^(se[ñn]al|reserva|anticipo)/.test(c)) return "senal";
+  if(/^(pago\s+)?([uú]ltimo|resto|saldo|final|liquidaci)/.test(c)) return "resto";
+  if(/^(pago\s+)?(primer|1\s?(er|r|º|ª|\.º|\.ª)|1\.?\s?pago)/.test(c)) return "p1";
+  if(new RegExp("(^|[^0-9])"+pc+"\\s?%").test(c)) return "p1";
+  if(new RegExp("(^|[^0-9])"+(100-pc)+"\\s?%").test(c)) return "resto";
+  if(/^(pago\s+)?(segundo|2\s?(º|ª|\.º|\.ª|do|on))/.test(c)) return conSenal?"p1":"resto";
+  return "";
+}
 function planPagos(e){
   var cfg=agendaCfg(), pt=presupTotals(e), pct=pctSenal(), P=(e&&e.presupuesto)||{};
   var T=Math.round(pt.total*100), S=Math.max(0,Math.round((+cfg.senal||0)*100)), P1=Math.round(pt.total*pct), priced=T>0;
   var pagosCfg=(cfg.hitos||[]).filter(function(h){ return h.tipo==="pago"; }).map(function(h,i){ return {h:h,i:i}; })
     .sort(function(a,b){ return ((+b.h.dias||0)-(+a.h.dias||0))||(a.i-b.i); });
+  var pagos=(P.pagos||[]).map(function(p){ return {c:Math.round((+p.importe||0)*100),f:String(p.fecha||""),k:pagoClase(p.concepto,S>0)}; }).filter(function(p){ return p.c; })
+    .sort(function(a,b){ return a.f<b.f?-1:a.f>b.f?1:0; });
+  /* v02.35 · EL PRIMER PAGO SE FIJA. Cuando el pago del 65 % queda registrado, su importe es el que se cobró y ya no cambia aunque luego se añadan o
+     se quiten invitados: lo único que se mueve con esos cambios es el último pago (total − señal − primer pago). Mientras no está registrado, el
+     primer pago es el 65 % del total de ahora. Un cobro sin nombre cuenta como primer pago si, quitada la señal, llega a la mitad de ese 65 %. */
+  var p1Reg=0, p1Inf=false;
+  pagos.forEach(function(p){ if(p.k==="p1"&&p.c>0) p1Reg+=p.c; });
+  if(p1Reg>0&&P1>0&&p1Reg<Math.round(P1/2)) p1Reg=0;   /* un pago «a cuenta» de menos de la mitad del 65 % no fija nada: es un cobro a medias del primer plazo */
+  if(!p1Reg&&P1>0){
+    var needS=S; pagos.forEach(function(p){ if(p.k==="senal"&&p.c>0) needS-=p.c; }); needS=Math.max(0,needS);
+    for(var q=0;q<pagos.length&&!p1Reg;q++){ var pq=pagos[q]; if(pq.k||pq.c<=0) continue;
+      var uso=Math.min(pq.c,needS); needS-=uso; var rest=pq.c-uso;
+      if(rest>=Math.round(P1/2)){ p1Reg=rest; p1Inf=true; pq.p1c=rest; pq.k="p1"; pq.c=rest; if(uso>0) pagos.push({c:uso,f:pq.f,k:"senal"}); } }
+  }
+  var P1e=p1Reg>0?p1Reg:P1;
   var rows=[], acum=0;
   function fila(id,nom,resto){ var n=priced?Math.max(0,Math.min(nom,T-acum)):nom; acum+=n; var r={id:id,nomRaw:nom,nom:n,asig:0,fecha:"",resto:!!resto}; rows.push(r); return r; }
   var rs=S>0?fila("senal",S,false):null, hr={}, primero=null, ultimo=null;
-  pagosCfg.forEach(function(x){ var r=fila(x.h.id,x.h.resto?Math.max(0,T-S-P1):P1,x.h.resto); hr[x.h.id]=r; if(!x.h.resto&&!primero) primero=r; if(x.h.resto) ultimo=r; });
+  pagosCfg.forEach(function(x){ var r=fila(x.h.id,x.h.resto?Math.max(0,T-S-P1e):(!primero?P1e:P1),x.h.resto); hr[x.h.id]=r; if(!x.h.resto&&!primero) primero=r; if(x.h.resto) ultimo=r; });
   if(!ultimo&&pagosCfg.length) ultimo=hr[pagosCfg[pagosCfg.length-1].h.id];
   var dest={senal:rs,p1:primero,resto:ultimo}, pool=[], neg=0;
-  var pagos=(P.pagos||[]).map(function(p){ return {c:Math.round((+p.importe||0)*100),f:String(p.fecha||""),k:pagoClase(p.concepto)}; }).filter(function(p){ return p.c; })
-    .sort(function(a,b){ return a.f<b.f?-1:a.f>b.f?1:0; });
   function poner(r,c,f){ var a=Math.min(c,r.nom-r.asig); if(a<=0) return 0; r.asig+=a; if(f>r.fecha) r.fecha=f; return a; }
+  pagos.sort(function(a,b){ return a.f<b.f?-1:a.f>b.f?1:0; });
   pagos.forEach(function(p){ if(p.c<0){ neg-=p.c; return; } var r=dest[p.k], a=r?poner(r,p.c,p.f):0; if(p.c-a>0) pool.push({c:p.c-a,f:p.f}); });
   pool.forEach(function(q){ var rest=q.c; rows.forEach(function(r){ if(rest>0) rest-=poner(r,rest,q.f); }); });
   /* una devolución (importe negativo) se quita de los últimos plazos pagados */
-  for(var i=rows.length-1;i>=0&&neg>0;i--){ var q=Math.min(neg,rows[i].asig); rows[i].asig-=q; neg-=q; }
-  var out={T:T/100,S:S/100,P1:P1/100,pagado:Math.round(pt.pagado*100)/100,pend:(T-Math.round(pt.pagado*100))/100,senal:null,h:{},filas:[]};
+  for(var i=rows.length-1;i>=0&&neg>0;i--){ var q2=Math.min(neg,rows[i].asig); rows[i].asig-=q2; neg-=q2; }
+  var out={T:T/100,S:S/100,P1:P1e/100,P1ahora:P1/100,p1Fijo:p1Reg>0,p1Inf:p1Inf,p1Id:primero?primero.id:null,pagado:Math.round(pt.pagado*100)/100,pend:(T-Math.round(pt.pagado*100))/100,senal:null,h:{},filas:[]};
   rows.forEach(function(r){ var f=(r.nom-r.asig)/100; var o={id:r.id,nom:r.nom/100,nomRaw:r.nomRaw/100,pag:r.asig/100,falta:f,fecha:r.fecha,resto:r.resto,
       done:r.id==="senal"?(r.nom-r.asig<=0):(priced&&r.nom-r.asig<=0)}; out.filas.push(o); if(r.id==="senal") out.senal=o; else out.h[r.id]=o; });
   out.sobra=Math.max(0,Math.round((pt.pagado-pt.total)*100)/100);
@@ -12371,11 +12395,11 @@ function hitosAuto(e){
     var d=new Date(base); d.setDate(d.getDate()-(+h.dias||0));
     var imp=null, done=!!hechos[h.id], auto=false, r=null;
     /* los pagos no se marcan a mano: están pagados cuando el dinero registrado los cubre (ver planPagos) */
-    if(h.tipo==="pago"){ r=pl.h[h.id]; imp=h.resto?Math.max(0,Math.round((pl.T-pl.S-pl.P1)*100)/100):pl.P1; done=!!(r&&r.done); auto=true; }
+    if(h.tipo==="pago"){ r=pl.h[h.id]; imp=r?r.nomRaw:(h.resto?Math.max(0,Math.round((pl.T-pl.S-pl.P1)*100)/100):pl.P1); done=!!(r&&r.done); auto=true; }
     var t=h.t+(h.tipo==="pago"&&!h.resto?" ("+pct+"%)":"");
     return {id:h.id, t:t, d:h.d||"", tipo:h.tipo, fecha:isoDe(d), dias:+h.dias||0, importe:imp, done:done, auto:auto, cierre:!!h.cierre,
             falta:Math.round((d-hoy)/86400000), resto:!!h.resto,
-            pendiente:r?(r.done?0:r.falta):undefined, pagado:r?r.pag:undefined, fpago:r?r.fecha:undefined};
+            pendiente:r?(r.done?0:r.falta):undefined, pagado:r?r.pag:undefined, fpago:r?r.fecha:undefined, bloq:!!(pl.p1Fijo&&h.id===pl.p1Id)};
   }).sort(function(a,b){ return a.fecha<b.fecha?-1:1; });
   return out;
 }
@@ -12616,7 +12640,7 @@ function onPlanClick(ev){
   /* el 2º pago es lo que queda por cobrar (si hubo una señal aparte, el 35% no cuadraría) */
   else if(act==="pago-2"){ var _p2=presupTotals(e), _r=Math.max(0,Math.round(_p2.pend*100)/100), _35=Math.round(_p2.total*(100-pctSenal()))/100;
     if(_r<=0){ toast("No queda nada por cobrar: no hace falta un último pago.",true); return; }
-    e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:Math.abs(_r-_35)<0.02?"Último pago ("+(100-pctSenal())+"%)":"Último pago (lo que falta)",importe:_r}); }
+    e.presupuesto.pagos.push({id:uid(),fecha:hoyISO(),concepto:"Último pago (lo que falta)",importe:_r}); }
   else if(act==="pago-del"){ borrarConUndo(e.presupuesto.pagos,i,"Pago eliminado"); }
   else if(act==="comm-add"){
     var f=$("comm-fecha"),tp=$("comm-tipo"),nt=$("comm-nota");
@@ -12877,9 +12901,10 @@ function planPagosHTML(e){
   ag.forEach(function(h){ if(pl.h[h.id]) rows.push({t:h.t,f:h.fecha,falta:h.falta,r:pl.h[h.id]}); });
   var sp=0,sg=0,sf=0;
   var tr=rows.map(function(x){ var r=x.r; sp+=r.nom; sg+=r.pag; sf+=r.done?0:r.falta;
-    var st=r.done?'<span class="badge done">Cobrado</span>':(r.pag>0?'<span class="badge prog">Falta el resto</span>':(x.falta!=null&&x.falta<0?'<span class="badge alert">Vencido</span>':'<span class="badge todo">'+(x.falta==null?"Al reservar":x.falta===0?"Hoy":"En "+x.falta+" días")+'</span>'));
+    var st=r.done?'<span class="badge done">'+(pl.p1Fijo&&r===pl.h[pl.p1Id]?'Cobrado · fijado':'Cobrado')+'</span>':(r.pag>0?'<span class="badge prog">Falta el resto</span>':(x.falta!=null&&x.falta<0?'<span class="badge alert">Vencido</span>':'<span class="badge todo">'+(x.falta==null?"Al reservar":x.falta===0?"Hoy":"En "+x.falta+" días")+'</span>'));
     return '<tr><td class="t-nm">'+escH(x.t)+'</td><td>'+(x.f?escH(dmyFromISO(x.f)):"—")+'</td><td class="rnum">'+fmtEur(r.nom)+'</td><td class="rnum">'+fmtEur(r.pag)+'</td><td class="rnum">'+(r.done?"—":'<b>'+fmtEur(r.falta)+'</b>')+'</td><td>'+st+'</td></tr>'; }).join("");
-  var nota=pl.S>0&&pl.T>0?'Último pago = '+(100-pctSenal())+' % del total ('+fmtEur(pl.T*(100-pctSenal())/100)+') menos la señal de '+fmtEur(pl.S)+'.':'';
+  var nota=!(pl.T>0)?'':pl.p1Fijo?'El primer pago está fijado en '+fmtEur(pl.P1)+' (lo que se cobró) y ya no cambia'+(pl.p1Inf?' (se ha tomado como primer pago el cobro sin nombre que llega a ese importe: ponle «Primer pago» al concepto para dejarlo claro)':'')+'. Con el total de ahora el '+pctSenal()+' % sería '+fmtEur(pl.P1ahora)+(Math.abs(pl.P1ahora-pl.P1)>=0.005?': la diferencia ('+fmtEur(Math.abs(pl.P1ahora-pl.P1))+(pl.P1ahora>pl.P1?' de más':' de menos')+') va al último pago, que es lo único que cambia al añadir o quitar invitados':'')+'. Último pago = total − señal − primer pago.':
+    'El primer pago es el '+pctSenal()+' % del total de ahora; en cuanto se registre su cobro, su importe queda fijado y solo el último pago cambiará con los invitados. Último pago = total − señal − primer pago.';
   return '<div class="pv-sec">Plan de pagos <span class="pv-sec-note">— lo mismo que ve el cliente en su portal; se calcula solo con los pagos registrados abajo</span></div>'+
     '<div class="dtable-wrap"><table class="dtable" style="min-width:560px"><thead><tr><th>Plazo</th><th>Fecha límite</th><th class="rnum">Previsto</th><th class="rnum">Pagado</th><th class="rnum">Falta</th><th></th></tr></thead><tbody>'+tr+'<tr style="font-weight:700;border-top:2px solid var(--c-line,#ddd)"><td class="t-nm" colspan="2" style="font-weight:700">Total</td><td class="rnum">'+fmtEur(sp)+'</td><td class="rnum">'+fmtEur(pl.pagado)+'</td><td class="rnum">'+fmtEur(sf)+'</td><td></td></tr></tbody></table>'+
     (nota||pl.sobra>0?'<div class="dtable-foot"><span class="pv-sec-note">'+escH(nota)+(pl.sobra>0?' Hay '+escH(fmtEur(pl.sobra))+' cobrados de más.':'')+'</span></div>':'')+'</div>';
@@ -12905,7 +12930,7 @@ function viewPresup(e){
   if(!e.presupuesto.extras.length) extrasHTML='<tr><td colspan="3" style="color:var(--c-mut);font-style:italic;padding:14px">Sin extras (autobuses, bombones, monitores…).</td></tr>';
   var pagosHTML=e.presupuesto.pagos.map(function(p,i){
     return '<tr><td><input type="date" data-arr="presupuesto.pagos" data-i="'+i+'" data-k="fecha" value="'+escH(p.fecha||"")+'" style="width:150px"></td>'+
-    '<td><input data-arr="presupuesto.pagos" data-i="'+i+'" data-k="concepto" value="'+escH(p.concepto||"")+'" placeholder="Concepto (señal, 1er pago…)"></td>'+
+    '<td><input data-arr="presupuesto.pagos" data-i="'+i+'" data-k="concepto" value="'+escH(p.concepto||"")+'" list="pago-conceptos" placeholder="Concepto (señal, primer pago…)"></td>'+
     '<td class="rnum"><input class="rnum" type="number" data-arr="presupuesto.pagos" data-i="'+i+'" data-k="importe" value="'+escH(p.importe||0)+'" data-live style="width:110px"></td>'+
     '<td><button type="button" class="row-del" data-act="pago-del" data-i="'+i+'" aria-label="Quitar este pago">×</button></td></tr>'; }).join("");
   if(!e.presupuesto.pagos.length) pagosHTML='<tr><td colspan="4" style="color:var(--c-mut);font-style:italic;padding:14px">Sin pagos registrados. Sugerencia: la señal al reservar, el primer pago ('+pctSenal()+'%) y el último con lo que quede.</td></tr>';
@@ -12931,6 +12956,7 @@ function viewPresup(e){
   '</div>'+
   planPagosHTML(e)+
   '<div class="pv-sec">Seguimiento de pagos <span class="pv-sec-note">— cada pago registrado aparece en el calendario en su fecha</span></div>'+
+  '<datalist id="pago-conceptos"><option value="Señal (reserva)"></option><option value="Primer pago ('+pctSenal()+'%)"></option><option value="Último pago (lo que falta)"></option></datalist>'+
   '<div class="dtable-wrap"><table class="dtable" style="min-width:480px"><thead><tr><th>Fecha</th><th>Concepto</th><th class="rnum">Importe</th><th></th></tr></thead><tbody>'+pagosHTML+'</tbody></table>'+
     '<div class="dtable-foot" style="display:flex;gap:8px;flex-wrap:wrap">'+(+agendaCfg().senal>0?'<button type="button" class="btn sm" data-act="pago-reserva">+ Señal ('+fmtEur(+agendaCfg().senal)+')</button>':'')+'<button type="button" class="btn sm gold" data-act="pago-senal">+ Primer pago ('+pctSenal()+'%)</button><button type="button" class="btn sm" data-act="pago-2">+ Último pago (lo que falta)</button><button type="button" class="btn sm" data-act="pago-add">+ Otro pago</button><button type="button" class="btn sm" data-act="goto" data-k="docs">Justificantes de pago</button></div></div>'+
   contratoCard(e);
@@ -17786,9 +17812,18 @@ function bebRealFilaHTML(l){
       (l.extra?'<button type="button" class="bz-del" data-bxdel="'+esc(l.key)+'" title="Quitar de este evento" aria-label="Quitar «'+esc(l.label)+'» de este evento">Quitar</button>':'')+'</div>'+
     '<div class="bz-res" data-bres="'+esc(l.key)+'" aria-live="polite">'+bebRealResHTML(l)+'</div></div>';
 }
+/* el precio de la bebida y lo que cuesta lo gastado, a la vista de quien ve costes (administración): así Coca-Cola, Fanta y los refrescos que se añaden aquí entran en la rentabilidad */
+function bebCosteHTML(l,q){
+  if(!esAdminMn()||l.jamon) return "";
+  var L=bebidaLineas(true).filter(function(x){ return x.key===l.key; })[0]; if(!L) return "";
+  var P=rentPrecios(), pb=rentPrecioLineaBeb(L,P,rentArtMap(P),rentParams()), pu=pb?pb.pu:null, k=rentKeyLineaBeb(L), x=(P.beb||{})[k]||{};
+  var mano=(x.p!=null&&x.p!=="")?x.p:(L.extra&&L.extra.precio!=null&&L.extra.precio!==""?L.extra.precio:"");
+  return '<span class="bz-pp bz-coste">Precio por '+esc(udN(l.ud,1))+': <input type="text" inputmode="decimal" class="bz-pr" data-bpr="'+esc(l.key)+'" value="'+esc(String(mano).replace(".",","))+'" placeholder="'+esc(pu!=null?String(Math.round(pu*100)/100).replace(".",","):"0,00")+'" aria-label="Precio de '+esc(l.label)+' (€ por '+esc(udN(l.ud,1))+')"> €'+
+    (q!=null?(pu!=null?' · coste <b>'+esc(fmtEurS(q*pu))+'</b> en la rentabilidad':' · <b class="bz-sinp">sin precio: de momento no cuenta en la rentabilidad</b>'):'')+'</span>';
+}
 function bebRealResHTML(l){
   var r=bebRealGet(l.key)||{}, q=bebRealQ(r), prev=r.pv!=null?+r.pv:l.prev, v=bebVeredicto(prev,q,!!r.ran,l.ud);
-  if(!v) return '<span class="bz-vacio">Escribe cuánto se gastó.</span>';
+  if(!v) return '<span class="bz-vacio">Escribe cuánto se gastó.</span>'+bebCosteHTML(l,q);
   var h='<span class="bz-chip k-'+v.k+'">'+esc(v.t)+'</span>';
   if(v.k==="falto"){ if(q!=null) h+='<span class="bz-dif">Se bebió al menos '+esc(bebQTxt(q,l.ud))+'</span>'; }
   else if(v.dif!=null){
@@ -17796,8 +17831,10 @@ function bebRealResHTML(l){
     h+='<span class="bz-dif">'+(Math.abs(v.dif)<1e-9?'justo lo previsto':v.dif>0?esc(bebQTxt(d,l.ud))+' más':'sobraron '+esc(bebQTxt(d,l.ud)))+(pc!=null&&v.dif!==0?' ('+(v.dif>0?'+':'−')+pc+' %)':'')+'</span>';
   }
   var pp=l.cat?bebPPTexto(l.cat,q):"";
+  var cst=bebCosteHTML(l,q);
   if(!pp&&l.jamon&&q>0&&l.adultos>0) pp='<b>'+fmtNum(q*1000/l.adultos,0)+' g</b> por adulto'+(l.prev?' · previsto: '+fmtNum(l.prev*1000/l.adultos,0)+' g':'');
   if(pp) h+='<span class="bz-pp">'+pp+'</span>';
+  h+=cst;
   if(r.pv!=null&&l.prev!=null&&Math.abs(+r.pv-l.prev)>1e-9) h+='<span class="bz-pp">Al apuntarlo se preveía '+esc(fmtNum(+r.pv,2))+'; ahora la previsión dice '+esc(fmtNum(l.prev,2))+'. <button type="button" class="beb-auto" data-bpv="'+esc(l.key)+'">Usar la actual</button></span>';
   return h;
 }
@@ -18102,13 +18139,20 @@ function wireBebidaReal(){
     var k=i.getAttribute("data-bq"), n=bebNum(i.value), l=bebRealLineas().filter(function(x){ return x.key===k; })[0]; if(!l) return;
     if(n!=null&&isNaN(n)){ if(BR.toast) BR.toast("Pon un número (por ejemplo 12 o 6,5), sin letras.",true); var r0=bebRealGet(k), q0=bebRealQ(r0); i.value=q0==null?"":fmtNum(q0,2); return; }
     bebRealSet(k,function(r){ if(n==null){ delete r.q; delete r.pv; } else { r.q=n; if(r.pv==null&&l.prev!=null) r.pv=l.prev; } });
-    var row=i.closest(".bz-row"); row.querySelector(".bz-res").innerHTML=bebRealResHTML(l); wireUsarActual(); i.value=n==null?"":fmtNum(n,2);
+    var row=i.closest(".bz-row"); row.querySelector(".bz-res").innerHTML=bebRealResHTML(l); wireUsarActual(); wirePrecio(); i.value=n==null?"":fmtNum(n,2);
     var ch=bebRealCuenta(), tb=mb.querySelector(".beb-tabn"); if(tb) tb.textContent=ch; else if(ch){ var bt=mb.querySelector('[data-btab="real"]'); if(bt) bt.insertAdjacentHTML("beforeend",'<i class="beb-tabn">'+ch+'</i>'); }
     bebRealResumen(); }); });
+  function wirePrecio(){ Array.prototype.forEach.call(mb.querySelectorAll("[data-bpr]"),function(i){ i.addEventListener("change",function(){
+    var k=i.getAttribute("data-bpr"), L=bebidaLineas(true).filter(function(x){ return x.key===k; })[0]; if(!L) return;
+    var v=i.value.trim().replace(",","."), n=v===""?null:+v;
+    if(n!=null&&(!isFinite(n)||n<0)){ if(BR.toast) BR.toast("Pon el precio con números (por ejemplo 0,65).",true); return; }
+    rentSetPrecioBeb(L,n); var row=i.closest(".bz-row"), l2=bebRealLineas().filter(function(x){ return x.key===k; })[0];
+    if(row&&l2){ row.querySelector(".bz-res").innerHTML=bebRealResHTML(l2); wireUsarActual(); wirePrecio(); } if(BR.toast) BR.toast(n==null?"Precio quitado.":"Precio guardado: "+String(n).replace(".",",")+" € por "+udN(L.ud,1)+". Vale para todos los eventos."); }); }); }
+  wirePrecio();
   Array.prototype.forEach.call(mb.querySelectorAll("[data-bran]"),function(c){ c.addEventListener("change",function(){
     var k=c.getAttribute("data-bran"), l=bebRealLineas().filter(function(x){ return x.key===k; })[0]; if(!l) return;
     bebRealSet(k,function(r){ if(c.checked){ r.ran=true; if(r.pv==null&&l.prev!=null&&r.q!=null) r.pv=l.prev; } else delete r.ran; });
-    c.closest(".bz-row").querySelector(".bz-res").innerHTML=bebRealResHTML(l); wireUsarActual(); bebRealResumen(); }); });
+    c.closest(".bz-row").querySelector(".bz-res").innerHTML=bebRealResHTML(l); wireUsarActual(); wirePrecio(); bebRealResumen(); }); });
 }
 
 /* ══ Menú: tarjeta limpia con los platos marcados ═════════════════════ */
@@ -20000,13 +20044,38 @@ function rentPrecioBeb(cat,marca,P,AM,RP){
   if(x.p!=null&&x.p!=="") return {pu:+x.p,fuente:"a mano"};
   if(x.a&&AM[x.a]){ a=AM[x.a]; fuente="enlazado"; }
   else if(marca&&AM[k]){ a=AM[k]; fuente="nombre igual"; }
-  else if(marca){ var sg=rentSugerir(marca,P.arts,deFam); if(sg){ a=sg.a; fuente="parecido"; } }
+  else if(marca){
+    /* con una marca elegida que no tiene precio propio vale el precio a mano de su categoría (la fila «Sin marca elegida»), antes que un artículo del Maître solo «parecido» */
+    var xc0=(P.beb||{})["cat:"+cat.key]||{}; if(xc0.p!=null&&xc0.p!=="") return {pu:+xc0.p,fuente:"precio de la categoría (a mano)"};
+    var sg=rentSugerir(marca,P.arts,deFam); if(sg){ a=sg.a; fuente="parecido"; } }
   /* sin marca: lo que más se compra de esa familia del Maître (el agua de siempre) */
   else if(FB){ P.arts.forEach(function(y){ if(y.fam&&FB.test(rentClave(y.fam))&&y.p!=null&&(!a||(+y.q||0)>(+a.q||0))) a=y; }); if(a) fuente="el más comprado"; }
   if(a) return {pu:a.pu!=null?+a.pu:+a.p, art:a.o||a.n, fuente:fuente, manual:!!a.manual};
   if(marca){ var xc=(P.beb||{})["cat:"+cat.key]||{}; if(xc.a&&AM[xc.a]){ var ac=AM[xc.a]; return {pu:ac.pu!=null?+ac.pu:+ac.p,art:ac.o||ac.n,fuente:"el de la categoría"}; } }
   if(+RP.botella[cat.key]>0) return {pu:+RP.botella[cat.key],fuente:"precio fijo de la categoría"};
   return null;
+}
+/* el precio de UNA línea de bebida, con la misma cuenta para la rentabilidad, el panel de lo que falta y «Consumo real».
+   Las bebidas añadidas a mano (Coca-Cola, Fanta…) se precian por su nombre, para todos los eventos; el precio escrito en la propia bebida de un evento manda. */
+function rentKeyLineaBeb(l){ return l.extra?rentClave(l.prod||l.label):(l.prod?rentClave(l.prod):"cat:"+l.cat.key); }
+function rentPrecioLineaBeb(l,P,AM,RP){
+  if(l.extra&&l.extra.precio!=null&&l.extra.precio!=="") return {pu:+l.extra.precio,fuente:"a mano"};
+  return rentPrecioBeb(l.cat||{key:l.key},l.extra?(l.prod||l.label):l.prod,P,AM,RP);
+}
+function rentSetPrecioBeb(l,n){
+  var k=rentKeyLineaBeb(l), d=JSON.parse(JSON.stringify(BR.param("precios")||{})); d.beb=d.beb||{}; var x=d.beb[k]||{};
+  if(n==null) delete x.p; else x.p=n;
+  if(Object.keys(x).length) d.beb[k]=x; else delete d.beb[k];
+  BR.setParam("precios",d);
+  if(l.extra&&l.extra.precio!=null){ delete l.extra.precio; touchSave(); }   /* el precio puesto aquí manda sobre el que se escribió solo para ese evento */
+}
+/* las bebidas añadidas a mano en cualquier evento (por su nombre), con el precio que se les aplica */
+function rentBebidasExtra(){
+  var P=rentPrecios(), AM=rentArtMap(P), RP=rentParams(), por={}, orden=[];
+  (BR.allEvents?BR.allEvents():[]).forEach(function(e){ ((e&&e.menu&&e.menu.bebidasExtra)||[]).forEach(function(x){ var nm=String((x&&(x.prod||x.label))||"").trim(); if(!nm) return; var k=rentClave(nm);
+    if(!por[k]){ por[k]={k:k,nm:nm,label:String(x.label||nm).trim(),ud:x.ud||"botellas",n:0}; orden.push(k); } por[k].n++; }); });
+  return orden.map(function(k){ var o=por[k], pb=rentPrecioBeb({key:"x:"+k},o.nm,P,AM,RP); o.pu=pb?pb.pu:null; o.fuente=pb?(pb.art?pb.art+" · "+pb.fuente:pb.fuente):""; return o; })
+    .sort(function(a,b){ return a.label.localeCompare(b.label,"es"); });
 }
 /* el precio de un ingrediente: lo escrito a mano, o su artículo del Maître
    (el enlazado o el de mismo nombre). Devuelve {p,u,g,art,fuente} o null */
@@ -20129,8 +20198,8 @@ function rentCalc(){
     var q=rq!=null?rq:l.q, origen=rq!=null?"real":"prevision";
     /* en Les Vinyes el vino es de su carta y nos lo facturan en el albarán (se cuenta abajo): aquí no se vuelve a contar con el precio del Maître */
     var delAlb=vinyes&&esVinoLinea(l);
-    var marca=l.prod, pb=delAlb?null:(l.extra&&l.extra.precio!=null&&l.extra.precio!=="")?{pu:+l.extra.precio,fuente:"a mano"}:rentPrecioBeb(l.cat||{key:l.key},marca,P,AM,RP), pu=pb?pb.pu:null;
-    var pk=l.extra?"":(marca?rentClave(marca):"cat:"+l.cat.key);
+    var marca=l.prod, pb=delAlb?null:rentPrecioLineaBeb(l,P,AM,RP), pu=pb?pb.pu:null;
+    var pk=rentKeyLineaBeb(l);
     beb.push({key:l.key, txt:l.label, marca:marca, q:q, ud:l.ud||"botellas", prevQ:enPrev?l.q:null, origen:origen, cu:pu||0, total:(pu||0)*q, pk:pk, exId:l.extra?l.extra.id:"",
       fuente:delAlb?"Va en el albarán de Les Vinyes":pb?(pb.art?(pb.manual?"A mano · ":"Maître · ")+pb.art+" ("+pb.fuente+")":pb.fuente):"", alb:delAlb, completo:delAlb||pu!=null||!q});
     if(enPrev&&!delAlb) bebPrevTotal+=(pu||0)*l.q;
@@ -20222,6 +20291,7 @@ BR.rent={
     return rentSugerir(n,rentPrecios().arts,function(a){ return /^(kg|g|l|ml|cl)$/.test(a.u||""); }); },
   precioBeb:function(catKey,marca){ var P=rentPrecios(), cat=BEBIDA_CATS.filter(function(c){ return c.key===catKey; })[0]; return cat?rentPrecioBeb(cat,marca,P,rentArtMap(P),rentParams()):null; },
   costePlato:function(d){ var P=rentPrecios(); return rentCostePlato(d,P,rentArtMap(P)); },
+  bebidasExtra:rentBebidasExtra,
   tipos:RENT_TIPOS, tipo:function(a){ return rentTipo(a,rentPrecios()); },
   /* añadir una marca a una bebida (sale para elegir en «Bebida del evento») */
   addMarca:function(catKey,nombre){ nombre=String(nombre||"").trim(); if(!nombre) return false;
@@ -25994,6 +26064,10 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       var par=(p.prev!=null&&!p.done&&p.pag>0)?"Ya habéis pagado "+eur(p.pag)+" de "+eur(p.prev)+".":"", pagadoEl=(p.done&&p.fpago&&d0(p.fpago))?" Pagado el "+corto(d0(p.fpago))+".":"";
       if(p.prev==null) return p.id==="pago2"?"Lo que falta del total · ese día se cierran los cambios":p.id==="senal"?(/Habéis pagado/.test(p.d||"")?p.d.replace("Con ella la fecha queda reservada. ",""):"Al reservar la fecha"):/pago1/.test(p.id)?pc+" % del presupuesto"+(/descontado/.test(p.d||"")?", ya descontado lo que habéis pagado de más":""):"";
       if(p.senal) return (p.done?"Con ella quedó reservada la fecha.":"Con ella queda reservada la fecha.")+(par?" "+par:"")+pagadoEl;
+      /* v02.35 · el primer pago, una vez cobrado, queda fijado: lo que cambia con los invitados es solo el último pago */
+      if(p.bloq) return "Importe fijado cuando se registró el pago ("+eur(p.prev)+"): ya no cambia aunque cambie el número de invitados."+pagadoEl;
+      var fijo=L.filter(function(x){ return x.bloq; })[0];
+      if(p.resto&&fijo) return "Es lo que queda del total ("+eur(T)+") después de la señal ("+eur(sen)+") y del primer pago ("+eur(fijo.prev)+"). Si cambia el número de invitados, solo varía este último pago. Ese día se cierran los cambios de mesas y menú."+(par?" "+par:"")+pagadoEl;
       if(p.resto) return (sen>0?"El "+(100-pc)+" % que queda ("+eur(T*(100-pc)/100)+") menos la señal de "+eur(sen)+(senOk?", que ya pagasteis":", que se descuenta")+". ":"Lo que falta del total. ")+"Ese día se cierran los cambios de mesas y menú."+(par?" "+par:"")+pagadoEl;
       return pc+" % del presupuesto ("+eur(T*pc/100)+")."+(par?" "+par:"")+pagadoEl;
     }
@@ -28467,7 +28541,7 @@ function panelFalta(r,e){
   }
   if(F.beb.length) h+='<div class="pp-subh">Bebidas <span>— € por botella (o por la unidad en que se cuente)</span></div>'+F.beb.map(function(x){
     return filaFalta(x.marca||x.txt,(x.marca?esc(x.txt)+" · ":"")+esc(numTx(x.q))+" "+esc(x.ud==="botellas"?"botellas":x.ud)+" ("+(x.origen==="real"?"consumo real":"previsión")+")",
-      inp("fal-beb",x.pk||x.exId,"0,00","Precio de "+(x.marca||x.txt),' data-id="'+esc(x.exId||"")+'"')+'<span class="rt-fr-u">€ / '+esc(x.ud==="botellas"?"botella":x.ud.replace(/s$/,""))+'</span>'); }).join("");
+      inp("fal-beb",x.pk,"0,00","Precio de "+(x.marca||x.txt))+'<span class="rt-fr-u">€ / '+esc(x.ud==="botellas"?"botella":x.ud.replace(/s$/,""))+'</span>'); }).join("");
   var otros="";
   if(F.tarta) otros+=filaFalta("Tarta","coste por ración, de este evento",inp("ev","costeTarta",numTx(RP.costeTarta)||"0,00","Coste por ración de la tarta")+'<span class="rt-fr-u">€ / ración</span>');
   if(F.staff) otros+=filaFalta("Menú staff","lo que cuesta cada menú del personal",inp("rp","costeStaff","0,00","Coste del menú staff por persona")+'<span class="rt-fr-u">€ / persona</span>');
@@ -28801,6 +28875,14 @@ function vBebidasPrecio(){
         '<td class="rt-st">'+usa+'</td></tr>'; });
     filas+='<tr class="rt-addm"><td colspan="4"><input type="text" data-rp="beb-marca" data-k="'+esc(c.key)+'" placeholder="+ Añadir otra '+esc(c.label.toLowerCase().indexOf("agua")===0?"agua":"marca de "+c.label.toLowerCase())+' (se podrá elegir en cada evento)" aria-label="Añadir marca de '+esc(c.label)+'"></td></tr>';
   });
+  /* las bebidas que se añaden a mano en los eventos (Coca-Cola, Fanta, tónica…): un precio por nombre, para todos los eventos */
+  var ext=BR.rent.bebidasExtra?BR.rent.bebidasExtra():[];
+  if(ext.length){ filas+='<tr class="rt-grp"><td colspan="4">Bebidas añadidas en los eventos <span style="text-transform:none;letter-spacing:0;font-weight:400">— cola, fanta, tónica…; el precio vale para todos los eventos con esa bebida</span></td></tr>';
+    ext.forEach(function(x){ var xx=P.beb[x.k]||{}, usa=x.pu!=null?('<b>'+esc(eur2(x.pu))+'</b> <span class="rt-sub-i">'+esc(x.fuente)+'</span>'):'<span class="rt-falta">sin precio</span>';
+      filas+='<tr><td><span class="rt-pl">'+esc(x.label)+'</span><span class="rt-sub">'+x.n+(x.n===1?" evento":" eventos")+' · por '+esc(x.ud==="botellas"?"botella":x.ud.replace(/s$/,""))+'</span></td>'+
+        '<td><input type="text" list="rt-arts" data-rp="beb-a" data-k="'+esc(x.k)+'" value="'+esc(xx.a?artNombre(P,xx.a):"")+'" placeholder="Buscar artículo…" aria-label="Artículo del Maître para '+esc(x.label)+'"></td>'+
+        '<td><input class="rnum" type="text" inputmode="decimal" data-rp="beb-p" data-k="'+esc(x.k)+'" value="'+esc(numTx(xx.p))+'" style="width:84px" aria-label="Precio a mano de '+esc(x.label)+'"></td>'+
+        '<td class="rt-st">'+usa+'</td></tr>'; }); }
   return '<div class="pv-sec">Bebidas <span class="pv-sec-note">— € por botella; si el nombre no coincide, se usa el artículo más parecido (revísalo)</span></div>'+
     '<div class="dtable-wrap"><table class="dtable rt-t"><thead><tr><th>Marca</th><th>Artículo del Maître</th><th class="rnum">€ a mano</th><th>Precio que se usa</th></tr></thead><tbody>'+filas+'</tbody></table></div>';
 }

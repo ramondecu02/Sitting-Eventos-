@@ -97,6 +97,8 @@ export const hecho = [
   'Precios que faltan puestos a mano en el propio evento (ingredientes, bebidas, tarta, staff, camarero), rellenando seguido con Tab; el Maître pasa a ser opcional · v02.34',
   'Bebida calculada con la previsión hasta que se apunta el consumo real y después con lo real (y el jamón gastado de verdad); en Les Vinyes del Convent, el albarán cuenta como gasto del evento y su vino no se cuenta dos veces · v02.34',
   'Pantallas bien en tablet y portátil (el plano abre encajado entero, barra del plano compacta, lista de invitados sin solaparse) y hoja resumen de boda en una A4 (dos como mucho) · v02.34',
+  'El primer pago, una vez cobrado, queda fijado: al añadir o quitar invitados solo cambia el último pago (total − señal − primer pago); igual en portal, presupuesto, PDF, agenda y avisos · v02.35',
+  'Las bebidas añadidas en Consumo real (Coca-Cola, Fanta, refrescos) ya cuentan en los costes: precio por nombre para todos los eventos, en la fila de Consumo real, en Rentabilidad y en Precios y costes · v02.35',
 ];
 
 export const decisiones = [
@@ -378,7 +380,8 @@ export const falta = [
 ];
 
 export const opcionales = [
-  'Avisos por correo de «el cliente ha escrito / ha aprobado» (hoy se ven en el Inicio de la app)',
+  'Avisos por correo de lo que hace el cliente en su portal (mensajes, documentos, aprobaciones, lista): propuesta en la sección 9 del ROADMAP',
+  'Google Calendar para agendar reuniones desde el programa: estudio y fases en la sección 9 del ROADMAP',
   'Proveedor de firma electrónica avanzada, si el contrato necesita más validez',
   'Claves de Turnstile para el formulario de consultas, si algún día entra spam',
   'Auditoría con varios revisores de toda la app (diseño, cifras, móvil)',
@@ -409,6 +412,8 @@ export const pendienteTuyo = [
     ['9', 'Volver a importar los precios del «Análisis de compras» del Maître cuando cambien', 'Quien compra', 'Costes estimados al día'],
     ['12', 'Les Vinyes del Convent: confirmar en Parámetros → Les Vinyes del Convent cuál de los dos precios por comensal (12 € o 7 €) es el de bodas y cuál el de los demás eventos, repasar los precios de los vinos y pulsar «Está bien así»; probar el albarán con un evento real y avisar a Les Vinyes del correo de envío', 'Tú', 'Albaranes correctos desde el primer evento'],
     ['11', 'Revisar el catalán y el inglés de los menús: que alguien que hable catalán repase en Parámetros → «Traducciones del menú» los platos traducidos a mano y el glosario de cocina (lo que se corrige ahí se aplica a la minuta y al portal)', 'Alguien de sala o cocina', 'Menús en català y English sin erratas de cara al cliente'],
+    ['13', 'Pagos: registrar el pago del 65 % con el botón «+ Primer pago» (o con «Primer pago» en el concepto) para que su importe quede fijado, y revisar los eventos que ya tienen pagos para ver que el último pago es el que esperas', 'Quien lleva los cobros', 'Que los cambios de invitados solo muevan el último pago'],
+    ['14', 'Precios a mano: ir poniendo en Rentabilidad de cada evento los precios que faltan (ingredientes, bebidas añadidas, tarta, menú staff y €/hora del camarero); se guardan para todos los eventos', 'Administración', 'El beneficio neto real, sin depender del CSV del Maître'],
     ['10', 'Un evento piloto de principio a fin (consulta → contrato → pedidos → servicio → cierre) y anotar lo que chirríe', 'Equipo', 'Pulir con uso real'],
   ] },
 ];
@@ -416,13 +421,18 @@ export const pendienteTuyo = [
 /* Lo que solo puede decidir quien manda */
 export const esperaOk = [
   ['Rediseño visual', 'El prototipo v5 (Artifact) sigue siendo solo un prototipo: no se ha tocado la app real. Para empezar a llevarlo, por fases y pantalla a pantalla, necesito tu OK y cuatro respuestas: la tipografía elegida, los textos o palabras que vetas, las fotos de la casa para los huecos de foto y si quieres enseñar reseñas de clientes. El portal de clientes de la 02.15 se pulió sin cambiar su estilo, a propósito'],
+  ['Avisos del portal por correo', 'Decidir quién recibe cada tipo de aviso, si llegan al momento o en resumen cada hora (propongo resumen cada hora y al momento solo los mensajes), si el correo lleva el texto del mensaje y las horas de silencio (ROADMAP, sección 9.1)'],
+  ['Google Calendar', 'Decidir si usáis Google Workspace o Gmail, qué calendario sería el de Eventos, qué tipos de reunión y duración se agendan y si el cliente podrá elegir hueco desde su portal; propongo empezar por las fases 1 y 2 (ROADMAP, sección 9.2)'],
   ['Fila «Bebés en trona (sin menú)»', 'En los menús de la escaleta, ¿la quito? Te la propuse y está sin confirmar'],
 ];
 
 /* Lo que puedo hacer yo cuando me lo pidas. [qué, estimación, detalle] */
 export const puedoHacer = [
   ['Pruebas automáticas en cada entrega', '~1–2 días', 'Llevar al repositorio unas 40 pruebas de navegador que hoy paso a mano en cada versión y que GitHub las ejecute en cada subida (incluye dejar al día 3 pruebas antiguas que ya fallaban). Cierra la casilla de Calidad continua'],
-  ['Avisos por correo de «el cliente ha escrito / ha aprobado»', '~½ día', 'Hoy se ven en el Inicio de la app; con el correo activo (punto 1) llegarían también a la persona de Eventos'],
+  ['Avisos por correo de lo que hace el cliente en su portal', '~1–1,5 días', 'Mensajes, justificantes, DNI, aprobaciones y cambios en la lista, a cada departamento, al momento o en resumen cada hora, con horas de silencio y un botón directo al portal del cliente. Hace falta el correo activo (punto 1). Propuesta completa en la sección 9.1 del ROADMAP'],
+  ['Google Calendar · fase 1: «Añadir a Google Calendar» y archivo .ics', '~1 día', 'En cada reunión y en el correo al cliente (invitación adjunta). No hay que conectar ninguna cuenta'],
+  ['Google Calendar · fase 2: calendario de Les Moles suscribible', '~½ día', 'Una dirección privada de solo lectura con eventos, reuniones y fechas de pago para añadir a Google Calendar'],
+  ['Google Calendar · fase 3: agendar reuniones desde el programa (API de Google)', '~3–4 días', 'Botón «Agendar reunión» que crea el evento en el calendario de Eventos, invita al cliente, añade Meet y muestra los huecos libres. Hay que crear la conexión en Google (yo te guío) y decidir la cuenta. Sección 9.2 del ROADMAP'],
   ['Pegar la lista de invitados desde un Excel con columnas', '~½ día', 'Hoy se pega una persona por línea y «Apellido, Nombre» se leería como alergia; con columnas (nombre | alergia | tipo) se evita'],
   ['Auditoría con varios revisores de toda la app', 'a demanda', 'Diseño, cifras y móvil, como la de la 01.97. Cierra la otra casilla de Calidad continua'],
   ['Firma electrónica avanzada', 'depende del proveedor', 'Solo si el contrato necesita más validez que la firma simple (punto 4)'],
