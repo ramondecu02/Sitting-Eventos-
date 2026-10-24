@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.29 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.30 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.29".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.30".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -1017,6 +1017,8 @@ body.mode-plan .planv{display:flex}
 .task.done .tk-check{background:var(--olive); border-color:var(--olive-deep); color:var(--olive-ink)}
 .task.done .tk-tx{color:var(--c-mut); text-decoration:line-through; text-decoration-color:var(--c-line-2)}
 .task .tk-tx{flex:1; min-width:0; font-size:13.5px; color:var(--c-ink)}
+.task .tk-rol{flex:0 0 auto; font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; padding:3px 9px; border-radius:99px; background:var(--bg-2); color:var(--c-mut); border:1px solid var(--c-line)}
+.task.done .tk-rol{opacity:.6}
 .task .tk-state{flex:0 0 auto; font-size:11px; padding:5px 9px; border:1px solid var(--c-line-2); border-radius:var(--r-sm); background:var(--field); color:var(--c-ink); cursor:pointer}
 .task.st-proceso{border-color:color-mix(in srgb,var(--gold) 40%,var(--c-line))}
 .task.st-bloqueada{border-color:color-mix(in srgb,var(--ruby) 40%,var(--c-line))}
@@ -4634,7 +4636,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.29</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.30</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10413,7 +10415,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.29</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.30</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -11929,6 +11931,20 @@ var FASES=[
 var FASE_T={}; FASES.forEach(function(f){FASE_T[f.k]=f.t;});
 /* días antes del evento en que vence cada fase del checklist */
 var FASE_DIAS={"6m":180,"3m":90,"1m":30,"1s":7,"dia":0};
+/* v02.30 · ¿quién se encarga de cada tarea del checklist? Lo que se ponga en Parámetros → Tareas por fase; si no, lo de serie (el mismo que usa el servidor
+   para la hoja semanal de cada persona); si no, por palabras; si no, Eventos */
+var ROLES_TAREA=[["eventos","Eventos"],["cocina","Cocina"],["compras","Compras"],["servicio","Servicio"],["contabilidad","Contabilidad"]];
+var ROL_TAREA_DEF={"confirmar menu":"eventos","confirmar proveedores":"compras","revisar guion de ceremonia":"eventos","lista provisional de invitados":"eventos","distribucion de mesas":"eventos","musica y momentos":"eventos","decoracion y flores":"eventos",
+  "lista definitiva de invitados":"eventos","alergias e intolerancias":"cocina","menus especiales (infantil/staff)":"cocina","plano de sala definitivo":"servicio","reunion final con la pareja":"eventos","confirmacion de proveedores":"compras","asignar personal de servicio":"servicio","plan de montaje":"servicio",
+  "montaje de sala":"servicio","ceremonia":"eventos","aperitivo":"cocina","banquete":"cocina","barra libre":"servicio","fiesta":"servicio"};
+function normTarea(x){ return String(x==null?"":x).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim(); }
+function rolDeTarea(texto,roles){
+  var k=normTarea(texto); if(roles&&typeof roles==="object"&&ROLES_TAREA.some(function(r){ return r[0]===roles[k]; })) return roles[k];
+  if(ROL_TAREA_DEF[k]) return ROL_TAREA_DEF[k];
+  if(/pedido|proveedor|compra|albaran/.test(k)) return "compras"; if(/camarer|personal|montaje|sala|mesa|barra/.test(k)) return "servicio";
+  if(/alerg|menu|plato|cocina|produccion|escandallo/.test(k)) return "cocina"; if(/pago|cobro|factura|presupuesto|senal/.test(k)) return "contabilidad"; return "eventos"; }
+function rolTareaTxt(texto){ var r=rolDeTarea(texto,(paramData("tareas")||{}).roles), o=ROLES_TAREA.filter(function(x){ return x[0]===r; })[0]; return o?o[1]:"Eventos"; }
+window.LM_rolTarea=rolDeTarea; window.LM_rolesTarea=ROLES_TAREA;
 /* fecha límite (AAAA-MM-DD) de una fase, o "" si el evento no tiene fecha */
 function faseLimite(e,k){ var f=e.ficha&&e.ficha.fecha; if(!f||FASE_DIAS[k]==null) return ""; var d=new Date(f+"T00:00:00"); if(isNaN(d)) return ""; d.setDate(d.getDate()-FASE_DIAS[k]); return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2); }
 /* ¿la fase ya ha vencido? (la del día del evento, solo cuando el evento ya pasó) */
@@ -12414,6 +12430,7 @@ function viewTareas(e){
       html+='<div class="task st-'+st+(st==="completada"?" done":"")+'">'+
         '<button type="button" class="tk-check" data-act="task-toggle" data-i="'+x.i+'" aria-pressed="'+(st==="completada")+'" aria-label="Marcar como hecha: '+escH(x.t.texto)+'">'+ICONS.check+'</button>'+
         '<span class="tk-tx">'+escH(x.t.texto)+'</span>'+
+        '<span class="tk-rol" title="Quién se encarga de esta tarea. Se cambia en Parámetros → Tareas por fase">'+escH(rolTareaTxt(x.t.texto))+'</span>'+
         '<button type="button" class="tk-state" data-act="task-state" data-i="'+x.i+'" aria-label="Estado: '+estLbl[st]+'. Pulsa para cambiarlo">'+estLbl[st]+'</button>'+
         '<button type="button" class="tk-del" data-act="task-del" data-i="'+x.i+'" aria-label="Eliminar tarea: '+escH(x.t.texto)+'">×</button></div>';
     });
@@ -24501,7 +24518,8 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
   /* ═══ Parámetros → Correo y avisos (solo administración) ═══ */
   var C={host:null,estado:null,cfg:null,plant:null,msg:null,sim:null,cargando:false,guardando:false};
   var DEPS_C=[["eventos","Eventos"],["cocina","Cocina"],["compras","Compras"],["servicio","Servicio"],["contabilidad","Contabilidad"]];
-  var PL_TXT=[["resumen_asunto","Resumen del equipo · asunto","{periodo}"],["resumen_intro","Resumen del equipo · primera línea",""],
+  var PL_TXT=[["semanal_asunto","Hoja semanal de cada persona · asunto","{semana}"],["semanal_intro","Hoja semanal de cada persona · primera línea","{nombre} {rol} {semana}"],
+    ["resumen_asunto","Resumen del equipo · asunto","{periodo}"],["resumen_intro","Resumen del equipo · primera línea",""],
     ["dep_asunto","Resumen de un departamento · asunto","{departamento}"],["dep_intro","Resumen de un departamento · primera línea","{departamento}"],
     ["aviso_asunto","Aviso entre departamentos · asunto","{departamento} {evento}"],["aviso","Aviso entre departamentos · texto","{de} {departamento} {evento} {fecha} {texto} {enlace} {firma}"],
     ["cliente_lista_asunto","Cliente: la lista · asunto","{evento}"],["cliente_lista","Cliente: la lista · texto","{nombre} {evento} {fecha} {enlace} {firma}"],
@@ -24556,6 +24574,27 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     });
     return h;
   }
+  /* v02.30 · la hoja semanal de cada persona: sus tareas por hacer y su rol en cada una */
+  function semanalHTML(cfg){
+    var sm=cfg.semanal||{on:true,dia:1,hora:8,dias:21,vacio:false}, D=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"], r=C.semRes;
+    function chk(id,v,t){ return '<label class="av-chk"><input type="checkbox" data-cf="'+id+'"'+(v?" checked":"")+'> '+esc(t)+'</label>'; }
+    var esAdmin=yo().role==="admin", roles=[["admin","Administración"],["eventos","Eventos"],["cocina","Cocina"],["compras","Compras"],["servicio","Servicio"],["contabilidad","Contabilidad"]];
+    var h='<h2 class="av-h2">Hoja semanal de cada persona <small class="av-ap">'+(sm.on?"encendida":"apagada")+'</small></h2><div class="pcard">'+
+      '<p class="av-peq">Cada <b>'+esc(D[+sm.dia])+'</b> a partir de las <b>'+esc(sm.hora)+':00</b> (hora de Madrid), <b>cada persona del equipo</b> recibe en su correo de acceso <b>las tareas que quedan por hacer</b> en los eventos de las próximas <b>'+Math.round((+sm.dias||21)/7)+' semanas</b>, con <b>el rol responsable de cada una</b>. '+
+      'Arriba va <b>«Te toca a ti»</b> (las tareas de su rol) y debajo <b>«Resto del equipo»</b>; la administración recibe todas, agrupadas por rol. Salen del checklist de cada evento (el rol de cada tarea se cambia en Parámetros → <b>Tareas por fase</b>) y de lo que el programa ya sabe que falta: minuta, menú sin cerrar, cliente sin aprobar, alergias sin plato, pedidos, camareros, cobros. '+
+      'Cocina, Compras y Servicio no ven importes. <b>A quien no tiene nada pendiente no se le manda nada</b>, y no se repite en la misma semana.</p><div class="fldset">'+
+      chk("semanal.on",sm.on,"Enviar la hoja semanal a cada persona")+
+      '<label class="fld"><span class="lbl">Día de la semana</span><select data-cf="semanal.dia">'+D.map(function(d,i){ return '<option value="'+i+'"'+(+sm.dia===i?" selected":"")+'>'+d+'</option>'; }).join("")+'</select></label>'+
+      '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span><input type="number" min="0" max="23" data-cf="semanal.hora" value="'+esc(sm.hora)+'" aria-label="Hora de la hoja semanal"></label>'+
+      '<label class="fld"><span class="lbl">Eventos de las próximas…</span><select data-cf="semanal.dias">'+[[14,"2 semanas"],[21,"3 semanas"],[28,"4 semanas"],[42,"6 semanas"]].map(function(o){ return '<option value="'+o[0]+'"'+(+sm.dias===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></label>'+
+      chk("semanal.vacio",sm.vacio,"Mandarla también a quien no tiene nada pendiente")+'</div>'+
+      '<div class="av-acciones"><button type="button" class="btn sm" data-cfa="sem-vista">Ver la mía de hoy</button>'+
+      (esAdmin?'<label class="av-peq" style="display:inline-flex;gap:6px;align-items:center">como si fuera de <select data-cfa-rol aria-label="Ver la hoja de un rol">'+roles.map(function(x){ return '<option value="'+x[0]+'"'+((C.semRol||"admin")===x[0]?" selected":"")+'>'+x[1]+'</option>'; }).join("")+'</select></label>':'')+
+      '<button type="button" class="btn sm" data-cfa="sem-yo">Enviarme la mía de prueba</button>'+
+      (esAdmin?'<button type="button" class="btn sm" data-cfa="sem-equipo">Enviarla ahora a cada persona</button>':'')+'</div>'+
+      (r?'<p class="av-res '+(r.ok?(r.sim?"sim":"ok"):"mal")+'" role="status">'+esc(r.txt)+'</p>'+(r.texto?'<pre class="av-vista" tabindex="0" aria-label="Hoja semanal">'+esc(r.texto)+'</pre>':''):'')+'</div>';
+    return h;
+  }
   function pintarCfg(){
     var host=C.host; if(!host) return;
     if(!backend()){ host.innerHTML='<div class="pv-inner"><header class="pv-head"><div class="pv-head-main"><div class="pv-eyebrow">'+LM_ebP("p-correo")+'</div><h1 class="pv-title">Correo y avisos</h1></div></header><p class="empty">Esta pantalla necesita el servidor.</p></div>'; return; }
@@ -24575,6 +24614,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
       '<label class="fld"><span class="lbl">A partir de las (hora de Madrid)</span>'+num("resumen.hora",rs.hora,0,23)+'</label>'+
       '<label class="fld"><span class="lbl">Para</span><select data-cf="resumen.para"><option value="equipo"'+(rs.para==="equipo"?" selected":"")+'>Administración y eventos (por su correo de acceso)</option><option value="lista"'+(rs.para==="lista"?" selected":"")+'>Una lista de correos</option></select></label>'+
       '<label class="fld wide"><span class="lbl">Lista de correos <small>(separados por comas; solo si has elegido «una lista»)</small></span><input type="text" data-cf="resumen.lista" value="'+esc(rs.lista)+'" placeholder="jefe@lesmoles.com, sala@lesmoles.com"></label></div></div>';
+    P.sem=semanalHTML(cfg);
     P.dep=depsHTML(cfg,s);
     P.rec='<h2 class="av-h2">Recordatorios a los clientes</h2><div class="pcard"><p class="av-peq">Apagados de fábrica. Si los activas, el día que toca cada paso de la agenda (la lista, un pago, una reunión) el cliente recibe su recordatorio, <b>si tiene correo en la ficha</b> y el evento está en reserva, planificación o confirmado. Cada recordatorio sale una sola vez.</p><div class="fldset">'+
       chk("cliente.on",cl.on,"Enviar recordatorios automáticos a los clientes")+chk("cliente.lista",cl.lista,"La lista de invitados")+chk("cliente.pago",cl.pago,"Los pagos")+chk("cliente.reunion",cl.reunion,"Las reuniones")+
@@ -24592,7 +24632,9 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     P.pla+='<h2 class="av-h2">Plantillas</h2><p class="av-peq">Las variables entre llaves se rellenan solas con los datos del evento. WhatsApp usa los mismos textos.</p>'+PL_TXT.map(function(p){
       var largo=!/asunto|intro/.test(p[0]), mod=C.plant[p[0]]!==(C.estado.plantillasPorDefecto||{})[p[0]];
       return '<div class="pcard av-pl"><label class="fld wide"><span class="lbl">'+esc(p[1])+(p[2]?' <small>'+esc(p[2])+'</small>':'')+(mod?' <em>personalizada</em>':'')+'</span>'+(largo?'<textarea rows="'+(p[0]==="camarero"||p[0]==="cliente_lista"||p[0]==="cliente_pago"?7:5)+'" data-pl="'+p[0]+'">'+esc(C.plant[p[0]])+'</textarea>':'<input type="text" data-pl="'+p[0]+'" value="'+esc(C.plant[p[0]])+'">')+'</label>'+(mod?'<button type="button" class="btn sm" data-cfa="restaurar" data-k="'+p[0]+'">Volver a la de fábrica</button>':'')+'</div>'; }).join("");
-    P.env=P.dep+P.rec+P.res;
+    /* v02.30 · si la hoja semanal personal y los resúmenes por departamento están a la vez, el lunes llegarían dos correos con cosas parecidas */
+    var hayDep=DEPS_C.some(function(x){ var c=(cfg.deps||{})[x[0]]||{}; return c.on&&c.freq!=="off"; });
+    P.env=P.sem+((cfg.semanal&&cfg.semanal.on&&hayDep)?'<p class="av-res sim" role="note">Tienes encendida la hoja semanal de cada persona <b>y también</b> resúmenes por departamento: el mismo día recibiría dos correos con cosas parecidas. Para quedarte solo con la hoja semanal, apaga «Enviar su resumen» en los departamentos de abajo.</p>':'')+P.dep+P.rec+P.res;
     var tab=C.tab&&P[C.tab]!=null?C.tab:(s.proveedor.listo?"env":"con"), nPers=Object.keys(C.plant||{}).filter(function(k){ return C.plant[k]!==(C.estado.plantillasPorDefecto||{})[k]; }).length;
     var TABS=[["con","Conexión",s.proveedor.listo?"":'<i class="av-pt" title="Sin activar" aria-hidden="true"></i><span class="sr-only"> (sin activar)</span>'],["env","Qué se envía",""],["asp","Aspecto y respuestas",""],["pla","Plantillas",nPers?'<b class="av-n">'+nPers+'</b><span class="sr-only"> personalizadas</span>':""]];
     h+='<div class="av-tog av-tabs" role="group" aria-label="Secciones de Correo y avisos">'+TABS.map(function(t){ return '<button type="button" data-cfa="tab" data-t="'+t[0]+'" aria-pressed="'+(tab===t[0])+'"'+(tab===t[0]?' class="on"':'')+'>'+esc(t[1])+t[2]+'</button>'; }).join("")+'</div>'+P[tab];
@@ -24608,6 +24650,7 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     ev.stopPropagation();
     var t=ev.target;
     if(ev.type!=="click"){
+      if(t.hasAttribute&&t.hasAttribute("data-cfa-rol")){ C.semRol=t.value; return; }
       var k=t.getAttribute&&t.getAttribute("data-cf"), pl=t.getAttribute&&t.getAttribute("data-pl");
       if(k){ var v=t.type==="checkbox"?t.checked:t.type==="number"?Math.round(+t.value):t.value; if(/\.(dia)$/.test(k)) v=+v; setPath(C.cfg,k,v); }
       else if(pl){ C.plant[pl]=t.value; }
@@ -24630,6 +24673,15 @@ $("cam-q").addEventListener("input",function(){ q=this.value; renderBody(); });
     else if(a==="prueba"){ b.disabled=true; C.msg=null; var para=b.getAttribute("data-to")||(yo().email||"");
       api("/api/correo/enviar","POST",{kind:"prueba",to:para,subject:"Prueba de correo · Les Moles Events",text:"Hola,\n\nEste es un correo de prueba de Les Moles Events. Si lo lees, el envío funciona. Así se ve un botón a un enlace:\n"+location.origin+"/\n\n"+(C.cfg.firma||"")}).then(function(j){
         C.msg=j._status===200?{ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: falta activar el servicio de correo, no ha salido nada.":"Enviado a "+(para||"tu correo")+". Mira la bandeja de entrada (y el spam)."}:{ok:false,txt:fallo(j,"No se ha podido enviar."),a:(function(m){ return m&&m[1]!==para?m[1]:""; })(/own email address \(([^)\s]+@[^)\s]+)\)/i.exec((j&&j.message)||""))}; cargarCfg(); }); }
+    else if(a==="sem-vista"||a==="sem-yo"||a==="sem-equipo"){
+      var smodo=a==="sem-vista"?"vista":a==="sem-yo"?"yo":"equipo"; b.disabled=true;
+      if(a==="sem-equipo"&&!window.confirm("¿Enviar ahora la hoja semanal a cada persona del equipo? A quien no tenga nada pendiente no se le manda.")){ b.disabled=false; return; }
+      api("/api/correo/resumen","POST",{semanal:true,modo:smodo,rol:(C.semRol||"")}).then(function(j){
+        if(j._status!==200) C.semRes={ok:false,txt:fallo(j,"No se ha podido.")};
+        else if(smodo==="vista") C.semRes={ok:true,txt:(j.vacio?"Con ese rol hoy no hay nada pendiente":"Así quedaría hoy")+" — "+j.mias+(j.mias===1?" tarea suya":" tareas suyas")+" y "+j.resto+(j.resto===1?" del resto del equipo":" del resto del equipo")+", "+j.eventos+(j.eventos===1?" evento":" eventos")+" a la vista:",texto:j.asunto+"\n\n"+j.texto};
+        else if(smodo==="yo") C.semRes={ok:true,sim:j.estado==="simulado",txt:j.estado==="simulado"?"Guardado como SIMULADO: el correo no está activado, no ha salido.":"Enviado a tu correo."};
+        else C.semRes={ok:j.ok,sim:!!j.simulados,txt:(j.enviados?j.enviados+" enviados":"")+(j.simulados?(j.enviados?" · ":"")+j.simulados+" simulados (el correo no está activado)":"")+(j.errores?" · "+j.errores+" con error":"")+(j.omitidos?" · "+j.omitidos+" sin nada pendiente (no se les manda)":"")+(!j.enviados&&!j.simulados&&!j.errores?"Nadie tenía nada pendiente.":".")};
+        pintarCfg(); }); }
     else if(a==="dep-vista"||a==="dep-yo"||a==="dep-equipo"){
       var dk=b.getAttribute("data-d"), modo=a==="dep-vista"?"vista":a==="dep-yo"?"yo":"equipo"; b.disabled=true;
       api("/api/correo/resumen","POST",{modo:modo,dep:dk}).then(function(j){
@@ -27244,7 +27296,11 @@ function vTareas(){
   var t=datos("tareas");
   return '<div class="pp-grid2">'+Object.keys(FASES_T).map(function(k){
     return '<div class="pcard"><div class="pcard-h"><h3>'+esc(FASES_T[k])+'</h3><span class="pp-ej">'+(t.fases[k]||[]).length+' tareas</span></div>'+
-      '<label class="fld"><span class="lbl">Tareas <small>(una por línea)</small></span><textarea data-pp="fase" data-k="'+k+'" rows="6">'+esc((t.fases[k]||[]).join("\n"))+'</textarea></label></div>';
+      '<label class="fld"><span class="lbl">Tareas <small>(una por línea)</small></span><textarea data-pp="fase" data-k="'+k+'" rows="6">'+esc((t.fases[k]||[]).join("\n"))+'</textarea></label>'+
+      '<div class="pp-subh">Quién se encarga <span>— sale en el checklist del evento y en la hoja semanal de cada persona</span></div>'+
+      (t.fases[k]||[]).map(function(tx){ var r=window.LM_rolTarea(tx,t.roles);
+        return '<div class="pp-tramo"><span style="flex:1;min-width:0">'+esc(tx)+'</span><select data-pp="fase-rol" data-t="'+esc(tx)+'" aria-label="Rol de «'+esc(tx)+'»">'+(window.LM_rolesTarea||[]).map(function(o){ return '<option value="'+o[0]+'"'+(r===o[0]?" selected":"")+'>'+o[1]+'</option>'; }).join("")+'</select></div>'; }).join("")+
+      '</div>';
   }).join("")+'</div>';
 }
 
@@ -27555,6 +27611,7 @@ function onChange(ev){
     guardar("agenda",ag); render(); return;
   }
   if(pp==="fase"){ var td=datos("tareas"); td.fases[k]=lineas(v); guardar("tareas",td); render(); return; }
+  if(pp==="fase-rol"){ var tr=datos("tareas"), tn=String(el.getAttribute("data-t")||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim(); tr.roles=tr.roles||{}; tr.roles[tn]=v; guardar("tareas",tr,"Rol guardado."); render(); return; }
 }
 
 function onClick(ev){

@@ -2100,15 +2100,16 @@ async function portalQuitar(request, env, url) {
 let COR_OK = false;
 const COR_PURGA_DIAS = 180;
 const COR_CFG_DEF = {
-  v: 2,   /* v02.19 · de fábrica solo sale lo pendiente de cada persona; el resumen del equipo y los avisos entre departamentos por correo, apagados */
+  v: 3,   /* v02.19 · de fábrica solo sale lo pendiente de cada persona; el resumen del equipo y los avisos entre departamentos por correo, apagados · v02.30 · los resúmenes por departamento también apagados: los sustituye la hoja semanal de cada persona */
   resumen: { on: false, freq: "semanal", dia: 1, hora: 8, para: "equipo", lista: "" },
+  semanal: { on: true, dia: 1, hora: 8, dias: 21, vacio: false },   /* v02.30 · la hoja semanal de cada persona: sus tareas y su rol en cada una (lunes 8:00, próximas 3 semanas; sin nada pendiente, no se manda) */
   cliente: { on: false, hora: 9, lista: true, pago: true, reunion: true },
-  deps: {   /* v02.14 · lo que recibe cada departamento: su resumen (solo si hay algo) y los avisos que le dejan los demás */
-    eventos: { on: true, freq: "diario", dia: 1, hora: 8, extra: "", aviso: false },   /* lo que falta por hacer (minuta, cerrar el menú…) cada mañana, solo si hay algo */
-    cocina: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
-    compras: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
-    servicio: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
-    contabilidad: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false }
+  deps: {   /* v02.14 · lo que recibe cada departamento: su resumen (solo si hay algo) y los avisos que le dejan los demás · v02.30 · apagados de fábrica (los sustituye la hoja semanal de cada persona) */
+    eventos: { on: false, freq: "diario", dia: 1, hora: 8, extra: "", aviso: false },
+    cocina: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
+    compras: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
+    servicio: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false },
+    contabilidad: { on: false, freq: "semanal", dia: 1, hora: 8, extra: "", aviso: false }
   },
   firma: "Les Moles Events", responder: "",
   respuesta: "quien",                       /* quien = si contestan, le llega a quien lo ha enviado · general = al correo de «responder» */
@@ -2118,6 +2119,8 @@ const COR_CFG_DEF = {
 const COR_PLANT = {
   resumen_asunto: "Resumen de {periodo} · Les Moles Events",
   resumen_intro: "Buenos días. Esto es lo que hay en Les Moles Events:",
+  semanal_asunto: "Tu semana en Les Moles Events · semana del {semana}",
+  semanal_intro: "Buenos días, {nombre}. Esto es lo que tienes por delante en Les Moles Events esta semana y las siguientes. Tu rol en el programa: {rol}.",
   dep_asunto: "Resumen de {departamento} · Les Moles Events",
   dep_intro: "Buenos días. Esto es lo que le toca a {departamento} en Les Moles Events:",
   aviso_asunto: "Aviso para {departamento} · {evento}",
@@ -2169,6 +2172,13 @@ async function correoCfg(env) {
   COR_DEPS.forEach((d) => { cfg.deps[d] = Object.assign({}, COR_CFG_DEF.deps[d], (c.deps && c.deps[d]) || {}); });
   /* ajustes guardados antes de la 02.19 (sin «v»): se aplica lo decidido (solo lo pendiente de cada persona); los correos extra, horas y plantillas se respetan */
   if (Object.keys(c).length && !c.v) { cfg.resumen.on = false; COR_DEPS.forEach((d) => { cfg.deps[d].aviso = false; }); cfg.deps.eventos.on = true; cfg.v = 2; }
+  /* guardado antes de la 02.30: los resúmenes por departamento que siguen EXACTAMENTE como venían de fábrica (encendidos, sin tocar nada) se apagan, porque
+     ahora cada persona recibe su hoja semanal; los que alguien ha cambiado a propósito (horas, correos extra, otra frecuencia) se respetan */
+  if (Object.keys(c).length && (+c.v || 0) < 3) {
+    const vieja = { eventos: { on: true, freq: "diario", dia: 1, hora: 8, extra: "" }, cocina: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" }, compras: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" }, servicio: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" }, contabilidad: { on: true, freq: "semanal", dia: 1, hora: 8, extra: "" } };
+    COR_DEPS.forEach((d) => { const o = cfg.deps[d], v = vieja[d]; if (o.on === true && o.freq === v.freq && +o.dia === v.dia && +o.hora === v.hora && !String(o.extra || "").trim() && o.aviso === false) o.on = false; });
+    cfg.v = 3;
+  }
   Object.keys(pl).forEach((k) => { if (COR_PLANT[k] != null && typeof pl[k] === "string" && pl[k].trim()) plant[k] = pl[k]; });
   return { cfg, plant, custom: pl };
 }
@@ -2230,7 +2240,7 @@ function corHtml(texto, o) {
     if (!s) { cierra(); return; }
     if (/^https?:\/\/\S+$/.test(s)) { cierra(); partes.push(corBoton(s)); return; }
     if (/^[·•]\s+/.test(s)) { cierra(); partes.push('<div style="margin:0 0 7px;padding-left:16px;text-indent:-16px;font:15px/1.55 ' + COR_FUENTE + ';color:#2b2b2b">· ' + corEnlazar(s.replace(/^[·•]\s+/, "")) + "</div>"); return; }
-    if (o.kind === "resumen" && /^[A-ZÁÉÍÓÚÜÑ ]{4,}(\(.*\))?$/.test(s)) { cierra(); partes.push('<div style="margin:24px 0 10px;padding-top:14px;border-top:1px solid #e8e2d4;font:700 12px/1.3 ' + COR_FUENTE + ';letter-spacing:.12em;color:#8a6d3b">' + corEsc(s) + "</div>"); return; }
+    if (o.kind === "resumen" && /^[A-ZÁÉÍÓÚÜÑ0-9 ·]{4,}(\(.*\))?$/.test(s)) { cierra(); partes.push('<div style="margin:24px 0 10px;padding-top:14px;border-top:1px solid #e8e2d4;font:700 12px/1.3 ' + COR_FUENTE + ';letter-spacing:.12em;color:#8a6d3b">' + corEsc(s) + "</div>"); return; }
     par.push(s);
   });
   cierra();
@@ -2579,6 +2589,115 @@ function corResumenDep(doc, hoy, dep, cfg, plant, origen) {
   L.push("", String(cfg.firma || ""));
   return { asunto: corRellenar(plant.dep_asunto, v) + " · " + corFechaCorta(hoy), texto: L.join("\n").trim(), vacio: !bloques.length, eventos: prox.length, bloques: bloques.length };
 }
+/* ══ v02.30 · LA HOJA SEMANAL DE CADA PERSONA ═════════════════════════════════
+   Cada lunes, a cada persona del equipo: las tareas que quedan por hacer en los eventos de las próximas semanas, con el ROL responsable de cada una.
+   · «Te toca a ti»: las de su rol. Debajo, «Resto del equipo» (con el rol de cada tarea). La administración recibe todo junto, con el rol de cada una.
+   · Las tareas salen del checklist por fases de cada evento (el rol de cada tarea se puede cambiar en Parámetros → Tareas por fase) y de lo que el programa
+     ya sabe que falta (minuta, menú sin cerrar, cliente sin aprobar, camareros, pedidos, cobros…).
+   · Cocina, Compras y Servicio no ven importes, tampoco en «Resto del equipo». Si una persona no tiene nada que hacer, no se le manda nada (salvo que se pida). */
+const COR_ROLES_T = Object.assign({ admin: "Administración" }, COR_DEP_T);
+const COR_FASE_DIAS = { "6m": 180, "3m": 90, "1m": 30, "1s": 7, dia: 0 };   /* los mismos que el checklist de la aplicación */
+function corNorm(x) { return String(x == null ? "" : x).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim(); }
+/* el rol de cada tarea del checklist: lo que se haya puesto en Parámetros → Tareas por fase; si no, el de serie; si no, por palabras; si no, Eventos */
+const COR_ROL_TAREA = {
+  "confirmar menu": "eventos", "confirmar proveedores": "compras", "revisar guion de ceremonia": "eventos",
+  "lista provisional de invitados": "eventos", "distribucion de mesas": "eventos", "musica y momentos": "eventos", "decoracion y flores": "eventos",
+  "lista definitiva de invitados": "eventos", "alergias e intolerancias": "cocina", "menus especiales (infantil/staff)": "cocina", "plano de sala definitivo": "servicio",
+  "reunion final con la pareja": "eventos", "confirmacion de proveedores": "compras", "asignar personal de servicio": "servicio", "plan de montaje": "servicio",
+  "montaje de sala": "servicio", "ceremonia": "eventos", "aperitivo": "cocina", "banquete": "cocina", "barra libre": "servicio", "fiesta": "servicio" };
+function corRolTarea(texto, roles) {
+  const k = corNorm(texto);
+  if (roles && typeof roles === "object" && COR_DEPS.indexOf(roles[k]) >= 0) return roles[k];
+  if (COR_ROL_TAREA[k]) return COR_ROL_TAREA[k];
+  if (/pedido|proveedor|compra|albaran/.test(k)) return "compras";
+  if (/camarer|personal|montaje|sala|mesa|barra/.test(k)) return "servicio";
+  if (/alerg|menu|plato|cocina|produccion|escandallo/.test(k)) return "cocina";
+  if (/pago|cobro|factura|presupuesto|senal/.test(k)) return "contabilidad";
+  return "eventos";
+}
+/* todo lo que queda por hacer en los eventos de las próximas «hor» días, ordenado por evento. Cada tarea: {ev, evento, fecha, d, rol, txt, txtSin?} */
+function corTareasSemana(doc, hoy, hor) {
+  const roles = ((((doc.params || {}).sec || {}).tareas || {}).data || {}).roles || {}, out = [];
+  const evs = (doc.events || []).filter((e) => e && e.id && !e.anonimizado && e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || ""));
+  evs.forEach((e) => {
+    const F = e.ficha, d = corDias(hoy, F.fecha), est = F.estado || "", s = e._snap || {}, vivo = d >= 0 && /^(reserva|planificacion|confirmada)$/.test(est);
+    const add = (rol, txt, o) => out.push(Object.assign({ ev: e.id, evento: corNombreEv(e), fecha: F.fecha, d, rol, txt, ord: 0 }, o || {}));
+    if (vivo) {
+      /* 1 · el checklist por fases (lo que vence dentro del plazo o ya está fuera de plazo) */
+      (Array.isArray(e.tareas) ? e.tareas : []).forEach((t) => {
+        if (!t || !t.texto || t.estado === "completada" || COR_FASE_DIAS[t.fase] == null) return;
+        const quedan = d - COR_FASE_DIAS[t.fase];
+        if (quedan > (t.fase === "dia" ? Math.min(hor, 7) : hor)) return;
+        const limite = corIsoMas(F.fecha, -COR_FASE_DIAS[t.fase]), plazo = quedan < 0 ? " · FUERA DE PLAZO desde el " + corFechaCorta(limite) : quedan === 0 ? " · vence hoy" : " · vence el " + corFechaCorta(limite);
+        add(corRolTarea(t.texto, roles), String(t.texto).slice(0, 140) + (t.estado === "bloqueada" ? " (bloqueada)" : t.estado === "proceso" ? " (en proceso)" : "") + plazo, { ord: quedan < 0 ? 0 : 1 });
+      });
+      if (d <= hor) {
+        /* 2 · lo que el programa ya sabe que falta */
+        corFaltas(e, hoy).forEach((t) => add("eventos", t, { ord: 2 }));
+        if (COR_SIN_CONFIRMAR[est]) add("eventos", "Sin confirmar (" + COR_ESTADO_TX[est] + ")", { ord: 2 });
+        if (s.sinSust > 0) add("cocina", s.sinSust + (s.sinSust === 1 ? " alergia o dieta sin plato sustituto" : " alergias o dietas sin plato sustituto"), { ord: 2 });
+        if (d <= 10 && corNPlatos(e)) {
+          const ps = Object.keys(e.pedidos || {}).map((k) => e.pedidos[k]).filter((x) => x && Array.isArray(x.lineas)), env = ps.filter((x) => x.env).length;
+          if (!ps.length) add("compras", "Ningún pedido a proveedores hecho", { ord: 2 }); else if (env < ps.length) add("compras", (ps.length - env) + (ps.length - env === 1 ? " pedido por enviar" : " pedidos por enviar"), { ord: 2 });
+        }
+        if (d <= 14) {
+          if (s.camNec > (s.camSi || 0)) add("servicio", "Faltan " + (s.camNec - (s.camSi || 0)) + (s.camNec - (s.camSi || 0) === 1 ? " camarero" : " camareros") + " por confirmar (" + (s.camSi || 0) + " de " + s.camNec + ")", { ord: 2 });
+          if (s.camAvisar > 0) add("servicio", s.camAvisar + (s.camAvisar === 1 ? " camarero" : " camareros") + " por avisar", { ord: 2 });
+        }
+      }
+      /* 3 · los pasos de la agenda del evento (reunión, documento…) que vencen en 3 días o ya vencieron */
+      (s.hitos || []).forEach((h) => {
+        if (h.done || !h.fecha || h.tipo === "pago") return;
+        const dh = corDias(hoy, h.fecha); if (dh > 3) return;
+        add("eventos", String(h.t || "Paso de la agenda").slice(0, 120) + (dh < 0 ? " (vencido el " + corFechaCorta(h.fecha) + ")" : dh === 0 ? " (hoy)" : " (" + corFechaCorta(h.fecha) + ")"), { ord: dh < 0 ? 0 : 1 });
+      });
+    }
+    /* 4 · cobros: los vencidos y los de los próximos 7 días (los importes solo los ven administración, eventos y contabilidad) */
+    if (/^(reserva|planificacion|confirmada|celebrada)$/.test(est)) (s.hitos || []).forEach((h) => {
+      if (h.tipo !== "pago" || h.done || !h.fecha) return;
+      const dh = corDias(hoy, h.fecha); if (dh > 7) return;
+      const imp = h.importe != null ? " (" + corEur(h.importe) + ")" : "", cuando = dh < 0 ? "Pago vencido hace " + (-dh) + (dh === -1 ? " día" : " días") : dh === 0 ? "Pago que vence hoy" : "Pago que vence el " + corFechaCorta(h.fecha);
+      add("contabilidad", cuando + ": " + String(h.t || "pago").slice(0, 100) + imp, { txtSin: cuando + ": " + String(h.t || "pago").slice(0, 100), ord: dh < 0 ? 0 : 1 });
+    });
+    if (est === "celebrada") add("contabilidad", "Celebrado y sin cerrar", { ord: 2 });
+  });
+  return out.sort((a, b) => (a.d - b.d) || (a.ev < b.ev ? -1 : a.ev > b.ev ? 1 : 0) || (a.ord - b.ord) || (COR_DEPS.indexOf(a.rol) - COR_DEPS.indexOf(b.rol)));
+}
+/* la hoja de una persona: {asunto, texto, vacio, mias, resto, eventos}. usr = {name, role}. «pre» = las tareas ya calculadas (para no repetirlo por cada persona). */
+function corSemanalPersona(doc, hoy, usr, cfg, plant, origen, pre) {
+  const sem = (cfg && cfg.semanal) || COR_CFG_DEF.semanal, hor = +sem.dias || 21, T = pre || corTareasSemana(doc, hoy, hor);
+  const rol = COR_ROLES_T[usr.role] ? usr.role : "eventos", admin = rol === "admin", verImp = admin || rol === "eventos" || rol === "contabilidad";
+  const wd = (new Date(hoy + "T00:00:00Z").getUTCDay() + 6) % 7, lunes = corIsoMas(hoy, -wd);
+  const cuando = (d) => d < 0 ? "fue hace " + (-d) + (d === -1 ? " día" : " días") : corEnDias(d);
+  const linea = (t, conRol) => "· " + (conRol ? "[" + COR_ROLES_T[t.rol] + "] " : "") + t.evento + " (" + corFechaCorta(t.fecha) + ", " + cuando(t.d) + ") — " + (verImp || !t.txtSin ? t.txt : t.txtSin);
+  const porRol = (L) => L.slice().sort((a, b) => COR_DEPS.indexOf(a.rol) - COR_DEPS.indexOf(b.rol));   /* estable: dentro de cada rol sigue el orden por evento */
+  const mias = admin ? [] : T.filter((t) => t.rol === rol), resto = admin ? T : porRol(T.filter((t) => t.rol !== rol)), MAX = 25;
+  const lista = (L, conRol) => { const o = L.slice(0, MAX).map((t) => linea(t, conRol)); if (L.length > MAX) o.push("· … y " + (L.length - MAX) + " más: míralas en el programa."); return o; };
+  const bloques = [];
+  const evs = (doc.events || []).filter((e) => e && e.id && !e.anonimizado && e.ficha && /^\d{4}-\d{2}-\d{2}$/.test(e.ficha.fecha || "") && /^(reserva|planificacion|confirmada)$/.test(e.ficha.estado || "") && corDias(hoy, e.ficha.fecha) >= 0 && corDias(hoy, e.ficha.fecha) <= hor).sort((a, b) => (a.ficha.fecha < b.ficha.fecha ? -1 : 1));
+  if (evs.length) bloques.push({ t: "EVENTOS DE LAS PRÓXIMAS SEMANAS (" + evs.length + ")", l: evs.slice(0, 10).map((e) => { const s = e._snap || {}, tot = s.tot || ((s.adultos || 0) + (s.ninos || 0) + (s.staff || 0)); return "· " + corFechaCorta(e.ficha.fecha) + " · " + corNombreEv(e) + (tot ? " · " + tot + " comensales" : "") + (e.ficha.ubicacion ? " · " + e.ficha.ubicacion : ""); }) });
+  if (admin) { COR_DEPS.forEach((d) => { const L = T.filter((t) => t.rol === d); if (L.length) bloques.push({ t: "TAREAS DE " + COR_ROLES_T[d].toUpperCase() + " (" + L.length + ")", l: lista(L, false) }); }); }
+  else {
+    if (mias.length) bloques.push({ t: "TE TOCA A TI · " + COR_ROLES_T[rol].toUpperCase() + " (" + mias.length + ")", l: lista(mias, false) });
+    if (resto.length) bloques.push({ t: "RESTO DEL EQUIPO (" + resto.length + ")", l: lista(resto, true) });
+  }
+  const v = { nombre: corPila(usr.name) || "equipo", rol: COR_ROLES_T[rol], semana: corFechaCorta(lunes), firma: cfg.firma || "" };
+  const L = [corRellenar(plant.semanal_intro, v), ""];
+  const nTot = admin ? T.length : mias.length;
+  if (!nTot) L.push("· No tienes nada pendiente a la vista. Buen comienzo de semana.", "");
+  bloques.forEach((b, i) => { if (i) L.push(""); L.push(b.t); b.l.forEach((x) => L.push(x)); });
+  const link = String(origen || "");
+  if (link && /^https?:\/\//.test(link)) L.push("", "Para marcar una tarea como hecha, entra en el programa (el evento → Tareas):", link + "/");
+  L.push("", String(cfg.firma || ""));
+  return { asunto: corRellenar(plant.semanal_asunto, v), texto: L.join("\n").trim(), vacio: !nTot, mias: mias.length, resto: resto.length, total: T.length, eventos: evs.length };
+}
+/* las personas activas con correo y rol (el resumen semanal se manda a cada una; quien aún no ha aceptado su invitación no cuenta) */
+async function corPersonasSemana(env) {
+  await ensureUsers(env);
+  const { results } = await env.DB.prepare("SELECT email, name, role FROM users WHERE COALESCE(active,1)=1 AND (invite_token IS NULL OR invite_token='')").all(), out = [];
+  (results || []).forEach((r) => { const x = String(r.email || "").trim().toLowerCase(); if (corEmailOk(x) && COR_ROLES_T[r.role] && !out.some((o) => o.email === x)) out.push({ email: x, name: r.name || "", role: r.role }); });
+  return out;
+}
 /* quién recibe lo de un departamento: las personas con ese rol (activas, con correo) + los correos extra. «todos» = todo el equipo activo */
 async function corDestDep(env, dep, cfg, excepto) {
   await ensureUsers(env);
@@ -2617,6 +2736,19 @@ async function correoAutomatico(env, ahora, origen, opt) {
     if (R.vacio || !dest.length) continue;
     if (opt.simular) item.texto = R.texto;
     else for (const d of dest) { const r = await envia({ kind: "resumen", to: d.email, subject: R.asunto, text: R.texto, ref: "resdep:" + dep + ":" + periodo + ":" + d.email, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) item.enviados++; }
+  }
+  /* 1c · v02.30 · la hoja semanal de cada persona: sus tareas y su rol en cada una (si no tiene nada pendiente, no se le manda) */
+  const sm = cfg.semanal;
+  if (sm && sm.on && M.h >= (+sm.hora || 0) && M.wd === (+sm.dia || 0)) {
+    const periodo = corSemana(M.iso), personas = await corPersonasSemana(env), T = corTareasSemana(doc, M.iso, +sm.dias || 21);
+    out.semanal = { periodo, destinatarios: personas.length, enviados: 0, omitidos: 0, personas: [] };
+    for (const u of personas) {
+      const R = corSemanalPersona(doc, M.iso, u, cfg, plant, origen, T), it = { email: u.email, rol: u.role, mias: R.mias, resto: R.resto, vacio: R.vacio };
+      out.semanal.personas.push(it);
+      if (R.vacio && !sm.vacio) { out.semanal.omitidos++; continue; }
+      if (opt.simular) { it.asunto = R.asunto; continue; }
+      const r = await envia({ kind: "resumen", to: u.email, subject: R.asunto, text: R.texto, ref: "sem:" + periodo + ":" + u.email, by: "automático", origen }); cuenta(r); if (r.ok && !r.repetido) out.semanal.enviados++;
+    }
   }
   /* 2 · recordatorios a los clientes (apagados de fábrica) */
   if (cfg.cliente.on && M.h >= (+cfg.cliente.hora || 0)) {
@@ -2689,6 +2821,14 @@ async function correoPut(request, env) {
     if (r.para === "equipo" || r.para === "lista") out.resumen.para = r.para;
     if (r.lista != null) out.resumen.lista = String(r.lista).replace(/[^\w@.,;\s+\-]/g, "").slice(0, 600);
   }
+  if (c.semanal && typeof c.semanal === "object") {
+    const k = c.semanal;
+    if (k.on != null) out.semanal.on = !!k.on;
+    if (k.vacio != null) out.semanal.vacio = !!k.vacio;
+    if (k.dia != null) out.semanal.dia = num(k.dia, 0, 6, out.semanal.dia);
+    if (k.hora != null) out.semanal.hora = num(k.hora, 0, 23, out.semanal.hora);
+    if (k.dias != null) out.semanal.dias = num(k.dias, 7, 60, out.semanal.dias);
+  }
   if (c.cliente) {
     const k = c.cliente;
     ["on", "lista", "pago", "reunion"].forEach((x) => { if (k[x] != null) out.cliente[x] = !!k[x]; });
@@ -2711,7 +2851,7 @@ async function correoPut(request, env) {
       }
     }
   }
-  out.v = 2;
+  out.v = 3;
   if (c.firma != null) out.firma = String(c.firma).slice(0, 200);
   if (c.responder != null) { const r = String(c.responder).trim(); if (r && !corEmailOk(r)) return json({ error: "invalid", message: "El correo para las respuestas no es válido." }, 400); out.responder = r; }
   if (c.respuesta === "quien" || c.respuesta === "general") out.respuesta = c.respuesta;
@@ -2774,6 +2914,23 @@ async function correoResumenRoute(request, env) {
   const a = await correoSesion(request, env, false); if (a.err) return a.err;
   await ensureCorreo(env);
   const b = await body(request), { cfg, plant } = await correoCfg(env), doc = await corDoc(env), M = corMadrid(new Date());
+  if (b.semanal) {   /* v02.30 · la hoja semanal personal: «vista» (la mía, o la de otro rol si soy admin), «yo» (me la envío) o «equipo» (cada persona la suya, ahora) */
+    const origen = new URL(request.url).origin, rolVista = a.s.role === "admin" && COR_ROLES_T[b.rol] ? b.rol : a.s.role;
+    if (b.modo === "vista") { const R = corSemanalPersona(doc, M.iso, { name: a.s.name, role: rolVista }, cfg, plant, origen); return json({ ok: true, asunto: R.asunto, texto: R.texto, vacio: R.vacio, mias: R.mias, resto: R.resto, total: R.total, eventos: R.eventos, rol: rolVista }); }
+    if (b.modo === "yo") { const R = corSemanalPersona(doc, M.iso, { name: a.s.name, role: a.s.role }, cfg, plant, origen), r = await correoEnviar(env, { kind: "resumen", to: a.s.email, subject: R.asunto, text: R.texto, ref: "sem-prueba:" + a.s.uid + ":" + Date.now(), by: a.s.name || a.s.email, origen }); return json(r, r.ok ? 200 : 424); }
+    if (b.modo === "equipo") {
+      if (a.s.role !== "admin") return json({ error: "forbidden", message: "Solo el administrador puede enviarlo al equipo." }, 403);
+      const personas = await corPersonasSemana(env), T = corTareasSemana(doc, M.iso, +(cfg.semanal || {}).dias || 21), res = []; let omitidos = 0;
+      for (const u of personas) {
+        const R = corSemanalPersona(doc, M.iso, u, cfg, plant, origen, T);
+        if (R.vacio && !(cfg.semanal || {}).vacio) { omitidos++; continue; }
+        res.push(await correoEnviar(env, { kind: "resumen", to: u.email, subject: R.asunto, text: R.texto, ref: "sem-manual:" + Date.now() + ":" + u.email, by: a.s.name || a.s.email, origen }));
+      }
+      await logAct(env, a.s, "correo_enviado", "Hoja semanal a cada persona (" + res.length + (res.length === 1 ? " persona" : " personas") + (omitidos ? ", " + omitidos + " sin nada pendiente" : "") + ")");
+      return json({ ok: res.every((r) => r.ok), enviados: res.filter((r) => r.estado === "enviado").length, simulados: res.filter((r) => r.estado === "simulado").length, errores: res.filter((r) => !r.ok).length, destinatarios: personas.length, omitidos });
+    }
+    return json({ error: "invalid" }, 400);
+  }
   if (COR_DEPS.indexOf(b.dep) >= 0) {
     const origen = new URL(request.url).origin, RD = corResumenDep(doc, M.iso, b.dep, cfg, plant, origen);
     if (b.modo === "vista") return json({ ok: true, asunto: RD.asunto, texto: RD.texto, vacio: RD.vacio, eventos: RD.eventos });
