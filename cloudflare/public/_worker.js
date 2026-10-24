@@ -2224,18 +2224,114 @@ function corEnlazar(raw) {
   }
   return out + corEsc(raw.slice(ult));
 }
-function corBoton(u) {
-  const etq = /[?&]cliente=/.test(u) ? "Abrir vuestro enlace privado" : "Abrir el enlace";
+function corBoton(u, etiqueta) {
+  const etq = etiqueta || (/[?&]cliente=/.test(u) ? "Abrir vuestro enlace privado" : "Abrir el enlace");
   return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px"><tr><td align="center" bgcolor="#1f2a24" style="border-radius:6px;mso-padding-alt:13px 24px"><a href="' + corEsc(u) + '" style="display:inline-block;padding:13px 24px;font:600 14px/1 ' + COR_FUENTE + ';color:#ffffff;text-decoration:none;border-radius:6px;mso-padding-alt:0">' + etq + '</a></td></tr></table>' +
     '<div style="margin:0 0 16px;font:12px/1.4 ' + COR_FUENTE + ';color:#8b8b8b;word-break:break-all">' + corEsc(u) + "</div>";
+}
+/* ══ v02.32 · LOS CORREOS DE RESUMEN, MÁS VISUALES ═══════════════════════════════
+   El resumen del equipo, el de cada departamento y la hoja semanal de cada persona se escriben como texto (títulos en mayúsculas y viñetas «· »). Aquí ese
+   mismo texto se dibuja con diseño: el título con las cifras de arriba, cada sección con su contador y cada tarea como una tarjeta con su barra de color,
+   el rol, el plazo en rojo o ámbar y los eventos con su fecha. Todo con tablas y colores de fondo (Outlook de escritorio no entiende casi nada más).
+   El texto sigue siendo el que se guarda y el que se manda como alternativa: si algo no se reconoce, esa línea sale como una tarjeta sencilla. */
+const COR_TONOS = { rojo: ["#fbe6e3", "#9d2a1e", "#d8624f"], ambar: ["#fbf0d6", "#7a5a12", "#d9a53a"], oliva: ["#e8ecdc", "#4f5b33", "#8a9a6b"], neutro: ["#efece4", "#5e5b52", "#cfc8b6"] };
+const COR_ROL_COLOR = { eventos: "#e8ecdc", cocina: "#fbe9d5", compras: "#e3ecf5", servicio: "#efe3f2", contabilidad: "#f5f0d9", administración: "#e6e6e6" };
+const COR_DIA_RX = "dom|lun|mar|mié|jue|vie|sáb";
+/* una viñeta del texto → {ev, dia, num, tit, det, body, chip, badge, tono} */
+function corFilaResumen(raw) {
+  let s = String(raw).replace(/^[·•]\s*/, "").trim(), chip = "", badge = "", tono = "", m;
+  if ((m = /^\[([^\]]+)\]\s*/.exec(s))) { chip = m[1]; s = s.slice(m[0].length); }
+  /* un evento de la lista: «dom 25/10 · NOMBRE · 36 comensales · local» */
+  if ((m = new RegExp("^(" + COR_DIA_RX + ") (\\d\\d)/(\\d\\d) · (.+)$").exec(s))) { const p = m[4].split(" · "); return { ev: true, dia: m[1], num: m[2], mes: m[3], tit: p[0], det: p.slice(1).join(" · ") }; }
+  /* el plazo, si lo trae */
+  if ((m = /\s·\sFUERA DE PLAZO desde el ([^·(]+?)\s*$/.exec(s))) { badge = "Fuera de plazo desde el " + m[1]; tono = "rojo"; s = s.slice(0, m.index); }
+  else if ((m = /\s·\svence hoy\s*$/.exec(s))) { badge = "Vence hoy"; tono = "ambar"; s = s.slice(0, m.index); }
+  else if ((m = /\s·\svence el ([^·(]+?)\s*$/.exec(s))) { badge = "Vence el " + m[1]; tono = "neutro"; s = s.slice(0, m.index); }
+  else if ((m = /\s\((vencido hace \d+ días?|vencido el [^)]+|vencido)\)\s*$/.exec(s))) { badge = m[1][0].toUpperCase() + m[1].slice(1); tono = "rojo"; s = s.slice(0, m.index); }
+  else if ((m = /\s\(hoy\)\s*$/.exec(s))) { badge = "Hoy"; tono = "ambar"; s = s.slice(0, m.index); }
+  if (!badge && (m = /^Pago vencido hace (\d+ días?): /.exec(s))) { badge = "Vencido hace " + m[1]; tono = "rojo"; s = "Pago: " + s.slice(m[0].length); }
+  else if (!badge && (m = /^Pago que vence (hoy|el [^:]+): /.exec(s))) { badge = "Vence " + m[1]; tono = m[1] === "hoy" ? "ambar" : "neutro"; s = "Pago: " + s.slice(m[0].length); }
+  if (!badge && /\b(SIN CONFIRMAR|FALTAN? \d+|MENÚ SIN PLATOS)/.test(s)) { badge = ""; tono = "ambar"; }
+  let tit = "", det = "", body = s;
+  if ((m = new RegExp("^(.+?) \\(((?:" + COR_DIA_RX + ") \\d\\d/\\d\\d)(?:, ([^)]*))?\\) — (.+)$").exec(s))) { tit = m[1]; det = [m[2], m[3]].filter(Boolean).join(" · "); body = m[4]; }
+  else if ((m = new RegExp("^(.+?) \\(((?:" + COR_DIA_RX + ") \\d\\d/\\d\\d)\\): (.+)$").exec(s))) { tit = m[1]; det = m[2]; body = m[3]; }
+  else if ((m = /^(.+?) — (.+)$/.exec(s))) { body = m[1]; tit = m[2]; }
+  return { chip, badge, tono, tit, det, body };
+}
+function corFilaHtml(f) {
+  const ruta = ' style="width:100%"';
+  if (f.ev) return '<tr><td style="padding:0 0 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f3;border:1px solid #ece6d6"><tr>' +
+    '<td width="62" align="center" bgcolor="#f1ead8" style="width:62px;background:#f1ead8;padding:8px 4px;font:600 11px/1.2 ' + COR_FUENTE + ';letter-spacing:.08em;color:#8a6d3b;text-transform:uppercase">' + corEsc(f.dia) + '<br><span style="font:26px/1.1 Georgia,\'Times New Roman\',serif;color:#1f2a24;letter-spacing:0">' + corEsc(f.num) + '</span><br><span style="font:11px/1.2 ' + COR_FUENTE + ';color:#8b8b8b;letter-spacing:0">/' + corEsc(f.mes) + '</span></td>' +
+    '<td style="padding:10px 14px;font:15px/1.4 ' + COR_FUENTE + ';color:#2b2b2b"><b style="font-weight:700;color:#1f2a24">' + corEsc(f.tit) + "</b>" + (f.det ? '<br><span style="font-size:13px;color:#6b6a62">' + corEsc(f.det) + "</span>" : "") + "</td></tr></table></td></tr>";
+  const barra = (COR_TONOS[f.tono] || COR_TONOS.oliva)[2], rolC = f.chip ? (COR_ROL_COLOR[corNorm(f.chip)] || "#efece4") : "", bc = COR_TONOS[f.tono] || COR_TONOS.neutro;
+  /* el rol y el plazo van juntos arriba de la tarjeta (no en una columna aparte: en el móvil apretaría el texto y haría el correo más ancho que la pantalla) */
+  const chips = (f.chip ? '<td bgcolor="' + rolC + '" style="background:' + rolC + ';border-radius:4px;padding:2px 8px;font:700 10px/1.4 ' + COR_FUENTE + ';letter-spacing:.1em;color:#4b4a43;text-transform:uppercase">' + corEsc(f.chip) + "</td>" : "") +
+    (f.chip && f.badge ? '<td width="6" style="width:6px;font-size:0">&nbsp;</td>' : "") +
+    (f.badge ? '<td bgcolor="' + bc[0] + '" style="background:' + bc[0] + ';border-radius:99px;padding:2px 10px;font:600 11px/1.4 ' + COR_FUENTE + ';color:' + bc[1] + '">' + corEsc(f.badge) + "</td>" : "");
+  return '<tr><td style="padding:0 0 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f3;border:1px solid #ece6d6"><tr>' +
+    '<td width="4" bgcolor="' + barra + '" style="width:4px;background:' + barra + ';font-size:0;line-height:0">&nbsp;</td>' +
+    '<td style="padding:10px 14px;font:15px/1.4 ' + COR_FUENTE + ';color:#2b2b2b">' +
+    (chips ? '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px"><tr>' + chips + "</tr></table>" : "") +
+    (f.tit ? '<b style="font-weight:700;color:#1f2a24">' + corEsc(f.tit) + "</b>" + (f.det ? ' <span style="font-size:12.5px;color:#8b8b8b">' + corEsc(f.det) + "</span>" : "") + "<br>" : "") +
+    corEsc(f.body) + "</td></tr></table></td></tr>";
+}
+function corEtiquetaTile(t) {
+  const x = t.replace(/\s*\(.*$/, "").trim();
+  if (/^ESTA SEMANA/.test(x)) return /\(1 evento\)/.test(t) ? "Evento esta semana" : "Eventos esta semana";
+  if (/^(EVENTOS DE LAS PR|PRÓXIMOS EVENTOS)/.test(x)) return "Próximos eventos";
+  if (/^QUEDA POR HACER/.test(x)) return "Por hacer";
+  if (/^TE TOCA A TI/.test(x)) return "Te toca a ti";
+  if (/^RESTO DEL EQUIPO/.test(x)) return "Resto del equipo";
+  if (/^COBROS/.test(x)) return "Cobros a la vista";
+  return x.charAt(0) + x.slice(1).toLowerCase();
+}
+function corPartesResumen(t, o) {
+  const esTit = (s) => /^[A-ZÁÉÍÓÚÜÑ0-9 ·]{4,}(\(.*\))?$/.test(s) && /[A-ZÁÉÍÓÚÜÑ]{3}/.test(s) && !/^[·•]/.test(s);
+  const intro = [], secs = [], resto = []; let cur = null, enResto = false, parr = [];
+  const cierraResto = () => { if (parr.length) { resto.push(parr.slice()); parr = []; } };
+  t.split("\n").forEach((l) => {
+    const s = l.trim();
+    if (!s) { if (enResto) cierraResto(); return; }
+    if (esTit(s)) { cur = { t: s, rows: [] }; secs.push(cur); enResto = false; return; }
+    if (/^[·•]\s+/.test(s)) { if (!cur) { cur = { t: "", rows: [] }; secs.push(cur); } cur.rows.push(s); return; }
+    if (!secs.length) { intro.push(s); return; }
+    enResto = true; parr.push(s);
+  });
+  cierraResto();
+  const P = [], p = (txt) => '<p style="margin:0 0 14px;font:15px/1.65 ' + COR_FUENTE + ';color:#2b2b2b">' + txt + "</p>";
+  /* título y cifras */
+  const partes = String(o.subject || "").split(" · ").map((x) => x.trim()).filter((x) => x && x !== "Les Moles Events"), tit = (partes[0] || "Resumen").replace(/ en Les Moles Events$/, ""), sub = partes.slice(1).join(" · ");
+  const info = secs.map((sc) => ({ sc, n: (/\((\d+)/.exec(sc.t) || [])[1], filas: sc.rows.map(corFilaResumen) }));
+  const venc = info.reduce((a, x) => a + x.filas.filter((f) => f.tono === "rojo").length, 0);
+  const tiles = info.filter((x) => x.sc.t && x.filas.length).slice(0, 3).map((x) => ({ n: x.n != null ? x.n : x.filas.length, l: corEtiquetaTile(x.sc.t), tono: "neutro" }));
+  if (venc) tiles.push({ n: venc, l: "Vencidas o fuera de plazo", tono: "rojo" });
+  P.push('<div style="margin:0 0 4px;font:25px/1.2 Georgia,\'Times New Roman\',serif;color:#1f2a24">' + corEsc(tit) + "</div>" + (sub ? '<div style="margin:0 0 16px;font:600 11px/1.4 ' + COR_FUENTE + ';letter-spacing:.14em;text-transform:uppercase;color:#8a6d3b">' + corEsc(sub) + "</div>" : '<div style="margin:0 0 16px"></div>'));
+  /* las cifras: una fila de hasta 3; si son 4, dos filas de dos (en el móvil, 4 en fila no caben) */
+  if (tiles.length) {
+    const porFila = tiles.length === 4 ? 2 : tiles.length, filas = [];
+    for (let k = 0; k < tiles.length; k += porFila) filas.push(tiles.slice(k, k + porFila));
+    const celda = (x, i, n) => { const c = x.tono === "rojo" ? COR_TONOS.rojo : ["#f6f1e4", "#5e5b52"]; return '<td width="' + Math.floor(100 / porFila) + '%" valign="top" style="padding:0 ' + (i < n - 1 ? "5px" : "0") + ' 0 ' + (i ? "5px" : "0") + '"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + c[0] + '" style="background:' + c[0] + ';border-radius:8px;padding:10px 12px;font:10.5px/1.3 ' + COR_FUENTE + ';letter-spacing:.06em;text-transform:uppercase;color:' + c[1] + '"><span style="font:26px/1.1 Georgia,\'Times New Roman\',serif;letter-spacing:0;color:' + (x.tono === "rojo" ? c[1] : "#1f2a24") + '">' + corEsc(x.n) + "</span><br>" + corEsc(x.l) + "</td></tr></table></td>"; };
+    P.push('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px">' + filas.map((f, r) => (r ? '<tr><td style="height:10px;line-height:10px;font-size:0" colspan="' + porFila + '">&nbsp;</td></tr>' : "") + "<tr>" + f.map((x, i) => celda(x, i, f.length)).join("") + "</tr>").join("") + "</table>");
+  }
+  if (intro.length) P.push('<div style="height:10px;line-height:10px;font-size:0">&nbsp;</div>' + intro.map((x) => p(corEnlazar(x))).join(""));
+  info.forEach((x) => {
+    const cabeza = x.sc.t ? (() => { const m = /^(.*?)\s*\((.*)\)\s*$/.exec(x.sc.t), nom = m ? m[1] : x.sc.t, cnt = m ? m[2] : ""; return '<div style="margin:22px 0 10px;padding-top:14px;border-top:1px solid #e8e2d4;font:700 12px/1.3 ' + COR_FUENTE + ';letter-spacing:.12em;color:#8a6d3b">' + corEsc(nom) + (cnt ? ' <span style="font-weight:600;letter-spacing:0;color:#8b8b8b">· ' + corEsc(cnt) + "</span>" : "") + "</div>"; })() : "";
+    P.push(cabeza + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">' + x.filas.map(corFilaHtml).join("") + "</table>");
+  });
+  resto.forEach((pp) => {
+    const u = pp.length === 1 && /^https?:\/\/\S+$/.test(pp[0]) ? pp[0] : "";
+    if (u) P.push(corBoton(u, "Abrir el programa")); else P.push('<div style="height:8px;line-height:8px;font-size:0">&nbsp;</div>' + p(pp.map(corEnlazar).join("<br>")));
+  });
+  return P;
 }
 function corHtml(texto, o) {
   o = o || {};
   const t = String(texto == null ? "" : texto).replace(/\r/g, "").trim();
   if (o.marca === false) return '<div style="font:15px/1.5 ' + COR_FUENTE + ';color:#222;max-width:620px">' + corEnlazar(t).replace(/\n/g, "<br>") + "</div>";
-  const partes = []; let par = [];
+  let partes = []; let par = [];
   const cierra = () => { if (par.length) { const trasLista = partes.length && /^<div style="margin:0 0 7px/.test(partes[partes.length - 1]); partes.push('<p style="margin:' + (trasLista ? "18px" : "0") + ' 0 14px;font:15px/1.65 ' + COR_FUENTE + ';color:#2b2b2b">' + par.map(corEnlazar).join("<br>") + "</p>"); par = []; } };
-  t.split("\n").forEach((l) => {
+  if (o.kind === "resumen") { try { partes = corPartesResumen(t, o); } catch (_) { partes = []; } }
+  if (!partes.length) t.split("\n").forEach((l) => {
     const s = l.trim();
     if (!s) { cierra(); return; }
     if (/^https?:\/\/\S+$/.test(s)) { cierra(); partes.push(corBoton(s)); return; }

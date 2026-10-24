@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.31** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.32** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,10 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.32
+- **Los correos de resumen, con diseño de verdad.** El resumen del equipo, el de cada departamento y la hoja semanal de cada persona ya no son una lista de texto con rayas. Ahora llevan: **el título con las cifras de arriba** (eventos de la semana, tareas por hacer, cuántas están vencidas o fuera de plazo, en rojo), **cada sección con su contador**, **cada tarea como una tarjeta** con su barra de color (rojo si está vencida, ámbar si vence hoy, verde si no corre prisa), el **rol** de quien se encarga (Eventos, Cocina, Compras, Servicio, Contabilidad, cada uno con su color), **el plazo en una insignia** («Vencido hace 24 días», «Fuera de plazo desde el jue 22/10», «Vence el jue 29/10») y **los eventos con su fecha en grande** (día de la semana y número). El enlace al programa es un botón «Abrir el programa».
+- Se ve bien en el móvil (las cifras pasan a dos filas de dos, sin que el correo sea más ancho que la pantalla) y está hecho con tablas y colores de fondo para que **Outlook de escritorio** lo dibuje igual. El texto sigue siendo el mismo que se guarda y se envía como alternativa, y lo que el programa no reconoce sale como una tarjeta sencilla.
 
 ### Novedad de la versión 02.31
 - **El «Resumen del equipo» ya se puede probar.** Ese bloque (un solo correo, igual para todos, a una lista de direcciones o a administración y eventos) no tenía botones: solo salía el día que le tocaba. Ahora lleva **«Ver el resumen de hoy»**, **«Enviarme ese resumen de prueba»** y **«Enviarlo ahora a la lista»** (pide confirmación y, al terminar, dice **a qué direcciones ha salido** y si alguna ha dado error). Usan lo guardado: hay que pulsar «Guardar» antes de probar.
