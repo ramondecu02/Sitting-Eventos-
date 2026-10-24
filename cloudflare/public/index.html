@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.27 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.28 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.27".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.28".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4634,7 +4634,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.27</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.28</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -10413,7 +10413,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.27</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.28</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -15931,8 +15931,49 @@ var MOBILIARIO_DATA=[
     mobiliario:[{art:"Cubo de basura",uds:1}],
     utensilios:[{art:"Tabla azul pequeña",uds:1},{art:"Abreostras",uds:1},
                 {art:"Bol inox con agua y sal",uds:2},{art:"Bayeta",uds:1},
-                {art:"Hielo picado",uds:null},{art:"Trapo blanco",uds:1}],
+                {art:"Hielo picado",uds:null},{art:"Molinillo de pimienta",uds:1},{art:"Trapo blanco",uds:1}],
     nota:"Material para montar la estación: el mismo tanto si el evento es de 30 como de 300 comensales. Las ostras que se sirven sí van por comensal — están en Producción y en Compra." },
+
+  /* v02.28 · los listados reales de cada elaboración (correo de Ramon, 24/10/2026). Cada elaboración de la brasa es un montaje COMPLETO con sus
+     cantidades (no se suman a los de otra brasa): por eso van como reglas de plato, y salen debajo de su plato en el check list.
+     Lo que no traía número en el correo (tabla roja, caja de metacrilato, cubos, molinillo) se ha puesto como 1; el hielo picado, «a ojo». */
+  { nombre:"Brasa hamburguesa",
+    cuando:{tipo:"plato", valor:"Mini burguer de vaca vieja"},
+    base:"EVENTO",
+    mobiliario:[{art:"Cubo de basura pequeño",uds:1}],
+    utensilios:[{art:"Violín",uds:4},{art:"Pinza",uds:2},{art:"Pinza grande",uds:1},{art:"Espátula grande",uds:1},{art:"Cuenco de sal Maldon",uds:1}],
+    nota:"Material para montar esta brasa: el mismo tanto si el evento es de 30 como de 300 comensales." },
+
+  { nombre:"Brasa chuletón",
+    cuando:{tipo:"plato", valor:"Chuletón"},
+    base:"EVENTO",
+    mobiliario:[{art:"Cubo de basura",uds:1},{art:"Cubo de basura pequeño",uds:1}],
+    utensilios:[{art:"Violín",uds:4},{art:"Pinza pequeña",uds:2},{art:"Pinza grande",uds:1},{art:"Espátula grande",uds:1},
+                {art:"Tabla roja grande",uds:1},{art:"Cuchillo",uds:1},{art:"Cuenco de sal Maldon",uds:1},{art:"Cuenco de tenedores",uds:2}],
+    nota:"Material para montar esta brasa: el mismo tanto si el evento es de 30 como de 300 comensales. En el listado original salían un cubo de basura y otro pequeño." },
+
+  { nombre:"Brasa pulpo",
+    cuando:{tipo:"plato", valor:"Pulpo"},
+    base:"EVENTO",
+    mobiliario:[{art:"Cubo de basura pequeño",uds:1}],
+    utensilios:[{art:"Violín",uds:6},{art:"Pinza pequeña",uds:3},{art:"Pinza grande",uds:1},{art:"Espátula grande",uds:1},
+                {art:"Tabla azul grande",uds:1},{art:"Cuchillo",uds:1},{art:"Cuenco de sal Maldon",uds:1},{art:"Cuenco de tenedores",uds:2}],
+    nota:"Material para montar esta brasa: el mismo tanto si el evento es de 30 como de 300 comensales." },
+
+  { nombre:"Carro de helados",
+    cuando:{tipo:"estacion", valor:"CARRITO DE HELADOS"},
+    base:"EVENTO",
+    mobiliario:[{art:"Cubo de basura pequeño",uds:1}],
+    utensilios:[{art:"Cucuruchera",uds:1},{art:"Caja de metacrilato",uds:1},{art:"Soporte inox para caja de cucuruchos",uds:1},
+                {art:"Cuchara de helado pequeña",uds:2},{art:"Bote de Pacojet",uds:2},{art:"Bayeta",uds:1}],
+    nota:"Material para montar el carro: el mismo tanto si el evento es de 30 como de 300 comensales." },
+
+  { nombre:"Café, copa y puro",
+    cuando:{tipo:"estacion", valor:"CAFÉ, COPA Y PURO"},
+    base:"EVENTO",
+    mobiliario:[],
+    utensilios:[{art:"Aireador",uds:2},{art:"Cuenco blanco",uds:6},{art:"Cuchara",uds:6},{art:"Espumadera",uds:1},{art:"Jarra de plástico",uds:1},{art:"Embudo",uds:1}],
+    nota:"Material para montar la estación: el mismo tanto si el evento es de 30 como de 300 comensales." },
 
   { nombre:"Montaje de cada mesa de aperitivo",
     cuando:{tipo:"evento"},
@@ -16041,12 +16082,15 @@ function estacionesSinMobiliario(){
     if(r.cuando.tipo==="estacion") porEstacion[r.cuando.valor]=1;
     if(r.cuando.tipo==="plato") porPlato[r.cuando.valor]=1;
   });
-  var falta={};
+  /* una estación con datos para algunos de sus platos (la brasa: pulpo, chuletón…) y no para otros: se nombran los platos que faltan, no la estación entera */
+  var falta={}, sinPlato={}, parcial={};
   sel.forEach(function(d){
-    if(!d.station||porEstacion[d.station]||porPlato[d.name]) return;
-    falta[d.station]=1;
+    if(!d.station||porEstacion[d.station]) return;
+    if(porPlato[d.name]){ parcial[d.station]=1; return; }
+    falta[d.station]=1; (sinPlato[d.station]=sinPlato[d.station]||[]).push(d.name);
   });
-  return Object.keys(falta).sort(function(a,b){return a.localeCompare(b,"es");});
+  var out=[]; Object.keys(falta).forEach(function(st){ if(parcial[st]) sinPlato[st].forEach(function(n){ out.push(n); }); else out.push(st); });
+  return out.sort(function(a,b){return a.localeCompare(b,"es");});
 }
 
 /* ══ Servicio: platos y cubiertos, según el catálogo de material ═════ */
@@ -19067,6 +19111,22 @@ function conCreoPersonalizado(fams,pm){
   var nds=ds.slice(); nds.splice(bi>-1?bi+1:nds.length,0,nu);
   return fams.map(function(f){ return f===fp?Object.assign({},f,{dishes:nds}):f; });
 }
+/* v02.28 · los listados de utensilios de cada elaboración se añadieron después: a unas reglas de montaje guardadas ANTES se les añaden las que
+   falten (las que ya tengan su propia regla para ese plato o estación no se tocan) y el molinillo de pimienta de las ostras. Lo guardado a partir de
+   esa fecha se respeta tal cual: si alguien quita una después, no vuelve. */
+var MOB_PARTIDA_DESDE=Date.UTC(2026,9,25,0,0), MOB_PARTIDA=["Brasa hamburguesa","Brasa chuletón","Brasa pulpo","Carro de helados","Café, copa y puro"];
+function conMobiliarioDePartida(reglas,meta){
+  if(meta&&(meta.updated||0)>=MOB_PARTIDA_DESDE) return reglas;
+  var nn=function(x){ return String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim(); }, out=clon(reglas);
+  DEF_MOBILIARIO.forEach(function(d){
+    if(MOB_PARTIDA.indexOf(d.nombre)<0) return; var c=d.cuando;
+    if(out.some(function(r){ var rc=r.cuando||{}; return rc.tipo===c.tipo&&nn(rc.valor)===nn(c.valor); })) return;
+    out.push(clon(d)); });
+  out.forEach(function(r){ var c=r.cuando||{};
+    if(c.tipo==="plato"&&nn(c.valor)===nn("Buffet de ostras del Delta del Ebro")&&!(r.utensilios||[]).some(function(i){ return /molinillo/.test(nn(i.art)); }))
+      r.utensilios=(r.utensilios||[]).concat([{art:"Molinillo de pimienta",uds:1}]); });
+  return out;
+}
 function aplicarParamsMenu(){
   var pm=BR.param("platos"), fams=(pm&&pm.fams&&pm.fams.length)?pm.fams:DEF_MENU;
   /* «Arroces» (entre Pescados y Carnes) se añadió después: si el catálogo
@@ -19103,7 +19163,7 @@ function aplicarParamsMenu(){
     cat.custom=true; cat.auto=true; cat.label=String(o.label||"Bebida"); cat.poblacion=o.poblacion==="total"?"total":"adultos"; cat.redondeo=o.redondeo==="floor"?"floor":"ceil";
     cat.tramos=(Array.isArray(o.tramos)&&o.tramos.length)?clon(o.tramos):[{etq:"",div:10}]; cat.opciones=Array.isArray(o.opciones)?clon(o.opciones):[]; cat.ud=o.ud||"botellas";
     cat.grupo=BEB_GRUPOS.some(function(g){ return g.k===o.grupo; })?o.grupo:""; cat.barra=!!o.barra; });
-  var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?pmo.reglas:DEF_MOBILIARIO);
+  var pmo=BR.param("montaje"); enSuSitio(MOBILIARIO_DATA,(pmo&&pmo.reglas)?conMobiliarioDePartida(pmo.reglas,BR.paramMeta?BR.paramMeta("montaje"):null):DEF_MOBILIARIO);
 }
 BR.onParams(function(){ aplicarParamsMenu(); try{ if(document.body.classList.contains("mode-menu")) refreshAll(); }catch(_){} });
 /* ══ ALÉRGENOS DESDE EL ESCANDALLO (seguridad: la app PROPONE, una persona DECIDE) ══

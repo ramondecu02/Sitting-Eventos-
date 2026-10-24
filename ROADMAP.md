@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.27** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.28** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.28
+- **Los listados reales de utensilios de cada elaboración, ya cargados de serie** (los del correo del restaurante): **brasa hamburguesa**, **brasa chuletón**, **brasa pulpo**, **carro de helados**, **café, copa y puro** y **buffet de ostras** (a este se le añadió el molinillo de pimienta que faltaba). Cada elaboración de la brasa es un montaje **completo y distinto** (el pulpo, 6 violines, 3 pinzas pequeñas y la tabla azul; el chuletón, 4 violines, la tabla roja y 2 cuencos de tenedores; la hamburguesa, 4 violines y 2 pinzas, sin cuchillo ni tabla), así que van como reglas **de cada plato** y salen **debajo de su plato** en el check list de servicio, sin mezclarse y sumándose en el total del almacén si se sirven varias. El carro de helados y el café, copa y puro van como «Montaje de la estación». Todo se puede corregir en Parámetros → Platos y escandallo, abriendo el plato.
+- **Lo que el correo no decía, puesto con lo más lógico (revisar):** la tabla roja, la caja de metacrilato, los cubos de basura y el molinillo, sin número en el listado, quedan en **1**; el **hielo picado**, «a ojo». En el chuletón salían un cubo de basura y otro «pequeño»: se han dejado los dos. En la hamburguesa, «2 pinzas» sin «pequeñas», tal cual.
+- **A las reglas guardadas antes de hoy se les añade solo lo que falte** (sin pisar lo que ya tuvieran para ese plato o estación). Lo guardado a partir de ahora se respeta tal cual: si se quita una regla, no vuelve.
+- **El aviso «Todavía sin mobiliario propio»** nombra ahora **los platos que faltan** cuando una estación está cubierta a medias (en la brasa: gambas, langostinos, papada y ventresca todavía no tienen listado), y no la estación entera.
 
 ### Novedad de la versión 02.27
 - **Correo de prueba con el remitente de pruebas de Resend.** Con `onboarding@resend.dev` (el que se usa mientras no haya dominio verificado), Resend solo deja escribir **al correo con el que se registró la cuenta**. Si el correo de prueba va a otra dirección, ahora la pantalla explica la regla y ofrece el botón **«Enviar la prueba a (esa dirección)»** con un clic, en vez de obligar a cambiar el correo de nadie. La frase de Resend ya no sale cortada a medias. Para escribir a los demás (equipo y clientes) sigue haciendo falta verificar un dominio.
