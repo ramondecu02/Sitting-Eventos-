@@ -100,6 +100,7 @@ export const hecho = [
   'El primer pago, una vez cobrado, queda fijado: al añadir o quitar invitados solo cambia el último pago (total − señal − primer pago); igual en portal, presupuesto, PDF, agenda y avisos · v02.35',
   'Las bebidas añadidas en Consumo real (Coca-Cola, Fanta, refrescos) ya cuentan en los costes: precio por nombre para todos los eventos, en la fila de Consumo real, en Rentabilidad y en Precios y costes · v02.35',
   'Avisos por correo de lo que hace el cliente en su portal (mensajes al momento; justificantes, DNI, aprobaciones y lista en un resumen por persona cada hora), con horas de silencio, tope diario, botón directo al portal de cada evento y «Enviarme un aviso de ejemplo» · v02.36',
+  'El orden de los platos del menú del portal del cliente (y de los textos que se le mandan) lo marca la escaleta, no el alfabeto del catálogo; portal y minuta llevan el mismo orden, y una aprobación ya hecha no se invalida si solo cambia el orden · v02.37',
 ];
 
 export const decisiones = [

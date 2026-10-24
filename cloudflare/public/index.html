@@ -22,12 +22,12 @@
       d.setAttribute("role","alert");
       d.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;background:#8E2C48;color:#fff;font:13px/1.45 system-ui,sans-serif;padding:12px 44px 12px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35)";
       d.innerHTML='<b>Algo no ha cargado bien.</b> Recarga la página (Ctrl+Shift+R). Si sigue pasando, envía una captura de este aviso.<br><small style="opacity:.85">'+
-        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.36 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
+        String(msg).replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+' · Versión 02.37 · '+navigator.userAgent.replace(/[&<>]/g,"")+'</small>'+
         '<button type="button" aria-label="Cerrar" style="position:absolute;top:8px;right:8px;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>';
       d.querySelector("button").onclick=function(){ d.remove(); };
       /* y se lo cuenta al servidor, para que el administrador se entere (solo con sesión; el mismo aviso no se repite) */
       try{ if(!window.__lmRep) window.__lmRep={}; var kk=String(msg).slice(0,120); if(!window.__lmRep[kk]){ window.__lmRep[kk]=1;
-        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.36".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
+        fetch("/api/error",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",keepalive:true,body:JSON.stringify({msg:String(msg).slice(0,380),src:location.pathname+(location.search?"?…":""),v:"Versión 02.37".replace(/\D*/,"")})}).catch(function(){}); } }catch(_){}
       (document.body||document.documentElement).appendChild(d);
     }
     if(document.body) put(); else document.addEventListener("DOMContentLoaded",put);
@@ -4651,7 +4651,7 @@ html.cne-abierto{overflow:hidden}
   </button>
   <div class="side-pres" id="side-pres" role="status" aria-live="polite" hidden></div>
   <div class="side-nav" id="side-nav"></div>
-  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.36</span></div>
+  <div class="side-foot"><div class="saveind" id="saveind" role="status" aria-live="polite" data-st="local"><i aria-hidden="true"></i><span>Guardado en este dispositivo</span></div><button type="button" id="side-users" hidden>Equipo y accesos</button><button type="button" id="side-install" hidden>Instalar la app</button><button type="button" id="side-pass">Mi contraseña</button><button type="button" id="side-out">Cerrar sesión</button><span class="side-ver" id="side-ver" title="Versión de la app que está cargada en este navegador">Versión 02.37</span></div>
 </aside>
 <button type="button" class="side-show" id="side-show" aria-label="Mostrar el menú" title="Mostrar el menú (Alt + M)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <script>
@@ -5160,6 +5160,7 @@ function platosPropios(e){
 }
 /* el menú de un evento cualquiera, por tiempos: catálogo marcado + a mano */
 function menuPorFamilias(e){
+  try{ if(window.LM_menuEscaleta){ var oe=window.LM_menuEscaleta(e); if(oe) return oe; } }catch(_){}   /* v02.37 · el orden lo marca la escaleta; el del catálogo (alfabético) solo si no se puede calcular */
   var dm=(e&&e.menu&&e.menu.dishes)||{}, pr=platosPropios(e), out=[];
   if(typeof MENU_DATA!=="undefined") MENU_DATA.forEach(function(f){
     var ds=f.dishes.filter(function(x){ return dm[x._uid]; }).map(function(x){ return x.name; })
@@ -10592,7 +10593,7 @@ function abrirMas(){
     (window.LM_instalable&&window.LM_instalable()?'<button class="btn big" id="mas-install" type="button">Instalar la app</button>':'')+
     '<button class="btn big" id="mas-pass" type="button">Mi contraseña</button>'+
     '<button class="btn big" id="mas-out" type="button">Cerrar sesión</button>'+
-    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.36</p></div></div>';
+    '<p class="pay-hint" style="margin:6px 0 0">Versión 02.37</p></div></div>';
   document.body.appendChild(ovl);
   function close(){ ovl.remove(); ovlOpen=false; document.removeEventListener("keydown",esc); }
   function esc(e){ if(e.key==="Escape") close(); }
@@ -10979,10 +10980,20 @@ function portalFoto(e){
 /* v02.17 · el menú solo se puede aprobar cuando el equipo lo cierra y lo envía a aprobar (o si ya había una aprobación anterior) */
 function menuAprobarDe(e){ var c=e&&e.cierreMenu, a=e&&e.aprobaciones&&e.aprobaciones.menu; if(c&&typeof c==="object"&&("ts" in c)) return !!c.ts; return !!(a&&a.ts); }   /* sin «cierreMenu» (eventos de antes): vale si ya había una aprobación */
 /* pone al día la foto de un evento compartido (sin tocar e.updated: es un dato derivado) */
+/* ¿dos menús publicados llevan los mismos platos en las mismas familias (sin mirar el orden)? */
+function menuMismoContenido(x,y){
+  var cn=function(m){ return JSON.stringify((m||[]).map(function(f){ return [String(f.fam),(f.platos||[]).slice().sort()]; }).sort(function(p,q){ return p[0]<q[0]?-1:p[0]>q[0]?1:0; })); };
+  return cn(x)===cn(y);
+}
 function portalAlDia(e){
   if(!e||!e.share||!e.share.on) return false;
   if(!puedeVer("portal")) return false;   /* quien no gestiona el portal no lo recalcula: ni ve el presupuesto ni el servidor le deja escribirlo */
-  var f=portalFoto(e), a=JSON.stringify(f);
+  var f=portalFoto(e);
+  /* v02.37 · si el cliente ya aprobó el menú y lo ÚNICO que cambia es el orden en que se enseña (ahora lo marca la escaleta), se deja como estaba:
+     la aprobación va ligada a lo publicado y no se le pide aprobar otra vez lo mismo. Si cambia algún plato, entra el orden nuevo y se aprueba de nuevo, como siempre. */
+  try{ var ap0=e.aprobaciones&&e.aprobaciones.menu, pv=e.share.portal;
+    if(ap0&&ap0.ts&&pv&&(pv.menu||[]).length&&menuMismoContenido(pv.menu,f.menu)&&JSON.stringify(pv.menu)!==JSON.stringify(f.menu)){ f.menu=pv.menu; if(pv.menuTr) f.menuTr=pv.menuTr; } }catch(_){}
+  var a=JSON.stringify(f);
   if(PORTAL_J[e.id]===a&&e.share.portal) return false;
   PORTAL_J[e.id]=a;
   if(e.share.portal&&JSON.stringify(e.share.portal)===a) return false;
@@ -15670,7 +15681,8 @@ function totals(){
    y los datos del evento son un campo más de cada evento (como el plano de
    mesas), así que se guardan y se sincronizan con el equipo con el mismo
    mergeStore/pushRemote/mergeRemote de siempre — nada nuevo que mantener. */
-function ev(){ return BR.current(); }
+var EV_COMO=null;   /* v02.37 · evento «prestado»: deja calcular con la lógica de la escaleta un evento que no es el abierto (el portal se recalcula de todos) */
+function ev(){ return EV_COMO||BR.current(); }
 function menu(){ var e=ev(); return e?e.menu:null; }
 function touchSave(){ var e=ev(); if(e){ e.updated=Date.now(); BR.save(); } }
 
@@ -18308,6 +18320,7 @@ function textoAItems(txt){
   while(it.length&&it[it.length-1].t==="gap") it.pop();
   return it;
 }
+window.LM_datosMinuta=function(){ return datosMinuta(); };   /* para las pruebas: la minuta tal como se va a dibujar */
 function datosMinuta(){
   var sel=selectedDishes(), e=ev(), fecha="", fechaTxt="", fechaCorta="", mn0=(menu()&&menu().minuta)||{}, idioma=mnIdioma(mn0.idioma||mnIdiomaDefecto(e)), L=mnLang(idioma), TF=function(k){ return window.LM_TRAD?window.LM_TRAD.fam(k,idioma):""; };
   try{ var f=e&&e.ficha&&e.ficha.fecha; if(f){ var d0=new Date(f+"T00:00:00"); var s=d0.toLocaleDateString(L.loc,{weekday:"long",day:"numeric",month:"long",year:"numeric"}); fecha=s.charAt(0).toUpperCase()+s.slice(1);
@@ -18720,6 +18733,23 @@ function escOrdenar(ds,cfg){
     var pa=pos[a.d._uid], pb=pos[b.d._uid];
     if(pa!=null&&pb!=null) return pa-pb; if(pa!=null) return -1; if(pb!=null) return 1; return a.i-b.i; }).map(function(x){ return x.d; });
 }
+/* v02.37 · EL MENÚ EN EL ORDEN DE LA ESCALETA (portal del cliente, textos al cliente y resumen): los aperitivos y las estaciones en el orden de salida
+   que se les ha dado en la escaleta (El clásico primero, cada plato en su bloque) y, detrás, el banquete por tiempos (entrantes, pescados, carnes, postres…),
+   como sale allí. Misma forma que menuPorFamilias(e): [{fam,key,platos:[nombres]}]. No escribe nada en el evento. */
+function menuEnOrdenEscaleta(e){
+  if(!e) return null;
+  EV_COMO=e;
+  try{
+    var cfg=(e.menu&&e.menu.escaleta)||{}, AE=escAperYEst(cfg), sel=selectedDishes(), lab={}, out=[], vistos={};
+    MENU_DATA.forEach(function(f){ lab[f.key]=f.label; });
+    var sec=function(k,ds){ ds=ds.filter(function(d){ return d&&!vistos[d._uid]; }); ds.forEach(function(d){ vistos[d._uid]=1; });
+      if(ds.length) out.push({fam:lab[k]||k,key:k,platos:ds.map(function(d){ return d.name; })}); };
+    sec("APERITIVOS",AE.aper); sec("ESTACIONES",AE.est);
+    MENU_DATA.forEach(function(f){ if(f.key==="APERITIVOS"||f.key==="ESTACIONES") return; sec(f.key,sel.filter(function(d){ return d._famKey===f.key; })); });
+    return out;
+  } finally { EV_COMO=null; }
+}
+window.LM_menuEscaleta=menuEnOrdenEscaleta;
 function escAperYEst(cfg){
   var sel=selectedDishes().filter(function(d){ return d._famKey==="APERITIVOS"||d._famKey==="ESTACIONES"; });
   var o=escOrdenar(sel,cfg);

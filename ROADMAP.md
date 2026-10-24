@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.36** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.37** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,12 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.37
+- **El orden de los platos del menú lo marca la escaleta.** En el portal del cliente («Aprobar» y «El día») los aperitivos y las estaciones salían **por orden alfabético del catálogo**; ahora salen **en el orden de salida de la escaleta** (El clásico primero, el orden que hayas dado arrastrando, y cada plato en su bloque: si en la escaleta un arroz está como estación, en el portal también) y, detrás, el banquete por tiempos (entrantes, pescados, carnes, postres), como sale allí. Lo mismo vale para **el catalán y el inglés** del portal y para los **textos con el menú** que se mandan al cliente. Si cambias el orden en la escaleta, el portal lo sigue solo.
+- **La minuta ya seguía la escaleta** (aperitivos y estaciones en su orden de salida y el banquete por tiempos); se ha comprobado que **portal y minuta llevan los platos en el mismo orden**.
+- **Sin pedir que aprueben otra vez lo mismo:** si el cliente **ya aprobó el menú** y lo único que cambia es el orden en que se enseña, el portal se queda como estaba (la aprobación va ligada a lo publicado). Si cambia algún plato, entra el orden de la escaleta y se vuelve a pedir la aprobación, como siempre.
+- **Comprobado** (20 comprobaciones en navegador con servidor real): orden en el portal publicado y en la pantalla del cliente (móvil), reordenar y pasar un plato de aperitivo a estación, traducciones, un evento que no es el abierto (sin escribir nada en él), la minuta, y la aprobación ya hecha.
 
 ### Novedad de la versión 02.36
 - **Avisos por correo de lo que hace el cliente en su portal.** Cuando el cliente **escribe un mensaje, sube un justificante o un documento de identidad, aprueba el menú, la minuta o el contrato, o envía la lista de invitados**, el equipo lo recibe en el correo, con un **botón «Abrir el portal de este evento»** que lleva directo a esa sección del programa (si no habías entrado, te pide la contraseña y te deja ahí).
