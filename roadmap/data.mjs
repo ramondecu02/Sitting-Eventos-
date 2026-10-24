@@ -86,6 +86,7 @@ export const hecho = [
   'Portal del cliente con una foto distinta en la cabecera de cada apartado (Inicio, Pagos, Presupuesto, Invitados, Plano, El día, Aprobar, Documentos y Mensajes): cabecera completa en Inicio y más baja en el resto, fotos de menos de 2 MB en total (800 y 1536 px), texto legible sobre cualquier foto y sin nombres de personas en los archivos · v02.26',
   'Correo de prueba con el remitente de pruebas de Resend: si la dirección no es la de la cuenta, la pantalla ofrece enviar la prueba a la dirección permitida con un clic, y el mensaje de Resend ya no sale cortado · v02.27',
   'Listados reales de utensilios por elaboración, de serie: brasa hamburguesa, chuletón y pulpo (cada una con su montaje completo y sus cantidades), carro de helados, café, copa y puro y buffet de ostras; salen bajo su plato en el check list y se completan a lo ya guardado sin pisarlo · v02.28',
+  'Correo con el dominio propio (eventos@lesmolesevents.app, verificado) y aspecto cuidado también en Outlook de escritorio: botón con su relleno, logo alineado con el título y ancho fijo de 600 px · v02.29',
 ];
 
 export const decisiones = [

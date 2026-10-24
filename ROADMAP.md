@@ -1,6 +1,6 @@
 # Les Moles Events — Roadmap para usar el programa al 100 %
 
-Documento vivo. Última actualización: versión **02.28** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
+Documento vivo. Última actualización: versión **02.29** (octubre 2026). **Todas las fases del roadmap están hechas;** lo que queda depende del restaurante: ver la sección 8.
 Objetivo: que el restaurante gestione **todos** sus eventos con el programa
 (bodas, bautizos, comuniones, comidas de empresa…) sin depender de papel,
 WhatsApp suelto ni Excel.
@@ -37,6 +37,11 @@ WhatsApp suelto ni Excel.
 | **Contrato de Les Moles tal cual su Word** (castellano y català: misma letra, logo, marca de agua, pie, negritas y subrayados), con los datos puestos solos, **editable sobre el propio papel**, cláusulas añadidas por evento y **dos firmantes** · **justificantes de pago** y **documentos de identidad** de los clientes (Recursos → Documentos) | ✅ (falta que el administrador lo marque como «revisado») |
 | **Pedidos a proveedores** por correo, WhatsApp o PDF, con control de recepción | ✅ (falta dar de alta tus proveedores) |
 | **Consultas web**: formulario público con antispam, bandeja, disponibilidad por local y de la consulta al evento con un clic | ✅ (falta activarlo y poner el enlace) |
+
+### Novedad de la versión 02.29
+- **Correo con el dominio propio funcionando** (`eventos@lesmolesevents.app`, verificado en Resend; las respuestas van al buzón general que se ponga en «Aspecto y respuestas»).
+- **El correo se ve bien también en Outlook de escritorio.** Outlook dibuja el correo con el motor de Word, que ignora cosas que Gmail y el móvil sí entienden: el botón «Abrir el enlace» salía sin relleno, el logo pegado al título y el cuerpo a todo el ancho de la ventana. Ahora el botón lleva su relleno en la celda, el logo y «Les Moles · EVENTS» van en dos celdas alineadas y el correo se queda en 600 px. En Gmail y en el móvil se ve igual que antes.
+- **Pendiente del restaurante:** quitar la variable `SESSION_SECRET` de Cloudflare si contiene el texto de un comando (el programa genera por su cuenta una clave aleatoria cuando no existe), y poner la llamada programada de los avisos (cron-job.org, cada hora) cuando se quieran activar los avisos automáticos.
 
 ### Novedad de la versión 02.28
 - **Los listados reales de utensilios de cada elaboración, ya cargados de serie** (los del correo del restaurante): **brasa hamburguesa**, **brasa chuletón**, **brasa pulpo**, **carro de helados**, **café, copa y puro** y **buffet de ostras** (a este se le añadió el molinillo de pimienta que faltaba). Cada elaboración de la brasa es un montaje **completo y distinto** (el pulpo, 6 violines, 3 pinzas pequeñas y la tabla azul; el chuletón, 4 violines, la tabla roja y 2 cuencos de tenedores; la hamburguesa, 4 violines y 2 pinzas, sin cuchillo ni tabla), así que van como reglas **de cada plato** y salen **debajo de su plato** en el check list de servicio, sin mezclarse y sumándose en el total del almacén si se sirven varias. El carro de helados y el café, copa y puro van como «Montaje de la estación». Todo se puede corregir en Parámetros → Platos y escandallo, abriendo el plato.

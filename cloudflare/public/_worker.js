@@ -2216,7 +2216,7 @@ function corEnlazar(raw) {
 }
 function corBoton(u) {
   const etq = /[?&]cliente=/.test(u) ? "Abrir vuestro enlace privado" : "Abrir el enlace";
-  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px"><tr><td align="center" bgcolor="#1f2a24" style="border-radius:6px"><a href="' + corEsc(u) + '" style="display:inline-block;padding:13px 24px;font:600 14px/1 ' + COR_FUENTE + ';color:#ffffff;text-decoration:none;border-radius:6px">' + etq + '</a></td></tr></table>' +
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 4px"><tr><td align="center" bgcolor="#1f2a24" style="border-radius:6px;mso-padding-alt:13px 24px"><a href="' + corEsc(u) + '" style="display:inline-block;padding:13px 24px;font:600 14px/1 ' + COR_FUENTE + ';color:#ffffff;text-decoration:none;border-radius:6px;mso-padding-alt:0">' + etq + '</a></td></tr></table>' +
     '<div style="margin:0 0 16px;font:12px/1.4 ' + COR_FUENTE + ';color:#8b8b8b;word-break:break-all">' + corEsc(u) + "</div>";
 }
 function corHtml(texto, o) {
@@ -2235,15 +2235,19 @@ function corHtml(texto, o) {
   });
   cierra();
   const pre = corEsc(t.replace(/https?:\/\/\S+/g, "").replace(/\s+/g, " ").trim().slice(0, 110));
-  const logo = o.origen && /^https:\/\//.test(o.origen) ? '<img src="' + corEsc(o.origen) + '/icons/icon-192.png" width="38" height="38" alt="" style="border-radius:50%;vertical-align:middle;margin-right:12px;border:0">' : "";
+  const logo = o.origen && /^https:\/\//.test(o.origen) ? '<td valign="middle" width="50" style="width:50px;padding-right:12px"><img src="' + corEsc(o.origen) + '/icons/icon-192.png" width="38" height="38" alt="" style="display:block;border-radius:50%;border:0"></td>' : "";
   return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>' + corEsc(o.subject || "Les Moles Events") + '</title></head>' +
     '<body style="margin:0;padding:0;background:#f3efe6"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">' + pre + '</div>' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3efe6"><tr><td align="center" style="padding:26px 12px">' +
+    /* Outlook de escritorio (motor de Word) no entiende max-width: se le da una tabla fija de 600 con un comentario condicional, que el resto de programas ignora */
+    '<!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->' +
     '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">' +
-    '<tr><td style="padding:0 6px 14px">' + logo + '<span style="vertical-align:middle;font:22px/1 Georgia,\'Times New Roman\',serif;color:#1f2a24">Les Moles</span> <span style="vertical-align:middle;font:600 10px/1 ' + COR_FUENTE + ';letter-spacing:.32em;color:#8a6d3b;margin-left:6px">EVENTS</span></td></tr>' +
-    '<tr><td style="background:#ffffff;border-top:3px solid #b8924a;border-radius:8px;padding:30px 30px 18px">' + partes.join("") + '</td></tr>' +
+    '<tr><td style="padding:0 6px 14px"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>' + logo + '<td valign="middle"><span style="font:22px/1 Georgia,\'Times New Roman\',serif;color:#1f2a24">Les Moles</span> <span style="font:600 10px/1 ' + COR_FUENTE + ';letter-spacing:.32em;color:#8a6d3b;margin-left:6px">EVENTS</span></td></tr></table></td></tr>' +
+    '<tr><td bgcolor="#ffffff" style="background:#ffffff;border-top:3px solid #b8924a;border-radius:8px;padding:30px 30px 18px">' + partes.join("") + '</td></tr>' +
     '<tr><td style="padding:16px 8px 4px;font:12px/1.6 ' + COR_FUENTE + ';color:#8b8b8b">' + corEsc(o.pie || "") + '</td></tr>' +
-    '</table></td></tr></table></body></html>';
+    '</table>' +
+    '<!--[if mso]></td></tr></table><![endif]-->' +
+    '</td></tr></table></body></html>';
 }
 /* direcciones válidas, sin repetir y sin la del destinatario (para la copia oculta) */
 function corLista(l, excepto) {
